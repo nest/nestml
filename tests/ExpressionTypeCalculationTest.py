@@ -78,6 +78,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     A simple test that prints all top-level expression types in a file.
     """
 
+    # TODO: this test needs to be refactored.
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
         model = ModelParser.parseModel(

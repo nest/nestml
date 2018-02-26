@@ -22,6 +22,7 @@ from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.TypeCaster import TypeCaster
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -87,18 +88,5 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                                       _errorPosition=actualTypes[i].getSourcePosition())
                     return
                 if not actual_type.equals(expectedType):
-                    if actual_type.is_castable_to(expectedType):
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
-                                                                             _expectedType=expectedType,
-                                                                             _gotType=actual_type, _castable=True)
-
-                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
-                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-                    else:
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
-                                                                             _expectedType=expectedType,
-                                                                             _gotType=actual_type, _castable=False)
-
-                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
-                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                    TypeCaster.try_to_recover_or_error(expectedType, actual_type, actualTypes[i])
         return

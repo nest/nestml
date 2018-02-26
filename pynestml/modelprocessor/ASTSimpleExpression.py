@@ -296,41 +296,6 @@ class ASTSimpleExpression(ASTExpressionElement):
         self.__functionCall = _functionCall
         return
 
-    def printImplicitVersion(self):
-        """
-        Assemble a string representation of the object, that includes any and all implicit conversions applied to
-        itself and its constituting sub-expressions
-        :return: the implicit representation of the object
-        :rtype: str
-        """
-        ret = ''
-        if self._implicitConversionFactor is not None:
-            ret += str(self.getImplicitConversionFactor()) + ' * ('
-
-        if self.isFunctionCall():
-            ret += str(self.__functionCall)
-        elif self.isBooleanTrue():
-            ret += 'True'
-        elif self.isBooleanFalse():
-            ret += 'False'
-        elif self.isInfLiteral():
-            ret += 'inf'
-        elif self.isNumericLiteral():
-            if self.__variable is not None:
-                ret += str(self.__numericLiteral) + str(self.__variable)
-            else:
-                ret += str(self.__numericLiteral)
-        elif self.isVariable():
-            ret += str(self.__variable)
-        elif self.isString():
-            ret += self.getString()
-        else:
-            raise RuntimeError('Simple expression at %s not specified!' % str(self.getSourcePosition()))
-
-        if self._implicitConversionFactor is not None:
-            ret += ')'
-        return ret
-
     def __str__(self):
         """
         Returns the string representation of the simple expression.

@@ -69,7 +69,7 @@ class Messages(object):
     def get_implicit_magnitude_conversion(cls, _lhs, _rhs, _conversion_factor):
         message = 'Non-matching unit types at %s +/- %s! ' \
                   'Implicitly replaced by %s +/- %s * %s' % (
-                      _lhs, _rhs, _lhs, _conversion_factor, _rhs)
+                      _lhs.print_symbol(), _rhs.print_symbol(), _lhs.print_symbol(), _conversion_factor, _rhs.print_symbol())
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -101,7 +101,7 @@ class Messages(object):
         """
         if not _castable:
             message = str(_argNr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.getValue().print_symbol(),
+                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.print_symbol(),
                                                         _expectedType.print_symbol())
         else:
             message = str(_argNr) + '. argument of function-call \'%s\' is wrongly typed! ' \

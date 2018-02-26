@@ -23,6 +23,7 @@ from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.TypeCaster import TypeCaster
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
@@ -125,9 +126,8 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                         Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
                     elif not type_of_return.equals(_typeSymbol):
-                        code, message = Messages.getTypeDifferentFromExpected(type_of_return, _typeSymbol)
-                        Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
-                                          _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
+                        TypeCaster.try_to_recover_or_error(_typeSymbol, type_of_return,
+                                                           stmt.getReturnStmt().getExpression())
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.isIfStmt():

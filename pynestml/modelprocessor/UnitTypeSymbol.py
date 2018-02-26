@@ -138,25 +138,26 @@ class UnitTypeSymbol(TypeSymbol):
             return self.attempt_magnitude_cast(other)
 
     def attempt_magnitude_cast(self, _other):
-        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if self.differs_only_in_magnitude_or_is_equal_to(_other):
-            result = ErrorTypeSymbol()
             factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, _other.astropy_unit)
+            _other.referenced_object.setImplicitConversionFactor(factor)
             code, message = Messages.get_implicit_magnitude_conversion(self, _other, factor)
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=self.referenced_object.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.WARNING)
-            return result
+            return copy(self)
         else:
             return self.binary_operation_not_defined_error('+/-', _other)
 
+    # TODO: change order of parameters to conform with the from_to scheme.
+    # TODO: Also rename to reflect that, i.e. get_conversion_factor_from_to
     @classmethod
-    def get_conversion_factor(cls, _target_unit, _convertee_unit):
+    def get_conversion_factor(cls, _to, _from):
         """
         Calculates the conversion factor from _convertee_unit to _targe_unit.
         Behaviour is only well-defined if both units have the same physical base type
         """
-        factor = (_convertee_unit / _target_unit).si.scale
+        factor = (_from / _to).si.scale
         return factor
 
     def is_castable_to(self, _other_type):

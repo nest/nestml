@@ -17,14 +17,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.modelprocessor.LoggingHelper import LoggingHelper
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.modelprocessor.TypeCaster import TypeCaster
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.utils.Messages import Messages, MessageCode
+from pynestml.utils.Messages import Messages
 
 
 class CoCoIllegalExpression(CoCo):
@@ -60,22 +62,10 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             lhs_type = _declaration.getDataType().getTypeSymbol()
             rhs_type = _declaration.getExpression().type
             if isinstance(rhs_type, ErrorTypeSymbol):
-                self.__drop_missing_type_error(_declaration)
+                LoggingHelper.drop_missing_type_error(_declaration)
                 return
-            if not lhs_type.equals(rhs_type):
-                if rhs_type.differs_only_in_magnitude_or_is_equal_to(lhs_type):
-                    return
-                if rhs_type.is_castable_to(lhs_type):
-                    code, message = Messages.getImplicitCastRhsToLhs(rhs_type.print_symbol(), lhs_type.print_symbol())
-                    Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-                else:
-                    code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpression(),
-                                                                    _lhsExpression=_declaration.getVariables()[0],
-                                                                    _rhsType=rhs_type,
-                                                                    _lhsType=lhs_type)
-                    Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+            if self.__types_do_not_match(lhs_type, rhs_type):
+                TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, _declaration.getExpression())
         return
 
     def visit_assignment(self, _assignment=None):
@@ -91,82 +81,37 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         return
 
     def handle_complex_assignment(self, _assignment):
-        implicit_rhs_expr = _assignment.deconstructCompoundAssignment()
+        rhs_expr = _assignment.getExpression()
         lhs_variable_symbol = _assignment.resolveLhsVariableSymbol()
-        rhs_type_symbol = implicit_rhs_expr.type
+        rhs_type_symbol = rhs_expr.type
 
         if isinstance(rhs_type_symbol, ErrorTypeSymbol):
-            self.__drop_missing_type_error(_assignment)
+            LoggingHelper.drop_missing_type_error(_assignment)
             return
 
-        if self.__types_do_not_match(lhs_variable_symbol, rhs_type_symbol):
-            self.try_to_recover_or_error(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol)
+        if self.__types_do_not_match(lhs_variable_symbol.getTypeSymbol(), rhs_type_symbol):
+            TypeCaster.try_to_recover_or_error(lhs_variable_symbol.getTypeSymbol(), rhs_type_symbol,
+                                               _assignment.getExpression())
         return
 
-    def try_to_recover_or_error(self, _assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol):
-        if rhs_type_symbol.differs_only_in_magnitude_or_is_equal_to(lhs_variable_symbol.getTypeSymbol()):
-            # TODO: Implement
-            pass
-        elif rhs_type_symbol.is_castable_to(lhs_variable_symbol.getTypeSymbol()):
-            self.__drop_implicit_cast_warning(_assignment, lhs_variable_symbol, rhs_type_symbol)
-        else:
-            self.__drop_incompatible_types_error(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol)
-
     @staticmethod
-    def __drop_incompatible_types_error(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol):
-        code, message = Messages.getDifferentTypeRhsLhs(implicit_rhs_expr,
-                                                        _assignment.getVariable(),
-                                                        rhs_type_symbol,
-                                                        lhs_variable_symbol.getTypeSymbol())
-        Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-
-    @staticmethod
-    def __drop_implicit_cast_warning(_assignment, lhs_variable_symbol, rhs_type_symbol):
-        code, message = Messages.getImplicitCastRhsToLhs(rhs_type_symbol.print_symbol(),
-                                                         lhs_variable_symbol.getTypeSymbol().print_symbol())
-        Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-
-    @staticmethod
-    def __drop_missing_type_error(_assignment):
-        code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
-        Logger.logMessage(_code=code, _message=message, _errorPosition=_assignment.getExpression().getSourcePosition(),
-                          _logLevel=LOGGING_LEVEL.ERROR)
-
-    @staticmethod
-    def __types_do_not_match(lhs_variable_symbol, rhs_type_symbol):
-        return not lhs_variable_symbol.getTypeSymbol().equals(rhs_type_symbol)
+    def __types_do_not_match(_lhs_type_symbol, _rhs_type_symbol):
+        return not _lhs_type_symbol.equals(_rhs_type_symbol)
 
     def handle_simple_assignment(self, _assignment):
-        from pynestml.modelprocessor.ErrorStrings import ErrorStrings
         from pynestml.modelprocessor.Symbol import SymbolKind
         lhs_variable_symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
                                                                      SymbolKind.VARIABLE)
 
         rhs_type_symbol = _assignment.getExpression().type
         if isinstance(rhs_type_symbol, ErrorTypeSymbol):
-            self.__drop_missing_type_error(_assignment)
+            LoggingHelper.drop_missing_type_error(_assignment)
             return
 
-        if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol, rhs_type_symbol):
-            if rhs_type_symbol.differs_only_in_magnitude_or_is_equal_to(lhs_variable_symbol.getTypeSymbol()):
-                # we convert the rhs unit to the magnitude of the lhs unit.
-                _assignment.getExpression().setImplicitConversionFactor(
-                    UnitTypeSymbol.get_conversion_factor(lhs_variable_symbol.getTypeSymbol().astropy_unit,
-                                                         rhs_type_symbol.astropy_unit))
-                _assignment.getExpression().type = lhs_variable_symbol.getTypeSymbol()
-                # warn implicit conversion
-                error_msg = ErrorStrings.messageImplicitMagnitudeConversion(self, _assignment)
-                Logger.logMessage(_code=MessageCode.IMPLICIT_CAST,
-                                  _errorPosition=_assignment.getSourcePosition(),
-                                  _message=error_msg, _logLevel=LOGGING_LEVEL.WARNING)
-            elif rhs_type_symbol.is_castable_to(lhs_variable_symbol.getTypeSymbol()):
-                self.__drop_implicit_cast_warning(_assignment, lhs_variable_symbol,
-                                                  rhs_type_symbol)
-            else:
-                self.__drop_incompatible_types_error(_assignment, _assignment.getExpression(), lhs_variable_symbol,
-                                                     rhs_type_symbol)
+        if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol.getTypeSymbol(),
+                                                                         rhs_type_symbol):
+            TypeCaster.try_to_recover_or_error(lhs_variable_symbol.getTypeSymbol(), rhs_type_symbol,
+                                               _assignment.getExpression())
         return
 
     def visit_if_clause(self, _if_clause=None):

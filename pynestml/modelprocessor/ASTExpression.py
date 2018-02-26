@@ -447,39 +447,6 @@ class ASTExpression(ASTExpressionElement):
                 return self.getIfNot().getParent(_ast)
         return None
 
-    def printImplicitVersion(self):
-        """
-        Assemble a string representation of the object, that includes any and all implicit conversions applied to
-        itself and its constituting sub-expressions
-        :return: the implicit representation of the object
-        :rtype: str
-        """
-        ret = ''
-        if self._implicitConversionFactor is not None:
-            ret += str(self.getImplicitConversionFactor()) + ' * ('
-
-        if self.isExpression():
-            if self.isEncapsulated():
-                ret += '('
-            if self.isLogicalNot():
-                ret += 'not '
-            if self.isUnaryOperator():
-                ret += str(self.getUnaryOperator())
-            ret += self.getExpression().printImplicitVersion()
-            if self.isEncapsulated():
-                ret += ')'
-        elif self.isCompoundExpression():
-            ret += self.getLhs().printImplicitVersion()
-            ret += str(self.getBinaryOperator())
-            ret += self.getRhs().printImplicitVersion()
-        elif self.isTernaryOperator():
-            ret += self.getCondition().printImplicitVersion() + '?' + self.getIfTrue().printImplicitVersion() + ':' \
-                   + self.getIfNot().printImplicitVersion()
-
-        if self._implicitConversionFactor is not None:
-            ret += ')'
-        return ret
-
     def __str__(self):
         """
         Returns the string representation of the expression.
