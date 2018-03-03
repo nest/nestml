@@ -50,7 +50,7 @@ class TypeSymbol(Symbol):
     @abstractmethod
     def __init__(self, _name=None):
         from pynestml.modelprocessor.Symbol import SymbolKind
-        super().__init__(_referenced_object=None, _scope=None,
+        super(TypeSymbol, self).__init__(_referenced_object=None, _scope=None,
                          _name=_name, _symbolKind=SymbolKind.TYPE)
         return
 

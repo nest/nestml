@@ -30,7 +30,7 @@ class IntegerTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super().__init__(_name='integer')
+        super(IntegerTypeSymbol, self).__init__(_name='integer')
 
     def print_symbol(self):
         result = 'integer'

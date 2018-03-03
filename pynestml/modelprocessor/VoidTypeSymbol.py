@@ -28,7 +28,7 @@ class VoidTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super().__init__(_name='void')
+        super(VoidTypeSymbol, self).__init__(_name='void')
 
     def print_symbol(self):
         result = 'void'

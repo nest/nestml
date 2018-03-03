@@ -40,7 +40,7 @@ class UnitTypeSymbol(TypeSymbol):
 
     def __init__(self, _unit):
         self.unit = _unit
-        super().__init__(_name=str(_unit.getUnit()))
+        super(UnitTypeSymbol,self).__init__(_name=str(_unit.getUnit()))
 
     def print_symbol(self):
         result = self.unit.printUnit()
@@ -52,7 +52,7 @@ class UnitTypeSymbol(TypeSymbol):
         return 'double'
 
     def equals(self, _other=None):
-        basic_equals = super().equals(_other)
+        basic_equals = super(UnitTypeSymbol,self).equals(_other)
         # defer comparison of units to sympy library
         if basic_equals is True:
             self_unit = self.astropy_unit

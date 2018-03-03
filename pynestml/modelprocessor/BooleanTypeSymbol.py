@@ -30,7 +30,7 @@ class BooleanTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super().__init__(_name='boolean')
+        super(BooleanTypeSymbol, self).__init__(_name='boolean')
 
     def print_symbol(self):
         result = 'boolean'

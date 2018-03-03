@@ -47,7 +47,7 @@ class ErrorTypeSymbol(TypeSymbol):
         return False
 
     def __init__(self):
-        super().__init__(_name='error')
+        super(ErrorTypeSymbol, self).__init__(_name='error')
 
     def _get_concrete_nest_type(self):
         return 'ERROR'

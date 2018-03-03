@@ -34,7 +34,7 @@ class ASTExpressionElement(ASTElement):
     __metaclass__ = ABCMeta
 
     def __init__(self, _sourcePosition=None, _scope=None):
-        super().__init__(_sourcePosition, _scope)
+        super(ASTExpressionElement, self).__init__(_sourcePosition, _scope)
 
     @abstractmethod
     def equals(self, _other=None):

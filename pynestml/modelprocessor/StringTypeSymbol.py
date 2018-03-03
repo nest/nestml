@@ -30,7 +30,7 @@ class StringTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super().__init__(_name='string')
+        super(StringTypeSymbol, self).__init__(_name='string')
 
     def print_symbol(self):
         result = 'string'

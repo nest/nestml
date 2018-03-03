@@ -30,7 +30,7 @@ class NESTTimeTypeSymbol(TypeSymbol):
         return False
 
     def __init__(self, _name=None):
-        super().__init__(_name='time')
+        super(NESTTimeTypeSymbol, self).__init__(_name='time')
 
     def print_symbol(self):
         result = 'time'

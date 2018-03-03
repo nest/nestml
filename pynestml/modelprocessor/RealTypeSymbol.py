@@ -30,7 +30,7 @@ class RealTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super().__init__(_name='real')
+        super(RealTypeSymbol, self).__init__(_name='real')
 
     def print_symbol(self):
         result = 'real'

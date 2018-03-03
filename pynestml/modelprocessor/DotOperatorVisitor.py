@@ -21,9 +21,10 @@
 """
 expression : left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
 """
-
+from __future__ import division
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+
 
 class DotOperatorVisitor(NESTMLVisitor):
     """
@@ -36,20 +37,20 @@ class DotOperatorVisitor(NESTMLVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
-        lhsType = _expr.getLhs().type
-        rhsType = _expr.getRhs().type
+        lhs_type = _expr.getLhs().type
+        rhs_type = _expr.getRhs().type
 
-        arithOp = _expr.getBinaryOperator()
+        arith_op = _expr.getBinaryOperator()
 
-        lhsType.referenced_object = _expr.getLhs()
-        rhsType.referenced_object = _expr.getRhs()
+        lhs_type.referenced_object = _expr.getLhs()
+        rhs_type.referenced_object = _expr.getRhs()
 
-        if arithOp.isModuloOp():
-            _expr.type = lhsType % rhsType
+        if arith_op.isModuloOp():
+            _expr.type = lhs_type % rhs_type
             return
-        if arithOp.isDivOp():
-            _expr.type = lhsType / rhsType
+        if arith_op.isDivOp():
+            _expr.type = lhs_type / rhs_type
             return
-        if arithOp.isTimesOp():
-            _expr.type = lhsType * rhsType
+        if arith_op.isTimesOp():
+            _expr.type = lhs_type * rhs_type
             return

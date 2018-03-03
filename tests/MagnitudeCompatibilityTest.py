@@ -68,7 +68,7 @@ class MagnitudeCompatibilityTest(unittest.TestCase):
         #Logger.setCurrentNeuron(model.getNeuronList()[0])
         ExpressionTestVisitor().handle(model)
         #Logger.setCurrentNeuron(None)
-        #assert (len(Logger.getAll°MessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        #assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 if __name__ == '__main__':
