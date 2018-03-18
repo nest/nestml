@@ -42,5 +42,5 @@ class ParenthesesVisitor(NESTMLVisitor):
 
         inner_type.referenced_object = _expr.getExpression()
 
-        _expr.type = copy(inner_type)
+        _expr.type = inner_type
         return

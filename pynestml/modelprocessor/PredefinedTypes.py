@@ -17,12 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
+
 from astropy.units.core import CompositeUnit
 from astropy.units.quantity import Quantity
 
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.modelprocessor.TypeDictionary import TypeDictionary
 from pynestml.modelprocessor.UnitType import UnitType
-from copy import copy
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class PredefinedTypes(object):
@@ -37,7 +39,8 @@ class PredefinedTypes(object):
         __STRING_TYPE   The identifier of the type 'string'. Type: str
         __INTEGER_TYPE  The identifier of the type 'integer'. Type: str
     """
-    __name2type = {}
+
+    __name2type = TypeDictionary()
     __REAL_TYPE = 'real'
     __VOID_TYPE = 'void'
     __BOOLEAN_TYPE = 'boolean'
@@ -50,7 +53,7 @@ class PredefinedTypes(object):
         Adds a set of primitive and unit data types to the set of predefined types. It assures that those types are
         valid and can be used.
         """
-        cls.__name2type = {}
+        cls.__name2type = TypeDictionary()
         cls.__registerUnits()
         cls.__registerReal()
         cls.__registerVoid()
@@ -129,7 +132,7 @@ class PredefinedTypes(object):
         :return: a copy of a list of all predefined types.
         :rtype: copy(list(TypeSymbol)
         """
-        return copy(cls.__name2type)
+        return cls.__name2type
 
     @classmethod
     def getType(cls, _name=None):
@@ -187,7 +190,7 @@ class PredefinedTypes(object):
             result = cls.getTypeIfExists(str(_name.unit))
             return result
         if _name in cls.__name2type:
-            result = copy(cls.__name2type[_name])
+            result = cls.__name2type[_name]
             return result
         else:
             return
@@ -199,7 +202,7 @@ class PredefinedTypes(object):
         :return: a real symbol.
         :rtype: TypeSymbol
         """
-        return copy(cls.__name2type[cls.__REAL_TYPE])
+        return cls.__name2type[cls.__REAL_TYPE]
 
     @classmethod
     def getVoidType(cls):
@@ -208,7 +211,7 @@ class PredefinedTypes(object):
         :return: a void symbol.
         :rtype: TypeSymbol
         """
-        return copy(cls.__name2type[cls.__VOID_TYPE])
+        return cls.__name2type[cls.__VOID_TYPE]
 
     @classmethod
     def getBooleanType(cls):
@@ -217,7 +220,7 @@ class PredefinedTypes(object):
         :return: a boolean symbol.
         :rtype: TypeSymbol
         """
-        return copy(cls.__name2type[cls.__BOOLEAN_TYPE])
+        return cls.__name2type[cls.__BOOLEAN_TYPE]
 
     @classmethod
     def getStringType(cls):
@@ -226,7 +229,7 @@ class PredefinedTypes(object):
         :return: a new string symbol.
         :rtype: TypeSymbol 
         """
-        return copy(cls.__name2type[cls.__STRING_TYPE])
+        return cls.__name2type[cls.__STRING_TYPE]
 
     @classmethod
     def getIntegerType(cls):
@@ -235,7 +238,7 @@ class PredefinedTypes(object):
         :return: a new integer symbol.
         :rtype: TypeSymbol
         """
-        return copy(cls.__name2type[cls.__INTEGER_TYPE])
+        return cls.__name2type[cls.__INTEGER_TYPE]
 
     @classmethod
     def registerType(cls, _symbol=None):

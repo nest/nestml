@@ -46,11 +46,11 @@ class RealTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
-            return copy(other)
+            return other
         if other.isNumericPrimitive():
-            return copy(self)
+            return self
         return self.binary_operation_not_defined_error('*', other)
 
     def __truediv__(self, other):
@@ -58,18 +58,18 @@ class RealTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.inverse_of_unit(other)
         if other.isNumericPrimitive():
-            return copy(self)
+            return self
         return self.binary_operation_not_defined_error('/', other)
 
     def __neg__(self):
-        return copy(self)
+        return self
 
     def __pos__(self):
-        return copy(self)
+        return self
 
     def __invert__(self):
         return self.unary_operation_not_defined_error('~')
@@ -78,9 +78,9 @@ class RealTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 
         if power.is_instance_of(ErrorTypeSymbol):
-            return copy(power)
+            return power
         if power.isNumericPrimitive():
-            return copy(self)
+            return self
         return self.binary_operation_not_defined_error('**', power)
 
     def __add__(self, other):
@@ -88,11 +88,11 @@ class RealTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(StringTypeSymbol):
-            return copy(other)
+            return other
         if other.isNumericPrimitive():
-            return copy(self)
+            return self
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(self, other)
         return self.binary_operation_not_defined_error('+', other)
@@ -102,9 +102,9 @@ class RealTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.isNumericPrimitive():
-            return copy(self)
+            return self
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(self, other)
         return self.binary_operation_not_defined_error('-', other)

@@ -45,9 +45,9 @@ class StringTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if not other.is_instance_of(VoidTypeSymbol):
-            return copy(self)
+            return self
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):

@@ -34,7 +34,7 @@ class TypeCaster(object):
         _containing_expression.setImplicitConversionFactor(
             UnitTypeSymbol.get_conversion_factor(_lhs_type_symbol.astropy_unit,
                                                  _rhs_type_symbol.astropy_unit))
-        _containing_expression.type = copy(_lhs_type_symbol)
+        _containing_expression.type = _lhs_type_symbol
 
         code, message = Messages.get_implicit_magnitude_conversion(_lhs_type_symbol, _rhs_type_symbol,
                                                                    _containing_expression.getImplicitConversionFactor())

@@ -65,11 +65,11 @@ class UnitTypeSymbol(TypeSymbol):
     def __mul__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.multiply_by(other)
         if other.isNumericPrimitive():
-            return copy(self)
+            return self
         return self.binary_operation_not_defined_error('*', other)
 
     def multiply_by(self, other):
@@ -78,21 +78,21 @@ class UnitTypeSymbol(TypeSymbol):
     def __truediv__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.divide_by(other)
         if other.isNumericPrimitive():
-            return copy(self)
+            return self
         return self.binary_operation_not_defined_error('*', other)
 
     def divide_by(self, other):
         return PredefinedTypes.getTypeIfExists(self.astropy_unit / other.astropy_unit)
 
     def __neg__(self):
-        return copy(self)
+        return self
 
     def __pos__(self):
-        return copy(self)
+        return self
 
     def __invert__(self):
         return self.unary_operation_not_defined_error('~')
@@ -100,7 +100,7 @@ class UnitTypeSymbol(TypeSymbol):
     def __pow__(self, power, modulo=None):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
-            return copy(power)
+            return power
         if isinstance(power, int):
             return self.to_the_power_of(power)
         return self.binary_operation_not_defined_error('**', power)
@@ -112,9 +112,9 @@ class UnitTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(StringTypeSymbol):
-            return copy(other)
+            return other
         if other.isNumericPrimitive():
             return self.warn_implicit_cast_from_to(other, self)
         if other.is_instance_of(UnitTypeSymbol):
@@ -124,7 +124,7 @@ class UnitTypeSymbol(TypeSymbol):
     def __sub__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.isNumericPrimitive():
             return self.warn_implicit_cast_from_to(other, self)
         if other.is_instance_of(UnitTypeSymbol):
@@ -133,7 +133,7 @@ class UnitTypeSymbol(TypeSymbol):
 
     def add_or_sub_another_unit(self, other):
         if self.equals(other):
-            return copy(other)
+            return other
         else:
             return self.attempt_magnitude_cast(other)
 
@@ -145,7 +145,7 @@ class UnitTypeSymbol(TypeSymbol):
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=self.referenced_object.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.WARNING)
-            return copy(self)
+            return self
         else:
             return self.binary_operation_not_defined_error('+/-', _other)
 

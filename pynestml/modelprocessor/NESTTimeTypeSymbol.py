@@ -44,7 +44,7 @@ class NESTTimeTypeSymbol(TypeSymbol):
     def __add__(self, other):
         from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
         if other.is_instance_of(StringTypeSymbol):
-            return copy(other)
+            return other
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):

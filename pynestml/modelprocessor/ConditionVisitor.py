@@ -64,7 +64,7 @@ class ConditionVisitor(NESTMLVisitor):
 
         # Alternatives match exactly -> any is valid
         if if_true.equals(if_not):
-            _expr.type = copy(if_true)
+            _expr.type = if_true
             return
 
         # Both are units but not matching-> real WARN
@@ -89,7 +89,7 @@ class ConditionVisitor(NESTMLVisitor):
                 unit_type = if_not
             error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
                                                             _expr.getSourcePosition())
-            _expr.type = copy(unit_type)
+            _expr.type = unit_type
             Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _errorPosition=_expr.getIfTrue().getSourcePosition(),

@@ -53,34 +53,34 @@ class ErrorTypeSymbol(TypeSymbol):
         return 'ERROR'
 
     def __mul__(self, other):
-        return copy(self)
+        return self
 
     def __mod__(self, other):
-        return copy(self)
+        return self
 
     def __truediv__(self, other):
-        return copy(self)
+        return self
 
     def __neg__(self):
-        return copy(self)
+        return self
 
     def __pos__(self):
-        return copy(self)
+        return self
 
     def __invert__(self):
-        return copy(self)
+        return self
 
     def __pow__(self, power, modulo=None):
-        return copy(self)
+        return self
 
     def negate(self):
-        return copy(self)
+        return self
 
     def __add__(self, other):
-        return copy(self)
+        return self
 
     def __sub__(self, other):
-        return copy(self)
+        return self
 
     def is_castable_to(self, _other_type):
         return False

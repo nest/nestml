@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
+from copy import copy
 
 from pynestml.modelprocessor.ASTElement import ASTElement
 from pynestml.modelprocessor.Either import Either
@@ -53,7 +54,7 @@ class ASTExpressionElement(ASTElement):
         from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
         if self.__type is None:
             self.accept(ExpressionTypeVisitor())
-        return self.__type
+        return copy(self.__type)
 
     @type.setter
     def type(self, _value):

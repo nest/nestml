@@ -110,19 +110,19 @@ class TypeSymbol(Symbol):
     def __mul__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         self.binary_operation_not_defined_error('*', other)
 
     def __mod__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         self.binary_operation_not_defined_error('%', other)
 
     def __truediv__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         self.binary_operation_not_defined_error('/', other)
 
     def __neg__(self):
@@ -137,7 +137,7 @@ class TypeSymbol(Symbol):
     def __pow__(self, power, modulo=None):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
-            return copy(power)
+            return power
         self.binary_operation_not_defined_error('**', power)
 
     def negate(self):
@@ -146,13 +146,13 @@ class TypeSymbol(Symbol):
     def __add__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         self.binary_operation_not_defined_error('+', other)
 
     def __sub__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         self.binary_operation_not_defined_error('-', other)
 
     def isNumericPrimitive(self):
@@ -250,4 +250,4 @@ class TypeSymbol(Symbol):
         code, message = Messages.getImplicitCastRhsToLhs(_to.print_symbol(), _from.print_symbol())
         Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
                           _logLevel=LOGGING_LEVEL.WARNING)
-        return copy(_to)
+        return _to

@@ -45,18 +45,18 @@ class IntegerTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.isNumeric():
-            return copy(other)
+            return other
         return self.binary_operation_not_defined_error('*', other)
 
     def __mod__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(IntegerTypeSymbol):
-            return copy(other)
+            return other
         return self.binary_operation_not_defined_error('%', other)
 
     def __truediv__(self, other):
@@ -64,32 +64,32 @@ class IntegerTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.inverse_of_unit(other)
         if other.isNumericPrimitive():
-            return copy(other)
+            return other
         return self.binary_operation_not_defined_error('/', other)
 
     def __neg__(self):
-        return copy(self)
+        return self
 
     def __pos__(self):
-        return copy(self)
+        return self
 
     def __invert__(self):
-        return copy(self)
+        return self
 
     def __pow__(self, power, modulo=None):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
 
         if power.is_instance_of(ErrorTypeSymbol):
-            return copy(power)
+            return power
         if power.is_instance_of(IntegerTypeSymbol):
-            return copy(self)
+            return self
         if power.is_instance_of(RealTypeSymbol):
-            return copy(power)
+            return power
         return self.binary_operation_not_defined_error('**', power)
 
     def __add__(self, other):
@@ -98,13 +98,13 @@ class IntegerTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(StringTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(IntegerTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(RealTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(other, self)
         return self.binary_operation_not_defined_error('+', other)
@@ -114,11 +114,11 @@ class IntegerTypeSymbol(TypeSymbol):
         from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
         from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(IntegerTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(RealTypeSymbol):
-            return copy(other)
+            return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(self, other)
         return self.binary_operation_not_defined_error('-', other)
