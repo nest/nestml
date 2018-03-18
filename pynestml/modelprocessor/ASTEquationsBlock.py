@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
 from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
 from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
 
 
-class ASTEquationsBlock(ASTElement):
+class ASTEquationsBlock(ASTNode):
     """
     This class is used to store an equations block.
     ASTEquationsBlock a special function definition:

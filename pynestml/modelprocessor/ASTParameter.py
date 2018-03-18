@@ -19,11 +19,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
 
 
-class ASTParameter(ASTElement):
+class ASTParameter(ASTNode):
     """
     This class is used to store a single function parameter definition.
     ASTParameter represents singe:

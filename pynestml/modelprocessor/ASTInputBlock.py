@@ -18,11 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTInputLine import ASTInputLine
 
 
-class ASTInputBlock(ASTElement):
+class ASTInputBlock(ASTNode):
     """
     This class is used to store blocks of input definitions.
     ASTInputBlock represents the input block:

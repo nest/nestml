@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBody(ASTElement):
+class ASTBody(ASTNode):
     """
     This class is used to store the body of a neuron, an object containing all the definitions.
     ASTBody The body of the neuron, e.g. internal, state, parameter...

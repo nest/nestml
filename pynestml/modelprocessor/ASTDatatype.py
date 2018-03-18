@@ -20,10 +20,10 @@
 from copy import copy
 
 from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTDatatype(ASTElement):
+class ASTDatatype(ASTNode):
     """
     A datatype class as used to store a datatype of an element.
     ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit

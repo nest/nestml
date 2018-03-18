@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTExpressionElement import ASTExpressionElement
+from pynestml.modelprocessor.ASTExpressionElement import ASTExpressionNode
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.ASTVariable import ASTVariable
 from pynestml.modelprocessor.Either import Either
 
 
-class ASTSimpleExpression(ASTExpressionElement):
+class ASTSimpleExpression(ASTExpressionNode):
     """
     This class is used to store a simple expression, e.g. +42mV.
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.

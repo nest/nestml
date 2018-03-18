@@ -19,11 +19,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class ASTReturnStmt(ASTElement):
+class ASTReturnStmt(ASTNode):
     """
     This class is used to store a return statement.
         A ReturnStmt Models the return statement in a function.

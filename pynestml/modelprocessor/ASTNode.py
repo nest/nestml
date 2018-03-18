@@ -1,5 +1,5 @@
 #
-# ASTElement.py
+# ASTNode.py
 #
 # This file is part of NEST.
 #
@@ -22,7 +22,7 @@ from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.Scope import Scope
 
 
-class ASTElement(object):
+class ASTNode(object):
     """
     This class is not a part of the grammar but is used to store commonalities of all possible ast classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.

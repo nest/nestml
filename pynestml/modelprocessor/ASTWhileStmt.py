@@ -20,11 +20,11 @@
 
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTBlock import ASTBlock
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class ASTWhileStmt(ASTElement):
+class ASTWhileStmt(ASTNode):
     """
     This class is used to store a new while-block.
     Grammar:

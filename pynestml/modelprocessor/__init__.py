@@ -13,7 +13,7 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'PredefinedTypes', 'ASTDatatype', 'ASTOdeShape', 'CoCoEachBlockUniqueAndDefined',
            'ComparisonOperatorVisitor',
            'PredefinedUnits', 'ASTDeclaration', 'ASTOutputBlock', 'CoCoEquationsOnlyForInitValues', 'ConditionVisitor',
-           'PredefinedVariables', 'ASTElement', 'ASTParameter', 'CoCoFunctionCallsConsistent', 'DotOperatorVisitor',
+           'PredefinedVariables', 'ASTNode.py', 'ASTParameter', 'CoCoFunctionCallsConsistent', 'DotOperatorVisitor',
            'Scope', 'ASTElifClause', 'ASTReturnStmt', 'CoCoFunctionHaveRhs', 'Either', 'StringLiteralVisitor',
            'ASTElseClause', 'ASTSimpleExpression', 'CoCoFunctionMaxOneLhs', 'ErrorStrings', 'Symbol',
            'ASTEquationsBlock', 'ASTSmallStmt', 'CoCoFunctionUnique', 'ExpressionTypeVisitor', 'SymbolTable',

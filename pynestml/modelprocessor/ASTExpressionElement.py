@@ -20,12 +20,12 @@
 from abc import ABCMeta, abstractmethod
 from copy import copy
 
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
-class ASTExpressionElement(ASTElement):
+class ASTExpressionNode(ASTNode):
     """
     This class is not a part of the grammar but is used to store commonalities of all possible ast classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.
@@ -35,7 +35,7 @@ class ASTExpressionElement(ASTElement):
     __metaclass__ = ABCMeta
 
     def __init__(self, _sourcePosition=None, _scope=None):
-        super(ASTExpressionElement, self).__init__(_sourcePosition, _scope)
+        super(ASTExpressionNode, self).__init__(_sourcePosition, _scope)
 
     @abstractmethod
     def equals(self, _other=None):

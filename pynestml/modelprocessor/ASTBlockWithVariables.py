@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBlockWithVariables(ASTElement):
+class ASTBlockWithVariables(ASTNode):
     """
     This class is used to store a block of variable declarations.
     ASTBlockWithVariables.py represent a block with variables, e.g.:

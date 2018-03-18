@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTArithmeticOperator(ASTElement):
+class ASTArithmeticOperator(ASTNode):
     """
     This class is used to store a single arithmetic operator, e.g. +.
     No grammar. This part is defined outside the grammar to make processing and storing of models easier and 

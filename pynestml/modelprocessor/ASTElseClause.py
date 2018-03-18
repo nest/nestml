@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTElement import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTBlock import ASTBlock
 
 
-class ASTElseClause(ASTElement):
+class ASTElseClause(ASTNode):
     """
     This class is used to store a single else-clause.
     Grammar:
