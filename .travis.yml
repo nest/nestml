@@ -7,15 +7,16 @@ python:
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - sudo python setup.py install
+  - sudo python setup.py install --user
 
 install:
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
 
-sudo: true
+sudo: false
 
 script:
+  - 'if [[ ! $TRAVIS_PYTHON_VERSION < 3.0 ]]; then mypy pynestml/ --ignore-missing-imports --follow-imports=silent;fi'
   - python tests/LexerParserTest.py
   - python tests/SpecialBlockParserBuilderTest.py
   - python tests/ExpressionParserTest.py
