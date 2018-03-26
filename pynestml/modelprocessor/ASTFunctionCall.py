@@ -60,21 +60,6 @@ class ASTFunctionCall(ASTNode):
         self.__args = _args
         return
 
-    @classmethod
-    def makeASTFunctionCall(cls, _calleeName=None, _args=None, _sourcePosition=None):
-        """
-        Factory method of the ASTFunctionCall class.
-        :param _calleeName: the name of the function which is called.
-        :type _calleeName: str
-        :param _args: (Optional) List of arguments
-        :type _args: list(ASTExpression)
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTFunctionCall object.
-        :rtype: ASTFunctionCall
-        """
-        return cls(_calleeName, _args, _sourcePosition)
-
     def getName(self):
         """
         Returns the name of the called function.

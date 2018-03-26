@@ -72,27 +72,6 @@ class ASTForStmt(ASTNode):
         self.__variable = _variable
         return
 
-    @classmethod
-    def makeASTForStmt(cls, _variable=None, _from=None, _to=None, _step=0, _block=None, _sourcePosition=None):
-        """
-        The factory method of the ASTForStmt class.
-        :param _variable: the step variable used for iteration.
-        :type _variable: str
-        :param _from: left bound of the range, i.e., start value.
-        :type _from: ASTExpression
-        :param _to: right bound of the range, i.e., finish value.
-        :type _to: ASTExpression
-        :param _step: the length of a single step.
-        :type _step: float
-        :param _block: a block of statements.
-        :type _block: ASTBlock 
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTForStmt object.
-        :rtype: ASTForStmt
-        """
-        return cls(_variable, _from, _to, _step, _block, _sourcePosition)
-
     def getVariable(self):
         """
         Returns the name of the step variable.

@@ -64,23 +64,6 @@ class ASTIfStmt(ASTNode):
         self.__elifClauses = _elifClauses
         return
 
-    @classmethod
-    def makeASTIfStmt(cls, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
-        """
-        The factory method of the ASTIfStmt class.
-        :param _ifClause: the if clause
-        :type _ifClause: ASTIfClause
-        :param _elifClauses: (optional) list of elif clauses
-        :type _elifClauses: list(ASTElifClause)
-        :param _elseClause: (optional) else clause
-        :type _elseClause: ASTElseClause
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTIfStmt object
-        :rtype: ASTIfStmt
-        """
-        return cls(_ifClause, _elifClauses, _elseClause, _sourcePosition)
-
     def getIfClause(self):
         """
         Returns the if-clause.

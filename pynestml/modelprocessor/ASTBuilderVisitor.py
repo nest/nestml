@@ -178,16 +178,16 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         # finally construct the corresponding expression
         from pynestml.modelprocessor.ASTExpression import ASTExpression
         if expression is not None:
-            return ASTExpression.makeExpression(_isEncapsulated=isEncapsulated,
-                                                _isLogicalNot=isLogicalNot,
-                                                _unaryOperator=unaryOperator,
-                                                _expression=expression, _sourcePosition=sourcePos)
+            return ASTNodeFactory.create_ast_expression(is_encapsulated=isEncapsulated,
+                                                        is_logical_not=isLogicalNot,
+                                                        unary_operator=unaryOperator,
+                                                        expression=expression, source_position=sourcePos)
         elif (lhs is not None) and (rhs is not None) and (binaryOperator is not None):
-            return ASTExpression.makeCompoundExpression(_lhs=lhs, _binaryOperator=binaryOperator,
-                                                        _rhs=rhs, _sourcePosition=sourcePos)
+            return ASTNodeFactory.create_ast_compound_expression(lhs=lhs, binary_operator=binaryOperator,
+                                                                 rhs=rhs, source_position=sourcePos)
         elif (condition is not None) and (ifTrue is not None) and (ifNot is not None):
-            return ASTExpression.makeTernaryExpression(_condition=condition, _ifTrue=ifTrue,
-                                                       _ifNot=ifNot, _sourcePosition=sourcePos)
+            return ASTNodeFactory.create_ast_ternary_expression(condition=condition, if_true=ifTrue,
+                                                                if_not=ifNot, source_position=sourcePos)
         else:
             raise RuntimeError('Type of expression @%s,%s not recognized!' % (ctx.start.line, ctx.start.column))
 
@@ -301,9 +301,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        return ASTFunctionCall.makeASTFunctionCall(_calleeName=name, _args=args,
-                                                   _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_function_call(callee_name=name, args=args, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):
@@ -453,9 +451,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTIfStmt import ASTIfStmt
-        return ASTIfStmt.makeASTIfStmt(_ifClause=ifClause, _elifClauses=elifClauses,
-                                       _elseClause=elseClause, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_if_stmt(if_clause=ifClause, elif_clauses=elifClauses,
+                                                 else_clause=elseClause, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#ifClause.
     def visitIfClause(self, ctx):
@@ -465,8 +462,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTIfClause import ASTIfClause
-        return ASTIfClause.makeASTIfClause(_condition=condition, _block=block, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_if_clause(condition=condition, block=block, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#elifClause.
     def visitElifClause(self, ctx):
@@ -476,9 +472,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTElifClause import ASTElifClause
-        return ASTElifClause.makeASTElifClause(_condition=condition, _block=block,
-                                               _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_elif_clause(condition=condition, block=block, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#elseClause.
     def visitElseClause(self, ctx):
@@ -487,8 +481,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTElseClause import ASTElseClause
-        return ASTElseClause.makeASTElseClause(_block=block, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_else_clause(block=block, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#forStmt.
     def visitForStmt(self, ctx):
@@ -502,8 +495,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.modelprocessor.ASTForStmt import ASTForStmt
-        return ASTForStmt.makeASTForStmt(_variable=variable, _from=From, _to=to, _step=step,
-                                         _block=block, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=From, end_at=to, step=step,
+                                                  block=block, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#whileStmt.
     def visitWhileStmt(self, ctx):
@@ -648,9 +641,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
-        ret = ASTEquationsBlock.makeASTEquationsBlock(_declarations=ordered,
-                                                      _sourcePosition=sourcePos)
+        ret = ASTNodeFactory.create_ast_equations_block(declarations=ordered,
+                                                        source_position=sourcePos)
         ret.setComment(self.__comments.visit(ctx))
         return ret
 
@@ -742,9 +734,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTFunction import ASTFunction
-        return ASTFunction.makeASTFunction(_name=name, _parameters=parameters, _block=block,
-                                           _returnType=returnType, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_function(name=name, parameters=parameters, block=block,
+                                                  return_type=returnType, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#parameter.
     def visitParameter(self, ctx):

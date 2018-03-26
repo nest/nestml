@@ -36,6 +36,15 @@ from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
 from pynestml.modelprocessor.ASTForStmt import ASTForStmt
 from pynestml.modelprocessor.ASTUnitType import ASTUnitType
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTElifClause import ASTElifClause
+from pynestml.modelprocessor.ASTElseClause import ASTElseClause
+from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.modelprocessor.ASTParameter import ASTParameter
+from pynestml.modelprocessor.ASTFunction import ASTFunction
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTIfClause import ASTIfClause
 
 
 class ASTNodeFactory(object):
@@ -77,7 +86,7 @@ class ASTNodeFactory(object):
                                      source_position)
 
     @classmethod
-    def create_ast_body(cls, body_elements=list(), source_position=None):
+    def create_ast_body(cls, body_elements, source_position):
         # type: (list,ASTSourcePosition) -> ASTBody
         return ASTBody(body_elements, source_position)
 
@@ -88,7 +97,7 @@ class ASTNodeFactory(object):
         return ASTComparisonOperator(is_lt, is_le, is_eq, is_ne, is_ne2, is_ge, is_gt, source_position)
 
     @classmethod
-    def create_ast_compound_stmt(cls, if_stmt=None, while_stmt=None, for_stmt=None, source_position=None):
+    def create_ast_compound_stmt(cls, if_stmt, while_stmt, for_stmt, source_position):
         # type: (ASTIfStmt,ASTWhileStmt,ASTForStmt,ASTSourcePosition) -> ASTCompoundStmt
         return ASTCompoundStmt(if_stmt, while_stmt, for_stmt, source_position)
 
@@ -100,7 +109,79 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_declaration(cls, is_recordable=False, is_function=False, variables=list(), data_type=None,
-                           size_parameter=None, expression=None, invariant=None, source_position=None):
+                               size_parameter=None, expression=None, invariant=None, source_position=None):
         # type: (bool,bool,list,ASTDatatype,str,ASTExpression|ASTSimpleExpression,ASTExpression|ASTSimpleExpression,ASTSourcePosition) -> ASTDeclaration
         return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
                               source_position)
+
+    @classmethod
+    def create_ast_elif_clause(cls, condition, block, source_position=None):
+        # type: (ASTExpression|ASTSimpleExpression,ASTBlock,ASTSourcePosition) -> ASTElifClause
+        return ASTElifClause(condition, block, source_position)
+
+    @classmethod
+    def create_ast_else_clause(cls, block, source_position):
+        # type: (ASTBlock,ASTSourcePosition) -> ASTElseClause
+        return ASTElseClause(block, source_position)
+
+    @classmethod
+    def create_ast_equations_block(cls, declarations=None, source_position=None):
+        # type: (ASTBlock,ASTSourcePosition) -> ASTEquationsBlock
+        return ASTEquationsBlock(declarations, source_position)
+
+    @classmethod
+    def create_ast_expression(cls, is_encapsulated=False, unary_operator=None,
+                              is_logical_not=False, expression=None, source_position=None):
+        # type: (bool,ASTUnaryOperator,bool,ASTExpression|ASTSimpleExpression,ASTSourcePosition) -> ASTExpression
+        """
+        The factory method used to create expression which are either encapsulated in parentheses (e.g., (10mV))
+        OR have a unary (e.g., ~bitVar), OR are negated (e.g., not logVar), or are simple expression (e.g., 10mV).
+        """
+        return ASTExpression(is_encapsulated=is_encapsulated, unary_operator=unary_operator,
+                             is_logical_not=is_logical_not, expression=expression, source_position=source_position)
+
+    @classmethod
+    def create_ast_compound_expression(cls, lhs=None, binary_operator=None, rhs=None, source_position=None):
+        # type: ((ASTExpression|ASTSimpleExpression),(ASTLogicalOperator|ASTBitOperator|ASTComparisonOperator|ASTArithmeticOperator),(ASTSimpleExpression,ASTExpression),ASTSourcePosition)->ASTExpression
+        """
+        The factory method used to create compound expressions, e.g. 10mV + V_m.
+        """
+        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator) or
+                                                 isinstance(binary_operator, ASTComparisonOperator) or
+                                                 isinstance(binary_operator, ASTLogicalOperator) or
+                                                 isinstance(binary_operator, ASTArithmeticOperator))), \
+            '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(binary_operator)
+        return ASTExpression(lhs=lhs, binary_operator=binary_operator, rhs=rhs, source_position=source_position)
+
+    @classmethod
+    def create_ast_ternary_expression(cls, condition=None, if_true=None, if_not=None, source_position=None):
+        # type: (ASTExpression|ASTSimpleExpression,ASTExpression|ASTSimpleExpression,ASTExpression|ASTSimpleExpression,ASTSourcePosition) -> ASTExpression
+        """
+        The factory method used to create a ternary operator expression, e.g., 10mV<V_m?10mV:V_m
+        """
+        return ASTExpression(condition=condition, if_true=if_true, if_not=if_not, source_position=source_position)
+
+    @classmethod
+    def create_ast_for_stmt(cls, variable, start_from, end_at, step=0, block=None, source_position=None):
+        # type: (str,ASTSimpleExpression|ASTExpression,ASTSimpleExpression|ASTExpression,float,ASTBlock,ASTSourcePosition) -> ASTForStmt
+        return ASTForStmt(variable, start_from, end_at, step, block, source_position)
+
+    @classmethod
+    def create_ast_function(cls, name, parameters, return_type, block, source_position):
+        # type: (str,(None|list(ASTParameter)),(ASTDatatype|None),ASTBlock,ASTSourcePosition) -> ASTFunction
+        return ASTFunction(name, parameters, return_type, block, source_position)
+
+    @classmethod
+    def create_ast_function_call(cls, callee_name, args, source_position):
+        # type: (str,(None|list(ASTExpression|ASTSimpleExpression)),ASTSourcePosition) -> ASTFunctionCall
+        return ASTFunctionCall(callee_name, args, source_position)
+
+    @classmethod
+    def create_ast_if_clause(cls, condition, block, source_position):
+        # type: (ASTSimpleExpression|ASTExpression,ASTBlock,ASTSourcePosition) -> ASTIfClause
+        return ASTIfClause(condition, block, source_position)
+
+    @classmethod
+    def create_ast_if_stmt(cls, if_clause, elif_clauses, else_clause, source_position):
+        # type: (ASTIfClause,(None|list(ASTElifClause)),(None|ASTElseClause),ASTSourcePosition) -> ASTIfStmt
+        return ASTIfStmt(if_clause, elif_clauses, else_clause, source_position)

@@ -77,25 +77,6 @@ class ASTFunction(ASTNode):
         self.__name = _name
         return
 
-    @classmethod
-    def makeASTFunction(cls, _name=None, _parameters=None, _returnType=None, _block=None, _sourcePosition=None):
-        """
-        Factory method of the ASTFunction class.
-        :param _name: the name of the defined function.
-        :type _name: str 
-        :param _parameters: (Optional) Set of parameters.  
-        :type _parameters: list(ASTParameter)
-        :param _returnType: (Optional) Return type. 
-        :type _returnType: ASTDataType
-        :param _block: a block of declarations.
-        :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTFunction object.
-        :rtype: ASTFunction
-        """
-        return cls(_name, _parameters, _returnType, _block, _sourcePosition)
-
     def getName(self):
         """
         Returns the name of the function.

@@ -42,19 +42,6 @@ class ASTElseClause(ASTNode):
         super(ASTElseClause, self).__init__(_sourcePosition)
         self.__block = _block
 
-    @classmethod
-    def makeASTElseClause(cls, _block=None, _sourcePosition=None):
-        """
-        The factory method of the ASTElseClause class.
-        :param _block: a block of statements.
-        :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new block
-        :rtype: ASTElseClause
-        """
-        return cls(_block, _sourcePosition)
-
     def getBlock(self):
         """
         Returns the block of statements.

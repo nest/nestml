@@ -53,21 +53,6 @@ class ASTIfClause(ASTNode):
         self.__condition = _condition
         return
 
-    @classmethod
-    def makeASTIfClause(cls, _condition=None, _block=None, _sourcePosition=None):
-        """
-        The factory method of the ASTIfClause class.
-        :param _condition: the condition of the block.
-        :type _condition: ASTExpression
-        :param _block: a block of statements.
-        :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new block
-        :rtype: ASTIfClause
-        """
-        return cls(_condition, _block, _sourcePosition)
-
     def getCondition(self):
         """
         Returns the condition of the block.

@@ -177,21 +177,24 @@ class ASTUtils(object):
         assert ((_isPlus + _isMinus + _isTimes + _isDivide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
         if _isPlus:
-            op = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True, source_position=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
+                                                               source_position=_rhs.getSourcePosition())
         elif _isMinus:
-            op = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True, source_position=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True,
+                                                               source_position=_rhs.getSourcePosition())
         elif _isTimes:
-            op = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True, source_position=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
+                                                               source_position=_rhs.getSourcePosition())
         else:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True, source_position=_rhs.getSourcePosition())
         varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs, _sourcePosition=_lhs.getSourcePosition())
         varExpr.updateScope(_lhs.getScope())
         op.updateScope(_lhs.getScope())
-        rhsInBrackets = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_rhs,
-                                                     _sourcePosition=_rhs.getSourcePosition())
+        rhsInBrackets = ASTNodeFactory.create_ast_expression(is_encapsulated=True, expression=_rhs,
+                                                             source_position=_rhs.getSourcePosition())
         rhsInBrackets.updateScope(_rhs.getScope())
-        expr = ASTExpression.makeCompoundExpression(_lhs=varExpr, _binaryOperator=op, _rhs=rhsInBrackets,
-                                                    _sourcePosition=_rhs.getSourcePosition())
+        expr = ASTNodeFactory.create_ast_compound_expression(lhs=varExpr, binary_operator=op, rhs=rhsInBrackets,
+                                                             source_position=_rhs.getSourcePosition())
         expr.updateScope(_lhs.getScope())
         # update the symbols
         ASTSymbolTableVisitor.visitExpression(expr)

@@ -65,153 +65,79 @@ class ASTExpression(ASTNode):
     # the corresponding type symbol.
     __typeEither = None
 
-    def __init__(self, _isEncapsulated=False, _unaryOperator=None, _isLogicalNot=False,
-                 _expression=None, _lhs=None, _binaryOperator=None, _rhs=None, _condition=None, _ifTrue=None,
-                 _ifNot=None, _sourcePosition=None):
+    def __init__(self, is_encapsulated=False, unary_operator=None, is_logical_not=False,
+                 expression=None, lhs=None, binary_operator=None, rhs=None, condition=None, if_true=None,
+                 if_not=None, source_position=None):
         """
         Standard constructor.
-        :param _isEncapsulated: is encapsulated in brackets.
-        :type _isEncapsulated: bool
-        :param _unaryOperator: combined by unary operator, e.g., ~.
-        :type _unaryOperator: ASTUnaryOperator
-        :param _isLogicalNot: is a negated expression.
-        :type _isLogicalNot: bool
-        :param _expression: the expression either encapsulated in brackets or negated or with a with a unary op, or 
+        :param is_encapsulated: is encapsulated in brackets.
+        :type is_encapsulated: bool
+        :param unary_operator: combined by unary operator, e.g., ~.
+        :type unary_operator: ASTUnaryOperator
+        :param is_logical_not: is a negated expression.
+        :type is_logical_not: bool
+        :param expression: the expression either encapsulated in brackets or negated or with a with a unary op, or
         a simple expression.
-        :type _expression: ASTExpression
-        :param _lhs: the left-hand side expression.
-        :type _lhs: ASTExpression
-        :param _binaryOperator: a binary operator, e.g., a comparison operator or a logical operator.
-        :type _binaryOperator: ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
-        :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression
-        :param _condition: the condition of a ternary operator
-        :type _condition: ASTExpression
-        :param _ifTrue: if condition holds, this expression is executed.
-        :type _ifTrue: ASTExpression
-        :param _ifNot: if condition does not hold, this expression is executed.
-        :type _ifNot: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type expression: ASTExpression
+        :param lhs: the left-hand side expression.
+        :type lhs: ASTExpression
+        :param binary_operator: a binary operator, e.g., a comparison operator or a logical operator.
+        :type binary_operator: ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
+        :param rhs: the right-hand side expression
+        :type rhs: ASTExpression
+        :param condition: the condition of a ternary operator
+        :type condition: ASTExpression
+        :param if_true: if condition holds, this expression is executed.
+        :type if_true: ASTExpression
+        :param if_not: if condition does not hold, this expression is executed.
+        :type if_not: ASTExpression
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
         """
-        assert ((_unaryOperator is None) or (isinstance(_unaryOperator, ASTUnaryOperator))), \
-            '(PyNestML.AST.Expression) Wrong type of unary operator provided (%s)!' % type(_unaryOperator)
-        assert ((_expression is None) or (isinstance(_expression, ASTExpression)) or (
-            isinstance(_expression, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) Wrong type of expression provided (%s)!' % type(_expression)
-        assert ((_binaryOperator is None) or (isinstance(_binaryOperator, ASTArithmeticOperator) or
-                                              (isinstance(_binaryOperator, ASTBitOperator)) or
-                                              (isinstance(_binaryOperator, ASTLogicalOperator)) or
-                                              (isinstance(_binaryOperator, ASTComparisonOperator)))), \
-            '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(_binaryOperator)
-        assert (_isEncapsulated is None or isinstance(_isEncapsulated, bool)), \
+        assert ((unary_operator is None) or (isinstance(unary_operator, ASTUnaryOperator))), \
+            '(PyNestML.AST.Expression) Wrong type of unary operator provided (%s)!' % type(unary_operator)
+        assert ((expression is None) or (isinstance(expression, ASTExpression)) or (
+            isinstance(expression, ASTSimpleExpression))), \
+            '(PyNestML.AST.Expression) Wrong type of expression provided (%s)!' % type(expression)
+        assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator) or
+                                              (isinstance(binary_operator, ASTBitOperator)) or
+                                              (isinstance(binary_operator, ASTLogicalOperator)) or
+                                              (isinstance(binary_operator, ASTComparisonOperator)))), \
+            '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(binary_operator)
+        assert (is_encapsulated is None or isinstance(is_encapsulated, bool)), \
             '(PyNestML.AST.Expression) Wrong type of parenthesis parameter provided (%s)' \
-            % type(_isEncapsulated)
-        assert (_condition is None or isinstance(_condition, ASTExpression)
-                or isinstance(_condition, ASTSimpleExpression)), \
-            '(PyNestML.AST.Expression) Wrong type of condition provided (%s)!' % type(_condition)
-        assert (_ifTrue is None or isinstance(_ifTrue, ASTExpression) or isinstance(_ifTrue, ASTSimpleExpression)), \
-            '(PyNestML.AST.Expression) Wrong type of if-true consequence provided (%s)!' % type(_ifTrue)
-        assert (_ifNot is None or isinstance(_ifNot, ASTExpression) or isinstance(_ifNot, ASTSimpleExpression)), \
-            '(PyNestML.AST.Expression) Wrong type of if-not consequence provided (%s)!' % type(_ifNot)
-        super(ASTExpression, self).__init__(_sourcePosition)
-        self.__isEncapsulated = _isEncapsulated
-        self.__isLogicalNot = _isLogicalNot
-        self.__unaryOperator = _unaryOperator
-        self.__expression = _expression
+            % type(is_encapsulated)
+        assert (condition is None or isinstance(condition, ASTExpression)
+                or isinstance(condition, ASTSimpleExpression)), \
+            '(PyNestML.AST.Expression) Wrong type of condition provided (%s)!' % type(condition)
+        assert (if_true is None or isinstance(if_true, ASTExpression) or isinstance(if_true, ASTSimpleExpression)), \
+            '(PyNestML.AST.Expression) Wrong type of if-true consequence provided (%s)!' % type(if_true)
+        assert (if_not is None or isinstance(if_not, ASTExpression) or isinstance(if_not, ASTSimpleExpression)), \
+            '(PyNestML.AST.Expression) Wrong type of if-not consequence provided (%s)!' % type(if_not)
+        super(ASTExpression, self).__init__(source_position)
+        self.__isEncapsulated = is_encapsulated
+        self.__isLogicalNot = is_logical_not
+        self.__unaryOperator = unary_operator
+        self.__expression = expression
         # lhs and rhs combined by an operator
-        self.__lhs = _lhs
-        self.__binaryOperator = _binaryOperator
-        self.__rhs = _rhs
+        self.__lhs = lhs
+        self.__binaryOperator = binary_operator
+        self.__rhs = rhs
         # ternary operator
         assert (
-            (_condition is None) or (isinstance(_condition, ASTExpression)) or (
-                isinstance(_condition, ASTSimpleExpression))), \
+                (condition is None) or (isinstance(condition, ASTExpression)) or (
+            isinstance(condition, ASTSimpleExpression))), \
             '(PyNestML.AST.Expression) Condition not an expression!'
         assert (
-            (_ifTrue is None) or (isinstance(_ifTrue, ASTExpression)) or (isinstance(_ifTrue, ASTSimpleExpression))), \
+                (if_true is None) or (isinstance(if_true, ASTExpression)) or (
+            isinstance(if_true, ASTSimpleExpression))), \
             '(PyNestML.AST.Expression) If-true part of ternary operator not an expression!'
-        assert ((_ifNot is None) or (isinstance(_ifNot, ASTExpression)) or (isinstance(_ifNot, ASTSimpleExpression))), \
+        assert ((if_not is None) or (isinstance(if_not, ASTExpression)) or (isinstance(if_not, ASTSimpleExpression))), \
             '(PyNestML.AST.Expression) If-not part of ternary operator not an expression!'
-        self.__condition = _condition
-        self.__ifTrue = _ifTrue
-        self.__ifNot = _ifNot
+        self.__condition = condition
+        self.__ifTrue = if_true
+        self.__ifNot = if_not
         return
-
-    @classmethod
-    def makeExpression(cls, _isEncapsulated=False, _unaryOperator=None,
-                       _isLogicalNot=False, _expression=None, _sourcePosition=None):
-        """
-        The factory method used to create expression which are either encapsulated in parentheses (e.g., (10mV)) 
-        OR have a unary (e.g., ~bitVar), OR are negated (e.g., not logVar), or are simple expression (e.g., 10mV).
-        :param _isEncapsulated: is encapsulated in brackets.
-        :type _isEncapsulated: bool
-        :param _unaryOperator: combined by unary operator, e.g., ~.
-        :type _unaryOperator: ASTUnaryOperator
-        :param _isLogicalNot: is a negated expression.
-        :type _isLogicalNot: bool
-        :param _expression: the expression either encapsulated in brackets or negated or with a with a unary op, or a 
-        simple expression.
-        :type _expression: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTExpression object.
-        :rtype: ASTExpression
-        """
-        return cls(_isEncapsulated=_isEncapsulated, _unaryOperator=_unaryOperator, _isLogicalNot=_isLogicalNot,
-                   _expression=_expression, _sourcePosition=_sourcePosition)
-
-    @classmethod
-    def makeCompoundExpression(cls, _lhs=None, _binaryOperator=None, _rhs=None, _sourcePosition=None):
-        """
-        The factory method used to create compound expressions, e.g. 10mV + V_m.
-        :param _lhs: the left-hand side expression.
-        :type _lhs: ASTExpression or ASTSimpleExpression
-        :param _binaryOperator: a binary operator, e.g., a comparison operator or a logical operator.
-        :type _binaryOperator: one of ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
-        :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression or ASTSimpleExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTExpression object.
-        :rtype: ASTExpression
-        """
-        assert (_lhs is not None and (isinstance(_lhs, ASTExpression) or isinstance(_lhs, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) The left-hand side is empty or not an expression (%s)!' % type(_lhs)
-        assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) The right-hand side is empty or not an expression (%s)!' % type(_rhs)
-        assert (_binaryOperator is not None and (isinstance(_binaryOperator, ASTBitOperator) or
-                                                 isinstance(_binaryOperator, ASTComparisonOperator) or
-                                                 isinstance(_binaryOperator, ASTLogicalOperator) or
-                                                 isinstance(_binaryOperator, ASTArithmeticOperator))), \
-            '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(_binaryOperator)
-        return cls(_lhs=_lhs, _binaryOperator=_binaryOperator, _rhs=_rhs, _sourcePosition=_sourcePosition)
-
-    @classmethod
-    def makeTernaryExpression(cls, _condition=None, _ifTrue=None, _ifNot=None, _sourcePosition=None):
-        """
-        The factory method used to create a ternary operator expression, e.g., 10mV<V_m?10mV:V_m
-        :param _condition: the condition of a ternary operator
-        :type _condition: ASTExpression
-        :param _ifTrue: if condition holds, this expression is executed.
-        :type _ifTrue: ASTExpression
-        :param _ifNot: if condition does not hold, this expression is executed.
-        :type _ifNot: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTExpression object.
-        :rtype: ASTExpression
-        """
-        assert (_condition is not None and (isinstance(_condition, ASTExpression) or
-                                            isinstance(_condition, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) No or wrong type of condition provided (%s)!' % type(_condition)
-        assert (_ifTrue is not None and (isinstance(_ifTrue, ASTExpression) or
-                                         isinstance(_ifTrue, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) No or wrong type of if-true case provided (%s)!' % type(_ifTrue)
-        assert (_ifNot is not None and (isinstance(_ifNot, ASTExpression) or
-                                        isinstance(_ifNot, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) No or wrong type of if-not case provided (%s)!' % type(_ifNot)
-        return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot, _sourcePosition=_sourcePosition)
 
     def isExpression(self):
         """
@@ -502,12 +428,12 @@ class ASTExpression(ASTNode):
             return False
         if self.isCompoundExpression() and _other.isCompoundExpression() and \
                 not (self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs()) and
-                         self.getBinaryOperator().equals(_other.getBinaryOperator())):
+                     self.getBinaryOperator().equals(_other.getBinaryOperator())):
             return False
         if self.isTernaryOperator() + _other.isTernaryOperator() == 1:
             return False
         if self.isTernaryOperator() and _other.isTernaryOperator() and \
                 not (self.getCondition().equals(_other.getCondition()) and
-                         self.getIfTrue().equals(_other.getIfTrue()) and self.getIfNot().equals(_other.getIfNot())):
+                     self.getIfTrue().equals(_other.getIfTrue()) and self.getIfNot().equals(_other.getIfNot())):
             return False
         return True

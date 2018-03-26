@@ -59,19 +59,6 @@ class ASTEquationsBlock(ASTNode):
         super(ASTEquationsBlock, self).__init__(_sourcePosition)
         self.__declarations = _declarations
 
-    @classmethod
-    def makeASTEquationsBlock(cls, _declarations=None, _sourcePosition=None):
-        """
-        Factory method of the ASTEquationsBlock class.
-        :param _declarations: a block of definitions.
-        :type _declarations: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTEquations object.
-        :rtype: ASTEquationsBlock
-        """
-        return cls(_declarations, _sourcePosition)
-
     def getDeclarations(self):
         """
         Returns the block of definitions.
