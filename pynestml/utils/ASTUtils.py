@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.Symbol import SymbolKind
 
 
@@ -168,7 +168,6 @@ class ASTUtils(object):
         """
         from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.modelprocessor.ASTExpression import ASTExpression
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
         from pynestml.modelprocessor.ASTVariable import ASTVariable
         from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
@@ -178,13 +177,13 @@ class ASTUtils(object):
         assert ((_isPlus + _isMinus + _isTimes + _isDivide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
         if _isPlus:
-            op = ASTArithmeticOperator(_isPlusOp=True, _sourcePosition=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True, source_position=_rhs.getSourcePosition())
         elif _isMinus:
-            op = ASTArithmeticOperator(_isMinusOp=True, _sourcePosition=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True, source_position=_rhs.getSourcePosition())
         elif _isTimes:
-            op = ASTArithmeticOperator(_isTimesOp=True, _sourcePosition=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True, source_position=_rhs.getSourcePosition())
         else:
-            op = ASTArithmeticOperator(_isDivOp=True, _sourcePosition=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True, source_position=_rhs.getSourcePosition())
         varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs, _sourcePosition=_lhs.getSourcePosition())
         varExpr.updateScope(_lhs.getScope())
         op.updateScope(_lhs.getScope())

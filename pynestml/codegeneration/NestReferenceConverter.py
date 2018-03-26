@@ -314,11 +314,11 @@ class NESTReferenceConverter(IReferenceConverter):
             return '%s' + '+' + '%s'
         if _op.isMinusOp():
             return '%s' + '-' + '%s'
-        if _op.isTimesOp():
+        if _op.is_times_op:
             return '%s' + '*' + '%s'
-        if _op.isDivOp():
+        if _op.is_div_op:
             return '%s' + '/' + '%s'
-        if _op.isModuloOp():
+        if _op.is_modulo_op:
             return '%s' + '%' + '%s'
         if _op.isPowOp():
             return 'pow' + '(%s,%s)'

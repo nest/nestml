@@ -157,7 +157,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
                     self.setRealSelf(self.__powVisitor)
                     return
                 # Expr = left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
-                if binOp.isTimesOp() or binOp.isDivOp() or binOp.isModuloOp():
+                if binOp.is_times_op or binOp.is_div_op or binOp.is_modulo_op:
                     self.setRealSelf(self.__dotOperatorVisitor)
                     return
                 # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression

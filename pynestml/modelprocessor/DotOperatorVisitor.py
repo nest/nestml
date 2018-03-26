@@ -62,7 +62,7 @@ class DotOperatorVisitor(NESTMLVisitor):
         # arithOp exists if we get into this visitor, but make sure:
         assert arithOp is not None and isinstance(arithOp, ASTArithmeticOperator)
 
-        if arithOp.isModuloOp():
+        if arithOp.is_modulo_op:
             if lhsType.isInteger() and rhsType.isInteger():
                 _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                 return
@@ -74,17 +74,17 @@ class DotOperatorVisitor(NESTMLVisitor):
                                   _errorPosition=_expr.getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
                 return
-        if arithOp.isDivOp() or arithOp.isTimesOp():
+        if arithOp.is_div_op or arithOp.is_times_op:
             if lhsType.isNumeric() and rhsType.isNumeric():
                 # If both are units, calculate resulting Type
                 if lhsType.isUnit() and rhsType.isUnit():
                     leftUnit = lhsType.getEncapsulatedUnit()
                     rightUnit = rhsType.getEncapsulatedUnit()
-                    if arithOp.isTimesOp():
+                    if arithOp.is_times_op:
                         returnType = PredefinedTypes.getTypeIfExists(leftUnit * rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
                         return
-                    elif arithOp.isDivOp():
+                    elif arithOp.is_div_op:
                         returnType = PredefinedTypes.getTypeIfExists(leftUnit / rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
                         return
@@ -94,10 +94,10 @@ class DotOperatorVisitor(NESTMLVisitor):
                     return
                 # if lhs is real or integer and rhs a unit, return unit for timesOP and inverse(unit) for divOp
                 if rhsType.isUnit():
-                    if arithOp.isTimesOp():
+                    if arithOp.is_times_op:
                         _expr.setTypeEither(Either.value(rhsType))
                         return
-                    elif arithOp.isDivOp():
+                    elif arithOp.is_div_op:
                         rightUnit = rhsType.getEncapsulatedUnit()
                         returnType = PredefinedTypes.getTypeIfExists(1 / rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
@@ -111,7 +111,7 @@ class DotOperatorVisitor(NESTMLVisitor):
                     _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                     return
         # Catch-all if no case has matched
-        typeMismatch = lhsType.printSymbol() + " / " if arithOp.isDivOp() else " * " + rhsType.printSymbol()
+        typeMismatch = lhsType.printSymbol() + " / " if arithOp.is_div_op else " * " + rhsType.printSymbol()
         errorMsg = ErrorStrings.messageTypeMismatch(self, typeMismatch, _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         Logger.logMessage(_message=errorMsg,

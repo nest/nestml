@@ -870,7 +870,6 @@ class Messages(object):
         message = 'Not convertable unit \'%s\' used, 1 assumed as factor!' % _name
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
-
 class MessageCode(Enum):
     """
     A mapping between codes and the corresponding messages.

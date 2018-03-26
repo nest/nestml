@@ -23,6 +23,7 @@ from antlr4 import *
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTOutputBlock import SignalType
 from pynestml.modelprocessor.CoCosManager import CoCosManager
+from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.CommentCollectorVisitor import CommentCollectorVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
@@ -68,10 +69,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                  _startColumn=ctx.start.column,
                                                                  _endLine=ctx.stop.line,
                                                                  _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTDatatype import ASTDatatype
-        ret = ASTDatatype.makeASTDatatype(_isInteger=isInt, _isBoolean=isBool,
-                                          _isReal=isReal, _isString=isString, _isVoid=isVoid,
-                                          _isUnitType=unit, _sourcePosition=sourcePosition)
+        ret = ASTNodeFactory.create_ast_data_type(is_integer=isInt, is_boolean=isBool,
+                                                  is_real=isReal, is_string=isString, is_void=isVoid,
+                                                  is_unit_type=unit, source_position=sourcePosition)
         from pynestml.modelprocessor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
         ASTUnitTypeVisitor.visitDatatype(ret)
         return ret
@@ -116,44 +116,48 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         expression = self.visit(ctx.term) if ctx.term is not None else None
         # otherwise it is a combined one, check first lhs, then the operator and finally rhs
         lhs = (self.visit(ctx.left) if ctx.left is not None else None)
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
         if ctx.powOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.powOp.line,
                                                                 _startColumn=ctx.powOp.column,
                                                                 _endLine=ctx.powOp.line,
                                                                 _endColumn=ctx.powOp.column)
-            binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isPowOp=True, _sourcePosition=sourcePos)
+            binaryOperator = ASTNodeFactory.create_ast_arithmetic_operator(is_pow_op=True,
+                                                                           source_position=sourcePos)
         elif ctx.timesOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.timesOp.line,
                                                                 _startColumn=ctx.timesOp.column,
                                                                 _endLine=ctx.timesOp.line,
                                                                 _endColumn=ctx.timesOp.column)
-            binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True, _sourcePosition=sourcePos)
+            binaryOperator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
+                                                                           source_position=sourcePos)
         elif ctx.divOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.divOp.line,
                                                                 _startColumn=ctx.divOp.column,
                                                                 _endLine=ctx.divOp.line,
                                                                 _endColumn=ctx.divOp.column)
-            binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isDivOp=True, _sourcePosition=sourcePos)
+            binaryOperator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True,
+                                                                           source_position=sourcePos)
         elif ctx.moduloOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.moduloOp.line,
                                                                 _startColumn=ctx.moduloOp.column,
                                                                 _endLine=ctx.moduloOp.line,
                                                                 _endColumn=ctx.moduloOp.column)
-            binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isModuloOp=True,
-                                                                             _sourcePosition=sourcePos)
+            binaryOperator = ASTNodeFactory.create_ast_arithmetic_operator(is_modulo_op=True,
+                                                                           source_position=sourcePos)
         elif ctx.plusOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.plusOp.line,
                                                                 _startColumn=ctx.plusOp.column,
                                                                 _endLine=ctx.plusOp.line,
                                                                 _endColumn=ctx.plusOp.column)
-            binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isPlusOp=True, _sourcePosition=sourcePos)
+            binaryOperator = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
+                                                                           source_position=sourcePos)
         elif ctx.minusOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.minusOp.line,
                                                                 _startColumn=ctx.minusOp.column,
                                                                 _endLine=ctx.minusOp.line,
                                                                 _endColumn=ctx.minusOp.column)
-            binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isMinusOp=True, _sourcePosition=sourcePos)
+            binaryOperator = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True,
+                                                                           source_position=sourcePos)
         elif ctx.bitOperator() is not None:
             binaryOperator = self.visit(ctx.bitOperator())
         elif ctx.comparisonOperator() is not None:
@@ -191,7 +195,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitSimpleExpression(self, ctx):
         functionCall = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
         booleanLiteral = ((True if re.match(r'[Tt]rue', str(ctx.BOOLEAN_LITERAL())) else False)
-                          if ctx.BOOLEAN_LITERAL() is not None else None)
+        if ctx.BOOLEAN_LITERAL() is not None else None)
         if ctx.INTEGER() is not None:
             numericLiteral = int(str(ctx.INTEGER()))
         elif ctx.FLOAT() is not None:
@@ -239,12 +243,11 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
-        return ASTBitOperator.makeASTBitOperator(_isBitAnd=isBitAnd, _isBitXor=isBitXor,
-                                                 _isBitOr=isBitOr,
-                                                 _isBitShiftLeft=isBitShiftLeft,
-                                                 _isBitShiftRight=isBitShiftRight,
-                                                 _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_bit_operator(is_bit_and=isBitAnd, is_bit_xor=isBitXor,
+                                                      is_bit_or=isBitOr,
+                                                      is_bit_shift_left=isBitShiftLeft,
+                                                      is_bit_shift_right=isBitShiftRight,
+                                                      source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#comparisonOperator.
     def visitComparisonOperator(self, ctx):
@@ -259,12 +262,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
-        return ASTComparisonOperator.makeASTComparisonOperator(_isLt=isLt, _isLe=isLe,
-                                                               _isEq=isEq, _isNe=isNe,
-                                                               _isNe2=isNe2,
-                                                               _isGe=isGe, _isGt=isGt,
-                                                               _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_comparison_operator(isLt, isLe, isEq, isNe, isNe2, isGe, isGt, sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#logicalOperator.
     def visitLogicalOperator(self, ctx):
@@ -360,8 +358,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTBlock import ASTBlock
-        block = ASTBlock.makeASTBlock(_stmts=stmts, _sourcePosition=sourcePos)
+        block = ASTNodeFactory.create_ast_block(stmts=stmts, source_position=sourcePos)
         block.setComment(self.__comments.visit(ctx))
         return block
 
@@ -374,9 +371,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
-        return ASTCompoundStmt.makeASTCompoundStmt(_ifStmt=ifStmt, _whileStmt=whileStmt,
-                                                   _forStmt=forStmt, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_compound_stmt(ifStmt, whileStmt, forStmt, sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#small_Stmt.
     def visitSmallStmt(self, ctx):
@@ -406,13 +401,12 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-        return ASTAssignment.makeASTAssignment(_lhs=lhs, _isDirectAssignment=isDirectAssignment,
-                                               _isCompoundSum=isCompoundSum,
-                                               _isCompoundMinus=isCompoundMinus,
-                                               _isCompoundProduct=isCompoundProduct,
-                                               _isCompoundQuotient=isCompoundQuotient,
-                                               _expression=expression, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_assignment(lhs=lhs, is_direct_assignment=isDirectAssignment,
+                                                    is_compound_sum=isCompoundSum,
+                                                    is_compound_minus=isCompoundMinus,
+                                                    is_compound_product=isCompoundProduct,
+                                                    is_compound_quotient=isCompoundQuotient,
+                                                    expression=expression, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#declaration.
     def visitDeclaration(self, ctx):
@@ -429,12 +423,11 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-        declaration = ASTDeclaration.makeASTDeclaration(_isRecordable=isRecordable, _isFunction=isFunction,
-                                                        _variables=variables, _dataType=dataType,
-                                                        _sizeParameter=sizeParam,
-                                                        _expression=expression,
-                                                        _invariant=invariant, _sourcePosition=sourcePos)
+        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=isRecordable, is_function=isFunction,
+                                                            variables=variables, data_type=dataType,
+                                                            size_parameter=sizeParam,
+                                                            expression=expression,
+                                                            invariant=invariant, source_position=sourcePos)
         declaration.setComment(self.__comments.visit(ctx))
         return declaration
 
@@ -594,8 +587,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTBody import ASTBody
-        body = ASTBody.makeASTBody(_bodyElements=elements, _sourcePosition=sourcePos)
+        body = ASTNodeFactory.create_ast_body(elements, sourcePos)
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
@@ -609,24 +601,14 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
-        ret = None
         if blockType == 'state':
-            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
-                _isInternals=False, _isParameters=False, _isState=True, _isInitialValues=False,
-                _declarations=declarations, _sourcePosition=sourcePos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, declarations, sourcePos)
         elif blockType == 'parameters':
-            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
-                _isInternals=False, _isParameters=True, _isState=False, _isInitialValues=False,
-                _declarations=declarations, _sourcePosition=sourcePos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, False, declarations, sourcePos)
         elif blockType == 'internals':
-            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
-                _isInternals=True, _isParameters=False, _isState=False, _isInitialValues=False,
-                _declarations=declarations, _sourcePosition=sourcePos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, declarations, sourcePos)
         elif blockType == 'initial_values':
-            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
-                _isInternals=False, _isParameters=False, _isState=False, _isInitialValues=True,
-                _declarations=declarations, _sourcePosition=sourcePos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, declarations, sourcePos)
         else:
             Logger.logMessage('(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
                               LOGGING_LEVEL.ERROR)
@@ -668,7 +650,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endColumn=ctx.stop.column)
         from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
         ret = ASTEquationsBlock.makeASTEquationsBlock(_declarations=ordered,
-                                                       _sourcePosition=sourcePos)
+                                                      _sourcePosition=sourcePos)
         ret.setComment(self.__comments.visit(ctx))
         return ret
 
@@ -708,8 +690,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endColumn=ctx.stop.column)
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
         ret = ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter, _dataType=dataType,
-                                             _inputTypes=inputTypes, _signalType=signalType,
-                                             _sourcePosition=sourcePos)
+                                            _inputTypes=inputTypes, _signalType=signalType,
+                                            _sourcePosition=sourcePos)
         ret.setComment(self.__comments.visit(ctx))
         return ret
 
@@ -734,12 +716,12 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock, SignalType
         if ctx.isSpike is not None:
             ret = ASTOutputBlock.makeASTOutputBlock(_type=SignalType.SPIKE,
-                                                     _sourcePosition=sourcePos)
+                                                    _sourcePosition=sourcePos)
             ret.setComment(self.__comments.visit(ctx))
             return ret
         elif ctx.isCurrent is not None:
             ret = ASTOutputBlock.makeASTOutputBlock(_type=SignalType.CURRENT,
-                                                     _sourcePosition=sourcePos)
+                                                    _sourcePosition=sourcePos)
             ret.setComment(self.__comments.visit(ctx))
             return ret
         else:

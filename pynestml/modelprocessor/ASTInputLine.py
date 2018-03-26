@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTOutputBlock import SignalType
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 
 
-class ASTInputLine(ASTElement):
+class ASTInputLine(ASTNode):
     """
     This class is used to store a declaration of an input line.
     ASTInputLine represents a single line form the input, e.g.:

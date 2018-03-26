@@ -20,10 +20,10 @@
 
 
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTNESTMLCompilationUnit(ASTElement):
+class ASTNESTMLCompilationUnit(ASTNode):
     """
     The ASTNESTMLCompilationUnit class as used to store a collection of processed ASTNeurons.
     """

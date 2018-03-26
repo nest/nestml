@@ -95,9 +95,9 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
             elif _expr.isCompoundExpression():
                 # arithmetic op, i.e. +,-,*,/
                 if isinstance(_expr.getBinaryOperator(), ASTArithmeticOperator) and \
-                        (_expr.getBinaryOperator().isTimesOp() or _expr.getBinaryOperator().isDivOp() or
+                        (_expr.getBinaryOperator().is_times_op or _expr.getBinaryOperator().is_div_op or
                              _expr.getBinaryOperator().isMinusOp() or _expr.getBinaryOperator().isPlusOp() or
-                             _expr.getBinaryOperator().isModuloOp()):
+                             _expr.getBinaryOperator().is_modulo_op):
                     return self.printExpression(_expr.getLhs()) + ' ' + \
                            self.printArithmeticOperator(_expr.getBinaryOperator()) + ' ' + \
                            self.printExpression(_expr.getRhs())

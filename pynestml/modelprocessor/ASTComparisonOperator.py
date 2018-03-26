@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
-class ASTComparisonOperator(ASTElement):
+class ASTComparisonOperator(ASTNode):
     """
     This class is used to store a single comparison operator.
     Grammar:
@@ -83,32 +83,6 @@ class ASTComparisonOperator(ASTElement):
         self.__isLe = _isLe
         self.__isLt = _isLt
         return
-
-    @classmethod
-    def makeASTComparisonOperator(cls, _isLt=False, _isLe=False, _isEq=False, _isNe=False, _isNe2=False,
-                                  _isGe=False, _isGt=False, _sourcePosition=None):
-        """
-        The factory method of the ASTComparisonOperator class.
-        :param _isLt: is less than operator.
-        :type _isLt: bool
-        :param _isLe: is less equal operator.
-        :type _isLe: bool
-        :param _isEq: is equality operator.
-        :type _isEq: bool
-        :param _isNe: is not equal operator.
-        :type _isNe: bool
-        :param _isNe2: is not equal operator (alternative syntax).
-        :type _isNe2: bool
-        :param _isGe: is greater equal operator.
-        :type _isGe: bool
-        :param _isGt: is greater than operator.
-        :type _isGt: bool
-        :param _sourcePosition: the position of the element in the source
-        :type _sourcePosition: ASTSourcePosition
-        :return: a new ASTComparisonOperator object.
-        :rtype: ASTComparisonOperator
-        """
-        return cls(_isLt, _isLe, _isEq, _isNe, _isNe2, _isGe, _isGt, _sourcePosition)
 
     def isLt(self):
         """

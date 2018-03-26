@@ -25,11 +25,11 @@ from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
 from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
 from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.Either import Either
 
 
-class ASTExpression(ASTElement):
+class ASTExpression(ASTNode):
     """
     ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
     or a simple expression, e.g. 10mV.

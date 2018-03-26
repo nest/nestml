@@ -19,13 +19,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class ASTOdeFunction(ASTElement):
+class ASTOdeFunction(ASTNode):
     """
     Stores a single declaration of a ode function, e.g., 
         function v_init mV = V_m - 50mV.

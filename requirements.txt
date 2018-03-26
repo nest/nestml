@@ -5,4 +5,4 @@ antlr4-python2-runtime >= 4.7; python_version < '3.0'
 setuptools
 Jinja2
 astropy
-
+enum34

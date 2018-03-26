@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTIfStmt import ASTIfStmt
 from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
 from pynestml.modelprocessor.ASTForStmt import ASTForStmt
 
 
-class ASTCompoundStmt(ASTElement):
+class ASTCompoundStmt(ASTNode):
     """
     This class is used to store compound statements.
     Grammar:
@@ -58,24 +58,6 @@ class ASTCompoundStmt(ASTElement):
         self.__whileStmt = _whileStmt
         self.__forStmt = _forStmt
         return
-
-    @classmethod
-    def makeASTCompoundStmt(cls, _ifStmt=None, _whileStmt=None,
-                            _forStmt=None, _sourcePosition=None):
-        """
-        Factory method of the ASTCompound_Stmt class.
-        :param _ifStmt: a if statement object
-        :type _ifStmt: ASTIfStmt
-        :param _whileStmt: a while statement object
-        :type _whileStmt: ASTWhileStmt
-        :param _forStmt: a for statement object
-        :type _forStmt: ASTForStmt
-        :param _sourcePosition: The source position of the assignment
-        :type _sourcePosition: ASTSourcePosition
-        :return: a new compound statement object
-        :rtype: ASTCompoundStmt
-        """
-        return cls(_ifStmt, _whileStmt, _forStmt, _sourcePosition)
 
     def isIfStmt(self):
         """

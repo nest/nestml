@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 
 
 class ASTCreator(object):
@@ -35,12 +36,9 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInternalsBlocks() is None:
-            internal = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
-                                                                       _isInternals=True, _isInitialValues=False,
-                                                                       _declarations=list(), _sourcePosition=
-                                                                       ASTSourcePosition.getAddedSourcePosition())
+            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
+                                                                      ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(internal)
         return _neuron
 
@@ -53,12 +51,9 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInternalsBlocks() is None:
-            state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=True, _isParameters=False,
-                                                                    _isInternals=False, _isInitialValues=False,
-                                                                    _declarations=list(), _sourcePosition=
-                                                                    ASTSourcePosition.getAddedSourcePosition())
+            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
+                                                                   ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(state)
         return _neuron
 
@@ -71,13 +66,10 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInitialBlocks() is None:
-            state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
-                                                                    _isInternals=False, _isInitialValues=True,
-                                                                    _declarations=list(), _sourcePosition=
-                                                                    ASTSourcePosition.getAddedSourcePosition())
-            _neuron.getBody().getBodyElements().append(state)
+            inits = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, list(),
+                                                                   ASTSourcePosition.getAddedSourcePosition())
+            _neuron.getBody().getBodyElements().append(inits)
         return _neuron
 
     @classmethod

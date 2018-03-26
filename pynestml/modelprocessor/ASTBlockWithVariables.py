@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBlockWithVariables(ASTElement):
+class ASTBlockWithVariables(ASTNode):
     """
     This class is used to store a block of variable declarations.
     ASTBlockWithVariables.py represent a block with variables, e.g.:
@@ -77,29 +77,6 @@ class ASTBlockWithVariables(ASTElement):
         self.__isInitValues = _isInitialValues
         self.__isState = _isState
         return
-
-    @classmethod
-    def makeASTBlockWithVariables(cls, _isState=False, _isParameters=False, _isInternals=False, _isInitialValues=False,
-                                  _declarations=list(), _sourcePosition=None):
-        """
-        Factory method of the ASTBlockWithVariables class.
-        :param _isState: is a state block.
-        :type _isState: bool
-        :param _isParameters: is a parameter block.
-        :type _isParameters: bool 
-        :param _isInternals: is an internals block.
-        :type _isInternals: bool
-        :param _isInitialValues: is an initial values block.
-        :type _isInitialValues: bool
-        :param _declarations: a list of declarations.
-        :type _declarations: list(ASTDeclaration)
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new variable block object.
-        :rtype: ASTBlockWithVariables 
-        """
-        return cls(_isState=_isState, _isParameters=_isParameters, _isInternals=_isInternals,
-                   _isInitialValues=_isInitialValues, _declarations=_declarations, _sourcePosition=_sourcePosition)
 
     def isState(self):
         """
@@ -197,7 +174,7 @@ class ASTBlockWithVariables(ASTElement):
         if not isinstance(_other, ASTBlockWithVariables):
             return False
         if not (self.isInitialValues() == _other.isInitialValues() and self.isInternals() == _other.isInternals() and
-                        self.isParameters() == _other.isParameters() and self.isState() == _other.isState()):
+                self.isParameters() == _other.isParameters() and self.isState() == _other.isState()):
             return False
         if len(self.getDeclarations()) != len(_other.getDeclarations()):
             return False

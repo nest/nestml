@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTDatatype(ASTElement):
+class ASTDatatype(ASTNode):
     """
     A datatype class as used to store a datatype of an element.
     ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
@@ -82,30 +82,6 @@ class ASTDatatype(ASTElement):
         self.__isReal = _isReal
         self.__isInteger = _isInteger
         return
-
-    @classmethod
-    def makeASTDatatype(cls, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False,
-                        _isVoid=False, _isUnitType=None, _sourcePosition=None):
-        """
-        A factory method for creation of objects of this class.
-        :param _isInteger: is an integer data type 
-        :type _isInteger: boolean
-        :param _isReal: is a real datatype 
-        :type _isReal: boolean
-        :param _isString: is a string data type
-        :type _isString: boolean
-        :param _isBoolean: is a boolean
-        :type _isBoolean: boolean
-        :param _isVoid: is a void data type
-        :type _isVoid: boolean
-        :param _isUnitType: an object of type ASTUnitType
-        :type _isUnitType: ASTUnitType
-        :param _sourcePosition: The source position of the assignment
-        :type _sourcePosition: ASTSourcePosition
-        :return a new ASTDatatype object
-        :rtype ASTDatatype
-        """
-        return cls(_isInteger, _isReal, _isString, _isBoolean, _isVoid, _isUnitType, _sourcePosition)
 
     def isInteger(self):
         """
@@ -232,8 +208,8 @@ class ASTDatatype(ASTElement):
         if not isinstance(_other, ASTDatatype):
             return False
         if not (self.isInteger() == _other.isInteger() and self.isReal() == _other.isReal() and
-                        self.isString() == _other.isString() and self.isBoolean() == _other.isBoolean() and
-                        self.isVoid() == _other.isVoid()):
+                self.isString() == _other.isString() and self.isBoolean() == _other.isBoolean() and
+                self.isVoid() == _other.isVoid()):
             return False
         # only one of them uses a unit, thus false
         if self.isUnitType() + _other.isUnitType() == 1:

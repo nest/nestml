@@ -18,11 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTVariable import ASTVariable
 
 
-class ASTAssignment(ASTElement):
+class ASTAssignment(ASTNode):
     """
     This class is used to store assignments.
     Grammar:
@@ -94,33 +94,6 @@ class ASTAssignment(ASTElement):
         self.__isCompoundQuotient = _isCompoundQuotient
         self.__expression = _expression
         return
-
-    @classmethod
-    def makeASTAssignment(cls, _lhs=None, _isDirectAssignment=False, _isCompoundSum=False, _isCompoundMinus=False,
-                          _isCompoundProduct=False, _isCompoundQuotient=False, _expression=None, _sourcePosition=None):
-        """
-        The factory method of the ASTAssignment class.
-        :param _sourcePosition: the position of this element in the source
-        :type _sourcePosition: ASTSourcePosition
-        :param _lhs: the left-hand side variable to which is assigned to.
-        :type _lhs: ASTVariable 
-        :param _isDirectAssignment: is a direct assignment
-        :type _isDirectAssignment: bool 
-        :param _isCompoundSum: is a compound sum
-        :type _isCompoundSum: bool 
-        :param _isCompoundMinus: is a compound minus
-        :type _isCompoundMinus: bool
-        :param _isCompoundProduct: is a compound product
-        :type _isCompoundProduct: bool
-        :param _isCompoundQuotient: is a compound quotient
-        :type _isCompoundQuotient: bool
-        :param _expression: an ast-expr object
-        :type _expression: ASTExpr
-        :return: a new ASTAssignment object.
-        :rtype: ASTAssignment
-        """
-        return cls(_lhs, _isDirectAssignment, _isCompoundSum, _isCompoundMinus, _isCompoundProduct, _isCompoundQuotient,
-                   _expression, _sourcePosition)
 
     def getVariable(self):
         """

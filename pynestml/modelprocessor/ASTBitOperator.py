@@ -18,10 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBitOperator(ASTElement):
+class ASTBitOperator(ASTNode):
     """
     This class is used to store a single bit operator.
     Grammar:
@@ -60,7 +60,7 @@ class ASTBitOperator(ASTElement):
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-left provided (%s)!' % type(_isBitShiftLeft)
         assert (_isBitShiftRight is not None and isinstance(_isBitShiftRight, bool)), \
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-right provided (%s)!' % type(_isBitShiftRight)
-        assert ((_isBitAnd + _isBitOr + _isBitXor + _isBitShiftLeft + _isBitShiftRight) == 1),\
+        assert ((_isBitAnd + _isBitOr + _isBitXor + _isBitShiftLeft + _isBitShiftRight) == 1), \
             '(PyNestML.AST.BitOperator) Bit operator not correctly specified!'
         super(ASTBitOperator, self).__init__(_sourcePosition)
         self.__isBitShiftRight = _isBitShiftRight
@@ -69,28 +69,6 @@ class ASTBitOperator(ASTElement):
         self.__isBitXor = _isBitXor
         self.__isBitAnd = _isBitAnd
         return
-
-    @classmethod
-    def makeASTBitOperator(cls, _isBitAnd=False, _isBitXor=False, _isBitOr=False, _isBitShiftLeft=False,
-                           _isBitShiftRight=False, _sourcePosition=None):
-        """
-        The factory method of the ASTBitOperator class.
-        :param _isBitAnd: is bit and operator.
-        :type _isBitAnd: bool
-        :param _isBitXor: is bit xor operator.
-        :type _isBitXor: bool
-        :param _isBitOr: is bit or operator.
-        :type _isBitOr: bool
-        :param _isBitShiftLeft: is bit shift left operator.
-        :type _isBitShiftLeft: bool
-        :param _isBitShiftRight: is bit shift right operator.
-        :type _isBitShiftRight: bool
-        :param_sourcePosition: the position of the element in the source
-        :type _sourcePosition: ASTSourcePosition
-        :return: a new ASTBitOperator object.
-        :rtype: ASTBitOperator
-        """
-        return cls(_isBitAnd, _isBitXor, _isBitOr, _isBitShiftLeft, _isBitShiftRight, _sourcePosition)
 
     def isBitAnd(self):
         """

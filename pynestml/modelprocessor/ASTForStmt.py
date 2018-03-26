@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTBlock import ASTBlock
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class ASTForStmt(ASTElement):
+class ASTForStmt(ASTNode):
     """
     This class is used to store a for-block.
     Grammar:

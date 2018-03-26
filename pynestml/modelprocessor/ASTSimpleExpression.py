@@ -21,11 +21,11 @@
 
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.Either import Either
 
 
-class ASTSimpleExpression(ASTElement):
+class ASTSimpleExpression(ASTNode):
     """
     This class is used to store a simple expression, e.g. +42mV.
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.

@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBody(ASTElement):
+class ASTBody(ASTNode):
     """
     This class is used to store the body of a neuron, an object containing all the definitions.
     ASTBody The body of the neuron, e.g. internal, state, parameter...
@@ -60,19 +60,6 @@ class ASTBody(ASTElement):
         super(ASTBody, self).__init__(_sourcePosition)
         self.__bodyElements = _bodyElements
         return
-
-    @classmethod
-    def makeASTBody(cls, _bodyElements=list(), _sourcePosition=None):
-        """
-        Factory method of the ASTBody class.
-        :param _bodyElements: a list of elements, e.g. variable blocks.
-        :type _bodyElements: list()
-        :param _sourcePosition: the position of the element in the source model
-        :rtype _sourcePosition: ASTSourcePosition
-        :return: a new body object.
-        :rtype: ASTBody
-        """
-        return cls(_bodyElements, _sourcePosition)
 
     def getBodyElements(self):
         """

@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBlock(ASTElement):
+class ASTBlock(ASTNode):
     """
     This class is used to store a single block of declarations, i.e., statements.
     Grammar:
@@ -48,19 +48,6 @@ class ASTBlock(ASTElement):
 
         super(ASTBlock, self).__init__(_sourcePosition)
         self.__stmts = _stmts
-
-    @classmethod
-    def makeASTBlock(cls, _stmts=list(), _sourcePosition=None):
-        """
-        Factory method of ASTBlock.
-        :param _stmts: a list of statements
-        :type _stmts: list(ASTSmallStmt/ASTCompoundStmt)
-        :param _sourcePosition: the position of this element
-        :type _sourcePosition: ASTSourcePosition
-        :return a new block element
-        :rtype ASTBlock
-        """
-        return cls(_stmts, _sourcePosition)
 
     def getStmts(self):
         """
