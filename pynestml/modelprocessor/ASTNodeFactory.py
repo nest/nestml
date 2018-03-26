@@ -45,6 +45,17 @@ from pynestml.modelprocessor.ASTParameter import ASTParameter
 from pynestml.modelprocessor.ASTFunction import ASTFunction
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.ASTIfClause import ASTIfClause
+from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
+from pynestml.modelprocessor.ASTInputLine import ASTInputLine
+from pynestml.modelprocessor.ASTInputType import ASTInputType
+from pynestml.modelprocessor.ASTSignalType import ASTSignalType
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
+from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
+from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
+from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock
+from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
 
 
 class ASTNodeFactory(object):
@@ -185,3 +196,75 @@ class ASTNodeFactory(object):
     def create_ast_if_stmt(cls, if_clause, elif_clauses, else_clause, source_position):
         # type: (ASTIfClause,(None|list(ASTElifClause)),(None|ASTElseClause),ASTSourcePosition) -> ASTIfStmt
         return ASTIfStmt(if_clause, elif_clauses, else_clause, source_position)
+
+    @classmethod
+    def create_ast_input_block(cls, input_definitions, source_position):
+        # type: (list(ASTInputLine), ASTSourcePosition) -> ASTInputBlock
+        return ASTInputBlock(input_definitions, source_position)
+
+    @classmethod
+    def create_ast_input_line(cls, name, size_parameter, data_type, input_types, signal_type, source_position):
+        # type:(str,str,(None|ASTDatatype),list(ASTInputType),ASTSignalType,ASTSourcePosition) -> ASTInputLine
+        return ASTInputLine(name=name, size_parameter=size_parameter, data_type=data_type, input_types=input_types,
+                            signal_type=signal_type, source_position=source_position)
+
+    @classmethod
+    def create_ast_input_type(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
+        # type: (bool,bool,ASTSourcePosition) -> ASTInputType
+        return ASTInputType(is_inhibitory, is_excitatory, source_position)
+
+    @classmethod
+    def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):
+        # type: (bool,bool,ASTSourcePosition) -> ASTLogicalOperator
+        return ASTLogicalOperator(is_logical_and, is_logical_or, source_position)
+
+    @classmethod
+    def create_ast_nestml_compilation_unit(cls, list_of_neurons, source_position, artifact_name):
+        # type: (list(ASTNeuron),ASTSourcePosition,str) -> ASTNESTMLCompilationUnit
+        instance = ASTNESTMLCompilationUnit(source_position, artifact_name)
+        for i in list_of_neurons:
+            instance.addNeuron(i)
+        return instance
+
+    @classmethod
+    def create_ast_neuron(cls, name, body, source_position, artifact_name):
+        # type: (str,ASTBody,ASTSourcePosition,str) -> ASTNeuron
+        return ASTNeuron(name, body, source_position, artifact_name)
+
+    @classmethod
+    def create_ast_ode_equation(cls, lhs, rhs, source_position):
+        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourcePosition) -> ASTOdeEquation
+        return ASTOdeEquation(lhs, rhs, source_position)
+
+    @classmethod
+    def create_ast_ode_function(cls, variable_name, data_type, expression, source_position, is_recordable=False):
+        # type: (str,ASTDatatype,ASTExpression|ASTSimpleExpression,ASTSourcePosition,bool) -> ASTOdeFunction
+        return ASTOdeFunction(variable_name=variable_name, data_type=data_type, expression=expression,
+                              source_position=source_position, is_recordable=is_recordable, )
+
+    @classmethod
+    def create_ast_ode_shape(cls, lhs=None, rhs=None, source_position=None):
+        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourcePosition) -> ASTOdeShape
+        return ASTOdeShape(lhs, rhs, source_position)
+
+    @classmethod
+    def create_ast_output_block(cls, type, source_position):
+        # type: (ASTSignalType,ASTSourcePosition) -> ASTOutputBlock
+        return ASTOutputBlock(type, source_position)
+
+    @classmethod
+    def create_ast_parameter(cls, name, data_type, source_position):
+        # type: (str,ASTDatatype,ASTSourcePosition) -> ASTParameter
+        return ASTParameter(name=name, data_type=data_type, source_position=source_position)
+
+    @classmethod
+    def create_ast_return_stmt(cls, expression=None, source_position=None):
+        # type: (ASTSimpleExpression|ASTExpression,ASTSourcePosition) -> ASTReturnStmt
+        return ASTReturnStmt(expression, source_position)
+
+    @classmethod
+    def create_ast_simple_expression(cls, function_call, boolean_literal, numeric_literal, is_inf, variable, string,
+                                     source_position):
+        # type: (ASTFunctionCall,bool,float|int,bool,ASTVariable,str,ASTSourcePosition) -> ASTSimpleExpression
+        return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string,
+                                   source_position)

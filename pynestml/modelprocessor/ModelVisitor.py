@@ -41,7 +41,7 @@ from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
 from pynestml.modelprocessor.ASTInputLine import ASTInputLine
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
 from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction

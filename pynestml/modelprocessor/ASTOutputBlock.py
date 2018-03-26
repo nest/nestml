@@ -20,7 +20,8 @@
 
 
 from pynestml.modelprocessor.ASTNode import ASTNode
-from enum import Enum
+from pynestml.modelprocessor.ASTSignalType import ASTSignalType
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 
 
 class ASTOutputBlock(ASTNode):
@@ -36,6 +37,7 @@ class ASTOutputBlock(ASTNode):
     __type = None
 
     def __init__(self, _type=None, _sourcePosition=None):
+        # type: (ASTSignalType,ASTSourcePosition) -> None
         """
         Standard constructor.
         :param _type: the type of the output buffer.
@@ -43,23 +45,10 @@ class ASTOutputBlock(ASTNode):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_type is SignalType.SPIKE or _type is SignalType.CURRENT), \
+        assert (_type is ASTSignalType.SPIKE or _type is ASTSignalType.CURRENT), \
             '(PyNestML.AST.OutputBlock) No or wrong type specification buffer provided (%s)!' % type(_type)
         super(ASTOutputBlock, self).__init__(_sourcePosition)
         self.__type = _type
-
-    @classmethod
-    def makeASTOutputBlock(cls, _type=None, _sourcePosition=None):
-        """
-        Factory method of the ASTOutputBlock class.
-        :param _type: the type of the output buffer.
-        :type _type: SignalType
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTOutputBlock object
-        :rtype: ASTOutputBlock
-        """
-        return cls(_type, _sourcePosition)
 
     def isSpike(self):
         """
@@ -67,7 +56,7 @@ class ASTOutputBlock(ASTNode):
         :return: True if spike, otherwise False.
         :rtype: bool
         """
-        return self.__type is SignalType.SPIKE
+        return self.__type is ASTSignalType.SPIKE
 
     def isCurrent(self):
         """
@@ -75,7 +64,7 @@ class ASTOutputBlock(ASTNode):
         :return: True if current, otherwise False.
         :rtype: bool
         """
-        return self.__type is SignalType.CURRENT
+        return self.__type is ASTSignalType.CURRENT
 
     def getParent(self, _ast=None):
         """
@@ -106,11 +95,3 @@ class ASTOutputBlock(ASTNode):
         if not isinstance(_other, ASTOutputBlock):
             return False
         return self.isSpike() == _other.isSpike() and self.isCurrent() == _other.isCurrent()
-
-
-class SignalType(Enum):
-    """
-    This enum is used to describe the type of the emitted signal. 
-    """
-    SPIKE = 1
-    CURRENT = 2

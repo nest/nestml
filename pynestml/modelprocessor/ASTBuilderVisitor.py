@@ -21,7 +21,7 @@ import re
 import ntpath
 from antlr4 import *
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.ASTOutputBlock import SignalType
+from pynestml.modelprocessor.ASTSignalType import ASTSignalType
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.CommentCollectorVisitor import CommentCollectorVisitor
@@ -47,12 +47,12 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                  _endColumn=ctx.stop.column)
         for child in ctx.neuron():
             neurons.append(self.visit(child))
-        from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
         # extract the name of the artifact from the context
         artifactName = ntpath.basename(ctx.start.source[1].fileName)
-        compilationUnit = ASTNESTMLCompilationUnit. \
-            makeASTNESTMLCompilationUnit(_listOfNeurons=neurons, _sourcePosition=sourcePosition,
-                                         _artifactName=artifactName)
+        compilationUnit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_neurons=neurons,
+                                                                            source_position=sourcePosition,
+                                                                            artifact_name=artifactName)
         # first ensure certain properties of the neuron
         CoCosManager.checkNeuronNamesUnique(compilationUnit)
         return compilationUnit
@@ -272,10 +272,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-        return ASTLogicalOperator.makeASTLogicalOperator(_isLogicalAnd=isLogicalAnd,
-                                                         _isLogicalOr=isLogicalOr,
-                                                         _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_logical_operator(is_logical_and=isLogicalAnd,
+                                                          is_logical_or=isLogicalOr,
+                                                          source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
     def visitVariable(self, ctx):
@@ -313,10 +312,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
-        odeFunction = ASTOdeFunction.makeASTOdeFunction(_isRecordable=isRecordable, _variableName=variableName,
-                                                        _dataType=dataType,
-                                                        _expression=expression, _sourcePosition=sourcePos)
+        odeFunction = ASTNodeFactory.create_ast_ode_function(is_recordable=isRecordable, variable_name=variableName,
+                                                             data_type=dataType, expression=expression,
+                                                             source_position=sourcePos)
         odeFunction.setComment(self.__comments.visit(ctx))
         return odeFunction
 
@@ -328,8 +326,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
-        odeEquation = ASTOdeEquation.makeASTOdeEquation(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        odeEquation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=sourcePos)
         odeEquation.setComment(self.__comments.visit(ctx))
         return odeEquation
 
@@ -341,8 +338,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
-        shape = ASTOdeShape.makeASTOdeShape(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        shape = ASTNodeFactory.create_ast_ode_shape(lhs=lhs, rhs=rhs, source_position=sourcePos)
         shape.setComment(self.__comments.visit(ctx))
         return shape
 
@@ -436,8 +432,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
-        return ASTReturnStmt.makeASTReturnStmt(_expression=retExpression, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_return_stmt(expression=retExpression, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#ifStmt.
     def visitIfStmt(self, ctx):
@@ -535,7 +530,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         from pynestml.modelprocessor.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
         from pynestml.modelprocessor.ASTNeuron import ASTNeuron
         artifactName = ntpath.basename(ctx.start.source[1].fileName)
-        neuron = ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos, _artifactName=artifactName)
+        neuron = ASTNodeFactory.create_ast_neuron(name=name, body=body, source_position=sourcePos,
+                                                  artifact_name=artifactName)
         # update the comments
         neuron.setComment(self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
@@ -656,8 +652,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
-        ret = ASTInputBlock.makeASTInputBlock(_inputDefinitions=inputLines, _sourcePosition=sourcePos)
+        ret = ASTNodeFactory.create_ast_input_block(input_definitions=inputLines, source_position=sourcePos)
         ret.setComment(self.__comments.visit(ctx))
         return ret
 
@@ -671,19 +666,18 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 inputTypes.append(self.visit(Type))
         dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
         if ctx.isCurrent:
-            signalType = SignalType.CURRENT
+            signalType = ASTSignalType.CURRENT
         elif ctx.isSpike:
-            signalType = SignalType.SPIKE
+            signalType = ASTSignalType.SPIKE
         else:
             signalType = None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        ret = ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter, _dataType=dataType,
-                                            _inputTypes=inputTypes, _signalType=signalType,
-                                            _sourcePosition=sourcePos)
+        ret = ASTNodeFactory.create_ast_input_line(name=name, size_parameter=sizeParameter, data_type=dataType,
+                                                   input_types=inputTypes, signal_type=signalType,
+                                                   source_position=sourcePos)
         ret.setComment(self.__comments.visit(ctx))
         return ret
 
@@ -695,9 +689,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTInputType import ASTInputType
-        return ASTInputType.makeASTInputType(_isInhibitory=isInhibitory, _isExcitatory=isExcitatory,
-                                             _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_input_type(is_inhibitory=isInhibitory, is_excitatory=isExcitatory,
+                                                    source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
@@ -705,15 +698,13 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock, SignalType
+        from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock, ASTSignalType
         if ctx.isSpike is not None:
-            ret = ASTOutputBlock.makeASTOutputBlock(_type=SignalType.SPIKE,
-                                                    _sourcePosition=sourcePos)
+            ret = ASTNodeFactory.create_ast_output_block(type=ASTSignalType.SPIKE, source_position=sourcePos)
             ret.setComment(self.__comments.visit(ctx))
             return ret
         elif ctx.isCurrent is not None:
-            ret = ASTOutputBlock.makeASTOutputBlock(_type=SignalType.CURRENT,
-                                                    _sourcePosition=sourcePos)
+            ret = ASTNodeFactory.create_ast_output_block(type=ASTSignalType.CURRENT, source_position=sourcePos)
             ret.setComment(self.__comments.visit(ctx))
             return ret
         else:
@@ -745,8 +736,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTParameter import ASTParameter
-        return ASTParameter.makeASTParameter(_name=name, _dataType=dataType, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_parameter(name=name, data_type=dataType, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#stmt.
     def visitStmt(self, ctx):

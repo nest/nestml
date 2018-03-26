@@ -250,7 +250,7 @@ class CoCosManager(object):
         :param _compilationUnit: a single compilation unit.
         :type _compilationUnit: ASTCompilationUnit
         """
-        from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
         assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNESTMLCompilationUnit)), \
             '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(_compilationUnit)
         cls.__multipleNeuronsWithSameName(_compilationUnit)

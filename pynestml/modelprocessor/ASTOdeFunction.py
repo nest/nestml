@@ -37,56 +37,35 @@ class ASTOdeFunction(ASTNode):
     __dataType = None
     __expression = None
 
-    def __init__(self, _isRecordable=False, _variableName=None, _dataType=None, _expression=None, _sourcePosition=None):
+    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, source_position=None):
         """
         Standard constructor.
-        :param _isRecordable: (optional) is this function recordable or not.
-        :type _isRecordable: bool
-        :param _variableName: the name of the variable.
-        :type _variableName: str
-        :param _dataType: the datatype of the function.
-        :type _dataType: ASTDataType
-        :param _expression: the computation expression.
-        :type _expression: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :param is_recordable: (optional) is this function recordable or not.
+        :type is_recordable: bool
+        :param variable_name: the name of the variable.
+        :type variable_name: str
+        :param data_type: the datatype of the function.
+        :type data_type: ASTDataType
+        :param expression: the computation expression.
+        :type expression: ASTExpression
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_variableName is not None and isinstance(_variableName, str)), \
-            '(PyNestML.AST.OdeFunction) No or wrong type of variable name provided (%s)!' % type(_variableName)
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
-            '(PyNestML.AST.OdeFunction) No or wrong type of variable datatype provided (%s)!' % type(_dataType)
-        assert (_expression is not None and (isinstance(_expression, ASTExpression) or
-                                             isinstance(_expression, ASTSimpleExpression))), \
-            '(PyNestML.AST.OdeFunction) No or wrong type of computation expression provided (%s)!' % type(_expression)
-        assert (_isRecordable is None or isinstance(_isRecordable, bool)), \
+        assert (variable_name is not None and isinstance(variable_name, str)), \
+            '(PyNestML.AST.OdeFunction) No or wrong type of variable name provided (%s)!' % type(variable_name)
+        assert (data_type is not None and isinstance(data_type, ASTDatatype)), \
+            '(PyNestML.AST.OdeFunction) No or wrong type of variable datatype provided (%s)!' % type(data_type)
+        assert (expression is not None and (isinstance(expression, ASTExpression) or
+                                            isinstance(expression, ASTSimpleExpression))), \
+            '(PyNestML.AST.OdeFunction) No or wrong type of computation expression provided (%s)!' % type(expression)
+        assert (is_recordable is None or isinstance(is_recordable, bool)), \
             '(PyNestML.AST.OdeFunction) No or wrong type of is-recordable parameter specified (%s)!' % type(
-                _isRecordable)
-        super(ASTOdeFunction, self).__init__(_sourcePosition)
-        self.__isRecordable = _isRecordable
-        self.__variableName = _variableName
-        self.__dataType = _dataType
-        self.__expression = _expression
-
-    @classmethod
-    def makeASTOdeFunction(cls, _isRecordable=False, _variableName=None, _dataType=None, _expression=None,
-                           _sourcePosition=None):
-        """
-        A factory method used to generate new ASTOdeFunction.
-        :param _isRecordable: is this function recordable or not.
-        :type _isRecordable: bool
-        :param _variableName: the name of the variable.
-        :type _variableName: str
-        :param _dataType: the datatype of the function.
-        :type _dataType: ASTDataType
-        :param _expression: the computation expression.
-        :type _expression: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return a new ASTOdeFunction object
-        :rtype ASTOdeFunction
-        """
-        return cls(_isRecordable=_isRecordable, _variableName=_variableName, _dataType=_dataType,
-                   _expression=_expression, _sourcePosition=_sourcePosition)
+                is_recordable)
+        super(ASTOdeFunction, self).__init__(source_position)
+        self.__isRecordable = is_recordable
+        self.__variableName = variable_name
+        self.__dataType = data_type
+        self.__expression = expression
 
     def isRecordable(self):
         """

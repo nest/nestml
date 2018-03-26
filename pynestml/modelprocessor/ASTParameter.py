@@ -38,38 +38,23 @@ class ASTParameter(ASTNode):
     __name = None
     __dataType = None
 
-    def __init__(self, _name=None, _dataType=None, _sourcePosition=None):
+    def __init__(self, name=None, data_type=None, source_position=None):
         """
         Standard constructor.
-        :param _name: the name of the parameter.
-        :type _name: str
-        :param _dataType: the type of the parameter. 
-        :type _dataType: ASTDatatype
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :param name: the name of the parameter.
+        :type name: str
+        :param data_type: the type of the parameter.
+        :type data_type: ASTDatatype
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(_name)
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
-            '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(_dataType)
-        super(ASTParameter, self).__init__(_sourcePosition)
-        self.__dataType = _dataType
-        self.__name = _name
-
-    @classmethod
-    def makeASTParameter(cls, _name=None, _dataType=None, _sourcePosition=None):
-        """
-        The factory method of the ASTParameter class.
-        :param _name: the name of the parameter.
-        :type _name: str
-        :param _dataType: the type of the parameter. 
-        :type _dataType: ASTDatatype
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTParameter object.
-        :rtype: ASTParameter
-        """
-        return cls(_name=_name, _dataType=_dataType, _sourcePosition=_sourcePosition)
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(name)
+        assert (data_type is not None and isinstance(data_type, ASTDatatype)), \
+            '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(data_type)
+        super(ASTParameter, self).__init__(source_position)
+        self.__dataType = data_type
+        self.__name = name
 
     def getName(self):
         """

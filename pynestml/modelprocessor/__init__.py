@@ -5,7 +5,7 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'ASTBitOperator', 'ASTInputLine', 'BooleanLiteralVisitor', 'CoCo', 'NESTMLVisitor', 'ASTBlock',
            'ASTInputType', 'CoCoAllVariablesDefined', 'CoCosManager', 'NoSemantics', 'ASTBlockWithVariables',
            'ASTLogicalOperator', 'CoCoBufferNotAssigned', 'CoCoSumHasCorrectParameter', 'NumericLiteralVisitor',
-           'ASTBody', 'ASTNESTMLCompilationUnit', 'CoCoConvolveCondCorrectlyBuilt', 'CoCoTypeOfBufferUnique',
+           'ASTBody', 'ASTNestMLCompilationUnit.py', 'CoCoConvolveCondCorrectlyBuilt', 'CoCoTypeOfBufferUnique',
            'ParenthesesVisitor', 'ASTBuilderVisitor', 'ASTNeuron', 'CoCoCorrectNumeratorOfUnit',
            'CoCoUserDefinedFunctionCorrectlyDefined', 'PowVisitor', 'ASTComparisonOperator', 'ASTOdeEquation',
            'CoCoCorrectOrderInEquation', 'CoCoVariableOncePerScope', 'PredefinedFunctions', 'ASTCompoundStmt',
@@ -23,4 +23,5 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'ASTFunctionCall', 'ASTUnitType', 'CoCoNeuronNameUnique', 'UnitType', 'ASTFunction', 'ASTUnitTypeVisitor',
            'CoCoNoNestNameSpaceCollision', 'LineOperationVisitor', 'VariableSymbol', 'ASTHigherOrderVisitor',
            'ASTUpdateBlock', 'CoCoNoShapesExceptInConvolve', 'LogicalNotVisitor', 'VariableVisitor',
-           'ASTIfClause', 'ASTVariable', 'CoCoNoTwoNeuronsInSetOfCompilationUnits', 'NESTMLParentAwareVisitor']
+           'ASTIfClause', 'ASTVariable', 'CoCoNoTwoNeuronsInSetOfCompilationUnits', 'NESTMLParentAwareVisitor',
+           'ASTSignalType.py']

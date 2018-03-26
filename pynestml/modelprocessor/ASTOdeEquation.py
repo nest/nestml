@@ -57,21 +57,6 @@ class ASTOdeEquation(ASTNode):
         self.__rhs = _rhs
         return
 
-    @classmethod
-    def makeASTOdeEquation(cls, _lhs=None, _rhs=None, _sourcePosition=None):
-        """
-        A factory method used to generate new ASTOdeEquation.
-        :param _lhs: an object of type ASTVariable
-        :type _lhs: ASTVariable
-        :param _rhs: an object of type ASTExpression
-        :type _rhs: ASTExpression or ASTSimpleExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return a new ASTOdeEquation object.
-        :rtype ASTOdeEquation
-        """
-        return cls(_lhs, _rhs, _sourcePosition)
-
     def getLhs(self):
         """
         Returns the left-hand side of the equation.

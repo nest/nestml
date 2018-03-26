@@ -36,32 +36,19 @@ class ASTReturnStmt(ASTNode):
     """
     __expression = None
 
-    def __init__(self, _expression=None, _sourcePosition=None):
+    def __init__(self, expression=None, source_position=None):
         """
         Standard constructor.
-        :param _expression: an expression.
-        :type _expression: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :param expression: an expression.
+        :type expression: ASTExpression
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_expression is None or isinstance(_expression, ASTExpression)
-                or isinstance(_expression, ASTSimpleExpression)), \
-            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided (%s)!' % type(_expression)
-        super(ASTReturnStmt, self).__init__(_sourcePosition)
-        self.__expression = _expression
-
-    @classmethod
-    def makeASTReturnStmt(cls, _expression=None, _sourcePosition=None):
-        """
-        Factory method of the ASTReturnStmt class.
-        :param _expression: an optional return expression.
-        :type _expression: ASTExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTReturnStmt object.
-        :rtype: ASTReturnStmt
-        """
-        return cls(_expression, _sourcePosition)
+        assert (expression is None or isinstance(expression, ASTExpression)
+                or isinstance(expression, ASTSimpleExpression)), \
+            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided (%s)!' % type(expression)
+        super(ASTReturnStmt, self).__init__(source_position)
+        self.__expression = expression
 
     def hasExpression(self):
         """

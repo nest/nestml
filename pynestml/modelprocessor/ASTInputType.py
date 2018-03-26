@@ -55,21 +55,6 @@ class ASTInputType(ASTNode):
         self.__isInhibitory = _isInhibitory
         return
 
-    @classmethod
-    def makeASTInputType(cls, _isInhibitory=False, _isExcitatory=False, _sourcePosition=None):
-        """
-        Factory method of the ASTInputType class.
-        :param _isInhibitory: is inhibitory buffer.
-        :type _isInhibitory: bool
-        :param _isExcitatory: is excitatory buffer.
-        :type _isExcitatory: book
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTInputType object.
-        :rtype: ASTInputType
-        """
-        return cls(_isInhibitory, _isExcitatory, _sourcePosition)
-
     def isExcitatory(self):
         """
         Returns whether it is excitatory type.

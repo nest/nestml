@@ -1,5 +1,5 @@
 #
-# ASTNESTMLCompilationUnit.py
+# ASTNestMLCompilationUnit.py
 #
 # This file is part of NEST.
 #
@@ -46,30 +46,6 @@ class ASTNESTMLCompilationUnit(ASTNode):
         self.__neuronList = list()
         self.__artifactName = _artifactName
         return
-
-    @classmethod
-    def makeASTNESTMLCompilationUnit(cls, _listOfNeurons=list(), _sourcePosition=None, _artifactName=None):
-        """
-        A factory method used to generate new ASTNESTMLCompilationUnits.
-        :param _listOfNeurons: a list of ASTNeurons
-        :type _listOfNeurons: list
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :param _artifactName: the name of the file this model is contained in
-        :type _artifactName: str
-        :return: a new object of type ASTNESTMLCompilationUnits.
-        :rtype: ASTNESTMLCompilationUnits
-        """
-        assert (_listOfNeurons is not None and isinstance(_listOfNeurons, list)), \
-            '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of list of neurons provided (%s)!' % type(
-                _listOfNeurons)
-        for neuron in _listOfNeurons:
-            assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
-                '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of neuron provided (%s)!' % type(neuron)
-        instance = cls(_sourcePosition, _artifactName)
-        for i in _listOfNeurons:
-            instance.addNeuron(i)
-        return instance
 
     def addNeuron(self, _neuron):
         """

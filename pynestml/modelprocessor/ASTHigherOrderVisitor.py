@@ -40,7 +40,7 @@ from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
 from pynestml.modelprocessor.ASTInputLine import ASTInputLine
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
 from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
@@ -713,7 +713,7 @@ class ASTHigherOrderVisitor(object):
         :param _func: a single single function.
         :type _func: fun
         """
-        from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
         assert (_ast is not None and isinstance(_ast, ASTNESTMLCompilationUnit)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of compilation unit provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ASTNode import ASTNode
-from pynestml.modelprocessor.ASTOutputBlock import SignalType
+from pynestml.modelprocessor.ASTSignalType import ASTSignalType
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 
@@ -47,66 +47,43 @@ class ASTInputLine(ASTNode):
     __inputTypes = None
     __signalType = None
 
-    def __init__(self, _name=None, _sizeParameter=None, _dataType=None, _inputTypes=list(), _signalType=None,
-                 _sourcePosition=None):
+    def __init__(self, name=None, size_parameter=None, data_type=None, input_types=list(), signal_type=None,
+                 source_position=None):
         """
         Standard constructor.
-        :param _name: the name of the buffer
-        :type _name: str
-        :param _sizeParameter: a parameter indicating the index in an array.
-        :type _sizeParameter:  str
-        :param _dataType: the data type of this buffer
-        :type _dataType: ASTDataType
-        :param _inputTypes: a list of input types specifying the buffer.
-        :type _inputTypes: list(ASTInputType)
-        :param _signalType: type of signal received, i.e., spikes or currents
-        :type _signalType: SignalType
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :param name: the name of the buffer
+        :type name: str
+        :param size_parameter: a parameter indicating the index in an array.
+        :type size_parameter:  str
+        :param data_type: the data type of this buffer
+        :type data_type: ASTDataType
+        :param input_types: a list of input types specifying the buffer.
+        :type input_types: list(ASTInputType)
+        :param signal_type: type of signal received, i.e., spikes or currents
+        :type signal_type: SignalType
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(_name)
-        assert (_signalType is not None and isinstance(_signalType, SignalType)), \
-            '(PyNestML.AST.InputLine) No or wrong type of input signal type provided (%s)!' % type(_signalType)
-        assert (_inputTypes is not None and isinstance(_inputTypes, list)), \
-            '(PyNestML.AST.InputLine) No or wrong type of input types provided (%s)!' % type(_inputTypes)
-        for typ in _inputTypes:
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(name)
+        assert (signal_type is not None and isinstance(signal_type, ASTSignalType)), \
+            '(PyNestML.AST.InputLine) No or wrong type of input signal type provided (%s)!' % type(signal_type)
+        assert (input_types is not None and isinstance(input_types, list)), \
+            '(PyNestML.AST.InputLine) No or wrong type of input types provided (%s)!' % type(input_types)
+        for typ in input_types:
             assert (typ is not None and isinstance(typ, ASTInputType)), \
                 '(PyNestML.AST.InputLine) No or wrong type of input type provided (%s)!' % type(typ)
-        assert (_sizeParameter is None or isinstance(_sizeParameter, str)), \
-            '(PyNestML.AST.InputLine) Wrong type of index parameter provided (%s)!' % type(_sizeParameter)
-        assert (_dataType is None or isinstance(_dataType, ASTDatatype)), \
-            '(PyNestML.AST.InputLine) Wrong type of data-type provided (%s)!' % type(_dataType)
-        super(ASTInputLine, self).__init__(_sourcePosition)
-        self.__signalType = _signalType
-        self.__inputTypes = _inputTypes
-        self.__sizeParameter = _sizeParameter
-        self.__name = _name
-        self.__dataType = _dataType
+        assert (size_parameter is None or isinstance(size_parameter, str)), \
+            '(PyNestML.AST.InputLine) Wrong type of index parameter provided (%s)!' % type(size_parameter)
+        assert (data_type is None or isinstance(data_type, ASTDatatype)), \
+            '(PyNestML.AST.InputLine) Wrong type of data-type provided (%s)!' % type(data_type)
+        super(ASTInputLine, self).__init__(source_position)
+        self.__signalType = signal_type
+        self.__inputTypes = input_types
+        self.__sizeParameter = size_parameter
+        self.__name = name
+        self.__dataType = data_type
         return
-
-    @classmethod
-    def makeASTInputLine(cls, _name=None, _sizeParameter=None, _dataType=None, _inputTypes=list(), _signalType=None,
-                         _sourcePosition=None):
-        """
-        Factory method of the ASTInputLine class.
-        :param _name: the name of the buffer
-        :type _name: str
-        :param _sizeParameter: a parameter indicating the index in an array.
-        :type _sizeParameter:  str
-        :param _dataType: the data type of this buffer
-        :type _dataType: ASTDataType
-        :param _inputTypes: a list of input types specifying the buffer.
-        :type _inputTypes: list(ASTInputType)
-        :param _signalType: type of signal received, i.e., spikes or currents
-        :type _signalType: SignalType
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTInputLine object.
-        :rtype: ASTInputLine
-        """
-        return cls(_name=_name, _sizeParameter=_sizeParameter, _dataType=_dataType, _inputTypes=_inputTypes,
-                   _signalType=_signalType, _sourcePosition=_sourcePosition)
 
     def getName(self):
         """
@@ -154,7 +131,7 @@ class ASTInputLine(ASTNode):
         :return: True if spike buffer, False else.
         :rtype: bool 
         """
-        return self.__signalType is SignalType.SPIKE
+        return self.__signalType is ASTSignalType.SPIKE
 
     def isCurrent(self):
         """
@@ -162,7 +139,7 @@ class ASTInputLine(ASTNode):
         :return: True if current buffer, False else.
         :rtype: bool 
         """
-        return self.__signalType is SignalType.CURRENT
+        return self.__signalType is ASTSignalType.CURRENT
 
     def isExcitatory(self):
         """

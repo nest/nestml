@@ -52,21 +52,6 @@ class ASTOdeShape(ASTNode):
         self.__rhs = _rhs
         return
 
-    @classmethod
-    def makeASTOdeShape(cls, _lhs=None, _rhs=None, _sourcePosition=None):
-        """
-        Factory method of ASTOdeShape.
-        :param _lhs: the variable corresponding to the shape
-        :type _lhs: ASTVariable
-        :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression or ASTSimpleExpression
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTShape object
-        :rtype: ASTOdeShape
-        """
-        return cls(_lhs, _rhs, _sourcePosition)
-
     def getVariable(self):
         """
         Returns the variable of the left-hand side.

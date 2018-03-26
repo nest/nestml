@@ -28,6 +28,7 @@ from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, Va
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.CoCosManager import CoCosManager
+from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 
 
 class ASTSymbolTableVisitor(NESTMLVisitor):
@@ -88,7 +89,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         CoCosManager.postSymbolTableBuilderChecks(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None and \
-                        len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
+                len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
             # this case should be prevented, since several input blocks result in  a incorrect model
             if isinstance(_neuron.getInputBlocks(), list):
                 buffers = (buffer for bufferA in _neuron.getInputBlocks() for buffer in bufferA.getInputLines())
@@ -681,8 +682,8 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(_odeShape)
         if _odeShape.getVariable().getDifferentialOrder() == 0 and \
-                        _odeShape.getScope().resolveToSymbol(_odeShape.getVariable().getCompleteName(),
-                                                             SymbolKind.VARIABLE) is None:
+                _odeShape.getScope().resolveToSymbol(_odeShape.getVariable().getCompleteName(),
+                                                     SymbolKind.VARIABLE) is None:
             symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
                                     _name=_odeShape.getVariable().getName(),
                                     _blockType=BlockType.EQUATION,
@@ -873,7 +874,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                     found = False
                     for shape in _equationsBlock.getOdeShapes():
                         if shape.getVariable().getName() == declaration.getVariable().getName() and \
-                                        shape.getVariable().getDifferentialOrder() == i:
+                                shape.getVariable().getDifferentialOrder() == i:
                             found = True
                             break
                     # now if we did not found the corresponding declaration, we have to add it by hand
@@ -890,9 +891,9 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                                                                                  _sourcePosition=ASTSourcePosition.
                                                                                  getAddedSourcePosition())
                         _equationsBlock.getDeclarations().append(
-                            ASTOdeShape.makeASTOdeShape(_lhs=lhsVariable,
-                                                        _rhs=expression,
-                                                        _sourcePosition=ASTSourcePosition.getAddedSourcePosition()))
+                            ASTNodeFactory.create_ast_ode_shape(lhs=lhsVariable,
+                                                                rhs=expression,
+                                                                source_position=ASTSourcePosition.getAddedSourcePosition()))
             if isinstance(declaration, ASTOdeEquation):
                 # now we found a variable with order > 0, thus check if all previous orders have been defined
                 order = declaration.getLhs().getDifferentialOrder()
@@ -901,7 +902,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                     found = False
                     for ode in _equationsBlock.getOdeEquations():
                         if ode.getLhs().getName() == declaration.getLhs().getName() and \
-                                        ode.getLhs().getDifferentialOrder() == i:
+                                ode.getLhs().getDifferentialOrder() == i:
                             found = True
                             break
                     # now if we did not found the corresponding declaration, we have to add it by hand
@@ -918,9 +919,8 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                                                                                  _sourcePosition=ASTSourcePosition.
                                                                                  getAddedSourcePosition())
                         _equationsBlock.getDeclarations().append(
-                            ASTOdeEquation.makeASTOdeEquation(_lhs=lhsVariable,
-                                                              _rhs=expression,
-                                                              _sourcePosition=ASTSourcePosition.getAddedSourcePosition()))
+                            ASTNodeFactory.create_ast_ode_equation(lhs=lhsVariable, rhs=expression,
+                                                                   source_position=ASTSourcePosition.getAddedSourcePosition()))
             checked.append(declaration)
 
     @classmethod
@@ -977,7 +977,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
         existingSymbol = _odeEquation.getScope().resolveToSymbol(_odeEquation.getLhs().getName() + '\'' * diffOrder,
-                                                           SymbolKind.VARIABLE)
+                                                                 SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
             code, message = Messages.getOdeUpdated(_odeEquation.getLhs().getNameOfLhs())
@@ -1006,7 +1006,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
             return
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
         existingSymbol = _odeShape.getScope().resolveToSymbol(_odeShape.getVariable().getNameOfLhs(),
-                                                           SymbolKind.VARIABLE)
+                                                              SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeShape.getExpression())
             existingSymbol.setVariableType(VariableType.SHAPE)

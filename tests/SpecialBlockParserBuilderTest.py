@@ -25,7 +25,7 @@ from antlr4 import *
 from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.generated.PyNESTMLParser import PyNESTMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions

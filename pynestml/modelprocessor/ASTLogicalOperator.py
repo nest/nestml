@@ -50,21 +50,6 @@ class ASTLogicalOperator(ASTNode):
         self.__isLogicalOr = _isLogicalOr
         return
 
-    @classmethod
-    def makeASTLogicalOperator(cls, _isLogicalAnd=False, _isLogicalOr=False, _sourcePosition=None):
-        """
-        The factory method of the ASTLogicalOperator class.
-        :param _isLogicalAnd: is logical and.
-        :type _isLogicalAnd: bool
-        :param _isLogicalOr: is logical or.
-        :type _isLogicalOr: bool
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTLogicalOperator object.
-        :rtype: ASTLogicalOperator
-        """
-        return cls(_isLogicalAnd, _isLogicalOr, _sourcePosition)
-
     def isAnd(self):
         """
         Returns whether it is an AND operator.

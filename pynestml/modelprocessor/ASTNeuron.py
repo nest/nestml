@@ -62,23 +62,6 @@ class ASTNeuron(ASTNode):
         self.__body = _body
         self.__artifactName = _artifactName
 
-    @classmethod
-    def makeASTNeuron(cls, _name=None, _body=None, _sourcePosition=None, _artifactName=None):
-        """
-        Factory method of the ASTNeuron class.
-        :param _name: the name of the neuron
-        :type _name: str
-        :param _body: the body containing the definitions.
-        :type _body: ASTBody
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :param _artifactName: the name of the file this neuron is contained in
-        :type _artifactName: str
-        :return: a new ASTNeuron object.
-        :rtype: ASTNeuron
-        """
-        return cls(_name, _body, _sourcePosition, _artifactName)
-
     def getName(self):
         """
         Returns the name of the neuron.
@@ -284,7 +267,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
-                                                               symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
+                                                       symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
@@ -523,7 +506,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and \
-                            symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined() \
+                    symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined() \
                     and not symbol.isPredefined() and not symbol.isPredefined():
                 ret.append(symbol)
         return ret
@@ -539,7 +522,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and \
-                            symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined() \
+                    symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined() \
                     and not symbol.isPredefined() and not symbol.isPredefined():
                 ret.append(symbol)
         return ret

@@ -57,19 +57,6 @@ class ASTInputBlock(ASTNode):
         self.__inputDefinitions = _inputDefinitions
         return
 
-    @classmethod
-    def makeASTInputBlock(cls, _inputDefinitions=list(), _sourcePosition=None):
-        """
-        Factory method of the ASTInputBlock class.
-        :param _inputDefinitions: a list of input definitions.
-        :type _inputDefinitions: list(ASTInputLine)
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTInputBlock object
-        :rtype: ASTInputBlock
-        """
-        return cls(_inputDefinitions, _sourcePosition)
-
     def getInputLines(self):
         """
         Returns the list of input lines.
