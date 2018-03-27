@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Union
+
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.modelprocessor.ASTExpression import ASTExpression
@@ -71,10 +73,15 @@ class ASTNodeFactory(object):
                                      source_position)
 
     @classmethod
-    def create_ast_assignment(cls, lhs=None, is_direct_assignment=False, is_compound_sum=False, is_compound_minus=False,
-                              is_compound_product=False, is_compound_quotient=False, expression=None,
-                              source_position=None):
-        # type:(ASTVariable,bool,bool,bool,bool,bool,(ASTExpression|ASTSimpleExpression),ASTSourcePosition) -> ASTAssignment
+    def create_ast_assignment(cls, lhs=None,  # type: ASTVariable
+                              is_direct_assignment=False,  # type: bool
+                              is_compound_sum=False,  # type: bool
+                              is_compound_minus=False,  # type: bool
+                              is_compound_product=False,  # type: bool
+                              is_compound_quotient=False,  # type: bool
+                              expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
+                              source_position=None  # type: ASTSourcePosition
+                              ):  # type: (...) -> ASTAssignment
         return ASTAssignment(lhs, is_direct_assignment, is_compound_sum, is_compound_minus, is_compound_product,
                              is_compound_quotient, expression, source_position)
 
@@ -263,8 +270,23 @@ class ASTNodeFactory(object):
         return ASTReturnStmt(expression, source_position)
 
     @classmethod
-    def create_ast_simple_expression(cls, function_call, boolean_literal, numeric_literal, is_inf, variable, string,
-                                     source_position):
-        # type: (ASTFunctionCall,bool,float|int,bool,ASTVariable,str,ASTSourcePosition) -> ASTSimpleExpression
+    def create_ast_simple_expression(cls, function_call=None,  # type: ASTFunctionCall
+                                     boolean_literal=None,  # type: bool
+                                     numeric_literal=None,  # type: Union(float,int)
+                                     is_inf=False,  # type: bool
+                                     variable=None,  # type: ASTVariable
+                                     string=None,  # type: str
+                                     source_position=None  # type: ASTSourcePosition
+                                     ):  # type: (...) -> ASTSimpleExpression
         return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string,
                                    source_position)
+
+    @classmethod
+    def create_ast_small_stmt(cls,
+                              assignment=None,  # type: ASTAssignment
+                              function_call=None,  # type: ASTFunctionCall
+                              declaration=None,  # type: ASTDeclaration
+                              return_stmt=None,  # type: ASTReturnStmt
+                              source_position=None  # type: ASTSourcePosition
+                              ):  # type: (...) -> ASTSmallStmt
+        return ASTSmallStmt(assignment, function_call, declaration, return_stmt, source_position)

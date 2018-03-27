@@ -100,30 +100,6 @@ class ASTSimpleExpression(ASTNode):
         self.__string = _string
         return
 
-    @classmethod
-    def makeASTSimpleExpression(cls, _functionCall=None, _booleanLiteral=None, _numericLiteral=None,
-                                _isInf=False, _variable=None, _string=None, _sourcePosition=None):
-        """
-        The factory method of the ASTSimpleExpression class.
-        :param _functionCall: a function call.
-        :type _functionCall: ASTFunctionCall
-        :param _booleanLiteral: a boolean value.
-        :type _booleanLiteral: bool
-        :param _numericLiteral: a numeric value.
-        :type _numericLiteral: float/int
-        :param _isInf: is inf symbol.
-        :type _isInf: bool
-        :param _variable: a variable object.
-        :type _variable: ASTVariable
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :param _string: a single string literal
-        :type _string: str
-        :return: a new ASTSimpleExpression object.
-        :rtype: ASTSimpleExpression
-        """
-        return cls(_functionCall, _booleanLiteral, _numericLiteral, _isInf, _variable, _string, _sourcePosition)
-
     def isFunctionCall(self):
         """
         Returns whether it is a function call or not.

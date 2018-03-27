@@ -75,26 +75,6 @@ class ASTSmallStmt(ASTNode):
         self.__returnStmt = _returnStmt
         return
 
-    @classmethod
-    def makeASTSmallStmt(cls, _assignment=None, _functionCall=None, _declaration=None,
-                         _returnStmt=None, _sourcePosition=None):
-        """
-        Factory method of the ASTSmallStmt class.
-        :param _assignment: an ast-assignment object.
-        :type _assignment: ASTAssignment
-        :param _functionCall: an ast-function call object.
-        :type _functionCall: ASTFunctionCall
-        :param _declaration: an ast-declaration object.
-        :type _declaration: ASTDeclaration
-        :param _returnStmt: an ast-return statement object.
-        :type _returnStmt: ASTReturnStmt
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTSmallStmt object. 
-        :rtype: ASTSmallStmt
-        """
-        return cls(_assignment, _functionCall, _declaration, _returnStmt, _sourcePosition)
-
     def isAssignment(self):
         """
         Returns whether it is an assignment statement or not.

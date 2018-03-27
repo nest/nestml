@@ -209,13 +209,12 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        return ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall,
-                                                           _booleanLiteral=booleanLiteral,
-                                                           _numericLiteral=numericLiteral,
-                                                           _isInf=isInf, _variable=variable,
-                                                           _string=string,
-                                                           _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_simple_expression(function_call=functionCall,
+                                                           boolean_literal=booleanLiteral,
+                                                           numeric_literal=numericLiteral,
+                                                           is_inf=isInf, variable=variable,
+                                                           string=string,
+                                                           source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#unaryOperator.
     def visitUnaryOperator(self, ctx):
@@ -377,10 +376,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
-        return ASTSmallStmt.makeASTSmallStmt(_assignment=assignment, _functionCall=functionCall,
-                                             _declaration=declaration, _returnStmt=returnStmt,
-                                             _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_small_stmt(assignment=assignment, function_call=functionCall,
+                                                    declaration=declaration, return_stmt=returnStmt,
+                                                    source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):

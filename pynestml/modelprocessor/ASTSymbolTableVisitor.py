@@ -887,8 +887,8 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                                                                   _differentialOrder=i,
                                                                   _sourcePosition=ASTSourcePosition.
                                                                   getAddedSourcePosition())
-                        expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
-                                                                                 _sourcePosition=ASTSourcePosition.
+                        expression = ASTNodeFactory.create_ast_simple_expression(variable=rhsVariable,
+                                                                                 source_position=ASTSourcePosition.
                                                                                  getAddedSourcePosition())
                         _equationsBlock.getDeclarations().append(
                             ASTNodeFactory.create_ast_ode_shape(lhs=lhsVariable,
@@ -915,12 +915,18 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                                                                   _differentialOrder=i,
                                                                   _sourcePosition=ASTSourcePosition.
                                                                   getAddedSourcePosition())
-                        expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
-                                                                                 _sourcePosition=ASTSourcePosition.
-                                                                                 getAddedSourcePosition())
+                        expression = ASTNodeFactory.create_ast_simple_expression(variable=rhsVariable,
+                                                                                 source_position=ASTSourcePosition.
+                                                                                 getAddedSourcePosition(),
+                                                                                 function_call=None,
+                                                                                 boolean_literal=None,
+                                                                                 is_inf=False,
+                                                                                 string=None,
+                                                                                 numeric_literal=None)
                         _equationsBlock.getDeclarations().append(
                             ASTNodeFactory.create_ast_ode_equation(lhs=lhsVariable, rhs=expression,
-                                                                   source_position=ASTSourcePosition.getAddedSourcePosition()))
+                                                                   source_position=
+                                                                   ASTSourcePosition.getAddedSourcePosition()))
             checked.append(declaration)
 
     @classmethod

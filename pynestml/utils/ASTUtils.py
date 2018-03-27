@@ -187,7 +187,8 @@ class ASTUtils(object):
                                                                source_position=_rhs.getSourcePosition())
         else:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True, source_position=_rhs.getSourcePosition())
-        varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs, _sourcePosition=_lhs.getSourcePosition())
+        varExpr = ASTNodeFactory.create_ast_simple_expression(variable=_lhs,
+                                                              source_position=_lhs.getSourcePosition())
         varExpr.updateScope(_lhs.getScope())
         op.updateScope(_lhs.getScope())
         rhsInBrackets = ASTNodeFactory.create_ast_expression(is_encapsulated=True, expression=_rhs,
