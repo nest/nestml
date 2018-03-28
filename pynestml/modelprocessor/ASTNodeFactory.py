@@ -180,8 +180,14 @@ class ASTNodeFactory(object):
         return ASTExpression(condition=condition, if_true=if_true, if_not=if_not, source_position=source_position)
 
     @classmethod
-    def create_ast_for_stmt(cls, variable, start_from, end_at, step=0, block=None, source_position=None):
-        # type: (str,ASTSimpleExpression|ASTExpression,ASTSimpleExpression|ASTExpression,float,ASTBlock,ASTSourcePosition) -> ASTForStmt
+    def create_ast_for_stmt(cls,
+                            variable,  # type: str
+                            start_from,  # type: Union(ASTSimpleExpression,ASTExpression)
+                            end_at,  # type: Union(ASTSimpleExpression,ASTExpression)
+                            step=0,  # type: float
+                            block=None,  # type: ASTBlock
+                            source_position=None  # type: ASTSourcePosition
+                            ):  # type: (...) -> ASTForStmt
         return ASTForStmt(variable, start_from, end_at, step, block, source_position)
 
     @classmethod
@@ -290,3 +296,27 @@ class ASTNodeFactory(object):
                               source_position=None  # type: ASTSourcePosition
                               ):  # type: (...) -> ASTSmallStmt
         return ASTSmallStmt(assignment, function_call, declaration, return_stmt, source_position)
+
+    @classmethod
+    def create_ast_unary_operator(cls, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False,
+                                  source_position=None):
+        # type: (bool,bool,bool,ASTSourcePosition) -> ASTUnaryOperator
+        return ASTUnaryOperator(is_unary_plus, is_unary_minus, is_unary_tilde, source_position)
+
+    @classmethod
+    def create_ast_unit_type(cls,
+                             left_parentheses=False,  # type: bool
+                             compound_unit=None,  # type: ASTUnitType
+                             right_parentheses=False,  # type: bool
+                             base=None,  # type: ASTUnitType
+                             is_pow=False,  # type: bool
+                             exponent=None,  # type: int
+                             lhs=None,  # type: Union(ASTUnitType,int)
+                             rhs=None,  # type: ASTUnitType
+                             is_div=False,  # type: bool
+                             is_times=False,  # type: bool
+                             unit=None,  # type: str
+                             source_position=None  # type: ASTSourcePosition
+                             ):  # type: (...) -> ASTUnitType
+        return ASTUnitType(left_parentheses, compound_unit, right_parentheses, base, is_pow, exponent, lhs, rhs, is_div,
+                           is_times, unit, source_position)

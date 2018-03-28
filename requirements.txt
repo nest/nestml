@@ -6,3 +6,4 @@ setuptools
 Jinja2
 astropy
 enum34
+typing

@@ -116,42 +116,6 @@ class ASTUnitType(ASTNode):
         self.__unit = _unit
         return
 
-    @classmethod
-    def makeASTUnitType(cls, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None,
-                        _isPow=False, _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False,
-                        _unit=None, _sourcePosition=None):
-        """
-        Factory method used to create new instances of the class.
-        :param _leftParentheses: contains a left parenthesis
-        :type _leftParentheses: bool
-        :param _compoundUnit: a unit encapsulated in brackets
-        :type _compoundUnit: ASTUnitType
-        :param _rightParentheses: contains a right parenthesis 
-        :type _rightParentheses: bool
-        :param _base: the base expression 
-        :type _base: ASTUnitType
-        :param _isPow: is a power expression
-        :type _isPow: bool
-        :param _exponent: the exponent power, e.g. 2
-        :type _exponent: int
-        :param _lhs: the left-hand side expression
-        :type _lhs: ASTUnitType
-        :param _rhs: the right-hand side expression
-        :type _rhs: ASTUnitType
-        :param _isDiv: is a division expression
-        :type _isDiv: bool
-        :param _isTimes: is a times expression
-        :type _isTimes: bool
-        :param _unit: is a single unit, e.g. mV
-        :type _unit: string
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return a new ASTUnitType object.
-        :rtype ASTUnitType
-        """
-        return cls(_leftParentheses, _compoundUnit, _rightParentheses, _base, _isPow, _exponent, _lhs, _rhs, _isDiv,
-                   _isTimes, _unit, _sourcePosition)
-
     def isEncapsulated(self):
         """
         Returns whether the expression is encapsulated in parametrises, e.g., (1mV - 0.5mV)
@@ -322,7 +286,7 @@ class ASTUnitType(ASTNode):
             return False
         if self.isArithmeticExpression() and _other.isArithmeticExpression() and \
                 not (self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs()) and
-                             self.isTimes() == _other.isTimes() and self.isDiv() == _other.isDiv()):
+                     self.isTimes() == _other.isTimes() and self.isDiv() == _other.isDiv()):
             return False
         if self.isSimpleUnit() + _other.isSimpleUnit() == 1:
             return False

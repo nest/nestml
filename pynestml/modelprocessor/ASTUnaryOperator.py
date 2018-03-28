@@ -57,23 +57,6 @@ class ASTUnaryOperator(ASTNode):
         self.__isUnaryTilde = _isUnaryTilde
         return
 
-    @classmethod
-    def makeASTUnaryOperator(cls, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, _sourcePosition=None):
-        """
-        The factory method of the ASTUnaryOperator class.
-        :param _isUnaryPlus: is a unary plus.
-        :type _isUnaryPlus: bool
-        :param _isUnaryMinus: is a unary minus.
-        :type _isUnaryMinus: bool
-        :param _isUnaryTilde: is a unary tilde.
-        :type _isUnaryTilde: bool
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTUnaryOperator object.
-        :rtype: ASTUnaryOperator
-        """
-        return cls(_isUnaryPlus, _isUnaryMinus, _isUnaryTilde, _sourcePosition)
-
     def isUnaryPlus(self):
         """
         Returns whether it is a unary plus.

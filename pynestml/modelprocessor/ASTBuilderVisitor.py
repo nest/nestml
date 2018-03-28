@@ -96,11 +96,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                  _startColumn=ctx.start.column,
                                                                  _endLine=ctx.stop.line,
                                                                  _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-        return ASTUnitType.makeASTUnitType(_leftParentheses=leftParenthesis, _compoundUnit=compoundUnit,
-                                           _rightParentheses=rightParenthesis, _base=base, _isPow=isPow,
-                                           _exponent=exponent, _lhs=lhs, _rhs=rhs, _isDiv=isDiv,
-                                           _isTimes=isTimes, _unit=unit, _sourcePosition=sourcePosition)
+        return ASTNodeFactory.create_ast_unit_type(left_parentheses=leftParenthesis, compound_unit=compoundUnit,
+                                                   right_parentheses=rightParenthesis, base=base, is_pow=isPow,
+                                                   exponent=exponent, lhs=lhs, rhs=rhs, is_div=isDiv,
+                                                   is_times=isTimes, unit=unit, source_position=sourcePosition)
 
     # Visit a parse tree produced by PyNESTMLParser#expression.
     def visitExpression(self, ctx):
@@ -225,11 +224,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
-        return ASTUnaryOperator.makeASTUnaryOperator(_isUnaryPlus=isUnaryPlus,
-                                                     _isUnaryMinus=isUnaryMinus,
-                                                     _isUnaryTilde=isUnaryTilde,
-                                                     _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_unary_operator(is_unary_plus=isUnaryPlus,
+                                                        is_unary_minus=isUnaryMinus,
+                                                        is_unary_tilde=isUnaryTilde,
+                                                        source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#bitOperator.
     def visitBitOperator(self, ctx):
