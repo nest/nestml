@@ -21,13 +21,12 @@ import os
 import unittest
 
 from antlr4 import *
-from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
@@ -49,19 +48,19 @@ class SymbolTableBuilderTest(unittest.TestCase):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
-                inputFile = FileStream(
+                input_file = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
-                lexer = PyNESTMLLexer(inputFile)
+                lexer = PyNestMLLexer(input_file)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 stream.fill()
                 # parse the file
-                parser = PyNESTMLParser(stream)
+                parser = PyNestMLParser(stream)
                 # process the comments
-                compilationUnit = parser.nestmlCompilationUnit()
+                compilation_unit = parser.nestmlCompilationUnit()
                 # create a new visitor and return the new AST
-                astBuilderVisitor = ASTBuilderVisitor(stream.tokens)
-                ast = astBuilderVisitor.visit(compilationUnit)
+                ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
+                ast = ast_builder_visitor.visit(compilation_unit)
                 # update the corresponding symbol tables
                 SymbolTable.initializeSymbolTable(ast.getSourcePosition())
                 for neuron in ast.getNeuronList():

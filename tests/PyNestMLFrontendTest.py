@@ -38,7 +38,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-target')
         params.append('target/models')
         params.append('-store_log')
-        #params.append('-dev')
+        params.append('-dev')
         main(params)
 
 

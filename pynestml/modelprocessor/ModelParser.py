@@ -18,11 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from antlr4 import *
-from pynestml.generated.PyNESTMLParser import PyNESTMLParser
-from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.generated.PyNestMLParser import PyNestMLParser
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.modelprocessor import ASTSymbolTableVisitor
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
@@ -45,23 +44,23 @@ class ModelParser(object):
         :rtype: ASTNESTMLCompilationUnit
         """
         try:
-            inputFile = FileStream(file_path)
+            input_file = FileStream(file_path)
         except IOError:
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
         code, message = Messages.getStartProcessingFile(file_path)
         Logger.logMessage(_neuron=None, _code=code, _message=message, _errorPosition=None, _logLevel=LOGGING_LEVEL.INFO)
         # create a lexer and hand over the input
-        lexer = PyNESTMLLexer(inputFile)
+        lexer = PyNestMLLexer(input_file)
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
-        compilationUnit = parser.nestmlCompilationUnit()
+        parser = PyNestMLParser(stream)
+        compilation_unit = parser.nestmlCompilationUnit()
         # create a new visitor and return the new AST
-        astBuilderVisitor = ASTBuilderVisitor(stream.tokens)
-        ast = astBuilderVisitor.visit(compilationUnit)
+        ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
+        ast = ast_builder_visitor.visit(compilation_unit)
         # create and update the corresponding symbol tables
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
         for neuron in ast.getNeuronList():
@@ -81,12 +80,12 @@ class ModelParser(object):
         assert (_expression is not None and (isinstance(_expression, str) or isinstance(_expression, unicode))), \
             '(PyNestML.Parser) No or wrong type of expression provided (%s)!' % type(_expression)
         # raw = 'neuron raw: state: ' + _expression + ' end end'
-        lexer = PyNESTMLLexer(InputStream(_expression))
+        lexer = PyNestMLLexer(InputStream(_expression))
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
+        parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.expression())
         ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
@@ -103,12 +102,12 @@ class ModelParser(object):
         """
         assert (_declaration is not None and (isinstance(_declaration, str) or isinstance(_declaration, unicode))), \
             '(PyNestML.Parser) No or wrong type of declaration provided (%s)!' % type(_declaration)
-        lexer = PyNESTMLLexer(InputStream(_declaration))
+        lexer = PyNestMLLexer(InputStream(_declaration))
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
+        parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.declaration())
         ASTHigherOrderVisitor.visit(ret,lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
@@ -125,12 +124,12 @@ class ModelParser(object):
         """
         assert (_statement is not None and (isinstance(_statement, str) or isinstance(_statement, unicode))), \
             '(PyNestML.Parser) No or wrong type of statement provided (%s)!' % type(_statement)
-        lexer = PyNESTMLLexer(InputStream(_statement))
+        lexer = PyNestMLLexer(InputStream(_statement))
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
+        parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.stmt())
         ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
@@ -147,12 +146,12 @@ class ModelParser(object):
         """
         assert (_shape is not None and (isinstance(_shape, str) or isinstance(_shape, unicode))), \
             '(PyNestML.Parser) No or wrong type of shape provided (%s)!' % type(_shape)
-        lexer = PyNESTMLLexer(InputStream(_shape))
+        lexer = PyNestMLLexer(InputStream(_shape))
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
+        parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.odeShape())
         ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
@@ -169,12 +168,12 @@ class ModelParser(object):
         """
         assert (_assignment is not None and (isinstance(_assignment, str) or isinstance(_assignment, unicode))), \
             '(PyNestML.Parser) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        lexer = PyNESTMLLexer(InputStream(_assignment))
+        lexer = PyNestMLLexer(InputStream(_assignment))
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
+        parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.assignment())
         ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))

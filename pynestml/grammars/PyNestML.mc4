@@ -40,6 +40,8 @@ grammar PyNESTML{
 
     token BLOCK_CLOSE = "end";
 
+    token DIFFERENTIAL_ORDER = '\'';
+
     /**
     * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
     * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
@@ -308,9 +310,7 @@ grammar PyNESTML{
     @attribute name: The name of the variable without the differential order, e.g. V_m
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
-  Variable = name:NAME (DifferentialOrder)*;
-
-  DifferentialOrder = "\'";
+  Variable = name:NAME (DIFFERENTIAL_ORDER)*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").

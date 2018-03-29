@@ -22,8 +22,8 @@
 import os
 import unittest
 from antlr4 import *
-from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 
 
 class LexerParserTest(unittest.TestCase):
@@ -35,14 +35,14 @@ class LexerParserTest(unittest.TestCase):
         for filename in os.listdir(
                 os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
-                inputFile = FileStream(
+                input_file = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 # print('Start parsing ' + filename),
-                lexer = PyNESTMLLexer(inputFile)
+                lexer = PyNestMLLexer(input_file)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 # parse the file
-                PyNESTMLParser(stream)
+                PyNestMLParser(stream)
                 # print(' ...done')
         return
 

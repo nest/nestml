@@ -24,12 +24,11 @@ import unittest
 
 from antlr4 import *
 
-from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
@@ -53,19 +52,19 @@ class ExpressionParsingTest(unittest.TestCase):
 
     def test(self):
         # print('Start Expression Parser Test...'),
-        inputFile = FileStream(
+        input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'ExpressionCollection.nestml'))
-        lexer = PyNESTMLLexer(inputFile)
+        lexer = PyNestMLLexer(input_file)
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
-        compilationUnit = parser.nestmlCompilationUnit()
+        parser = PyNestMLParser(stream)
+        compilation_unit = parser.nestmlCompilationUnit()
         # print('done')
-        astBuilderVisitor = ASTBuilderVisitor(stream.tokens)
-        ast = astBuilderVisitor.visit(compilationUnit)
+        ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
+        ast = ast_builder_visitor.visit(compilation_unit)
         # print('done')
         assert isinstance(ast, ASTNESTMLCompilationUnit)
 

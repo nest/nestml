@@ -101,9 +101,7 @@ grammar PyNestML;
     @attribute name: The name of the variable without the differential order, e.g. V_m
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
-  variable : name=NAME (differentialOrder)*;
-
-  differentialOrder : '\'';
+  variable : name=NAME (DIFFERENTIAL_ORDER)*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
@@ -131,20 +129,21 @@ grammar PyNestML;
   stmt : smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
-                | forStmt
-                | whileStmt;
+               | forStmt
+               | whileStmt;
 
   smallStmt : assignment
-             | functionCall
-             | declaration
-             | returnStmt;
+            | functionCall
+            | declaration
+            | returnStmt;
 
   assignment : lhsVariable=variable
-    (directAssignment='='       |
-     compoundSum='+='     |
-     compoundMinus='-='   |
-     compoundProduct='*=' |
-     compoundQuotient='/=') expression;
+                (directAssignment='=' |
+                 compoundSum='+='     |
+                 compoundMinus='-='   |
+                 compoundProduct='*=' |
+                 compoundQuotient='/=')
+               expression;
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
@@ -180,7 +179,7 @@ grammar PyNestML;
 
   elseClause : 'else' BLOCK_OPEN block;
 
-  forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral
+  forStmt : 'for' var=NAME 'in' start_from=expression '...' end_at=expression 'step' step=signedNumericLiteral
             BLOCK_OPEN
              block
             BLOCK_CLOSE;
@@ -240,11 +239,9 @@ grammar PyNestML;
       end
      @attribute block Implementation of the dynamics.
    */
-  updateBlock:
-    'update'
-    BLOCK_OPEN
-      block
-    BLOCK_CLOSE;
+  updateBlock: 'update' BLOCK_OPEN
+                block
+                BLOCK_CLOSE;
 
   /** ASTEquationsBlock A block declaring special functions:
        equations:
@@ -255,11 +252,9 @@ grammar PyNestML;
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
      @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
    */
-  equationsBlock:
-    'equations'
-    BLOCK_OPEN
-      (odeFunction|odeEquation|odeShape|NEWLINE)*
-    BLOCK_CLOSE;
+  equationsBlock: 'equations' BLOCK_OPEN
+                   (odeFunction|odeEquation|odeShape|NEWLINE)*
+                   BLOCK_CLOSE;
 
   /** ASTInputBlock represents a single input block:
     input:
@@ -268,10 +263,9 @@ grammar PyNestML;
     end
     @attribute inputLine: A list of input lines.
   */
-  inputBlock: 'input'
-    BLOCK_OPEN
-      (inputLine | NEWLINE)*
-    BLOCK_CLOSE;
+  inputBlock: 'input' BLOCK_OPEN
+              (inputLine | NEWLINE)*
+              BLOCK_CLOSE;
 
   /** ASTInputLine represents a single line form the input, e.g.:
       spikeBuffer   <- inhibitory excitatory spike

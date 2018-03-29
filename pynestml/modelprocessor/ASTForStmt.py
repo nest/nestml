@@ -32,8 +32,8 @@ class ASTForStmt(ASTNode):
                     '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
     """
     __variable = None
-    __from = None
-    __to = None
+    __start_from = None
+    __end_at = None
     __step = None
     __block = None
 
@@ -67,8 +67,8 @@ class ASTForStmt(ASTNode):
         super(ASTForStmt, self).__init__(_sourcePosition)
         self.__block = _block
         self.__step = _step
-        self.__to = _to
-        self.__from = _from
+        self.__end_at = _to
+        self.__start_from = _from
         self.__variable = _variable
         return
 
@@ -86,7 +86,7 @@ class ASTForStmt(ASTNode):
         :return: the expression indicating the start value.
         :rtype: ASTExpression
         """
-        return self.__from
+        return self.__start_from
 
     def getTo(self):
         """
@@ -94,7 +94,7 @@ class ASTForStmt(ASTNode):
         :return: the expression indicating the finish value.
         :rtype: ASTExpression
         """
-        return self.__to
+        return self.__end_at
 
     def getStep(self):
         """

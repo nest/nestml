@@ -273,13 +273,13 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
     def visitVariable(self, ctx):
-        differentialOrder = (len(ctx.differentialOrder()) if ctx.differentialOrder() is not None else 0)
-        sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                            _startColumn=ctx.start.column,
-                                                            _endLine=ctx.stop.line,
-                                                            _endColumn=ctx.stop.column)
+        differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
+        source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
+                                                             _startColumn=ctx.start.column,
+                                                             _endLine=ctx.stop.line,
+                                                             _endColumn=ctx.stop.column)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
-                                                  differential_order=differentialOrder, source_position=sourcePos)
+                                                  differential_order=differential_order, source_position=source_pos)
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
@@ -474,26 +474,26 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by PyNESTMLParser#forStmt.
     def visitForStmt(self, ctx):
         variable = str(ctx.NAME()) if ctx.NAME() is not None else None
-        From = self.visit(ctx.vrom) if ctx.vrom is not None else None
-        to = self.visit(ctx.to) if ctx.to is not None else None
+        start_from = self.visit(ctx.start_from) if ctx.start_from is not None else None
+        end_at = self.visit(ctx.end_at) if ctx.end_at is not None else None
         step = self.visit(ctx.step) if ctx.step is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                            _startColumn=ctx.start.column,
-                                                            _endLine=ctx.stop.line,
-                                                            _endColumn=ctx.stop.column)
-        return ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=From, end_at=to, step=step,
-                                                  block=block, source_position=sourcePos)
+        source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
+                                                             _startColumn=ctx.start.column,
+                                                             _endLine=ctx.stop.line,
+                                                             _endColumn=ctx.stop.column)
+        return ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=start_from, end_at=end_at, step=step,
+                                                  block=block, source_position=source_pos)
 
     # Visit a parse tree produced by PyNESTMLParser#whileStmt.
     def visitWhileStmt(self, ctx):
         cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                            _startColumn=ctx.start.column,
-                                                            _endLine=ctx.stop.line,
-                                                            _endColumn=ctx.stop.column)
-        return ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=sourcePos)
+        source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
+                                                             _startColumn=ctx.start.column,
+                                                             _endLine=ctx.stop.line,
+                                                             _endColumn=ctx.stop.column)
+        return ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=source_pos)
 
     # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
     def visitSignedNumericLiteral(self, ctx):

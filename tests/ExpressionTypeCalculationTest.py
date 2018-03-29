@@ -23,14 +23,13 @@ import os
 from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -42,25 +41,25 @@ PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
 
 
-class expressionTestVisitor(NESTMLVisitor):
+class expressionTestVisitor(ASTVisitor):
     def endvisitAssignment(self, _assignment=None):
         scope = _assignment.getScope()
-        varName = _assignment.getVariable().getName()
+        var_name = _assignment.getVariable().getName()
 
         _expr = _assignment.getExpression()
 
-        varSymbol = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
+        var_symbol = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = varSymbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
+        _equals = var_symbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
 
         message = 'line ' + str(_expr.getSourcePosition()) + ' : LHS = ' + \
-                  varSymbol.getTypeSymbol().getSymbolName() + \
+                  var_symbol.getTypeSymbol().getSymbolName() + \
                   ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
                   ' Equal ? ' + str(_equals)
 
         if _expr.getTypeEither().getValue().isUnit():
-            message += " Neuroscience Factor: " + \
-            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit()))
+            message += (" Neuroscience Factor: " +
+                        str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit())))
 
         Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
@@ -77,6 +76,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     """
     A simple test that prints all top-level expression types in a file.
     """
+
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
         model = ModelParser.parseModel(

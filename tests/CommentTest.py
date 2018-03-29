@@ -22,18 +22,16 @@ import os
 import unittest
 
 from antlr4 import *
-from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()
@@ -47,25 +45,25 @@ Logger.initLogger(LOGGING_LEVEL.ERROR)
 class CommentTest(unittest.TestCase):
     def test(self):
         # print('Start creating AST for ' + filename + ' ...'),
-        inputFile = FileStream(
+        input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CommentTest.nestml'))
-        lexer = PyNESTMLLexer(inputFile)
+        lexer = PyNestMLLexer(input_file)
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNESTMLParser(stream)
+        parser = PyNestMLParser(stream)
         # process the comments
-        compilationUnit = parser.nestmlCompilationUnit()
+        compilation_unit = parser.nestmlCompilationUnit()
         # now build the ast
-        astBuilderVisitor = ASTBuilderVisitor(stream.tokens)
-        ast = astBuilderVisitor.visit(compilationUnit )
-        neuronBodyElements = ast.getNeuronList()[0].getBody().getBodyElements()
+        ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
+        ast = ast_builder_visitor.visit(compilation_unit)
+        neuron_body_elements = ast.getNeuronList()[0].getBody().getBodyElements()
         # check if init values comment is correctly detected
-        assert (neuronBodyElements[0].getComment()[0] == 'init_values comment ok')
+        assert (neuron_body_elements[0].getComment()[0] == 'init_values comment ok')
         # check that all declaration comments are detected
-        comments = neuronBodyElements[0].getDeclarations()[0].getComment()
+        comments = neuron_body_elements[0].getDeclarations()[0].getComment()
         assert (comments[0] == 'pre comment 1 ok')
         assert (comments[1] == 'pre comment 2 ok')
         assert (comments[2] == 'inline comment ok')
@@ -74,17 +72,18 @@ class CommentTest(unittest.TestCase):
         assert ('pre comment not ok' not in comments)
         assert ('post comment not ok' not in comments)
         # check that equation block comment is detected
-        assert (neuronBodyElements[1].getComment()[0] == 'equations comment ok')
+        assert (neuron_body_elements[1].getComment()[0] == 'equations comment ok')
         # check that parameters block comment is detected
-        assert (neuronBodyElements[2].getComment()[0] == 'parameters comment ok')
+        assert (neuron_body_elements[2].getComment()[0] == 'parameters comment ok')
         # check that internals block comment is detected
-        assert (neuronBodyElements[3].getComment()[0] == 'internals comment ok')
+        assert (neuron_body_elements[3].getComment()[0] == 'internals comment ok')
         # check that intput comment is detected
-        assert (neuronBodyElements[4].getComment()[0] == 'input comment ok')
+        assert (neuron_body_elements[4].getComment()[0] == 'input comment ok')
         # check that output comment is detected
-        assert (neuronBodyElements[5].getComment()[0] == 'output comment ok')
+        assert (neuron_body_elements[5].getComment()[0] == 'output comment ok')
         # check that update comment is detected
-        assert (neuronBodyElements[6].getComment()[0] == 'update comment ok')
+        assert (neuron_body_elements[6].getComment()[0] == 'update comment ok')
+
 
 if __name__ == '__main__':
     unittest.main()
