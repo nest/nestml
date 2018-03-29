@@ -1,8 +1,8 @@
 __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeBufferDatatypes',
            'ModelParserExceptions',
-           'ASTAssignment', 'ASTInputBlock', 'BinaryLogicVisitor', 'CoCoParametersAssignedOnlyInParameterBlock',
+           'ASTAssignment', 'ASTInputBlock', 'ASTBinaryLogicVisitor.py', 'CoCoParametersAssignedOnlyInParameterBlock',
            'ModelParser',
-           'ASTBitOperator', 'ASTInputLine', 'BooleanLiteralVisitor', 'CoCo', 'ASTVisitor.py', 'ASTBlock',
+           'ASTBitOperator', 'ASTInputLine', 'ASTBooleanLiteralVisitor.py', 'CoCo', 'ASTVisitor.py', 'ASTBlock',
            'ASTInputType', 'CoCoAllVariablesDefined', 'CoCosManager', 'ASTNoSemantics.py', 'ASTBlockWithVariables',
            'ASTLogicalOperator', 'CoCoBufferNotAssigned', 'CoCoSumHasCorrectParameter', 'ASTNumericLiteralVisitor.py',
            'ASTBody', 'ASTNestMLCompilationUnit.py', 'CoCoConvolveCondCorrectlyBuilt', 'CoCoTypeOfBufferUnique',
@@ -23,6 +23,6 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'TypeSymbol', 'ASTForStmt', 'ASTUnaryOperator', 'CoCoInvariantIsBoolean', 'ASTInfVisitor.py', 'ASTUnaryVisitor.py',
            'ASTFunctionCall', 'ASTUnitType', 'CoCoNeuronNameUnique', 'UnitType', 'ASTFunction', 'ASTUnitTypeVisitor',
            'CoCoNoNestNameSpaceCollision', 'ASTLineOperationVisitor.py', 'VariableSymbol', 'ASTHigherOrderVisitor',
-           'ASTUpdateBlock', 'CoCoNoShapesExceptInConvolve', 'ASTLogicalNotVisitor.py', 'VariableVisitor',
+           'ASTUpdateBlock', 'CoCoNoShapesExceptInConvolve', 'ASTLogicalNotVisitor.py', 'ASTVariableVisitor.py',
            'ASTIfClause', 'ASTVariable', 'CoCoNoTwoNeuronsInSetOfCompilationUnits', 'NESTMLParentAwareVisitor',
            'ASTSignalType.py']

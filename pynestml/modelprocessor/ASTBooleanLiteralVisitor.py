@@ -1,5 +1,5 @@
 #
-# BooleanLiteralVisitor.py
+# ASTBooleanLiteralVisitor.py
 #
 # This file is part of NEST.
 #
@@ -27,7 +27,7 @@ from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class BooleanLiteralVisitor(ASTVisitor):
+class ASTBooleanLiteralVisitor(ASTVisitor):
     """
     Visits a single boolean literal and updates its type.
     """
@@ -39,7 +39,7 @@ class BooleanLiteralVisitor(ASTVisitor):
         :type _expr: ASTSimpleExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.BooleanLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(
+            '(PyNestML.Visitor.ASTBooleanLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(
                 _expr)
         _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         return

@@ -1,5 +1,5 @@
 #
-# BinaryLogicVisitor.py
+# ASTBinaryLogicVisitortor.py
 #
 # This file is part of NEST.
 #
@@ -29,7 +29,7 @@ from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
-class BinaryLogicVisitor(ASTVisitor):
+class ASTBinaryLogicVisitor(ASTVisitor):
     """
     Visits a single binary logical operator expression and updates its types.
     """
@@ -41,21 +41,21 @@ class BinaryLogicVisitor(ASTVisitor):
         :type _expr: ASTExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.BinaryLogicVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhsType = _expr.getLhs().getTypeEither()
-        rhsType = _expr.getRhs().getTypeEither()
+            '(PyNestML.Visitor.ASTBinaryLogicVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+        lhs_type = _expr.getLhs().getTypeEither()
+        rhs_type = _expr.getRhs().getTypeEither()
 
-        if lhsType.isError():
-            _expr.setTypeEither(lhsType)
+        if lhs_type.isError():
+            _expr.setTypeEither(lhs_type)
             return
-        if rhsType.isError():
-            _expr.setTypeEither(rhsType)
+        if rhs_type.isError():
+            _expr.setTypeEither(rhs_type)
             return
 
-        if lhsType.getValue().isBoolean() and rhsType.getValue().isBoolean():
+        if lhs_type.getValue().isBoolean() and rhs_type.getValue().isBoolean():
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            errorMsg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(errorMsg))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+            error_msg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition())
+            _expr.setTypeEither(Either.error(error_msg))
+            Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
         return

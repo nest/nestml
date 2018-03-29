@@ -1,5 +1,5 @@
 #
-# VariableVisitor.py
+# ASTVariableVisitortor.py
 #
 # This file is part of NEST.
 #
@@ -29,7 +29,7 @@ from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import MessageCode
 
 
-class VariableVisitor(ASTVisitor):
+class ASTVariableVisitor(ASTVisitor):
     """
     This visitor visits a single variable and updates its type.
     """
@@ -41,9 +41,9 @@ class VariableVisitor(ASTVisitor):
         :type _expr: ASTSimpleExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
+            '(PyNestML.Visitor.ASTVariableVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
         assert (_expr.getScope() is not None), \
-            '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
+            '(PyNestML.Visitor.ASTVariableVisitor) No scope found, run symboltable creator!'
 
         scope = _expr.getScope()
         var_name = _expr.getVariable().getName()

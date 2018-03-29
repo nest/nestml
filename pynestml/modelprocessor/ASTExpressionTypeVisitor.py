@@ -24,8 +24,8 @@ from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.BinaryLogicVisitor import BinaryLogicVisitor
-from pynestml.modelprocessor.BooleanLiteralVisitor import BooleanLiteralVisitor
+from pynestml.modelprocessor.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
+from pynestml.modelprocessor.ASTBooleanLiteralVisitor import ASTBooleanLiteralVisitor
 from pynestml.modelprocessor.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
 from pynestml.modelprocessor.ASTConditionVisitor import ASTConditionVisitor
 from pynestml.modelprocessor.ASTDotOperatorVisitor import ASTDotOperatorVisitor
@@ -39,7 +39,7 @@ from pynestml.modelprocessor.ASTParenthesesVisitor import ASTParenthesesVisitor
 from pynestml.modelprocessor.ASTPowerVisitor import ASTPowerVisitor
 from pynestml.modelprocessor.ASTStringLiteralVisitor import StringLiteralVisitor
 from pynestml.modelprocessor.ASTUnaryVisitor import ASTUnaryVisitor
-from pynestml.modelprocessor.VariableVisitor import VariableVisitor
+from pynestml.modelprocessor.ASTVariableVisitor import ASTVariableVisitor
 
 
 class ASTExpressionTypeVisitor(ASTVisitor):
@@ -56,13 +56,13 @@ class ASTExpressionTypeVisitor(ASTVisitor):
     __lineOperatorVisitor = ASTLineOperatorVisitor()
     __noSemantics = ASTNoSemantics()
     __comparisonOperatorVisitor = ASTComparisonOperatorVisitor()
-    __binaryLogicVisitor = BinaryLogicVisitor()
+    __binaryLogicVisitor = ASTBinaryLogicVisitor()
     __conditionVisitor = ASTConditionVisitor()
     __functionCallVisitor = ASTFunctionCallVisitor()
-    __booleanLiteralVisitor = BooleanLiteralVisitor()
+    __booleanLiteralVisitor = ASTBooleanLiteralVisitor()
     __numericLiteralVisitor = ASTNumericLiteralVisitor()
     __stringLiteralVisitor = StringLiteralVisitor()
-    __variableVisitor = VariableVisitor()
+    __variableVisitor = ASTVariableVisitor()
     __infVisitor = ASTInfVisitor()
 
     def handle(self, _node):

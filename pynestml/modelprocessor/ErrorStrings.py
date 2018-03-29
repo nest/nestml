@@ -58,8 +58,8 @@ class ErrorStrings(object):
         from pynestml.modelprocessor.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
         if isinstance(_origin, ASTComparisonOperatorVisitor):
             return "SPL_COMPARISON_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.BinaryLogicVisitor import BinaryLogicVisitor
-        if isinstance(_origin, BinaryLogicVisitor):
+        from pynestml.modelprocessor.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
+        if isinstance(_origin, ASTBinaryLogicVisitor):
             return "SPL_BINARY_LOGIC_VISITOR"
         from pynestml.modelprocessor.ASTConditionVisitor import ASTConditionVisitor
         if isinstance(_origin, ASTConditionVisitor):
