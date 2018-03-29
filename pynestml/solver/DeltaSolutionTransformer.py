@@ -27,7 +27,7 @@ from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 
 
-class DeltaSolutionTransformer(TransformerBase):
+class DeltaSolutionTransformer(object):
     """
     This class contains a set of methods as used to add solutions to a handed over neuron.
     """

@@ -37,11 +37,11 @@ class SymPySolver(object):
         :return: the output of the solver
         :rtype: SolverOutput
         """
-        inputProcessor = SolverInput()
-        inputJSON = inputProcessor.SolverInputComplete(_odeDeclaration)
-        output = OdeAnalyzer.compute_solution(inputJSON.toJSON())
-        toOutput = SolverOutput()
-        return toOutput.fromJSON(output)
+        input_processor = SolverInput()
+        input_json = input_processor.SolverInputComplete(_odeDeclaration)
+        output = OdeAnalyzer.compute_solution(input_json.toJSON())
+        to_output = SolverOutput()
+        return to_output.fromJSON(output)
 
     @classmethod
     def solveShapes(cls, _shapes=None):
@@ -52,8 +52,8 @@ class SymPySolver(object):
         :return: a solver output object
         :rtype: SolverOutput
         """
-        inputProcessor = SolverInput()
-        inputJSON = inputProcessor.SolverInputShapes(_shapes)
-        output = OdeAnalyzer.compute_solution(inputJSON.toJSON())
-        toOutput = SolverOutput()
-        return toOutput.fromJSON(output)
+        input_processor = SolverInput()
+        input_json = input_processor.SolverInputShapes(_shapes)
+        output = OdeAnalyzer.compute_solution(input_json.toJSON())
+        to_output = SolverOutput()
+        return to_output.fromJSON(output)

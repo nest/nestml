@@ -24,8 +24,7 @@ from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
 
 
-
-class ShapesToOdesTransformer(TransformerBase):
+class ShapesToOdesTransformer(object):
     """
     This transformer replaces shapes by the corresponding set of odes.
     """
@@ -48,15 +47,15 @@ class ShapesToOdesTransformer(TransformerBase):
             '(PyNestML.Solver.DeltaSolution) No or wrong type of neuron provided (%s)!' % _neuron
         assert (_neuron.getEquationsBlocks() is not None), \
             '(PyNestML.Solver.DeltaSolution) Equations block must not be empty!'
-        stateShapeVariablesWithInitialValues = TransformerBase.computeShapeStateVariablesWithInitialValues(
+        state_shape_variables_with_initial_values = TransformerBase.computeShapeStateVariablesWithInitialValues(
             _solverOutput)
-        workingVersion = TransformerBase.addVariablesToInitialValues(_neuron, stateShapeVariablesWithInitialValues)
+        working_version = TransformerBase.addVariablesToInitialValues(_neuron, state_shape_variables_with_initial_values)
         # TODO by KP: actually, only shapes that are solved must be reseted, @KP solve this by checking which shapes are now with vars
-        cls.__removeShapes(workingVersion)
+        cls.__removeShapes(working_version)
         cls.__addStateShapeEquationsToEquationsBlock(_solverOutput.shape_state_odes,
-                                                     workingVersion.getEquationsBlocks())
-        TransformerBase.applyIncomingSpikes(workingVersion)
-        return workingVersion
+                                                     working_version.getEquationsBlocks())
+        TransformerBase.applyIncomingSpikes(working_version)
+        return working_version
 
     @classmethod
     def __addStateShapeEquationsToEquationsBlock(cls, _equationsFile=None, _astOdeDeclaration=None):
@@ -72,11 +71,11 @@ class ShapesToOdesTransformer(TransformerBase):
         assert (_astOdeDeclaration is not None and isinstance(_astOdeDeclaration, ASTEquationsBlock)), \
             '(PyNestML.Solver.DeltaSolution) No or wrong type of declarations block provided (%s)!' % type(
                 _astOdeDeclaration)
-        astShapes = list()
+        ast_shapes = list()
         for singleDict in _equationsFile:
             for key in singleDict.keys():
-                astShapes.append(ModelParser.parseShape('shape ' + key + '\' = ' + singleDict[key]))
-        _astOdeDeclaration.getDeclarations().extend(astShapes)
+                ast_shapes.append(ModelParser.parseShape('shape ' + key + '\' = ' + singleDict[key]))
+        _astOdeDeclaration.getDeclarations().extend(ast_shapes)
         return
 
     @classmethod

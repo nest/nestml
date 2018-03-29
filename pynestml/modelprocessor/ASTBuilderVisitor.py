@@ -71,8 +71,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         ret = ASTNodeFactory.create_ast_data_type(is_integer=isInt, is_boolean=isBool,
                                                   is_real=isReal, is_string=isString, is_void=isVoid,
                                                   is_unit_type=unit, source_position=sourcePosition)
-        from pynestml.modelprocessor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
-        ASTUnitTypeVisitor.visitDatatype(ret)
+        from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
+        ASTDataTypeVisitor.visitDatatype(ret)
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.

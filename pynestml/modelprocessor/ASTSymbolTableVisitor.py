@@ -143,7 +143,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type _block: ASTFunction
         """
         from pynestml.modelprocessor.ASTFunction import ASTFunction
-        from pynestml.modelprocessor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
+        from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
         assert (_block is not None and isinstance(_block, ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided (%s)!' % type(_block)
         cls.__currentBlockType = BlockType.LOCAL  # before entering, update the current block type
@@ -160,23 +160,23 @@ class ASTSymbolTableVisitor(ASTVisitor):
             cls.visitDataType(arg.getDataType())
             # given the fact that the name is not directly equivalent to the one as stated in the model,
             # we have to get it by the sub-visitor
-            typeName = ASTUnitTypeVisitor.visitDatatype(arg.getDataType())
+            type_name = ASTDataTypeVisitor.visitDatatype(arg.getDataType())
             # first collect the types for the parameters of the function symbol
-            symbol.addParameterType(PredefinedTypes.getTypeIfExists(typeName))
+            symbol.addParameterType(PredefinedTypes.getTypeIfExists(type_name))
             # update the scope of the arg
             arg.updateScope(scope)
             # create the corresponding variable symbol representing the parameter
-            varSymbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
+            var_symbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
                                        _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
                                        _isRecordable=False,
-                                       _typeSymbol=PredefinedTypes.getTypeIfExists(typeName),
+                                       _typeSymbol=PredefinedTypes.getTypeIfExists(type_name),
                                        _variableType=VariableType.VARIABLE)
-            scope.addSymbol(varSymbol)
+            scope.addSymbol(var_symbol)
         if _block.hasReturnType():
             _block.getReturnType().updateScope(scope)
             cls.visitDataType(_block.getReturnType())
             symbol.setReturnType(
-                PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_block.getReturnType())))
+                PredefinedTypes.getTypeIfExists(ASTDataTypeVisitor.visitDatatype(_block.getReturnType())))
         else:
             symbol.setReturnType(PredefinedTypes.getVoidType())
         _block.getBlock().updateScope(scope)
@@ -316,12 +316,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
         from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
-        from pynestml.modelprocessor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
+        from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
         assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided (%s)!' % type(_declaration)
 
         expression = _declaration.getExpression() if _declaration.hasExpression() else None
-        typeName = ASTUnitTypeVisitor.visitDatatype(_declaration.getDataType())
+        typeName = ASTDataTypeVisitor.visitDatatype(_declaration.getDataType())
         # all declarations in the state block are recordable
         isRecordable = _declaration.isRecordable() or \
                        cls.__currentBlockType == BlockType.STATE or cls.__currentBlockType == BlockType.INITIAL_VALUES
@@ -648,11 +648,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type _odeFunction: ASTOdeFunction
         """
         from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
-        from pynestml.modelprocessor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
+        from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
         from pynestml.modelprocessor.VariableSymbol import BlockType, VariableType
         assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided (%s)!' % type(_odeFunction)
-        typeSymbol = PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_odeFunction.getDataType()))
+        typeSymbol = PredefinedTypes.getTypeIfExists(ASTDataTypeVisitor.visitDatatype(_odeFunction.getDataType()))
         symbol = VariableSymbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope(),
                                 _name=_odeFunction.getVariableName(),
                                 _blockType=BlockType.EQUATION,

@@ -1,5 +1,5 @@
 #
-# ASTUnitTypeVisitor.py
+# ASTDataTypeVisitor.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class ASTUnitTypeVisitor(object):
+class ASTDataTypeVisitor(object):
     """
     This class represents a visitor which inspects a handed over data type, checks if correct typing has been used
     (e.g., no computation between primitive and non primitive data types etc.) and finally updates the type symbols
@@ -78,10 +78,10 @@ class ASTUnitTypeVisitor(object):
         assert (_unitType is not None and isinstance(_unitType, ASTUnitType)), \
             '(PyNestML.SymbolTable.DatatypeVisitor) No or wrong type of unit-typ provided (%s)!' % type(_unitType)
         if _unitType.isPowerExpression():
-            baseSymbol = cls.visitUnitType(_unitType.getBase())
+            base_symbol = cls.visitUnitType(_unitType.getBase())
             exponent = _unitType.getExponent()
-            sympyUnit = baseSymbol.getEncapsulatedUnit() ** exponent
-            return cls.__handleUnit(sympyUnit)
+            sympy_unit = base_symbol.getEncapsulatedUnit() ** exponent
+            return cls.__handleUnit(sympy_unit)
         elif _unitType.isEncapsulated():
             return cls.visitUnitType(_unitType.getCompoundUnit())
         elif _unitType.isDiv():
@@ -101,11 +101,11 @@ class ASTUnitTypeVisitor(object):
             res = lhs * rhs
             return cls.__handleUnit(res)
         elif _unitType.isSimpleUnit():
-            typeS = PredefinedTypes.getTypeIfExists(_unitType.getSimpleUnit())
-            if typeS is None:
+            type_s = PredefinedTypes.getTypeIfExists(_unitType.getSimpleUnit())
+            if type_s is None:
                 raise UnknownAtomicUnit('Unknown atomic unit %s.' % _unitType.getSimpleUnit())
             else:
-                return typeS
+                return type_s
         return
 
     @classmethod
@@ -128,21 +128,21 @@ class ASTUnitTypeVisitor(object):
             '(PyNestML.Visitor.UnitTypeVisitor) No unit-type provided (%s)!' % type(_unitType)
         # first clean up the unit of not required components, here it is the 1.0 in front of the unit
         # e.g., 1.0 * 1 / ms. This step is not mandatory for correctness, but makes  reporting easier
-        if isinstance(_unitType,units.Quantity) and _unitType.value == 1.0:
-            toProcess = _unitType.unit
+        if isinstance(_unitType, units.Quantity) and _unitType.value == 1.0:
+            to_process = _unitType.unit
         else:
-            toProcess = _unitType
-        if str(toProcess) not in PredefinedUnits.getUnits().keys():
-            unitType = UnitType(_name=str(toProcess), _unit=toProcess)
-            PredefinedUnits.registerUnit(unitType)
+            to_process = _unitType
+        if str(to_process) not in PredefinedUnits.getUnits().keys():
+            unit_type = UnitType(_name=str(to_process), _unit=to_process)
+            PredefinedUnits.registerUnit(unit_type)
         # now create the corresponding type symbol if it does not exists
-        if PredefinedTypes.getTypeIfExists(str(toProcess)) is None:
-            typeSymbol = TypeSymbol(_name=str(toProcess),
-                                    _unit=PredefinedUnits.getUnitIfExists(str(toProcess)),
-                                    _isInteger=False, _isReal=False, _isVoid=False,
-                                    _isBoolean=False, _isString=False, _isBuffer=False)
-            PredefinedTypes.registerType(typeSymbol)
-        return PredefinedTypes.getTypeIfExists(_name=str(toProcess))
+        if PredefinedTypes.getTypeIfExists(str(to_process)) is None:
+            type_symbol = TypeSymbol(_name=str(to_process),
+                                     _unit=PredefinedUnits.getUnitIfExists(str(to_process)),
+                                     _isInteger=False, _isReal=False, _isVoid=False,
+                                     _isBoolean=False, _isString=False, _isBuffer=False)
+            PredefinedTypes.registerType(type_symbol)
+        return PredefinedTypes.getTypeIfExists(_name=str(to_process))
 
 
 class UnknownAtomicUnit(Exception):

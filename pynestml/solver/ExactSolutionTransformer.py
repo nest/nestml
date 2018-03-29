@@ -24,7 +24,7 @@ from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.utils.ASTUtils import ASTUtils
 
 
-class ExactSolutionTransformer(TransformerBase):
+class ExactSolutionTransformer(object):
     """
     Takes SymPy result with the linear solution of the ODE and the source AST.
     Produces an altered AST with the the exact solution.
@@ -58,12 +58,12 @@ class ExactSolutionTransformer(TransformerBase):
         for decl in _neuron.getInitialValuesDeclarations():
             _neuron.addToStateBlock(decl)
         working_version = TransformerBase.addVariablesToInitialValues(working_version,
-                                                                     state_shape_variables_with_initial_values)
+                                                                      state_shape_variables_with_initial_values)
         cls.__addStateUpdates(_solverOutput, working_version)
 
         working_version = TransformerBase.replaceIntegrateCallThroughPropagation(working_version,
-                                                                                _solverOutput.const_input,
-                                                                                _solverOutput.ode_var_update_instructions)
+                                                                                 _solverOutput.const_input,
+                                                                                 _solverOutput.ode_var_update_instructions)
         TransformerBase.applyIncomingSpikes(working_version)
         # get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.
         working_version.getEquationsBlocks().clear()

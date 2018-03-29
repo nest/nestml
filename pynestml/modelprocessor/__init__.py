@@ -21,7 +21,7 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'ASTExpressionCollectorVisitor', 'ASTSourcePosition', 'CoCoIllegalExpression', 'ASTFunctionCallVisitor.py',
            'ASTExpression', 'ASTSymbolTableVisitor', 'CoCoInitVarsWithOdesProvided', 'FunctionSymbol',
            'TypeSymbol', 'ASTForStmt', 'ASTUnaryOperator', 'CoCoInvariantIsBoolean', 'ASTInfVisitor.py', 'ASTUnaryVisitor.py',
-           'ASTFunctionCall', 'ASTUnitType', 'CoCoNeuronNameUnique', 'UnitType', 'ASTFunction', 'ASTUnitTypeVisitor',
+           'ASTFunctionCall', 'ASTUnitType', 'CoCoNeuronNameUnique', 'UnitType', 'ASTFunction', 'ASTDataTypeVisitor.py',
            'CoCoNoNestNameSpaceCollision', 'ASTLineOperationVisitor.py', 'VariableSymbol', 'ASTHigherOrderVisitor',
            'ASTUpdateBlock', 'CoCoNoShapesExceptInConvolve', 'ASTLogicalNotVisitor.py', 'ASTVariableVisitor.py',
            'ASTIfClause', 'ASTVariable', 'CoCoNoTwoNeuronsInSetOfCompilationUnits', 'NESTMLParentAwareVisitor',
