@@ -879,14 +879,14 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                             break
                     # now if we did not found the corresponding declaration, we have to add it by hand
                     if not found:
-                        lhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
-                                                                  _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.
-                                                                  getAddedSourcePosition())
-                        rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
-                                                                  _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.
-                                                                  getAddedSourcePosition())
+                        lhsVariable = ASTNodeFactory.create_ast_variable(name=declaration.getVariable().getName(),
+                                                                         differential_order=i,
+                                                                         source_position=ASTSourcePosition.
+                                                                         getAddedSourcePosition())
+                        rhsVariable = ASTNodeFactory.create_ast_variable(name=declaration.getVariable().getName(),
+                                                                         differential_order=i,
+                                                                         source_position=ASTSourcePosition.
+                                                                         getAddedSourcePosition())
                         expression = ASTNodeFactory.create_ast_simple_expression(variable=rhsVariable,
                                                                                  source_position=ASTSourcePosition.
                                                                                  getAddedSourcePosition())
@@ -907,14 +907,14 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                             break
                     # now if we did not found the corresponding declaration, we have to add it by hand
                     if not found:
-                        lhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
-                                                                  _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.
-                                                                  getAddedSourcePosition())
-                        rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
-                                                                  _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.
-                                                                  getAddedSourcePosition())
+                        lhsVariable = ASTNodeFactory.create_ast_variable(name=declaration.getLhs().getName(),
+                                                                         differential_order=i,
+                                                                         source_position=ASTSourcePosition.
+                                                                         getAddedSourcePosition())
+                        rhsVariable = ASTNodeFactory.create_ast_variable(name=declaration.getLhs().getName(),
+                                                                         differential_order=i,
+                                                                         source_position=ASTSourcePosition.
+                                                                         getAddedSourcePosition())
                         expression = ASTNodeFactory.create_ast_simple_expression(variable=rhsVariable,
                                                                                  source_position=ASTSourcePosition.
                                                                                  getAddedSourcePosition(),

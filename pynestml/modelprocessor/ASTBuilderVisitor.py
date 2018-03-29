@@ -47,7 +47,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                  _endColumn=ctx.stop.column)
         for child in ctx.neuron():
             neurons.append(self.visit(child))
-        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
         # extract the name of the artifact from the context
         artifactName = ntpath.basename(ctx.start.source[1].fileName)
         compilationUnit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_neurons=neurons,
@@ -175,7 +174,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         # finally construct the corresponding expression
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
         if expression is not None:
             return ASTNodeFactory.create_ast_expression(is_encapsulated=isEncapsulated,
                                                         is_logical_not=isLogicalNot,
@@ -280,9 +278,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTVariable import ASTVariable
-        return ASTVariable.makeASTVariable(_name=str(ctx.NAME()),
-                                           _differentialOrder=differentialOrder, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
+                                                  differential_order=differentialOrder, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
@@ -485,7 +482,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTForStmt import ASTForStmt
         return ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=From, end_at=to, step=step,
                                                   block=block, source_position=sourcePos)
 
@@ -497,8 +493,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
-        return ASTWhileStmt.makeASTWhileStmt(_condition=cond, _block=block, _sourcePosition=sourcePos)
+        return ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
     def visitSignedNumericLiteral(self, ctx):
@@ -595,7 +590,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         elif blockType == 'initial_values':
             ret = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, declarations, sourcePos)
         else:
-            Logger.logMessage('(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
+            Logger.logMessage('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
                               LOGGING_LEVEL.ERROR)
             return
         ret.setComment(self.__comments.visit(ctx))
@@ -607,8 +602,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTUpdateBlock import ASTUpdateBlock
-        ret = ASTUpdateBlock.makeASTUpdateBlock(_block=block, _sourcePosition=sourcePos)
+        ret = ASTNodeFactory.create_ast_update_block(block=block, source_position=sourcePos)
         ret.setComment(self.__comments.visit(ctx))
         return ret
 
@@ -694,13 +688,13 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _startColumn=ctx.start.column,
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
-        from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock, ASTSignalType
+        from pynestml.modelprocessor.ASTSignalType import ASTSignalType
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(type=ASTSignalType.SPIKE, source_position=sourcePos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=ASTSignalType.SPIKE, source_position=sourcePos)
             ret.setComment(self.__comments.visit(ctx))
             return ret
         elif ctx.isCurrent is not None:
-            ret = ASTNodeFactory.create_ast_output_block(type=ASTSignalType.CURRENT, source_position=sourcePos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=ASTSignalType.CURRENT, source_position=sourcePos)
             ret.setComment(self.__comments.visit(ctx))
             return ret
         else:

@@ -58,6 +58,7 @@ from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
 from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
 from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock
 from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
+from pynestml.modelprocessor.ASTUpdateBlock import ASTUpdateBlock
 
 
 class ASTNodeFactory(object):
@@ -126,9 +127,16 @@ class ASTNodeFactory(object):
         return ASTDatatype(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, source_position)
 
     @classmethod
-    def create_ast_declaration(cls, is_recordable=False, is_function=False, variables=list(), data_type=None,
-                               size_parameter=None, expression=None, invariant=None, source_position=None):
-        # type: (bool,bool,list,ASTDatatype,str,ASTExpression|ASTSimpleExpression,ASTExpression|ASTSimpleExpression,ASTSourcePosition) -> ASTDeclaration
+    def create_ast_declaration(cls,
+                               is_recordable=False,  # type: bool
+                               is_function=False,  # type: bool
+                               variables=list(),  # type: list
+                               data_type=None,  # type: ASTDatatype
+                               size_parameter=None,  # type: str
+                               expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
+                               invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
+                               source_position=None  # type: ASTSourcePosition
+                               ):  # type: (...) -> ASTDeclaration
         return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
                               source_position)
 
@@ -159,8 +167,13 @@ class ASTNodeFactory(object):
                              is_logical_not=is_logical_not, expression=expression, source_position=source_position)
 
     @classmethod
-    def create_ast_compound_expression(cls, lhs=None, binary_operator=None, rhs=None, source_position=None):
-        # type: ((ASTExpression|ASTSimpleExpression),(ASTLogicalOperator|ASTBitOperator|ASTComparisonOperator|ASTArithmeticOperator),(ASTSimpleExpression,ASTExpression),ASTSourcePosition)->ASTExpression
+    def create_ast_compound_expression(cls,
+                                       lhs,  # type: Union(ASTExpression,ASTSimpleExpression)
+                                       binary_operator,
+                                       # type: Union(ASTLogicalOperator,ASTBitOperator,ASTComparisonOperator,ASTArithmeticOperator)
+                                       rhs,  # type: Union(ASTExpression,ASTSimpleExpression)
+                                       source_position  # type: ASTSourcePosition
+                                       ):  # type: (...) -> ASTExpression
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
         """
@@ -172,8 +185,12 @@ class ASTNodeFactory(object):
         return ASTExpression(lhs=lhs, binary_operator=binary_operator, rhs=rhs, source_position=source_position)
 
     @classmethod
-    def create_ast_ternary_expression(cls, condition=None, if_true=None, if_not=None, source_position=None):
-        # type: (ASTExpression|ASTSimpleExpression,ASTExpression|ASTSimpleExpression,ASTExpression|ASTSimpleExpression,ASTSourcePosition) -> ASTExpression
+    def create_ast_ternary_expression(cls,
+                                      condition,  # type: Union(ASTSimpleExpression,ASTExpression)
+                                      if_true,  # type: Union(ASTSimpleExpression,ASTExpression)
+                                      if_not,  # type: Union(ASTSimpleExpression,ASTExpression)
+                                      source_position  # type: ASTSourcePosition
+                                      ):  # type: (...) -> ASTExpression
         """
         The factory method used to create a ternary operator expression, e.g., 10mV<V_m?10mV:V_m
         """
@@ -261,9 +278,9 @@ class ASTNodeFactory(object):
         return ASTOdeShape(lhs, rhs, source_position)
 
     @classmethod
-    def create_ast_output_block(cls, type, source_position):
+    def create_ast_output_block(cls, s_type, source_position):
         # type: (ASTSignalType,ASTSourcePosition) -> ASTOutputBlock
-        return ASTOutputBlock(type, source_position)
+        return ASTOutputBlock(s_type, source_position)
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
@@ -320,3 +337,21 @@ class ASTNodeFactory(object):
                              ):  # type: (...) -> ASTUnitType
         return ASTUnitType(left_parentheses, compound_unit, right_parentheses, base, is_pow, exponent, lhs, rhs, is_div,
                            is_times, unit, source_position)
+
+    @classmethod
+    def create_ast_update_block(cls, block, source_position):
+        # type: (ASTBlock,ASTSourcePosition) -> ASTUpdateBlock
+        return ASTUpdateBlock(block, source_position)
+
+    @classmethod
+    def create_ast_variable(cls, name, differential_order=0, source_position=None):
+        # type: (str,int,ASTSourcePosition) -> ASTVariable
+        return ASTVariable(name, differential_order, source_position)
+
+    @classmethod
+    def create_ast_while_stmt(cls,
+                              condition,  # type: Union(ASTSimpleExpression,ASTExpression)
+                              block,  # type: ASTBlock
+                              source_position  # type: ASTSourcePosition
+                              ):  # type: (...) -> ASTWhileStmt
+        return ASTWhileStmt(condition, block, source_position)

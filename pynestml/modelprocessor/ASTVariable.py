@@ -57,21 +57,6 @@ class ASTVariable(ASTNode):
         self.__differentialOrder = _differentialOrder
         return
 
-    @classmethod
-    def makeASTVariable(cls, _name=None, _differentialOrder=0, _sourcePosition=None):
-        """
-        The factory method of the ASTVariable class.
-        :param _name: the name of the variable
-        :type _name: str
-        :param _differentialOrder: the differential order of the variable.
-        :type _differentialOrder: int
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTVariable object.
-        :rtype: ASTVariable
-        """
-        return cls(_name, _differentialOrder, _sourcePosition)
-
     def getName(self):
         """
         Returns the name of the variable.

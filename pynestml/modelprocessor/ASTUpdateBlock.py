@@ -56,19 +56,6 @@ class ASTUpdateBlock(ASTNode):
         self.__block = _block
         return
 
-    @classmethod
-    def makeASTUpdateBlock(cls, _block=None, _sourcePosition=None):
-        """
-        Factory method of the ASTUpdateBlock class.
-        :param _block: a block of definitions.
-        :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTUpdateBlock object.
-        :rtype: ASTUpdateBlock
-        """
-        return cls(_block, _sourcePosition)
-
     def getBlock(self):
         """
         Returns the block of definitions.
