@@ -1,5 +1,5 @@
 #
-# ConditionVisitor.py
+# ASTConditionVisitor.py
 #
 # This file is part of NEST.
 #
@@ -24,13 +24,13 @@ expression : condition=expression '?' ifTrue=expression ':' ifNot=expression
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
 
-class ConditionVisitor(NESTMLVisitor):
+class ASTConditionVisitor(ASTVisitor):
     """
     This visitor is used to derive the correct type of a ternary operator, i.e., of all its subexpressions.
     """
@@ -42,75 +42,75 @@ class ConditionVisitor(NESTMLVisitor):
         :type _expr: ASTExpression
         """
         assert (_expr is not None and (isinstance(_expr, ASTExpression))), \
-            '(PyNestML.Visitor.ConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        conditionE = _expr.getCondition().getTypeEither()
-        ifTrueE = _expr.getIfTrue().getTypeEither()
-        ifNotE = _expr.getIfNot().getTypeEither()
+            '(PyNestML.Visitor.ASTConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+        condition_e = _expr.getCondition().getTypeEither()
+        if_true_e = _expr.getIfTrue().getTypeEither()
+        if_not_e = _expr.getIfNot().getTypeEither()
 
-        if conditionE.isError():
-            _expr.setTypeEither(conditionE)
+        if condition_e.isError():
+            _expr.setTypeEither(condition_e)
             return
-        if ifTrueE.isError():
-            _expr.setTypeEither(ifTrueE)
+        if if_true_e.isError():
+            _expr.setTypeEither(if_true_e)
             return
-        if ifNotE.isError():
-            _expr.setTypeEither(ifNotE)
+        if if_not_e.isError():
+            _expr.setTypeEither(if_not_e)
             return
 
-        ifTrue = ifTrueE.getValue()
-        ifNot = ifNotE.getValue()
+        if_true = if_true_e.getValue()
+        if_not = if_not_e.getValue()
 
         # Condition must be a bool
-        if not conditionE.getValue().equals(PredefinedTypes.getBooleanType()):
-            errorMsg = ErrorStrings.messageTernary(self, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(errorMsg))
-            Logger.logMessage(_message=errorMsg, _errorPosition=_expr.getSourcePosition(),
+        if not condition_e.getValue().equals(PredefinedTypes.getBooleanType()):
+            error_msg = ErrorStrings.messageTernary(self, _expr.getSourcePosition())
+            _expr.setTypeEither(Either.error(error_msg))
+            Logger.logMessage(_message=error_msg, _errorPosition=_expr.getSourcePosition(),
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _logLevel=LOGGING_LEVEL.ERROR)
             return
 
         # Alternatives match exactly -> any is valid
-        if ifTrue.equals(ifNot):
-            _expr.setTypeEither(Either.value(ifTrue))
+        if if_true.equals(if_not):
+            _expr.setTypeEither(Either.value(if_true))
             return
 
         # Both are units but not matching-> real WARN
-        if ifTrue.isUnit() and ifNot.isUnit():
-            errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printSymbol(), ifNot.printSymbol(),
-                                                           _expr.getSourcePosition())
+        if if_true.isUnit() and if_not.isUnit():
+            error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.printSymbol(), if_not.printSymbol(),
+                                                            _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
-            Logger.logMessage(_message=errorMsg,
+            Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _errorPosition=ifTrue.getSourcePosition(),
+                              _errorPosition=if_true.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
 
         # one Unit and one numeric primitive and vice versa -> assume unit, WARN
-        if (ifTrue.isUnit() and ifNot.isNumericPrimitive()) or (ifNot.isUnit() and ifTrue.isNumericPrimitive()):
-            unitType = None
-            if ifTrue.isUnit():
-                unitType = ifTrue
+        if (if_true.isUnit() and if_not.isNumericPrimitive()) or (if_not.isUnit() and if_true.isNumericPrimitive()):
+            unit_type = None
+            if if_true.isUnit():
+                unit_type = if_true
             else:
-                unitType = ifNot
-            errorMsg = ErrorStrings.messageTernaryMismatch(self, str(ifTrue), str(ifNot),
-                                                           _expr.getSourcePosition())
-            _expr.setTypeEither(Either.value(unitType))
-            Logger.logMessage(_message=errorMsg,
+                unit_type = if_not
+            error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
+                                                            _expr.getSourcePosition())
+            _expr.setTypeEither(Either.value(unit_type))
+            Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _errorPosition=ifTrue.getSourcePosition(),
+                              _errorPosition=if_true.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
 
         # both are numeric primitives (and not equal) ergo one is real and one is integer -> real
-        if ifTrue.isNumericPrimitive() and ifNot.isNumericPrimitive():
+        if if_true.isNumericPrimitive() and if_not.isNumericPrimitive():
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
             return
 
         # if we get here it is an error
-        errorMsg = ErrorStrings.messageTernaryMismatch(self, str(ifTrue), str(ifNot),
-                                                       _expr.getSourcePosition())
-        _expr.setTypeEither(Either.error(errorMsg))
-        Logger.logMessage(_message=errorMsg,
+        error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
+                                                        _expr.getSourcePosition())
+        _expr.setTypeEither(Either.error(error_msg))
+        Logger.logMessage(_message=error_msg,
                           _errorPosition=_expr.getSourcePosition(),
                           _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                           _logLevel=LOGGING_LEVEL.ERROR)

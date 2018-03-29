@@ -23,7 +23,7 @@ from pynestml.utils.Messages import Messages
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 
 
 class CoCoFunctionCallsConsistent(CoCo):
@@ -47,7 +47,7 @@ class CoCoFunctionCallsConsistent(CoCo):
         return
 
 
-class FunctionCallConsistencyVisitor(NESTMLVisitor):
+class FunctionCallConsistencyVisitor(ASTVisitor):
     """
     This visitor ensures that all function calls are consistent.
     """

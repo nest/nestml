@@ -313,9 +313,9 @@ class ASTExpression(ASTNode):
         :return: Either a valid type or an error message
         :rtype: Either
         """
-        from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
+        from pynestml.modelprocessor.ASTExpressionTypeVisitor import ASTExpressionTypeVisitor
         if self.__typeEither is None:
-            self.accept(ExpressionTypeVisitor())
+            self.accept(ASTExpressionTypeVisitor())
         return self.__typeEither
 
     def setTypeEither(self, _typeEither=None):

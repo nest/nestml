@@ -22,7 +22,7 @@ from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Messages import Messages
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 
 
@@ -44,7 +44,7 @@ class CoCoIllegalExpression(CoCo):
         return
 
 
-class CorrectExpressionVisitor(NESTMLVisitor):
+class CorrectExpressionVisitor(ASTVisitor):
     """
     This visitor checks that all expression correspond to the expected type.
     """

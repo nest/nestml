@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
@@ -46,7 +46,7 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
         return
 
 
-class VectorInDeclarationVisitor(NESTMLVisitor):
+class VectorInDeclarationVisitor(ASTVisitor):
     """
     This visitor checks if somewhere in a declaration of a non-vector value, a vector is used.
     """

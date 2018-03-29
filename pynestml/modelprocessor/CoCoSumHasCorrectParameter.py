@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
@@ -47,7 +47,7 @@ class CoCoSumHasCorrectParameter(CoCo):
         return
 
 
-class SumIsCorrectVisitor(NESTMLVisitor):
+class SumIsCorrectVisitor(ASTVisitor):
     """
     This visitor ensures that sums/convolve are provided with a correct expression.
     """

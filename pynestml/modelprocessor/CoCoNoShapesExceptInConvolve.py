@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.Symbol import SymbolKind
@@ -57,7 +57,7 @@ class CoCoNoShapesExceptInConvolve(CoCo):
         return
 
 
-class ShapeUsageVisitor(NESTMLVisitor):
+class ShapeUsageVisitor(ASTVisitor):
     __shapes = None
     __neuronNode = None
 
@@ -106,7 +106,7 @@ class ShapeUsageVisitor(NESTMLVisitor):
         return
 
 
-class ShapeCollectingVisitor(NESTMLVisitor):
+class ShapeCollectingVisitor(ASTVisitor):
     __shapeNames = None
 
     def collectShapes(self, _neuron=None):

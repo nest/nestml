@@ -322,16 +322,16 @@ class VariableSymbol(Symbol):
 
     def printSymbol(self):
         if self.getReferencedObject() is not None:
-            sourcePosition = str(self.getReferencedObject().getSourcePosition())
+            source_position = str(self.getReferencedObject().getSourcePosition())
         else:
-            sourcePosition = 'predefined'
-        vectorValue = self.getVectorParameter() if self.hasVectorParameter() else 'none'
-        typE = self.getTypeSymbol().printSymbol()
+            source_position = 'predefined'
+        vector_value = self.getVectorParameter() if self.hasVectorParameter() else 'none'
+        typ_e = self.getTypeSymbol().printSymbol()
         recordable = 'recordable, ' if self.isRecordable() else ''
         func = 'function, ' if self.isFunction() else ''
-        conductanceBased = 'conductance based, ' if self.isConductanceBased() else ''
-        return 'VariableSymbol[' + self.getSymbolName() + ', type=' + typE + ', ' + str(self.getBlockType()) + ', ' \
-               + recordable + func + conductanceBased + 'array parameter=' + vectorValue + ', @' + sourcePosition + ')'
+        conductance_based = 'conductance based, ' if self.isConductanceBased() else ''
+        return 'VariableSymbol[' + self.getSymbolName() + ', type=' + typ_e + ', ' + str(self.getBlockType()) + ', ' \
+               + recordable + func + conductance_based + 'array parameter=' + vector_value + ', @' + source_position + ')'
 
     def getTypeSymbol(self):
         """
@@ -458,17 +458,17 @@ class VariableSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return type(self) != type(_other) and \
-               self.getReferencedObject() == _other.getReferencedObject() and \
-               self.getSymbolName() == _other.getSymbolName() and \
-               self.getCorrespondingScope() == _other.getCorrespondingScope() and \
-               self.getBlockType() == _other.getBlockType() and \
-               self.getVectorParameter() == _other.getVectorParameter() and \
-               self.getDeclaringExpression() == _other.getDeclaringExpression() and \
-               self.isPredefined() == _other.isPredefined() and \
-               self.isFunction() == _other.isFunction() and \
-               self.isConductanceBased() == _other.isConductanceBased() and \
-               self.isRecordable() == _other.isRecordable()
+        return (type(self) != type(_other) and
+                self.getReferencedObject() == _other.getReferencedObject() and
+                self.getSymbolName() == _other.getSymbolName() and
+                self.getCorrespondingScope() == _other.getCorrespondingScope() and
+                self.getBlockType() == _other.getBlockType() and
+                self.getVectorParameter() == _other.getVectorParameter() and
+                self.getDeclaringExpression() == _other.getDeclaringExpression() and
+                self.isPredefined() == _other.isPredefined() and
+                self.isFunction() == _other.isFunction() and
+                self.isConductanceBased() == _other.isConductanceBased() and
+                self.isRecordable() == _other.isRecordable())
 
     def hasComment(self):
         """
@@ -492,8 +492,8 @@ class VariableSymbol(Symbol):
         # in the last part, delete the new line if it is the last comment, otherwise there is an ungly gap
         # between the comment and the element
         for comment in self.getComment():
-            ret += (_prefix if _prefix is not None else '') + comment +\
-                   ('\n' if self.getComment().index(comment) < len(self.getComment())-1 else '')
+            ret += (_prefix if _prefix is not None else '') + comment + \
+                   ('\n' if self.getComment().index(comment) < len(self.getComment()) - 1 else '')
         return ret
 
     def containsSumCall(self):
@@ -508,8 +508,8 @@ class VariableSymbol(Symbol):
         else:
             for func in self.getDeclaringExpression().getFunctionCalls():
                 if func.getName() == PredefinedFunctions.CONVOLVE or \
-                                func.getName() == PredefinedFunctions.CURR_SUM or \
-                                func.getName() == PredefinedFunctions.COND_SUM:
+                        func.getName() == PredefinedFunctions.CURR_SUM or \
+                        func.getName() == PredefinedFunctions.COND_SUM:
                     return True
         return False
 

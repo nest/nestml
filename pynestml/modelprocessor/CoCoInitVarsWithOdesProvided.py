@@ -20,7 +20,7 @@
 
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
@@ -61,7 +61,7 @@ class CoCoInitVarsWithOdesProvided(CoCo):
         return
 
 
-class InitVarsVisitor(NESTMLVisitor):
+class InitVarsVisitor(ASTVisitor):
     """
     This visitor checks that all variables as provided in the init block have been provided with an ode.
     """

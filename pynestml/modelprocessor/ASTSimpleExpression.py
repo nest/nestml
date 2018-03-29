@@ -118,8 +118,8 @@ class ASTSimpleExpression(ASTNode):
         :rtype: Either
         """
         if self.__typeEither is None:
-            from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
-            self.accept(ExpressionTypeVisitor())
+            from pynestml.modelprocessor.ASTExpressionTypeVisitor import ASTExpressionTypeVisitor
+            self.accept(ASTExpressionTypeVisitor())
         return self.__typeEither
 
     # TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression

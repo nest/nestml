@@ -1,5 +1,5 @@
 #
-# InfVisitor.py
+# ASTInfVisitor.py.py
 #
 # This file is part of NEST.
 #
@@ -22,12 +22,12 @@
 simpleExpression : isInf='inf'
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class InfVisitor(NESTMLVisitor):
+class ASTInfVisitor(ASTVisitor):
     """
     Visits a inf expression and updates the type accordingly.
     """

@@ -1,5 +1,5 @@
 #
-# ModelVisitor.py
+# ASTVisitor.py
 #
 # This file is part of NEST.
 #
@@ -58,11 +58,11 @@ from pynestml.modelprocessor.ASTVariable import ASTVariable
 from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
 
 
-class NESTMLVisitor(object):
+class ASTVisitor(object):
     """
     This class represents a standard implementation of a visitor as used to create concrete instances.
     Attributes:
-        __realSelf (NESTMLVisitor): The visitor which will be used during the visiting of a node.
+        __realSelf (ASTVisitor): The visitor which will be used during the visiting of a node.
     """
     __realSelf = None
 
@@ -682,7 +682,7 @@ class NESTMLVisitor(object):
         return
 
     def setRealSelf(self, _visitor):
-        assert (_visitor is not None and isinstance(_visitor, NESTMLVisitor))
+        assert (_visitor is not None and isinstance(_visitor, ASTVisitor))
         self.__realSelf = _visitor
         return
 

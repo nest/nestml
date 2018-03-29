@@ -23,7 +23,7 @@ from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 
 
 class CoCoBufferNotAssigned(CoCo):
@@ -49,7 +49,7 @@ class CoCoBufferNotAssigned(CoCo):
         return
 
 
-class NoBufferAssignedVisitor(NESTMLVisitor):
+class NoBufferAssignedVisitor(ASTVisitor):
     def visitAssignment(self, _assignment=None):
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or

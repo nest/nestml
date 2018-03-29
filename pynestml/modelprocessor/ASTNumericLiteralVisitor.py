@@ -1,5 +1,5 @@
 #
-# NumericLiteralVisitor.py
+# ASTNumericLiteralVisitortor.py
 #
 # This file is part of NEST.
 #
@@ -23,18 +23,18 @@ simpleExpression : (INTEGER|FLOAT) (variable)?
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 
 
-class NumericLiteralVisitor(NESTMLVisitor):
+class ASTNumericLiteralVisitor(ASTVisitor):
     """
     Visits a single numeric literal and updates its type.
     """
 
     def visitSimpleExpression(self, _expr=None):
         """
-        TODO comments
+        Visit a simple expression and update the type of a numeric literal.
         :param _expr:
         :type _expr:
         :return:
@@ -44,9 +44,9 @@ class NumericLiteralVisitor(NESTMLVisitor):
         # if variable is also set in this expression, the var type overrides the literal
         if _expr.getVariable() is not None:
             scope = _expr.getScope()
-            varName = _expr.getVariable().getName()
-            variableSymbolResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
-            _expr.setTypeEither(Either.value(variableSymbolResolve.getTypeSymbol()))
+            var_name = _expr.getVariable().getName()
+            variable_symbol_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
+            _expr.setTypeEither(Either.value(variable_symbol_resolve.getTypeSymbol()))
             return
 
         if _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(), float):

@@ -152,8 +152,8 @@ class ASTNode(object):
         :param _visitor: A visitor.
         :type _visitor: Inherited from NESTMLVisitor.
         """
-        from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-        assert (_visitor is not None and isinstance(_visitor, NESTMLVisitor)), \
+        from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+        assert (_visitor is not None and isinstance(_visitor, ASTVisitor)), \
             '(PyNestML.AST.Element) No or wrong type of visitor provided (%s)!' % type(_visitor)
         _visitor.handle(self)
         return

@@ -21,7 +21,7 @@
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
@@ -46,7 +46,7 @@ class CoCoInvariantIsBoolean(CoCo):
         return
 
 
-class InvariantTypeVisitor(NESTMLVisitor):
+class InvariantTypeVisitor(ASTVisitor):
     """
     Checks if for each invariant, the type is boolean.
     """

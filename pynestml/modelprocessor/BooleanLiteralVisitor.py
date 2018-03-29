@@ -22,12 +22,12 @@
 simpleExpression : BOOLEAN_LITERAL // true & false;
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class BooleanLiteralVisitor(NESTMLVisitor):
+class BooleanLiteralVisitor(ASTVisitor):
     """
     Visits a single boolean literal and updates its type.
     """

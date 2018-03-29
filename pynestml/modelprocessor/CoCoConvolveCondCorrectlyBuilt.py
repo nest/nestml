@@ -22,7 +22,7 @@ from pynestml.utils.Messages import Messages
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 
 
 class CoCoConvolveCondCorrectlyBuilt(CoCo):
@@ -49,7 +49,7 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         return
 
 
-class ConvolveCheckerVisitor(NESTMLVisitor):
+class ConvolveCheckerVisitor(ASTVisitor):
     """
     Visits a function call and checks that if the function call is a cond_sum,cur_sum or convolve, the parameters
     are correct.

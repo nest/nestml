@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
 from pynestml.modelprocessor.Scope import ScopeType
@@ -57,7 +57,7 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
         return
 
 
-class ParametersAssignmentVisitor(NESTMLVisitor):
+class ParametersAssignmentVisitor(ASTVisitor):
     """
     This visitor checks that no parameters have been assigned outside the parameters block.
     """

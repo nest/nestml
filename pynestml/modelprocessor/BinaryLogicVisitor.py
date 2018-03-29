@@ -23,13 +23,13 @@ expression: left=expression logicalOperator right=expression
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
-class BinaryLogicVisitor(NESTMLVisitor):
+class BinaryLogicVisitor(ASTVisitor):
     """
     Visits a single binary logical operator expression and updates its types.
     """

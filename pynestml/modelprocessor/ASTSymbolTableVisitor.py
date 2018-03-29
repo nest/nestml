@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.Scope import Scope, ScopeType
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
@@ -31,7 +31,7 @@ from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 
 
-class ASTSymbolTableVisitor(NESTMLVisitor):
+class ASTSymbolTableVisitor(ASTVisitor):
     """
     This class is used to create a symbol table from a handed over AST.
     

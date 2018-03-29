@@ -1,5 +1,5 @@
 #
-# ParenthesesVisitor.py
+# ASTParenthesesVisitor.py.py
 #
 # This file is part of NEST.
 #
@@ -21,11 +21,11 @@
 """
 expression : leftParentheses='(' term=expression rightParentheses=')'
 """
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 
 
-class ParenthesesVisitor(NESTMLVisitor):
+class ASTParenthesesVisitor(ASTVisitor):
     """
     Visits a single expression encapsulated in brackets and updates its type.
     """
@@ -37,6 +37,6 @@ class ParenthesesVisitor(NESTMLVisitor):
         :type _expr: ASTExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ParenthesesVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+            '(PyNestML.Visitor.ASTParenthesesVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         _expr.setTypeEither(_expr.getExpression().getTypeEither())
         return

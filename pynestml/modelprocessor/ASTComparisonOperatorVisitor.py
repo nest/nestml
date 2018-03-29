@@ -1,5 +1,5 @@
 #
-# ComparisonOperatorVisitor.py
+# ASTComparisonOperatorVisitor.py.py
 #
 # This file is part of NEST.
 #
@@ -23,14 +23,14 @@ expression : left=expression comparisonOperator right=expression
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
 
-class ComparisonOperatorVisitor(NESTMLVisitor):
+class ASTComparisonOperatorVisitor(ASTVisitor):
     """
     Visits a single expression consisting of a binary comparison operator.
     """
@@ -42,39 +42,39 @@ class ComparisonOperatorVisitor(NESTMLVisitor):
         :type _expr: ASTExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhsTypeE = _expr.getLhs().getTypeEither()
-        rhsTypeE = _expr.getRhs().getTypeEither()
+            '(PyNestML.Visitor.ASTConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+        lhs_type_e = _expr.getLhs().getTypeEither()
+        rhs_type_e = _expr.getRhs().getTypeEither()
 
-        if lhsTypeE.isError():
-            _expr.setTypeEither(lhsTypeE)
+        if lhs_type_e.isError():
+            _expr.setTypeEither(lhs_type_e)
             return
-        if rhsTypeE.isError():
-            _expr.setTypeEither(rhsTypeE)
+        if rhs_type_e.isError():
+            _expr.setTypeEither(rhs_type_e)
             return
 
-        lhsType = lhsTypeE.getValue()
-        rhsType = rhsTypeE.getValue()
+        lhs_type = lhs_type_e.getValue()
+        rhs_type = rhs_type_e.getValue()
 
-        if ((lhsType.isReal() or lhsType.isInteger()) and (rhsType.isReal() or rhsType.isInteger())) \
-                or (lhsType.equals(rhsType) and lhsType.isNumeric()) or (lhsType.isBoolean() and rhsType.isBoolean()):
+        if ((lhs_type.isReal() or lhs_type.isInteger()) and (rhs_type.isReal() or rhs_type.isInteger())) \
+                or (lhs_type.equals(rhs_type) and lhs_type.isNumeric()) or (lhs_type.isBoolean() and rhs_type.isBoolean()):
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
             return
 
         # Error message for any other operation
-        if (lhsType.isUnit() and rhsType.isNumeric()) or (rhsType.isUnit() and lhsType.isNumeric()):
+        if (lhs_type.isUnit() and rhs_type.isNumeric()) or (rhs_type.isUnit() and lhs_type.isNumeric()):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
-            errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
+            error_msg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
-            Logger.logMessage(_message=errorMsg, _code=MessageCode.SOFT_INCOMPATIBILITY,
+            Logger.logMessage(_message=error_msg, _code=MessageCode.SOFT_INCOMPATIBILITY,
                               _errorPosition=_expr.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
         else:
             # hard incompatibility, cannot recover in c++, ERROR
-            errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(errorMsg))
+            error_msg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
+            _expr.setTypeEither(Either.error(error_msg))
             Logger.logMessage(_code=MessageCode.HARD_INCOMPATIBILITY,
                               _errorPosition=_expr.getSourcePosition(),
-                              _message=errorMsg, _logLevel=LOGGING_LEVEL.ERROR)
+                              _message=error_msg, _logLevel=LOGGING_LEVEL.ERROR)
             return

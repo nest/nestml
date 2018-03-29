@@ -20,7 +20,7 @@
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -58,7 +58,7 @@ class CoCoEquationsOnlyForInitValues(CoCo):
         return
 
 
-class EquationsOnlyForInitValues(NESTMLVisitor):
+class EquationsOnlyForInitValues(ASTVisitor):
     """
     This visitor ensures that for all ode equations exists an initial value.
     """

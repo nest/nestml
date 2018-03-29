@@ -1,5 +1,5 @@
 #
-# StringLiteralVisitor.py
+# ASTStringLiteralVisitor.py
 #
 # This file is part of NEST.
 #
@@ -22,12 +22,12 @@
 simpleExpression : string=STRING_LITERAL
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
-class StringLiteralVisitor(NESTMLVisitor):
+class StringLiteralVisitor(ASTVisitor):
     """
     Visits a string literal and updates its type.
     """

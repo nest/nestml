@@ -1,5 +1,5 @@
 /*
- *  PyNESTML.g4
+ *  PyNestML.g4
  *
  *  This file is part of NEST.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-grammar PyNESTML;
+grammar PyNestML;
 
   import Tokens;
 

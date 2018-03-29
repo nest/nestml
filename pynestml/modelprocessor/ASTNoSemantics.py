@@ -1,5 +1,5 @@
 #
-# NoSemantics.py
+# ASTNoSemanticsics.py
 #
 # This file is part of NEST.
 #
@@ -22,13 +22,13 @@
 Placeholder for expression productions that are not implemented
 """
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
 
-class NoSemantics(NESTMLVisitor):
+class ASTNoSemantics(ASTVisitor):
     """
     A visitor which indicates that there a no semantics for the given node.
     """
@@ -40,10 +40,10 @@ class NoSemantics(NESTMLVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression or ASTSimpleExpression
         """
-        errorMsg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.getSourcePosition())
-        _expr.setTypeEither(Either.error(errorMsg))
+        error_msg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.getSourcePosition())
+        _expr.setTypeEither(Either.error(error_msg))
         # just warn though
-        Logger.logMessage(_message=errorMsg,
+        Logger.logMessage(_message=error_msg,
                           _code=MessageCode.NO_SEMANTICS,
                           _errorPosition=_expr.getSourcePosition(),
                           _logLevel=LOGGING_LEVEL.WARNING)

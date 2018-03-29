@@ -37,35 +37,35 @@ class ErrorStrings(object):
         :rtype: str
         """
         assert _origin is not None
-        from pynestml.modelprocessor.UnaryVisitor import UnaryVisitor
-        if isinstance(_origin, UnaryVisitor):
+        from pynestml.modelprocessor.ASTUnaryVisitor import ASTUnaryVisitor
+        if isinstance(_origin, ASTUnaryVisitor):
             return "SPL_UNARY_VISITOR"
-        from pynestml.modelprocessor.PowVisitor import PowVisitor
-        if isinstance(_origin, PowVisitor):
+        from pynestml.modelprocessor.ASTPowerVisitor import ASTPowerVisitor
+        if isinstance(_origin, ASTPowerVisitor):
             return "SPL_POW_VISITOR"
-        from pynestml.modelprocessor.LogicalNotVisitor import LogicalNotVisitor
-        if isinstance(_origin, LogicalNotVisitor):
+        from pynestml.modelprocessor.ASTLogicalNotVisitor import ASTLogicalNotVisitor
+        if isinstance(_origin, ASTLogicalNotVisitor):
             return "SPL_LOGICAL_NOT_VISITOR"
-        from pynestml.modelprocessor.DotOperatorVisitor import DotOperatorVisitor
-        if isinstance(_origin, DotOperatorVisitor):
+        from pynestml.modelprocessor.ASTDotOperatorVisitor import ASTDotOperatorVisitor
+        if isinstance(_origin, ASTDotOperatorVisitor):
             return "SPL_DOT_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.LineOperationVisitor import LineOperatorVisitor
-        if isinstance(_origin, LineOperatorVisitor):
+        from pynestml.modelprocessor.ASTLineOperationVisitor import ASTLineOperatorVisitor
+        if isinstance(_origin, ASTLineOperatorVisitor):
             return "SPL_LINE_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.NoSemantics import NoSemantics
-        if isinstance(_origin, NoSemantics):
+        from pynestml.modelprocessor.ASTNoSemantics import ASTNoSemantics
+        if isinstance(_origin, ASTNoSemantics):
             return "SPL_NO_SEMANTICS"
-        from pynestml.modelprocessor.ComparisonOperatorVisitor import ComparisonOperatorVisitor
-        if isinstance(_origin, ComparisonOperatorVisitor):
+        from pynestml.modelprocessor.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
+        if isinstance(_origin, ASTComparisonOperatorVisitor):
             return "SPL_COMPARISON_OPERATOR_VISITOR"
         from pynestml.modelprocessor.BinaryLogicVisitor import BinaryLogicVisitor
         if isinstance(_origin, BinaryLogicVisitor):
             return "SPL_BINARY_LOGIC_VISITOR"
-        from pynestml.modelprocessor.ConditionVisitor import ConditionVisitor
-        if isinstance(_origin, ConditionVisitor):
+        from pynestml.modelprocessor.ASTConditionVisitor import ASTConditionVisitor
+        if isinstance(_origin, ASTConditionVisitor):
             return "SPL_CONDITION_VISITOR"
-        from pynestml.modelprocessor.FunctionCallVisitor import FunctionCallVisitor
-        if isinstance(_origin, FunctionCallVisitor):
+        from pynestml.modelprocessor.ASTFunctionCallVisitor import ASTFunctionCallVisitor
+        if isinstance(_origin, ASTFunctionCallVisitor):
             return "SPL_FUNCTION_CALL_VISITOR"
         return ""
 
