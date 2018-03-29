@@ -24,7 +24,6 @@ from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
-from pynestml.utils.ASTCreator import ASTCreator
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 import re as re
 
@@ -68,14 +67,14 @@ class TransformerBase(object):
         try:
             (var, value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
             tmp = ModelParser.parseExpression(value)
-            vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
-            declarationString = var + ' real' + (
-                '[' + vectorVariable.getVectorParameter() + ']'
-                if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + value
-            astDeclaration = ModelParser.parseDeclaration(declarationString)
-            if vectorVariable is not None:
-                astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
-            _neuron.addToInternalBlock(astDeclaration)
+            vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
+            declaration_string = var + ' real' + (
+                '[' + vector_variable.getVectorParameter() + ']'
+                if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + value
+            ast_declaration = ModelParser.parseDeclaration(declaration_string)
+            if vector_variable is not None:
+                ast_declaration.setSizeParameter(vector_variable.getVectorParameter())
+            _neuron.addToInternalBlock(ast_declaration)
             return _neuron
         except:
             raise RuntimeError('Must not fail by construction.')
@@ -101,24 +100,24 @@ class TransformerBase(object):
         assert (_propagatorSteps is not None and isinstance(_propagatorSteps, list)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of propagator steps provided (%s)!' % type(
                 _propagatorSteps)
-        integrateCall = ASTUtils.getFunctionCall(_neuron.getUpdateBlocks(), PredefinedFunctions.INTEGRATE_ODES)
+        integrate_call = ASTUtils.getFunctionCall(_neuron.getUpdateBlocks(), PredefinedFunctions.INTEGRATE_ODES)
         # by construction of a valid neuron, only a single integrate call should be there
-        if isinstance(integrateCall, list):
-            integrateCall = integrateCall[0]
-        if integrateCall is not None:
-            smallStatement = _neuron.getParent(integrateCall)
-            assert (smallStatement is not None and isinstance(smallStatement, ASTSmallStmt))
+        if isinstance(integrate_call, list):
+            integrate_call = integrate_call[0]
+        if integrate_call is not None:
+            small_statement = _neuron.getParent(integrate_call)
+            assert (small_statement is not None and isinstance(small_statement, ASTSmallStmt))
 
-            block = _neuron.getParent(smallStatement)
+            block = _neuron.getParent(small_statement)
             assert (block is not None and isinstance(block, ASTBlock))
             for i in range(0, len(block.getStmts())):
-                if block.getStmts()[i].equals(smallStatement):
+                if block.getStmts()[i].equals(small_statement):
                     del block.getStmts()[i]
-                    constTuple = ASTUtils.getTupleFromSingleDictEntry(_constInput)
-                    updateStatements = list()
-                    updateStatements.append(ASTCreator.createStatement(constTuple[0] + " real = " + constTuple[1]))
-                    updateStatements += list((ASTCreator.createStatement(prop) for prop in _propagatorSteps))
-                    block.getStmts()[i:i] = updateStatements
+                    const_tuple = ASTUtils.getTupleFromSingleDictEntry(_constInput)
+                    update_statements = list()
+                    update_statements.append(ModelParser.parseStmt(const_tuple[0] + " real = " + const_tuple[1]))
+                    update_statements += list((ModelParser.parseStmt(prop) for prop in _propagatorSteps))
+                    block.getStmts()[i:i] = update_statements
                     break
         else:
             code, message = Messages.getOdeSolutionNotUsed()
@@ -155,15 +154,14 @@ class TransformerBase(object):
         try:
             (var, value) = _declaration
             tmp = ModelParser.parseExpression(value)
-            vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
-            declarationString = var + ' real' + (
-                '[' + vectorVariable.getVectorParameter() + ']'
-                if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + \
-                                value
-            astDeclaration = ModelParser.parseDeclaration(declarationString)
-            if vectorVariable is not None:
-                astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
-            _neuron.addToInitialValuesBlock(astDeclaration)
+            vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
+            declaration_string = var + ' real' + (
+                '[' + vector_variable.getVectorParameter() + ']'
+                if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + value
+            ast_declaration = ModelParser.parseDeclaration(declaration_string)
+            if vector_variable is not None:
+                ast_declaration.setSizeParameter(vector_variable.getVectorParameter())
+            _neuron.addToInitialValuesBlock(ast_declaration)
             return _neuron
         except:
             raise RuntimeError('Must not fail by construction.')
@@ -179,22 +177,23 @@ class TransformerBase(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        convCalls = OdeTransformer.get_sumFunctionCalls(_neuron)
+        conv_calls = OdeTransformer.get_sumFunctionCalls(_neuron)
         printer = ExpressionsPrettyPrinter()
-        spikesUpdates = list()
-        for convCall in convCalls:
+        spikes_updates = list()
+        for convCall in conv_calls:
             shape = convCall.getArgs()[0].getVariable().getCompleteName()
             buffer = convCall.getArgs()[1].getVariable().getCompleteName()
             initialValues = (_neuron.getInitialBlocks().getDeclarations()
-                             if _neuron.getInitialBlocks() is not None else list())
+            if _neuron.getInitialBlocks() is not None else list())
             for astDeclaration in initialValues:
                 for variable in astDeclaration.getVariables():
                     if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
                                                                                          variable.getCompleteName()):
-                        spikesUpdates.append(ASTCreator.createAssignment(
+                        assignment = ModelParser.parseAssignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
-                                astDeclaration.getExpression())))
-        for update in spikesUpdates:
+                                astDeclaration.getExpression()))
+                        spikes_updates.append(assignment)
+        for update in spikes_updates:
             cls.addAssignmentToUpdateBlock(update, _neuron)
         return _neuron
 
@@ -216,8 +215,8 @@ class TransformerBase(object):
             '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_assignment=_assignment, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
-        _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
+        small_stmt = ASTSmallStmt(_assignment=_assignment, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+        _neuron.getUpdateBlocks().getBlock().getStmts().append(small_stmt)
         return _neuron
 
     @classmethod
@@ -237,8 +236,8 @@ class TransformerBase(object):
             '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_declaration=_declaration, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
-        _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
+        small_stmt = ASTSmallStmt(_declaration=_declaration, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+        _neuron.getUpdateBlocks().getBlock().getStmts().append(small_stmt)
         return _neuron
 
     @classmethod
@@ -253,10 +252,10 @@ class TransformerBase(object):
         from pynestml.solver.SolverOutput import SolverOutput
         assert (_solverOutput is not None and isinstance(_solverOutput, SolverOutput)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of solver output provided (%s)!' % tuple(_solverOutput)
-        stateShapeVariablesWithInitialValues = list()
+        state_shape_variables_with_initial_values = list()
         for shapeStateVariable in _solverOutput.shape_state_variables:
             for initialValueAsDict in _solverOutput.initial_values:
                 for var in initialValueAsDict.keys():
                     if var.endswith(shapeStateVariable):
-                        stateShapeVariablesWithInitialValues.append((shapeStateVariable, initialValueAsDict[var]))
-        return stateShapeVariablesWithInitialValues
+                        state_shape_variables_with_initial_values.append((shapeStateVariable, initialValueAsDict[var]))
+        return state_shape_variables_with_initial_values

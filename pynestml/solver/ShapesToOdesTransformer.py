@@ -19,9 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
-from pynestml.utils.ASTCreator import ASTCreator
+
 
 
 class ShapesToOdesTransformer(TransformerBase):
@@ -74,7 +75,7 @@ class ShapesToOdesTransformer(TransformerBase):
         astShapes = list()
         for singleDict in _equationsFile:
             for key in singleDict.keys():
-                astShapes.append(ASTCreator.createShape('shape ' + key + '\' = ' + singleDict[key]))
+                astShapes.append(ModelParser.parseShape('shape ' + key + '\' = ' + singleDict[key]))
         _astOdeDeclaration.getDeclarations().extend(astShapes)
         return
 

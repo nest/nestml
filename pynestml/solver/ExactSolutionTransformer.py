@@ -20,7 +20,7 @@
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.utils.ASTCreator import ASTCreator
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.utils.ASTUtils import ASTUtils
 
 
@@ -46,33 +46,34 @@ class ExactSolutionTransformer(TransformerBase):
         assert (_solverOutput is not None and isinstance(_solverOutput, SolverOutput)), \
             '(PyNestML.Solver.ExactSolutionTransformer) No or wrong type of solver output provided (%s)!' % type(
                 _solverOutput)
-        workingVersion = _neuron
-        workingVersion.addToInternalBlock(ASTCreator.createDeclaration('__h ms = resolution()'))
-        workingVersion = TransformerBase.addVariableToInternals(workingVersion, _solverOutput.ode_var_factor)
-        workingVersion = TransformerBase.addVariableToInternals(workingVersion, _solverOutput.const_input)
-        workingVersion = TransformerBase.addVariablesToInternals(workingVersion, _solverOutput.propagator_elements)
+        working_version = _neuron
+        working_version.addToInternalBlock(ModelParser.parseDeclaration('__h ms = resolution()'))
+        working_version = TransformerBase.addVariableToInternals(working_version, _solverOutput.ode_var_factor)
+        working_version = TransformerBase.addVariableToInternals(working_version, _solverOutput.const_input)
+        working_version = TransformerBase.addVariablesToInternals(working_version, _solverOutput.propagator_elements)
 
-        stateShapeVariablesWithInitialValues = TransformerBase.computeShapeStateVariablesWithInitialValues(
+        state_shape_variables_with_initial_values = TransformerBase.computeShapeStateVariablesWithInitialValues(
             _solverOutput)
         # copy initial block variables to the state block, since they are not backed through an ODE.
         for decl in _neuron.getInitialValuesDeclarations():
             _neuron.addToStateBlock(decl)
-        workingVersion = TransformerBase.addVariablesToInitialValues(workingVersion,
-                                                                     stateShapeVariablesWithInitialValues)
-        cls.__addStateUpdates(_solverOutput, workingVersion)
+        working_version = TransformerBase.addVariablesToInitialValues(working_version,
+                                                                     state_shape_variables_with_initial_values)
+        cls.__addStateUpdates(_solverOutput, working_version)
 
-        workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(workingVersion,_solverOutput.const_input,
+        working_version = TransformerBase.replaceIntegrateCallThroughPropagation(working_version,
+                                                                                _solverOutput.const_input,
                                                                                 _solverOutput.ode_var_update_instructions)
-        TransformerBase.applyIncomingSpikes(workingVersion)
+        TransformerBase.applyIncomingSpikes(working_version)
         # get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.
-        workingVersion.getEquationsBlocks().clear()
+        working_version.getEquationsBlocks().clear()
 
-        for variable in stateShapeVariablesWithInitialValues:
-            _neuron.addToStateBlock(ASTCreator.createDeclaration(variable[0] + ' real'))
+        for variable in state_shape_variables_with_initial_values:
+            _neuron.addToStateBlock(ModelParser.parseDeclaration(variable[0] + ' real'))
 
-        if workingVersion.getInitialBlocks() is not None:
-            workingVersion.getInitialBlocks().clear()
-        return workingVersion
+        if working_version.getInitialBlocks() is not None:
+            working_version.getInitialBlocks().clear()
+        return working_version
 
     @classmethod
     def __addStateUpdates(cls, _solverOutput=None, _neuron=None):
@@ -90,16 +91,15 @@ class ExactSolutionTransformer(TransformerBase):
         assert (_solverOutput is not None and isinstance(_solverOutput, SolverOutput)), \
             '(PyNestML.Solver.ExactSolutionTransformer) No or wrong type of solver output provided (%s)!' % type(
                 _solverOutput)
-        tempVariables = list()
+        temp_variables = list()
         for tup in _solverOutput.updates_to_shape_state_variables:
             key, value = ASTUtils.getTupleFromSingleDictEntry(tup)
             if key.startswith('__tmp'):
-                tempVariables.append(key)
-        for var in tempVariables:
-            TransformerBase.addDeclarationToUpdateBlock(ASTCreator.createDeclaration(var + ' real'), _neuron)
+                temp_variables.append(key)
+        for var in temp_variables:
+            TransformerBase.addDeclarationToUpdateBlock(ModelParser.parseDeclaration(var + ' real'), _neuron)
         for out in _solverOutput.updates_to_shape_state_variables:
             key, value = ASTUtils.getTupleFromSingleDictEntry(out)
-            TransformerBase.addAssignmentToUpdateBlock(ASTCreator.createAssignment(key + ' = ' + value), _neuron)
+            assignment = ModelParser.parseAssignment(key + ' = ' + value)
+            TransformerBase.addAssignmentToUpdateBlock(assignment, _neuron)
         return
-
-

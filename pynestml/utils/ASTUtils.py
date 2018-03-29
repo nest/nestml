@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.Symbol import SymbolKind
 
 
@@ -170,6 +169,7 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTExpression import ASTExpression
         from pynestml.modelprocessor.ASTVariable import ASTVariable
         from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \
@@ -383,3 +383,50 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
         return len(_astFunctionCall.getArgs()) > 0
+
+    @classmethod
+    def createInternalBlock(cls, _neuron=None):
+        """
+        Creates a single internal block in the handed over neuron.
+        :param _neuron: a single neuron
+        :type _neuron: ASTNeuron
+        :return: the modified neuron
+        :rtype: ASTNeuron
+        """
+        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        if _neuron.getInternalsBlocks() is None:
+            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
+                                                                      ASTSourcePosition.getAddedSourcePosition())
+            _neuron.getBody().getBodyElements().append(internal)
+        return _neuron
+
+    @classmethod
+    def createStateBlock(cls, _neuron=None):
+        """
+        Creates a single internal block in the handed over neuron.
+        :param _neuron: a single neuron
+        :type _neuron: ASTNeuron
+        :return: the modified neuron
+        :rtype: ASTNeuron
+        """
+        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        if _neuron.getInternalsBlocks() is None:
+            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
+                                                                   ASTSourcePosition.getAddedSourcePosition())
+            _neuron.getBody().getBodyElements().append(state)
+        return _neuron
+
+    @classmethod
+    def createInitialValuesBlock(cls, _neuron=None):
+        """
+        Creates a single initial values block in the handed over neuron.
+        :param _neuron: a single neuron
+        :type _neuron: ASTNeuron
+        :return: the modified neuron
+        :rtype: ASTNeuron
+        """
+        if _neuron.getInitialBlocks() is None:
+            inits = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, list(),
+                                                                   ASTSourcePosition.getAddedSourcePosition())
+            _neuron.getBody().getBodyElements().append(inits)
+        return _neuron

@@ -24,6 +24,7 @@ from pynestml.modelprocessor.VariableSymbol import VariableSymbol
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
+from pynestml.utils.ASTUtils import ASTUtils
 
 
 class ASTNeuron(ASTNode):
@@ -566,9 +567,8 @@ class ASTNeuron(ASTNode):
         :param _declaration: a single declaration
         :type _declaration: ASTDeclaration
         """
-        from pynestml.utils.ASTCreator import ASTCreator
         if self.getStateBlocks() is None:
-            ASTCreator.createStateBlock(self)
+            ASTUtils.createStateBlock(self)
         self.getStateBlocks().getDeclarations().append(_declaration)
         return
 
@@ -578,9 +578,8 @@ class ASTNeuron(ASTNode):
         :param _declaration: a single declaration
         :type _declaration: ASTDeclaration
         """
-        from pynestml.utils.ASTCreator import ASTCreator
         if self.getInternalsBlocks() is None:
-            ASTCreator.createInternalBlock(self)
+            ASTUtils.createInternalBlock(self)
         self.getInternalsBlocks().getDeclarations().append(_declaration)
         return
 
@@ -590,9 +589,8 @@ class ASTNeuron(ASTNode):
         :param _declaration: a single declaration.
         :type _declaration: ASTDeclaration
         """
-        from pynestml.utils.ASTCreator import ASTCreator
         if self.getInitialBlocks() is None:
-            ASTCreator.createInitialValuesBlock(self)
+            ASTUtils.createInitialValuesBlock(self)
         self.getInitialBlocks().getDeclarations().append(_declaration)
         return
 
