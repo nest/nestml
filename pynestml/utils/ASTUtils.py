@@ -229,7 +229,7 @@ class ASTUtils(object):
 
         def loc_get_vars(node):
             if isinstance(node, ASTVariable):
-                ret.append(node)
+                res.append(node)
 
         _ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_vars))
 
