@@ -263,10 +263,7 @@ class ASTExpressionCollectorVisitor(object):
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of block provided (%s)!' % type(_block)
         ret = list()
         for stmt in _block.getStmts():
-            if isinstance(stmt, ASTSmallStmt):
-                ret.extend(cls.collectExpressionsInSmallStmt(stmt))
-            elif isinstance(stmt, ASTCompoundStmt):
-                ret.extend(cls.collectExpressionsInCompoundStmt(stmt))
+            ret.extend(cls.collectExpressionsInStmt(stmt))
         return ret
 
     @classmethod
@@ -383,4 +380,23 @@ class ASTExpressionCollectorVisitor(object):
         ret.append(_stmt.getFrom())
         ret.append(_stmt.getTo())
         ret.extend(cls.collectExpressionInBlock(_stmt.getBlock()))
+        return ret
+
+    @classmethod
+    def collectExpressionsInStmt(cls, stmt):
+        """
+        Collects all expressions located in the stmt.
+        :param stmt: a single stmt
+        :type stmt: ASTStmt
+        :return: list(ASTExpression)
+        """
+        from pynestml.modelprocessor.ASTStmt import ASTStmt
+        if stmt is None:
+            return list()
+        ret = list()
+        if isinstance(stmt, ASTStmt):
+            if stmt.is_small_stmt():
+                ret.extend(cls.collectExpressionsInSmallStmt(stmt.small_stmt))
+            if stmt.is_compound_stmt():
+                ret.extend(cls.collectExpressionsInCompoundStmt(stmt.compound_stmt))
         return ret

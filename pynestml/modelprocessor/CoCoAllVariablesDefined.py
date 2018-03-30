@@ -60,11 +60,11 @@ class CoCoAllVariablesDefined(CoCo):
                     Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=var.getSourcePosition())
                 # now check if it has been defined before usage, except for buffers, those are special cases
-                elif not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and \
-                                symbol.getBlockType() != BlockType.INPUT_BUFFER_SPIKE:
+                elif (not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and
+                      symbol.getBlockType() != BlockType.INPUT_BUFFER_SPIKE):
                     # except for parameters, those can be defined after
                     if not symbol.getReferencedObject().getSourcePosition().before(var.getSourcePosition()) and \
-                                    symbol.getBlockType() != BlockType.PARAMETERS:
+                            symbol.getBlockType() != BlockType.PARAMETERS:
                         code, message = Messages.getVariableUsedBeforeDeclaration(var.getName())
                         Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.getSourcePosition(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)

@@ -5,8 +5,8 @@ from antlr4 import *
 
 class PyNestMLVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by PyNestMLParser#datatype.
-    def visitDatatype(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#dataType.
+    def visitDataType(self, ctx):
         return self.visitChildren(ctx)
 
 

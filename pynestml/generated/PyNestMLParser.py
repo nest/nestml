@@ -298,7 +298,7 @@ class PyNestMLParser ( Parser ):
                       u"BOOLEAN_LITERAL", u"STRING_LITERAL", u"NAME", u"INTEGER", 
                       u"DIFFERENTIAL_ORDER", u"FLOAT" ]
 
-    RULE_datatype = 0
+    RULE_dataType = 0
     RULE_unitType = 1
     RULE_expression = 2
     RULE_simpleExpression = 3
@@ -338,7 +338,7 @@ class PyNestMLParser ( Parser ):
     RULE_function = 37
     RULE_parameter = 38
 
-    ruleNames =  [ u"datatype", u"unitType", u"expression", u"simpleExpression", 
+    ruleNames =  [ u"dataType", u"unitType", u"expression", u"simpleExpression", 
                    u"unaryOperator", u"bitOperator", u"comparisonOperator", 
                    u"logicalOperator", u"variable", u"functionCall", u"odeFunction", 
                    u"odeEquation", u"odeShape", u"block", u"stmt", u"compoundStmt", 
@@ -440,10 +440,10 @@ class PyNestMLParser ( Parser ):
 
 
 
-    class DatatypeContext(ParserRuleContext):
+    class DataTypeContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
-            super(PyNestMLParser.DatatypeContext, self).__init__(parent, invokingState)
+            super(PyNestMLParser.DataTypeContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.isInt = None # Token
             self.isReal = None # Token
@@ -457,21 +457,21 @@ class PyNestMLParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_datatype
+            return PyNestMLParser.RULE_dataType
 
         def accept(self, visitor):
-            if hasattr(visitor, "visitDatatype"):
-                return visitor.visitDatatype(self)
+            if hasattr(visitor, "visitDataType"):
+                return visitor.visitDataType(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def datatype(self):
+    def dataType(self):
 
-        localctx = PyNestMLParser.DatatypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 0, self.RULE_datatype)
+        localctx = PyNestMLParser.DataTypeContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 0, self.RULE_dataType)
         try:
             self.state = 84
             self._errHandler.sync(self)
@@ -1393,8 +1393,8 @@ class PyNestMLParser ( Parser ):
             self.recordable = None # Token
             self.variableName = None # Token
 
-        def datatype(self):
-            return self.getTypedRuleContext(PyNestMLParser.DatatypeContext,0)
+        def dataType(self):
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
 
 
         def expression(self):
@@ -1436,7 +1436,7 @@ class PyNestMLParser ( Parser ):
             self.state = 224
             localctx.variableName = self.match(PyNestMLParser.NAME)
             self.state = 225
-            self.datatype()
+            self.dataType()
             self.state = 226
             self.match(PyNestMLParser.T__34)
             self.state = 227
@@ -1929,8 +1929,8 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.VariableContext,i)
 
 
-        def datatype(self):
-            return self.getTypedRuleContext(PyNestMLParser.DatatypeContext,0)
+        def dataType(self):
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
 
 
         def NAME(self):
@@ -1993,7 +1993,7 @@ class PyNestMLParser ( Parser ):
                 _la = self._input.LA(1)
 
             self.state = 290
-            self.datatype()
+            self.dataType()
             self.state = 294
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -3081,8 +3081,8 @@ class PyNestMLParser ( Parser ):
             else:
                 return self.getToken(PyNestMLParser.NAME, i)
 
-        def datatype(self):
-            return self.getTypedRuleContext(PyNestMLParser.DatatypeContext,0)
+        def dataType(self):
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
 
 
         def inputType(self, i=None):
@@ -3130,7 +3130,7 @@ class PyNestMLParser ( Parser ):
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.T__0) | (1 << PyNestMLParser.T__1) | (1 << PyNestMLParser.T__2) | (1 << PyNestMLParser.T__3) | (1 << PyNestMLParser.T__4) | (1 << PyNestMLParser.T__5))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.INTEGER:
                 self.state = 433
-                self.datatype()
+                self.dataType()
 
 
             self.state = 436
@@ -3276,7 +3276,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.FunctionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.returnType = None # DatatypeContext
+            self.returnType = None # DataTypeContext
 
         def NAME(self):
             return self.getToken(PyNestMLParser.NAME, 0)
@@ -3298,8 +3298,8 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.ParameterContext,i)
 
 
-        def datatype(self):
-            return self.getTypedRuleContext(PyNestMLParser.DatatypeContext,0)
+        def dataType(self):
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
 
 
         def getRuleIndex(self):
@@ -3354,7 +3354,7 @@ class PyNestMLParser ( Parser ):
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.T__0) | (1 << PyNestMLParser.T__1) | (1 << PyNestMLParser.T__2) | (1 << PyNestMLParser.T__3) | (1 << PyNestMLParser.T__4) | (1 << PyNestMLParser.T__5))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.INTEGER:
                 self.state = 471
-                localctx.returnType = self.datatype()
+                localctx.returnType = self.dataType()
 
 
             self.state = 474
@@ -3380,8 +3380,8 @@ class PyNestMLParser ( Parser ):
         def NAME(self):
             return self.getToken(PyNestMLParser.NAME, 0)
 
-        def datatype(self):
-            return self.getTypedRuleContext(PyNestMLParser.DatatypeContext,0)
+        def dataType(self):
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
 
 
         def getRuleIndex(self):
@@ -3405,7 +3405,7 @@ class PyNestMLParser ( Parser ):
             self.state = 478
             self.match(PyNestMLParser.NAME)
             self.state = 479
-            self.datatype()
+            self.dataType()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)

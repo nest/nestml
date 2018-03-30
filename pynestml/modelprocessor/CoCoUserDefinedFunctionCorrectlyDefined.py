@@ -23,6 +23,7 @@ from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
+from pynestml.modelprocessor.ASTStmt import ASTStmt
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
@@ -93,14 +94,21 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         # block is a return statement, thus it is not required to have a return in the sub-blocks, but optional
         lastStatement = _stmts[len(_stmts) - 1]
         retDefined = False or _retDefined
-        if len(_stmts) > 0 and isinstance(lastStatement, ASTSmallStmt) and lastStatement.isReturnStmt():
+        if (len(_stmts) > 0 and isinstance(lastStatement, ASTStmt)
+                and lastStatement.is_small_stmt()
+                and lastStatement.small_stmt.isReturnStmt()):
             retDefined = True
         # now check that returns are there if necessary and correctly typed
-        for stmt in _stmts:
+        for c_stmt in _stmts:
+            if c_stmt.is_small_stmt():
+                stmt = c_stmt.small_stmt
+            else:
+                stmt = c_stmt.compound_stmt
+
             # if it is a small statement, check if it is a return statement
             if isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt():
                 # first check if the return is the last one in this block of statements
-                if _stmts.index(stmt) != (len(_stmts) - 1):
+                if _stmts.index(c_stmt) != (len(_stmts) - 1):
                     code, message = Messages.getNotLastStatement('Return')
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                       _code=code, _message=message,
@@ -145,7 +153,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     cls.__checkReturnRecursively(_typeSymbol, stmt.getForStmt().getBlock().getStmts(), retDefined)
             # now, if a return statement has not been defined in the corresponding higher level block, we have
             # to ensure that it is defined here
-            elif not _retDefined and _stmts.index(stmt) == (len(_stmts) - 1):
+            elif not _retDefined and _stmts.index(c_stmt) == (len(_stmts) - 1):
                 if not (isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt()):
                     code, message = Messages.getNoReturn()
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,

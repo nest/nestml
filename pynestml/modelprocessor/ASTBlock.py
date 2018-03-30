@@ -38,12 +38,11 @@ class ASTBlock(ASTNode):
         :param _sourcePosition: the position of this element
         :type _sourcePosition: ASTSourcePosition
         """
-        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
-        from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
+        from pynestml.modelprocessor.ASTStmt import ASTStmt
         assert (_stmts is not None and isinstance(_stmts, list)), \
             '(PyNestML.AST.Bloc) No or wrong type of statements provided (%s)!' % type(_stmts)
         for stmt in _stmts:
-            assert (stmt is not None and (isinstance(stmt, ASTCompoundStmt) or isinstance(stmt, ASTSmallStmt))), \
+            assert (stmt is not None and isinstance(stmt, ASTStmt)), \
                 '(PyNestML.AST.Bloc) No or wrong type of statement provided (%s)!' % type(stmt)
 
         super(ASTBlock, self).__init__(_sourcePosition)

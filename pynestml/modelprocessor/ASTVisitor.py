@@ -56,6 +56,7 @@ from pynestml.modelprocessor.ASTUnitType import ASTUnitType
 from pynestml.modelprocessor.ASTUpdateBlock import ASTUpdateBlock
 from pynestml.modelprocessor.ASTVariable import ASTVariable
 from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
+from pynestml.modelprocessor.ASTStmt import ASTStmt
 
 
 class ASTVisitor(object):
@@ -377,6 +378,9 @@ class ASTVisitor(object):
         """
         return
 
+    def visitStmt(self, _node):
+        return
+
     def endvisitCompilationUnit(self, _compilationUnit=None):
         """
         Visits a single compilation unit, thus all neurons.
@@ -681,6 +685,14 @@ class ASTVisitor(object):
         """
         return
 
+    def endvisitStmt(self, node):
+        """
+        Used to endvisit a single stmt.
+        :param node: a single stmt
+        :return: ASTStmt
+        """
+        return
+
     def setRealSelf(self, _visitor):
         assert (_visitor is not None and isinstance(_visitor, ASTVisitor))
         self.__realSelf = _visitor
@@ -815,6 +827,9 @@ class ASTVisitor(object):
         if isinstance(_node, ASTWhileStmt):
             self.visitWhileStmt(_node)
             return
+        if isinstance(_node, ASTStmt):
+            self.visitStmt(_node)
+            return
         return
 
     def traverse(self, _node):
@@ -937,6 +952,9 @@ class ASTVisitor(object):
         if isinstance(_node, ASTWhileStmt):
             self.traverseWhileStmt(_node)
             return
+        if isinstance(_node, ASTStmt):
+            self.traverseStmt(_node)
+            return
         return
 
     def endvisit(self, _node):
@@ -1058,6 +1076,9 @@ class ASTVisitor(object):
             return
         if isinstance(_node, ASTWhileStmt):
             self.endvisitWhileStmt(_node)
+            return
+        if isinstance(_node, ASTStmt):
+            self.endvisitStmt(_node)
             return
         return
 
@@ -1309,3 +1330,9 @@ class ASTVisitor(object):
         if _node.getBlock() is not None:
             _node.getBlock().accept(self.getRealSelf())
         return
+
+    def traverseStmt(self, _node):
+        if _node.is_small_stmt():
+            _node.small_stmt.accept(self.getRealSelf())
+        if _node.is_compound_stmt():
+            _node.compound_stmt.accept(self.getRealSelf())

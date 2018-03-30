@@ -226,7 +226,13 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTVariable import ASTVariable
         res = list()
-        ASTHigherOrderVisitor.visit(_ast, lambda x: res.append(x) if isinstance(x, ASTVariable) else True)
+
+        def loc_get_vars(node):
+            if isinstance(node, ASTVariable):
+                ret.append(node)
+
+        _ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_vars))
+
         for var in res:
             if '\'' not in var.getCompleteName():
                 symbol = _ast.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
@@ -311,7 +317,12 @@ class ASTUtils(object):
         """
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         ret = list()
-        ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) if isinstance(x, _type) else True)
+
+        def loc_get_all_of_type(node):
+            if isinstance(node, _type):
+                ret.append(node)
+
+        _ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_all_of_type))
         return ret
 
     @classmethod
@@ -349,8 +360,12 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         ret = list()
-        ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) \
-            if isinstance(x, ASTFunctionCall) and x.getName() == _functionName else True)
+
+        def loc_get_function(node):
+            if isinstance(node, ASTFunctionCall) and node.getName() == _functionName:
+                ret.append(node)
+
+        _ast.accept(ASTHigherOrderVisitor(loc_get_function, list()))
         return ret
 
     @classmethod

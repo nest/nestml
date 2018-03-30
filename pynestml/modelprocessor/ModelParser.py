@@ -20,7 +20,7 @@
 from antlr4 import *
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-from pynestml.modelprocessor import ASTSymbolTableVisitor
+from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
@@ -64,7 +64,7 @@ class ModelParser(object):
         # create and update the corresponding symbol tables
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
         for neuron in ast.getNeuronList():
-            ASTSymbolTableVisitor.ASTSymbolTableVisitor.updateSymbolTable(neuron)
+            ASTSymbolTableVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
         return ast
 
@@ -88,7 +88,7 @@ class ModelParser(object):
         parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.expression())
-        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
     @classmethod
@@ -110,7 +110,7 @@ class ModelParser(object):
         parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.declaration())
-        ASTHigherOrderVisitor.visit(ret,lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
     @classmethod
@@ -132,7 +132,7 @@ class ModelParser(object):
         parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.stmt())
-        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
     @classmethod
@@ -154,7 +154,7 @@ class ModelParser(object):
         parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.odeShape())
-        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
     @classmethod
@@ -176,5 +176,9 @@ class ModelParser(object):
         parser = PyNestMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.assignment())
-        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
+
+
+def log_set_added_source_position(node):
+    node.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())

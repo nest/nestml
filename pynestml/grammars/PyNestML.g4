@@ -34,7 +34,7 @@ grammar PyNestML;
     @attribute boolean getters for integer, real, ...
     @attribute unitType a SI data type
   */
-  datatype : isInt='integer'
+  dataType : isInt='integer'
            | isReal='real'
            | isString='string'
            | isBool='boolean'
@@ -114,7 +114,7 @@ grammar PyNestML;
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME dataType '=' expression (';')?;
 
   odeEquation : lhs=variable '=' rhs=expression (';')?;
 
@@ -158,7 +158,7 @@ grammar PyNestML;
   declaration :
     (isRecordable='recordable')? (isFunction='function')?
     variable (',' variable)*
-    datatype
+    dataType
     ('[' sizeParameter=NAME ']')?
     ( '=' rhs = expression)?
     ('[[' invariant=expression ']]')?;
@@ -279,7 +279,7 @@ grammar PyNestML;
   inputLine:
     name=NAME
     ('[' sizeParameter=NAME ']')?
-    (datatype)?
+    (dataType)?
     '<-' inputType*
     (isCurrent = 'current' | isSpike = 'spike');
 
@@ -305,7 +305,7 @@ grammar PyNestML;
     @attribute returnType: An arbitrary return type, e.g. String or mV.
     @attribute block: Implementation of the function.
   */
-  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
+  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=dataType)?
            BLOCK_OPEN
              block
            BLOCK_CLOSE;
@@ -313,6 +313,6 @@ grammar PyNestML;
   /** ASTParameter represents a single parameter consisting of a name and the corresponding
       data type, e.g. T_in ms
     @attribute name: The name of the parameter.
-    @attribute datatype: The corresponding data type.
+    @attribute dataType: The corresponding data type.
   */
-  parameter : NAME datatype;
+  parameter : NAME dataType;

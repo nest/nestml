@@ -59,6 +59,7 @@ from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
 from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock
 from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
 from pynestml.modelprocessor.ASTUpdateBlock import ASTUpdateBlock
+from pynestml.modelprocessor.ASTStmt import ASTStmt
 
 
 class ASTNodeFactory(object):
@@ -355,3 +356,8 @@ class ASTNodeFactory(object):
                               source_position  # type: ASTSourcePosition
                               ):  # type: (...) -> ASTWhileStmt
         return ASTWhileStmt(condition, block, source_position)
+
+    @classmethod
+    def create_ast_stmt(cls, small_stmt=None, compound_stmt=None, source_position=None):
+        # type: (ASTSmallStmt,ASTCompoundStmt,ASTSourcePosition) -> ASTStmt
+        return ASTStmt(small_stmt, compound_stmt, source_position)

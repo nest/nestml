@@ -45,37 +45,43 @@ def main(args):
     PredefinedFunctions.registerPredefinedFunctions()
     PredefinedVariables.registerPredefinedVariables()
     # now proceed to parse all models
-    compilationUnits = list()
+    compilation_units = list()
     for file in FrontendConfiguration.getFiles():
-        parsedUnit = ModelParser.parseModel(file)
-        if parsedUnit is not None:
-            compilationUnits.append(parsedUnit)
+        parsed_unit = ModelParser.parseModel(file)
+        if parsed_unit is not None:
+            compilation_units.append(parsed_unit)
     # generate a list of all neurons
     neurons = list()
-    for compilationUnit in compilationUnits:
+    for compilationUnit in compilation_units:
         neurons.extend(compilationUnit.getNeuronList())
     # check if across two files two neurons with same name have been defined
-    CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
+    CoCosManager.checkNotTwoNeuronsAcrossUnits(compilation_units)
     # now exclude those which are broken, i.e. have errors.
     if not FrontendConfiguration.isDev():
         for neuron in neurons:
             if Logger.hasErrors(neuron):
                 code, message = Messages.getNeuronContainsErrors(neuron.getName())
-                Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
+                Logger.logMessage(_neuron=neuron, _code=code, _message=message,
+                                  _errorPosition=neuron.getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.INFO)
                 neurons.remove(neuron)
 
     if not FrontendConfiguration.isDryRun():
-        nestGenerator = NestCodeGenerator()
-        nestGenerator.analyseAndGenerateNeurons(neurons)
-        nestGenerator.generateNESTModuleCode(neurons)
+        nest_generator = NestCodeGenerator()
+        nest_generator.analyseAndGenerateNeurons(neurons)
+        nest_generator.generateNESTModuleCode(neurons)
     else:
         code, message = Messages.getDryRun()
         Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
     if FrontendConfiguration.storeLog():
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
-                                   'log')) + '.txt', 'w+') as f:
-            f.write(str(Logger.getPrintableFormat()))
+        store_log_to_file()
+    return
+
+
+def store_log_to_file():
+    with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+                               'log')) + '.txt', 'w+') as f:
+        f.write(str(Logger.getPrintableFormat()))
     return
 
 

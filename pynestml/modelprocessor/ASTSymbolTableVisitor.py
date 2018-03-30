@@ -167,10 +167,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
             arg.updateScope(scope)
             # create the corresponding variable symbol representing the parameter
             var_symbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
-                                       _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
-                                       _isRecordable=False,
-                                       _typeSymbol=PredefinedTypes.getTypeIfExists(type_name),
-                                       _variableType=VariableType.VARIABLE)
+                                        _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
+                                        _isRecordable=False,
+                                        _typeSymbol=PredefinedTypes.getTypeIfExists(type_name),
+                                        _variableType=VariableType.VARIABLE)
             scope.addSymbol(var_symbol)
         if _block.hasReturnType():
             _block.getReturnType().updateScope(scope)
@@ -211,17 +211,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type _block: ASTBlock
         """
         from pynestml.modelprocessor.ASTBlock import ASTBlock
-        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
-        from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of block provided %s!' % type(_block)
         for stmt in _block.getStmts():
-            if isinstance(stmt, ASTSmallStmt):
-                stmt.updateScope(_block.getScope())
-                cls.visitSmallStmt(stmt)
-            elif isinstance(stmt, ASTCompoundStmt):
-                stmt.updateScope(_block.getScope())
-                cls.visitCompoundStmt(stmt)
+            stmt.updateScope(_block.getScope())
+            cls.visitStmt(stmt)
         return
 
     @classmethod
@@ -843,6 +837,21 @@ class ASTSymbolTableVisitor(ASTVisitor):
         assert (_arithmeticOp is not None and isinstance(_arithmeticOp, ASTArithmeticOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of arithmetic operator provided (%s)!' % type(
                 _arithmeticOp)
+        return
+
+    @classmethod
+    def visitStmt(cls, _node):
+        """
+        Private method: Used to visit a single stmt and update its scope.
+        :param _node: a single statement
+        :type _node: ASTStmt
+        """
+        if _node.is_small_stmt():
+            _node.small_stmt.updateScope(_node.getScope())
+            cls.visitSmallStmt(_node.small_stmt)
+        if _node.is_compound_stmt():
+            _node.compound_stmt.updateScope(_node.getScope())
+            cls.visitCompoundStmt(_node.compound_stmt)
         return
 
     @classmethod

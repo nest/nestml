@@ -18,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+
 from copy import copy
 
 
@@ -68,18 +70,14 @@ class OdeTransformer(object):
         """
 
         # we define a local collection operation
-        def replaceFunctionCallThroughFirstArgument(_expr=None):
-            if _expr.isFunctionCall() and _expr.getFunctionCall() == _toReplace:
-                firstArg = _expr.getFunctionCall().getArgs()[0].getVariable()
-                _expr.setFunctionCall(None)
-                _expr.setVariable(firstArg)
+        def replace_function_call_through_first_argument(node):
+            if isinstance(node, ASTSimpleExpression) and node.isFunctionCall() and node.getFunctionCall() == _toReplace:
+                first_arg = node.getFunctionCall().getArgs()[0].getVariable()
+                node.setFunctionCall(None)
+                node.setVariable(first_arg)
             return
 
-        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        ASTHigherOrderVisitor.visit(_ast,
-                                    lambda x: replaceFunctionCallThroughFirstArgument(x)
-                                    if isinstance(x, ASTSimpleExpression) else True)
+        _ast.accept(ASTHigherOrderVisitor(replace_function_call_through_first_argument))
         return
 
     @classmethod
@@ -116,24 +114,31 @@ class OdeTransformer(object):
         res = list()
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        ASTHigherOrderVisitor.visit(_astNode, lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and
-                                                                         x.getName() in _functionList
-        else True)
+
+        def loc_get_function(node):
+            if isinstance(node, ASTFunctionCall) and node.getName() in _functionList:
+                res.append(node)
+
+        _astNode.accept(ASTHigherOrderVisitor(loc_get_function, list()))
         return res
 
     @classmethod
-    def getCondSumFunctionCall(cls, _astNode=None):
+    def getCondSumFunctionCall(cls, node):
         """
         Collects all cond_sum function calls in the ast.
-        :param _astNode: a single ast node
-        :type _astNode: AST_
+        :param node: a single ast node
+        :type node: AST_
         :return: a list of all functions in the ast
         :rtype: list(ASTFunctionCall)
         """
         res = list()
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        ASTHigherOrderVisitor.visit(_astNode, lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and
-                                                                         x.getName() == PredefinedFunctions.COND_SUM
-        else True)
+
+        def loc_get_cond_sum(node):
+            if isinstance(node, ASTFunctionCall) and node.getName() == PredefinedFunctions.COND_SUM:
+                res.append(node)
+
+        node.accept(ASTHigherOrderVisitor(loc_get_cond_sum))
+
         return res
