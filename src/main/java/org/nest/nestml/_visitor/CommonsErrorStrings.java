@@ -88,9 +88,10 @@ public class CommonsErrorStrings {
   public static String messageTrueNot(final ConditionVisitor coco,
                                       final String ifTrue,
                                       final String ifNot,
+                                      final String assumedType,
                                       final SourcePosition sourcePosition) {
     final String ERROR_MSG_FORMAT = "Mismatched conditional alternatives " + ifTrue + " and " +
-                                    ifNot + "-> Assuming real.";
+                                    ifNot + "-> Assuming "+assumedType+".";
 
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT + "(" + AstUtils.print(sourcePosition) + ")";
   }

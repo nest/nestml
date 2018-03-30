@@ -98,8 +98,8 @@ neuron iaf_cond_beta_neuron:
 
     end
 
-    g_ex' += spikeExc * PSConInit_E
-    g_in' += spikeInh * PSConInit_I
+    g_ex' = g_ex' + spikeExc * PSConInit_E
+    g_in' = g_in' + spikeInh * PSConInit_I
   end
 
 end

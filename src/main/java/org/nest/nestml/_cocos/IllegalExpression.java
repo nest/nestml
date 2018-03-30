@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.nestml._visitor.ExpressionTypeVisitor;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._symboltable.typechecking.Either;
@@ -38,6 +39,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.nestml._cocos.SplErrorStrings.messageCastToReal;
+import static org.nest.nestml._symboltable.symbols.TypeSymbol.Type.UNIT;
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.*;
 import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.utils.AstUtils.computeTypeName;
@@ -71,15 +74,19 @@ public class IllegalExpression implements
 
       ASTExpr.Builder exprBuilder = ASTExpr.getBuilder();
       if(node.isCompoundProduct()){
+        node.setCompoundProduct(false);
         exprBuilder.timesOp(true);
       }
       if(node.isCompoundSum()){
+        node.setCompoundSum(false);
         exprBuilder.plusOp(true);
       }
       if(node.isCompoundQuotient()){
+        node.setCompoundQuotient(false);
         exprBuilder.divOp(true);
       }
       if(node.isCompoundMinus()){
+        node.setCompoundMinus(false);
         exprBuilder.minusOp(true);
       }
       ASTExpr dummyExpression = exprBuilder.left(dummyVariableExpr).right(node.getExpr()).build();
@@ -99,6 +106,11 @@ public class IllegalExpression implements
 
       handleAssignment(dummyAssignment);
 
+      //replace assignment in parameter node
+      node.setAssignment(true);
+
+      node.setExpr(dummyExpression);
+
     }
 
 
@@ -117,22 +129,56 @@ public class IllegalExpression implements
     final Either<TypeSymbol,String> expressionTypeEither = node.getExpr().getType();
     if(expressionTypeEither.isValue()){
       final TypeSymbol expressionType = expressionTypeEither.getValue();
+
+
+
       if (!isCompatible(variableType,expressionType)) {
+        //if both are units with equal base, we can recover
+        if(variableType.getType().equals(UNIT) && expressionType.getType().equals(UNIT)){
+          UnitRepresentation variableRep = UnitRepresentation.getBuilder().serialization(variableType.getName()).build();
+          UnitRepresentation expressionRep = UnitRepresentation.getBuilder().serialization(expressionType.getName()).build();
+
+          if(variableRep.equalBase(expressionRep)){
+            int magDiff = expressionRep.getMagnitude()-variableRep.getMagnitude();
+
+            //substitute rhs expression
+            node.setExpr(AstUtils.createSubstitution(node.getExpr(),magDiff));
+
+            //revisit node with ExpressionTypeVisitor
+            ExpressionTypeVisitor typeVisitor = new ExpressionTypeVisitor();
+            node.getExpr().accept(typeVisitor);
+
+            //re-check modified assignment
+            handleAssignment(node);
+
+            //drop warning for implicit conversion
+            final String implicitWarning = SplErrorStrings.messageImplicitConversion(
+                this,
+                variableRep.prettyPrint(),
+                expressionRep.prettyPrint(),
+                node.get_SourcePositionStart());
+            warn(implicitWarning);
+
+            return;
+          }
+        }
+        //if we get here, its an error/warning
         final String msg = SplErrorStrings.messageAssignment(
             this,
             variableName,
             variableType.prettyPrint(),
             expressionType.prettyPrint());
-        if(isReal(variableType)&&isUnit(expressionType)){
-          //TODO put in string class when I inevitably refactor it.
-          final String castMsg = SplErrorStrings.messageCastToReal(this, expressionType.prettyPrint());
-          warn(castMsg, node.get_SourcePositionStart());
-        } else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
+        if (isReal(variableType) && isUnit(expressionType)) {
+          final String castMsg = messageCastToReal(this, expressionType.prettyPrint());
+          warn(castMsg);
+        }
+        else if (isUnit(variableType)) { //assignee is unit -> drop warning not error
           warn(msg, node.get_SourcePositionStart());
         }
         else {
           error(msg, node.get_SourcePositionStart());
         }
+
       }
 
     }
@@ -156,17 +202,46 @@ public class IllegalExpression implements
       if (initializerExpressionType.isValue()) {
         variableDeclarationType = PredefinedTypes.getType(declarationTypeName);
         // TODO write a helper get assignable
-        if (!isCompatible(variableDeclarationType, initializerExpressionType.getValue())) {
+        TypeSymbol expressionType = initializerExpressionType.getValue();
+        if (!isCompatible(variableDeclarationType, expressionType)) {
+
+          //if both are units with equal base, we can recover
+          if(variableDeclarationType.getType().equals(UNIT) && expressionType.getType().equals(UNIT)){
+            UnitRepresentation variableRep = UnitRepresentation.getBuilder().serialization(variableDeclarationType.getName()).build();
+            UnitRepresentation expressionRep = UnitRepresentation.getBuilder().serialization(expressionType.getName()).build();
+
+            if(variableRep.equalBase(expressionRep)){
+              int magDiff = expressionRep.getMagnitude()-variableRep.getMagnitude();
+
+              //substitute rhs expression
+              node.setExpr(AstUtils.createSubstitution(node.getExpr().get(),magDiff));
+
+              //revisit node with ExpressionTypeVisitor
+              ExpressionTypeVisitor typeVisitor = new ExpressionTypeVisitor();
+              node.getExpr().get().accept(typeVisitor);
+
+              //drop warning for implicit conversion
+              final String implicitWarning = SplErrorStrings.messageImplicitConversion(
+                  this,
+                  variableRep.prettyPrint(),
+                  expressionRep.prettyPrint(),
+                  node.get_SourcePositionStart()
+              );
+              warn(implicitWarning);
+
+              //re-check modified assignment
+              check(node);
+              return;
+            }
+          }
+          //if we get here, its an error/warning
           final String msg = SplErrorStrings.messageInitType(
             this,
             varNameFromDeclaration,
             variableDeclarationType.prettyPrint(),
             initializerExpressionType.getValue().prettyPrint());
           if(isReal(variableDeclarationType)&&isUnit(initializerExpressionType.getValue())){
-            //TODO put in string class when I inevitably refactor it.
-
-
-            final String castMsg = SplErrorStrings.messageCastToReal(
+            final String castMsg = messageCastToReal(
                 this,
                 initializerExpressionType.getValue().prettyPrint());
             warn(castMsg, node.get_SourcePositionStart());

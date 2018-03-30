@@ -1,9 +1,12 @@
 package org.nest.nestml._visitor;
 
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._cocos.SplErrorStrings;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
@@ -68,17 +71,44 @@ public class LineOperatorVisitor implements NESTMLVisitor {
         expr.setType(Either.value(getRealType()));
         return;
       }
-      //Both are units, not matching -> real, warn
-      if (isUnit(lhsType) && isUnit(rhsType)) {
-        final String errorMsg = CommonsErrorStrings.messageDifferentTypes(
-            this,
-            lhsType.prettyPrint(),
-            rhsType.prettyPrint(),
-            "real",
-            expr.get_SourcePositionStart());
-        expr.setType(Either.value(getRealType()));
-        warn(errorMsg, expr.get_SourcePositionStart());
-        return;
+      //Both are units, not matching -> see if matching base
+      if(isUnit(lhsType)&&isUnit(rhsType)){
+        //Base not matching -> error
+        UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
+        UnitRepresentation lhsRep = UnitRepresentation.getBuilder().serialization(lhsType.getName()).build();
+        if(!lhsRep.equalBase(rhsRep)) {
+          final String errorMsg = CommonsErrorStrings.messageDifferentTypes(
+              this,
+              lhsType.prettyPrint(),
+              rhsType.prettyPrint(),
+              "real",
+              expr.get_SourcePositionStart());
+          expr.setType(Either.value(getRealType()));
+          warn(errorMsg, expr.get_SourcePositionStart());
+          return;
+        }else{//Base matching, install conversion
+
+          //Determine the difference in magnitude
+          int magDiff = lhsRep.getMagnitude() - rhsRep.getMagnitude();
+
+          //replace left expression with multiplication
+          expr.setLeft(AstUtils.createSubstitution(expr.getLeft().get(),magDiff));
+
+          //revisit current sub-tree with substitution
+          ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+          expr.accept(expressionTypeVisitor);
+
+          //drop warning about implicit conversion
+          final String warnMsg = SplErrorStrings.messageImplicitConversion(
+              this,
+              lhsType.prettyPrint(),
+              rhsType.prettyPrint(),
+              expr.get_SourcePositionStart());
+          Log.warn(warnMsg,expr.get_SourcePositionStart());
+
+          return;
+
+        }
       }
       //one is unit and one numeric primitive and vice versa -> assume unit, warn
       if ((isUnit(lhsType) && isNumericPrimitive(rhsType)) ||
@@ -104,7 +134,7 @@ public class LineOperatorVisitor implements NESTMLVisitor {
     }
 
     //if we get here, we are in a general error state
-    final String errorMsg = CommonsErrorStrings.messageDifferentTypes(
+    final String errorMsg = CommonsErrorStrings.messageTypeError(
         this,
         lhsType.prettyPrint(),
         rhsType.prettyPrint(),

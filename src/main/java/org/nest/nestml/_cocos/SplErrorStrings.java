@@ -20,7 +20,13 @@
  */
 package org.nest.nestml._cocos;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import de.se_rwth.commons.SourcePosition;
+import org.nest.nestml._visitor.ConditionVisitor;
+import org.nest.nestml._visitor.FunctionCallVisitor;
+import org.nest.nestml._visitor.LineOperatorVisitor;
+import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.utils.AstUtils;
 
 /**
@@ -103,6 +109,26 @@ public class SplErrorStrings {
     return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);
   }
 
+  //Implicit conversion messages can originate from various sources:
+  final static String IMPLICIT_CONVERSION_MESSAGE_FORMAT = "Implicit conversion from %s to %s" ;
+  public static String messageImplicitConversion(
+      final IllegalExpression coco,
+      final String lhsType,
+      final String rhsType,
+      final SourcePosition sourcePosition){
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+        String.format(IMPLICIT_CONVERSION_MESSAGE_FORMAT,lhsType, rhsType);
+  }
+
+  public static String messageImplicitConversion(
+      final NESTMLVisitor coco,
+      final String lhsType,
+      final String rhsType,
+      final SourcePosition sourcePosition){
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+        String.format(IMPLICIT_CONVERSION_MESSAGE_FORMAT,lhsType, rhsType);
+  }
+
   static String messageNonBoolean(
       final IllegalExpression coco,
       final String expressionType) {
@@ -141,6 +167,22 @@ public class SplErrorStrings {
   @SuppressWarnings({"unused"}) // used for the routing
   public static String code(final IllegalExpression coco) {
     return "SPL_ILLEGAL_EXPRESSION";
+  }
+
+  public static String code(final NESTMLVisitor coco) {
+    if(coco instanceof LineOperatorVisitor){
+      return "SPL_LINE_OPERATOR_VISITOR";
+    }
+    if(coco instanceof FunctionCallVisitor){
+      return "SPL_FUNCTION_CALL_VISITOR";
+    }
+    if(coco instanceof FunctionCallVisitor){
+      return "SPL_FUNCTION_CALL_VISITOR";
+    }
+    if(coco instanceof ConditionVisitor){
+      return "SPL_CONDITION_VISITOR";
+    }
+    return "SPL_UNDEFINED_VISITOR";
   }
 
 

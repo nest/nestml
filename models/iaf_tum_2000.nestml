@@ -97,7 +97,7 @@ neuron iaf_tum_2000_neuron:
   end
 
   initial_values:
-    V_m mV = 0 # Membrane potential
+    V_m mV = 0 mV # Membrane potential
   end
 
   equations:

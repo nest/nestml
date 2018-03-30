@@ -2,8 +2,11 @@ package org.nest.nestml._visitor;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._cocos.SplErrorStrings;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.*;
 import static org.nest.nestml._symboltable.predefined.PredefinedTypes.*;
@@ -38,6 +41,33 @@ public class ComparisonOperatorVisitor implements NESTMLVisitor {
       expr.setType(Either.value(getBooleanType()));
       return;
     }
+    //Both are units, not matching -> see if matching base
+    if(isUnit(lhsType)&&isUnit(rhsType)){
+      UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
+      UnitRepresentation lhsRep = UnitRepresentation.getBuilder().serialization(lhsType.getName()).build();
+      if(lhsRep.equalBase(rhsRep)) {
+        //Determine the difference in magnitude
+        int magDiff = lhsRep.getMagnitude() - rhsRep.getMagnitude();
+
+        //replace left expression with multiplication
+        expr.setLeft(AstUtils.createSubstitution(expr.getLeft().get(),magDiff));
+
+        //revisit current sub-tree with substitution
+        ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+        expr.accept(expressionTypeVisitor);
+
+        //drop warning about implicit conversion
+        final String warnMsg = SplErrorStrings.messageImplicitConversion(
+            this,
+            lhsRep.prettyPrint(),
+            rhsRep.prettyPrint(),
+            expr.get_SourcePositionStart()
+            );
+        Log.warn(warnMsg,expr.get_SourcePositionStart());
+        return;
+      }
+    }
+
 
     //Error message for any other operation
     if ((isUnit(lhsType) && isNumeric(rhsType)) ||

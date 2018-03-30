@@ -5,8 +5,11 @@
  */
 package org.nest.nestml._visitor;
 
+import de.se_rwth.commons.logging.Log;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._cocos.SplErrorStrings;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._symboltable.NESTMLSymbolTableCreator;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
@@ -15,13 +18,16 @@ import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
-import org.nest.nestml._cocos.NestmlErrorStrings;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isCompatible;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isUnit;
 
 /**
  * Checks all function calls in an expression. For a not-void methods returns just its return type. For a void methods,
@@ -45,6 +51,38 @@ public class FunctionCallVisitor implements NESTMLVisitor {
       expr.setType(Either.error(errorMsg));
       return;
     }
+    //install conversions for parameter types if necessary
+    boolean needUpdate = false;
+    List<ASTExpr> fullParamList = expr.getFunctionCall().get().getArgs();
+    for (int i=0; i < methodSymbol.get().getParameterTypes().size(); i++){
+      TypeSymbol expectedParam = methodSymbol.get().getParameterTypes().get(i);
+      TypeSymbol actualParam = expr.getFunctionCall().get().getArgs().get(i).getType().getValue(); //types in lower levels of AST already calculated
+      if(!isCompatible(expectedParam,actualParam)){
+        if(isUnit(expectedParam) && isUnit(actualParam)) {
+          needUpdate = true;
+          UnitRepresentation expectedTypeRep = UnitRepresentation.getBuilder().serialization(expectedParam.getName()).build();
+          UnitRepresentation actualTypeRep = UnitRepresentation.getBuilder().serialization(actualParam.getName()).build();
+          if(actualTypeRep.equalBase(expectedTypeRep)) {
+            //Determine the difference in magnitude
+            int magDiff = actualTypeRep.getMagnitude() - expectedTypeRep.getMagnitude();
+
+            //replace actualParam expression with multiplication
+            fullParamList.set(i,AstUtils.createSubstitution(fullParamList.get(i),magDiff));
+
+            //drop warning about implicit conversion
+            final String warnMsg = SplErrorStrings.messageImplicitConversion(
+                this,
+                actualTypeRep.prettyPrint(),
+                expectedTypeRep.prettyPrint(),
+                expr.get_SourcePositionStart());
+            Log.warn(warnMsg,expr.get_SourcePositionStart());
+          }
+        }
+      }
+    }
+
+    //set modified parameter list
+    expr.getFunctionCall().get().setArgs(fullParamList);
     //convolve symbol does not have a return type set.
     //returns whatever type the second parameter is.
     if(functionName.equals("convolve")){
@@ -63,37 +101,13 @@ public class FunctionCallVisitor implements NESTMLVisitor {
       final String errorMsg = NestmlErrorStrings.errorCannotCalculateConvolveResult(this);
       expr.setType(Either.error(errorMsg));
       return;
-
-
-      /*
-      ASTExpr bufferParameter = expr.getFunctionCall().get().getArgs().get(1);
-      //reject any bufferParameter that is not simply a variable
-      if(!bufferParameter.variableIsPresent()){
-        final String errorMsg = NestmlErrorStrings.errorConvolveParameterNotAVariable(this);
-        expr.setType(Either.error(errorMsg));
-        return;
-      }
-      //determine type of bufferParameter
-      final String bufferName = bufferParameter.getVariable().get().toString();
-      Optional<VariableSymbol> bufferSymbolOpt = VariableSymbol.resolveIfExists(bufferName,scope);
-      //try resolving bufferParameter: error on fail.
-      if(!bufferSymbolOpt.isPresent()){
-        final String errorMsg = NestmlErrorStrings.errorConvolveParameterNotResolvable(this,bufferName);
-        expr.setType(Either.error(errorMsg));
-        return;
-      }
-      //check that bufferParameter is a buffer
-      final VariableSymbol bufferSymbol = bufferSymbolOpt.get();
-      if(!bufferSymbol.getType().getType().equals(TypeSymbol.Type.BUFFER)){
-        final String errorMsg = NestmlErrorStrings.errorConvolveParameterMustBeBuffer(this);
-        expr.setType(Either.error(errorMsg));
-        return;
-      }
-
-      expr.setType(Either.value(bufferSymbol.getType()));
-      return;*/
     }
 
+    //revisit current sub-tree with substitution if a change happened
+    if(needUpdate) {
+      ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+      expr.accept(expressionTypeVisitor);
+    }
     if (TypeChecker.isVoid(methodSymbol.get().getReturnType())) {
       final String errorMsg = NestmlErrorStrings.message(this, functionName);
       expr.setType(Either.error(errorMsg));

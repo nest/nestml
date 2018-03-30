@@ -2,8 +2,11 @@ package org.nest.nestml._visitor;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._cocos.SplErrorStrings;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.isUnit;
@@ -50,12 +53,36 @@ public class ConditionVisitor implements NESTMLVisitor {
         return;
       }
 
-      //Both are units -> real
-      if (isUnit(ifTrue) && isUnit(ifNot)) {
+      //Both are units -> try to recover, otherwise real
+      if(isUnit(ifTrue)&&isUnit(ifNot)){
+        UnitRepresentation ifNotRep = UnitRepresentation.getBuilder().serialization(ifTrue.getName()).build();
+        UnitRepresentation ifTrueRep = UnitRepresentation.getBuilder().serialization(ifNot.getName()).build();
+        if(ifTrueRep.equalBase(ifNotRep)) { //matching base, recover
+          //Determine the difference in magnitude
+          int magDiff = ifNotRep.getMagnitude() - ifTrueRep.getMagnitude();
+
+          //replace left expression with multiplication
+          expr.setIfTrue(AstUtils.createSubstitution(expr.getIfTrue().get(),magDiff));
+
+          //revisit current sub-tree with substitution
+          ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+          expr.accept(expressionTypeVisitor);
+
+          //drop warning about implicit conversion
+          final String warnMsg = SplErrorStrings.messageImplicitConversion(this,
+              ifTrueRep.prettyPrint(),
+              ifNotRep.prettyPrint(),
+              expr.get_SourcePositionStart());
+          Log.warn(warnMsg,expr.get_SourcePositionStart());
+          return;
+        }
+
+
         final String errorMsg = CommonsErrorStrings.messageTrueNot(
             this,
             ifTrue.prettyPrint(),
             ifNot.prettyPrint(),
+            "real",
             expr.get_SourcePositionStart());
         expr.setType(Either.value(getRealType()));
         Log.warn(errorMsg, expr.get_SourcePositionStart());
@@ -75,6 +102,7 @@ public class ConditionVisitor implements NESTMLVisitor {
             this,
             ifTrue.prettyPrint(),
             ifNot.prettyPrint(),
+            unitType.prettyPrint(),
             expr.get_SourcePositionStart());
         expr.setType(Either.value(unitType));
         Log.warn(errorMsg, expr.get_SourcePositionStart());
@@ -88,7 +116,7 @@ public class ConditionVisitor implements NESTMLVisitor {
       }
 
       //if we get here it is an error
-      final String errorMsg = CommonsErrorStrings.messageTrueNot(
+      final String errorMsg = CommonsErrorStrings.messageTypeMissmatch(
           this,
           ifTrue.prettyPrint(),
           ifNot.prettyPrint(),

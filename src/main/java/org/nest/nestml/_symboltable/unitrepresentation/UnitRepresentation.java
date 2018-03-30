@@ -26,7 +26,6 @@ import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getRealTyp
  * @author plotnikov, traeder
  */
 public class UnitRepresentation implements Comparable<UnitRepresentation>{
-
   /**
    * Helper class for organizing printing
    */
@@ -453,6 +452,12 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     UnitRepresentation denominator = getBuilder().s(order).magnitude(-3*order).build();
     result = result.divideBy(denominator);
     return result;
+  }
+
+  public boolean equalBase(UnitRepresentation other){
+    UnitRepresentation noMagThis = getBuilder().other(this).magnitude(0).build();
+    UnitRepresentation noMagOther = getBuilder().other(other).magnitude(0).build();
+    return noMagThis.equals(noMagOther);
   }
 
   private UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {

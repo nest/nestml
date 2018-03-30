@@ -1,6 +1,7 @@
 neuron validExpressionTest:
   state: 
-    Volt V 
+    Volt V
+    milliVolt mV
     InverseVolt 1/V   
     Ampere A
     Resist Ohm
@@ -27,12 +28,17 @@ neuron validExpressionTest:
   end
 
   update:
-    Volt = foo(7 A,2 Ohm)                   #function call 
+    Volt = foo(7 A,2 Ohm)                   #function call
+    Volt = foo(7 mA,2 Ohm)                  #function call with same base, different magnitude
+    Volt = foo(7 A,2 mOhm)                  #function call with same base, different magnitude
+
     Volt = Resist * Ampere                  #multipilication gives correct unit
     Volt = 2 * Volt                         #multiplication with int -> unit
     Volt = 2.0 * Volt                       #multiplication with real -> unit
     Volt = Volt + Volt                      #addition
+    milliVolt = Volt + milliVolt            #addition with same base, different magnitude
     Volt = Volt - Volt                      #substraction
+    milliVolt = Volt - milliVolt            #substraction with same base, different magnitude
     Real = Volt/Volt                        #division erases units -> real
     Resist = Volt / Ampere                  #division gives correct unit
     Volt = Volt / 2                         #division with int -> unit
@@ -42,13 +48,36 @@ neuron validExpressionTest:
     Volt = -Volt                            #unary minus
     
     Volt = true?3V:Volt                     #ternary
+    Volt = true?3V:milliVolt                #ternary with same base, different magnitude
+    Volt = true?3 mV:Volt                   #ternary with same base, different magnitude
 
-    if Resist > 3Ohm:                       #Comparison
-    elif Resist < 3Ohm:                     #Comparison
+
+    if Resist > 3 Ohm:                      #Comparison
+    if Resist > 3 mOhm:                     #Comparison with same base, different magnitude
+    if 3 mOhm > Resist:                     #Comparison with same base, different magnitude
+
+    elif Resist < 3 Ohm:                    #Comparison
+    elif Resist < 3 mOhm:                   #Comparison with same base, different magnitude
+    elif 3 mOhm < Resist:                   #Comparison with same base, different magnitude
+
     elif Resist == 3Ohm:                    #Comparison
-    elif Resist >= 3Ohm:                    #Comparison
-    elif Resist <= 3Ohm:                    #Comparison
-    elif Resist <> 3Ohm:                    #Comparison
+    elif Resist == 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm == Resist:                  #Comparison with same base, different magnitude
+
+    elif Resist >= 3 Ohm:                   #Comparison
+    elif Resist >= 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm >= Resist:                  #Comparison with same base, different magnitude
+
+    elif Resist <= 3 Ohm:                   #Comparison
+    elif Resist <= 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm <= Resist:                  #Comparison with same base, different magnitude
+
+    elif Resist <> 3 Ohm:                   #Comparison
+    elif Resist <> 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm <> Resist:                  #Comparison with same base, different magnitude
+
+    end
+    end
     end
   end
 

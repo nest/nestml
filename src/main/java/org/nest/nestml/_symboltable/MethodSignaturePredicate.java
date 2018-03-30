@@ -7,8 +7,10 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolPredicate;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +46,25 @@ public class MethodSignaturePredicate implements SymbolPredicate {
           final String expectedType = expectedParameterTypes.get(i);
           final String actualType = methodSymbol.getParameterTypes().get(i).getFullName();
 
+          //if both expected and actual are units and have the same base they are compatible
+          boolean convertibleUnits = false;
+          if(isUnit(getType(expectedType))&&isUnit(getType(actualType))){
+            TypeSymbol expectedTypeSymbol = getType(expectedType);
+            TypeSymbol actualTypeSymbol = getType(actualType);
+            UnitRepresentation expectedTypeRep = UnitRepresentation.getBuilder().
+                serialization(expectedTypeSymbol.getName()).build();
+            UnitRepresentation actualTypeRep = UnitRepresentation.getBuilder().
+                serialization(actualTypeSymbol.getName()).build();
+            convertibleUnits = expectedTypeRep.equalBase(actualTypeRep);
+          }
+
           if (!TypeChecker.isCompatible(actualType, expectedType) &&
+              !(convertibleUnits)&&
               !(isUnit(methodSymbol.getParameterTypes().get(i)) && isReal(getType(expectedType))) &&
               !(isReal(methodSymbol.getParameterTypes().get(i)) && isUnit(getType(expectedType)))) {
             return false;
           }
+
         }
 
         return true;
