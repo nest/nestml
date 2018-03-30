@@ -17,19 +17,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
-from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
 from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.modelprocessor.ASTExpressionElement import ASTExpressionNode
 from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTNode import ASTElement
-from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
 
 
-class ASTExpression(ASTElement):
+class ASTExpression(ASTExpressionNode):
     """
     ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
     or a simple expression, e.g. 10mV.
@@ -63,7 +60,6 @@ class ASTExpression(ASTElement):
     # simple expression
     __simpleExpression = None
     # the corresponding type symbol.
-    __typeEither = None
 
     def __init__(self, _isEncapsulated=False, _unaryOperator=None, _isLogicalNot=False,
                  _expression=None, _lhs=None, _binaryOperator=None, _rhs=None, _condition=None, _ifTrue=None,
@@ -213,6 +209,7 @@ class ASTExpression(ASTElement):
             '(PyNestML.AST.Expression) No or wrong type of if-not case provided (%s)!' % type(_ifNot)
         return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot, _sourcePosition=_sourcePosition)
 
+
     def isExpression(self):
         """
         Returns whether it is a expression, e.g. ~10mV.
@@ -292,6 +289,31 @@ class ASTExpression(ASTElement):
         :rtype: one of ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
         """
         return self.__binaryOperator
+
+    def isBinaryOperator(self):
+        """
+        Returns whether the expression is defined around a BinaryOperator
+        :return: true iff the expression is defined around a BinaryOperator
+        :rtype: bool
+        """
+        return self.__binaryOperator is not None
+
+    def isArithmeticOperator(self):
+        """
+        Returns whether the expression is defined around a BinaryOperator
+        and if that BinaryOperator is an ArithmeticOperator
+        :return: true iff the expression describes an arithmetic operation
+        :rtype: bool
+        """
+        return self.isBinaryOperator() and isinstance(self.__binaryOperator, ASTArithmeticOperator)
+
+    def isPlusOp(self):
+        """
+        Returns whether the expression defines an addition
+        :return: true iff the expression defines an addition
+        :rtype: bool
+        """
+        return self.isArithmeticOperator() and self.__binaryOperator.isPlusOp()
 
     def isTernaryOperator(self):
         """
@@ -379,30 +401,6 @@ class ASTExpression(ASTElement):
             ret.extend(self.getIfNot().getFunctionCalls())
         return ret
 
-    def getTypeEither(self):
-        """
-        Returns an Either object holding either the type symbol of
-        this expression or the corresponding error message
-        If it does not exist, run the ExpressionTypeVisitor on it to calculate it
-        :return: Either a valid type or an error message
-        :rtype: Either
-        """
-        from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
-        if self.__typeEither is None:
-            self.accept(ExpressionTypeVisitor())
-        return self.__typeEither
-
-    def setTypeEither(self, _typeEither=None):
-        """
-        Updates the current type symbol to the handed over one.
-        :param _typeEither: a single type symbol object.
-        :type _typeEither: TypeSymbol
-        """
-        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
-        self.__typeEither = _typeEither
-        return
-
     def getParent(self, _ast=None):
         """
         Indicates whether a this node contains the handed over node.
@@ -452,6 +450,7 @@ class ASTExpression(ASTElement):
     def __str__(self):
         """
         Returns the string representation of the expression.
+        :param
         :return: the expression as a string.
         :rtype: str
         """

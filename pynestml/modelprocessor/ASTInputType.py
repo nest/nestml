@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTInputType(ASTElement):
+class ASTInputType(ASTNode):
     """
     This class is used to store the type of a buffer.
     ASTInputType represents the type of the input line e.g.: inhibitory or excitatory:

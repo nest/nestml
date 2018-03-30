@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
@@ -37,21 +36,5 @@ class NESTML2NESTTypeConverter(object):
         """
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
             '(PyNestML.CodeGeneration.TypeConverter) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        if _typeSymbol.equals(PredefinedTypes.getStringType()):
-            return 'std::string'
-        if _typeSymbol.equals(PredefinedTypes.getVoidType()):
-            return 'void'
-        if _typeSymbol.isBuffer():
-            return 'nest::RingBuffer'
-        if _typeSymbol.equals(PredefinedTypes.getBooleanType()):
-            return 'bool'
-        if _typeSymbol.equals(PredefinedTypes.getRealType()):
-            return 'double'
-        if _typeSymbol.isUnit():
-            return 'double'
-        if _typeSymbol.equals(PredefinedTypes.getIntegerType()):
-            return 'long'
-        if 'Time' in _typeSymbol.getSymbolName():
-            return 'nest::Time'
-        return _typeSymbol.getSymbolName().replace('.', '::')
 
+        return _typeSymbol.nest_type

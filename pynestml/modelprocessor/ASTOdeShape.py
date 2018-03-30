@@ -21,10 +21,10 @@
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTOdeShape(ASTElement):
+class ASTOdeShape(ASTNode):
     """
     This class is used to store shapes. 
     Grammar:

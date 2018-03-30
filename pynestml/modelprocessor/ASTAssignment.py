@@ -18,11 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTVariable import ASTVariable
 
 
-class ASTAssignment(ASTElement):
+class ASTAssignment(ASTNode):
     """
     This class is used to store assignments.
     Grammar:
@@ -228,9 +228,71 @@ class ASTAssignment(ASTElement):
             return False
 
         return self.getVariable().equals(_other.getVariable()) and \
-               self.isCompoundQuotient() == _other.isCompoundQuotient() and \
-               self.isCompoundProduct() == _other.isCompoundProduct() and \
-               self.isCompoundMinus() == _other.isCompoundMinus() and \
-               self.isCompoundSum() == _other.isCompoundSum() and \
-               self.isDirectAssignment() == _other.isDirectAssignment() and \
-               self.getExpression().equals(_other.getExpression())
+            self.isCompoundQuotient() == _other.isCompoundQuotient() and \
+            self.isCompoundProduct() == _other.isCompoundProduct() and \
+            self.isCompoundMinus() == _other.isCompoundMinus() and \
+            self.isCompoundSum() == _other.isCompoundSum() and \
+            self.isDirectAssignment() == _other.isDirectAssignment() and \
+            self.getExpression().equals(_other.getExpression())
+
+    def deconstructCompoundAssignment(self):
+        """
+        From lhs and rhs it constructs a new expression which corresponds to direct assignment.
+        E.g.: a += b*c -> a = a + b*c
+        :return: the rhs for an equivalent direct assignment.
+        :rtype: ASTExpression
+        """
+        from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+        # TODO: get rid of this through polymorphism?
+        assert not self.isDirectAssignment(), "Can only be invoked on a compound assignment."
+
+        operator = self.extractOperatorFromCompoundAssignment()
+        lhsVariable = self.getLhsVariableAsExpression()
+        rhsInBrackets = self.getBracketedRhsExpression()
+        result = self.constructEquivalentDirectAssignmentRhs(operator, lhsVariable, rhsInBrackets)
+        # create symbols for the new Expression:
+        ASTSymbolTableVisitor.visit_expression(result)
+        return result
+
+    def getLhsVariableAsExpression(self):
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        # TODO: maybe calculate new source positions exactly?
+        result = ASTSimpleExpression.makeASTSimpleExpression(_variable=self.getVariable(),
+                                                             _sourcePosition=self.getVariable().getSourcePosition())
+        result.updateScope(self.getScope())
+        return result
+
+    def extractOperatorFromCompoundAssignment(self):
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        assert not self.isDirectAssignment()
+        # TODO: maybe calculate new source positions exactly?
+        if self.isCompoundMinus():
+            result = ASTArithmeticOperator(_isMinusOp=True, _sourcePosition=self.getSourcePosition())
+        if self.isCompoundProduct():
+            result = ASTArithmeticOperator(_isTimesOp=True, _sourcePosition=self.getSourcePosition())
+        if self.isCompoundQuotient():
+            result = ASTArithmeticOperator(_isDivOp=True, _sourcePosition=self.getSourcePosition())
+        if self.isCompoundSum():
+            result = ASTArithmeticOperator(_isPlusOp=True, _sourcePosition=self.getSourcePosition())
+        result.updateScope(self.getScope())
+        return result
+
+    def getBracketedRhsExpression(self):
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+        # TODO: maybe calculate new source positions exactly?
+        result = ASTExpression.makeExpression(_isEncapsulated=True,
+                                              _expression=self.getExpression(),
+                                              _sourcePosition=self.getExpression().getSourcePosition())
+        result.updateScope(self.getScope())
+        return result
+
+    def constructEquivalentDirectAssignmentRhs(self, _operator, _lhsVariable, _rhsInBrackets):
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+        # TODO: maybe calculate new source positions exactly?
+        result = ASTExpression.makeCompoundExpression(_lhs=_lhsVariable, _binaryOperator=_operator, _rhs=_rhsInBrackets,
+                                                      _sourcePosition=self.getSourcePosition())
+        result.updateScope(self.getScope())
+        return result
+
+    def resolveLhsVariableSymbol(self):
+        return self.getVariable().resolveInOwnScope()

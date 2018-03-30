@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.#
+from copy import copy
+
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 from pynestml.modelprocessor.Symbol import Symbol
 
@@ -33,7 +35,7 @@ class FunctionSymbol(Symbol):
     __returnType = None
     __isPredefined = False
 
-    def __init__(self, _name=None, _paramTypes=list(), _returnType=None, _elementReference=None, _scope=None,
+    def __init__(self, _name=None, _paramTypes=list(), _returnType=None, _referenced_object=None, _scope=None,
                  _isPredefined=False):
         """
         Standard constructor.
@@ -43,8 +45,8 @@ class FunctionSymbol(Symbol):
         :type _paramTypes: list(TypeSymbol)
         :param _returnType: the return type of the function.
         :type _returnType: TypeSymbol
-        :param _elementReference: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
-        :type _elementReference: ASTFunction
+        :param _referenced_object: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
+        :type _referenced_object: ASTFunction
         :param _scope: a reference to the scope in which this symbol is defined in
         :type _scope: Scope
         :param _isPredefined: True, if this element is a predefined one, otherwise False.
@@ -59,26 +61,26 @@ class FunctionSymbol(Symbol):
         assert (_returnType is None or isinstance(_returnType, TypeSymbol)), \
             '(PyNestML.SymbolTable.FunctionSymbol) Wrong type of return statement provided (%s)!' % type(_returnType)
         from pynestml.modelprocessor.Symbol import SymbolKind
-        super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
+        super(FunctionSymbol, self).__init__(_referenced_object=_referenced_object, _scope=_scope,
                                              _name=_name, _symbolKind=SymbolKind.FUNCTION)
         self.__paramTypes = _paramTypes
         self.__returnType = _returnType
         self.__isPredefined = _isPredefined
         return
 
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         """
         ret = 'FunctionSymbol[' + self.getSymbolName() + ', Parameters = {'
         for arg in self.__paramTypes:
-            ret += arg.printSymbol()
+            ret += arg.print_symbol()
             if self.__paramTypes.index(arg) < len(
                     self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
-        ret += '}, return type = ' + (self.getReturnType().printSymbol())
-        ret += ', @' + (str(self.getReferencedObject().getSourcePosition())
-                        if self.getReferencedObject() is not None else 'predefined') + ']'
+        ret += '}, return type = ' + (self.getReturnType().print_symbol())
+        ret += ', @' + (str(self.referenced_object.getSourcePosition())
+                        if self.referenced_object is not None else 'predefined') + ']'
         return ret
 
     def getReturnType(self):
@@ -87,7 +89,7 @@ class FunctionSymbol(Symbol):
         :return: a single type symbol.
         :rtype: TypeSymbol
         """
-        return self.__returnType
+        return copy(self.__returnType)
 
     def setReturnType(self, _newType=None):
         """

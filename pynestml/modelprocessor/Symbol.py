@@ -25,7 +25,7 @@ class Symbol(object):
     """
     This abstract class represents a super-class for all concrete symbols as stored in a symbol table.
     Attributes:
-        __elementReference (AST_): A reference to an AST node which defined this symbol. This has to be in the
+        __referenced_object (AST_): A reference to an AST node which defined this symbol. This has to be in the
                                     super-class, since variables as well as functions can be user defined.
         __scope (Scope): The scope in which this element is stored in.
         __name (str): The name of this element, e.g., V_m.
@@ -33,17 +33,17 @@ class Symbol(object):
         __comment (str): A text associated with this symbol, possibly originates from the source model.
     """
     __metaclass__ = ABCMeta
-    __elementReference = None
+    referenced_object = None
     __scope = None
     __name = None
     __symbolKind = None
     __comment = None
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None, _symbolKind=None):
+    def __init__(self, _referenced_object=None, _scope=None, _name=None, _symbolKind=None):
         """
         Standard constructor of the Symbol class.
-        :param _elementReference: an ast object.
-        :type _elementReference: ASTObject
+        :param _referenced_object: an ast object.
+        :type _referenced_object: ASTObject
         :param _scope: the scope in which this element is embedded in.
         :type _scope: Scope
         :param _name: the name of the corresponding element
@@ -57,19 +57,11 @@ class Symbol(object):
             '(PyNestML.SymbolTable.Symbol) No or wrong type of name provided (%s)!' % type(_name)
         assert (_symbolKind is not None and isinstance(_symbolKind, SymbolKind)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided (%s)!' % type(_symbolKind)
-        self.__elementReference = _elementReference
+        self.referenced_object = _referenced_object
         self.__scope = _scope
         self.__name = _name
         self.__symbolKind = _symbolKind
         return
-
-    def getReferencedObject(self):
-        """
-        Returns the referenced object.
-        :return: the referenced object.
-        :rtype: ASTObject
-        """
-        return self.__elementReference
 
     def getCorrespondingScope(self):
         """
@@ -107,7 +99,7 @@ class Symbol(object):
         from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided (%s)!' % type(_sourcePosition)
-        return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
+        return self.referenced_object.getSourcePosition().before(_sourcePosition)
 
     def hasComment(self):
         """
@@ -137,7 +129,7 @@ class Symbol(object):
         return
 
     @abstractmethod
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         """

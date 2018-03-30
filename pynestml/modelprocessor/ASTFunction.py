@@ -17,13 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTBlock import ASTBlock
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
 
 
-class ASTFunction(ASTElement):
+class ASTFunction(ASTNode):
     """
     This class is used to store a user-defined function.
     ASTFunction a function definition:
@@ -128,7 +129,7 @@ class ASTFunction(ASTElement):
         """
         return self.__returnType is not None
 
-    def getReturnType(self):
+    def get_return_data_type(self):
         """
         Returns the return type of function.
         :return: the return type 
@@ -150,7 +151,7 @@ class ASTFunction(ASTElement):
         :return: a single type symbol.
         :rtype: TypeSymbol
         """
-        return self.__typeSymbol
+        return copy(self.__typeSymbol)
 
     def setTypeSymbol(self, _typeSymbol=None):
         """
@@ -177,10 +178,10 @@ class ASTFunction(ASTElement):
             elif param.getParent(_ast) is not None:
                 return param.getParent(_ast)
         if self.hasReturnType():
-            if self.getReturnType() is _ast:
+            if self.get_return_data_type() is _ast:
                 return self
-            elif self.getReturnType().getParent(_ast) is not None:
-                return self.getReturnType().getParent(_ast)
+            elif self.get_return_data_type().getParent(_ast) is not None:
+                return self.get_return_data_type().getParent(_ast)
         if self.getBlock() is _ast:
             return self
         elif self.getBlock().getParent(_ast) is not None:
@@ -199,7 +200,7 @@ class ASTFunction(ASTElement):
                 ret += str(par)
         ret += ')'
         if self.hasReturnType():
-            ret += str(self.getReturnType())
+            ret += str(self.get_return_data_type())
         ret += ':\n' + str(self.getBlock()) + '\nend'
         return ret
 
@@ -224,6 +225,6 @@ class ASTFunction(ASTElement):
                 return False
         if self.hasReturnType() + _other.hasReturnType() == 1:
             return False
-        if self.hasReturnType() and _other.hasReturnType() and not self.getReturnType().equals(_other.getReturnType()):
+        if self.hasReturnType() and _other.hasReturnType() and not self.get_return_data_type().equals(_other.get_return_data_type()):
             return False
         return self.getBlock().equals(_other.getBlock())

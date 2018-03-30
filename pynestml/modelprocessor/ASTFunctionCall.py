@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTFunctionCall(ASTElement):
+class ASTFunctionCall(ASTNode):
     """
     This class is used to store a single function call.
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").

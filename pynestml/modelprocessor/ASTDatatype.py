@@ -17,12 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
 
 from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTDatatype(ASTElement):
+class ASTDatatype(ASTNode):
     """
     A datatype class as used to store a datatype of an element.
     ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
@@ -171,7 +172,7 @@ class ASTDatatype(ASTElement):
         :return: a single type symbol element.
         :rtype: TypeSymbol
         """
-        return self.__typeSymbol
+        return copy(self.__typeSymbol)
 
     def setTypeSymbol(self, _typeSymbol=None):
         """

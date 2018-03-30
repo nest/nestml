@@ -17,15 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
+from pynestml.modelprocessor.ASTExpressionElement import ASTExpressionNode
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.ASTNode import ASTElement
 from pynestml.modelprocessor.Either import Either
 
 
-class ASTSimpleExpression(ASTElement):
+class ASTSimpleExpression(ASTExpressionNode):
     """
     This class is used to store a simple expression, e.g. +42mV.
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
@@ -54,7 +52,6 @@ class ASTSimpleExpression(ASTElement):
     __isBooleanFalse = False
     __isInf = False
     __string = None
-    __typeEither = None
 
     def __init__(self, _functionCall=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
                  _variable=None, _string=None, _sourcePosition=None):
@@ -133,30 +130,8 @@ class ASTSimpleExpression(ASTElement):
         return self.__functionCall is not None
 
     # TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression
-    def getTypeEither(self):
-        """
-        Returns an Either object holding either the type symbol of
-        this expression or the corresponding error message
-        If it does not exist, run the ExpressionTypeVisitor on it to calculate it
-        :return: Either a valid type or an error message
-        :rtype: Either
-        """
-        if self.__typeEither is None:
-            from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
-            self.accept(ExpressionTypeVisitor())
-        return self.__typeEither
 
     # TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression
-    def setTypeEither(self, _typeEither=None):
-        """
-        Updates the current type symbol to the handed over one.
-        :param _typeEither: a single type symbol object.
-        :type _typeEither: TypeSymbol
-        """
-        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
-        self.__typeEither = _typeEither
-        return
 
     def getFunctionCall(self):
         """

@@ -17,13 +17,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Messages import Messages
-from pynestml.modelprocessor.CoCo import CoCo
+
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.modelprocessor.LoggingHelper import LoggingHelper
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.TypeCaster import TypeCaster
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoIllegalExpression(CoCo):
@@ -49,194 +52,156 @@ class CorrectExpressionVisitor(NESTMLVisitor):
     This visitor checks that all expression correspond to the expected type.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Visits a single declaration and asserts that type of lhs is equal to type of rhs.
         :param _declaration: a single declaration.
         :type _declaration: ASTDeclaration
         """
         if _declaration.hasExpression():
-            lhsType = _declaration.getDataType().getTypeSymbol()
-            rhsType = _declaration.getExpression().getTypeEither()
-            if rhsType.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getExpression())
-                Logger.logMessage(_neuron=None, _code=code, _message=message,
-                                  _errorPosition=_declaration.getExpression().getSourcePosition(),
-                                  _logLevel=LOGGING_LEVEL.ERROR)
-            elif not lhsType.equals(rhsType.getValue()):
-                if ASTUtils.differsInMagnitude(rhsType.getValue(),lhsType):
-                    return
-                if ASTUtils.isCastableTo(rhsType.getValue(), lhsType):
-                    code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpression(),
-                                                                     _declaration.getVariables()[0],
-                                                                     rhsType.getValue(), lhsType)
-                    Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-                else:
-                    code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpression(),
-                                                                    _lhsExpression=_declaration.getVariables()[0],
-                                                                    _rhsType=rhsType.getValue(),
-                                                                    _lhsType=lhsType)
-                    Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+            lhs_type = _declaration.getDataType().getTypeSymbol()
+            rhs_type = _declaration.getExpression().type
+            if isinstance(rhs_type, ErrorTypeSymbol):
+                LoggingHelper.drop_missing_type_error(_declaration)
+                return
+            if self.__types_do_not_match(lhs_type, rhs_type):
+                TypeCaster.try_to_recover_or_error(lhs_type, rhs_type, _declaration.getExpression())
         return
 
-    def visitAssignment(self, _assignment=None):
+    def visit_assignment(self, _assignment=None):
         """
         Visits a single expression and assures that type(lhs) == type(rhs).
         :param _assignment: a single assignment.
         :type _assignment: ASTAssignment
         """
-        from pynestml.modelprocessor.Symbol import SymbolKind
-        from pynestml.utils.ASTUtils import ASTUtils
         if _assignment.isDirectAssignment():  # case a = b is simple
-            lhsSymbolType = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
-                                                                   SymbolKind.VARIABLE)
-            rhsSymbolType = _assignment.getExpression().getTypeEither()
-            if rhsSymbolType.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
-                Logger.logMessage(_neuron=None, _code=code, _message=message,
-                                  _errorPosition=_assignment.getExpression().getSourcePosition(),
-                                  _logLevel=LOGGING_LEVEL.ERROR)
-            elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
-                if ASTUtils.differsInMagnitude(rhsSymbolType.getValue(),lhsSymbolType.getTypeSymbol()):
-                    return
-                elif ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
-                    code, message = Messages.getImplicitCastRhsToLhs(_assignment.getExpr(),
-                                                                     _assignment.getVariable(),
-                                                                     rhsSymbolType.getValue(),
-                                                                     lhsSymbolType.getTypeSymbol())
-                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-                else:
-                    code, message = Messages.getDifferentTypeRhsLhs(_assignment.getExpression(),
-                                                                    _assignment.getVariable(),
-                                                                    rhsSymbolType.getValue(),
-                                                                    lhsSymbolType.getTypeSymbol())
-                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+            self.handle_simple_assignment(_assignment)
         else:
-            expr = ASTUtils.deconstructAssignment(_lhs=_assignment.getVariable(),
-                                                  _isPlus=_assignment.isCompoundSum(),
-                                                  _isMinus=_assignment.isCompoundMinus(),
-                                                  _isTimes=_assignment.isCompoundProduct(),
-                                                  _isDivide=_assignment.isCompoundQuotient(),
-                                                  _rhs=_assignment.getExpression())
-            lhsSymbolType = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
-                                                                   SymbolKind.VARIABLE)
-            rhsSymbolType = expr.getTypeEither()
-            if rhsSymbolType.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
-                Logger.logMessage(_neuron=None, _code=code, _message=message,
-                                  _errorPosition=_assignment.getExpression().getSourcePosition(),
-                                  _logLevel=LOGGING_LEVEL.ERROR)
-            elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
-                if ASTUtils.differsInMagnitude(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
-                    return
-                elif ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
-                    code, message = Messages.getImplicitCastRhsToLhs(expr,
-                                                                     _assignment.getVariable(),
-                                                                     rhsSymbolType.getValue(),
-                                                                     lhsSymbolType.getTypeSymbol())
-                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-                else:
-                    code, message = Messages.getDifferentTypeRhsLhs(expr,
-                                                                    _assignment.getVariable(),
-                                                                    rhsSymbolType.getValue(),
-                                                                    lhsSymbolType.getTypeSymbol())
-                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-        # todo we have to consider that different magnitudes can still be combined
+            self.handle_complex_assignment(_assignment)  # e.g. a *= b
         return
 
-    def visitIfClause(self, _ifClause=None):
+    def handle_complex_assignment(self, _assignment):
+        rhs_expr = _assignment.getExpression()
+        lhs_variable_symbol = _assignment.resolveLhsVariableSymbol()
+        rhs_type_symbol = rhs_expr.type
+
+        if isinstance(rhs_type_symbol, ErrorTypeSymbol):
+            LoggingHelper.drop_missing_type_error(_assignment)
+            return
+
+        if self.__types_do_not_match(lhs_variable_symbol.getTypeSymbol(), rhs_type_symbol):
+            TypeCaster.try_to_recover_or_error(lhs_variable_symbol.getTypeSymbol(), rhs_type_symbol,
+                                               _assignment.getExpression())
+        return
+
+    @staticmethod
+    def __types_do_not_match(_lhs_type_symbol, _rhs_type_symbol):
+        return not _lhs_type_symbol.equals(_rhs_type_symbol)
+
+    def handle_simple_assignment(self, _assignment):
+        from pynestml.modelprocessor.Symbol import SymbolKind
+        lhs_variable_symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
+                                                                     SymbolKind.VARIABLE)
+
+        rhs_type_symbol = _assignment.getExpression().type
+        if isinstance(rhs_type_symbol, ErrorTypeSymbol):
+            LoggingHelper.drop_missing_type_error(_assignment)
+            return
+
+        if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol.getTypeSymbol(),
+                                                                         rhs_type_symbol):
+            TypeCaster.try_to_recover_or_error(lhs_variable_symbol.getTypeSymbol(), rhs_type_symbol,
+                                               _assignment.getExpression())
+        return
+
+    def visit_if_clause(self, _if_clause=None):
         """
         Visits a single if clause and checks that its condition is boolean.
-        :param _ifClause: a single elif clause.
-        :type _ifClause: ASTIfClause
+        :param _if_clause: a single elif clause.
+        :type _if_clause: ASTIfClause
         """
-        condType = _ifClause.getCondition().getTypeEither()
-        if condType.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_ifClause.getCondition())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_ifClause.getCondition().getSourcePosition(),
+        cond_type = _if_clause.getCondition().type
+        if isinstance(cond_type, ErrorTypeSymbol):
+            code, message = Messages.getTypeCouldNotBeDerived(_if_clause.getCondition())
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not condType.getValue().equals(PredefinedTypes.getBooleanType()):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(), condType.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_ifClause.getCondition().getSourcePosition(),
+        elif not cond_type.equals(PredefinedTypes.getBooleanType()):
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
+                                                                  cond_type)
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitElifClause(self, _elifClause=None):
+    def visit_elif_clause(self, _elif_clause=None):
         """
         Visits a single elif clause and checks that its condition is boolean.
-        :param _elifClause: a single elif clause.
-        :type _elifClause: ASTElifClause
+        :param _elif_clause: a single elif clause.
+        :type _elif_clause: ASTElifClause
         """
-        condType = _elifClause.getCondition().getTypeEither()
-        if condType.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_elifClause.getCondition())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_elifClause.getCondition().getSourcePosition(),
+        cond_type = _elif_clause.getCondition().type
+        if isinstance(cond_type, ErrorTypeSymbol):
+            code, message = Messages.getTypeCouldNotBeDerived(_elif_clause.getCondition())
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not condType.getValue().equals(PredefinedTypes.getBooleanType()):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(), condType.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_elifClause.getCondition().getSourcePosition(),
+        elif not cond_type.equals(PredefinedTypes.getBooleanType()):
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
+                                                                  cond_type)
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitWhileStmt(self, _whileStmt=None):
+    def visit_while_stmt(self, _while_stmt=None):
         """
         Visits a single while stmt and checks that its condition is of boolean type.
-        :param _whileStmt: a single while stmt
-        :type _whileStmt: ASTWhileStmt
+        :param _while_stmt: a single while stmt
+        :type _while_stmt: ASTWhileStmt
         """
-        condType = _whileStmt.getCondition().getTypeEither()
-        if condType.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_whileStmt.getCondition())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_whileStmt.getCondition().getSourcePosition(),
+        cond_type = _while_stmt.getCondition().type
+        if isinstance(cond_type, ErrorTypeSymbol):
+            code, message = Messages.getTypeCouldNotBeDerived(_while_stmt.getCondition())
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not condType.getValue().equals(PredefinedTypes.getBooleanType()):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(), condType.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_whileStmt.getCondition().getSourcePosition(),
+        elif not cond_type.equals(PredefinedTypes.getBooleanType()):
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
+                                                                  cond_type)
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitForStmt(self, _forStmt=None):
+    def visit_for_stmt(self, _for_stmt=None):
         """
         Visits a single for stmt and checks that all it parts are correctly defined.
-        :param _forStmt: a single for stmt
-        :type _forStmt: ASTForStmt
+        :param _for_stmt: a single for stmt
+        :type _for_stmt: ASTForStmt
         """
         # check that the from stmt is an integer or real
-        fromType = _forStmt.getFrom().getTypeEither()
-        if fromType.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_forStmt.getFrom())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getFrom().getSourcePosition(),
+        from_type = _for_stmt.getFrom().type
+        if isinstance(from_type, ErrorTypeSymbol):
+            code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getFrom())
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not (fromType.getValue().equals(PredefinedTypes.getIntegerType()) or
-                      fromType.getValue().equals(PredefinedTypes.getRealType())):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), fromType.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getFrom().getSourcePosition(),
+        elif not (from_type.equals(PredefinedTypes.getIntegerType())
+                  or from_type.equals(
+                PredefinedTypes.getRealType())):
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(),
+                                                                  from_type)
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         # check that the to stmt is an integer or real
-        toType = _forStmt.getTo().getTypeEither()
-        if toType.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_forStmt.getTo())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getTo().getSourcePosition(),
+        to_type = _for_stmt.getTo().type
+        if isinstance(to_type, ErrorTypeSymbol):
+            code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getTo())
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not (toType.getValue().equals(PredefinedTypes.getIntegerType()) or
-                      toType.getValue().equals(PredefinedTypes.getRealType())):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), toType.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getTo().getSourcePosition(),
+        elif not (to_type.equals(PredefinedTypes.getIntegerType())
+                  or to_type.equals(PredefinedTypes.getRealType())):
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), to_type)
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

@@ -50,7 +50,7 @@ class CoCoBufferNotAssigned(CoCo):
 
 
 class NoBufferAssignedVisitor(NESTMLVisitor):
-    def visitAssignment(self, _assignment=None):
+    def visit_assignment(self, _assignment=None):
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
                                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):

@@ -17,10 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+from copy import copy
 from enum import Enum
-from pynestml.modelprocessor.Symbol import Symbol
+
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.Symbol import Symbol
 from pynestml.modelprocessor.Symbol import SymbolKind
 
 
@@ -71,6 +72,13 @@ class Scope(object):
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol provided (%s)!' % type(_symbol)
         self.__declaredElements.append(_symbol)
         return
+
+    def updateVariableSymbol(self, _symbol):
+        for symbol in self.__declaredElements:
+            if symbol.getSymbolKind() == SymbolKind.VARIABLE and symbol.getSymbolName() == _symbol.getSymbolName():
+                self.__declaredElements.remove(symbol)
+                self.addSymbol(_symbol)
+                break
 
     def addScope(self, _scope=None):
         """
@@ -292,7 +300,7 @@ class Scope(object):
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
-                return sim
+                return copy(sim)
         if self.hasEnclosingScope():
             return self.getEnclosingScope().resolveToSymbol(_name, _type)
         else:
@@ -384,7 +392,7 @@ class Scope(object):
               + ',' + str(self.getSourcePosition()) + '>' + '\n'
         for elem in self.__declaredElements:
             if isinstance(elem, Symbol):
-                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.printSymbol() + '\n'
+                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.print_symbol() + '\n'
             else:
                 ret += elem.printScope()
         return ret

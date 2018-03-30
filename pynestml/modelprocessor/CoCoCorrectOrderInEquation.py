@@ -56,7 +56,7 @@ class OrderOfEquationVisitor(NESTMLVisitor):
     This visitor checks that all differential equations have a differential order.
     """
 
-    def visitOdeEquation(self, _equation=None):
+    def visit_ode_equation(self, _equation=None):
         """
         Checks the coco.
         :param _equation: A single ode equation.

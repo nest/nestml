@@ -51,6 +51,28 @@ class Messages(object):
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
+    def get_binary_operation_not_defined(cls, _lhs, _operator, _rhs):
+        message = 'Operation %s %s %s is not defined' % (_lhs, _operator, _rhs)
+        return MessageCode.OPERATION_NOT_DEFINED, message
+
+    @classmethod
+    def get_unary_operation_not_defined(cls, _operator, _term):
+        message = 'Operation %s%s is not defined' % (_operator, _term)
+        return MessageCode.OPERATION_NOT_DEFINED, message
+
+    @classmethod
+    def get_convolve_needs_buffer_parameter(cls):
+        message = 'Convolve needs a buffer as its second parameter'
+        return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
+
+    @classmethod
+    def get_implicit_magnitude_conversion(cls, _lhs, _rhs, _conversion_factor):
+        message = 'Non-matching unit types at %s +/- %s! ' \
+                  'Implicitly replaced by %s +/- %s * %s' % (
+                      _lhs.print_symbol(), _rhs.print_symbol(), _lhs.print_symbol(), _conversion_factor, _rhs.print_symbol())
+        return MessageCode.IMPLICIT_CAST, message
+
+    @classmethod
     def getStartBuildingSymbolTable(cls):
         """
         Returns a message that the building for a neuron has been started.
@@ -79,13 +101,13 @@ class Messages(object):
         """
         if not _castable:
             message = str(_argNr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.getValue().printSymbol(),
-                                                        _expectedType.printSymbol())
+                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.print_symbol(),
+                                                        _expectedType.print_symbol())
         else:
             message = str(_argNr) + '. argument of function-call \'%s\' is wrongly typed! ' \
                                     'Implicit cast from \'%s\' to \'%s\'.' % (_functionCall.getName(),
-                                                                              _gotType.getValue().printSymbol(),
-                                                                              _expectedType.printSymbol())
+                                                                              _gotType.print_symbol(),
+                                                                              _expectedType.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message
 
     @classmethod
@@ -102,26 +124,18 @@ class Messages(object):
         return MessageCode.TYPE_NOT_DERIVABLE, message
 
     @classmethod
-    def getImplicitCastRhsToLhs(cls, _rhsExpression=None, _lhsExpression=None,
-                                _rhsType=None, _lhsType=None):
+    def getImplicitCastRhsToLhs(cls, _rhsType=None, _lhsType=None):
         """
         Returns a message indicating that the type of the lhs does not correspond to the one of the rhs, but the rhs
         can be cast down to lhs type.
-        :param _rhsExpression: the rhs expression
-        :type _rhsExpression: ASTExpression or ASTSimpleExpression
-        :param _lhsExpression: the lhs expression
-        :type _lhsExpression: ASTExpression or ASTSimpleExpression
         :param _rhsType: the type of the rhs
-        :type _rhsType: TypeSymbol
+        :type _rhsType: str
         :param _lhsType: the type of the lhs
-        :type _lhsType: TypeSymbol
+        :type _lhsType: str
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
-                  % (
-                      _lhsExpression, _rhsExpression, _lhsType.printSymbol(),
-                      _rhsType.printSymbol())
+        message = 'Implicitly casting %s to %s' % (_rhsType, _lhsType)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -144,8 +158,8 @@ class Messages(object):
         message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'.' % (
             _lhsExpression,
             _rhsExpression,
-            _lhsType.printSymbol(),
-            _rhsType.printSymbol())
+            _lhsType.print_symbol(),
+            _rhsType.print_symbol())
         return MessageCode.CAST_NOT_POSSIBLE, message
 
     @classmethod
@@ -165,7 +179,7 @@ class Messages(object):
         assert (_gotType is not None and isinstance(_gotType, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(_gotType)
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
-            _expectedType.printSymbol(), _gotType.printSymbol())
+            _expectedType.print_symbol(), _gotType.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
 
     @classmethod
@@ -223,7 +237,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').printSymbol())
+                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -933,3 +947,5 @@ class MessageCode(Enum):
     NO_UNIT = 54
     NOT_NEUROSCIENCE_UNIT = 55
     INTERNAL_WARNING = 56
+    OPERATION_NOT_DEFINED = 57
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 58

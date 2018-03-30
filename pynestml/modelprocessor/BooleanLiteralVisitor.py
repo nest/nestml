@@ -32,7 +32,7 @@ class BooleanLiteralVisitor(NESTMLVisitor):
     Visits a single boolean literal and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         Visits a single simple expression containing a boolean literal and updates its type.
         :param _expr: a simple expression.
@@ -41,5 +41,6 @@ class BooleanLiteralVisitor(NESTMLVisitor):
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
             '(PyNestML.Visitor.BooleanLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(
                 _expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
+        _expr.type = PredefinedTypes.getBooleanType()
+        _expr.type.referenced_object = _expr
         return

@@ -565,7 +565,7 @@ class ASTHigherOrderVisitor(object):
         for arg in _ast.getParameters():
             cls.visitDatatype(arg.getDataType(), _func)
         if _ast.hasReturnType():
-            cls.visitDatatype(_ast.getReturnType(), _func)
+            cls.visitDatatype(_ast.get_return_data_type(), _func)
         cls.visitBlock(_ast.getBlock(), _func)
         pass
 
@@ -1235,8 +1235,8 @@ class ASTHigherOrderVisitor(object):
         if _node.getParameters() is not None:
             for subnode in _node.getParameters():
                 subnode.accept(self.getRealSelf())
-        if _node.getReturnType() is not None:
-            _node.getReturnType().accept(self.getRealSelf())
+        if _node.get_return_data_type() is not None:
+            _node.get_return_data_type().accept(self.getRealSelf())
         if _node.getBlock() is not None:
             _node.getBlock().accept(self.getRealSelf())
         return

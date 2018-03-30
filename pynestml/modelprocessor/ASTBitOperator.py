@@ -18,10 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTBitOperator(ASTElement):
+class ASTBitOperator(ASTNode):
     """
     This class is used to store a single bit operator.
     Grammar:

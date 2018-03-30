@@ -22,8 +22,8 @@
 Placeholder for expression productions that are not implemented
 """
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -33,17 +33,17 @@ class NoSemantics(NESTMLVisitor):
     A visitor which indicates that there a no semantics for the given node.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression but does not execute any steps besides printing a message. This
         visitor indicates that no functionality has been implemented for this type of nodes.
         :param _expr: a single expression
         :type _expr: ASTExpression or ASTSimpleExpression
         """
-        errorMsg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.getSourcePosition())
-        _expr.setTypeEither(Either.error(errorMsg))
+        error_msg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.getSourcePosition())
+        _expr.type = ErrorTypeSymbol()
         # just warn though
-        Logger.logMessage(_message=errorMsg,
+        Logger.logMessage(_message=error_msg,
                           _code=MessageCode.NO_SEMANTICS,
                           _errorPosition=_expr.getSourcePosition(),
                           _logLevel=LOGGING_LEVEL.WARNING)

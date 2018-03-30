@@ -23,10 +23,10 @@ from pynestml.modelprocessor.ASTAssignment import ASTAssignment
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
 from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTSmallStmt(ASTElement):
+class ASTSmallStmt(ASTNode):
     """
     This class is used to store small statements, e.g., a declaration.
     Grammar:

@@ -17,10 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTLogicalOperator(ASTElement):
+class ASTLogicalOperator(ASTNode):
     """
     This class is used to store a single logical operator.
     Grammar:

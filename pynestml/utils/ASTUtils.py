@@ -17,9 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTUtils(object):
@@ -146,59 +145,6 @@ class ASTUtils(object):
             return ''
 
     @classmethod
-    def deconstructAssignment(cls, _lhs=None, _isPlus=False, _isMinus=False, _isTimes=False, _isDivide=False,
-                              _rhs=None):
-        """
-        From lhs and rhs it constructs a new expression which corresponds to direct assignment.
-        E.g.: a += b*c -> a = a + b*c
-        :param _lhs: a lhs expression
-        :type _lhs: ASTExpression or ASTSimpleExpression
-        :param _isPlus: is plus assignment
-        :type _isPlus: bool
-        :param _isMinus: is minus assignment
-        :type _isMinus: bool
-        :param _isTimes: is times assignment
-        :type _isTimes: bool
-        :param _isDivide: is divide assignment
-        :type _isDivide: bool
-        :param _rhs: a rhs expression
-        :type _rhs: ASTExpression or ASTSimpleExpression
-        :return: a new direct assignment expression.
-        :rtype: ASTExpression
-        """
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.modelprocessor.ASTVariable import ASTVariable
-        from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
-        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
-        assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of rhs expression provided (%s)!' % type(_rhs)
-        assert ((_isPlus + _isMinus + _isTimes + _isDivide) == 1), \
-            '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
-        if _isPlus:
-            op = ASTArithmeticOperator(_isPlusOp=True, _sourcePosition=_rhs.getSourcePosition())
-        elif _isMinus:
-            op = ASTArithmeticOperator(_isMinusOp=True, _sourcePosition=_rhs.getSourcePosition())
-        elif _isTimes:
-            op = ASTArithmeticOperator(_isTimesOp=True, _sourcePosition=_rhs.getSourcePosition())
-        else:
-            op = ASTArithmeticOperator(_isDivOp=True, _sourcePosition=_rhs.getSourcePosition())
-        varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs, _sourcePosition=_lhs.getSourcePosition())
-        varExpr.updateScope(_lhs.getScope())
-        op.updateScope(_lhs.getScope())
-        rhsInBrackets = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_rhs,
-                                                     _sourcePosition=_rhs.getSourcePosition())
-        rhsInBrackets.updateScope(_rhs.getScope())
-        expr = ASTExpression.makeCompoundExpression(_lhs=varExpr, _binaryOperator=op, _rhs=rhsInBrackets,
-                                                    _sourcePosition=_rhs.getSourcePosition())
-        expr.updateScope(_lhs.getScope())
-        # update the symbols
-        ASTSymbolTableVisitor.visitExpression(expr)
-        return expr
-
-    @classmethod
     def getAliasSymbolsFromOdes(cls, _list=list()):
         """"
         For a handed over list this
@@ -230,70 +176,6 @@ class ASTUtils(object):
                 if symbol.isFunction():
                     ret.append(symbol)
         return ret
-
-    @classmethod
-    def isCastableTo(cls, _typeA=None, _typeB=None):
-        """
-        Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
-        a unit where unit is expected is allowed.
-        :param _typeA: a single TypeSymbol
-        :type _typeA: TypeSymbol
-        :param _typeB: a single TypeSymbol
-        :type _typeB: TypeSymbol
-        :return: True if castable, otherwise False
-        :rtype: bool
-        """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
-        assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
-        # we can always cast from unit to real
-        if _typeA.isUnit() and _typeB.isReal():
-            return True
-        elif _typeA.isBoolean() and _typeB.isReal():
-            return True
-        elif _typeA.isReal() and _typeB.isBoolean():
-            return True
-        elif _typeA.isInteger() and _typeB.isReal():
-            return True
-        elif _typeA.isReal() and _typeB.isInteger():
-            return True
-        else:
-            return False
-
-    @classmethod
-    def differsInMagnitude(cls, _typeA=None, _typeB=None):
-        """
-        Indicates whether both type represent the same unit but with different magnitudes. This
-        case is still valid, e.g., mV can be assigned to volt.
-        :param _typeA: a type
-        :type _typeA:  TypeSymbol
-        :param _typeB: a type
-        :type _typeB: TypeSymbol
-        :return: True if both elements equal or differ in magnitude, otherwise False.
-        :rtype: bool
-        """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
-        assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
-        if _typeA.equals(_typeB):
-            return True
-        # in the case that we don't deal with units, there are no magnitudes
-        if not (_typeA.isUnit() and _typeB.isUnit()):
-            return False
-        # if it represents the same unit, if we disregard the prefix and simplify it
-        unitA = _typeA.getUnit().getUnit()
-        unitB = _typeB.getUnit().getUnit()
-        # if isinstance(unitA,)
-        from astropy import units
-        # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unitA, units.PrefixUnit) and isinstance(_typeB, units.PrefixUnit) \
-                and unitA.physical_type == unitB.physical_type:
-            return True
-        return False
 
     @classmethod
     def getAll(cls, _ast=None, _type=None):

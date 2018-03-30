@@ -18,10 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
@@ -51,21 +52,21 @@ class InvariantTypeVisitor(NESTMLVisitor):
     Checks if for each invariant, the type is boolean.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Checks the coco for a declaration.
         :param _declaration: a single declaration.
         :type _declaration: ASTDeclaration
         """
         if _declaration.hasInvariant():
-            invariantType = _declaration.getInvariant().getTypeEither()
-            if invariantType is None or invariantType.isError():
+            invariantType = _declaration.getInvariant().type
+            if invariantType is None or isinstance(invariantType, ErrorTypeSymbol):
                 code, message = Messages.getTypeCouldNotBeDerived(str(_declaration.getInvariant()))
                 Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-            elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
+            elif not invariantType.equals(PredefinedTypes.getBooleanType()):
                 code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
-                                                                      invariantType.getValue())
+                                                                      invariantType)
                 Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

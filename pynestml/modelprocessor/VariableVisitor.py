@@ -21,6 +21,9 @@
 """
 simpleExpression : variable
 """
+from copy import copy
+
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Either import Either
@@ -34,7 +37,7 @@ class VariableVisitor(NESTMLVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         Visits a single variable as contained in a simple expression and derives its type.
         :param _expr: a single simple expression
@@ -48,16 +51,18 @@ class VariableVisitor(NESTMLVisitor):
         scope = _expr.getScope()
         varName = _expr.getVariable().getName()
         varResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
+
         # update the type of the variable according to its symbol type.
         if varResolve is not None:
-            _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
+            _expr.type = varResolve.getTypeSymbol()
+            _expr.type.referenced_object = _expr
         else:
             message = 'Variable ' + str(_expr) + ' could not be resolved!'
             Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
                               _errorPosition=_expr.getSourcePosition(),
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-            _expr.setTypeEither(Either.error('Variable could not be resolved!'))
+            _expr.type = ErrorTypeSymbol()
         return
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         raise Exception("Deprecated method used!")

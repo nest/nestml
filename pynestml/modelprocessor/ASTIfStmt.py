@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTIfClause import ASTIfClause
 from pynestml.modelprocessor.ASTElseClause import ASTElseClause
 from pynestml.modelprocessor.ASTElifClause import ASTElifClause
 
 
-class ASTIfStmt(ASTElement):
+class ASTIfStmt(ASTNode):
     """
     This class is used to store a single if block.
     Grammar:

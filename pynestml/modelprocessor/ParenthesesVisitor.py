@@ -21,8 +21,10 @@
 """
 expression : leftParentheses='(' term=expression rightParentheses=')'
 """
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from copy import copy
+
 from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 
 
 class ParenthesesVisitor(NESTMLVisitor):
@@ -30,13 +32,15 @@ class ParenthesesVisitor(NESTMLVisitor):
     Visits a single expression encapsulated in brackets and updates its type.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression encapsulated in parenthesis and updates its type.
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ParenthesesVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(_expr.getExpression().getTypeEither())
+        inner_type = _expr.getExpression().type
+
+        inner_type.referenced_object = _expr.getExpression()
+
+        _expr.type = inner_type
         return

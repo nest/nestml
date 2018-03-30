@@ -55,7 +55,7 @@ class CurrentTypeSpecifiedVisitor(NESTMLVisitor):
     This visitor ensures that all current buffers are not specified with keywords.
     """
 
-    def visitInputLine(self, _line=None):
+    def visit_input_line(self, _line=None):
         if _line.isCurrent() and _line.hasInputTypes() and len(_line.getInputTypes()) > 0:
             code, message = Messages.getCurrentBufferSpecified(_line.getName(),
                                                                list((str(buf) for buf in _line.getInputTypes())))

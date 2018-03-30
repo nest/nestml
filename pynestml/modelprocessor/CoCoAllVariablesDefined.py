@@ -63,15 +63,15 @@ class CoCoAllVariablesDefined(CoCo):
                 elif not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and \
                                 symbol.getBlockType() != BlockType.INPUT_BUFFER_SPIKE:
                     # except for parameters, those can be defined after
-                    if not symbol.getReferencedObject().getSourcePosition().before(var.getSourcePosition()) and \
+                    if not symbol.referenced_object.getSourcePosition().before(var.getSourcePosition()) and \
                                     symbol.getBlockType() != BlockType.PARAMETERS:
                         code, message = Messages.getVariableUsedBeforeDeclaration(var.getName())
                         Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.getSourcePosition(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
-                    if symbol.getReferencedObject().getSourcePosition().encloses(var.getSourcePosition()) and not \
-                            symbol.getReferencedObject().getSourcePosition().isAddedSourcePosition():
+                    if symbol.referenced_object.getSourcePosition().encloses(var.getSourcePosition()) and not \
+                            symbol.referenced_object.getSourcePosition().isAddedSourcePosition():
                         code, message = Messages.getVariableDefinedRecursively(var.getName())
-                        Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.getReferencedObject().
+                        Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.referenced_object.
                                           getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=_neuron)
         return

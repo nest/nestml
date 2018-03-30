@@ -51,7 +51,7 @@ class VectorInDeclarationVisitor(NESTMLVisitor):
     This visitor checks if somewhere in a declaration of a non-vector value, a vector is used.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Checks the coco.
         :param _declaration: a single declaration.

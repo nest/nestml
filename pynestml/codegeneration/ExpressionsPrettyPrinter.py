@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
+from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
-from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ExpressionsPrettyPrinter(object):
@@ -68,7 +68,10 @@ class ExpressionsPrettyPrinter(object):
         assert (_expr is not None and (isinstance(_expr, ASTSimpleExpression) or isinstance(_expr, ASTExpression))), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of expression provided (%s)!' % type(
                 _expr)
-        return self.__doPrint(_expr)
+        if _expr.getImplicitConversionFactor() is not None:
+            return str(_expr.getImplicitConversionFactor()) + ' * (' + self.__doPrint(_expr) + ')'
+        else:
+            return self.__doPrint(_expr)
 
     def __doPrint(self, _expr=None):
         """

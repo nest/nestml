@@ -17,7 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from abc import ABCMeta, abstractmethod
+from copy import copy
+
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.Symbol import Symbol
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class TypeSymbol(Symbol):
@@ -25,80 +31,42 @@ class TypeSymbol(Symbol):
     This class is used to represent a single type symbol which represents the type of a element, e.g., a variable.
     
         Attributes:
-        __unit              Stores an optional unit used to represent the type of this type symbol.
-        __isInteger         Indicates whether it is an integer typed type symbol.
-        __isReal            Indicates whether it is a real typed type symbol.
-        __isVoid            Indicates whether it is a void typed type symbol.
-        __isBoolean         Indicates whether it is a boolean typed type symbol.
-        __isString          Indicates whether it is a string typed type symbol.
-        __isBuffer          Indicates whether it is a buffer symbol.
+        is_buffer          Indicates whether it is a buffer symbol.
     
     """
-    __unit = None
-    __isInteger = False
-    __isReal = False
-    __isVoid = False
-    __isBoolean = False
-    __isString = False
-    __isBuffer = False
+    __metaclass__ = ABCMeta
+    is_buffer = False
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None,
-                 _unit=None, _isInteger=False, _isReal=False, _isVoid=False,
-                 _isBoolean=False, _isString=False, _isBuffer=False):
+    def is_instance_of(self, _other):
         """
-        Standard constructor.
-        :param _elementReference: a reference to the first element where this type has been used/defined
-        :type _elementReference: Object (or None, if predefined)
-        :param _name: the name of the type symbol
-        :type _name: str
-        :param _scope: the scope in which this type is defined in 
-        :type _scope: Scope
-        :param _unit: a unit object.
-        :type _unit: UnitType
-        :param _isInteger: indicates whether this is an integer symbol type.
-        :type _isInteger: bool
-        :param _isReal: indicates whether this is a  real symbol type.
-        :type _isReal: bool
-        :param _isVoid: indicates whether this is a void symbol type.
-        :type _isVoid: bool
-        :param _isBoolean: indicates whether this is a boolean symbol type.
-        :type _isBoolean: bool
-        :param _isString: indicates whether this is a string symbol type.
-        :type _isString: bool
-        :param _isBuffer: indicates whether this symbol represents a buffer of a certain type, e.g. integer.
+        wrapper around isinstance to make things more readable/intuitive.
+        instance checks abound for all members of the TypeSymbol hierarchy,
+        (specifically the operator functions) though i have tried to
+        limit them to situations that would otherwise have been covered
+        by function overloading in e.g. Java -ptraeder
         """
-        from pynestml.modelprocessor.UnitType import UnitType
+        return isinstance(self, _other)
+
+    @abstractmethod
+    def __init__(self, _name=None):
         from pynestml.modelprocessor.Symbol import SymbolKind
-        assert (_unit is None or isinstance(_unit, UnitType)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided (%s)!' % type(_unit)
-        assert (isinstance(_isInteger, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-integer provided (%s)!' % type(_isInteger)
-        assert (isinstance(_isReal, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-real provided (%s)!' % type(_isReal)
-        assert (isinstance(_isVoid, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-void provided (%s)!' % type(_isVoid)
-        assert (isinstance(_isBoolean, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-boolean provided (%s)!' % type(_isBoolean)
-        assert (isinstance(_isString, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-string provided (%s)!' % type(_isString)
-        assert (isinstance(_isBuffer, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-buffer provided (%s)!' % type(_isBuffer)
-        assert (_unit is not None or _isInteger or _isReal or _isVoid or _isBoolean or _isString), \
-            '(PyNestML.SymbolTable.TypeSymbol) Type of symbol not specified!'
-        assert (_isInteger + _isReal + _isVoid + _isBoolean + _isString + (_unit is not None) == 1), \
-            '(PyNestML.SymbolTable.TypeSymbol) Type of symbol over-specified!'
-        super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
-                                         _name=_name, _symbolKind=SymbolKind.TYPE)
-        self.__unit = _unit
-        self.__isInteger = _isInteger
-        self.__isReal = _isReal
-        self.__isVoid = _isVoid
-        self.__isBoolean = _isBoolean
-        self.__isString = _isString
-        self.__isBuffer = _isBuffer
+        super(TypeSymbol, self).__init__(_referenced_object=None, _scope=None,
+                         _name=_name, _symbolKind=SymbolKind.TYPE)
         return
 
-    def printSymbol(self):
+    @property
+    def nest_type(self):
+        if self.is_buffer:
+            return 'nest::RingBuffer'
+        else:
+            return self._get_concrete_nest_type()
+
+    @abstractmethod
+    def _get_concrete_nest_type(self):
+        pass
+
+    @abstractmethod
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         :return: a string representation.
@@ -116,50 +84,76 @@ class TypeSymbol(Symbol):
             elemType = 'string'
         else:
             elemType = self.getUnit().printUnit()
-        if self.isBuffer():
+        if self.is_buffer:
             elemType += ' buffer'
         return elemType
 
-    def getUnit(self):
-        """
-        Returns the unit of this type symbol
-        :return: a single unit object.
-        :rtype: UnitType
-        """
-        return self.__unit
-
-    def isUnit(self):
-        """
-        Returns whether this type symbol's type is represented by a unit. 
-        :return: True if unit, False otherwise.
-        :rtype: bool
-        """
-        from pynestml.modelprocessor.UnitType import UnitType
-        return self.__unit is not None and isinstance(self.__unit, UnitType)
-
-    def getEncapsulatedUnit(self):
-        """
-        Returns the sympy unit as encapsulated in the unit type object.
-        :return: a single unit in the used type system: currently AstroPy.Units.
-        :rtype: Symbol (AstroPy.Units)
-        """
-        return self.__unit.getUnit()
-
+    @abstractmethod
     def isPrimitive(self):
         """
         Returns whether this symbol represents a primitive type.
         :return: true if primitive, otherwise false.
         :rtype: bool
         """
-        return self.__isString or self.__isBoolean or self.__isVoid or self.__isReal or self.__isInteger
+        pass
 
+    @abstractmethod
     def isNumeric(self):
         """
         Returns whether this symbol represents a numeric type.
         :return: True if numeric, otherwise False.
         :rtype: bool
         """
-        return self.isInteger() or self.isReal() or self.isUnit()
+        # return self.isInteger() or self.isReal() or self.isUnit()
+        pass
+
+    def __mul__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return other
+        self.binary_operation_not_defined_error('*', other)
+
+    def __mod__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return other
+        self.binary_operation_not_defined_error('%', other)
+
+    def __truediv__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return other
+        self.binary_operation_not_defined_error('/', other)
+
+    def __neg__(self):
+        self.unary_operation_not_defined_error('-')
+
+    def __pos__(self):
+        self.unary_operation_not_defined_error('+')
+
+    def __invert__(self):
+        self.unary_operation_not_defined_error('~')
+
+    def __pow__(self, power, modulo=None):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if isinstance(power, ErrorTypeSymbol):
+            return power
+        self.binary_operation_not_defined_error('**', power)
+
+    def negate(self):
+        self.unary_operation_not_defined_error('not ')
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return other
+        self.binary_operation_not_defined_error('+', other)
+
+    def __sub__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return other
+        self.binary_operation_not_defined_error('-', other)
 
     def isNumericPrimitive(self):
         """
@@ -167,64 +161,7 @@ class TypeSymbol(Symbol):
         :return: True if numeric primitive, otherwise False.
         :rtype: bool
         """
-        return self.isInteger() or self.isReal()
-
-    def isInteger(self):
-        """
-        Indicates whether this is an integer typed symbol.
-        :return: True if integer, otherwise False.
-        :rtype: bool
-        """
-        return self.__isInteger
-
-    def isReal(self):
-        """
-        Indicates whether this is a real typed symbol.
-        :return: True if real, otherwise False.
-        :rtype: bool
-        """
-        return self.__isReal
-
-    def isVoid(self):
-        """
-        Indicates whether this is a real typed symbol.
-        :return: True if void, otherwise False.
-        :rtype: bool
-        """
-        return self.__isVoid
-
-    def isBoolean(self):
-        """
-        Indicates whether this is a boolean typed symbol.
-        :return: True if boolean, otherwise False.
-        :rtype: bool
-        """
-        return self.__isBoolean
-
-    def isString(self):
-        """
-        Indicates whether this is a string typed symbol.
-        :return: True if string, otherwise False.
-        :rtype: bool
-        """
-        return self.__isString
-
-    def isBuffer(self):
-        """
-        Indicates whether this is a buffer symbol.
-        :return: True if buffer, otherwise False.
-        :rtype: bool
-        """
-        return self.__isBuffer
-
-    def setBuffer(self, _isBuffer=None):
-        """
-        Indicates whether this is a buffer object or not.
-        :param _isBuffer: True if object shall be buffer, otherwise False.
-        :type _isBuffer: bool
-        """
-        self.__isBuffer = _isBuffer
-        return
+        return self.isNumeric() and self.isPrimitive()
 
     def equals(self, _other=None):
         """
@@ -234,22 +171,83 @@ class TypeSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, TypeSymbol):
+        if isinstance(_other, self.__class__) and isinstance(self, _other.__class__):
+            return self.is_buffer == _other.is_buffer
+
+        return False
+
+    def differs_only_in_magnitude_or_is_equal_to(self, _otherType=None):
+        """
+        Indicates whether both type represent the same unit but with different magnitudes. This
+        case is still valid, e.g., mV can be assigned to volt.
+        :param _typeA: a type
+        :type _typeA:  TypeSymbol
+        :param _otherType: a type
+        :type _otherType: TypeSymbol
+        :return: True if both elements equal or differ in magnitude, otherwise False.
+        :rtype: bool
+        """
+        assert (_otherType is not None and isinstance(_otherType, TypeSymbol)), \
+            '(NESTML.TypeSymbol) No or wrong type of target type provided (%s)!' % type(_otherType)
+
+        if self.equals(_otherType):
+            return True
+        # in the case that we don't deal with units, there are no magnitudes
+        from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+        if not (isinstance(self, UnitTypeSymbol) and isinstance(_otherType, UnitTypeSymbol)):
             return False
+        # if it represents the same unit, if we disregard the prefix and simplify it
+        unitA = self.astropy_unit
+        unitB = _otherType.astropy_unit
+        # if isinstance(unitA,)
+        from astropy import units
+        # TODO: consider even more complex cases which can be resolved to the same unit?
+        if (isinstance(unitA, units.Unit) or isinstance(unitA, units.PrefixUnit) or isinstance(unitA,
+                                                                                               units.CompositeUnit)) \
+                and (isinstance(unitB, units.Unit) or isinstance(unitB, units.PrefixUnit) or isinstance(unitB,
+                                                                                                        units.CompositeUnit)) \
+                and unitA.physical_type == unitB.physical_type:
+            return True
+        return False
 
-        # deferr comparison of units to sympy library
-        if self.isUnit() and _other.isUnit():
-            selfUnit = self.getEncapsulatedUnit()
-            otherUnit = _other.getEncapsulatedUnit()
-            return selfUnit == otherUnit
+    @abstractmethod
+    def is_castable_to(self, _other_type):
+        """
+        Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
+        a unit where unit is expected is allowed.
+        :return: True if castable, otherwise False
+        :rtype: bool
+        """
+        pass
 
-        return self.isInteger() == _other.isInteger() and \
-               self.isReal() == _other.isReal() and \
-               self.isVoid() == _other.isVoid() and \
-               self.isBoolean() == _other.isBoolean() and \
-               self.isString() == _other.isString() and \
-               self.isBuffer() == _other.isBuffer() and \
-               (self.getUnit().equals(_other.getUnit()) if self.isUnit() and _other.isUnit() else True) and \
-               self.getReferencedObject() == _other.getReferencedObject() and \
-               self.getSymbolName() == _other.getSymbolName() and \
-               self.getCorrespondingScope() == _other.getCorrespondingScope()
+    def binary_operation_not_defined_error(self, _operator, _other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        result = ErrorTypeSymbol()
+        code, message = Messages.get_binary_operation_not_defined(_lhs=self, _operator=_operator, _rhs=_other)
+        Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.ERROR)
+        return result
+
+    def unary_operation_not_defined_error(self, _operator):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        result = ErrorTypeSymbol()
+        code, message = Messages.get_unary_operation_not_defined(_operator,
+                                                                 self.print_symbol())
+        Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.ERROR)
+        return result
+
+    def inverse_of_unit(self, _other):
+        """
+        :param other: the unit to invert
+        :type other: UnitTypeSymbol
+        :return: UnitTypeSymbol
+        """
+        result = PredefinedTypes.getTypeIfExists(1 / _other.astropy_unit)
+        return result
+
+    def warn_implicit_cast_from_to(self, _from, _to):
+        code, message = Messages.getImplicitCastRhsToLhs(_to.print_symbol(), _from.print_symbol())
+        Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.WARNING)
+        return _to

@@ -47,7 +47,7 @@ class FunctionRhsVisitor(NESTMLVisitor):
     This visitor ensures that everything declared as function has a rhs.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Checks if the coco applies.
         :param _declaration: a single declaration.

@@ -51,7 +51,7 @@ class FunctionMaxOneLhs(NESTMLVisitor):
     This visitor ensures that every function has exactly one lhs.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Checks the coco.
         :param _declaration: a single declaration.

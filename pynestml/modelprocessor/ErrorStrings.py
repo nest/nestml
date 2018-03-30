@@ -49,7 +49,7 @@ class ErrorStrings(object):
         from pynestml.modelprocessor.DotOperatorVisitor import DotOperatorVisitor
         if isinstance(_origin, DotOperatorVisitor):
             return "SPL_DOT_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.LineOperationVisitor import LineOperatorVisitor
+        from pynestml.modelprocessor.LineOperatorVisitor import LineOperatorVisitor
         if isinstance(_origin, LineOperatorVisitor):
             return "SPL_LINE_OPERATOR_VISITOR"
         from pynestml.modelprocessor.NoSemantics import NoSemantics
@@ -104,6 +104,74 @@ class ErrorStrings(object):
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
         ERROR_MSG_FORMAT = "Cannot determine the type of the expression: " + _expressionText
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+
+    @classmethod
+    def messageImplicitMagnitudeConversion(cls, _origin, _parentNode=None):
+        """
+        construct an warning for implicit conversion from _parentExpressen.rhs to _parentExpression.lhs
+        :param _origin: the class dropping the warning
+        :param _parentNode: the addition,substraction or assignment that requires implicit conversion
+        :type: an ASTExpression that is either an Addition or a Substraction for wich an implicit conversion has already been determined
+        :return: the warning message
+        """
+
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.modelprocessor.ASTAssignment import ASTAssignment
+        from pynestml.modelprocessor.Symbol import SymbolKind
+
+        assert _origin is not None
+        assert _parentNode is not None and (
+            isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
+
+        targetExpression = None
+        targetUnit = None
+        converteeExpression = None
+        convertee_unit = None
+        operation = None;
+
+        if (isinstance(_parentNode, ASTExpression)):
+            # code duplication from ExpressionTypeVisitor:
+            # Rules with binary operators
+            if _parentNode.getBinaryOperator() is not None:
+                binOp = _parentNode.getBinaryOperator()
+                # All these rules employ left and right side expressions.
+                if _parentNode.getLhs() is not None:
+                    targetExpression = _parentNode.getLhs()
+                    targetUnit = targetExpression.type.astropy_unit
+                if _parentNode.getRhs() is not None:
+                    converteeExpression = _parentNode.getRhs()
+                    convertee_unit = converteeExpression.type.astropy_unit
+                # Handle all Arithmetic Operators:
+                if isinstance(binOp, ASTArithmeticOperator):
+                    # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
+                    if binOp.isPlusOp():
+                        operation = "+"
+                    if binOp.isMinusOp():
+                        operation = "-"
+
+        if (isinstance(_parentNode, ASTAssignment)):
+            lhsVariableSymbol = _parentNode.getScope().resolveToSymbol(_parentNode.getVariable().getCompleteName(),
+                                                                       SymbolKind.VARIABLE)
+            operation = "="
+            targetExpression = _parentNode.getVariable()
+            targetUnit = lhsVariableSymbol.getTypeSymbol().astropy_unit
+            converteeExpression = _parentNode.getExpression()
+            convertee_unit = converteeExpression.type.astropy_unit
+
+        assert targetExpression is not None and converteeExpression is not None and \
+               operation is not None, "Only call this on an addition/subtraction  or assignment after " \
+                                      "an implicit conversion wrt unit magnitudes has already been determined"
+
+        ERROR_MSG_FORMAT = "Non-matching unit types at '" + str(_parentNode)
+        ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs"
+        ERROR_MSG_FORMAT += " (units: " + str(convertee_unit) + " and " + \
+                            str(targetUnit) + " )"
+        ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation \
+                            + converteeExpression.printImplicitVersion() + "'"
+
+        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" \
+               + str(_parentNode.getSourcePosition()) + ")"
 
     @classmethod
     def messageUnitBase(cls, _origin=None, _sourcePosition=None):
@@ -166,7 +234,7 @@ class ErrorStrings(object):
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
 
     @classmethod
-    def messageTypeMismatch(cls, _origin=None, _mismatchText=None, _sourcePosition=None):
+    def messageTypeMismatch(cls, _origin=None, _mismatchText=None):
         """
         construct an error message indicating that an expected int value was not found
         :param _origin: the class reporting the error
@@ -179,9 +247,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _mismatchText is not None and isinstance(_mismatchText, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
         ERROR_MSG_FORMAT = "Operation not defined: " + _mismatchText
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT
 
     @classmethod
     def messageAddSubTypeMismatch(cls, _origin=None, _lhsTypeText=None, _rhsTypeText=None, _resultTypeText=None,

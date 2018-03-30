@@ -22,12 +22,9 @@
 Expr = unaryOperator term=expression
 unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
-from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
+
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 
 
 class UnaryVisitor(NESTMLVisitor):
@@ -35,7 +32,7 @@ class UnaryVisitor(NESTMLVisitor):
     Visits an expression consisting of a unary operator, e.g., -, and a sub-expression.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single unary operator and updates the type of the corresponding expression.
         :param _expr: a single expression
@@ -44,37 +41,18 @@ class UnaryVisitor(NESTMLVisitor):
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
             '(PyNestML.Visitor.UnaryVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
 
-        termTypeE = _expr.getExpression().getTypeEither()
+        term_type = _expr.getExpression().type
 
-        if termTypeE.isError():
-            _expr.setTypeEither(termTypeE)
+        unary_op = _expr.getUnaryOperator()
+
+        term_type.referenced_object = _expr.getExpression()
+
+        if unary_op.isUnaryMinus():
+            _expr.type = -term_type
             return
-
-        termType = termTypeE.getValue()
-        unaryOp = _expr.getUnaryOperator()
-        # unaryOp exists if we get into this visitor but make sure:
-        assert unaryOp is not None and isinstance(unaryOp, ASTUnaryOperator)
-
-        if unaryOp.isUnaryMinus() or unaryOp.isUnaryPlus():
-            if termType.isNumeric():
-                _expr.setTypeEither(Either.value(termType))
-                return
-            else:
-                errorMsg = ErrorStrings.messageNonNumericType(self, termType.printSymbol(), _expr.getSourcePosition())
-                _expr.setTypeEither(Either.error(errorMsg))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-                return
-        elif unaryOp.isUnaryTilde():
-            if termType.isInteger():
-                _expr.setTypeEither(Either.value(termType))
-                return
-            else:
-                errorMsg = ErrorStrings.messageNonNumericType(self, termType.printSymbol(), _expr.getSourcePosition())
-                _expr.setTypeEither(Either.error(errorMsg))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-                return
-        # Catch-all if no case has matched
-        errorMsg = ErrorStrings.messageTypeError(self, str(_expr), _expr.getSourcePosition())
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-        _expr.setTypeEither(Either.error(errorMsg))
-        return
+        if unary_op.isUnaryPlus():
+            _expr.type = +term_type
+            return
+        if unary_op.isUnaryTilde():
+            _expr.type = ~term_type
+            return

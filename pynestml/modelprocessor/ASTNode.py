@@ -22,7 +22,7 @@ from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.Scope import Scope
 
 
-class ASTElement(object):
+class ASTNode(object):
     """
     This class is not a part of the grammar but is used to store commonalities of all possible ast classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.
@@ -32,9 +32,12 @@ class ASTElement(object):
     __scope = None
     __comment = None
 
-    def __init__(self, _sourcePosition=None, _scope=None):
+    _implicitConversionFactor = None
+
+    def __init__(self, _sourcePosition = None, _scope = None):
         """
         The standard constructor.
+        :rtype: None
         :param _sourcePosition: a source position element.
         :type _sourcePosition: ASTSourcePosition
         :param _scope: the scope in which this element is embedded in.
@@ -49,6 +52,33 @@ class ASTElement(object):
         self.__sourcePosition = _sourcePosition
         self.__scope = _scope
         return
+
+    def setImplicitConversionFactor(self, _implicitFactor=None):
+        """
+        Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the context where
+        it is used. eg. Volt + milliVolt needs to either be 1000*Volt + milliVolt or Volt + 0.001 * milliVolt
+        :param _implicitFactor: the factor to be installed
+        :type _implicitFactor: float
+        :return: nothing
+        """
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+
+        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
+        self._implicitConversionFactor = _implicitFactor
+        return
+
+    def getImplicitConversionFactor(self):
+        """
+        Returns the factor installed as implicitConversionFactor for this expression
+        :return: the conversion factor, if present, or None
+        """
+
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+
+        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
+        return self._implicitConversionFactor
 
     def getSourcePosition(self):
         """
@@ -135,6 +165,7 @@ class ASTElement(object):
                    ('\n' if self.getComment().index(comment) < len(self.getComment()) - 1 else '')
         return ret
 
+    # todo: we can do this with a visitor instead of hard coding grammar traversals all over the place
     @abstractmethod
     def getParent(self, _ast=None):
         """

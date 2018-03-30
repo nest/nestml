@@ -19,13 +19,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTDatatype import ASTDatatype
 
 
-class ASTDeclaration(ASTElement):
+class ASTDeclaration(ASTNode):
     """
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:

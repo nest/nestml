@@ -66,16 +66,16 @@ class CoCoVariableOncePerScope(CoCo):
                                 sym2 not in checked:
                     if sym1.isPredefined():
                         code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), True)
-                        Logger.logMessage(_errorPosition=sym2.getReferencedObject().getSourcePosition(),
+                        Logger.logMessage(_errorPosition=sym2.referenced_object.getSourcePosition(),
                                           _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
                     elif sym2.isPredefined():
                         code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), True)
-                        Logger.logMessage(_errorPosition=sym1.getReferencedObject().getSourcePosition(),
+                        Logger.logMessage(_errorPosition=sym1.referenced_object.getSourcePosition(),
                                           _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
-                    elif sym1.getReferencedObject().getSourcePosition().before(
-                            sym2.getReferencedObject().getSourcePosition()):
+                    elif sym1.referenced_object.getSourcePosition().before(
+                            sym2.referenced_object.getSourcePosition()):
                         code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), False)
-                        Logger.logMessage(_errorPosition=sym2.getReferencedObject().getSourcePosition(),
+                        Logger.logMessage(_errorPosition=sym2.referenced_object.getSourcePosition(),
                                           _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
             checked.append(sym1)
         for scope in _scope.getScopes():

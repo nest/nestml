@@ -23,11 +23,10 @@ expression : <assoc=right> left=expression powOp='**' right=expression
 """
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 
 
 class PowVisitor(NESTMLVisitor):
@@ -35,62 +34,34 @@ class PowVisitor(NESTMLVisitor):
     Visits a single power expression and updates its types accordingly.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single power expression and updates the types.
         :param _expr: a single expression.
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.PowVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        baseTypeE = _expr.getLhs().getTypeEither()
-        exponentTypeE = _expr.getRhs().getTypeEither()
+        base_type = _expr.getLhs().type
+        exponent_type = _expr.getRhs().type
 
-        if baseTypeE.isError():
-            _expr.setTypeEither(baseTypeE)
+        base_type.referenced_object = _expr.getLhs()
+        exponent_type.referenced_object = _expr.getRhs()
+
+        if base_type.is_instance_of(UnitTypeSymbol):
+            _expr.type = self.try_to_calculate_resulting_unit(_expr)
+            return
+        else:
+            _expr.type = base_type ** exponent_type
             return
 
-        if exponentTypeE.isError():
-            _expr.setTypeEither(exponentTypeE)
-            return
+    def try_to_calculate_resulting_unit(self, _expr):
+        base_type = _expr.getLhs().type
+        exponent_numeric_value_either = self.calculate_numeric_value(_expr.getRhs())
+        if exponent_numeric_value_either.isValue():
+            return base_type ** exponent_numeric_value_either.getValue()
+        else:
+            return base_type ** None
 
-        baseType = baseTypeE.getValue()
-        exponentType = exponentTypeE.getValue()
-
-        if baseType.isNumeric() and exponentType.isNumeric():
-            if baseType.isInteger() and exponentType.isInteger():
-                _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
-                return
-            elif baseType.isUnit():
-                # exponents to units MUST be integer and calculable at time of analysis.
-                # Otherwise resulting unit is undefined
-                if not exponentType.isInteger():
-                    errorMsg = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
-                    _expr.setTypeEither(Either.error(errorMsg))
-                    Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-                    return
-                baseUnit = baseType.getEncapsulatedUnit()
-                # TODO the following part is broken @ptraeder?
-                exponentValue = self.calculateNumericValue(
-                    _expr.getRhs())  # calculate exponent value if exponent composed of literals
-                if exponentValue.isValue():
-                    _expr.setTypeEither(
-                        Either.value(PredefinedTypes.getTypeIfExists(baseUnit ** exponentValue.getValue())))
-                    return
-                else:
-                    errorMsg = exponentValue.getError()
-                    _expr.setTypeEither(Either.error(errorMsg))
-                    Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-                    return
-            else:
-                _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
-                return
-        # Catch-all if no case has matched
-        errorMsg = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
-        _expr.setTypeEither(Either.error(errorMsg))
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-
-    def calculateNumericValue(self, _expr=None):
+    def calculate_numeric_value(self, _expr=None):
         """
         Calculates the numeric value of a exponent.
         :param _expr: a single expression
@@ -100,18 +71,18 @@ class PowVisitor(NESTMLVisitor):
         """
         # TODO write tests for this by PTraeder
         if isinstance(_expr, ASTExpression) and _expr.isEncapsulated():
-            return self.calculateNumericValue(_expr.getExpr())
+            return self.calculate_numeric_value(_expr.getExpression())
         elif isinstance(_expr, ASTSimpleExpression) and _expr.getNumericLiteral() is not None:
             if isinstance(_expr.getNumericLiteral(), int):
                 literal = _expr.getNumericLiteral()
                 return Either.value(literal)
             else:
-                errorMessage = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
-                return Either.error(errorMessage)
+                error_message = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
+                return Either.error(error_message)
         elif _expr.isUnaryOperator() and _expr.getUnaryOperator().isUnaryMinus():
-            term = self.calculateNumericValue(_expr.getExpression)
+            term = self.calculate_numeric_value(_expr.getExpression())
             if term.isError():
                 return term
             return Either.value(-term.getValue())
-        errorMessage = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition)
-        return Either.error(errorMessage)
+        error_message = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition())
+        return Either.error(error_message)

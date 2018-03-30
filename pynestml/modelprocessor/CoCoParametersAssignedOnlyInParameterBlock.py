@@ -62,7 +62,7 @@ class ParametersAssignmentVisitor(NESTMLVisitor):
     This visitor checks that no parameters have been assigned outside the parameters block.
     """
 
-    def visitAssignment(self, _assignment=None):
+    def visit_assignment(self, _assignment=None):
         """
         Checks the coco on the current node.
         :param _assignment: a single assignment.

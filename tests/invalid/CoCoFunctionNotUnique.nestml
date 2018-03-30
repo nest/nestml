@@ -32,7 +32,7 @@ neuron CoCoFunctionNotUnique:
     end
 
     function deltaBoolean(Tau_a ms,Tau_b ms) boolean:
-        test real = 1
+        test string = "bl"
         return test # here wrong type of return should be detected
     end
 

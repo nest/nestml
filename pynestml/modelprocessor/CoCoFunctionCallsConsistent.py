@@ -17,13 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Messages import Messages
-from pynestml.modelprocessor.CoCo import CoCo
-from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.TypeCaster import TypeCaster
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoFunctionCallsConsistent(CoCo):
@@ -52,7 +53,7 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
     This visitor ensures that all function calls are consistent.
     """
 
-    def visitFunctionCall(self, _functionCall=None):
+    def visit_function_call(self, _functionCall=None):
         """
         Checks the coco.
         :param _functionCall: a single function call.
@@ -80,24 +81,12 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
             actualTypes = _functionCall.getArgs()
             for i in range(0, len(actualTypes)):
                 expectedType = expectedTypes[i]
-                actualType = actualTypes[i].getTypeEither()
-                if actualType.isError():
+                actual_type = actualTypes[i].type
+                if isinstance(actual_type, ErrorTypeSymbol):
                     code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i])
                     Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=actualTypes[i].getSourcePosition())
-                elif not actualType.getValue().equals(expectedType):
-                    if ASTUtils.isCastableTo(actualType.getValue(), expectedType):
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
-                                                                             _expectedType=expectedType,
-                                                                             _gotType=actualType, _castable=True)
-
-                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
-                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-                    else:
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
-                                                                             _expectedType=expectedType,
-                                                                             _gotType=actualType, _castable=False)
-
-                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
-                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                    return
+                if not actual_type.equals(expectedType):
+                    TypeCaster.try_to_recover_or_error(expectedType, actual_type, actualTypes[i])
         return

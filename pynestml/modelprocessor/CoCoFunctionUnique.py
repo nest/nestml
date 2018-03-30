@@ -49,17 +49,17 @@ class CoCoFunctionUnique(CoCo):
                             if funcA is not funcB and funcB not in checked:
                                 if funcA.isPredefined():
                                     code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
-                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().getSourcePosition(),
+                                    Logger.logMessage(_errorPosition=funcB.referenced_object.getSourcePosition(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                                 elif funcB.isPredefined():
                                     code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
-                                    Logger.logMessage(_errorPosition=funcA.getReferencedObject().getSourcePosition(),
+                                    Logger.logMessage(_errorPosition=funcA.referenced_object.getSourcePosition(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                                 else:
                                     code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), False)
-                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().getSourcePosition(),
+                                    Logger.logMessage(_errorPosition=funcB.referenced_object.getSourcePosition(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                         checked.append(funcA)

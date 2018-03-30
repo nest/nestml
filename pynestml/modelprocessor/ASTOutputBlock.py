@@ -19,11 +19,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTNode import ASTNode
 from enum import Enum
 
 
-class ASTOutputBlock(ASTElement):
+class ASTOutputBlock(ASTNode):
     """
     This class is used to store output buffer declarations.
     ASTOutput represents the output block of the neuron:
