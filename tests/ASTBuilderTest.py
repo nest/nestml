@@ -57,7 +57,7 @@ class ASTBuildingTest(unittest.TestCase):
                 # parse the file
                 parser = PyNestMLParser(stream)
                 # process the comments
-                compilation_unit = parser.nestmlCompilationUnit()
+                compilation_unit = parser.nestMLCompilationUnit()
                 # now build the ast
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)

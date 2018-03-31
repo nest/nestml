@@ -104,7 +104,7 @@ grammar PyNESTML{
     /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
       *@attribute neuron: A list of processed models.
       */
-    NestmlCompilationUnit = (Neuron | NEWLINE)* EOF;
+    NestMLCompilationUnit = (Neuron | NEWLINE)* EOF;
 
     /** ASTNeuron Represents a single neuron.
       @attribute Name:    The name of the neuron, e.g., ht_neuron.

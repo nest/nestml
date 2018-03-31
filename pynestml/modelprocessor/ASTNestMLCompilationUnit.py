@@ -40,7 +40,7 @@ class ASTNESTMLCompilationUnit(ASTNode):
         :type _artifactName: str
         """
         assert (_artifactName is not None and isinstance(_artifactName, str)), \
-            '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
+            '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
                 _artifactName)
         super(ASTNESTMLCompilationUnit, self).__init__(_sourcePosition)
         self.__neuronList = list()

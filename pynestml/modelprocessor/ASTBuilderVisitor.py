@@ -21,6 +21,7 @@ import re
 import ntpath
 from antlr4 import *
 
+from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
@@ -32,7 +33,7 @@ from pynestml.modelprocessor.ASTSignalType import ASTSignalType
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
-class ASTBuilderVisitor(ParseTreeVisitor):
+class ASTBuilderVisitor(PyNestMLVisitor):
     """
     This class is used to create an internal representation of the model by means of an abstract syntax tree.
     """
@@ -42,7 +43,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         self.__comments = CommentCollectorVisitor(tokens)
 
     # Visit a parse tree produced by PyNESTMLParser#nestmlCompilationUnit.
-    def visitNestmlCompilationUnit(self, ctx):
+    def visitNestMLCompilationUnit(self, ctx):
         # now process the actual model
         neurons = list()
         for child in ctx.neuron():
@@ -394,7 +395,13 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         variable = str(ctx.NAME()) if ctx.NAME() is not None else None
         start_from = self.visit(ctx.start_from) if ctx.start_from is not None else None
         end_at = self.visit(ctx.end_at) if ctx.end_at is not None else None
-        step = self.visit(ctx.step) if ctx.step is not None else None
+        step_scalar = -1 if ctx.negative is not None else 1
+        if ctx.INTEGER() is not None:
+            value = int(str(ctx.INTEGER()))
+        else:
+            value = float(str(ctx.FLOAT()))
+
+        step = step_scalar * value
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         return ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=start_from, end_at=end_at, step=step,
                                                   block=block, source_position=create_source_pos(ctx))
@@ -404,18 +411,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         return ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=create_source_pos(ctx))
-
-    # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
-    def visitSignedNumericLiteral(self, ctx):
-        is_neg = True if ctx.negative is not None else False
-        if ctx.INTEGER() is not None:
-            value = int(str(ctx.INTEGER()))
-        else:
-            value = float(str(ctx.FLOAT()))
-        if is_neg:
-            return -value
-        else:
-            return value
 
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitNeuron(self, ctx):

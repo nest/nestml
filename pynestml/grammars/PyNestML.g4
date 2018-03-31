@@ -179,23 +179,22 @@ grammar PyNestML;
 
   elseClause : 'else' BLOCK_OPEN block;
 
-  forStmt : 'for' var=NAME 'in' start_from=expression '...' end_at=expression 'step' step=signedNumericLiteral
+  forStmt : 'for' var=NAME 'in' start_from=expression '...' end_at=expression 'step'
+            (negative='-'?) (INTEGER|FLOAT)
             BLOCK_OPEN
              block
             BLOCK_CLOSE;
 
   whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
 
-  signedNumericLiteral : (negative='-'?) (INTEGER|FLOAT);
-
   /*********************************************************************************************************************
   * NestML-Language
   *********************************************************************************************************************/
 
-  /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
+  /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestmlCompilationUnit: (neuron | NEWLINE )* EOF;
+  nestMLCompilationUnit: (neuron | NEWLINE )* EOF;
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.

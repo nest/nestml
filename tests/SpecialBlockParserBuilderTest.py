@@ -61,7 +61,7 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
         # parse the file
         parser = PyNestMLParser(stream)
         # print('done')
-        compilation_unit = parser.nestmlCompilationUnit()
+        compilation_unit = parser.nestMLCompilationUnit()
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
         # print('done')

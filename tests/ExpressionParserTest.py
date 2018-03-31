@@ -61,7 +61,7 @@ class ExpressionParsingTest(unittest.TestCase):
         stream.fill()
         # parse the file
         parser = PyNestMLParser(stream)
-        compilation_unit = parser.nestmlCompilationUnit()
+        compilation_unit = parser.nestMLCompilationUnit()
         # print('done')
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)

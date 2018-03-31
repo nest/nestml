@@ -135,13 +135,8 @@ class PyNestMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#signedNumericLiteral.
-    def visitSignedNumericLiteral(self, ctx):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#nestmlCompilationUnit.
-    def visitNestmlCompilationUnit(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#nestMLCompilationUnit.
+    def visitNestMLCompilationUnit(self, ctx):
         return self.visitChildren(ctx)
 
 
