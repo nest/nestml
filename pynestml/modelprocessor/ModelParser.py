@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import copy
+
 from antlr4 import *
 
 from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
@@ -68,6 +70,7 @@ class ModelParser(object):
         ast = astBuilderVisitor.visit(compilationUnit)
         # create and update the corresponding symbol tables
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
+        log_to_restore = copy.deepcopy(Logger.getLog())
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.ASTSymbolTableVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
@@ -97,7 +100,7 @@ class ModelParser(object):
         for ode_variable in restore_differential_order:
             ode_variable.set_differential_order(1)
 
-        #Logger.initLogger(Logger.get_current_logging_level())
+        Logger.set_log(log_to_restore)
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.ASTSymbolTableVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())

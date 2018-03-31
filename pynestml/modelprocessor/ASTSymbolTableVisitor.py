@@ -17,17 +17,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.Scope import Scope, ScopeType
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.FunctionSymbol import FunctionSymbol
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.Scope import Scope, ScopeType
+from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
-from pynestml.modelprocessor.FunctionSymbol import FunctionSymbol
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 
 
 class ASTSymbolTableVisitor(NESTMLVisitor):
@@ -933,13 +933,12 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         :param _inputLines: a set of input buffers.
         :type _inputLines: ASTInputLine
         """
-        from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         from pynestml.modelprocessor.Symbol import SymbolKind
         # this is the updated version, where nS buffers are marked as conductance based
         for bufferDeclaration in _inputLines:
             if bufferDeclaration.isSpike():
                 symbol = bufferDeclaration.getScope().resolveToSymbol(bufferDeclaration.getName(), SymbolKind.VARIABLE)
-                if symbol is not None and symbol.getTypeSymbol().equals(PredefinedTypes.getTypeIfExists('nS')):
+                if symbol is not None and symbol.getTypeSymbol().print_symbol().startswith('nS'):
                     symbol.setConductanceBased(True)
         return
 

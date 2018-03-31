@@ -87,7 +87,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         Logger.setCurrentNeuron(model.getNeuronList()[0])
         expressionTestVisitor().handle(model)
         Logger.setCurrentNeuron(None)
-        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 2)
+        self.assertEqual(2, len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)))
 
 
 if __name__ == '__main__':

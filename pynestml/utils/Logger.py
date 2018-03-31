@@ -60,6 +60,7 @@ class Logger(object):
         cls.__log = {}
         return
 
+
     @classmethod
     def getLog(cls):
         """
@@ -68,6 +69,14 @@ class Logger(object):
         :rtype: dict(int->neuron,level,str)
         """
         return cls.__log
+
+    @classmethod
+    def set_log(cls, log):
+        """
+        Restores log from the 'log' varialbe
+        :param log:
+        """
+        cls.__log = log
 
     @classmethod
     def logMessage(cls, _neuron=None, _code=None, _message=None, _errorPosition=None, _logLevel=None):

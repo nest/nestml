@@ -68,4 +68,4 @@ class UnitConverter(object):
         factor = 1.0
         for i in range(0, len(_unit.bases)):
             factor *= cls.getFactor(_unit.bases[i]) ** _unit.powers[i]
-        return factor
+        return 1.0  # factor
