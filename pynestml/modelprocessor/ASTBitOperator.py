@@ -34,11 +34,11 @@ class ASTBitOperator(ASTNode):
     __isBitShiftRight = False
 
     def __init__(self, _isBitAnd=False, _isBitXor=False, _isBitOr=False, _isBitShiftLeft=False, _isBitShiftRight=False,
-                 _sourcePosition=None):
+                 source_position=None):
         """
         Standard constructor.
         :param_sourcePosition: the position of the element in the source
-        :type _sourcePosition: ASTSourcePosition
+        :type source_position: ASTSourcePosition
         :param _isBitAnd: is bit and operator.
         :type _isBitAnd: bool
         :param _isBitXor: is bit xor operator.
@@ -62,7 +62,7 @@ class ASTBitOperator(ASTNode):
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-right provided (%s)!' % type(_isBitShiftRight)
         assert ((_isBitAnd + _isBitOr + _isBitXor + _isBitShiftLeft + _isBitShiftRight) == 1), \
             '(PyNestML.AST.BitOperator) Bit operator not correctly specified!'
-        super(ASTBitOperator, self).__init__(_sourcePosition)
+        super(ASTBitOperator, self).__init__(source_position)
         self.__isBitShiftRight = _isBitShiftRight
         self.__isBitShiftLeft = _isBitShiftLeft
         self.__isBitOr = _isBitOr

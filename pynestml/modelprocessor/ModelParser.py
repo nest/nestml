@@ -104,10 +104,10 @@ class ModelParser(object):
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
         # create and update the corresponding symbol tables
-        SymbolTable.initializeSymbolTable(ast.getSourcePosition())
-        for neuron in ast.getNeuronList():
+        SymbolTable.initializeSymbolTable(ast.get_source_position())
+        for neuron in ast.get_neuron_list():
             ASTSymbolTableVisitor.updateSymbolTable(neuron)
-            SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
+            SymbolTable.addNeuronScope(neuron.getName(), neuron.get_scope())
         return ast
 
     @classmethod
@@ -427,4 +427,4 @@ def tokenize(string):
 
 
 def log_set_added_source_position(node):
-    node.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+    node.set_source_position(ASTSourcePosition.getAddedSourcePosition())

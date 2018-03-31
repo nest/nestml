@@ -46,7 +46,7 @@ class ASTSmallStmt(ASTNode):
     __returnStmt = None
 
     def __init__(self, _assignment=None, _functionCall=None, _declaration=None, _returnStmt=None,
-                 _sourcePosition=None):
+                 source_position=None):
         """
         Standard constructor.
         :param _assignment: an ast-assignment object.
@@ -57,7 +57,7 @@ class ASTSmallStmt(ASTNode):
         :type _declaration: ASTDeclaration
         :param _returnStmt: an ast-return statement object.
         :type _returnStmt: ASTReturnStmt
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_assignment is None or isinstance(_assignment, ASTAssignment)), \
@@ -68,7 +68,7 @@ class ASTSmallStmt(ASTNode):
             '(PyNestML.AST.SmallStmt) Wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_returnStmt is None or isinstance(_returnStmt, ASTReturnStmt)), \
             '(PyNestML.AST.SmallStmt) Wrong type of return statement provided (%s)!' % type(_returnStmt)
-        super(ASTSmallStmt, self).__init__(_sourcePosition)
+        super(ASTSmallStmt, self).__init__(source_position)
         self.__assignment = _assignment
         self.__functionCall = _functionCall
         self.__declaration = _declaration

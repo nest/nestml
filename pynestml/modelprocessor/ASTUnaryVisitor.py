@@ -60,7 +60,7 @@ class ASTUnaryVisitor(ASTVisitor):
                 _expr.setTypeEither(Either.value(term_type))
                 return
             else:
-                error_msg = ErrorStrings.messageNonNumericType(self, term_type.printSymbol(), _expr.getSourcePosition())
+                error_msg = ErrorStrings.messageNonNumericType(self, term_type.printSymbol(), _expr.get_source_position())
                 _expr.setTypeEither(Either.error(error_msg))
                 Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
                 return
@@ -69,12 +69,12 @@ class ASTUnaryVisitor(ASTVisitor):
                 _expr.setTypeEither(Either.value(term_type))
                 return
             else:
-                error_msg = ErrorStrings.messageNonNumericType(self, term_type.printSymbol(), _expr.getSourcePosition())
+                error_msg = ErrorStrings.messageNonNumericType(self, term_type.printSymbol(), _expr.get_source_position())
                 _expr.setTypeEither(Either.error(error_msg))
                 Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
                 return
         # Catch-all if no case has matched
-        error_msg = ErrorStrings.messageTypeError(self, str(_expr), _expr.getSourcePosition())
+        error_msg = ErrorStrings.messageTypeError(self, str(_expr), _expr.get_source_position())
         Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
         _expr.setTypeEither(Either.error(error_msg))
         return

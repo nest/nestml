@@ -61,11 +61,11 @@ class InvariantTypeVisitor(ASTVisitor):
             invariantType = _declaration.getInvariant().getTypeEither()
             if invariantType is None or invariantType.isError():
                 code, message = Messages.getTypeCouldNotBeDerived(str(_declaration.getInvariant()))
-                Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
+                Logger.logMessage(_errorPosition=_declaration.getInvariant().get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
                 code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                       invariantType.getValue())
-                Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
+                Logger.logMessage(_errorPosition=_declaration.getInvariant().get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

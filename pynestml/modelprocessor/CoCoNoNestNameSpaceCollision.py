@@ -55,7 +55,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
         for func in _neuron.getFunctions():
             if func.getName() in cls.__nestNameSpace:
                 code, message = Messages.getNestCollision(func.getName())
-                Logger.logMessage(_errorPosition=func.getSourcePosition(),
+                Logger.logMessage(_errorPosition=func.get_source_position(),
                                   _code=code, _message=message,
                                   _logLevel=LOGGING_LEVEL.ERROR)
         return

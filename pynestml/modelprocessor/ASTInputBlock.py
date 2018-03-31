@@ -40,12 +40,12 @@ class ASTInputBlock(ASTNode):
     """
     __inputDefinitions = None
 
-    def __init__(self, _inputDefinitions=list(), _sourcePosition=None):
+    def __init__(self, _inputDefinitions=list(), source_position=None):
         """
         Standard constructor.
         :param _inputDefinitions: 
         :type _inputDefinitions: list(ASTInputLine)
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_inputDefinitions is not None and isinstance(_inputDefinitions, list)), \
@@ -53,7 +53,7 @@ class ASTInputBlock(ASTNode):
         for definition in _inputDefinitions:
             assert (definition is not None and isinstance(definition, ASTInputLine)), \
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
-        super(ASTInputBlock, self).__init__(_sourcePosition)
+        super(ASTInputBlock, self).__init__(source_position)
         self.__inputDefinitions = _inputDefinitions
         return
 

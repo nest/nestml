@@ -70,5 +70,5 @@ class SumIsCorrectVisitor(ASTVisitor):
                 if not isinstance(arg, ASTSimpleExpression) or not arg.isVariable():
                     code, message = Messages.getNotAVariable(str(arg))
                     Logger.logMessage(_code=code, _message=message,
-                                      _errorPosition=arg.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
+                                      _errorPosition=arg.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
         return

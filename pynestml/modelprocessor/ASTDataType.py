@@ -45,7 +45,7 @@ class ASTDataType(ASTNode):
     __typeSymbol = None  # the corresponding type symbol
 
     def __init__(self, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False, _isVoid=False,
-                 _isUnitType=None, _sourcePosition=None):
+                 _isUnitType=None, source_position=None):
         """
         :param _isInteger: is an integer data type 
         :type _isInteger: boolean
@@ -60,7 +60,7 @@ class ASTDataType(ASTNode):
         :param _isUnitType: an object of type ASTUnitType
         :type _isUnitType: ASTUnitType
         :param _sourcePosition: The source position of the assignment
-        :type _sourcePosition: ASTSourcePosition
+        :type source_position: ASTSourcePosition
         """
         assert (_isInteger is not None and isinstance(_isInteger, bool)), \
             '(PyNestML.AST.Datatype) Wrong type of is-integer parameter provided (%s)' % type(_isInteger)
@@ -74,7 +74,7 @@ class ASTDataType(ASTNode):
             '(PyNestML.AST.Datatype) Wrong type of is-void parameter provided (%s)' % type(_isVoid)
         assert (_isUnitType is None or isinstance(_isUnitType, ASTUnitType)), \
             '(PyNestML.AST.Datatype) Wrong type of unit-type parameter provided (%s)' % type(_isUnitType)
-        super(ASTDataType, self).__init__(_sourcePosition)
+        super(ASTDataType, self).__init__(source_position)
         self.__isUnitType = _isUnitType
         self.__isVoid = _isVoid
         self.__isBoolean = _isBoolean

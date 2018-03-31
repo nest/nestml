@@ -107,7 +107,7 @@ class Symbol(object):
         from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided (%s)!' % type(_sourcePosition)
-        return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
+        return self.getReferencedObject().get_source_position().before(_sourcePosition)
 
     def hasComment(self):
         """

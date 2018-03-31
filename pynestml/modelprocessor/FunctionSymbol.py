@@ -77,7 +77,7 @@ class FunctionSymbol(Symbol):
                     self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
         ret += '}, return type = ' + (self.getReturnType().printSymbol())
-        ret += ', @' + (str(self.getReferencedObject().getSourcePosition())
+        ret += ', @' + (str(self.getReferencedObject().get_source_position())
                         if self.getReferencedObject() is not None else 'predefined') + ']'
         return ret
 

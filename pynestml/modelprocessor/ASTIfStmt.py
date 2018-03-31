@@ -37,7 +37,7 @@ class ASTIfStmt(ASTNode):
     __elifClauses = None
     __elseClause = None
 
-    def __init__(self, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
+    def __init__(self, _ifClause=None, _elifClauses=list(), _elseClause=None, source_position=None):
         """
         Standard construcotr.
         :param _ifClause: the if-clause
@@ -46,7 +46,7 @@ class ASTIfStmt(ASTNode):
         :type _elifClauses: ASTElifClause
         :param _elseClause: (optional) else clause
         :type _elseClause: ASTElseClause
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause)), \
@@ -58,7 +58,7 @@ class ASTIfStmt(ASTNode):
                 '(PyNestML.AST.IfStmt) Wrong type of elif-clause provided (%s)!' % type(elifClause)
         assert (_elseClause is None or isinstance(_elseClause, ASTElseClause)), \
             '(PyNestML.AST.IfStmt) Wrong type of else-clauses provided (%s)!' % type(_elseClause)
-        super(ASTIfStmt, self).__init__(_sourcePosition)
+        super(ASTIfStmt, self).__init__(source_position)
         self.__elseClause = _elseClause
         self.__ifClause = _ifClause
         self.__elifClauses = _elifClauses

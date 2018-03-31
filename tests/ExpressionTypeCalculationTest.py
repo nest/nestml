@@ -43,7 +43,7 @@ PredefinedFunctions.registerPredefinedFunctions()
 
 class expressionTestVisitor(ASTVisitor):
     def endvisitAssignment(self, _assignment=None):
-        scope = _assignment.getScope()
+        scope = _assignment.get_scope()
         var_name = _assignment.getVariable().getName()
 
         _expr = _assignment.getExpression()
@@ -52,7 +52,7 @@ class expressionTestVisitor(ASTVisitor):
 
         _equals = var_symbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
 
-        message = 'line ' + str(_expr.getSourcePosition()) + ' : LHS = ' + \
+        message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
                   var_symbol.getTypeSymbol().getSymbolName() + \
                   ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
                   ' Equal ? ' + str(_equals)
@@ -61,13 +61,13 @@ class expressionTestVisitor(ASTVisitor):
             message += (" Neuroscience Factor: " +
                         str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit())))
 
-        Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
+        Logger.logMessage(_errorPosition=_assignment.get_source_position(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
 
         if _equals is False:
             Logger.logMessage(_message="Type mismatch in test!",
                               _code=MessageCode.TYPE_MISMATCH,
-                              _errorPosition=_assignment.getSourcePosition(),
+                              _errorPosition=_assignment.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
@@ -82,10 +82,10 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
-        Logger.setCurrentNeuron(model.getNeuronList()[0])
+        Logger.setCurrentNeuron(model.get_neuron_list()[0])
         expressionTestVisitor().handle(model)
         Logger.setCurrentNeuron(None)
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 if __name__ == '__main__':

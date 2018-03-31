@@ -31,7 +31,7 @@ class ASTElifClause(ASTNode):
     __condition = None
     __block = None
 
-    def __init__(self, _condition=None, _block=None, _sourcePosition=None):
+    def __init__(self, _condition=None, _block=None, source_position=None):
         """
         Standard constructor.
         :param _condition: the condition of the block.
@@ -39,13 +39,13 @@ class ASTElifClause(ASTNode):
         :param _block: a block of statements.
         :type _block: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_condition is not None and isinstance(_condition, ASTExpression)), \
             '(PyNestML.AST.ElifClause) No or wrong type of condition provided (%s)!' % type(_condition)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.AST.ElifClause) No or wrong type of block provided (%s)!' % type(_block)
-        super(ASTElifClause, self).__init__(_sourcePosition)
+        super(ASTElifClause, self).__init__(source_position)
         self.__block = _block
         self.__condition = _condition
         return

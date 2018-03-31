@@ -53,25 +53,25 @@ class CoCoAllVariablesDefined(CoCo):
         expressions = list(ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron))
         for expr in expressions:
             for var in expr.getVariables():
-                symbol = var.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+                symbol = var.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     code, message = Messages.getNoVariableFound(var.getName())
                     Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                                      _errorPosition=var.getSourcePosition())
+                                      _errorPosition=var.get_source_position())
                 # now check if it has been defined before usage, except for buffers, those are special cases
                 elif (not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and
                       symbol.getBlockType() != BlockType.INPUT_BUFFER_SPIKE):
                     # except for parameters, those can be defined after
-                    if not symbol.getReferencedObject().getSourcePosition().before(var.getSourcePosition()) and \
+                    if not symbol.getReferencedObject().get_source_position().before(var.get_source_position()) and \
                             symbol.getBlockType() != BlockType.PARAMETERS:
                         code, message = Messages.getVariableUsedBeforeDeclaration(var.getName())
-                        Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.getSourcePosition(),
+                        Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.get_source_position(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
-                    if symbol.getReferencedObject().getSourcePosition().encloses(var.getSourcePosition()) and not \
-                            symbol.getReferencedObject().getSourcePosition().isAddedSourcePosition():
+                    if symbol.getReferencedObject().get_source_position().encloses(var.get_source_position()) and not \
+                            symbol.getReferencedObject().get_source_position().isAddedSourcePosition():
                         code, message = Messages.getVariableDefinedRecursively(var.getName())
                         Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.getReferencedObject().
-                                          getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=_neuron)
+                                          get_source_position(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=_neuron)
         return

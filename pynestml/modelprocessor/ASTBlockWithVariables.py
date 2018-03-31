@@ -48,7 +48,7 @@ class ASTBlockWithVariables(ASTNode):
     __declarations = None
 
     def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _isInitialValues=False,
-                 _declarations=list(), _sourcePosition=None):
+                 _declarations=list(), source_position=None):
         """
         Standard constructor.
         :param _isState: is a state block.
@@ -61,8 +61,8 @@ class ASTBlockWithVariables(ASTNode):
         :type _isInitialValues: bool
         :param _declarations: a list of declarations.
         :type _declarations: list(ASTDeclaration)
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
         """
         assert (_isInternals or _isParameters or _isState or _isInitialValues), \
             '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
@@ -70,7 +70,7 @@ class ASTBlockWithVariables(ASTNode):
             '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
         assert (_declarations is None or isinstance(_declarations, list)), \
             '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(_declarations)
-        super(ASTBlockWithVariables, self).__init__(_sourcePosition)
+        super(ASTBlockWithVariables, self).__init__(source_position)
         self.__declarations = _declarations
         self.__isInternals = _isInternals
         self.__isParameters = _isParameters

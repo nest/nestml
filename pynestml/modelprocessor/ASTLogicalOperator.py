@@ -29,14 +29,14 @@ class ASTLogicalOperator(ASTNode):
     __isLogicalAnd = False
     __isLogicalOr = False
 
-    def __init__(self, _isLogicalAnd=False, _isLogicalOr=False, _sourcePosition=None):
+    def __init__(self, _isLogicalAnd=False, _isLogicalOr=False, source_position=None):
         """
         Standard constructor.
         :param _isLogicalAnd: is logical and.
         :type _isLogicalAnd: bool
         :param _isLogicalOr: is logical or.
         :type _isLogicalOr: bool
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_isLogicalOr is None or isinstance(_isLogicalOr, bool)), \
@@ -45,7 +45,7 @@ class ASTLogicalOperator(ASTNode):
             '(PyNestML.AST.LogicalOperator) Wrong type of is-logical-or provided (%s)!' % type(_isLogicalOr)
         assert (_isLogicalAnd ^ _isLogicalOr), \
             '(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!'
-        super(ASTLogicalOperator, self).__init__(_sourcePosition)
+        super(ASTLogicalOperator, self).__init__(source_position)
         self.__isLogicalAnd = _isLogicalAnd
         self.__isLogicalOr = _isLogicalOr
         return

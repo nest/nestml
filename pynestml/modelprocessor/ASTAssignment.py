@@ -42,11 +42,11 @@ class ASTAssignment(ASTNode):
     __expression = None
 
     def __init__(self, _lhs=None, _isDirectAssignment=False, _isCompoundSum=False, _isCompoundMinus=False,
-                 _isCompoundProduct=False, _isCompoundQuotient=False, _expression=None, _sourcePosition=None):
+                 _isCompoundProduct=False, _isCompoundQuotient=False, _expression=None, source_position=None):
         """
         Standard constructor.
         :param _sourcePosition: The source position of the assignment
-        :type _sourcePosition: ASTSourcePosition
+        :type source_position: ASTSourcePosition
         :param _lhs: the left-hand side variable to which is assigned to.
         :type _lhs: ASTVariable 
         :param _isDirectAssignment: is a direct assignment
@@ -85,7 +85,7 @@ class ASTAssignment(ASTNode):
         assert (_isCompoundQuotient is not None and isinstance(_isCompoundQuotient, bool)), \
             '(PyNestML.AST.Assignment) No or wrong typ of is-compound-quotient provided (%s)!' % type(
                 _isCompoundQuotient)
-        super(ASTAssignment, self).__init__(_sourcePosition)
+        super(ASTAssignment, self).__init__(source_position)
         self.__lhsVariable = _lhs
         self.__isDirectAssignment = _isDirectAssignment
         self.__isCompoundSum = _isCompoundSum

@@ -36,14 +36,14 @@ class ASTVariable(ASTNode):
     # the corresponding type symbol
     __typeSymbol = None
 
-    def __init__(self, _name=None, _differentialOrder=0, _sourcePosition=None):
+    def __init__(self, _name=None, _differentialOrder=0, source_position=None):
         """
         Standard constructor.
         :param _name: the name of the variable
         :type _name: str
         :param _differentialOrder: the differential order of the variable.
         :type _differentialOrder: int
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_differentialOrder is not None and isinstance(_differentialOrder, int)), \
@@ -52,7 +52,7 @@ class ASTVariable(ASTNode):
             '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % _differentialOrder
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(_name)
-        super(ASTVariable, self).__init__(_sourcePosition=_sourcePosition)
+        super(ASTVariable, self).__init__(source_position=source_position)
         self.__name = _name
         self.__differentialOrder = _differentialOrder
         return

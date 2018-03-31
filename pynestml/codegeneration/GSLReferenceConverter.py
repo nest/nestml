@@ -62,7 +62,7 @@ class GSLReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of variable provided (%s)!' % type(
                 _astVariable)
         variableName = NestNamesConverter.convertToCPPName(_astVariable.getName())
-        symbol = _astVariable.getScope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
+        symbol = _astVariable.get_scope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
 
         if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
             return str(

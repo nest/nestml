@@ -40,11 +40,11 @@ class ASTNoSemantics(ASTVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression or ASTSimpleExpression
         """
-        error_msg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.getSourcePosition())
+        error_msg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.get_source_position())
         _expr.setTypeEither(Either.error(error_msg))
         # just warn though
         Logger.logMessage(_message=error_msg,
                           _code=MessageCode.NO_SEMANTICS,
-                          _errorPosition=_expr.getSourcePosition(),
+                          _errorPosition=_expr.get_source_position(),
                           _logLevel=LOGGING_LEVEL.WARNING)
         return

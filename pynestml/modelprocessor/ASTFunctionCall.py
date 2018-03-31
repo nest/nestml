@@ -34,7 +34,7 @@ class ASTFunctionCall(ASTNode):
     __calleeName = None
     __args = None
 
-    def __init__(self, _calleeName=None, _args=None, _sourcePosition=None):
+    def __init__(self, _calleeName=None, _args=None, source_position=None):
         """
         Standard constructor.
         :param _calleeName: the name of the function which is called.
@@ -42,7 +42,7 @@ class ASTFunctionCall(ASTNode):
         :param _args: (Optional) List of arguments
         :type _args: list(ASTExpression)
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         from pynestml.modelprocessor.ASTExpression import ASTExpression
         from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
@@ -55,7 +55,7 @@ class ASTFunctionCall(ASTNode):
             assert (arg is not None and (isinstance(arg, ASTExpression) or
                                          isinstance(arg, ASTSimpleExpression))), \
                 '(PyNestML.AST.FunctionCall) No or wrong type of argument provided (%s)' % type(arg)
-        super(ASTFunctionCall, self).__init__(_sourcePosition)
+        super(ASTFunctionCall, self).__init__(source_position)
         self.__calleeName = _calleeName
         self.__args = _args
         return

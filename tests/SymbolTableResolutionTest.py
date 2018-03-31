@@ -48,7 +48,7 @@ class SymbolTableResolutionTest(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(
                 os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', 'ResolutionTest.nestml'))))
-        scope = model.getNeuronList()[0].getScope()
+        scope = model.get_neuron_list()[0].get_scope()
         res1 = scope.resolveToAllScopes('test1', SymbolKind.VARIABLE)
         assert (res1 is not None)
         res2 = scope.resolveToAllScopes('testNot', SymbolKind.VARIABLE)

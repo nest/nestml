@@ -62,9 +62,9 @@ class ASTConditionVisitor(ASTVisitor):
 
         # Condition must be a bool
         if not condition_e.getValue().equals(PredefinedTypes.getBooleanType()):
-            error_msg = ErrorStrings.messageTernary(self, _expr.getSourcePosition())
+            error_msg = ErrorStrings.messageTernary(self, _expr.get_source_position())
             _expr.setTypeEither(Either.error(error_msg))
-            Logger.logMessage(_message=error_msg, _errorPosition=_expr.getSourcePosition(),
+            Logger.logMessage(_message=error_msg, _errorPosition=_expr.get_source_position(),
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _logLevel=LOGGING_LEVEL.ERROR)
             return
@@ -77,11 +77,11 @@ class ASTConditionVisitor(ASTVisitor):
         # Both are units but not matching-> real WARN
         if if_true.isUnit() and if_not.isUnit():
             error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.printSymbol(), if_not.printSymbol(),
-                                                            _expr.getSourcePosition())
+                                                            _expr.get_source_position())
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
             Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _errorPosition=if_true.getSourcePosition(),
+                              _errorPosition=if_true.get_source_position(),
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
 
@@ -93,11 +93,11 @@ class ASTConditionVisitor(ASTVisitor):
             else:
                 unit_type = if_not
             error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
-                                                            _expr.getSourcePosition())
+                                                            _expr.get_source_position())
             _expr.setTypeEither(Either.value(unit_type))
             Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _errorPosition=if_true.getSourcePosition(),
+                              _errorPosition=if_true.get_source_position(),
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
 
@@ -108,9 +108,9 @@ class ASTConditionVisitor(ASTVisitor):
 
         # if we get here it is an error
         error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
-                                                        _expr.getSourcePosition())
+                                                        _expr.get_source_position())
         _expr.setTypeEither(Either.error(error_msg))
         Logger.logMessage(_message=error_msg,
-                          _errorPosition=_expr.getSourcePosition(),
+                          _errorPosition=_expr.get_source_position(),
                           _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                           _logLevel=LOGGING_LEVEL.ERROR)

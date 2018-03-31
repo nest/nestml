@@ -72,10 +72,10 @@ class TypeOfBufferUniqueVisitor(ASTVisitor):
                         inh += 1
                 if inh > 1:
                     code, message = Messages.getMultipleKeywords('inhibitory')
-                    Logger.logMessage(_errorPosition=_line.getSourcePosition(), _code=code, _message=message,
+                    Logger.logMessage(_errorPosition=_line.get_source_position(), _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.ERROR)
                 if ext > 1:
                     code, message = Messages.getMultipleKeywords('excitatory')
-                    Logger.logMessage(_errorPosition=_line.getSourcePosition(), _code=code, _message=message,
+                    Logger.logMessage(_errorPosition=_line.get_source_position(), _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.ERROR)
         return

@@ -72,11 +72,11 @@ class ParametersAssignmentVisitor(ASTVisitor):
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CoCo.ParametersAssignedOutsideParametersBlock) No or wrong type of assignment provided (%s)!' \
             % type(_assignment)
-        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and symbol.getBlockType() == BlockType.PARAMETERS and \
-                        _assignment.getScope().getScopeType() != ScopeType.GLOBAL:
+                        _assignment.get_scope().getScopeType() != ScopeType.GLOBAL:
             code, message = Messages.getAssignmentNotAllowed(_assignment.getVariable().getCompleteName())
-            Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+            Logger.logMessage(_errorPosition=_assignment.get_source_position(),
                               _code=code, _message=message,
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

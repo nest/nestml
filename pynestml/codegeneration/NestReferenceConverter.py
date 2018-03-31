@@ -138,12 +138,12 @@ class NESTReferenceConverter(IReferenceConverter):
         if variableName == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
-            symbol = _astVariable.getScope().resolveToSymbol(variableName, SymbolKind.VARIABLE)
+            symbol = _astVariable.get_scope().resolveToSymbol(variableName, SymbolKind.VARIABLE)
             if symbol is None:
                 # this should actually not happen, but an error message is better than an exception
                 code, message = Messages.getCouldNotResolve(variableName)
                 Logger.logMessage(_logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message,
-                                  _errorPosition=_astVariable.getSourcePosition())
+                                  _errorPosition=_astVariable.get_source_position())
                 return ''
             else:
                 if symbol.isLocal():

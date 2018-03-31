@@ -55,7 +55,7 @@ class ASTBinaryLogicVisitor(ASTVisitor):
         if lhs_type.getValue().isBoolean() and rhs_type.getValue().isBoolean():
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            error_msg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition())
+            error_msg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.get_source_position())
             _expr.setTypeEither(Either.error(error_msg))
             Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
         return

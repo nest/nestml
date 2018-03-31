@@ -41,12 +41,12 @@ class ASTEquationsBlock(ASTNode):
     """
     __declarations = None
 
-    def __init__(self, _declarations=None, _sourcePosition=None):
+    def __init__(self, _declarations=None, source_position=None):
         """
         Standard constructor.
         :param _declarations: a block of definitions.
         :type _declarations: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_declarations is not None and isinstance(_declarations, list)), \
@@ -56,7 +56,7 @@ class ASTEquationsBlock(ASTNode):
                                           isinstance(decl, ASTOdeEquation) or
                                           isinstance(decl, ASTOdeFunction))), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
-        super(ASTEquationsBlock, self).__init__(_sourcePosition)
+        super(ASTEquationsBlock, self).__init__(source_position)
         self.__declarations = _declarations
 
     def getDeclarations(self):

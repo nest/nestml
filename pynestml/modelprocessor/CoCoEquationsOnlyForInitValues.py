@@ -69,10 +69,10 @@ class EquationsOnlyForInitValues(ASTVisitor):
         :param _equation: a single equation object.
         :type _equation: ASTOdeEquation
         """
-        symbol = _equation.getScope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
+        symbol = _equation.get_scope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
         if symbol is not None and not symbol.isInitValues():
             code, message = Messages.getEquationVarNotInInitValuesBlock(_equation.getLhs().getNameOfLhs())
             Logger.logMessage(_code=code, _message=message,
-                              _errorPosition=_equation.getSourcePosition(),
+                              _errorPosition=_equation.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
             return

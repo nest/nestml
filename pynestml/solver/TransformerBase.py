@@ -67,7 +67,7 @@ class TransformerBase(object):
         """
         (var, value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
         tmp = ModelParser.parse_expression(value)
-        vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
+        vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.get_scope())
         declaration_string = var + ' real' + (
             '[' + vector_variable.getVectorParameter() + ']'
             if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + value
@@ -119,7 +119,7 @@ class TransformerBase(object):
                     break
         else:
             code, message = Messages.getOdeSolutionNotUsed()
-            Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _errorPosition=_neuron.getSourcePosition(),
+            Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _errorPosition=_neuron.get_source_position(),
                               _logLevel=LOGGING_LEVEL.INFO)
         return _neuron
 
@@ -152,7 +152,7 @@ class TransformerBase(object):
         try:
             (var, value) = _declaration
             tmp = ModelParser.parse_expression(value)
-            vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
+            vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.get_scope())
             declaration_string = var + ' real' + (
                 '[' + vector_variable.getVectorParameter() + ']'
                 if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + value

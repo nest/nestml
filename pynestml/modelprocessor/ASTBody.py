@@ -33,12 +33,12 @@ class ASTBody(ASTNode):
     """
     __bodyElements = None
 
-    def __init__(self, _bodyElements=list(), _sourcePosition=None):
+    def __init__(self, _bodyElements=list(), source_position=None):
         """
         Standard constructor.
         :param _bodyElements: a list of elements, e.g. variable blocks.
         :type _bodyElements: list()
-        :param _sourcePosition: the position of the element in the source model
+        :param source_position: the position of the element in the source model
         :rtype _sourcePosition: ASTSourcePosition
         """
         from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
@@ -57,7 +57,7 @@ class ASTBody(ASTNode):
                                           isinstance(elem, ASTFunction) or
                                           isinstance(elem, ASTEquationsBlock))), \
                 '(PyNestML.AST.Body) No or wrong type of body element provided (%s)!' % type(elem)
-        super(ASTBody, self).__init__(_sourcePosition)
+        super(ASTBody, self).__init__(source_position)
         self.__bodyElements = _bodyElements
         return
 

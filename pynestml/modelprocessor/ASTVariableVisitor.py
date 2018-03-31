@@ -42,10 +42,10 @@ class ASTVariableVisitor(ASTVisitor):
         """
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
             '(PyNestML.Visitor.ASTVariableVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        assert (_expr.getScope() is not None), \
+        assert (_expr.get_scope() is not None), \
             '(PyNestML.Visitor.ASTVariableVisitor) No scope found, run symboltable creator!'
 
-        scope = _expr.getScope()
+        scope = _expr.get_scope()
         var_name = _expr.getVariable().getName()
         var_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
         # update the type of the variable according to its symbol type.
@@ -54,7 +54,7 @@ class ASTVariableVisitor(ASTVisitor):
         else:
             message = 'Variable ' + str(_expr) + ' could not be resolved!'
             Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
-                              _errorPosition=_expr.getSourcePosition(),
+                              _errorPosition=_expr.get_source_position(),
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             _expr.setTypeEither(Either.error('Variable could not be resolved!'))
         return

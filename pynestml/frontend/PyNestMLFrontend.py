@@ -53,7 +53,7 @@ def main(args):
     # generate a list of all neurons
     neurons = list()
     for compilationUnit in compilation_units:
-        neurons.extend(compilationUnit.getNeuronList())
+        neurons.extend(compilationUnit.get_neuron_list())
     # check if across two files two neurons with same name have been defined
     CoCosManager.checkNotTwoNeuronsAcrossUnits(compilation_units)
     # now exclude those which are broken, i.e. have errors.
@@ -62,7 +62,7 @@ def main(args):
             if Logger.hasErrors(neuron):
                 code, message = Messages.getNeuronContainsErrors(neuron.getName())
                 Logger.logMessage(_neuron=neuron, _code=code, _message=message,
-                                  _errorPosition=neuron.getSourcePosition(),
+                                  _errorPosition=neuron.get_source_position(),
                                   _logLevel=LOGGING_LEVEL.INFO)
                 neurons.remove(neuron)
 

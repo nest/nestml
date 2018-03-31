@@ -31,23 +31,23 @@ class ASTNestMLCompilationUnit(ASTNode):
     __neuronList = None
     __artifactName = None
 
-    def __init__(self, _sourcePosition=None, _artifactName=None):
+    def __init__(self, source_position=None, artifact_name=None):
         """
         Standard constructor of ASTNestMLCompilationUnit.
-        :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
-        :param _artifactName: the name of the file where ths model is contained in
-        :type _artifactName: str
+        :param source_position: the position of this element in the source file.
+        :type source_position: ASTSourcePosition.
+        :param artifact_name: the name of the file where ths model is contained in
+        :type artifact_name: str
         """
-        assert (_artifactName is not None and isinstance(_artifactName, str)), \
+        assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
-                _artifactName)
-        super(ASTNestMLCompilationUnit, self).__init__(_sourcePosition)
+                artifact_name)
+        super(ASTNestMLCompilationUnit, self).__init__(source_position)
         self.__neuronList = list()
-        self.__artifactName = _artifactName
+        self.__artifactName = artifact_name
         return
 
-    def addNeuron(self, _neuron):
+    def add_neuron(self, _neuron):
         """
         Expects an instance of neuron element which is added to the collection.
         :param _neuron: an instance of a neuron 
@@ -60,7 +60,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         self.__neuronList.append(_neuron)
         return
 
-    def deleteNeuron(self, _neuron=None):
+    def delete_neuron(self, _neuron=None):
         """
         Expects an instance of neuron element which is deleted from the collection.
         :param _neuron: an instance of a ASTNeuron
@@ -74,7 +74,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         else:
             return False
 
-    def getNeuronList(self):
+    def get_neuron_list(self):
         """
         :return: a list of neuron elements as stored in the unit
         :rtype: list(ASTNeuron)
@@ -89,7 +89,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        for neuron in self.getNeuronList():
+        for neuron in self.get_neuron_list():
             if neuron is _ast:
                 return self
             elif neuron.getParent(_ast) is not None:
@@ -103,8 +103,8 @@ class ASTNestMLCompilationUnit(ASTNode):
         :rtype: str
         """
         ret = ''
-        if self.getNeuronList() is not None:
-            for neuron in self.getNeuronList():
+        if self.get_neuron_list() is not None:
+            for neuron in self.get_neuron_list():
                 ret += str(neuron) + '\n'
         return ret
 
@@ -118,11 +118,11 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         if not isinstance(_other, ASTNestMLCompilationUnit):
             return False
-        if len(self.getNeuronList()) != len(_other.getNeuronList()):
+        if len(self.get_neuron_list()) != len(_other.get_neuron_list()):
             return False
-        myNeurons = self.getNeuronList()
-        yourNeurons = _other.getNeuronList()
-        for i in range(0, len(myNeurons)):
-            if not myNeurons[i].equals(yourNeurons[i]):
+        my_neurons = self.get_neuron_list()
+        your_neurons = _other.get_neuron_list()
+        for i in range(0, len(my_neurons)):
+            if not my_neurons[i].equals(your_neurons[i]):
                 return False
         return True

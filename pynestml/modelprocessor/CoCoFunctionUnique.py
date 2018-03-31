@@ -41,7 +41,7 @@ class CoCoFunctionUnique(CoCo):
         checkedFuncsNames = list()
         for func in _neuron.getFunctions():
             if func.getName() not in checkedFuncsNames:
-                symbols = func.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
+                symbols = func.get_scope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
                 if isinstance(symbols, list) and len(symbols) > 1:
                     checked = list()
                     for funcA in symbols:
@@ -49,17 +49,17 @@ class CoCoFunctionUnique(CoCo):
                             if funcA is not funcB and funcB not in checked:
                                 if funcA.isPredefined():
                                     code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
-                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().getSourcePosition(),
+                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().get_source_position(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                                 elif funcB.isPredefined():
                                     code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
-                                    Logger.logMessage(_errorPosition=funcA.getReferencedObject().getSourcePosition(),
+                                    Logger.logMessage(_errorPosition=funcA.getReferencedObject().get_source_position(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                                 else:
                                     code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), False)
-                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().getSourcePosition(),
+                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().get_source_position(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                         checked.append(funcA)

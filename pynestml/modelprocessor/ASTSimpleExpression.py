@@ -57,7 +57,7 @@ class ASTSimpleExpression(ASTNode):
     __typeEither = None
 
     def __init__(self, _functionCall=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
-                 _variable=None, _string=None, _sourcePosition=None):
+                 _variable=None, _string=None, source_position=None):
         """
         Standard constructor.
         :param _functionCall: a function call.
@@ -73,7 +73,7 @@ class ASTSimpleExpression(ASTNode):
         :param _string: a single string literal
         :type _string: str
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
             '(PyNestML.AST.SimpleExpression) Not a function call provided (%s)!' % type(_functionCall)
@@ -87,7 +87,7 @@ class ASTSimpleExpression(ASTNode):
             '(PyNestML.AST.SimpleExpression) Not a number provided (%s)!' % type(_numericLiteral)
         assert (_string is None or isinstance(_string, str)), \
             '(PyNestML.AST.SimpleExpression) Not a string provided (%s)!' % type(_string)
-        super(ASTSimpleExpression, self).__init__(_sourcePosition)
+        super(ASTSimpleExpression, self).__init__(source_position)
         self.__functionCall = _functionCall
         if _booleanLiteral is not None:
             if _booleanLiteral:
@@ -321,7 +321,7 @@ class ASTSimpleExpression(ASTNode):
         elif self.isString():
             return self.getString()
         else:
-            raise RuntimeError('Simple expression at %s not specified!' % str(self.getSourcePosition()))
+            raise RuntimeError('Simple expression at %s not specified!' % str(self.get_source_position()))
 
     def equals(self, _other=None):
         """

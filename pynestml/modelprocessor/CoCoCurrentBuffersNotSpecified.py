@@ -59,6 +59,6 @@ class CurrentTypeSpecifiedVisitor(ASTVisitor):
         if _line.isCurrent() and _line.hasInputTypes() and len(_line.getInputTypes()) > 0:
             code, message = Messages.getCurrentBufferSpecified(_line.getName(),
                                                                list((str(buf) for buf in _line.getInputTypes())))
-            Logger.logMessage(_errorPosition=_line.getSourcePosition(),
+            Logger.logMessage(_errorPosition=_line.get_source_position(),
                               _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

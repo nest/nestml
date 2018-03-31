@@ -60,6 +60,6 @@ class NumericNumeratorVisitor(ASTVisitor):
         """
         if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
             code, message = Messages.getWrongNumerator(str(_unitType))
-            Logger.logMessage(_code=code, _message=message, _errorPosition=_unitType.getSourcePosition(),
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_unitType.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

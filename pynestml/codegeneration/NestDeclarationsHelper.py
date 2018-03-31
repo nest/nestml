@@ -51,13 +51,13 @@ class NestDeclarationsHelper(object):
                 _astDeclaration)
         ret = list()
         for var in _astDeclaration.getVariables():
-            symbol = _astDeclaration.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+            symbol = _astDeclaration.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
             if symbol is not None:
                 ret.append(symbol)
             else:
                 code, message = Messages.getCouldNotResolve(var.getCompleteName())
                 Logger.logMessage(_code=code, _message=message,
-                                  _errorPosition=_astDeclaration.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
+                                  _errorPosition=_astDeclaration.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
             return ret
 
     def printVariableType(self, _variableSymbol=None):

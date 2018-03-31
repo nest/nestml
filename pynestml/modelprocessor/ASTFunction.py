@@ -48,7 +48,7 @@ class ASTFunction(ASTNode):
     # the corresponding type symbol
     __typeSymbol = None
 
-    def __init__(self, _name=None, _parameters=None, _returnType=None, _block=None, _sourcePosition=None):
+    def __init__(self, _name=None, _parameters=None, _returnType=None, _block=None, source_position=None):
         """
         Standard constructor.
         :param _name: the name of the defined function.
@@ -59,7 +59,7 @@ class ASTFunction(ASTNode):
         :type _returnType: ASTDataType
         :param _block: a block of declarations.
         :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_name is not None and isinstance(_name, str)), \
@@ -70,7 +70,7 @@ class ASTFunction(ASTNode):
             '(PyNestML.AST.Function) Wrong type of parameters provided (%s)!' % type(_parameters)
         assert (_returnType is None or isinstance(_returnType, ASTDataType)), \
             '(PyNestML.AST.Function) Wrong type of return provided (%s)!' % type(_returnType)
-        super(ASTFunction, self).__init__(_sourcePosition)
+        super(ASTFunction, self).__init__(source_position)
         self.__block = _block
         self.__returnType = _returnType
         self.__parameters = _parameters

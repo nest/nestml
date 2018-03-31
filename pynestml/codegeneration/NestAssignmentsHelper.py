@@ -37,7 +37,7 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getCompleteName(), SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
         else:
@@ -76,15 +76,15 @@ class NestAssignmentsHelper(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
-                                                        SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
+                                                         SymbolKind.VARIABLE)
         if symbol is not None:
             if symbol.hasVectorParameter():
                 return True
             else:
                 # otherwise we have to check if one of the variables used in the rhs is a vector
                 for var in _assignment.getExpression().getVariables():
-                    symbol = var.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+                    symbol = var.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                     if symbol is not None and symbol.hasVectorParameter():
                         return True
                 return False
@@ -105,12 +105,12 @@ class NestAssignmentsHelper(object):
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         vectorVariable = None
         for variable in _assignment.getExpression().getVariables():
-            symbol = variable.getScope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
+            symbol = variable.get_scope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
             if symbol is not None and symbol.hasVectorParameter():
                 vectorVariable = symbol
                 break
         if vectorVariable is None:
-            vectorVariable = _assignment.getScope(). \
+            vectorVariable = _assignment.get_scope(). \
                 resolveToSymbol(_assignment.getVariable().getCompleteName(), SymbolKind.VARIABLE)
         # this function is called only after the corresponding assignment has been tested for been a vector
         return vectorVariable.getVectorParameter()

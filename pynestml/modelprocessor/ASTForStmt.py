@@ -37,7 +37,7 @@ class ASTForStmt(ASTNode):
     __step = None
     __block = None
 
-    def __init__(self, _variable=None, _from=None, _to=None, _step=0, _block=None, _sourcePosition=None):
+    def __init__(self, _variable=None, _from=None, _to=None, _step=0, _block=None, source_position=None):
         """
         Standard constructor.
         :param _variable: the step variable used for iteration.
@@ -51,7 +51,7 @@ class ASTForStmt(ASTNode):
         :param _block: a block of statements.
         :type _block: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_variable is not None and isinstance(_variable, str)), \
             '(PyNestML.AST.ForStmt) No or wrong type of iteration variable provided (%s)!' % type(_variable)
@@ -64,7 +64,7 @@ class ASTForStmt(ASTNode):
             '(PyNestML.AST.ForStmt) No step size or wrong type provided (%s)!' % type(_step)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.AST.ForStmt) No or wrong type of block provided (%s)!' % type(_block)
-        super(ASTForStmt, self).__init__(_sourcePosition)
+        super(ASTForStmt, self).__init__(source_position)
         self.__block = _block
         self.__step = _step
         self.__end_at = _to

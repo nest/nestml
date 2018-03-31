@@ -58,17 +58,17 @@ class ConvolveCheckerVisitor(ASTVisitor):
     def visitFunctionCall(self, _functionCall=None):
         funcName = _functionCall.getName()
         if funcName == 'convolve' or funcName == 'cond_sum' or funcName == 'curr_sum':
-            symbolVar = _functionCall.getScope().resolveToSymbol(str(_functionCall.getArgs()[0]),
-                                                                 SymbolKind.VARIABLE)
-            symbolBuffer = _functionCall.getScope().resolveToSymbol(str(_functionCall.getArgs()[1]),
-                                                                    SymbolKind.VARIABLE)
+            symbolVar = _functionCall.get_scope().resolveToSymbol(str(_functionCall.getArgs()[0]),
+                                                                  SymbolKind.VARIABLE)
+            symbolBuffer = _functionCall.get_scope().resolveToSymbol(str(_functionCall.getArgs()[1]),
+                                                                     SymbolKind.VARIABLE)
             if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
                 code, message = Messages.getFirstArgNotShapeOrEquation(funcName)
                 Logger.logMessage(_code=code, _message=message,
-                                  _errorPosition=_functionCall.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
+                                  _errorPosition=_functionCall.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
             if symbolBuffer is not None and not symbolBuffer.isInputBufferSpike():
                 code, message = Messages.getSecondArgNotABuffer(funcName)
-                Logger.logMessage(_errorPosition=_functionCall.getSourcePosition(),
+                Logger.logMessage(_errorPosition=_functionCall.get_source_position(),
                                   _code=code, _message=message,
                                   _logLevel=LOGGING_LEVEL.ERROR)
             return

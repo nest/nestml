@@ -64,6 +64,6 @@ class OrderOfEquationVisitor(ASTVisitor):
         """
         if _equation.getLhs().getDifferentialOrder() == 0:
             code, message = Messages.getOrderNotDeclared(_equation.getLhs().getName())
-            Logger.logMessage(_errorPosition=_equation.getSourcePosition(), _code=code,
+            Logger.logMessage(_errorPosition=_equation.get_source_position(), _code=code,
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

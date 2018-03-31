@@ -67,11 +67,11 @@ class BufferDatatypeVisitor(ASTVisitor):
             '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of input line provided (%s)!' % type(_line)
         if _line.isSpike() and not _line.hasDatatype():
             code, message = Messages.getDataTypeNotSpecified(_line.getName())
-            Logger.logMessage(_errorPosition=_line.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+            Logger.logMessage(_errorPosition=_line.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         if _line.isCurrent() and _line.hasDatatype():
             code, message = Messages.getNotTypeAllowed(_line.getName())
-            Logger.logMessage(_errorPosition=str(_line.getSourcePosition()),
+            Logger.logMessage(_errorPosition=str(_line.get_source_position()),
                               _code=code, _message=message,
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

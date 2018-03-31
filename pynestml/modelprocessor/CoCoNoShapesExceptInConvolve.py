@@ -84,7 +84,7 @@ class ShapeUsageVisitor(ASTVisitor):
         """
         for shapeName in self.__shapes:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
-            symbol = _variable.getScope().resolveToSymbol(shapeName, SymbolKind.VARIABLE)
+            symbol = _variable.get_scope().resolveToSymbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
             if not symbol.isShape():
                 continue
@@ -100,7 +100,7 @@ class ShapeUsageVisitor(ASTVisitor):
                                         grandparentFuncName == 'convolve':
                             continue
                 code, message = Messages.getShapeOutsideConvolve(shapeName)
-                Logger.logMessage(_errorPosition=_variable.getSourcePosition(),
+                Logger.logMessage(_errorPosition=_variable.get_source_position(),
                                   _code=code, _message=message,
                                   _logLevel=LOGGING_LEVEL.ERROR)
         return

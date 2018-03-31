@@ -38,7 +38,7 @@ class ASTOdeEquation(ASTNode):
     __lhs = None
     __rhs = None
 
-    def __init__(self, _lhs=None, _rhs=None, _sourcePosition=None):
+    def __init__(self, _lhs=None, _rhs=None, source_position=None):
         """
         Standard constructor.
         :param _lhs: an object of type ASTVariable
@@ -46,13 +46,13 @@ class ASTOdeEquation(ASTNode):
         :param _rhs: an object of type ASTExpression.
         :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
             '(PyNestML.AST.OdeEquation) No or wrong type of left-hand variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeEquation) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
-        super(ASTOdeEquation, self).__init__(_sourcePosition)
+        super(ASTOdeEquation, self).__init__(source_position)
         self.__lhs = _lhs
         self.__rhs = _rhs
         return

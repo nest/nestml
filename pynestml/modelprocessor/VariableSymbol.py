@@ -322,7 +322,7 @@ class VariableSymbol(Symbol):
 
     def printSymbol(self):
         if self.getReferencedObject() is not None:
-            source_position = str(self.getReferencedObject().getSourcePosition())
+            source_position = str(self.getReferencedObject().get_source_position())
         else:
             source_position = 'predefined'
         vector_value = self.getVectorParameter() if self.hasVectorParameter() else 'none'

@@ -178,7 +178,7 @@ class NestPrinter(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
-        functionSymbol = _function.getScope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
+        functionSymbol = _function.get_scope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
             declaration = _function.printComment('//') + '\n'
             declaration += NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
@@ -207,7 +207,7 @@ class NestPrinter(object):
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
         assert (_namespace is not None and isinstance(_namespace, str)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(_namespace)
-        functionSymbol = _function.getScope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
+        functionSymbol = _function.get_scope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
             # first collect all parameters
             params = list()

@@ -62,10 +62,10 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)
                 # update the corresponding symbol tables
-                SymbolTable.initializeSymbolTable(ast.getSourcePosition())
-                for neuron in ast.getNeuronList():
+                SymbolTable.initializeSymbolTable(ast.get_source_position())
+                for neuron in ast.get_neuron_list():
                     ASTSymbolTableVisitor.updateSymbolTable(neuron)
-                    SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
+                    SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.get_scope())
                 assert isinstance(ast, ASTNestMLCompilationUnit)
         return
 

@@ -33,7 +33,7 @@ class ASTOdeShape(ASTNode):
     __lhs = None
     __rhs = None
 
-    def __init__(self, _lhs=None, _rhs=None, _sourcePosition=None):
+    def __init__(self, _lhs=None, _rhs=None, source_position=None):
         """
         Standard constructor of ASTOdeShape.
         :param _lhs: the variable corresponding to the shape 
@@ -41,13 +41,13 @@ class ASTOdeShape(ASTNode):
         :param _rhs: the right-hand side expression
         :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_lhs is not None and (isinstance(_lhs, ASTVariable) or isinstance(_lhs, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
-        super(ASTOdeShape, self).__init__(_sourcePosition)
+        super(ASTOdeShape, self).__init__(source_position)
         self.__lhs = _lhs
         self.__rhs = _rhs
         return

@@ -54,8 +54,8 @@ class ASTLogicalNotVisitor(ASTVisitor):
         if expr_type.isBoolean():
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            error_msg = ErrorStrings.messageExpectedBool(self, _expr.getSourcePosition())
+            error_msg = ErrorStrings.messageExpectedBool(self, _expr.get_source_position())
             _expr.setTypeEither(Either.error(error_msg))
-            Logger.logMessage(_errorPosition=_expr.getSourcePosition(),
+            Logger.logMessage(_errorPosition=_expr.get_source_position(),
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _message=error_msg, _logLevel=LOGGING_LEVEL.ERROR)

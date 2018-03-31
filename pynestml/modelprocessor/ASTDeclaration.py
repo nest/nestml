@@ -55,7 +55,7 @@ class ASTDeclaration(ASTNode):
     __invariant = None
 
     def __init__(self, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None, _sizeParameter=None,
-                 _expression=None, _invariant=None, _sourcePosition=None):
+                 _expression=None, _invariant=None, source_position=None):
         """
         Standard constructor.
         :param _isRecordable: is a recordable declaration.
@@ -72,7 +72,7 @@ class ASTDeclaration(ASTNode):
         :type _expression: ASTExpression
         :param _invariant: a optional invariant.
         :type _invariant: ASTExpression.
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
@@ -98,7 +98,7 @@ class ASTDeclaration(ASTNode):
                 or isinstance(_expression, ASTSimpleExpression)), \
             '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
             % type(_expression)
-        super(ASTDeclaration, self).__init__(_sourcePosition)
+        super(ASTDeclaration, self).__init__(source_position)
         self.__isRecordable = _isRecordable
         self.__isFunction = _isFunction
         self.__variables = _variables

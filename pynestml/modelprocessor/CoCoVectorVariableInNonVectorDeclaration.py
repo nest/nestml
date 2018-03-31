@@ -65,14 +65,14 @@ class VectorInDeclarationVisitor(ASTVisitor):
             variables = _declaration.getExpression().getVariables()
             for variable in variables:
                 if variable is not None:
-                    symbol = _declaration.getScope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
+                    symbol = _declaration.get_scope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
                     if symbol is not None and symbol.hasVectorParameter() and not _declaration.hasSizeParameter():
                         code, message = Messages.getVectorInNonVector(_vector=symbol.getSymbolName(),
                                                                       _nonVector=list(var.getCompleteName() for
                                                                                       var in
                                                                                       _declaration.getVariables()))
 
-                        Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
+                        Logger.logMessage(_errorPosition=_declaration.get_source_position(),
                                           _code=code, _message=message,
                                           _logLevel=LOGGING_LEVEL.ERROR)
         return

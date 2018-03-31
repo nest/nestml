@@ -31,7 +31,7 @@ class ASTUnaryOperator(ASTNode):
     __isUnaryMinus = False
     __isUnaryTilde = False
 
-    def __init__(self, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, _sourcePosition=None):
+    def __init__(self, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, source_position=None):
         """
         Standard constructor.
         :param _isUnaryPlus: is a unary plus.
@@ -40,7 +40,7 @@ class ASTUnaryOperator(ASTNode):
         :type _isUnaryMinus: bool
         :param _isUnaryTilde: is a unary tilde.
         :type _isUnaryTilde: bool
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
@@ -51,7 +51,7 @@ class ASTUnaryOperator(ASTNode):
             '(PyNestML.AST.UnaryOperator) Wrong type of unary tilde provided (%s)!' % type(_isUnaryTilde)
         assert ((_isUnaryTilde + _isUnaryMinus + _isUnaryPlus) == 1), \
             '(PyNestML.AST.UnaryOperator) Type of unary operator not correctly specified!'
-        super(ASTUnaryOperator, self).__init__(_sourcePosition)
+        super(ASTUnaryOperator, self).__init__(source_position)
         self.__isUnaryPlus = _isUnaryPlus
         self.__isUnaryMinus = _isUnaryMinus
         self.__isUnaryTilde = _isUnaryTilde

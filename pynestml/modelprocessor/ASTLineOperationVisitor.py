@@ -83,10 +83,10 @@ class ASTLineOperatorVisitor(ASTVisitor):
             if lhs_type.isUnit() and rhs_type.isUnit():
                 error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.printSymbol(),
                                                                    rhs_type.printSymbol(), 'real',
-                                                                   _expr.getSourcePosition())
+                                                                   _expr.get_source_position())
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
-                                  _errorPosition=_expr.getSourcePosition(),
+                                  _errorPosition=_expr.get_source_position(),
                                   _message=error_msg, _logLevel=LOGGING_LEVEL.WARNING)
                 return
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
@@ -98,16 +98,16 @@ class ASTLineOperatorVisitor(ASTVisitor):
                     unit_type = rhs_type
                 error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.printSymbol(),
                                                                    rhs_type.printSymbol(), unit_type.printSymbol(),
-                                                                   _expr.getSourcePosition())
+                                                                   _expr.get_source_position())
                 _expr.setTypeEither(Either.value(unit_type))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=error_msg,
-                                  _errorPosition=_expr.getSourcePosition(), _logLevel=LOGGING_LEVEL.WARNING)
+                                  _errorPosition=_expr.get_source_position(), _logLevel=LOGGING_LEVEL.WARNING)
                 return
 
         # if we get here, we are in a general error state
         error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.printSymbol(),
                                                            rhs_type.printSymbol(), 'ERROR',
-                                                           _expr.getSourcePosition())
+                                                           _expr.get_source_position())
         _expr.setTypeEither(Either.error(error_msg))
         Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=error_msg,
-                          _errorPosition=_expr.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
+                          _errorPosition=_expr.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)

@@ -270,10 +270,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     {% for inputLine in neuron.getInputBuffers() -%}
     {% if inputLine.hasVectorParameter() %}
     for (long i=0; i < P_.{{inputLine.getVectorParameter()}}; i++){
-      B_.{{names.bufferValue(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value( lag );
+      B_.{{names.bufferValue(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value(lag);
     }
     {% else -%}
-    B_.{{names.bufferValue(inputLine)}} = get_{{names.name(inputLine)}}().get_value( lag );
+    B_.{{names.bufferValue(inputLine)}} = get_{{names.name(inputLine)}}().get_value(lag);
     {% endif -%}
     {%- endfor -%}
     {%- set dynamics = neuron.getUpdateBlocks() -%}

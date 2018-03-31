@@ -254,7 +254,7 @@ class ASTNodeFactory(object):
         # type: (list(ASTNeuron),ASTSourcePosition,str) -> ASTNestMLCompilationUnit
         instance = ASTNestMLCompilationUnit(source_position, artifact_name)
         for i in list_of_neurons:
-            instance.addNeuron(i)
+            instance.add_neuron(i)
         return instance
 
     @classmethod

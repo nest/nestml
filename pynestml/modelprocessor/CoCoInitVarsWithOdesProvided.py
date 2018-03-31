@@ -73,19 +73,19 @@ class InitVarsVisitor(ASTVisitor):
         :type _declaration: ASTDeclaration
         """
         for var in _declaration.getVariables():
-            symbol = _declaration.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+            symbol = _declaration.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
             # first check that all initial value variables have a lhs
             if symbol is not None and symbol.isInitValues() and not _declaration.hasExpression():
                 code, message = Messages.getNoRhs(symbol.getSymbolName())
-                Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
+                Logger.logMessage(_errorPosition=var.get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             # now check that they have been provided with an ODE
             if symbol is not None and symbol.isInitValues() and not symbol.isOdeDefined() and not symbol.isFunction():
                 code, message = Messages.getNoOde(symbol.getSymbolName())
-                Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
+                Logger.logMessage(_errorPosition=var.get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             if symbol is not None and symbol.isInitValues() and not symbol.hasInitialValue():
                 code, message = Messages.getNoInitValue(symbol.getSymbolName())
-                Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
+                Logger.logMessage(_errorPosition=var.get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

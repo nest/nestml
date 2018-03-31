@@ -38,7 +38,7 @@ class ASTUtils(object):
         """
         ret = list()
         for compilationUnit in _listOfCompilationUnits:
-            ret.extend(compilationUnit.getNeuronList())
+            ret.extend(compilationUnit.get_neuron_list())
         return ret
 
     @classmethod
@@ -178,25 +178,25 @@ class ASTUtils(object):
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
         if _isPlus:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
-                                                               source_position=_rhs.getSourcePosition())
+                                                               source_position=_rhs.get_source_position())
         elif _isMinus:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True,
-                                                               source_position=_rhs.getSourcePosition())
+                                                               source_position=_rhs.get_source_position())
         elif _isTimes:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
-                                                               source_position=_rhs.getSourcePosition())
+                                                               source_position=_rhs.get_source_position())
         else:
-            op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True, source_position=_rhs.getSourcePosition())
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True, source_position=_rhs.get_source_position())
         varExpr = ASTNodeFactory.create_ast_simple_expression(variable=_lhs,
-                                                              source_position=_lhs.getSourcePosition())
-        varExpr.updateScope(_lhs.getScope())
-        op.updateScope(_lhs.getScope())
+                                                              source_position=_lhs.get_source_position())
+        varExpr.update_scope(_lhs.get_scope())
+        op.update_scope(_lhs.get_scope())
         rhsInBrackets = ASTNodeFactory.create_ast_expression(is_encapsulated=True, expression=_rhs,
-                                                             source_position=_rhs.getSourcePosition())
-        rhsInBrackets.updateScope(_rhs.getScope())
+                                                             source_position=_rhs.get_source_position())
+        rhsInBrackets.update_scope(_rhs.get_scope())
         expr = ASTNodeFactory.create_ast_compound_expression(lhs=varExpr, binary_operator=op, rhs=rhsInBrackets,
-                                                             source_position=_rhs.getSourcePosition())
-        expr.updateScope(_lhs.getScope())
+                                                             source_position=_rhs.get_source_position())
+        expr.update_scope(_lhs.get_scope())
         # update the symbols
         ASTSymbolTableVisitor.visitExpression(expr)
         return expr
@@ -235,7 +235,7 @@ class ASTUtils(object):
 
         for var in res:
             if '\'' not in var.getCompleteName():
-                symbol = _ast.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+                symbol = _ast.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                 if symbol.isFunction():
                     ret.append(symbol)
         return ret

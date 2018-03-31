@@ -1239,8 +1239,8 @@ class ASTVisitor(object):
         return
 
     def traverseCompilationUnit(self, _node):
-        if _node.getNeuronList() is not None:
-            for subnode in _node.getNeuronList():
+        if _node.get_neuron_list() is not None:
+            for subnode in _node.get_neuron_list():
                 subnode.accept(self.getRealSelf())
         return
 

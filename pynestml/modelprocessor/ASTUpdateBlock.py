@@ -42,15 +42,15 @@ class ASTUpdateBlock(ASTNode):
     """
     __block = None
 
-    def __init__(self, _block=None, _sourcePosition=None):
+    def __init__(self, _block=None, source_position=None):
         """
         Standard constructor.
         :param _block: a block of definitions.
         :type _block: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
-        super(ASTUpdateBlock, self).__init__(_sourcePosition)
+        super(ASTUpdateBlock, self).__init__(source_position)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.AST.UpdateBlock) No or wrong type of block provided (%s)!' % type(_block)
         self.__block = _block

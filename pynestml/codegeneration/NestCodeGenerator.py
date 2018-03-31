@@ -104,7 +104,7 @@ class NestCodeGenerator(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGenerator.NEST) No or wrong type of module neuron provided (%s)!' % type(_neuron)
         code, message = Messages.getStartProcessingNeuron(_neuron.getName())
-        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,
+        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.get_source_position(), _code=code, _message=message,
                           _logLevel=LOGGING_LEVEL.INFO)
         workingVersion = deepcopy(_neuron)
         # solve all equations
@@ -113,7 +113,7 @@ class NestCodeGenerator(object):
         ASTSymbolTableVisitor.updateSymbolTable(workingVersion)
         self.generateNestCode(workingVersion)
         code, message = Messages.getCodeGenerated(_neuron.getName(), FrontendConfiguration.getTargetPath())
-        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,
+        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.get_source_position(), _code=code, _message=message,
                           _logLevel=LOGGING_LEVEL.INFO)
         return
 
@@ -255,12 +255,12 @@ class NestCodeGenerator(object):
             if len(equationsBlock.getOdeEquations()) > 1 and len(equationsBlock.getOdeShapes()) == 0:
                 code, message = Messages.getNeuronSolvedBySolver(_neuron.getName())
                 Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
-                                  _errorPosition=_neuron.getSourcePosition(), _logLevel=LOGGING_LEVEL.INFO)
+                                  _errorPosition=_neuron.get_source_position(), _logLevel=LOGGING_LEVEL.INFO)
                 return _neuron
             else:
                 code, message = Messages.getNeuronAnalyzed(_neuron.getName())
                 Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
-                                  _errorPosition=_neuron.getSourcePosition(),
+                                  _errorPosition=_neuron.get_source_position(),
                                   _logLevel=LOGGING_LEVEL.INFO)
                 workingCopy = EquationsBlockProcessor.solveOdeWithShapes(_neuron)
                 return workingCopy

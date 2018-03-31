@@ -57,7 +57,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         cls.__neuronName = _neuron.getName()
         for userDefinedFunction in _neuron.getFunctions():
             cls.__processedFunction = userDefinedFunction
-            symbol = userDefinedFunction.getScope().resolveToSymbol(userDefinedFunction.getName(), SymbolKind.FUNCTION)
+            symbol = userDefinedFunction.get_scope().resolveToSymbol(userDefinedFunction.getName(), SymbolKind.FUNCTION)
             # first ensure that the block contains at least one statement
             if symbol is not None and len(userDefinedFunction.getBlock().getStmts()) > 0:
                 # now check that the last statement is a return
@@ -67,7 +67,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     not symbol.getReturnType().equals(PredefinedTypes.getVoidType()):
                 code, message = Messages.getNoReturn()
                 Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
-                                  _errorPosition=userDefinedFunction.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
+                                  _errorPosition=userDefinedFunction.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     @classmethod
@@ -110,7 +110,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 # first check if the return is the last one in this block of statements
                 if _stmts.index(c_stmt) != (len(_stmts) - 1):
                     code, message = Messages.getNotLastStatement('Return')
-                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                    Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                       _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.WARNING)
                 # now check that it corresponds to the declared type
@@ -118,24 +118,24 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
                                                                           stmt.getReturnStmt().getExpression().
                                                                           getTypeEither().getValue())
-                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                    Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated
                 if not stmt.getReturnStmt().hasExpression() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
                                                                           _typeSymbol)
-                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                    Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 if stmt.getReturnStmt().hasExpression():
                     typeOfReturn = stmt.getReturnStmt().getExpression().getTypeEither()
                     if typeOfReturn.isError():
                         code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.getName())
-                        Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                        Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
                     elif not typeOfReturn.getValue().equals(_typeSymbol):
                         code, message = Messages.getTypeDifferentFromExpected(typeOfReturn.getValue(),
                                                                               _typeSymbol)
-                        Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                        Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                           _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
@@ -156,6 +156,6 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif not _retDefined and _stmts.index(c_stmt) == (len(_stmts) - 1):
                 if not (isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt()):
                     code, message = Messages.getNoReturn()
-                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+                    Logger.logMessage(_errorPosition=stmt.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                                       _code=code, _message=message)
         return

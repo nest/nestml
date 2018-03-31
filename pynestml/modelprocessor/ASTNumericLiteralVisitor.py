@@ -40,10 +40,10 @@ class ASTNumericLiteralVisitor(ASTVisitor):
         :return:
         :rtype:
         """
-        assert _expr.getScope() is not None, "Run symboltable creator."
+        assert _expr.get_scope() is not None, "Run symboltable creator."
         # if variable is also set in this expression, the var type overrides the literal
         if _expr.getVariable() is not None:
-            scope = _expr.getScope()
+            scope = _expr.get_scope()
             var_name = _expr.getVariable().getName()
             variable_symbol_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
             _expr.setTypeEither(Either.value(variable_symbol_resolve.getTypeSymbol()))

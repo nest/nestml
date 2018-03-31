@@ -29,17 +29,17 @@ class ASTElseClause(ASTNode):
     """
     __block = None
 
-    def __init__(self, _block=None, _sourcePosition=None):
+    def __init__(self, _block=None, source_position=None):
         """
         Standard constructor.
         :param _block: a block of statements.
         :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
+        :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.AST.ElseClause) No or wrong type of block provided (%s)!' % type(_block)
-        super(ASTElseClause, self).__init__(_sourcePosition)
+        super(ASTElseClause, self).__init__(source_position)
         self.__block = _block
 
     def getBlock(self):

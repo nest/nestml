@@ -35,7 +35,7 @@ class ASTCompoundStmt(ASTNode):
     __whileStmt = None
     __forStmt = None
 
-    def __init__(self, _ifStmt=None, _whileStmt=None, _forStmt=None, _sourcePosition=None):
+    def __init__(self, _ifStmt=None, _whileStmt=None, _forStmt=None, source_position=None):
         """
         Standard constructor.
         :param _ifStmt: a if statement object
@@ -44,7 +44,7 @@ class ASTCompoundStmt(ASTNode):
         :type _whileStmt: ASTWhileStmt
         :param _forStmt: a for statement object
         :type _forStmt: ASTForStmt
-        :param _sourcePosition: The source position of the assignment
+        :param source_position: The source position of the assignment
         :type _sourcePosition: ASTSourcePosition
         """
         assert (_ifStmt is None or isinstance(_ifStmt, ASTIfStmt)), \
@@ -53,7 +53,7 @@ class ASTCompoundStmt(ASTNode):
             '(PyNestML.AST.CompoundStmt) Wrong type of while-statement provided (%s)!' % type(_whileStmt)
         assert (_forStmt is None or isinstance(_forStmt, ASTForStmt)), \
             '(PyNestML.AST.CompoundStmt) Wrong type of for-statement provided (%s)!' % type(_forStmt)
-        super(ASTCompoundStmt, self).__init__(_sourcePosition)
+        super(ASTCompoundStmt, self).__init__(source_position)
         self.__ifStmt = _ifStmt
         self.__whileStmt = _whileStmt
         self.__forStmt = _forStmt

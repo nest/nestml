@@ -56,11 +56,11 @@ class CoCoNeuronNameUnique(CoCo):
             '(PyNestML.CoCo.NeuronNameUnique) No or wrong type of compilation unit provided (%s)!' % type(
                 _compilationUnit)
         checked = list()  # a list of already checked elements
-        for neuronA in _compilationUnit.getNeuronList():
-            for neuronB in _compilationUnit.getNeuronList():
+        for neuronA in _compilationUnit.get_neuron_list():
+            for neuronB in _compilationUnit.get_neuron_list():
                 if neuronA is not neuronB and neuronA.getName() == neuronB.getName() and neuronB not in checked:
                     code, message = Messages.getNeuronRedeclared(neuronB.getName())
-                    Logger.logMessage(_errorPosition=neuronB.getSourcePosition(),
+                    Logger.logMessage(_errorPosition=neuronB.get_source_position(),
                                       _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.ERROR)
             checked.append(neuronA)

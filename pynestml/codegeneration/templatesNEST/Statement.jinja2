@@ -3,8 +3,12 @@
   @param ast ASTSmallStmt or ASTCompoundStmt
 #}{% if stmt.hasComment() %}
 {{stmt.printComment('//')}}{% endif %}
-{%- if utils.isSmallStmt(stmt) %}
+{%- if stmt.is_small_stmt() %}
+{%- with stmt = stmt.small_stmt -%}
 {% include "SmallStatement.jinja2" -%}
-{% elif utils.isCompoundStmt(stmt) -%}
+{%- endwith -%}
+{% elif stmt.is_compound_stmt() -%}
+{%- with stmt = stmt.compound_stmt %}
 {% include "CompoundStatement.jinja2" -%}
+{%- endwith %}
 {%- endif -%}

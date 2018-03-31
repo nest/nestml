@@ -47,7 +47,7 @@ class InvalidElementDefinedAfterUsage(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableDefinedAfterUsage.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 class ValidElementDefinedAfterUsage(unittest.TestCase):
@@ -56,7 +56,7 @@ class ValidElementDefinedAfterUsage(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoVariableDefinedAfterUsage.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidElementInSameLine(unittest.TestCase):
@@ -65,7 +65,7 @@ class InvalidElementInSameLine(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoElementInSameLine.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidElementInSameLine(unittest.TestCase):
@@ -74,7 +74,7 @@ class ValidElementInSameLine(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoElementInSameLine.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidElementNotDefinedInScope(unittest.TestCase):
@@ -83,7 +83,7 @@ class InvalidElementNotDefinedInScope(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
 class ValidElementNotDefinedInScope(unittest.TestCase):
@@ -92,7 +92,7 @@ class ValidElementNotDefinedInScope(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoVariableNotDefined.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidVariableRedeclaration(unittest.TestCase):
@@ -101,7 +101,7 @@ class InvalidVariableRedeclaration(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableRedeclared.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 class ValidVariableRedeclaration(unittest.TestCase):
@@ -110,7 +110,7 @@ class ValidVariableRedeclaration(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoVariableRedeclared.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidEachBlockUnique(unittest.TestCase):
@@ -119,7 +119,7 @@ class InvalidEachBlockUnique(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoEachBlockUnique.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 class ValidEachBlockUnique(unittest.TestCase):
@@ -128,7 +128,7 @@ class ValidEachBlockUnique(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoEachBlockUnique.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidFunctionUniqueAndDefined(unittest.TestCase):
@@ -137,7 +137,7 @@ class InvalidFunctionUniqueAndDefined(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionNotUnique.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 4)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 4)
 
 
 class ValidFunctionUniqueAndDefined(unittest.TestCase):
@@ -146,7 +146,7 @@ class ValidFunctionUniqueAndDefined(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoFunctionNotUnique.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidFunctionsHaveRhs(unittest.TestCase):
@@ -155,7 +155,7 @@ class InvalidFunctionsHaveRhs(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionHasNoRhs.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidFunctionsHaveRhs(unittest.TestCase):
@@ -164,7 +164,7 @@ class ValidFunctionsHaveRhs(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoFunctionHasNoRhs.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidFunctionHasSeveralLhs(unittest.TestCase):
@@ -173,7 +173,7 @@ class InvalidFunctionHasSeveralLhs(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionWithSeveralLhs.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidFunctionHasSeveralLhs(unittest.TestCase):
@@ -182,7 +182,7 @@ class ValidFunctionHasSeveralLhs(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoFunctionWithSeveralLhs.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidNoValuesAssignedToBuffers(unittest.TestCase):
@@ -191,7 +191,7 @@ class InvalidNoValuesAssignedToBuffers(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoValueAssignedToBuffer.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 class ValidNoValuesAssignedToBuffers(unittest.TestCase):
@@ -200,7 +200,7 @@ class ValidNoValuesAssignedToBuffers(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoValueAssignedToBuffer.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidOrderOfEquationsCorrect(unittest.TestCase):
@@ -209,7 +209,7 @@ class InvalidOrderOfEquationsCorrect(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoNoOrderOfEquations.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidOrderOfEquationsCorrect(unittest.TestCase):
@@ -218,7 +218,7 @@ class ValidOrderOfEquationsCorrect(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoNoOrderOfEquations.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidNumeratorOfUnitOne(unittest.TestCase):
@@ -227,7 +227,7 @@ class InvalidNumeratorOfUnitOne(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 class ValidNumeratorOfUnitOne(unittest.TestCase):
@@ -236,7 +236,7 @@ class ValidNumeratorOfUnitOne(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidNamesOfNeuronsUnique(unittest.TestCase):
@@ -263,7 +263,7 @@ class InvalidNoNestCollision(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoNestNamespaceCollision.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidNoNestCollision(unittest.TestCase):
@@ -272,7 +272,7 @@ class ValidNoNestCollision(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoNestNamespaceCollision.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidRedundantBufferKeywordsDetected(unittest.TestCase):
@@ -281,7 +281,7 @@ class InvalidRedundantBufferKeywordsDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoBufferWithRedundantTypes.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidRedundantBufferKeywordsDetected(unittest.TestCase):
@@ -290,7 +290,7 @@ class ValidRedundantBufferKeywordsDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoBufferWithRedundantTypes.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
@@ -299,7 +299,7 @@ class InvalidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoParameterAssignedOutsideBlock.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
@@ -308,7 +308,7 @@ class ValidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoParameterAssignedOutsideBlock.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
@@ -317,7 +317,7 @@ class InvalidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCurrentBufferTypeSpecified.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
@@ -326,7 +326,7 @@ class ValidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoCurrentBufferTypeSpecified.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidSpikeBufferWithoutDatatype(unittest.TestCase):
@@ -335,7 +335,7 @@ class InvalidSpikeBufferWithoutDatatype(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSpikeBufferWithoutType.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidSpikeBufferWithoutDatatype(unittest.TestCase):
@@ -344,7 +344,7 @@ class ValidSpikeBufferWithoutDatatype(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoSpikeBufferWithoutType.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidFunctionWithWrongArgNumberDetected(unittest.TestCase):
@@ -353,7 +353,7 @@ class InvalidFunctionWithWrongArgNumberDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidFunctionWithWrongArgNumberDetected(unittest.TestCase):
@@ -362,7 +362,7 @@ class ValidFunctionWithWrongArgNumberDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidInitValuesHaveRhsAndOde(unittest.TestCase):
@@ -371,7 +371,7 @@ class InvalidInitValuesHaveRhsAndOde(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInitValuesWithoutOde.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
 class ValidInitValuesHaveRhsAndOde(unittest.TestCase):
@@ -380,7 +380,7 @@ class ValidInitValuesHaveRhsAndOde(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInitValuesWithoutOde.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidIncorrectReturnStmtDetected(unittest.TestCase):
@@ -389,7 +389,7 @@ class InvalidIncorrectReturnStmtDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIncorrectReturnStatement.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 4)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 4)
 
 
 class ValidIncorrectReturnStmtDetected(unittest.TestCase):
@@ -398,7 +398,7 @@ class ValidIncorrectReturnStmtDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoIncorrectReturnStatement.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
@@ -407,7 +407,7 @@ class InvalidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoOdeVarNotInInitialValues.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
@@ -416,7 +416,7 @@ class ValidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoOdeVarNotInInitialValues.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidConvolveCorrectlyDefined(unittest.TestCase):
@@ -425,7 +425,7 @@ class InvalidConvolveCorrectlyDefined(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
 class ValidConvolveCorrectlyDefined(unittest.TestCase):
@@ -434,7 +434,7 @@ class ValidConvolveCorrectlyDefined(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidVectorInNonVectorDeclarationDetected(unittest.TestCase):
@@ -443,7 +443,7 @@ class InvalidVectorInNonVectorDeclarationDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVectorInNonVectorDeclaration.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidVectorInNonVectorDeclarationDetected(unittest.TestCase):
@@ -452,7 +452,7 @@ class ValidVectorInNonVectorDeclarationDetected(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoVectorInNonVectorDeclaration.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidSumCorrectlyParametrized(unittest.TestCase):
@@ -461,7 +461,7 @@ class InvalidSumCorrectlyParametrized(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSumNotCorrectlyParametrized.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 class ValidSumCorrectlyParametrized(unittest.TestCase):
@@ -470,7 +470,7 @@ class ValidSumCorrectlyParametrized(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoSumNotCorrectlyParametrized.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidInvariantCorrectlyTyped(unittest.TestCase):
@@ -479,7 +479,7 @@ class InvalidInvariantCorrectlyTyped(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInvariantNotBool.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
 class ValidInvariantCorrectlyTyped(unittest.TestCase):
@@ -488,7 +488,7 @@ class ValidInvariantCorrectlyTyped(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInvariantNotBool.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 class InvalidExpressionCorrectlyTyped(unittest.TestCase):
@@ -497,7 +497,7 @@ class InvalidExpressionCorrectlyTyped(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIllegalExpression.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 6)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 6)
 
 
 class ValidExpressionCorrectlyTyped(unittest.TestCase):
@@ -506,7 +506,7 @@ class ValidExpressionCorrectlyTyped(unittest.TestCase):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoIllegalExpression.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 if __name__ == '__main__':

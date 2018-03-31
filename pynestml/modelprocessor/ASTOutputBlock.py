@@ -36,18 +36,18 @@ class ASTOutputBlock(ASTNode):
     """
     __type = None
 
-    def __init__(self, _type=None, _sourcePosition=None):
+    def __init__(self, _type=None, source_position=None):
         # type: (ASTSignalType,ASTSourcePosition) -> None
         """
         Standard constructor.
         :param _type: the type of the output buffer.
         :type _type: SignalType
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_type is ASTSignalType.SPIKE or _type is ASTSignalType.CURRENT), \
             '(PyNestML.AST.OutputBlock) No or wrong type specification buffer provided (%s)!' % type(_type)
-        super(ASTOutputBlock, self).__init__(_sourcePosition)
+        super(ASTOutputBlock, self).__init__(source_position)
         self.__type = _type
 
     def isSpike(self):

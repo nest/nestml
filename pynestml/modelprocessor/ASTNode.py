@@ -32,25 +32,23 @@ class ASTNode(object):
     __scope = None
     __comment = None
 
-    def __init__(self, _sourcePosition=None, _scope=None):
+    def __init__(self, source_position, scope=None):
         """
         The standard constructor.
-        :param _sourcePosition: a source position element.
-        :type _sourcePosition: ASTSourcePosition
-        :param _scope: the scope in which this element is embedded in.
-        :type _scope: Scope
+        :param source_position: a source position element.
+        :type source_position: ASTSourcePosition
+        :param scope: the scope in which this element is embedded in.
+        :type scope: Scope
         """
-        assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.AST.Element) No source position provided (%s)!' % type(_sourcePosition)
-        if _sourcePosition is None:
-            print("test")
-        assert (_scope is None or isinstance(_scope, Scope)), \
-            '(PyNestML.AST.Element) Wrong type of scope provided (%s)!' % type(_scope)
-        self.__sourcePosition = _sourcePosition
-        self.__scope = _scope
+        assert (source_position is None or isinstance(source_position, ASTSourcePosition)), \
+            '(PyNestML.AST.Element) No source position provided (%s)!' % type(source_position)
+        assert (scope is None or isinstance(scope, Scope)), \
+            '(PyNestML.AST.Element) Wrong type of scope provided (%s)!' % type(scope)
+        self.__sourcePosition = source_position
+        self.__scope = scope
         return
 
-    def getSourcePosition(self):
+    def get_source_position(self):
         """
         Returns the source position of the element.
         :return: a source position object.
@@ -61,20 +59,20 @@ class ASTNode(object):
         else:
             return ASTSourcePosition.getPredefinedSourcePosition()
 
-    def setSourcePosition(self, _newPosition=None):
+    def set_source_position(self, new_position):
         """
         Updates the source position of the element.
-        :param _newPosition: a new source position
-        :type _newPosition: ASTSourcePosition
+        :param new_position: a new source position
+        :type new_position: ASTSourcePosition
         :return: a source position object.
         :rtype: ASTSourcePosition
         """
-        assert (_newPosition is not None and isinstance(_newPosition, ASTSourcePosition)), \
-            '(PyNestML.AST.Element) No or wrong type of source position provided (%s)!' % type(_newPosition)
-        self.__sourcePosition = _newPosition
+        assert (new_position is not None and isinstance(new_position, ASTSourcePosition)), \
+            '(PyNestML.AST.Element) No or wrong type of source position provided (%s)!' % type(new_position)
+        self.__sourcePosition = new_position
         return
 
-    def getScope(self):
+    def get_scope(self):
         """
         Returns the scope of this element.
         :return: a scope object.
@@ -82,7 +80,7 @@ class ASTNode(object):
         """
         return self.__scope
 
-    def updateScope(self, _scope=None):
+    def update_scope(self, _scope=None):
         """
         Updates the scope of this element.
         :param _scope: a scope object.

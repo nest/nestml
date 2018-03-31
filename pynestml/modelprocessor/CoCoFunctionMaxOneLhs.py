@@ -59,7 +59,7 @@ class FunctionMaxOneLhs(ASTVisitor):
         """
         if _declaration.isFunction() and len(_declaration.getVariables()) > 1:
             code, message = Messages.getSeveralLhs(list((var.getName() for var in _declaration.getVariables())))
-            Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
+            Logger.logMessage(_errorPosition=_declaration.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         return

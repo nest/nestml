@@ -56,14 +56,14 @@ class EquationsBlockProcessor(object):
                     code, message = Messages.getCouldNotBeSolved()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.ERROR)
                     return _neuron
                 if output.solver == 'exact':
                     code, message = Messages.getEquationsSolvedExactly()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.INFO)
                     working_version = ExactSolutionTransformer.addExactSolution(_neuron=working_version,
                                                                                 _solverOutput=output)
@@ -71,7 +71,7 @@ class EquationsBlockProcessor(object):
                     code, message = Messages.getEquationsSolvedByGLS()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.INFO)
                     working_version = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron=_neuron,
                                                                                        _solverOutput=output)
@@ -81,7 +81,7 @@ class EquationsBlockProcessor(object):
                     code, message = Messages.getCouldNotBeSolved()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.INFO)
                     return working_version
             elif len(working_version.getEquationsBlocks().getOdeShapes()) > 0 and \
@@ -89,7 +89,7 @@ class EquationsBlockProcessor(object):
                 code, message = Messages.getEquationsSolvedByGLS()
                 Logger.logMessage(_neuron=_neuron,
                                   _message=message, _code=code,
-                                  _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                  _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
                                   _logLevel=LOGGING_LEVEL.INFO)
                 solver_output = SymPySolver.solveShapes(deep_copy.getEquationsBlocks().getOdeShapes())
                 working_version = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron, solver_output)

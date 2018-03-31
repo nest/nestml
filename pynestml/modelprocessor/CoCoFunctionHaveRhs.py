@@ -55,6 +55,6 @@ class FunctionRhsVisitor(ASTVisitor):
         """
         if _declaration.isFunction() and not _declaration.hasExpression():
             code, message = Messages.getNoRhs(_declaration.getVariables()[0].getName())
-            Logger.logMessage(_errorPosition=_declaration.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+            Logger.logMessage(_errorPosition=_declaration.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         return

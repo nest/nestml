@@ -51,7 +51,7 @@ class ASTUnitType(ASTNode):
     __unit = None
 
     def __init__(self, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None, _isPow=False,
-                 _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None, _sourcePosition=None):
+                 _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None, source_position=None):
         """
         Standard constructor of ASTUnitType.
         :param _leftParentheses: contains a left parenthesis
@@ -102,7 +102,7 @@ class ASTUnitType(ASTNode):
             '(PyNestML.AST.UnitType) Wrong type of is-pow provided (%s)!' % type(_isPow)
         assert (_unit is None or isinstance(_unit, str)), \
             '(PyNestML.AST.UnitType) Wrong type of unit provided (%s)!' % type(_unit)
-        super(ASTUnitType, self).__init__(_sourcePosition)
+        super(ASTUnitType, self).__init__(source_position)
         self.__hasLeftParentheses = _leftParentheses
         self.__compoundUnit = _compoundUnit
         self.__hasRightParentheses = _rightParentheses

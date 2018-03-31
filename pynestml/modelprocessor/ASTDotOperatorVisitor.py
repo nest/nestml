@@ -67,11 +67,11 @@ class ASTDotOperatorVisitor(ASTVisitor):
                 _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                 return
             else:
-                error_msg = ErrorStrings.messageExpectedInt(self, _expr.getSourcePosition())
+                error_msg = ErrorStrings.messageExpectedInt(self, _expr.get_source_position())
                 _expr.setTypeEither(Either.error(error_msg))
                 Logger.logMessage(_code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                                   _message=error_msg,
-                                  _errorPosition=_expr.getSourcePosition(),
+                                  _errorPosition=_expr.get_source_position(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
                 return
         if arith_op.is_div_op or arith_op.is_times_op:
@@ -112,9 +112,9 @@ class ASTDotOperatorVisitor(ASTVisitor):
                     return
         # Catch-all if no case has matched
         type_mismatch = lhs_type.printSymbol() + " / " if arith_op.is_div_op else " * " + rhs_type.printSymbol()
-        error_msg = ErrorStrings.messageTypeMismatch(self, type_mismatch, _expr.getSourcePosition())
+        error_msg = ErrorStrings.messageTypeMismatch(self, type_mismatch, _expr.get_source_position())
         _expr.setTypeEither(Either.error(error_msg))
         Logger.logMessage(_message=error_msg,
                           _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                          _errorPosition=_expr.getSourcePosition(),
+                          _errorPosition=_expr.get_source_position(),
                           _logLevel=LOGGING_LEVEL.ERROR)

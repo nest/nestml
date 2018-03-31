@@ -34,7 +34,7 @@ class ASTInputType(ASTNode):
     __isInhibitory = False
     __isExcitatory = False
 
-    def __init__(self, _isInhibitory=False, _isExcitatory=False, _sourcePosition=None):
+    def __init__(self, _isInhibitory=False, _isExcitatory=False, source_position=None):
         """
         Standard constructor.
         :param _isInhibitory: is inhibitory buffer.
@@ -42,7 +42,7 @@ class ASTInputType(ASTNode):
         :param _isExcitatory: is excitatory buffer.
         :type _isExcitatory: book
         :param _sourcePosition: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
         assert (_isInhibitory is None or isinstance(_isInhibitory, bool)), \
             '(PyNestML.AST.InputType) Wrong type of specifier provided (%s)!' % type(_isInhibitory)
@@ -50,7 +50,7 @@ class ASTInputType(ASTNode):
             '(PyNestML.AST.InputType) Wrong type of specifier provided (%s)!' % type(_isExcitatory)
         assert (_isExcitatory != _isInhibitory), \
             '(PyNestML.AST.InputType) Buffer specification not correct!'
-        super(ASTInputType, self).__init__(_sourcePosition)
+        super(ASTInputType, self).__init__(source_position)
         self.__isExcitatory = _isExcitatory
         self.__isInhibitory = _isInhibitory
         return

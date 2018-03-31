@@ -59,7 +59,7 @@ class CommentTest(unittest.TestCase):
         # now build the ast
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        neuron_body_elements = ast.getNeuronList()[0].getBody().getBodyElements()
+        neuron_body_elements = ast.get_neuron_list()[0].getBody().getBodyElements()
         # check if init values comment is correctly detected
         assert (neuron_body_elements[0].getComment()[0] == 'init_values comment ok')
         # check that all declaration comments are detected

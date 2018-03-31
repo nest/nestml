@@ -65,7 +65,7 @@ class ASTPowerVisitor(ASTVisitor):
                 # exponents to units MUST be integer and calculable at time of analysis.
                 # Otherwise resulting unit is undefined
                 if not exponent_type.isInteger():
-                    error_msg = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
+                    error_msg = ErrorStrings.messageUnitBase(self, _expr.get_source_position())
                     _expr.setTypeEither(Either.error(error_msg))
                     Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
                     return
@@ -86,7 +86,7 @@ class ASTPowerVisitor(ASTVisitor):
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 return
         # Catch-all if no case has matched
-        error_msg = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
+        error_msg = ErrorStrings.messageUnitBase(self, _expr.get_source_position())
         _expr.setTypeEither(Either.error(error_msg))
         Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
 
@@ -106,12 +106,12 @@ class ASTPowerVisitor(ASTVisitor):
                 literal = _expr.getNumericLiteral()
                 return Either.value(literal)
             else:
-                error_message = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
+                error_message = ErrorStrings.messageUnitBase(self, _expr.get_source_position())
                 return Either.error(error_message)
         elif _expr.isUnaryOperator() and _expr.getUnaryOperator().isUnaryMinus():
             term = self.calculateNumericValue(_expr.getExpression())
             if term.isError():
                 return term
             return Either.value(-term.getValue())
-        error_message = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition())
+        error_message = ErrorStrings.messageNonConstantExponent(self, _expr.get_source_position())
         return Either.error(error_message)

@@ -36,7 +36,7 @@ class ASTComparisonOperator(ASTNode):
     __isGt = False
 
     def __init__(self, _isLt=False, _isLe=False, _isEq=False, _isNe=False, _isNe2=False,
-                 _isGe=False, _isGt=False, _sourcePosition=None):
+                 _isGe=False, _isGt=False, source_position=None):
         """
         Standard constructor.
         :param _isLt: is less than operator.
@@ -54,7 +54,7 @@ class ASTComparisonOperator(ASTNode):
         :param _isGt: is greater than operator.
         :type _isGt: bool
         :param _sourcePosition: the position of the element in the source
-        :type _sourcePosition: ASTSourcePosition
+        :type source_position: ASTSourcePosition
         """
         assert (_isLt is not None and isinstance(_isLt, bool)), \
             '(PyNestML.AST.ComparisonOperator) No or wrong type of is-less-than operator provided (%s)!' % type(_isLt)
@@ -74,7 +74,7 @@ class ASTComparisonOperator(ASTNode):
                 _isGt)
         assert ((_isLt + _isLe + _isEq + _isNe + _isNe2 + _isGe + _isGt) == 1), \
             '(PyNestML.AST.ComparisonOperator) Comparison operator not correctly specified!'
-        super(ASTComparisonOperator, self).__init__(_sourcePosition)
+        super(ASTComparisonOperator, self).__init__(source_position)
         self.__isGt = _isGt
         self.__isGe = _isGe
         self.__isNe2 = _isNe2
