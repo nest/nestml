@@ -32,7 +32,6 @@ from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from tests.nestml_models_paths import iaf_psc_alpha_path
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()
@@ -49,7 +48,7 @@ class CodegeneratorTest(unittest.TestCase):
     """
 
     def test_model_preparation(self):
-        compilation_unit = ModelParser.parseModel(iaf_psc_alpha_path)
+        compilation_unit = ModelParser.parseModel("../models/iaf_psc_alpha.nestml")
         assert len(compilation_unit.getNeuronList()) == 1
         ast_neuron = compilation_unit.getNeuronList()[0]
         equations_block = ast_neuron.get_equations_block()
@@ -66,7 +65,7 @@ class CodegeneratorTest(unittest.TestCase):
         self.assertTrue("convolve(I_shape_ex, ex_spikes)" in json_representation["odes"][0]["definition"])
 
     def test_solve_odes_and_shapes(self):
-        compilation_unit = ModelParser.parseModel(iaf_psc_alpha_path)
+        compilation_unit = ModelParser.parseModel("../models/iaf_psc_alpha.nestml")
         assert len(compilation_unit.getNeuronList()) == 1
         ast_neuron = compilation_unit.getNeuronList()[0]
         ast_neuron = transform_shapes_and_odes(ast_neuron, {})
