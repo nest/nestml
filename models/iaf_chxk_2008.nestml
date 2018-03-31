@@ -26,8 +26,8 @@ neuron iaf_chxk_2008_neuron:
 
   initial_values:
     V_m mV = E_L   # membrane potential
-    G_ahp  nS      # AHP conductance
-    G_ahp' nS/ms   # AHP conductance
+    G_ahp  nS = 0nS        # AHP conductance
+    G_ahp' nS/ms = 0nS/ms  # AHP conductance
   end
 
   equations:
@@ -140,12 +140,12 @@ neuron iaf_chxk_2008_implicit:
 
   initial_values:
     V_m mV = E_L   # membrane potential
-    g_in   nS      # inputs from the inh conductance
-    g_in'  nS/ms   # inputs from the inh conductance
-    g_ex   nS      # inputs from the exc conductance
-    g_ex'  nS/ms   # inputs from the exc conductance
-    G_ahp  nS      # AHP conductance
-    G_ahp' nS/ms   # AHP conductance
+    g_in   nS     = 0nS # inputs from the inh conductance
+    g_in'  nS/ms  = nS * e / tau_syn_in # inputs from the inh conductance
+    g_ex   nS     = 0nS # inputs from the exc conductance
+    g_ex'  nS/ms  = nS * e / tau_syn_ex # inputs from the exc conductance
+    G_ahp  nS     = 0nS # AHP conductance
+    G_ahp' nS/ms  = 0nS/ms # AHP conductance
   end
 
   equations:
@@ -229,8 +229,6 @@ neuron iaf_chxk_2008_implicit:
       emit_spike()
     end
 
-    g_ex' += spikesExc * PSConInit_E
-    g_in' += spikesInh * PSConInit_I
   end
 
 end

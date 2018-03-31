@@ -88,6 +88,13 @@ class ASTOdeEquation(ASTNode):
         """
         return self.__rhs
 
+    def set_rhs(self, rhs):
+        # type: (rhs) -> None
+        """
+        Returns the left-hand side of the equation.
+        """
+        self.__rhs = rhs
+
     def getParent(self, _ast=None):
         """
         Indicates whether a this node contains the handed over node.

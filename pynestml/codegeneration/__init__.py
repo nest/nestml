@@ -18,6 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['NestAssignmentsHelper', 'NestCodeGenerator', 'NestDeclarationsHelper',
+__all__ = ['NestAssignmentsHelper', 'NestDeclarationsHelper',
            'NestExpressionPrettyPrinter', 'NestFunctions', 'NESTML2NESTTypeConverter',
            'NestNamesConverter', 'NestPrinter']

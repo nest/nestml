@@ -19,6 +19,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os
+
+from pynestml.codegeneration.nest_codegeneration import generate_nest_module_code, analyse_and_generate_neurons
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
@@ -27,7 +29,6 @@ from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.CoCosManager import CoCosManager
-from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -66,9 +67,8 @@ def main(args):
                 neurons.remove(neuron)
 
     if not FrontendConfiguration.isDryRun():
-        nestGenerator = NestCodeGenerator()
-        nestGenerator.analyseAndGenerateNeurons(neurons)
-        nestGenerator.generateNESTModuleCode(neurons)
+        analyse_and_generate_neurons(neurons)
+        generate_nest_module_code(neurons)
     else:
         code, message = Messages.getDryRun()
         Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)

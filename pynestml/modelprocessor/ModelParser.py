@@ -18,14 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from antlr4 import *
-from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+
 from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.generated.PyNESTMLParser import PyNESTMLParser
 from pynestml.modelprocessor import ASTSymbolTableVisitor
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.CoCosManager import CoCosManager
-from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
+from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTVariable import ASTVariable
+from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -64,6 +68,36 @@ class ModelParser(object):
         ast = astBuilderVisitor.visit(compilationUnit)
         # create and update the corresponding symbol tables
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
+        for neuron in ast.getNeuronList():
+            ASTSymbolTableVisitor.ASTSymbolTableVisitor.updateSymbolTable(neuron)
+            SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
+
+        # replace all derived variables through a computer processable names: e.g. g_in''' -> g_in__ddd
+        restore_differential_order = []
+        for ode in ASTUtils.getAll(ast, ASTOdeEquation):
+            lhs_variable = ode.getLhs()
+            if lhs_variable.getDifferentialOrder() > 0:
+                lhs_variable.set_differential_order(lhs_variable.getDifferentialOrder() - 1)
+                restore_differential_order.append(lhs_variable)
+
+        for shape in ASTUtils.getAll(ast, ASTOdeShape):
+            lhs_variable = shape.getVariable()
+            if lhs_variable.getDifferentialOrder() > 0:
+                lhs_variable.set_differential_order(lhs_variable.getDifferentialOrder() - 1)
+                restore_differential_order.append(lhs_variable)
+
+        # than replace remaining variables
+        for variable in ASTUtils.getAll(ast, ASTVariable):
+
+            if variable.getDifferentialOrder() > 0:
+                variable.set_name(variable.getName() + "__" + "d" * variable.getDifferentialOrder())
+                variable.set_differential_order(0)
+
+        # now also equations have no ' at lhs. replace every occurrence of last d to ' to compensate
+        for ode_variable in restore_differential_order:
+            ode_variable.set_differential_order(1)
+
+        #Logger.initLogger(Logger.get_current_logging_level())
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.ASTSymbolTableVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())

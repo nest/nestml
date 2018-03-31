@@ -210,6 +210,12 @@ class ASTDeclaration(ASTNode):
         """
         return self.__expression
 
+    def set_expression(self, expression):
+        """
+        Sets the initialization expression.
+        """
+        self.__expression = expression
+
     def hasInvariant(self):
         """
         Returns whether the declaration has a invariant or not.

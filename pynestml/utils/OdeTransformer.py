@@ -17,9 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from copy import copy
+from copy import copy, deepcopy
 
 
 class OdeTransformer(object):
@@ -40,47 +42,41 @@ class OdeTransformer(object):
         workingCopy = copy(_ast)
         functionCalls = cls.getFunctionCalls(workingCopy, cls.__functions)
         for call in functionCalls:
-            cls.replaceFunctionCallThroughFirstArgument(workingCopy, call)
+            cls.replace_function_call_through_first_argument(workingCopy, call)
         return workingCopy
 
     @classmethod
-    def replaceSumCalls(cls, _ast):
+    def refactor_convolve_call(cls, _ast):
         """
-        Replaces all sum calls in the handed over node.
+        Replaces all `convolve` calls in the handed over node.
         :param _ast: a single node
         :type _ast: AST_
         """
-        assert (_ast is not None), '(PyNestML.Utils) No ast provided!'
-        workingCopy = copy(_ast)
-        functionCalls = cls.get_sumFunctionCalls(workingCopy)
-        for call in functionCalls:
-            cls.replaceFunctionCallThroughFirstArgument(workingCopy, call)
-        return _ast
+
+        function_calls = cls.get_sumFunctionCalls(_ast)
+        for call in function_calls:
+            cls.replace_function_call_through_first_argument(_ast, call)
 
     @classmethod
-    def replaceFunctionCallThroughFirstArgument(cls, _ast=None, _toReplace=None):
+    def replace_function_call_through_first_argument(cls, ast, function_name_to_replace):
         """
         Replaces all occurrences of the handed over function call by the first argument.
-        :param _ast: a single ast node
-        :type _ast: AST_
-        :param _toReplace: the function to replace
-        :type _toReplace: ASTFunctionCall
+        :param ast: a single ast node
+        :type ast: AST_
+        :param function_name_to_replace: the function to replace
+        :type function_name_to_replace: ASTFunctionCall
         """
 
         # we define a local collection operation
-        def replaceFunctionCallThroughFirstArgument(_expr=None):
-            if _expr.isFunctionCall() and _expr.getFunctionCall() == _toReplace:
+        def replace_function_call_through_first_argument(_expr=None):
+            if _expr.isFunctionCall() and _expr.getFunctionCall() == function_name_to_replace:
                 firstArg = _expr.getFunctionCall().getArgs()[0].getVariable()
                 _expr.setFunctionCall(None)
                 _expr.setVariable(firstArg)
             return
 
-        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        ASTHigherOrderVisitor.visit(_ast,
-                                    lambda x: replaceFunctionCallThroughFirstArgument(x)
-                                    if isinstance(x, ASTSimpleExpression) else True)
-        return
+        ASTHigherOrderVisitor.visit(ast,
+                                    lambda x: replace_function_call_through_first_argument(x) if isinstance(x, ASTSimpleExpression) else True)
 
     @classmethod
     def get_sumFunctionCalls(cls, _ast=None):
@@ -116,13 +112,12 @@ class OdeTransformer(object):
         res = list()
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        ASTHigherOrderVisitor.visit(_astNode, lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and
-                                                                         x.getName() in _functionList
-        else True)
+        ASTHigherOrderVisitor.visit(_astNode,
+                                    lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.getName() in _functionList else True)
         return res
 
     @classmethod
-    def getCondSumFunctionCall(cls, _astNode=None):
+    def getCondSumFunctionCalls(cls, _astNode=None):
         """
         Collects all cond_sum function calls in the ast.
         :param _astNode: a single ast node

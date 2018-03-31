@@ -120,6 +120,13 @@ class ASTOdeFunction(ASTNode):
         """
         return self.__expression
 
+    def setExpression(self, expression):
+        # type: (ASTExpression) -> None
+        """
+        Sets the expression as an object of ASTExpression.
+        """
+        self.__expression = expression
+
     def getParent(self, _ast=None):
         """
         Indicates whether a this node contains the handed over node.

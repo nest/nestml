@@ -9,6 +9,7 @@ before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
+  - pip install git+https://github.com/DimitriPlotnikov/ode-toolbox.git
 
 install:
   - python setup.py install
@@ -23,6 +24,7 @@ script:
   - python tests/SymbolTableBuilderTest.py
   - python tests/SymbolTableResolutionTest.py
   - python tests/CoCosTest.py
+  - python tests/nest_codegenerator_test.py
   - python tests/PyNestMLFrontendTest.py
   - python tests/NESTMLTest.py
   - python tests/ExpressionTypeCalculationTest.py

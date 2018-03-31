@@ -16,7 +16,7 @@ PyNESTML.egg-info/
 !__init__.py
 
 pynestml/grammars/antlr-4.7-complete.jar
-
+venv
 
 .DS_Store
 .project

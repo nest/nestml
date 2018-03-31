@@ -202,7 +202,7 @@ class ASTHigherOrderVisitor(object):
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
         for neuron in _ast.getNeuronList():
-            cls.visit(neuron)
+            cls.visit(neuron, _func)
         return
 
     @classmethod
@@ -848,8 +848,8 @@ class ASTHigherOrderVisitor(object):
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
-        if _ast.hasExpr():
-            cls.visitExpression(_ast.getExpr(), _func)
+        if _ast.hasExpression():
+            cls.visitExpression(_ast.getExpression(), _func)
         return
 
     @classmethod
@@ -1210,8 +1210,8 @@ class ASTHigherOrderVisitor(object):
             _node.getUnaryOperator().accept(self.getRealSelf())
         if _node.getLhs() is not None:
             _node.getLhs().accept(self.getRealSelf())
-        if _node.getRhs() is not None:
-            _node.getRhs().accept(self.getRealSelf())
+        if _node.get_rhs() is not None:
+            _node.get_rhs().accept(self.getRealSelf())
         if _node.getBinaryOperator() is not None:
             _node.getBinaryOperator().accept(self.getRealSelf())
         if _node.getCondition() is not None:
@@ -1295,8 +1295,8 @@ class ASTHigherOrderVisitor(object):
     def traverseOdeEquation(self, _node):
         if _node.getLhs() is not None:
             _node.getLhs().accept(self.getRealSelf())
-        if _node.getRhs() is not None:
-            _node.getRhs().accept(self.getRealSelf())
+        if _node.get_rhs() is not None:
+            _node.get_rhs().accept(self.getRealSelf())
         return
 
     def traverseOdeFunction(self, _node):
@@ -1353,8 +1353,8 @@ class ASTHigherOrderVisitor(object):
         if _node.getLhs() is not None:
             if isinstance(_node.getLhs(), ASTUnitType):
                 _node.getLhs().accept(self.getRealSelf())
-        if _node.getRhs() is not None:
-            _node.getRhs().accept(self.getRealSelf())
+        if _node.get_rhs() is not None:
+            _node.get_rhs().accept(self.getRealSelf())
         if _node.getCompoundUnit() is not None:
             _node.getCompoundUnit().accept(self.getRealSelf())
         return

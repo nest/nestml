@@ -20,6 +20,8 @@
 
 
 from pynestml.modelprocessor.ASTBody import ASTBody
+from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
 from pynestml.modelprocessor.VariableSymbol import VariableSymbol
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
@@ -223,6 +225,24 @@ class ASTNeuron(ASTNode):
             return None
         else:
             return ret
+
+    def get_equations_block(self):
+        """
+        Returns the unique equations block defined in this body.
+        :return: a  equations-block.
+        :rtype: ASTEquationsBlock
+        """
+        return self.getEquationsBlocks()
+
+    def remove_equations_block(self):
+        # type: (...) -> None
+        """
+        Deletes all equations blocks. By construction as checked through cocos there is only one there.
+        """
+
+        for elem in self.getBody().getBodyElements():
+            if isinstance(elem, ASTEquationsBlock):
+                self.getBody().getBodyElements().remove(elem)
 
     def getInitialValuesDeclarations(self):
         """
@@ -487,6 +507,35 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
+    def get_initial_values_blocks(self):
+        """
+        Returns a list of all initial blocks defined in this body.
+        :return: a list of initial-blocks.
+        :rtype: list(ASTBlockWithVariables)
+        """
+        ret = list()
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
+        for elem in self.getBody().getBodyElements():
+            if isinstance(elem, ASTBlockWithVariables) and elem.isInitialValues():
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
+
+
+    def remove_initial_blocks(self):
+        """
+        Remove all equations blocks
+        """
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
+        for elem in self.getBody().getBodyElements():
+            if isinstance(elem, ASTBlockWithVariables) and elem.isInitialValues():
+                self.getBody().getBodyElements().remove(elem)
+
+
     def getFunctionInitialValuesSymbols(self):
         """
         Returns a list of all initial values symbols as defined in the model which are marked as functions.
@@ -612,6 +661,15 @@ class ASTNeuron(ASTNode):
             ASTCreator.createInitialValuesBlock(self)
         self.getInitialBlocks().getDeclarations().append(_declaration)
         return
+
+    def add_shape(self, shape):
+        # type: (ASTOdeShape) -> None
+        """
+        Adds the handed over declaration to the initial values block.
+        :param shape: a single declaration.
+        """
+        assert self.get_equations_block() is not None
+        self.get_equations_block().getDeclarations().append(shape)
 
     """
     The following print methods are used by the backend and represent the comments as stored at the corresponding 

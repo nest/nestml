@@ -13,24 +13,22 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
   {%- for ode in neuron.getEquationsBlocks().getDeclarations() -%}
-    {%- set simpleOde = odeTransformer.replaceSumCalls(ode) %}
     {%- for function in utils.getAliasSymbols(ode) -%}
       {%- if not function.isEquation() -%}
-        {% set declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression()) -%}
+        {% set declaringExpression = function.getDeclaringExpression() -%}
   double {{names.name(function)}} = {{expressionsPrinterForGSL.printExpression(declaringExpression)}};
       {% endif -%}
     {% endfor -%}
   {% endfor %}
 
   {% for function in neuron.getODEAliases() -%}
-    {% set declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression()) -%}
+    {% set declaringExpression = function.getDeclaringExpression() -%}
   double {{names.name(function)}} = {{printerGSL.printExpression(declaringExpression)}};
   {% endfor -%}
 
   {%- for odeVariable in neuron.getNonFunctionInitialValuesSymbols() -%}
   {%- if odeVariable.isOdeDefined() %}
-  {% set simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDefinition()) -%}
-  f[{{names.arrayIndex(odeVariable)}}] = {{printerGSL.printExpression(simpleOde)}};
+  f[{{names.arrayIndex(odeVariable)}}] = {{printerGSL.printExpression(odeVariable.getOdeDefinition())}};
   {%- endif -%}
   {%- endfor %}
   return GSL_SUCCESS;
