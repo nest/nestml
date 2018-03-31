@@ -64,4 +64,7 @@ class ASTStmt(ASTNode):
     def equals(self, _other=None):
         if not isinstance(_other, ASTStmt):
             return False
-        return self.small_stmt.equals(_other.small_stmt) and self.compound_stmt.equals(_other.compound_stmt)
+        if self.is_small_stmt() and _other.is_small_stmt():
+            return self.small_stmt.equals(_other.small_stmt)
+        if self.is_compound_stmt() and _other.is_compound_stmt():
+            return self.compound_stmt.equals(_other.compound_stmt)

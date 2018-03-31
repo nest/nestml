@@ -21,11 +21,15 @@ from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTStmt import ASTStmt
+
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
+
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
+
 import re as re
 
 
@@ -105,21 +109,23 @@ class TransformerBase(object):
         if integrate_call is not None:
             small_statement = _neuron.getParent(integrate_call)
             assert (small_statement is not None and isinstance(small_statement, ASTSmallStmt))
-
+            stmt = _neuron.getParent(small_statement)
+            assert (stmt is not None and isinstance(stmt, ASTStmt))
             block = _neuron.getParent(_neuron.getParent(small_statement))
             assert (block is not None and isinstance(block, ASTBlock))
             for i in range(0, len(block.getStmts())):
-                if block.getStmts()[i].equals(small_statement):
+                if block.getStmts()[i].equals(stmt):
                     del block.getStmts()[i]
                     const_tuple = ASTUtils.getTupleFromSingleDictEntry(_constInput)
                     update_statements = list()
-                    update_statements.append(ModelParser.parseStmt(const_tuple[0] + " real = " + const_tuple[1]))
-                    update_statements += list((ModelParser.parseStmt(prop) for prop in _propagatorSteps))
+                    update_statements.append(ModelParser.parse_stmt(const_tuple[0] + " real = " + const_tuple[1]))
+                    update_statements += list((ModelParser.parse_stmt(prop) for prop in _propagatorSteps))
                     block.getStmts()[i:i] = update_statements
                     break
         else:
             code, message = Messages.getOdeSolutionNotUsed()
-            Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _errorPosition=_neuron.get_source_position(),
+            Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
+                              _errorPosition=_neuron.get_source_position(),
                               _logLevel=LOGGING_LEVEL.INFO)
         return _neuron
 
