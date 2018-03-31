@@ -48,7 +48,9 @@ class CodegeneratorTest(unittest.TestCase):
     """
 
     def test_model_preparation(self):
-        compilation_unit = ModelParser.parseModel("../models/iaf_psc_alpha.nestml")
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            '..', 'models', 'iaf_psc_alpha.nestml'))))
+        compilation_unit = ModelParser.parseModel(path)
         assert len(compilation_unit.getNeuronList()) == 1
         ast_neuron = compilation_unit.getNeuronList()[0]
         equations_block = ast_neuron.get_equations_block()
@@ -65,7 +67,9 @@ class CodegeneratorTest(unittest.TestCase):
         self.assertTrue("convolve(I_shape_ex, ex_spikes)" in json_representation["odes"][0]["definition"])
 
     def test_solve_odes_and_shapes(self):
-        compilation_unit = ModelParser.parseModel("../models/iaf_psc_alpha.nestml")
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            '..', 'models', 'iaf_psc_alpha.nestml'))))
+        compilation_unit = ModelParser.parseModel(path)
         assert len(compilation_unit.getNeuronList()) == 1
         ast_neuron = compilation_unit.getNeuronList()[0]
         ast_neuron = transform_shapes_and_odes(ast_neuron, {})

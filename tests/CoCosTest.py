@@ -83,7 +83,7 @@ class InvalidElementNotDefinedInScope(unittest.TestCase):
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
-        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 3)
+        self.assertEqual(2, len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)))
 
 
 class ValidElementNotDefinedInScope(unittest.TestCase):
