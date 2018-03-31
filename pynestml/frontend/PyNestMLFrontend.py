@@ -47,7 +47,7 @@ def main(args):
     # now proceed to parse all models
     compilation_units = list()
     for file in FrontendConfiguration.getFiles():
-        parsed_unit = ModelParser.parseModel(file)
+        parsed_unit = ModelParser.parse_model(file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
     # generate a list of all neurons

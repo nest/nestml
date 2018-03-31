@@ -37,7 +37,7 @@ from pynestml.modelprocessor.ASTIfStmt import ASTIfStmt
 from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
 from pynestml.modelprocessor.ASTForStmt import ASTForStmt
 from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 from pynestml.modelprocessor.ASTElifClause import ASTElifClause
 from pynestml.modelprocessor.ASTElseClause import ASTElseClause
 from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
@@ -52,7 +52,7 @@ from pynestml.modelprocessor.ASTInputLine import ASTInputLine
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 from pynestml.modelprocessor.ASTSignalType import ASTSignalType
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
 from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
 from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
@@ -124,15 +124,15 @@ class ASTNodeFactory(object):
     @classmethod
     def create_ast_data_type(cls, is_integer=False, is_real=False, is_string=False, is_boolean=False,
                              is_void=False, is_unit_type=None, source_position=None):
-        # type: (bool,bool,bool,bool,bool,ASTUnitType,ASTSourcePosition) -> ASTDatatype
-        return ASTDatatype(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, source_position)
+        # type: (bool,bool,bool,bool,bool,ASTUnitType,ASTSourcePosition) -> ASTDataType
+        return ASTDataType(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, source_position)
 
     @classmethod
     def create_ast_declaration(cls,
                                is_recordable=False,  # type: bool
                                is_function=False,  # type: bool
                                variables=list(),  # type: list
-                               data_type=None,  # type: ASTDatatype
+                               data_type=None,  # type: ASTDataType
                                size_parameter=None,  # type: str
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
@@ -210,7 +210,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_function(cls, name, parameters, return_type, block, source_position):
-        # type: (str,(None|list(ASTParameter)),(ASTDatatype|None),ASTBlock,ASTSourcePosition) -> ASTFunction
+        # type: (str,(None|list(ASTParameter)),(ASTDataType|None),ASTBlock,ASTSourcePosition) -> ASTFunction
         return ASTFunction(name, parameters, return_type, block, source_position)
 
     @classmethod
@@ -235,7 +235,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_input_line(cls, name, size_parameter, data_type, input_types, signal_type, source_position):
-        # type:(str,str,(None|ASTDatatype),list(ASTInputType),ASTSignalType,ASTSourcePosition) -> ASTInputLine
+        # type:(str,str,(None|ASTDataType),list(ASTInputType),ASTSignalType,ASTSourcePosition) -> ASTInputLine
         return ASTInputLine(name=name, size_parameter=size_parameter, data_type=data_type, input_types=input_types,
                             signal_type=signal_type, source_position=source_position)
 
@@ -251,8 +251,8 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_nestml_compilation_unit(cls, list_of_neurons, source_position, artifact_name):
-        # type: (list(ASTNeuron),ASTSourcePosition,str) -> ASTNESTMLCompilationUnit
-        instance = ASTNESTMLCompilationUnit(source_position, artifact_name)
+        # type: (list(ASTNeuron),ASTSourcePosition,str) -> ASTNestMLCompilationUnit
+        instance = ASTNestMLCompilationUnit(source_position, artifact_name)
         for i in list_of_neurons:
             instance.addNeuron(i)
         return instance
@@ -269,7 +269,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_ode_function(cls, variable_name, data_type, expression, source_position, is_recordable=False):
-        # type: (str,ASTDatatype,ASTExpression|ASTSimpleExpression,ASTSourcePosition,bool) -> ASTOdeFunction
+        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourcePosition,bool) -> ASTOdeFunction
         return ASTOdeFunction(variable_name=variable_name, data_type=data_type, expression=expression,
                               source_position=source_position, is_recordable=is_recordable, )
 
@@ -285,7 +285,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
-        # type: (str,ASTDatatype,ASTSourcePosition) -> ASTParameter
+        # type: (str,ASTDataType,ASTSourcePosition) -> ASTParameter
         return ASTParameter(name=name, data_type=data_type, source_position=source_position)
 
     @classmethod

@@ -20,7 +20,7 @@
 
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTBlock import ASTBlock
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 
 
 class ASTFunction(ASTNode):
@@ -68,7 +68,7 @@ class ASTFunction(ASTNode):
             '(PyNestML.AST.Function) No block or wrong type provided (%s)!' % type(_block)
         assert (_parameters is None or isinstance(_parameters, list)), \
             '(PyNestML.AST.Function) Wrong type of parameters provided (%s)!' % type(_parameters)
-        assert (_returnType is None or isinstance(_returnType, ASTDatatype)), \
+        assert (_returnType is None or isinstance(_returnType, ASTDataType)), \
             '(PyNestML.AST.Function) Wrong type of return provided (%s)!' % type(_returnType)
         super(ASTFunction, self).__init__(_sourcePosition)
         self.__block = _block

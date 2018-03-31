@@ -28,7 +28,7 @@ from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
@@ -51,9 +51,9 @@ class NESTMLTest(unittest.TestCase):
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
-                model = ModelParser.parseModel(os.path.join(os.path.dirname(__file__),
-                                                            os.path.join(os.path.join('..', 'models'), filename)))
-                assert (isinstance(model, ASTNESTMLCompilationUnit))
+                model = ModelParser.parse_model(os.path.join(os.path.dirname(__file__),
+                                                             os.path.join(os.path.join('..', 'models'), filename)))
+                assert (isinstance(model, ASTNestMLCompilationUnit))
         return
 
 

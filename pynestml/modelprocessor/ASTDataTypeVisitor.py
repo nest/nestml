@@ -32,11 +32,11 @@ class ASTDataTypeVisitor(object):
         Visits a single data type ast node and updates, checks correctness and updates its type symbol.
         This visitor can also be used to derive the original name of the unit.
         :param _dataType: a single datatype node.
-        :type _dataType: ASTDatatype
+        :type _dataType: ASTDataType
         """
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-        from pynestml.modelprocessor.ASTDatatype import ASTDatatype
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+        from pynestml.modelprocessor.ASTDataType import ASTDataType
+        assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
             '(PyNestML.SymbolTable.DatatypeVisitor) No or wrong type of data-type provided (%s)!' % type(_dataType)
         if _dataType.isUnitType():
             symbol = cls.visitUnitType(_dataType.getUnitType())

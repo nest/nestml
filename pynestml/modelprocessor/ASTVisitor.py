@@ -26,7 +26,7 @@ from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
 from pynestml.modelprocessor.ASTBody import ASTBody
 from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
 from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
 from pynestml.modelprocessor.ASTElifClause import ASTElifClause
 from pynestml.modelprocessor.ASTElseClause import ASTElseClause
@@ -41,7 +41,7 @@ from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
 from pynestml.modelprocessor.ASTInputLine import ASTInputLine
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
 from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
@@ -78,7 +78,7 @@ class ASTVisitor(object):
         """
         Visits a single compilation unit, thus all neurons.
         :param _compilationUnit: a single compilation unit.
-        :type _compilationUnit: ASTNESTMLCompilationUnit
+        :type _compilationUnit: ASTNestMLCompilationUnit
         """
         return
 
@@ -385,7 +385,7 @@ class ASTVisitor(object):
         """
         Visits a single compilation unit, thus all neurons.
         :param _compilationUnit: a single compilation unit.
-        :type _compilationUnit: ASTNESTMLCompilationUnit
+        :type _compilationUnit: ASTNestMLCompilationUnit
         """
         return
 
@@ -737,7 +737,7 @@ class ASTVisitor(object):
         if isinstance(_node, ASTCompoundStmt):
             self.visitCompoundStmt(_node)
             return
-        if isinstance(_node, ASTDatatype):
+        if isinstance(_node, ASTDataType):
             self.visitDatatype(_node)
             return
         if isinstance(_node, ASTDeclaration):
@@ -782,7 +782,7 @@ class ASTVisitor(object):
         if isinstance(_node, ASTLogicalOperator):
             self.visitLogicalOperator(_node)
             return
-        if isinstance(_node, ASTNESTMLCompilationUnit):
+        if isinstance(_node, ASTNestMLCompilationUnit):
             self.visitCompilationUnit(_node)
             return
         if isinstance(_node, ASTNeuron):
@@ -862,7 +862,7 @@ class ASTVisitor(object):
         if isinstance(_node, ASTCompoundStmt):
             self.traverseCompoundStmt(_node)
             return
-        if isinstance(_node, ASTDatatype):
+        if isinstance(_node, ASTDataType):
             self.traverseDatatype(_node)
             return
         if isinstance(_node, ASTDeclaration):
@@ -907,7 +907,7 @@ class ASTVisitor(object):
         if isinstance(_node, ASTLogicalOperator):
             self.traverseLogicalOperator(_node)
             return
-        if isinstance(_node, ASTNESTMLCompilationUnit):
+        if isinstance(_node, ASTNestMLCompilationUnit):
             self.traverseCompilationUnit(_node)
             return
         if isinstance(_node, ASTNeuron):
@@ -987,7 +987,7 @@ class ASTVisitor(object):
         if isinstance(_node, ASTCompoundStmt):
             self.endvisitCompoundStmt(_node)
             return
-        if isinstance(_node, ASTDatatype):
+        if isinstance(_node, ASTDataType):
             self.endvisitDatatype(_node)
             return
         if isinstance(_node, ASTDeclaration):
@@ -1032,7 +1032,7 @@ class ASTVisitor(object):
         if isinstance(_node, ASTLogicalOperator):
             self.endvisitLogicalOperator(_node)
             return
-        if isinstance(_node, ASTNESTMLCompilationUnit):
+        if isinstance(_node, ASTNestMLCompilationUnit):
             self.endvisitCompilationUnit(_node)
             return
         if isinstance(_node, ASTNeuron):

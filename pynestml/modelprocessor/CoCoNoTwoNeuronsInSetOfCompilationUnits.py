@@ -33,7 +33,7 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
         """
         Checks the coco.
         :param _listOfCompilationUnits: a list of compilation units.
-        :type _listOfCompilationUnits: list(ASTNESTMLCompilationUnit)
+        :type _listOfCompilationUnits: list(ASTNestMLCompilationUnit)
         """
         assert (_listOfCompilationUnits is not None and isinstance(_listOfCompilationUnits, list)), \
             '(PyNestML.CoCo.NameCollisionAcrossUnits) No or wrong type of list provided (%s)!' % type(

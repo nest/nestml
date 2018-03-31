@@ -20,7 +20,7 @@
 
 
 from pynestml.modelprocessor.ASTNode import ASTNode
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
@@ -53,7 +53,7 @@ class ASTOdeFunction(ASTNode):
         """
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.AST.OdeFunction) No or wrong type of variable name provided (%s)!' % type(variable_name)
-        assert (data_type is not None and isinstance(data_type, ASTDatatype)), \
+        assert (data_type is not None and isinstance(data_type, ASTDataType)), \
             '(PyNestML.AST.OdeFunction) No or wrong type of variable datatype provided (%s)!' % type(data_type)
         assert (expression is not None and (isinstance(expression, ASTExpression) or
                                             isinstance(expression, ASTSimpleExpression))), \
@@ -87,7 +87,7 @@ class ASTOdeFunction(ASTNode):
         """
         Returns the data type as an object of ASTDatatype.
         :return: the type as an object of ASTDatatype.
-        :rtype: ASTDatatype
+        :rtype: ASTDataType
         """
         return self.__dataType
 

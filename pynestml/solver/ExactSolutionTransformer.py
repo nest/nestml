@@ -47,7 +47,7 @@ class ExactSolutionTransformer(object):
             '(PyNestML.Solver.ExactSolutionTransformer) No or wrong type of solver output provided (%s)!' % type(
                 _solverOutput)
         working_version = _neuron
-        working_version.addToInternalBlock(ModelParser.parseDeclaration('__h ms = resolution()'))
+        working_version.addToInternalBlock(ModelParser.parse_declaration('__h ms = resolution()'))
         working_version = TransformerBase.addVariableToInternals(working_version, _solverOutput.ode_var_factor)
         working_version = TransformerBase.addVariableToInternals(working_version, _solverOutput.const_input)
         working_version = TransformerBase.addVariablesToInternals(working_version, _solverOutput.propagator_elements)
@@ -69,7 +69,7 @@ class ExactSolutionTransformer(object):
         working_version.getEquationsBlocks().clear()
 
         for variable in state_shape_variables_with_initial_values:
-            _neuron.addToStateBlock(ModelParser.parseDeclaration(variable[0] + ' real'))
+            _neuron.addToStateBlock(ModelParser.parse_declaration(variable[0] + ' real'))
 
         if working_version.getInitialBlocks() is not None:
             working_version.getInitialBlocks().clear()
@@ -97,9 +97,9 @@ class ExactSolutionTransformer(object):
             if key.startswith('__tmp'):
                 temp_variables.append(key)
         for var in temp_variables:
-            TransformerBase.addDeclarationToUpdateBlock(ModelParser.parseDeclaration(var + ' real'), _neuron)
+            TransformerBase.addDeclarationToUpdateBlock(ModelParser.parse_declaration(var + ' real'), _neuron)
         for out in _solverOutput.updates_to_shape_state_variables:
             key, value = ASTUtils.getTupleFromSingleDictEntry(out)
-            assignment = ModelParser.parseAssignment(key + ' = ' + value)
+            assignment = ModelParser.parse_assignment(key + ' = ' + value)
             TransformerBase.addAssignmentToUpdateBlock(assignment, _neuron)
         return

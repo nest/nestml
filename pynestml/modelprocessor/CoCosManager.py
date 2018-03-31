@@ -250,8 +250,8 @@ class CoCosManager(object):
         :param _compilationUnit: a single compilation unit.
         :type _compilationUnit: ASTCompilationUnit
         """
-        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
-        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNESTMLCompilationUnit)), \
+        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNestMLCompilationUnit)), \
             '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(_compilationUnit)
         cls.__multipleNeuronsWithSameName(_compilationUnit)
         return
@@ -382,7 +382,7 @@ class CoCosManager(object):
         """
         Checks if in a set of compilation units, two neurons have the same name.
         :param _compilationUnits: a  list of compilation units
-        :type _compilationUnits: list(ASTNESTMLCompilationUnit)
+        :type _compilationUnits: list(ASTNestMLCompilationUnit)
         """
         assert (_compilationUnits is not None and isinstance(_compilationUnits, list)), \
             '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(list)

@@ -1,5 +1,5 @@
 #
-# ASTDatatype.py
+# ASTDataType.py
 #
 # This file is part of NEST.
 #
@@ -22,10 +22,10 @@ from pynestml.modelprocessor.ASTUnitType import ASTUnitType
 from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTDatatype(ASTNode):
+class ASTDataType(ASTNode):
     """
     A datatype class as used to store a datatype of an element.
-    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
+    ASTDataType. Represents predefined datatypes and gives a possibility to use an unit
     datatype.
     @attribute boolean getters for integer, real, ...
     @attribute unitType a SI datatype
@@ -74,7 +74,7 @@ class ASTDatatype(ASTNode):
             '(PyNestML.AST.Datatype) Wrong type of is-void parameter provided (%s)' % type(_isVoid)
         assert (_isUnitType is None or isinstance(_isUnitType, ASTUnitType)), \
             '(PyNestML.AST.Datatype) Wrong type of unit-type parameter provided (%s)' % type(_isUnitType)
-        super(ASTDatatype, self).__init__(_sourcePosition)
+        super(ASTDataType, self).__init__(_sourcePosition)
         self.__isUnitType = _isUnitType
         self.__isVoid = _isVoid
         self.__isBoolean = _isBoolean
@@ -205,7 +205,7 @@ class ASTDatatype(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTDatatype):
+        if not isinstance(_other, ASTDataType):
             return False
         if not (self.isInteger() == _other.isInteger() and self.isReal() == _other.isReal() and
                 self.isString() == _other.isString() and self.isBoolean() == _other.isBoolean() and

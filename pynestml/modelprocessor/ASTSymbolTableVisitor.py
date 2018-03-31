@@ -472,8 +472,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
-        from pynestml.modelprocessor.ASTDatatype import ASTDatatype
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+        from pynestml.modelprocessor.ASTDataType import ASTDataType
+        assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided (%s)!' % type(_dataType)
         if _dataType.isUnitType():
             _dataType.getUnitType().updateScope(_dataType.getScope())

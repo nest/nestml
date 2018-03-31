@@ -66,12 +66,12 @@ class TransformerBase(object):
         :rtype: ASTNeuron
         """
         (var, value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
-        tmp = ModelParser.parseExpression(value)
+        tmp = ModelParser.parse_expression(value)
         vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
         declaration_string = var + ' real' + (
             '[' + vector_variable.getVectorParameter() + ']'
             if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + value
-        ast_declaration = ModelParser.parseDeclaration(declaration_string)
+        ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.setSizeParameter(vector_variable.getVectorParameter())
         _neuron.addToInternalBlock(ast_declaration)
@@ -151,12 +151,12 @@ class TransformerBase(object):
         """
         try:
             (var, value) = _declaration
-            tmp = ModelParser.parseExpression(value)
+            tmp = ModelParser.parse_expression(value)
             vector_variable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
             declaration_string = var + ' real' + (
                 '[' + vector_variable.getVectorParameter() + ']'
                 if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + value
-            ast_declaration = ModelParser.parseDeclaration(declaration_string)
+            ast_declaration = ModelParser.parse_declaration(declaration_string)
             if vector_variable is not None:
                 ast_declaration.setSizeParameter(vector_variable.getVectorParameter())
             _neuron.addToInitialValuesBlock(ast_declaration)
@@ -187,7 +187,7 @@ class TransformerBase(object):
                 for variable in astDeclaration.getVariables():
                     if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
                                                                                          variable.getCompleteName()):
-                        assignment = ModelParser.parseAssignment(
+                        assignment = ModelParser.parse_assignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
                                 astDeclaration.getExpression()))
                         spikes_updates.append(assignment)

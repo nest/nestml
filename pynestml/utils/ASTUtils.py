@@ -32,7 +32,7 @@ class ASTUtils(object):
         For a list of compilation units, it returns a list containing all neurons defined in all compilation
         units.
         :param _listOfCompilationUnits: a list of compilation units.
-        :type _listOfCompilationUnits: list(ASTNESTMLCompilationUnit)
+        :type _listOfCompilationUnits: list(ASTNestMLCompilationUnit)
         :return: a list of neurons
         :rtype: list(ASTNeuron)
         """
@@ -125,8 +125,8 @@ class ASTUtils(object):
         :return: the corresponding representation.
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTDatatype import ASTDatatype
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+        from pynestml.modelprocessor.ASTDataType import ASTDataType
+        assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of data type provided (%s)!' % type(_dataType)
         if _dataType.isBoolean():
             return 'boolean'

@@ -22,7 +22,7 @@
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 
 
 class ASTDeclaration(ASTNode):
@@ -84,7 +84,7 @@ class ASTDeclaration(ASTNode):
         assert (_variables is not None and isinstance(_variables, list)), \
             '(PyNestML.AST.Declaration) No or wrong type of variable-list provided (%s)!' \
             % type(_variables)
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+        assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
             '(PyNestML.AST.Declaration) No or wrong type of data-type provided (%s)!' \
             % type(_dataType)
         assert (_sizeParameter is None or isinstance(_sizeParameter, str)), \

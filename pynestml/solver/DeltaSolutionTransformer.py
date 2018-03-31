@@ -47,7 +47,7 @@ class DeltaSolutionTransformer(object):
             '(PyNestML.Solver.DeltaSolution) No or wrong type of output provided (%s)!' % _solverOutput
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.DeltaSolution) No or wrong type of neuron provided (%s)!' % _neuron
-        _neuron.addToInternalBlock(ModelParser.parseDeclaration('__h ms = resolution()'))
+        _neuron.addToInternalBlock(ModelParser.parse_declaration('__h ms = resolution()'))
         TransformerBase.addVariableToInternals(_neuron, _solverOutput.const_input)
         TransformerBase.addVariableToInternals(_neuron, _solverOutput.ode_var_factor)
         i_sum_calls = [func for func in ASTUtils.getAll(_neuron.getEquationsBlocks(), ASTFunctionCall)

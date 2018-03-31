@@ -20,7 +20,7 @@
 
 
 from pynestml.modelprocessor.ASTNode import ASTNode
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 
 
 class ASTParameter(ASTNode):
@@ -33,7 +33,7 @@ class ASTParameter(ASTNode):
         parameter : NAME datatype;
     Attributes:
         __name (str): The name of the parameter.
-        __dataType (ASTDatatype): The data type of the parameter.
+        __dataType (ASTDataType): The data type of the parameter.
     """
     __name = None
     __dataType = None
@@ -44,13 +44,13 @@ class ASTParameter(ASTNode):
         :param name: the name of the parameter.
         :type name: str
         :param data_type: the type of the parameter.
-        :type data_type: ASTDatatype
+        :type data_type: ASTDataType
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(name)
-        assert (data_type is not None and isinstance(data_type, ASTDatatype)), \
+        assert (data_type is not None and isinstance(data_type, ASTDataType)), \
             '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(data_type)
         super(ASTParameter, self).__init__(source_position)
         self.__dataType = data_type
@@ -68,7 +68,7 @@ class ASTParameter(ASTNode):
         """
         Returns the data type of the parameter.
         :return: the data type of the parameter.
-        :rtype: ASTDatatype
+        :rtype: ASTDataType
         """
         return self.__dataType
 

@@ -23,9 +23,9 @@ from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTNode import ASTNode
 
 
-class ASTNESTMLCompilationUnit(ASTNode):
+class ASTNestMLCompilationUnit(ASTNode):
     """
-    The ASTNESTMLCompilationUnit class as used to store a collection of processed ASTNeurons.
+    The ASTNestMLCompilationUnit class as used to store a collection of processed ASTNeurons.
     """
     # a list of all processed neurons
     __neuronList = None
@@ -33,7 +33,7 @@ class ASTNESTMLCompilationUnit(ASTNode):
 
     def __init__(self, _sourcePosition=None, _artifactName=None):
         """
-        Standard constructor of ASTNESTMLCompilationUnit.
+        Standard constructor of ASTNestMLCompilationUnit.
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :param _artifactName: the name of the file where ths model is contained in
@@ -42,7 +42,7 @@ class ASTNESTMLCompilationUnit(ASTNode):
         assert (_artifactName is not None and isinstance(_artifactName, str)), \
             '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
                 _artifactName)
-        super(ASTNESTMLCompilationUnit, self).__init__(_sourcePosition)
+        super(ASTNestMLCompilationUnit, self).__init__(_sourcePosition)
         self.__neuronList = list()
         self.__artifactName = _artifactName
         return
@@ -116,7 +116,7 @@ class ASTNESTMLCompilationUnit(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTNESTMLCompilationUnit):
+        if not isinstance(_other, ASTNestMLCompilationUnit):
             return False
         if len(self.getNeuronList()) != len(_other.getNeuronList()):
             return False

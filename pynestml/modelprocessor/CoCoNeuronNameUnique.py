@@ -51,8 +51,8 @@ class CoCoNeuronNameUnique(CoCo):
         :param _compilationUnit: a single compilation unit.
         :type _compilationUnit: ASTCompilationUnit
         """
-        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
-        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNESTMLCompilationUnit)), \
+        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNestMLCompilationUnit)), \
             '(PyNestML.CoCo.NeuronNameUnique) No or wrong type of compilation unit provided (%s)!' % type(
                 _compilationUnit)
         checked = list()  # a list of already checked elements

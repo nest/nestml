@@ -24,7 +24,7 @@ from antlr4 import *
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
@@ -66,7 +66,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 for neuron in ast.getNeuronList():
                     ASTSymbolTableVisitor.updateSymbolTable(neuron)
                     SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
-                assert isinstance(ast, ASTNESTMLCompilationUnit)
+                assert isinstance(ast, ASTNestMLCompilationUnit)
         return
 
 

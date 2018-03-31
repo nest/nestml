@@ -74,7 +74,7 @@ class ShapesToOdesTransformer(object):
         ast_shapes = list()
         for singleDict in _equationsFile:
             for key in singleDict.keys():
-                ast_shapes.append(ModelParser.parseShape('shape ' + key + '\' = ' + singleDict[key]))
+                ast_shapes.append(ModelParser.parse_ode_shape('shape ' + key + '\' = ' + singleDict[key]))
         _astOdeDeclaration.getDeclarations().extend(ast_shapes)
         return
 

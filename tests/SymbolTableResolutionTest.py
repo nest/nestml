@@ -45,7 +45,7 @@ class SymbolTableResolutionTest(unittest.TestCase):
     """
 
     def test(self):
-        model = ModelParser.parseModel(
+        model = ModelParser.parse_model(
             os.path.join(
                 os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', 'ResolutionTest.nestml'))))
         scope = model.getNeuronList()[0].getScope()

@@ -10,7 +10,7 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'CoCoUserDefinedFunctionCorrectlyDefined', 'ASTPowerVisitor.py', 'ASTComparisonOperator', 'ASTOdeEquation',
            'CoCoCorrectOrderInEquation', 'CoCoVariableOncePerScope', 'PredefinedFunctions', 'ASTCompoundStmt',
            'ASTOdeFunction', 'CoCoCurrentBuffersNotSpecified', 'CoCoVectorVariableInNonVectorDeclaration',
-           'PredefinedTypes', 'ASTDatatype', 'ASTOdeShape', 'CoCoEachBlockUniqueAndDefined',
+           'PredefinedTypes', 'ASTDataType.py', 'ASTOdeShape', 'CoCoEachBlockUniqueAndDefined',
            'ASTComparisonOperatorVisitor.py',
            'PredefinedUnits', 'ASTDeclaration', 'ASTOutputBlock', 'CoCoEquationsOnlyForInitValues',
            'ASTConditionVisitor.py',

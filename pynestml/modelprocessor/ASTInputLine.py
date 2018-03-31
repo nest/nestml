@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTSignalType import ASTSignalType
-from pynestml.modelprocessor.ASTDatatype import ASTDatatype
+from pynestml.modelprocessor.ASTDataType import ASTDataType
 from pynestml.modelprocessor.ASTInputType import ASTInputType
 
 
@@ -75,7 +75,7 @@ class ASTInputLine(ASTNode):
                 '(PyNestML.AST.InputLine) No or wrong type of input type provided (%s)!' % type(typ)
         assert (size_parameter is None or isinstance(size_parameter, str)), \
             '(PyNestML.AST.InputLine) Wrong type of index parameter provided (%s)!' % type(size_parameter)
-        assert (data_type is None or isinstance(data_type, ASTDatatype)), \
+        assert (data_type is None or isinstance(data_type, ASTDataType)), \
             '(PyNestML.AST.InputLine) Wrong type of data-type provided (%s)!' % type(data_type)
         super(ASTInputLine, self).__init__(source_position)
         self.__signalType = signal_type
@@ -175,13 +175,13 @@ class ASTInputLine(ASTNode):
         :return: True if it has a datatype, otherwise False.
         :rtype: bool
         """
-        return self.__dataType is not None and isinstance(self.__dataType, ASTDatatype)
+        return self.__dataType is not None and isinstance(self.__dataType, ASTDataType)
 
     def getDatatype(self):
         """
         Returns the currently used data type of this buffer.
         :return: a single data type object.
-        :rtype: ASTDatatype
+        :rtype: ASTDataType
         """
         return self.__dataType
 

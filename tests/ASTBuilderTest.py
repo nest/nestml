@@ -24,7 +24,7 @@ from antlr4 import *
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -61,7 +61,7 @@ class ASTBuildingTest(unittest.TestCase):
                 # now build the ast
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)
-                assert isinstance(ast, ASTNESTMLCompilationUnit)
+                assert isinstance(ast, ASTNestMLCompilationUnit)
 
 
 if __name__ == '__main__':
