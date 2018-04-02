@@ -35,15 +35,15 @@ class CoCoFunctionCallsConsistent(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Checks the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(FunctionCallConsistencyVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(FunctionCallConsistencyVisitor())
         return
 
 
@@ -52,32 +52,32 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
     This visitor ensures that all function calls are consistent.
     """
 
-    def visit_function_call(self, _ast=None):
+    def visit_function_call(self, node):
         """
         Checks the coco.
-        :param _ast: a single function call.
-        :type _ast: ASTFunctionCall
+        :param node: a single function call.
+        :type node: ASTFunctionCall
         """
-        func_name = _ast.get_name()
+        func_name = node.get_name()
         if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':
             return
         # now, for all expressions, check for all function calls, the corresponding function is declared.
-        symbol = _ast.get_scope().resolveToSymbol(_ast.get_name(), SymbolKind.FUNCTION)
+        symbol = node.get_scope().resolveToSymbol(node.get_name(), SymbolKind.FUNCTION)
         # first check if the function has been declared
         if symbol is None:
-            code, message = Messages.getFunctionNotDeclared(_ast.get_name())
-            Logger.logMessage(_errorPosition=_ast.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
+            code, message = Messages.getFunctionNotDeclared(node.get_name())
+            Logger.logMessage(_errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         # now check if the number of arguments is the same as in the symbol
-        if symbol is not None and len(_ast.get_args()) != len(symbol.get_parameter_types()):
-            code, message = Messages.getWrongNumberOfArgs(str(_ast), len(symbol.get_parameter_types()),
-                                                          len(_ast.get_args()))
+        if symbol is not None and len(node.get_args()) != len(symbol.get_parameter_types()):
+            code, message = Messages.getWrongNumberOfArgs(str(node), len(symbol.get_parameter_types()),
+                                                          len(node.get_args()))
             Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                              _errorPosition=_ast.get_source_position())
+                              _errorPosition=node.get_source_position())
         # finally check if the call is correctly typed
         elif symbol is not None:
             expected_types = symbol.get_parameter_types()
-            actual_types = _ast.get_args()
+            actual_types = node.get_args()
             for i in range(0, len(actual_types)):
                 expected_type = expected_types[i]
                 actual_type = actual_types[i].get_type_either()
@@ -87,17 +87,17 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
                                       _errorPosition=actual_types[i].get_source_position())
                 elif not actual_type.getValue().equals(expected_type):
                     if ASTUtils.is_castable_to(actual_type.getValue(), expected_type):
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_ast,
+                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=node,
                                                                              _expectedType=expected_type,
                                                                              _gotType=actual_type, _castable=True)
 
-                        Logger.logMessage(_errorPosition=_ast.get_args()[i].get_source_position(),
+                        Logger.logMessage(_errorPosition=node.get_args()[i].get_source_position(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                     else:
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_ast,
+                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=node,
                                                                              _expectedType=expected_type,
                                                                              _gotType=actual_type, _castable=False)
 
-                        Logger.logMessage(_errorPosition=_ast.get_args()[i].get_source_position(),
+                        Logger.logMessage(_errorPosition=node.get_args()[i].get_source_position(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
         return

@@ -34,15 +34,15 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(VectorInDeclarationVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(VectorInDeclarationVisitor())
         return
 
 
@@ -51,16 +51,12 @@ class VectorInDeclarationVisitor(ASTVisitor):
     This visitor checks if somewhere in a declaration of a non-vector value, a vector is used.
     """
 
-    def visit_declaration(self, node=None):
+    def visit_declaration(self, node):
         """
         Checks the coco.
         :param node: a single declaration.
         :type node: ASTDeclaration
         """
-        from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-        assert (node is not None and isinstance(node, ASTDeclaration)), \
-            '(PyNestML.CoCo.VectorInNonVectorDeclaration) No or wrong type of declaration provided (%s)!' % type(
-                node)
         if node.has_expression():
             variables = node.get_expression().get_variables()
             for variable in variables:

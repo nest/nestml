@@ -21,10 +21,10 @@
 """
 simpleExpression : variable
 """
-from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import MessageCode
 
@@ -34,14 +34,12 @@ class ASTVariableVisitor(ASTVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visit_simple_expression(self, node=None):
+    def visit_simple_expression(self, node):
         """
         Visits a single variable as contained in a simple rhs and derives its type.
         :param node: a single simple rhs
         :type node: ASTSimpleExpression
         """
-        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.ASTVariableVisitor) No or wrong type of simple rhs provided (%s)!' % type(node)
         assert (node.get_scope() is not None), \
             '(PyNestML.Visitor.ASTVariableVisitor) No scope found, run symboltable creator!'
 

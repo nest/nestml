@@ -21,11 +21,11 @@
 """
 rhs: left=rhs logicalOperator right=rhs
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -40,8 +40,6 @@ class ASTBinaryLogicVisitor(ASTVisitor):
         :param node: a single rhs.
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTBinaryLogicVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         lhs_type = node.get_lhs().get_type_either()
         rhs_type = node.get_rhs().get_type_either()
 

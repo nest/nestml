@@ -30,16 +30,16 @@ class CoCoFunctionUnique(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Checks if each function is defined uniquely.
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
+        :param node: a single neuron
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionUnique) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.FunctionUnique) No or wrong type of neuron provided (%s)!' % type(node)
         checked_funcs_names = list()
-        for func in _neuron.get_functions():
+        for func in node.get_functions():
             if func.get_name() not in checked_funcs_names:
                 symbols = func.get_scope().resolveToAllSymbols(func.get_name(), SymbolKind.FUNCTION)
                 if isinstance(symbols, list) and len(symbols) > 1:

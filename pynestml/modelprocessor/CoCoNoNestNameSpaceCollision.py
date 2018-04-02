@@ -44,15 +44,15 @@ class CoCoNoNestNameSpaceCollision(CoCo):
                        'set_status', 'init_state_', 'init_buffers_']
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        for func in _neuron.get_functions():
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(node)
+        for func in node.get_functions():
             if func.get_name() in cls.__nestNameSpace:
                 code, message = Messages.getNestCollision(func.get_name())
                 Logger.logMessage(_errorPosition=func.get_source_position(),

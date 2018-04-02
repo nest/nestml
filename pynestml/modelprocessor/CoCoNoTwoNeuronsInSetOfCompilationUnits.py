@@ -29,7 +29,7 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _listOfCompilationUnits=None):
+    def check_co_co(cls, _listOfCompilationUnits=None):
         """
         Checks the coco.
         :param _listOfCompilationUnits: a list of compilation units.

@@ -33,39 +33,36 @@ class CoCoInvariantIsBoolean(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, neuron):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron instance.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
         visitor = InvariantTypeVisitor()
-        _neuron.accept(visitor)
-        return
-
+        neuron.accept(visitor)
+        
 
 class InvariantTypeVisitor(ASTVisitor):
     """
     Checks if for each invariant, the type is boolean.
     """
 
-    def visit_declaration(self, node=None):
+    def visit_declaration(self, node):
         """
         Checks the coco for a declaration.
         :param node: a single declaration.
         :type node: ASTDeclaration
         """
         if node.has_invariant():
-            invariantType = node.get_invariant().get_type_either()
-            if invariantType is None or invariantType.isError():
+            invariant_type = node.get_invariant().get_type_either()
+            if invariant_type is None or invariant_type.isError():
                 code, message = Messages.getTypeCouldNotBeDerived(str(node.get_invariant()))
                 Logger.logMessage(_errorPosition=node.get_invariant().get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-            elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
+            elif not invariant_type.getValue().equals(PredefinedTypes.getBooleanType()):
                 code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
-                                                                      invariantType.getValue())
+                                                                      invariant_type.getValue())
                 Logger.logMessage(_errorPosition=node.get_invariant().get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

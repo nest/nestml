@@ -38,15 +38,15 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.CurrentBuffersNotSpecified) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(CurrentTypeSpecifiedVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.CurrentBuffersNotSpecified) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(CurrentTypeSpecifiedVisitor())
         return
 
 
@@ -55,7 +55,7 @@ class CurrentTypeSpecifiedVisitor(ASTVisitor):
     This visitor ensures that all current buffers are not specified with keywords.
     """
 
-    def visit_input_line(self, node=None):
+    def visit_input_line(self, node):
         if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
             code, message = Messages.getCurrentBufferSpecified(node.get_name(),
                                                                list((str(buf) for buf in node.get_input_types())))

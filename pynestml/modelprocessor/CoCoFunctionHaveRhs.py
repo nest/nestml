@@ -30,15 +30,15 @@ class CoCoFunctionHaveRhs(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionWithRhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(FunctionRhsVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.FunctionWithRhs) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(FunctionRhsVisitor())
         return
 
 
@@ -47,7 +47,7 @@ class FunctionRhsVisitor(ASTVisitor):
     This visitor ensures that everything declared as function has a rhs.
     """
 
-    def visit_declaration(self, node=None):
+    def visit_declaration(self, node):
         """
         Checks if the coco applies.
         :param node: a single declaration.

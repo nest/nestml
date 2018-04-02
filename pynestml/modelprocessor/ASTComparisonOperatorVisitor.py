@@ -21,11 +21,11 @@
 """
 rhs : left=rhs comparisonOperator right=rhs
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -35,14 +35,12 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
     Visits a single rhs consisting of a binary comparison operator.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single comparison operator rhs and updates the type.
         :param node: an rhs
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTConditionVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         lhs_type_e = node.get_lhs().get_type_either()
         rhs_type_e = node.get_rhs().get_type_either()
 
@@ -57,7 +55,8 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
         rhs_type = rhs_type_e.getValue()
 
         if ((lhs_type.is_real() or lhs_type.is_integer()) and (rhs_type.is_real() or rhs_type.is_integer())) \
-                or (lhs_type.equals(rhs_type) and lhs_type.is_numeric()) or (lhs_type.is_boolean() and rhs_type.is_boolean()):
+                or (lhs_type.equals(rhs_type) and lhs_type.is_numeric()) or (lhs_type.is_boolean() and
+                                                                             rhs_type.is_boolean()):
             node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
             return
 

@@ -1,4 +1,4 @@
-__all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeBufferDatatypes',
+__all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeBufferDataTypes.py',
            'ModelParserExceptions',
            'ASTAssignment', 'ASTInputBlock', 'ASTBinaryLogicVisitor.py', 'CoCoParametersAssignedOnlyInParameterBlock',
            'ModelParser',

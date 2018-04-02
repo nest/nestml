@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.CoCo import CoCo
-from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
@@ -42,18 +42,18 @@ class CoCoNoShapesExceptInConvolve(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        shapeCollectorVisitor = ShapeCollectingVisitor()
-        shapeNames = shapeCollectorVisitor.collectShapes(_neuron=_neuron)
-        shapeUsageVisitor = ShapeUsageVisitor(_shapes=shapeNames)
-        shapeUsageVisitor.workOn(_neuron)
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
+        shape_collector_visitor = ShapeCollectingVisitor()
+        shape_names = shape_collector_visitor.collect_shapes(neuron=node)
+        shape_usage_visitor = ShapeUsageVisitor(_shapes=shape_names)
+        shape_usage_visitor.work_on(node)
         return
 
 
@@ -71,12 +71,12 @@ class ShapeUsageVisitor(ASTVisitor):
         self.__shapes = _shapes
         return
 
-    def workOn(self, _neuron=None):
-        self.__neuronNode = _neuron
-        _neuron.accept(self)
+    def work_on(self, neuron):
+        self.__neuronNode = neuron
+        neuron.accept(self)
         return
 
-    def visit_variable(self, node=None):
+    def visit_variable(self, node):
         """
         Visits each shape and checks if it is used correctly.
         :param node: a single node.
@@ -95,9 +95,9 @@ class ShapeUsageVisitor(ASTVisitor):
                         continue
                     grandparent = self.__neuronNode.get_parent(parent)
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
-                        grandparentFuncName = grandparent.get_name()
-                        if grandparentFuncName == 'curr_sum' or grandparentFuncName == 'cond_sum' or \
-                                        grandparentFuncName == 'convolve':
+                        grandparent_func_name = grandparent.get_name()
+                        if grandparent_func_name == 'curr_sum' or grandparent_func_name == 'cond_sum' or \
+                                grandparent_func_name == 'convolve':
                             continue
                 code, message = Messages.getShapeOutsideConvolve(shapeName)
                 Logger.logMessage(_errorPosition=node.get_source_position(),
@@ -107,25 +107,24 @@ class ShapeUsageVisitor(ASTVisitor):
 
 
 class ShapeCollectingVisitor(ASTVisitor):
-    __shapeNames = None
+    shape_names = None
 
-    def collectShapes(self, _neuron=None):
+    def collect_shapes(self, neuron):
         """
         Collects all shapes in the model.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron instance
+        :type neuron: ASTNeuron
         :return: a list of shapes.
         :rtype: list(str)
         """
-        self.__shapeNames = list()
-        _neuron.accept(self)
-        return self.__shapeNames
+        self.shape_names = list()
+        neuron.accept(self)
+        return self.shape_names
 
-    def visit_ode_shape(self, node=None):
+    def visit_ode_shape(self, node):
         """
         Collects the shape.
         :param node: a single shape node.
         :type node: ASTOdeShape
         """
-        self.__shapeNames.append(node.get_variable().get_name_of_lhs())
-        return
+        self.shape_names.append(node.get_variable().get_name_of_lhs())

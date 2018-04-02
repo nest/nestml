@@ -34,16 +34,16 @@ class CoCoTypeOfBufferUnique(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.get_name()
-        _neuron.accept(TypeOfBufferUniqueVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
+        cls.neuronName = node.get_name()
+        node.accept(TypeOfBufferUniqueVisitor())
         return
 
 
@@ -52,15 +52,12 @@ class TypeOfBufferUniqueVisitor(ASTVisitor):
     This visitor ensures that all buffers are specified uniquely by keywords.
     """
 
-    def visit_input_line(self, node=None):
+    def visit_input_line(self, node):
         """
         Checks the coco on the current node.
         :param node: a single input line.
         :type node: ASTInputLine
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        assert (node is not None and isinstance(node, ASTInputLine)), \
-            '(PyNestML.CoCo.TypeOfBufferUnique) No or wrong type of input line provided (%s)!' % type(node)
         if node.is_spike():
             if node.has_input_types() and len(node.get_input_types()) > 1:
                 inh = 0

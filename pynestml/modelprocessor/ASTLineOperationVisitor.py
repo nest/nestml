@@ -36,14 +36,12 @@ class ASTLineOperatorVisitor(ASTVisitor):
     Visits a single binary operation consisting of + or - and updates the type accordingly.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single rhs containing a plus or minus operator and updates its type.
         :param node: a single rhs
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTLineOperatorVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         lhs_type_e = node.get_lhs().get_type_either()
         rhs_type_e = node.get_rhs().get_type_either()
 

@@ -32,13 +32,11 @@ class ASTInfVisitor(ASTVisitor):
     Visits a inf rhs and updates the type accordingly.
     """
 
-    def visit_simple_expression(self, node=None):
+    def visit_simple_expression(self, node):
         """
         Visits a single simple rhs containing an inf literal and updates its type.
         :param node: a simple rhs
         :type node: ASTSimpleExpression
         """
-        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.InvVisitor) No or wrong type of simple rhs provided (%s)!' % type(node)
         node.set_type_either(Either.value(PredefinedTypes.getRealType()))
-        return
+        

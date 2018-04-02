@@ -32,11 +32,11 @@ class CoCo:
     __description = None
 
     @abstractmethod
-    def checkCoCo(self, _neuron=None):
+    def check_co_co(self, node):
         """
         This is an abstract method which should be implemented by all concrete cocos.
-        :param _neuron: a single neuron instance on which the coco will be checked.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance on which the coco will be checked.
+        :type node: ASTNeuron
         :return: True, if CoCo holds, otherwise False.
         :rtype: bool
         """

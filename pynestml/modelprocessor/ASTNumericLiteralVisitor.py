@@ -32,7 +32,7 @@ class ASTNumericLiteralVisitor(ASTVisitor):
     Visits a single numeric literal and updates its type.
     """
 
-    def visit_simple_expression(self, node=None):
+    def visit_simple_expression(self, node):
         """
         Visit a simple rhs and update the type of a numeric literal.
         :param node:

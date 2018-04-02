@@ -46,16 +46,16 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
     __processedFunction = None
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Checks the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.get_name()
-        for userDefinedFunction in _neuron.get_functions():
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(node)
+        cls.__neuronName = node.get_name()
+        for userDefinedFunction in node.get_functions():
             cls.__processedFunction = userDefinedFunction
             symbol = userDefinedFunction.get_scope().resolveToSymbol(userDefinedFunction.get_name(), SymbolKind.FUNCTION)
             # first ensure that the block contains at least one statement
@@ -66,7 +66,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif symbol is not None and userDefinedFunction.has_return_type() and \
                     not symbol.get_return_type().equals(PredefinedTypes.getVoidType()):
                 code, message = Messages.getNoReturn()
-                Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
+                Logger.logMessage(_neuron=node, _code=code, _message=message,
                                   _errorPosition=userDefinedFunction.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
         return
 

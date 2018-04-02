@@ -29,17 +29,17 @@ class CoCoVariableOncePerScope(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Checks if each variable is defined at most once per scope. Obviously, this test does not check if a declaration
         is shadowed by an embedded scope.
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
+        :param node: a single neuron
+        :type node: ASTNeuron
         """
         from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__checkScope(_neuron, _neuron.get_scope())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of neuron provided (%s)!' % type(node)
+        cls.__checkScope(node, node.get_scope())
         return
 
     @classmethod

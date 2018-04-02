@@ -18,9 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
@@ -49,15 +49,15 @@ class CoCoInitVarsWithOdesProvided(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Checks this coco on the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(InitVarsVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(InitVarsVisitor())
         return
 
 
@@ -66,7 +66,7 @@ class InitVarsVisitor(ASTVisitor):
     This visitor checks that all variables as provided in the init block have been provided with an ode.
     """
 
-    def visit_declaration(self, node=None):
+    def visit_declaration(self, node):
         """
         Checks the coco on the current node.
         :param node: a single declaration.
@@ -80,7 +80,8 @@ class InitVarsVisitor(ASTVisitor):
                 Logger.logMessage(_errorPosition=var.get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             # now check that they have been provided with an ODE
-            if symbol is not None and symbol.is_init_values() and not symbol.is_ode_defined() and not symbol.is_function():
+            if symbol is not None and symbol.is_init_values() \
+                    and not symbol.is_ode_defined() and not symbol.is_function():
                 code, message = Messages.getNoOde(symbol.get_symbol_name())
                 Logger.logMessage(_errorPosition=var.get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)

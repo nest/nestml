@@ -33,7 +33,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
     Visits a single function call and updates its type.
     """
 
-    def visit_simple_expression(self, node=None):
+    def visit_simple_expression(self, node):
         """
         Visits a single function call as stored in a simple rhs and derives the correct type of
          all its parameters.
@@ -41,9 +41,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
         :type node: ASTSimpleExpression
         :rtype void
         """
-        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.ASTFunctionCallVisitor) No or wrong type of simple rhs provided (%s)!' % tuple(
-                node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.ASTFunctionCallVisitor) No scope found, run symboltable creator!"
         scope = node.get_scope()

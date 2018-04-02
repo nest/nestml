@@ -17,10 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
@@ -33,17 +35,15 @@ class CoCoSumHasCorrectParameter(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, neuron):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron instance.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.get_name()
+        cls.neuronName = neuron.get_name()
         visitor = SumIsCorrectVisitor()
-        _neuron.accept(visitor)
+        neuron.accept(visitor)
         return
 
 
@@ -52,20 +52,15 @@ class SumIsCorrectVisitor(ASTVisitor):
     This visitor ensures that sums/convolve are provided with a correct rhs.
     """
 
-    def visit_function_call(self, node=None):
+    def visit_function_call(self, node):
         """
         Checks the coco on the current function call.
         :param node: a single function call.
         :type node: ASTFunctionCall
         """
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-        assert (node is not None and isinstance(node, ASTFunctionCall)), \
-            '(PyNestML.CoCo.SumHasCorrectParameter) No or wrong type of function call provided (%s)!' % type(
-                node)
-        fName = node.get_name()
-        if fName == PredefinedFunctions.CURR_SUM or fName == PredefinedFunctions.COND_SUM or \
-                        fName == PredefinedFunctions.CONVOLVE:
+        f_name = node.get_name()
+        if f_name == PredefinedFunctions.CURR_SUM or \
+                f_name == PredefinedFunctions.COND_SUM or f_name == PredefinedFunctions.CONVOLVE:
             for arg in node.get_args():
                 if not isinstance(arg, ASTSimpleExpression) or not arg.is_variable():
                     code, message = Messages.getNotAVariable(str(arg))

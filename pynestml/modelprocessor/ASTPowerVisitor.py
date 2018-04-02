@@ -35,14 +35,12 @@ class ASTPowerVisitor(ASTVisitor):
     Visits a single power rhs and updates its types accordingly.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single power rhs and updates the types.
         :param node: a single rhs.
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTPowerVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         base_type_e = node.get_lhs().get_type_either()
         exponent_type_e = node.get_rhs().get_type_either()
 
@@ -71,7 +69,7 @@ class ASTPowerVisitor(ASTVisitor):
                     return
                 base_unit = base_type.get_encapsulated_unit()
                 # TODO the following part is broken @ptraeder?
-                exponent_value = self.calculateNumericValue(
+                exponent_value = self.calculate_numeric_value(
                     node.get_rhs())  # calculate exponent value if exponent composed of literals
                 if exponent_value.isValue():
                     node.set_type_either(
@@ -90,28 +88,28 @@ class ASTPowerVisitor(ASTVisitor):
         node.set_type_either(Either.error(error_msg))
         Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
 
-    def calculateNumericValue(self, _expr=None):
+    def calculate_numeric_value(self, expr):
         """
         Calculates the numeric value of a exponent.
-        :param _expr: a single rhs
-        :type _expr: ASTSimpleExpression or ASTExpression
+        :param expr: a single rhs
+        :type expr: ASTSimpleExpression or ASTExpression
         :return: an Either object
         :rtype: Either
         """
         # TODO write tests for this by PTraeder
-        if isinstance(_expr, ASTExpression) and _expr.is_encapsulated:
-            return self.calculateNumericValue(_expr.get_expression())
-        elif isinstance(_expr, ASTSimpleExpression) and _expr.get_numeric_literal() is not None:
-            if isinstance(_expr.get_numeric_literal(), int):
-                literal = _expr.get_numeric_literal()
+        if isinstance(expr, ASTExpression) and expr.is_encapsulated:
+            return self.calculate_numeric_value(expr.get_expression())
+        elif isinstance(expr, ASTSimpleExpression) and expr.get_numeric_literal() is not None:
+            if isinstance(expr.get_numeric_literal(), int):
+                literal = expr.get_numeric_literal()
                 return Either.value(literal)
             else:
-                error_message = ErrorStrings.messageUnitBase(self, _expr.get_source_position())
+                error_message = ErrorStrings.messageUnitBase(self, expr.get_source_position())
                 return Either.error(error_message)
-        elif _expr.is_unary_operator() and _expr.get_unary_operator().isUnaryMinus():
-            term = self.calculateNumericValue(_expr.get_expression())
+        elif expr.is_unary_operator() and expr.get_unary_operator().isUnaryMinus():
+            term = self.calculate_numeric_value(expr.get_expression())
             if term.isError():
                 return term
             return Either.value(-term.getValue())
-        error_message = ErrorStrings.messageNonConstantExponent(self, _expr.get_source_position())
+        error_message = ErrorStrings.messageNonConstantExponent(self, expr.get_source_position())
         return Either.error(error_message)

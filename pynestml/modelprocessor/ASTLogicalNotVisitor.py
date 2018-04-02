@@ -35,14 +35,12 @@ class ASTLogicalNotVisitor(ASTVisitor):
     Visits a single rhs and updates the type of the sub-rhs.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single rhs with a logical operator and updates the type.
         :param node: a single rhs
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTLogicalNotVisitor) No or wrong type of visitor provided (%s)!' % type(node)
         expr_type_e = node.get_expression().get_type_either()
 
         if expr_type_e.isError():

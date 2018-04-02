@@ -39,15 +39,15 @@ class CoCoCorrectOrderInEquation(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.OrderInEquation) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(OrderOfEquationVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.OrderInEquation) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(OrderOfEquationVisitor())
         return
 
 
@@ -56,7 +56,7 @@ class OrderOfEquationVisitor(ASTVisitor):
     This visitor checks that all differential equations have a differential order.
     """
 
-    def visit_ode_equation(self, node=None):
+    def visit_ode_equation(self, node):
         """
         Checks the coco.
         :param node: A single ode equation.

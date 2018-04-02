@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
@@ -27,9 +28,8 @@ from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.Scope import Scope, ScopeType
-from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
 from pynestml.modelprocessor.Symbol import SymbolKind
-
+from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 from pynestml.utils.Stack import Stack
@@ -52,9 +52,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: a single neuron.
         :rtype: ASTNeuron
         """
-        from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided (%s)!' % type(node)
         # set current processed neuron
         Logger.setCurrentNeuron(node)
         code, message = Messages.getStartBuildingSymbolTable()
@@ -116,9 +113,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a function block object.
         :type node: ASTFunction
         """
-        from pynestml.modelprocessor.ASTFunction import ASTFunction
-        assert (node is not None and isinstance(node, ASTFunction)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of function node provided (%s)!' % type(node)
         self.block_type_stack.push(BlockType.LOCAL)  # before entering, update the current node type
         symbol = FunctionSymbol(scope=node.get_scope(), element_reference=node, param_types=list(),
                                 name=node.get_name(), is_predefined=False, return_type=None)
@@ -171,9 +165,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an update block object.
         :type node: ASTDynamics
         """
-        from pynestml.modelprocessor.ASTUpdateBlock import ASTUpdateBlock
-        assert (node is not None and isinstance(node, ASTUpdateBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of update-node provided (%s)!' % type(node)
         self.block_type_stack.push(BlockType.LOCAL)
         scope = Scope(_scopeType=ScopeType.UPDATE, _enclosingScope=node.get_scope(),
                       _sourcePosition=node.get_source_position())
@@ -191,22 +182,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a block object.
         :type node: ASTBlock
         """
-        from pynestml.modelprocessor.ASTBlock import ASTBlock
-        assert (node is not None and isinstance(node, ASTBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of node provided %s!' % type(node)
         for stmt in node.get_stmts():
             stmt.update_scope(node.get_scope())
         return
 
-    def visit_small_stmt(self, node=None):
+    def visit_small_stmt(self, node):
         """
         Private method: Used to visit a single small statement and create the corresponding sub-scope.
         :param node: a single small statement.
         :type node: ASTSmallStatement
         """
-        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
-        assert (node is not None and isinstance(node, ASTSmallStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of small statement provided (%s)!' % type(node)
         if node.is_declaration():
             node.get_declaration().update_scope(node.get_scope())
         elif node.is_assignment():
@@ -223,9 +208,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single compound statement.
         :type node: ASTCompoundStatement
         """
-        from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
-        assert (node is not None and isinstance(node, ASTCompoundStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of compound statement provided (%s)!' % type(node)
         if node.isIfStmt():
             node.getIfStmt().update_scope(node.get_scope())
         elif node.isWhileStmt():
@@ -242,9 +224,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-        from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-        assert (node is not None and isinstance(node, ASTAssignment)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of node provided (%s)!' % type(node)
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
         return
@@ -257,9 +236,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        assert (node is not None and isinstance(node, ASTFunctionCall)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of function call provided (%s)!' % type(node)
         for arg in node.get_args():
             arg.update_scope(node.get_scope())
         return
@@ -273,12 +249,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: the scope is update without a return value.
         :rtype: void
         """
-        from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-        from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
-        from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
-        assert (node is not None and isinstance(node, ASTDeclaration)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided (%s)!' % type(node)
-
         expression = node.get_expression() if node.has_expression() else None
         type_name = ASTDataTypeVisitor.visitDatatype(node.get_data_type())
         # all declarations in the state block are recordable
@@ -322,9 +292,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a return statement object.
         :type node: ASTReturnStmt
         """
-        from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
-        assert (node is not None and isinstance(node, ASTReturnStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of return statement provided (%s)!' % type(node)
         if node.has_expression():
             node.get_expression().update_scope(node.get_scope())
         return
@@ -335,9 +302,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an if-statement object.
         :type node: ASTIfStmt
         """
-        from pynestml.modelprocessor.ASTIfStmt import ASTIfStmt
-        assert (node is not None and isinstance(node, ASTIfStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of if-statement provided (%s)!' % type(node)
         node.getIfClause().update_scope(node.get_scope())
         for elIf in node.getElifClauses():
             elIf.update_scope(node.get_scope())
@@ -351,12 +315,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an if clause.
         :type node: ASTIfClause
         """
-        from pynestml.modelprocessor.ASTIfClause import ASTIfClause
-        assert (node is not None and isinstance(node, ASTIfClause)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of if-clause provided (%s)!' % type(node)
         node.get_condition().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
-        return
 
     def visit_elif_clause(self, node):
         """
@@ -364,12 +324,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an elif clause.
         :type node: ASTElifClause
         """
-        from pynestml.modelprocessor.ASTElifClause import ASTElifClause
-        assert (node is not None and isinstance(node, ASTElifClause)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of elif-clause provided (%s)!' % type(node)
         node.get_condition().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
-        return
 
     def visit_else_clause(self, node):
         """
@@ -377,11 +333,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an else clause.
         :type node: ASTElseClause
         """
-        from pynestml.modelprocessor.ASTElseClause import ASTElseClause
-        assert (node is not None and isinstance(node, ASTElseClause)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of else-clause provided (%s)!' % type(node)
         node.get_block().update_scope(node.get_scope())
-        return
 
     def visit_for_stmt(self, node):
         """
@@ -389,13 +341,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a for-statement.
         :type node: ASTForStmt
         """
-        from pynestml.modelprocessor.ASTForStmt import ASTForStmt
-        assert (node is not None and isinstance(node, ASTForStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of for-statement provided (%s)!' % type(node)
         node.get_start_from().update_scope(node.get_scope())
         node.get_end_at().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
-        return
 
     def visit_while_stmt(self, node):
         """
@@ -403,12 +351,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a while-statement.
         :type node: ASTWhileStmt
         """
-        from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
-        assert (node is not None and isinstance(node, ASTWhileStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of while-statement provided (%s)!' % type(node)
         node.get_condition().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
-        return
 
     def visit_data_type(self, node):
         """
@@ -416,14 +360,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a data-type.
         :type node: ASTDataType
         """
-        from pynestml.modelprocessor.ASTDataType import ASTDataType
-        assert (node is not None and isinstance(node, ASTDataType)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided (%s)!' % type(node)
         if node.is_unit_type():
             node.get_unit_type().update_scope(node.get_scope())
             return self.visit_unit_type(node.get_unit_type())
-        # besides updating the scope no operations are required, since no type symbols are added to the scope.
-        return
 
     def visit_unit_type(self, node):
         """
@@ -432,8 +371,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ASTUnitType
         """
         from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-        assert (node is not None and isinstance(node, ASTUnitType)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided (%s)!' % type(node)
         if node.is_pow:
             node.base.update_scope(node.get_scope())
         elif node.is_encapsulated:
@@ -451,11 +388,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ASTExpression
         """
         from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
         if isinstance(node, ASTSimpleExpression):
             return self.visit_simple_expression(node)
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of rhs provided (%s)!' % type(node)
         if node.isLogicalNot():
             node.get_expression().update_scope(node.get_scope())
         elif node.is_encapsulated:
@@ -479,9 +413,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a simple rhs.
         :type node: ASTSimpleExpression
         """
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of simple rhs provided (%s)!' % type(node)
         if node.is_function_call():
             node.get_function_call().update_scope(node.get_scope())
         elif node.is_variable() or node.has_unit():
@@ -494,8 +425,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single ode-function.
         :type node: ASTOdeFunction
         """
-        from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
-        from pynestml.modelprocessor.VariableSymbol import BlockType, VariableType
         type_symbol = PredefinedTypes.getTypeIfExists(ASTDataTypeVisitor.visitDatatype(node.get_data_type()))
         # now a new symbol
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
@@ -511,7 +440,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_scope().addSymbol(symbol)
         node.get_data_type().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
-        return
 
     def visit_ode_shape(self, node):
         """
@@ -519,11 +447,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single ode-shape.
         :type node: ASTOdeShape
         """
-        from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
-        from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType
-        from pynestml.modelprocessor.Symbol import SymbolKind
-        assert (node is not None and isinstance(node, ASTOdeShape)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(node)
         if node.get_variable().get_differential_order() == 0 and \
                 node.get_scope().resolveToSymbol(node.get_variable().get_complete_name(),
                                                  SymbolKind.VARIABLE) is None:
@@ -538,7 +461,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_scope().addSymbol(symbol)
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
-        return
 
     def visit_ode_equation(self, node):
         """
@@ -546,12 +468,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single ode-equation.
         :type node: ASTOdeEquation
         """
-        from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
-        assert (node is not None and isinstance(node, ASTOdeEquation)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-equation provided (%s)!' % type(node)
         node.get_lhs().update_scope(node.get_scope())
         node.get_rhs().update_scope(node.get_scope())
-        return
 
     def visit_block_with_variables(self, node):
         """
@@ -580,7 +498,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         for decl in node.getDeclarations():
             decl.update_scope(node.get_scope())
-        return
 
     def visit_input_block(self, node):
         """
@@ -588,12 +505,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input block.
         :type node: ASTInputBlock
         """
-        from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
-        assert (node is not None and isinstance(node, ASTInputBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of input-block provided (%s)!' % type(node)
         for line in node.getInputLines():
             line.update_scope(node.get_scope())
-        return
 
     def visit_input_line(self, node):
         """
@@ -601,9 +514,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input line.
         :type node: ASTInputLine
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        assert (node is not None and isinstance(node, ASTInputLine)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided (%s)!' % type(node)
         if node.is_spike() and node.has_datatype():
             node.get_datatype().update_scope(node.get_scope())
         elif node.is_spike():
@@ -612,10 +522,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
                               _logLevel=LOGGING_LEVEL.WARNING)
         for inputType in node.get_input_types():
             inputType.update_scope(node.get_scope())
-        return
 
     def endvisit_input_line(self, node):
-        from pynestml.modelprocessor.VariableSymbol import VariableSymbol
         buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
         if node.is_spike() and node.has_datatype():
             type_symbol = node.get_datatype().get_type_symbol()
@@ -633,7 +541,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                 type_symbol=type_symbol, variable_type=VariableType.BUFFER)
         symbol.set_comment(node.get_comment())
         node.get_scope().addSymbol(symbol)
-        return
 
     def visit_stmt(self, node):
         """
@@ -645,7 +552,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.small_stmt.update_scope(node.get_scope())
         if node.is_compound_stmt():
             node.compound_stmt.update_scope(node.get_scope())
-        return
 
 
 def make_implicit_odes_explicit(equations_block):
@@ -658,7 +564,6 @@ def make_implicit_odes_explicit(equations_block):
     """
     from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
     from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
-    from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
     checked = list()  # used to avoid redundant checking
     for declaration in equations_block.getDeclarations():
         if declaration in checked:

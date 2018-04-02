@@ -427,7 +427,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         neuron.set_comment(self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.setCurrentNeuron(neuron)
-        CoCoEachBlockUniqueAndDefined.checkCoCo(_neuron=neuron)
+        CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
         Logger.setCurrentNeuron(neuron)
         # now the ast seems to be correct, return it
         return neuron

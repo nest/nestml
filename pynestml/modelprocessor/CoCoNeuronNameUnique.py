@@ -45,7 +45,7 @@ class CoCoNeuronNameUnique(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _compilationUnit=None):
+    def check_co_co(cls, _compilationUnit=None):
         """
         Checks the coco for the handed over compilation unit.
         :param _compilationUnit: a single compilation unit.

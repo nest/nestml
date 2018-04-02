@@ -1,5 +1,5 @@
 #
-# CoCoOnlySpikeBufferDatatypes.py
+# CoCoOnlySpikeBufferDataTypes.py
 #
 # This file is part of NEST.
 #
@@ -24,7 +24,7 @@ from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
 
-class CoCoOnlySpikeBufferDatatypes(CoCo):
+class CoCoOnlySpikeBufferDataTypes(CoCo):
     """
     This coco ensures that all spike buffers have a data type and all current buffers no data type stated.
     Allowed:
@@ -39,15 +39,15 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Ensures the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        _neuron.accept(BufferDatatypeVisitor())
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of neuron provided (%s)!' % type(node)
+        node.accept(BufferDatatypeVisitor())
         return
 
 
@@ -56,15 +56,12 @@ class BufferDatatypeVisitor(ASTVisitor):
     This visitor checks if each buffer has a datatype selected according to the coco.
     """
 
-    def visit_input_line(self, node=None):
+    def visit_input_line(self, node):
         """
         Checks the coco on the current node.
         :param node: a single input line node.
         :type node: ASTInputLine
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        assert (node is not None and isinstance(node, ASTInputLine)), \
-            '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of input line provided (%s)!' % type(node)
         if node.is_spike() and not node.has_datatype():
             code, message = Messages.getDataTypeNotSpecified(node.get_name())
             Logger.logMessage(_errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,

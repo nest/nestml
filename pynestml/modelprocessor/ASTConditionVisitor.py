@@ -22,10 +22,10 @@
 rhs : condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
 """
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -35,14 +35,12 @@ class ASTConditionVisitor(ASTVisitor):
     This visitor is used to derive the correct type of a ternary operator, i.e., of all its subexpressions.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits an rhs consisting of the ternary operator and updates its type.
         :param node: a single rhs
         :type node: ASTExpression
         """
-        assert (node is not None and (isinstance(node, ASTExpression))), \
-            '(PyNestML.Visitor.ASTConditionVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         condition_e = node.get_condition().get_type_either()
         if_true_e = node.get_if_true().get_type_either()
         if_not_e = node.get_if_not().get_type_either()
@@ -86,8 +84,8 @@ class ASTConditionVisitor(ASTVisitor):
             return
 
         # one Unit and one numeric primitive and vice versa -> assume unit, WARN
-        if (if_true.is_unit() and if_not.is_numeric_primitive()) or (if_not.is_unit() and if_true.is_numeric_primitive()):
-            unit_type = None
+        if (if_true.is_unit() and if_not.is_numeric_primitive()) or \
+                (if_not.is_unit() and if_true.is_numeric_primitive()):
             if if_true.is_unit():
                 unit_type = if_true
             else:

@@ -26,14 +26,14 @@ class ASTParentAwareVisitor(ASTVisitor):
     The parent aware visitor storing a trace. This visitor enables a given visitor to inspect the corresponding
     parent node.
     Attributes:
-        __parents (Stack): A stack containing the predecessor of this node.
+        parents (Stack): A stack containing the predecessor of this node.
     """
-    __parents = Stack()
+    parents = Stack()
 
     def handle(self, _node):
         self.visit(_node)
-        self.__parents.push(_node)
+        self.parents.push(_node)
         self.traverse(_node)
-        self.__parents.pop()
+        self.parents.pop()
         self.endvisit(_node)
         return

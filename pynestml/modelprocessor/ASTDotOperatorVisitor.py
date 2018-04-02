@@ -36,14 +36,12 @@ class ASTDotOperatorVisitor(ASTVisitor):
     This visitor is used to derive the correct type of expressions which use a binary dot operator.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single rhs and updates the type.
         :param node: a single rhs
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTDotOperatorVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         lhs_type_e = node.get_lhs().get_type_either()
         rhs_type_e = node.get_rhs().get_type_either()
 

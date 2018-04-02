@@ -33,7 +33,7 @@ from pynestml.modelprocessor.CoCoNoNestNameSpaceCollision import CoCoNoNestNameS
 from pynestml.modelprocessor.CoCoTypeOfBufferUnique import CoCoTypeOfBufferUnique
 from pynestml.modelprocessor.CoCoParametersAssignedOnlyInParameterBlock import CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.modelprocessor.CoCoCurrentBuffersNotSpecified import CoCoCurrentBuffersNotSpecified
-from pynestml.modelprocessor.CoCoOnlySpikeBufferDatatypes import CoCoOnlySpikeBufferDatatypes
+from pynestml.modelprocessor.CoCoOnlySpikeBufferDataTypes import CoCoOnlySpikeBufferDataTypes
 from pynestml.modelprocessor.CoCoInitVarsWithOdesProvided import CoCoInitVarsWithOdesProvided
 from pynestml.modelprocessor.CoCoUserDefinedFunctionCorrectlyDefined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.modelprocessor.CoCoEquationsOnlyForInitValues import CoCoEquationsOnlyForInitValues
@@ -79,32 +79,32 @@ class CoCosManager(object):
         __sumIsCorrect: This coco checks that sum rhs are correctly used.
         __expressionCorrect: This checks that types of rhs etc. are correctly stated.
     """
-    __functionDefinedUniquely = CoCoFunctionUnique.checkCoCo
-    __eachBlockUniqueAndDefined = CoCoEachBlockUniqueAndDefined.checkCoCo
-    __functionCallDefinedAndTyped = CoCoFunctionCallsConsistent.checkCoCo
-    __variablesUnique = CoCoVariableOncePerScope.checkCoCo
-    __variablesDefinedBeforeUsage = CoCoAllVariablesDefined.checkCoCo
-    __functionsHaveRhs = CoCoFunctionHaveRhs.checkCoCo
-    __functionsHaveMaxOneLhs = CoCoFunctionMaxOneLhs.checkCoCo
-    __noValuesAssignedToBuffers = CoCoBufferNotAssigned.checkCoCo
-    __orderOfEquationsCorrect = CoCoCorrectOrderInEquation.checkCoCo
-    __numeratorOfUnitIsOne = CoCoCorrectNumeratorOfUnit.checkCoCo
-    __multipleNeuronsWithSameName = CoCoNeuronNameUnique.checkCoCo
-    __nestNameSpaceCollision = CoCoNoNestNameSpaceCollision.checkCoCo
-    __bufferTypesDefinedUniquely = CoCoTypeOfBufferUnique.checkCoCo
-    __parametersNotAssignedOutsideCorrespondingBlock = CoCoParametersAssignedOnlyInParameterBlock.checkCoCo
-    __currentBuffersNotSpecified = CoCoCurrentBuffersNotSpecified.checkCoCo
-    __buffersDatatypeCorrect = CoCoOnlySpikeBufferDatatypes.checkCoCo
-    __initialValuesCorrect = CoCoInitVarsWithOdesProvided.checkCoCo
-    __returnStmtCorrect = CoCoUserDefinedFunctionCorrectlyDefined.checkCoCo
-    __equationsOnlyForInits = CoCoEquationsOnlyForInitValues.checkCoCo
-    __convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.checkCoCo
-    __noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.checkCoCo
-    __noCollisionAcrossUnits = CoCoNoTwoNeuronsInSetOfCompilationUnits.checkCoCo
-    __invariantCorrectlyTyped = CoCoInvariantIsBoolean.checkCoCo
-    __vectorInNonVectorDetected = CoCoVectorVariableInNonVectorDeclaration.checkCoCo
-    __sumIsCorrect = CoCoSumHasCorrectParameter.checkCoCo
-    __expressionCorrect = CoCoIllegalExpression.checkCoCo
+    __functionDefinedUniquely = CoCoFunctionUnique.check_co_co
+    __eachBlockUniqueAndDefined = CoCoEachBlockUniqueAndDefined.check_co_co
+    __functionCallDefinedAndTyped = CoCoFunctionCallsConsistent.check_co_co
+    __variablesUnique = CoCoVariableOncePerScope.check_co_co
+    __variablesDefinedBeforeUsage = CoCoAllVariablesDefined.check_co_co
+    __functionsHaveRhs = CoCoFunctionHaveRhs.check_co_co
+    __functionsHaveMaxOneLhs = CoCoFunctionMaxOneLhs.check_co_co
+    __noValuesAssignedToBuffers = CoCoBufferNotAssigned.check_co_co
+    __orderOfEquationsCorrect = CoCoCorrectOrderInEquation.check_co_co
+    __numeratorOfUnitIsOne = CoCoCorrectNumeratorOfUnit.check_co_co
+    __multipleNeuronsWithSameName = CoCoNeuronNameUnique.check_co_co
+    __nestNameSpaceCollision = CoCoNoNestNameSpaceCollision.check_co_co
+    __bufferTypesDefinedUniquely = CoCoTypeOfBufferUnique.check_co_co
+    __parametersNotAssignedOutsideCorrespondingBlock = CoCoParametersAssignedOnlyInParameterBlock.check_co_co
+    __currentBuffersNotSpecified = CoCoCurrentBuffersNotSpecified.check_co_co
+    __buffersDatatypeCorrect = CoCoOnlySpikeBufferDataTypes.check_co_co
+    __initialValuesCorrect = CoCoInitVarsWithOdesProvided.check_co_co
+    __returnStmtCorrect = CoCoUserDefinedFunctionCorrectlyDefined.check_co_co
+    __equationsOnlyForInits = CoCoEquationsOnlyForInitValues.check_co_co
+    __convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.check_co_co
+    __noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.check_co_co
+    __noCollisionAcrossUnits = CoCoNoTwoNeuronsInSetOfCompilationUnits.check_co_co
+    __invariantCorrectlyTyped = CoCoInvariantIsBoolean.check_co_co
+    __vectorInNonVectorDetected = CoCoVectorVariableInNonVectorDeclaration.check_co_co
+    __sumIsCorrect = CoCoSumHasCorrectParameter.check_co_co
+    __expressionCorrect = CoCoIllegalExpression.check_co_co
 
     @classmethod
     def checkCocos(cls, _neuron):

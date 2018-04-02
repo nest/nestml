@@ -22,11 +22,11 @@
 Expr = unaryOperator term=rhs
 unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
+from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -35,15 +35,12 @@ class ASTUnaryVisitor(ASTVisitor):
     Visits an rhs consisting of a unary operator, e.g., -, and a sub-rhs.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single unary operator and updates the type of the corresponding rhs.
         :param node: a single rhs
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.UnaryVisitor) No or wrong type of rhs provided (%s)!' % type(node)
-
         term_type_e = node.get_expression().get_type_either()
 
         if term_type_e.isError():
@@ -60,7 +57,8 @@ class ASTUnaryVisitor(ASTVisitor):
                 node.set_type_either(Either.value(term_type))
                 return
             else:
-                error_msg = ErrorStrings.messageNonNumericType(self, term_type.print_symbol(), node.get_source_position())
+                error_msg = ErrorStrings.messageNonNumericType(self, term_type.print_symbol(),
+                                                               node.get_source_position())
                 node.set_type_either(Either.error(error_msg))
                 Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
                 return
@@ -69,7 +67,8 @@ class ASTUnaryVisitor(ASTVisitor):
                 node.set_type_either(Either.value(term_type))
                 return
             else:
-                error_msg = ErrorStrings.messageNonNumericType(self, term_type.print_symbol(), node.get_source_position())
+                error_msg = ErrorStrings.messageNonNumericType(self, term_type.print_symbol(),
+                                                               node.get_source_position())
                 node.set_type_either(Either.error(error_msg))
                 Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
                 return

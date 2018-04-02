@@ -40,24 +40,24 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def checkCoCo(cls, _neuron=None):
+    def check_co_co(cls, node=None):
         """
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not 
         correct.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param node: a single neuron instance.
+        :type node: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        assert (node is not None and isinstance(node, ASTNeuron)), \
+            '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(node)
         # for each variable in all expressions, check if the variable has been defined previously
-        expressions = list(ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron))
+        expressions = list(ASTExpressionCollectorVisitor.collectExpressionsInNeuron(node))
         for expr in expressions:
             for var in expr.get_variables():
                 symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     code, message = Messages.getNoVariableFound(var.get_name())
-                    Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
+                    Logger.logMessage(_neuron=node, _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=var.get_source_position())
                 # now check if it has been defined before usage, except for buffers, those are special cases
                 elif (not symbol.is_predefined() and symbol.get_block_type() != BlockType.INPUT_BUFFER_CURRENT and
@@ -66,12 +66,12 @@ class CoCoAllVariablesDefined(CoCo):
                     if not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and \
                             symbol.get_block_type() != BlockType.PARAMETERS:
                         code, message = Messages.getVariableUsedBeforeDeclaration(var.get_name())
-                        Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.get_source_position(),
+                        Logger.logMessage(_neuron=node, _message=message, _errorPosition=var.get_source_position(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
                     if symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and not \
                             symbol.get_referenced_object().get_source_position().isAddedSourcePosition():
                         code, message = Messages.getVariableDefinedRecursively(var.get_name())
                         Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.get_referenced_object().
-                                          get_source_position(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=_neuron)
+                                          get_source_position(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=node)
         return

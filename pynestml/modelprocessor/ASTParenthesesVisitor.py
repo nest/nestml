@@ -21,8 +21,8 @@
 """
 rhs : leftParentheses='(' term=rhs rightParentheses=')'
 """
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 
 
 class ASTParenthesesVisitor(ASTVisitor):
@@ -30,13 +30,10 @@ class ASTParenthesesVisitor(ASTVisitor):
     Visits a single rhs encapsulated in brackets and updates its type.
     """
 
-    def visit_expression(self, node=None):
+    def visit_expression(self, node):
         """
         Visits a single rhs encapsulated in parenthesis and updates its type.
         :param node: a single rhs
         :type node: ASTExpression
         """
-        assert (node is not None and isinstance(node, ASTExpression)), \
-            '(PyNestML.Visitor.ASTParenthesesVisitor) No or wrong type of rhs provided (%s)!' % type(node)
         node.set_type_either(node.get_expression().get_type_either())
-        return
