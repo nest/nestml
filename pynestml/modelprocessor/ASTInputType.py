@@ -31,51 +31,28 @@ class ASTInputType(ASTNode):
     Grammar:
         inputType : ('inhibitory' | 'excitatory');
     """
-    __isInhibitory = False
-    __isExcitatory = False
+    is_inhibitory = False
+    is_excitatory = False
 
-    def __init__(self, _isInhibitory=False, _isExcitatory=False, source_position=None):
+    def __init__(self, is_inhibitory=False, is_excitatory=False, source_position=None):
         """
         Standard constructor.
-        :param _isInhibitory: is inhibitory buffer.
-        :type _isInhibitory: bool
-        :param _isExcitatory: is excitatory buffer.
-        :type _isExcitatory: book
+        :param is_inhibitory: is inhibitory buffer.
+        :type is_inhibitory: bool
+        :param is_excitatory: is excitatory buffer.
+        :type is_excitatory: book
         :param _sourcePosition: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert (_isInhibitory is None or isinstance(_isInhibitory, bool)), \
-            '(PyNestML.AST.InputType) Wrong type of specifier provided (%s)!' % type(_isInhibitory)
-        assert (_isExcitatory is None or isinstance(_isExcitatory, bool)), \
-            '(PyNestML.AST.InputType) Wrong type of specifier provided (%s)!' % type(_isExcitatory)
-        assert (_isExcitatory != _isInhibitory), \
-            '(PyNestML.AST.InputType) Buffer specification not correct!'
         super(ASTInputType, self).__init__(source_position)
-        self.__isExcitatory = _isExcitatory
-        self.__isInhibitory = _isInhibitory
-        return
+        self.is_excitatory = is_excitatory
+        self.is_inhibitory = is_inhibitory
 
-    def isExcitatory(self):
-        """
-        Returns whether it is excitatory type.
-        :return: True if excitatory, otherwise False.
-        :rtype: bool
-        """
-        return self.__isExcitatory
-
-    def isInhibitory(self):
-        """
-        Returns whether it is inhibitory type.
-        :return: True if inhibitory , otherwise False.
-        :rtype: bool
-        """
-        return self.__isInhibitory
-
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
@@ -87,19 +64,19 @@ class ASTInputType(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        if self.isInhibitory():
+        if self.is_inhibitory:
             return 'inhibitory'
         else:
             return 'excitatory'
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTInputType):
+        if not isinstance(other, ASTInputType):
             return False
-        return self.isExcitatory() == _other.isExcitatory() and self.isInhibitory() == _other.isInhibitory()
+        return self.is_excitatory == other.is_excitatory and self.is_inhibitory == other.is_inhibitory

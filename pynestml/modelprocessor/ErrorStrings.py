@@ -90,9 +90,9 @@ class ErrorStrings(object):
     @classmethod
     def messageTypeError(cls, _origin=None, _expressionText=None, _sourcePosition=None):
         """
-        construct an error message indicating a generic error in expression type calculation
+        construct an error message indicating a generic error in rhs type calculation
         :param _origin: the class reporting the error
-        :param _expressionText: plain text representation of the offending expression
+        :param _expressionText: plain text representation of the offending rhs
         :type _expressionText: str
         :param _sourcePosition: The location where the error was encountered
         :type _sourcePosition: ASTSourcePosition
@@ -102,7 +102,7 @@ class ErrorStrings(object):
         assert _origin is not None
         assert _expressionText is not None and isinstance(_expressionText, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
-        ERROR_MSG_FORMAT = "Cannot determine the type of the expression: " + _expressionText
+        ERROR_MSG_FORMAT = "Cannot determine the type of the rhs: " + _expressionText
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
 
     @classmethod
@@ -217,9 +217,9 @@ class ErrorStrings(object):
     @classmethod
     def messageNoSemantics(cls, _origin=None, _exprText=None, _sourcePosition=None):
         """
-        construct an error message indicating that an expression is not implemented
+        construct an error message indicating that an rhs is not implemented
         :param _origin: the class reporting the error
-        :param _exprText: plain text of the unimplemented expression
+        :param _exprText: plain text of the unimplemented rhs
         :type _exprText: str
         :param _sourcePosition: The location where the error was encountered
         :type _sourcePosition: ASTSourcePosition
@@ -229,7 +229,7 @@ class ErrorStrings(object):
         assert _origin is not None
         assert _exprText is not None and isinstance(_exprText, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
-        ERROR_MSG_FORMAT = "This expression is not implemented: " + _exprText
+        ERROR_MSG_FORMAT = "This rhs is not implemented: " + _exprText
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
 
     @classmethod
@@ -244,7 +244,7 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
-        ERROR_MSG_FORMAT = "Operands of a logical expression not compatible."
+        ERROR_MSG_FORMAT = "Operands of a logical rhs not compatible."
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
 
     @classmethod
@@ -259,7 +259,7 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
-        ERROR_MSG_FORMAT = "Both operands of a logical expression must be boolean."
+        ERROR_MSG_FORMAT = "Both operands of a logical rhs must be boolean."
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
 
     @classmethod

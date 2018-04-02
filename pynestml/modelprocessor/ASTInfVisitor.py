@@ -29,16 +29,16 @@ from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 class ASTInfVisitor(ASTVisitor):
     """
-    Visits a inf expression and updates the type accordingly.
+    Visits a inf rhs and updates the type accordingly.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, node=None):
         """
-        Visits a single simple expression containing an inf literal and updates its type.
-        :param _expr: a simple expression
-        :type _expr: ASTSimpleExpression
+        Visits a single simple rhs containing an inf literal and updates its type.
+        :param node: a simple rhs
+        :type node: ASTSimpleExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.InvVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.InvVisitor) No or wrong type of simple rhs provided (%s)!' % type(node)
+        node.set_type_either(Either.value(PredefinedTypes.getRealType()))
         return

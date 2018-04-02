@@ -76,31 +76,31 @@ class ShapeUsageVisitor(ASTVisitor):
         _neuron.accept(self)
         return
 
-    def visitVariable(self, _variable=None):
+    def visit_variable(self, node=None):
         """
         Visits each shape and checks if it is used correctly.
-        :param _variable: a single node.
-        :type _variable: AST_
+        :param node: a single node.
+        :type node: AST_
         """
         for shapeName in self.__shapes:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
-            symbol = _variable.get_scope().resolveToSymbol(shapeName, SymbolKind.VARIABLE)
+            symbol = node.get_scope().resolveToSymbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
-            if not symbol.isShape():
+            if not symbol.is_shape():
                 continue
-            if _variable.getCompleteName() == shapeName:
-                parent = self.__neuronNode.getParent(_variable)
+            if node.get_complete_name() == shapeName:
+                parent = self.__neuronNode.get_parent(node)
                 if parent is not None:
                     if isinstance(parent, ASTOdeShape):
                         continue
-                    grandparent = self.__neuronNode.getParent(parent)
+                    grandparent = self.__neuronNode.get_parent(parent)
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
-                        grandparentFuncName = grandparent.getName()
+                        grandparentFuncName = grandparent.get_name()
                         if grandparentFuncName == 'curr_sum' or grandparentFuncName == 'cond_sum' or \
                                         grandparentFuncName == 'convolve':
                             continue
                 code, message = Messages.getShapeOutsideConvolve(shapeName)
-                Logger.logMessage(_errorPosition=_variable.get_source_position(),
+                Logger.logMessage(_errorPosition=node.get_source_position(),
                                   _code=code, _message=message,
                                   _logLevel=LOGGING_LEVEL.ERROR)
         return
@@ -121,11 +121,11 @@ class ShapeCollectingVisitor(ASTVisitor):
         _neuron.accept(self)
         return self.__shapeNames
 
-    def visitOdeShape(self, _odeShape=None):
+    def visit_ode_shape(self, node=None):
         """
         Collects the shape.
-        :param _odeShape: a single shape node.
-        :type _odeShape: ASTOdeShape
+        :param node: a single shape node.
+        :type node: ASTOdeShape
         """
-        self.__shapeNames.append(_odeShape.getVariable().getNameOfLhs())
+        self.__shapeNames.append(node.get_variable().get_name_of_lhs())
         return

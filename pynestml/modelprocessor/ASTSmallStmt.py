@@ -35,138 +35,128 @@ class ASTSmallStmt(ASTNode):
                  | declaration
                  | returnStmt;
     Attributes:
-        __assignment (ASTAssignment): A assignment reference.
-        __functionCall (ASTFunctionCall): A function call reference.
-        __declaration (ASTDeclaration): A declaration reference.
-        __returnStmt (ASTReturnStmt): A reference to the returns statement.
+        assignment (ASTAssignment): A assignment reference.
+        function_call (ASTFunctionCall): A function call reference.
+        declaration (ASTDeclaration): A declaration reference.
+        return_stmt (ASTReturnStmt): A reference to the returns statement.
     """
-    __assignment = None
-    __functionCall = None
-    __declaration = None
-    __returnStmt = None
+    assignment = None
+    function_call = None
+    declaration = None
+    return_stmt = None
 
-    def __init__(self, _assignment=None, _functionCall=None, _declaration=None, _returnStmt=None,
-                 source_position=None):
+    def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, source_position=None):
         """
         Standard constructor.
-        :param _assignment: an ast-assignment object.
-        :type _assignment: ASTAssignment
-        :param _functionCall: an ast-function call object.
-        :type _functionCall: ASTFunctionCall
-        :param _declaration: an ast-declaration object.
-        :type _declaration: ASTDeclaration
-        :param _returnStmt: an ast-return statement object.
-        :type _returnStmt: ASTReturnStmt
+        :param assignment: an ast-assignment object.
+        :type assignment: ASTAssignment
+        :param function_call: an ast-function call object.
+        :type function_call: ASTFunctionCall
+        :param declaration: an ast-declaration object.
+        :type declaration: ASTDeclaration
+        :param return_stmt: an ast-return statement object.
+        :type return_stmt: ASTReturnStmt
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_assignment is None or isinstance(_assignment, ASTAssignment)), \
-            '(PyNestML.AST.SmallStmt) Wrong type of assignment provided (%s)!' % type(_assignment)
-        assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNestTML.AST.SmallStmt) Wrong type of function call provided (%s)!' % type(_functionCall)
-        assert (_declaration is None or isinstance(_declaration, ASTDeclaration)), \
-            '(PyNestML.AST.SmallStmt) Wrong type of declaration provided (%s)!' % type(_declaration)
-        assert (_returnStmt is None or isinstance(_returnStmt, ASTReturnStmt)), \
-            '(PyNestML.AST.SmallStmt) Wrong type of return statement provided (%s)!' % type(_returnStmt)
         super(ASTSmallStmt, self).__init__(source_position)
-        self.__assignment = _assignment
-        self.__functionCall = _functionCall
-        self.__declaration = _declaration
-        self.__returnStmt = _returnStmt
-        return
+        self.assignment = assignment
+        self.function_call = function_call
+        self.declaration = declaration
+        self.return_stmt = return_stmt
 
-    def isAssignment(self):
+    def is_assignment(self):
         """
         Returns whether it is an assignment statement or not.
         :return: True if assignment, False else.
         :rtype: bool
         """
-        return self.__assignment is not None
+        return self.assignment is not None
 
-    def getAssignment(self):
+    def get_assignment(self):
         """
         Returns the assignment.
         :return: the assignment statement.
         :rtype: ASTAssignment
         """
-        return self.__assignment
+        return self.assignment
 
-    def isFunctionCall(self):
+    def is_function_call(self):
         """
         Returns whether it is an function call or not.
         :return: True if function call, False else.
         :rtype: bool
         """
-        return self.__functionCall is not None
+        return self.function_call is not None
 
-    def getFunctionCall(self):
+    def get_function_call(self):
         """
         Returns the function call.
         :return: the function call statement.
         :rtype: ASTFunctionCall
         """
-        return self.__functionCall
+        return self.function_call
 
-    def isDeclaration(self):
+    def is_declaration(self):
         """
         Returns whether it is a declaration statement or not.
         :return: True if declaration, False else.
         :rtype: bool
         """
-        return self.__declaration is not None
+        return self.declaration is not None
 
-    def getDeclaration(self):
+    def get_declaration(self):
         """
         Returns the assignment.
         :return: the declaration statement.
         :rtype: ASTDeclaration
         """
-        return self.__declaration
+        return self.declaration
 
-    def isReturnStmt(self):
+    def is_return_stmt(self):
         """
         Returns whether it is a return statement or not.
         :return: True if return stmt, False else.
         :rtype: bool
         """
-        return self.__returnStmt is not None
+        return self.return_stmt is not None
 
-    def getReturnStmt(self):
+    def get_return_stmt(self):
         """
         Returns the return statement.
         :return: the return statement.
         :rtype: ASTReturnStmt
         """
-        return self.__returnStmt
+        return self.return_stmt
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.isAssignment():
-            if self.getAssignment() is _ast:
+        if self.is_assignment():
+            if self.get_assignment() is ast:
                 return self
-            elif self.getAssignment().getParent(_ast) is not None:
-                return self.getAssignment().getParent(_ast)
-        if self.isFunctionCall():
-            if self.getFunctionCall() is _ast:
+            elif self.get_assignment().get_parent(ast) is not None:
+                return self.get_assignment().get_parent(ast)
+        if self.is_function_call():
+            if self.get_function_call() is ast:
                 return self
-            elif self.getFunctionCall().getParent(_ast) is not None:
-                return self.getFunctionCall().getParent(_ast)
-        if self.isDeclaration():
-            if self.getDeclaration() is _ast:
+            elif self.get_function_call().get_parent(ast) is not None:
+                return self.get_function_call().get_parent(ast)
+        if self.is_declaration():
+            if self.get_declaration() is ast:
                 return self
-            elif self.getDeclaration().getParent(_ast) is not None:
-                return self.getDeclaration().getParent(_ast)
-        if self.isReturnStmt():
-            if self.getReturnStmt() is _ast:
+            elif self.get_declaration().get_parent(ast) is not None:
+                return self.get_declaration().get_parent(ast)
+        if self.is_return_stmt():
+            if self.get_return_stmt() is ast:
                 return self
-            elif self.getReturnStmt().getParent(_ast) is not None:
-                return self.getReturnStmt().getParent(_ast)
+            elif self.get_return_stmt().get_parent(ast) is not None:
+                return self.get_return_stmt().get_parent(ast)
         return None
 
     def __str__(self):
@@ -175,41 +165,41 @@ class ASTSmallStmt(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        if self.isAssignment():
-            return str(self.getAssignment())
-        elif self.isFunctionCall():
-            return str(self.getFunctionCall())
-        elif self.isDeclaration():
-            return str(self.getDeclaration())
+        if self.is_assignment():
+            return str(self.get_assignment())
+        elif self.is_function_call():
+            return str(self.get_function_call())
+        elif self.is_declaration():
+            return str(self.get_declaration())
         else:
-            return str(self.getReturnStmt())
+            return str(self.get_return_stmt())
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object
-        :type _other: object
+        :param other: a different object
+        :type other: object
         :return: True if equals, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTSmallStmt):
+        if not isinstance(other, ASTSmallStmt):
             return False
-        if self.isFunctionCall() + _other.isFunctionCall() == 1:
+        if self.is_function_call() + other.is_function_call() == 1:
             return False
-        if self.isFunctionCall() and _other.isFunctionCall() and \
-                not self.getFunctionCall().equals(_other.getFunctionCall()):
+        if self.is_function_call() and other.is_function_call() and \
+                not self.get_function_call().equals(other.get_function_call()):
             return False
-        if self.isAssignment() + _other.isAssignment() == 1:
+        if self.is_assignment() + other.is_assignment() == 1:
             return False
-        if self.isAssignment() and _other.isAssignment() and not self.getAssignment().equals(_other.getAssignment()):
+        if self.is_assignment() and other.is_assignment() and not self.get_assignment().equals(other.get_assignment()):
             return False
-        if self.isDeclaration() + _other.isDeclaration() == 1:
+        if self.is_declaration() + other.is_declaration() == 1:
             return False
-        if self.isDeclaration() and _other.isDeclaration() and not self.getDeclaration().equals(
-                _other.getDeclaration()):
+        if self.is_declaration() and other.is_declaration() and not self.get_declaration().equals(
+                other.get_declaration()):
             return False
-        if self.isReturnStmt() + _other.isReturnStmt() == 1:
+        if self.is_return_stmt() + other.is_return_stmt() == 1:
             return False
-        if self.isReturnStmt() and _other.isReturnStmt() and not self.getReturnStmt().equals(_other.getReturnStmt()):
+        if self.is_return_stmt() and other.is_return_stmt() and not self.get_return_stmt().equals(other.get_return_stmt()):
             return False
         return True

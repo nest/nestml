@@ -30,61 +30,55 @@ class ASTWhileStmt(ASTNode):
     Grammar:
         whileStmt : 'while' expr BLOCK_OPEN block BLOCK_CLOSE;
     """
-    __condition = None
-    __block = None
+    condition = None
+    block = None
 
-    def __init__(self, _condition=None, _block=None, source_position=None):
+    def __init__(self, condition, block, source_position):
         """
         Standard constructor.
-        :param _condition: the condition of the block.
-        :type _condition: ASTExpression
-        :param _block: a block of statements.
-        :type _block: ASTBlock
+        :param condition: the condition of the block.
+        :type condition: ASTExpression
+        :param block: a block of statements.
+        :type block: ASTBlock
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_condition is not None and (isinstance(_condition, ASTExpression) or
-                                            isinstance(_condition, ASTSimpleExpression))), \
-            '(PyNestML.AST.WhileStmt) No or wrong type of condition provided (%s)!' % type(_condition)
-        assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.WhileStmt) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTWhileStmt, self).__init__(source_position)
-        self.__block = _block
-        self.__condition = _condition
-        return
+        self.block = block
+        self.condition = condition
 
-    def getCondition(self):
+    def get_condition(self):
         """
         Returns the condition of the block.
         :return: the condition.
         :rtype: ASTExpression
         """
-        return self.__condition
+        return self.condition
 
-    def getBlock(self):
+    def get_block(self):
         """
         Returns the block of statements.
         :return: the block of statements.
         :rtype: ASTBlock
         """
-        return self.__block
+        return self.block
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getCondition() is _ast:
+        if self.get_condition() is ast:
             return self
-        elif self.getCondition().getParent(_ast) is not None:
-            return self.getCondition().getParent(_ast)
-        if self.getBlock() is _ast:
+        elif self.get_condition().get_parent(ast) is not None:
+            return self.get_condition().get_parent(ast)
+        if self.get_block() is ast:
             return self
-        elif self.getBlock().getParent(_ast) is not None:
-            return self.getBlock().getParent(_ast)
+        elif self.get_block().get_parent(ast) is not None:
+            return self.get_block().get_parent(ast)
         return None
 
     def __str__(self):
@@ -93,16 +87,16 @@ class ASTWhileStmt(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        return 'while ' + str(self.getCondition()) + ':\n' + str(self.getBlock()) + '\nend'
+        return 'while ' + str(self.get_condition()) + ':\n' + str(self.get_block()) + '\nend'
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equals, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTWhileStmt):
+        if not isinstance(other, ASTWhileStmt):
             return False
-        return self.getCondition().equals(_other.getCondition()) and self.getBlock().equals(_other.getBlock())
+        return self.get_condition().equals(other.get_condition()) and self.get_block().equals(other.get_block())

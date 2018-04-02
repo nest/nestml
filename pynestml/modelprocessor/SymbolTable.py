@@ -26,7 +26,7 @@ class SymbolTable(object):
     
     Attributes:
         __name2neuronScope A dict from the name of a neuron to the corresponding scope. Type str->Scope
-        __sourcePosition The source position of the overall compilation unit. Type ASTSourcePosition
+        sourcePosition The source position of the overall compilation unit. Type ASTSourcePosition
     """
     __name2neuronScope = {}
     __sourcePosition = None

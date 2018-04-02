@@ -5,7 +5,7 @@
   @param declarations ASTDeclarations helper class
   @result C++ statement
 -#}
-{%- set varDomain = declarations.getDomainFromType(variable.getTypeSymbol()) %}
-{%- if varDomain == "double" and variable.isRecordable() %}
-insert_("{{variable.getSymbolName()}}", &{{neuronName}}::{{names.getter(variable)}});
+{%- set varDomain = declarations.getDomainFromType(variable.get_type_symbol()) %}
+{%- if varDomain == "double" and variable.is_recordable() %}
+insert_("{{variable.get_symbol_name()}}", &{{neuronName}}::{{names.getter(variable)}});
 {%- endif %}

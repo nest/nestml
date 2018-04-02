@@ -27,7 +27,7 @@ from pynestml.modelprocessor.Either import Either
 
 class ASTSimpleExpression(ASTNode):
     """
-    This class is used to store a simple expression, e.g. +42mV.
+    This class is used to store a simple rhs, e.g. +42mV.
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
     Grammar:
     simpleExpression : functionCall
@@ -100,7 +100,7 @@ class ASTSimpleExpression(ASTNode):
         self.__string = _string
         return
 
-    def isFunctionCall(self):
+    def is_function_call(self):
         """
         Returns whether it is a function call or not.
         :return: True if function call, otherwise False.
@@ -109,10 +109,10 @@ class ASTSimpleExpression(ASTNode):
         return self.__functionCall is not None
 
     # TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression
-    def getTypeEither(self):
+    def get_type_either(self):
         """
         Returns an Either object holding either the type symbol of
-        this expression or the corresponding error message
+        this rhs or the corresponding error message
         If it does not exist, run the ExpressionTypeVisitor on it to calculate it
         :return: Either a valid type or an error message
         :rtype: Either
@@ -123,18 +123,18 @@ class ASTSimpleExpression(ASTNode):
         return self.__typeEither
 
     # TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression
-    def setTypeEither(self, _typeEither=None):
+    def set_type_either(self, type_either):
         """
         Updates the current type symbol to the handed over one.
-        :param _typeEither: a single type symbol object.
-        :type _typeEither: TypeSymbol
+        :param type_either: a single type symbol object.
+        :type type_either: TypeSymbol
         """
-        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
-        self.__typeEither = _typeEither
+        assert (type_either is not None and isinstance(type_either, Either)), \
+            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(type_either)
+        self.__typeEither = type_either
         return
 
-    def getFunctionCall(self):
+    def get_function_call(self):
         """
         Returns the function call object.
         :return: the function call object.
@@ -142,18 +142,18 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__functionCall
 
-    def getFunctionCalls(self):
+    def get_function_calls(self):
         """
-        This function is used for better interactions with the general expression ast class.
+        This function is used for better interactions with the general rhs ast class.
         :return: returns a single list with this function call if such an exists, otherwise an empty list
         :rtype: list(ASTFunctionCall)
         """
         ret = list()
-        if self.isFunctionCall():
-            ret.append(self.getFunctionCall())
+        if self.is_function_call():
+            ret.append(self.get_function_call())
         return ret
 
-    def isBooleanTrue(self):
+    def is_boolean_true(self):
         """
         Returns whether it is a boolean true literal.
         :return: True if true literal, otherwise False.
@@ -161,7 +161,7 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__isBooleanTrue
 
-    def isBooleanFalse(self):
+    def is_boolean_false(self):
         """
         Returns whether it is a boolean false literal.
         :return: True if false literal, otherwise False.
@@ -169,7 +169,7 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__isBooleanFalse
 
-    def isNumericLiteral(self):
+    def is_numeric_literal(self):
         """
         Returns whether it is a numeric literal or not.
         :return: True if numeric literal, otherwise False.
@@ -177,7 +177,7 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__numericLiteral is not None
 
-    def getNumericLiteral(self):
+    def get_numeric_literal(self):
         """
         Returns the value of the numeric literal.
         :return: the value of the numeric literal.
@@ -185,7 +185,7 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__numericLiteral
 
-    def isInfLiteral(self):
+    def is_inf_literal(self):
         """
         Returns whether it is a infinity literal or not.
         :return: True if infinity literal, otherwise False.
@@ -193,7 +193,7 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__isInf
 
-    def isVariable(self):
+    def is_variable(self):
         """
         Returns whether it is a variable or not.
         :return: True if has a variable, otherwise False.
@@ -201,18 +201,18 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__variable is not None and self.__numericLiteral is None
 
-    def getVariables(self):
+    def get_variables(self):
         """
-        This function is used for better interactions with the general expression ast class.
+        This function is used for better interactions with the general rhs ast class.
         :return: returns a single list with this variable if such an exists, otherwise an empty list
         :rtype: list(ASTVariable)
         """
         ret = list()
-        if self.isVariable():
-            ret.append(self.getVariable())
+        if self.is_variable():
+            ret.append(self.get_variable())
         return ret
 
-    def hasUnit(self):
+    def has_unit(self):
         """
         Returns whether this is a numeric literal with a defined unit.
         :return: True if numeric literal with unit, otherwise False. 
@@ -220,18 +220,18 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__variable is not None and self.__numericLiteral is not None
 
-    def getUnits(self):
+    def get_units(self):
         """
-        This function is used for better interactions with the general expression ast class.
+        This function is used for better interactions with the general rhs ast class.
         :return: returns a single list with unit if such an exists, otherwise an empty list
         :rtype: list(ASTVariable)
         """
         ret = list()
-        if self.hasUnit():
-            ret.append(self.getVariable())
+        if self.has_unit():
+            ret.append(self.get_variable())
         return ret
 
-    def getVariable(self):
+    def get_variable(self):
         """
         Returns the variable.
         :return: the variable object.
@@ -239,117 +239,117 @@ class ASTSimpleExpression(ASTNode):
         """
         return self.__variable
 
-    def isString(self):
+    def is_string(self):
         """
-        Returns whether this simple expression is a string.
+        Returns whether this simple rhs is a string.
         :return: True if string, False otherwise.
         :rtype: bool
         """
         return self.__string is not None and isinstance(self.__string, str)
 
-    def getString(self):
+    def get_string(self):
         """
-        Returns the string as stored in this simple expression.
-        :return: a string as stored in this expression.
+        Returns the string as stored in this simple rhs.
+        :return: a string as stored in this rhs.
         :rtype: str
         """
         return self.__string
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.isFunctionCall():
-            if self.getFunctionCall() is _ast:
+        if self.is_function_call():
+            if self.get_function_call() is ast:
                 return self
-            elif self.getFunctionCall().getParent(_ast) is not None:
-                return self.getFunctionCall().getParent(_ast)
+            elif self.get_function_call().get_parent(ast) is not None:
+                return self.get_function_call().get_parent(ast)
         if self.__variable is not None:
-            if self.__variable is _ast:
+            if self.__variable is ast:
                 return self
-            elif self.__variable.getParent(_ast) is not None:
-                return self.__variable.getParent(_ast)
+            elif self.__variable.get_parent(ast) is not None:
+                return self.__variable.get_parent(ast)
         return None
 
-    def setVariable(self, _variable=None):
+    def set_variable(self, variable):
         """
         Updates the variable of this node.
-        :param _variable: a single variable
-        :type _variable: ASTVariable
+        :param variable: a single variable
+        :type variable: ASTVariable
         """
-        assert (_variable is None or isinstance(_variable, ASTVariable)), \
-            '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(_variable)
-        self.__variable = _variable
+        assert (variable is None or isinstance(variable, ASTVariable)), \
+            '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(variable)
+        self.__variable = variable
         return
 
-    def setFunctionCall(self, _functionCall):
+    def set_function_call(self, function_call):
         """
         Updates the function call of this node.
-        :param _functionCall: a single function call
-        :type _functionCall: ASTFunctionCall
+        :param function_call: a single function call
+        :type function_call: ASTFunctionCall
         """
-        assert (_functionCall is None or isinstance(_functionCall, ASTVariable)), \
-            '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(_functionCall)
-        self.__functionCall = _functionCall
+        assert (function_call is None or isinstance(function_call, ASTVariable)), \
+            '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(function_call)
+        self.__functionCall = function_call
         return
 
     def __str__(self):
         """
-        Returns the string representation of the simple expression.
+        Returns the string representation of the simple rhs.
         :return: the operator as a string.
         :rtype: str
         """
-        if self.isFunctionCall():
+        if self.is_function_call():
             return str(self.__functionCall)
-        elif self.isBooleanTrue():
+        elif self.is_boolean_true():
             return 'True'
-        elif self.isBooleanFalse():
+        elif self.is_boolean_false():
             return 'False'
-        elif self.isInfLiteral():
+        elif self.is_inf_literal():
             return 'inf'
-        elif self.isNumericLiteral():
+        elif self.is_numeric_literal():
             if self.__variable is not None:
                 return str(self.__numericLiteral) + str(self.__variable)
             else:
                 return str(self.__numericLiteral)
-        elif self.isVariable():
+        elif self.is_variable():
             return str(self.__variable)
-        elif self.isString():
-            return self.getString()
+        elif self.is_string():
+            return self.get_string()
         else:
-            raise RuntimeError('Simple expression at %s not specified!' % str(self.get_source_position()))
+            raise RuntimeError('Simple rhs at %s not specified!' % str(self.get_source_position()))
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return:True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTSimpleExpression):
+        if not isinstance(other, ASTSimpleExpression):
             return False
-        if self.isFunctionCall() + _other.isFunctionCall() == 1:
+        if self.is_function_call() + other.is_function_call() == 1:
             return False
-        if self.isFunctionCall() and _other.isFunctionCall() and not self.getFunctionCall().equals(
-                _other.getFunctionCall()):
+        if self.is_function_call() and other.is_function_call() and not self.get_function_call().equals(
+                other.get_function_call()):
             return False
-        if self.getNumericLiteral() != _other.getNumericLiteral():
+        if self.get_numeric_literal() != other.get_numeric_literal():
             return False
-        if self.isBooleanFalse() != _other.isBooleanFalse() or self.isBooleanTrue() != _other.isBooleanTrue():
+        if self.is_boolean_false() != other.is_boolean_false() or self.is_boolean_true() != other.is_boolean_true():
             return False
-        if self.isVariable() + _other.isVariable() == 1:
+        if self.is_variable() + other.is_variable() == 1:
             return False
-        if self.isVariable() and _other.isVariable() and not self.getVariable().equals(_other.getVariable()):
+        if self.is_variable() and other.is_variable() and not self.get_variable().equals(other.get_variable()):
             return False
-        if self.isInfLiteral() != _other.isInfLiteral():
+        if self.is_inf_literal() != other.is_inf_literal():
             return False
-        if self.isString() + _other.isString() == 1:
+        if self.is_string() + other.is_string() == 1:
             return False
-        if self.getString() != _other.getString():
+        if self.get_string() != other.get_string():
             return False
         return True

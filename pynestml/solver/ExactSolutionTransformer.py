@@ -55,7 +55,7 @@ class ExactSolutionTransformer(object):
         state_shape_variables_with_initial_values = TransformerBase.computeShapeStateVariablesWithInitialValues(
             _solverOutput)
         # copy initial block variables to the state block, since they are not backed through an ODE.
-        for decl in _neuron.getInitialValuesDeclarations():
+        for decl in _neuron.get_initial_values_declarations():
             _neuron.addToStateBlock(decl)
         working_version = TransformerBase.addVariablesToInitialValues(working_version,
                                                                       state_shape_variables_with_initial_values)
@@ -66,13 +66,13 @@ class ExactSolutionTransformer(object):
                                                                                  _solverOutput.ode_var_update_instructions)
         TransformerBase.applyIncomingSpikes(working_version)
         # get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.
-        working_version.getEquationsBlocks().clear()
+        working_version.get_equations_blocks().clear()
 
         for variable in state_shape_variables_with_initial_values:
             _neuron.addToStateBlock(ModelParser.parse_declaration(variable[0] + ' real'))
 
-        if working_version.getInitialBlocks() is not None:
-            working_version.getInitialBlocks().clear()
+        if working_version.get_initial_blocks() is not None:
+            working_version.get_initial_blocks().clear()
         return working_version
 
     @classmethod
@@ -93,13 +93,13 @@ class ExactSolutionTransformer(object):
                 _solverOutput)
         temp_variables = list()
         for tup in _solverOutput.updates_to_shape_state_variables:
-            key, value = ASTUtils.getTupleFromSingleDictEntry(tup)
+            key, value = ASTUtils.get_tuple_from_single_dict_entry(tup)
             if key.startswith('__tmp'):
                 temp_variables.append(key)
         for var in temp_variables:
             TransformerBase.addDeclarationToUpdateBlock(ModelParser.parse_declaration(var + ' real'), _neuron)
         for out in _solverOutput.updates_to_shape_state_variables:
-            key, value = ASTUtils.getTupleFromSingleDictEntry(out)
+            key, value = ASTUtils.get_tuple_from_single_dict_entry(out)
             assignment = ModelParser.parse_assignment(key + ' = ' + value)
             TransformerBase.addAssignmentToUpdateBlock(assignment, _neuron)
         return

@@ -38,7 +38,7 @@ class GSLNamesConverter(object):
         assert (_symbol is not None and isinstance(_symbol, VariableSymbol)), \
             '(PyNestML.CodeGeneration.GSLNamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
                 _symbol)
-        return 'State_::' + NestNamesConverter.convertToCPPName(_symbol.getSymbolName())
+        return 'State_::' + NestNamesConverter.convertToCPPName(_symbol.get_symbol_name())
 
     @classmethod
     def name(cls, _symbol=None):
@@ -52,8 +52,8 @@ class GSLNamesConverter(object):
         assert (_symbol is not None and isinstance(_symbol, VariableSymbol)), \
             '(PyNestML.CodeGeneration.GSLNamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
                 _symbol)
-        if _symbol.isInitValues() and not _symbol.isFunction():
-            return 'ode_state[State_::' + NestNamesConverter.convertToCPPName(_symbol.getSymbolName()) + ']'
+        if _symbol.is_init_values() and not _symbol.is_function():
+            return 'ode_state[State_::' + NestNamesConverter.convertToCPPName(_symbol.get_symbol_name()) + ']'
         else:
             return NestNamesConverter.name(_symbol)
 

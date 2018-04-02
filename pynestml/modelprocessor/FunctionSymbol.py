@@ -17,106 +17,93 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.#
+from typing import Union
+
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-from pynestml.modelprocessor.Symbol import Symbol
+from pynestml.modelprocessor.Symbol import Symbol, SymbolKind
 
 
 class FunctionSymbol(Symbol):
     """
     This class is used to store a single function symbol, e.g. the definition of the function max.
     Attributes:
-        __paramTypes (list(TypeSymbol)): A list of the types of parameters.
-        __returnType (TypeSymbol): The type of the returned value.
-        __isPredefined (bool): Indicates whether this function predefined or not.
+        param_types (list(TypeSymbol)): A list of the types of parameters.
+        return_type (TypeSymbol): The type of the returned value.
+        is_predefined (bool): Indicates whether this function predefined or not.
     """
-    __paramTypes = None
-    __returnType = None
-    __isPredefined = False
+    param_types = None
+    return_type = None
+    is_predefined = False
 
-    def __init__(self, _name=None, _paramTypes=list(), _returnType=None, _elementReference=None, _scope=None,
-                 _isPredefined=False):
+    def __init__(self, name, param_types, return_type, element_reference, scope=None, is_predefined=False):
         """
         Standard constructor.
-        :param _name: the name of the function symbol.
-        :type _name: str
-        :param _paramTypes: a list of argument types.
-        :type _paramTypes: list(TypeSymbol)
-        :param _returnType: the return type of the function.
-        :type _returnType: TypeSymbol
-        :param _elementReference: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
-        :type _elementReference: ASTFunction
-        :param _scope: a reference to the scope in which this symbol is defined in
-        :type _scope: Scope
-        :param _isPredefined: True, if this element is a predefined one, otherwise False.
-        :type _isPredefined: bool
+        :param name: the name of the function symbol.
+        :type name: str
+        :param param_types: a list of argument types.
+        :type param_types: list(TypeSymbol)
+        :param return_type: the return type of the function.
+        :type return_type: Union(TypeSymbol,None)
+        :param element_reference: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
+        :type element_reference: ASTFunction
+        :param scope: a reference to the scope in which this symbol is defined in
+        :type scope: Scope
+        :param is_predefined: True, if this element is a predefined one, otherwise False.
+        :type is_predefined: bool
         """
-        for arg in _paramTypes:
-            assert (arg is not None and isinstance(arg, TypeSymbol)), \
-                '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of argument provided (%s)!' % type(arg)
-        assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of predefined-specification provided (%s)!' % type(
-                _isPredefined)
-        assert (_returnType is None or isinstance(_returnType, TypeSymbol)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) Wrong type of return statement provided (%s)!' % type(_returnType)
-        from pynestml.modelprocessor.Symbol import SymbolKind
-        super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
-                                             _name=_name, _symbolKind=SymbolKind.FUNCTION)
-        self.__paramTypes = _paramTypes
-        self.__returnType = _returnType
-        self.__isPredefined = _isPredefined
-        return
+        super(FunctionSymbol, self).__init__(element_reference=element_reference, scope=scope,
+                                             name=name, symbol_kind=SymbolKind.FUNCTION)
+        self.param_types = param_types
+        self.return_type = return_type
+        self.is_predefined = is_predefined
 
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         """
-        ret = 'FunctionSymbol[' + self.getSymbolName() + ', Parameters = {'
-        for arg in self.__paramTypes:
-            ret += arg.printSymbol()
-            if self.__paramTypes.index(arg) < len(
-                    self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
+        ret = 'FunctionSymbol[' + self.get_symbol_name() + ', Parameters = {'
+        for arg in self.param_types:
+            ret += arg.print_symbol()
+            if self.param_types.index(arg) < len(
+                    self.param_types) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
-        ret += '}, return type = ' + (self.getReturnType().printSymbol())
-        ret += ', @' + (str(self.getReferencedObject().get_source_position())
-                        if self.getReferencedObject() is not None else 'predefined') + ']'
+        ret += '}, return type = ' + (self.get_return_type().print_symbol())
+        ret += (', @' + (str(
+            self.get_referenced_object().get_source_position()) if
+        self.get_referenced_object() is not None else 'predefined') + ']')
         return ret
 
-    def getReturnType(self):
+    def get_return_type(self):
         """
         Returns the return type of this function symbol
         :return: a single type symbol.
         :rtype: TypeSymbol
         """
-        return self.__returnType
+        return self.return_type
 
-    def setReturnType(self, _newType=None):
+    def set_return_type(self, new_type):
         """
         Sets the return type to the handed over one.
-        :param _newType: a single type symbol
-        :type _newType: TypeSymbol
+        :param new_type: a single type symbol
+        :type new_type: TypeSymbol
         """
-        assert (_newType is not None and isinstance(_newType, TypeSymbol)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided (%s)!' % type(_newType)
-        self.__returnType = _newType
-        return
+        self.return_type = new_type
 
-    def getParameterTypes(self):
+    def get_parameter_types(self):
         """
         Returns a list of all parameter types.
         :return: a list of parameter types.
         :rtype: list(TypeSymbol)
         """
-        return self.__paramTypes
+        return self.param_types
 
-    def addParameterType(self, _newType=None):
+    def add_parameter_type(self, new_type):
         """
         Adds the handed over type to the list of argument types.
-        :param _newType: a single type symbol
-        :type _newType: TypeSymbol
+        :param new_type: a single type symbol
+        :type new_type: TypeSymbol
         """
-        assert (_newType is not None and isinstance(_newType, TypeSymbol)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided (%s)!' % type(_newType)
-        self.__paramTypes.append(_newType)
+        self.param_types.append(new_type)
 
     def isPredefined(self):
         """
@@ -124,7 +111,7 @@ class FunctionSymbol(Symbol):
         :return: True if predefined, otherwise False
         :rtype: bool
         """
-        return self.__isPredefined
+        return self.is_predefined
 
     def equals(self, _other=None):
         """
@@ -134,11 +121,16 @@ class FunctionSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if type(_other) != type(self) or self.__name != _other.getSymbolName() \
-                or not self.__returnType.equals() or len(self.__paramTypes) != len(_other.getParameterTypes()):
+        if not isinstance(_other, FunctionSymbol):
             return False
-        otherArgs = _other.getParameterTypes()
-        for i in range(0, len(self.__paramTypes)):
-            if not self.__paramTypes[i].equals(otherArgs[i]):
+        if not self.name == _other.get_symbol_name():
+            return False
+        if not self.return_type.equals(_other.return_type):
+            return False
+        if len(self.param_types) != len(_other.get_parameter_types()):
+            return False
+        other_args = _other.get_parameter_types()
+        for i in range(0, len(self.param_types)):
+            if not self.param_types[i].equals(other_args[i]):
                 return False
         return True

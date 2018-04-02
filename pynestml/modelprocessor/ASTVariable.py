@@ -31,97 +31,97 @@ class ASTVariable(ASTNode):
     Grammar:
         variable : NAME (differentialOrder='\'')*;
     """
-    __name = None
-    __differentialOrder = None
+    name = None
+    differential_order = None
     # the corresponding type symbol
-    __typeSymbol = None
+    type_symbol = None
 
-    def __init__(self, _name=None, _differentialOrder=0, source_position=None):
+    def __init__(self, name=None, differential_order=0, source_position=None):
         """
         Standard constructor.
-        :param _name: the name of the variable
-        :type _name: str
-        :param _differentialOrder: the differential order of the variable.
-        :type _differentialOrder: int
+        :param name: the name of the variable
+        :type name: str
+        :param differential_order: the differential order of the variable.
+        :type differential_order: int
         :param source_position: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_differentialOrder is not None and isinstance(_differentialOrder, int)), \
-            '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(_differentialOrder)
-        assert (_differentialOrder >= 0), \
-            '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % _differentialOrder
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(_name)
+        assert (differential_order is not None and isinstance(differential_order, int)), \
+            '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(differential_order)
+        assert (differential_order >= 0), \
+            '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % differential_order
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(name)
         super(ASTVariable, self).__init__(source_position=source_position)
-        self.__name = _name
-        self.__differentialOrder = _differentialOrder
+        self.name = name
+        self.differential_order = differential_order
         return
 
-    def getName(self):
+    def get_name(self):
         """
         Returns the name of the variable.
         :return: the name of the variable.
         :rtype: str
         """
-        return self.__name
+        return self.name
 
-    def getDifferentialOrder(self):
+    def get_differential_order(self):
         """
         Returns the differential order of the variable.
         :return: the differential order.
         :rtype: int
         """
-        return self.__differentialOrder
+        return self.differential_order
 
-    def getCompleteName(self):
+    def get_complete_name(self):
         """
         Returns the complete name, consisting of the name and the differential order.
         :return: the complete name.
         :rtype: str
         """
-        return self.getName() + '\'' * self.getDifferentialOrder()
+        return self.get_name() + '\'' * self.get_differential_order()
 
-    def getNameOfLhs(self):
+    def get_name_of_lhs(self):
         """
         Returns the complete name but with differential order reduced by one.
         :return: the name.
         :rtype: str
         """
-        if self.getDifferentialOrder() > 0:
-            return self.getName() + '\'' * (self.getDifferentialOrder() - 1)
+        if self.get_differential_order() > 0:
+            return self.get_name() + '\'' * (self.get_differential_order() - 1)
         else:
-            return self.getName()
+            return self.get_name()
 
-    def getTypeSymbol(self):
+    def get_type_symbol(self):
         """
-        Returns the type symbol of this expression.
+        Returns the type symbol of this rhs.
         :return: a single type symbol.
         :rtype: TypeSymbol
         """
-        return self.__typeSymbol
+        return self.type_symbol
 
-    def setTypeSymbol(self, _typeSymbol=None):
+    def set_type_symbol(self, type_symbol):
         """
         Updates the current type symbol to the handed over one.
-        :param _typeSymbol: a single type symbol object.
-        :type _typeSymbol: TypeSymbol
+        :param type_symbol: a single type symbol object.
+        :type type_symbol: TypeSymbol
         """
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, Either)), \
-            '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        self.__typeSymbol = _typeSymbol
+        assert (type_symbol is not None and isinstance(type_symbol, Either)), \
+            '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
+        self.type_symbol = type_symbol
         return
 
-    def getParent(self, _ast=None):
+    def get_parent(self, node):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param node: an arbitrary ast node.
+        :type node: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        :rtype: ASTNode or None
         """
         return None
 
-    def isUnitVariable(self):
+    def is_unit_variable(self):
         """
         Provided on-the-fly information whether this variable represents a unit-variable, e.g., nS.
         Caution: It assumes that the symbol table has already been constructed.
@@ -129,7 +129,7 @@ class ASTVariable(ASTNode):
         :rtype: bool
         """
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-        if self.getName() in PredefinedTypes.getTypes():
+        if self.get_name() in PredefinedTypes.getTypes():
             return True
         else:
             return False
@@ -140,19 +140,19 @@ class ASTVariable(ASTNode):
         :return: the variable as a string.
         :rtype: str
         """
-        ret = self.__name
-        for i in range(1, self.__differentialOrder + 1):
+        ret = self.name
+        for i in range(1, self.differential_order + 1):
             ret += "'"
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equals, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTVariable):
+        if not isinstance(other, ASTVariable):
             return False
-        return self.getName() == _other.getName() and self.getDifferentialOrder() == _other.getDifferentialOrder()
+        return self.get_name() == other.get_name() and self.get_differential_order() == other.get_differential_order()

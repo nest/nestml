@@ -47,7 +47,7 @@ Logger.initLogger(LOGGING_LEVEL.NO)
 
 class ExpressionParsingTest(unittest.TestCase):
     """
-    This text is used to check the parsing of the expression sub-language.
+    This text is used to check the parsing of the rhs sub-language.
     """
 
     def test(self):

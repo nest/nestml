@@ -84,7 +84,7 @@ class SolverInput(object):
         """
         assert (_equation is not None and isinstance(_equation, ASTOdeEquation)), \
             '(PyNestML.Solver.Input) No or wrong type of equation provided (%s)!' % type(_equation)
-        return _equation.getLhs().getCompleteName() + ' = ' + self.__printer.printExpression(_equation.getRhs())
+        return _equation.get_lhs().get_complete_name() + ' = ' + self.__printer.printExpression(_equation.get_rhs())
 
     def printShape(self, _shape=None):
         """
@@ -96,8 +96,8 @@ class SolverInput(object):
         """
         assert (_shape is not None and isinstance(_shape, ASTOdeShape)), \
             '(PyNestML.Solver.Input) No or wrong type of shape provided (%s)!' % type(_shape)
-        return _shape.getVariable().getCompleteName() + ' = ' \
-               + self.__printer.printExpression(_shape.getExpression())
+        return _shape.get_variable().get_complete_name() + ' = ' \
+               + self.__printer.printExpression(_shape.get_expression())
 
     def printFunction(self, _function=None):
         """
@@ -109,7 +109,7 @@ class SolverInput(object):
         """
         assert (_function is not None and isinstance(_function, ASTOdeFunction)), \
             '(PyNestML.Solver.Input) No or wrong type of function provided (%s)!' % type(_function)
-        return _function.getVariableName() + ' = ' + self.__printer.printExpression(_function.getExpression())
+        return _function.get_variable_name() + ' = ' + self.__printer.printExpression(_function.get_expression())
 
     def toJSON(self):
         """

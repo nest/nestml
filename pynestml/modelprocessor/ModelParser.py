@@ -105,9 +105,10 @@ class ModelParser(object):
         ast = ast_builder_visitor.visit(compilation_unit)
         # create and update the corresponding symbol tables
         SymbolTable.initializeSymbolTable(ast.get_source_position())
+        symbol_table_visitor = ASTSymbolTableVisitor()
         for neuron in ast.get_neuron_list():
-            ASTSymbolTableVisitor.updateSymbolTable(neuron)
-            SymbolTable.addNeuronScope(neuron.getName(), neuron.get_scope())
+            neuron.accept(symbol_table_visitor)
+            SymbolTable.addNeuronScope(neuron.get_name(), neuron.get_scope())
         return ast
 
     @classmethod

@@ -32,14 +32,10 @@ class ASTBooleanLiteralVisitor(ASTVisitor):
     Visits a single boolean literal and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, node):
         """
-        Visits a single simple expression containing a boolean literal and updates its type.
-        :param _expr: a simple expression.
-        :type _expr: ASTSimpleExpression
+        Visits a single simple rhs containing a boolean literal and updates its type.
+        :param node: a simple rhs.
+        :type node: ASTSimpleExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.ASTBooleanLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(
-                _expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
-        return
+        node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))

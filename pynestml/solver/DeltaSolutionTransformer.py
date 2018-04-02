@@ -50,14 +50,14 @@ class DeltaSolutionTransformer(object):
         _neuron.addToInternalBlock(ModelParser.parse_declaration('__h ms = resolution()'))
         TransformerBase.addVariableToInternals(_neuron, _solverOutput.const_input)
         TransformerBase.addVariableToInternals(_neuron, _solverOutput.ode_var_factor)
-        i_sum_calls = [func for func in ASTUtils.getAll(_neuron.getEquationsBlocks(), ASTFunctionCall)
-                       if func.getName() == PredefinedFunctions.CURR_SUM]
+        i_sum_calls = [func for func in ASTUtils.get_all(_neuron.get_equations_blocks(), ASTFunctionCall)
+                       if func.get_name() == PredefinedFunctions.CURR_SUM]
         expression_printer = ExpressionsPrettyPrinter()
         # now apply spikes from the buffer to the state variables
         for call in i_sum_calls:
-            buffer_name = expression_printer.printExpression(call.getArgs()[1])
+            buffer_name = expression_printer.printExpression(call.get_args()[1])
             _solverOutput.ode_var_update_instructions.append(
-                _neuron.getEquations()[0].getLhs().getName() + '+=' + buffer_name)
+                _neuron.get_equations()[0].get_lhs().get_name() + '+=' + buffer_name)
 
         _neuron = TransformerBase.replaceIntegrateCallThroughPropagation(_neuron, _solverOutput.const_input,
                                                                          _solverOutput.ode_var_update_instructions)

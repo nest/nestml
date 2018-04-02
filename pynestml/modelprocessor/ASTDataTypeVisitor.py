@@ -38,28 +38,28 @@ class ASTDataTypeVisitor(object):
         from pynestml.modelprocessor.ASTDataType import ASTDataType
         assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
             '(PyNestML.SymbolTable.DatatypeVisitor) No or wrong type of data-type provided (%s)!' % type(_dataType)
-        if _dataType.isUnitType():
-            symbol = cls.visitUnitType(_dataType.getUnitType())
-            _dataType.setTypeSymbol(symbol)
-        elif _dataType.isInteger():
+        if _dataType.is_unit_type():
+            symbol = cls.visitUnitType(_dataType.get_unit_type())
+            _dataType.set_type_symbol(symbol)
+        elif _dataType.is_integer():
             symbol = PredefinedTypes.getIntegerType()
-            _dataType.setTypeSymbol(symbol)
-        elif _dataType.isReal():
+            _dataType.set_type_symbol(symbol)
+        elif _dataType.is_real():
             symbol = PredefinedTypes.getRealType()
-            _dataType.setTypeSymbol(symbol)
-        elif _dataType.isString():
+            _dataType.set_type_symbol(symbol)
+        elif _dataType.is_string():
             symbol = PredefinedTypes.getStringType()
-            _dataType.setTypeSymbol(symbol)
-        elif _dataType.isBoolean():
+            _dataType.set_type_symbol(symbol)
+        elif _dataType.is_boolean():
             symbol = PredefinedTypes.getBooleanType()
-            _dataType.setTypeSymbol(symbol)
-        elif _dataType.isVoid():
+            _dataType.set_type_symbol(symbol)
+        elif _dataType.is_void():
             symbol = PredefinedTypes.getVoidType()
-            _dataType.setTypeSymbol(symbol)
+            _dataType.set_type_symbol(symbol)
         else:
             symbol = None
         if symbol is not None:
-            return symbol.getSymbolName()
+            return symbol.get_symbol_name()
         else:
             return 'UNKNOWN'  # this case can actually never happen
 
@@ -77,33 +77,33 @@ class ASTDataTypeVisitor(object):
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         assert (_unitType is not None and isinstance(_unitType, ASTUnitType)), \
             '(PyNestML.SymbolTable.DatatypeVisitor) No or wrong type of unit-typ provided (%s)!' % type(_unitType)
-        if _unitType.isPowerExpression():
-            base_symbol = cls.visitUnitType(_unitType.getBase())
-            exponent = _unitType.getExponent()
-            sympy_unit = base_symbol.getEncapsulatedUnit() ** exponent
+        if _unitType.is_pow:
+            base_symbol = cls.visitUnitType(_unitType.base)
+            exponent = _unitType.exponent
+            sympy_unit = base_symbol.get_encapsulated_unit() ** exponent
             return cls.__handleUnit(sympy_unit)
-        elif _unitType.isEncapsulated():
-            return cls.visitUnitType(_unitType.getCompoundUnit())
-        elif _unitType.isDiv():
-            if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
-                lhs = cls.visitUnitType(_unitType.getLhs()).getEncapsulatedUnit()
+        elif _unitType.is_encapsulated:
+            return cls.visitUnitType(_unitType.compound_unit)
+        elif _unitType.is_div:
+            if isinstance(_unitType.get_lhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
+                lhs = cls.visitUnitType(_unitType.get_lhs()).get_encapsulated_unit()
             else:
-                lhs = _unitType.getLhs()
-            rhs = cls.visitUnitType(_unitType.getRhs()).getEncapsulatedUnit()
+                lhs = _unitType.get_lhs()
+            rhs = cls.visitUnitType(_unitType.get_rhs()).get_encapsulated_unit()
             res = lhs / rhs
             return cls.__handleUnit(res)
-        elif _unitType.isTimes():
-            if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
-                lhs = cls.visitUnitType(_unitType.getLhs()).getEncapsulatedUnit()
+        elif _unitType.is_times:
+            if isinstance(_unitType.get_lhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
+                lhs = cls.visitUnitType(_unitType.get_lhs()).get_encapsulated_unit()
             else:
-                lhs = _unitType.getLhs()
-            rhs = cls.visitUnitType(_unitType.getRhs()).getEncapsulatedUnit()
+                lhs = _unitType.get_lhs()
+            rhs = cls.visitUnitType(_unitType.get_rhs()).get_encapsulated_unit()
             res = lhs * rhs
             return cls.__handleUnit(res)
-        elif _unitType.isSimpleUnit():
-            type_s = PredefinedTypes.getTypeIfExists(_unitType.getSimpleUnit())
+        elif _unitType.is_simple_unit():
+            type_s = PredefinedTypes.getTypeIfExists(_unitType.unit)
             if type_s is None:
-                raise UnknownAtomicUnit('Unknown atomic unit %s.' % _unitType.getSimpleUnit())
+                raise UnknownAtomicUnit('Unknown atomic unit %s.' % _unitType.unit)
             else:
                 return type_s
         return
@@ -137,10 +137,10 @@ class ASTDataTypeVisitor(object):
             PredefinedUnits.registerUnit(unit_type)
         # now create the corresponding type symbol if it does not exists
         if PredefinedTypes.getTypeIfExists(str(to_process)) is None:
-            type_symbol = TypeSymbol(_name=str(to_process),
-                                     _unit=PredefinedUnits.getUnitIfExists(str(to_process)),
-                                     _isInteger=False, _isReal=False, _isVoid=False,
-                                     _isBoolean=False, _isString=False, _isBuffer=False)
+            type_symbol = TypeSymbol(name=str(to_process),
+                                     unit=PredefinedUnits.getUnitIfExists(str(to_process)),
+                                     is_integer=False, is_real=False, is_void=False,
+                                     is_boolean=False, is_string=False, is_buffer=False)
             PredefinedTypes.registerType(type_symbol)
         return PredefinedTypes.getTypeIfExists(_name=str(to_process))
 

@@ -59,11 +59,11 @@ class CommentTest(unittest.TestCase):
         # now build the ast
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        neuron_body_elements = ast.get_neuron_list()[0].getBody().getBodyElements()
+        neuron_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
         # check if init values comment is correctly detected
-        assert (neuron_body_elements[0].getComment()[0] == 'init_values comment ok')
+        assert (neuron_body_elements[0].get_comment()[0] == 'init_values comment ok')
         # check that all declaration comments are detected
-        comments = neuron_body_elements[0].getDeclarations()[0].getComment()
+        comments = neuron_body_elements[0].getDeclarations()[0].get_comment()
         assert (comments[0] == 'pre comment 1 ok')
         assert (comments[1] == 'pre comment 2 ok')
         assert (comments[2] == 'inline comment ok')
@@ -72,17 +72,17 @@ class CommentTest(unittest.TestCase):
         assert ('pre comment not ok' not in comments)
         assert ('post comment not ok' not in comments)
         # check that equation block comment is detected
-        assert (neuron_body_elements[1].getComment()[0] == 'equations comment ok')
+        assert (neuron_body_elements[1].get_comment()[0] == 'equations comment ok')
         # check that parameters block comment is detected
-        assert (neuron_body_elements[2].getComment()[0] == 'parameters comment ok')
+        assert (neuron_body_elements[2].get_comment()[0] == 'parameters comment ok')
         # check that internals block comment is detected
-        assert (neuron_body_elements[3].getComment()[0] == 'internals comment ok')
+        assert (neuron_body_elements[3].get_comment()[0] == 'internals comment ok')
         # check that intput comment is detected
-        assert (neuron_body_elements[4].getComment()[0] == 'input comment ok')
+        assert (neuron_body_elements[4].get_comment()[0] == 'input comment ok')
         # check that output comment is detected
-        assert (neuron_body_elements[5].getComment()[0] == 'output comment ok')
+        assert (neuron_body_elements[5].get_comment()[0] == 'output comment ok')
         # check that update comment is detected
-        assert (neuron_body_elements[6].getComment()[0] == 'update comment ok')
+        assert (neuron_body_elements[6].get_comment()[0] == 'update comment ok')
 
 
 if __name__ == '__main__':

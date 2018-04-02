@@ -48,30 +48,6 @@ class ASTArithmeticOperator(ASTNode):
         self.is_pow_op = is_pow_op
         return
 
-    def isPlusOp(self):
-        """
-        Returns whether it is a plus operator or not.
-        :return: True if plus operator, otherwise False.
-        :rtype: bool
-        """
-        return self.is_plus_op
-
-    def isMinusOp(self):
-        """
-        Returns whether it is a minus operator or not.
-        :return: True if minus operator, otherwise False.
-        :rtype: bool
-        """
-        return self.is_minus_op
-
-    def isPowOp(self):
-        """
-        Returns whether it is a power operator or not.
-        :return: True if power operator, otherwise False.
-        :rtype: bool
-        """
-        return self.is_pow_op
-
     def __str__(self):
         # type: () -> str
         """
@@ -94,11 +70,11 @@ class ASTArithmeticOperator(ASTNode):
         else:
             raise InvalidArithmeticOperator('(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.')
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """

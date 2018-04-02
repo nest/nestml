@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import argparse  # used for parsing of input arguments
 import os
-from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
+
 from pynestml.utils.Logger import Logger
 
 
@@ -76,10 +76,10 @@ class FrontendConfiguration(object):
         cls.__providedPath = parsed_args.path
         if cls.__providedPath is None:
             # check if the mandatory path arg has been handed over, just terminate
-            raise InvalidPathException()
+            raise RuntimeError('Invalid source path!')
         cls.__pathsToCompilationUnits = list()
         if parsed_args.path is None:
-            raise InvalidPathException()
+            raise RuntimeError('Invalid source path!')
         elif os.path.isfile(parsed_args.path[0]):
             cls.__pathsToCompilationUnits.append(parsed_args.path[0])
         elif os.path.isdir(parsed_args.path[0]):
@@ -88,7 +88,7 @@ class FrontendConfiguration(object):
                     cls.__pathsToCompilationUnits.append(os.path.join(parsed_args.path[0], filename))
         else:
             cls.__pathsToCompilationUnits = parsed_args.path[0]
-            raise InvalidPathException()
+            raise RuntimeError('Incorrect path provided' + parsed_args.path[0])
         # initialize the logger
 
         if parsed_args.logging_level is not None:
@@ -120,7 +120,7 @@ class FrontendConfiguration(object):
         return
 
     @classmethod
-    def getPath(cls):
+    def get_path(cls):
         """
         Returns the path to the handed over directory or file.
         :return: a single path
@@ -129,7 +129,7 @@ class FrontendConfiguration(object):
         return cls.__providedPath
 
     @classmethod
-    def getFiles(cls):
+    def get_files(cls):
         """
         Returns a list of all files to process.
         :return: a list of paths to files as str.
@@ -138,7 +138,7 @@ class FrontendConfiguration(object):
         return cls.__pathsToCompilationUnits
 
     @classmethod
-    def isDryRun(cls):
+    def is_dry_run(cls):
         """
         Indicates whether it is a dry run, i.e., no modell shall be generated
         :return: True if dry run, otherwise false.
@@ -147,7 +147,7 @@ class FrontendConfiguration(object):
         return cls.__dryRun
 
     @classmethod
-    def getLoggingLevel(cls):
+    def get_logging_level(cls):
         """
         Returns the set logging level.
         :return: the logging level
@@ -156,7 +156,7 @@ class FrontendConfiguration(object):
         return cls.__loggingLevel
 
     @classmethod
-    def getTargetPath(cls):
+    def get_target_path(cls):
         """
         Returns the path to which models shall be generated to.
         :return: the target path.
@@ -165,7 +165,7 @@ class FrontendConfiguration(object):
         return cls.__targetPath
 
     @classmethod
-    def getModuleName(cls):
+    def get_module_name(cls):
         """
         Returns the name of the module.
         :return: the name of the module.
@@ -174,7 +174,7 @@ class FrontendConfiguration(object):
         return cls.__moduleName
 
     @classmethod
-    def storeLog(cls):
+    def store_log(cls):
         """
         Returns whether the log shall be stored.
         :return: True if shall be stored, otherwise False.
@@ -183,10 +183,17 @@ class FrontendConfiguration(object):
         return cls.__storeLog
 
     @classmethod
-    def isDev(cls):
+    def is_dev(cls):
         """
         Returns whether the dev mode have benn set as active.
         :return: True if dev mode is active, otherwise False.
         :rtype: bool
         """
         return cls.__isDebug
+
+
+class InvalidPathException(Exception):
+    """
+    This exception is thrown whenever neither a file nor a dir has been handed over. This should not happen.
+    """
+    pass

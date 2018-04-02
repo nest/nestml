@@ -5,9 +5,9 @@
   @result C++ function
 #}
 
-{%- if variable.isFunction() and not variable.containsSumCall() %}
+{%- if variable.is_function() and not variable.contains_sum_call() %}
   inline {{declarations.printVariableType(variable)}} {{names.getter(variable)}}() const {
-    {%- set simpleExpression = odeTransformer.replaceSumCalls(variable.getDeclaringExpression()) %}
+    {%- set simpleExpression = odeTransformer.replaceSumCalls(variable.get_declaring_expression()) %}
     return {{printer.printExpression(simpleExpression)}};
   }
 {% else %}

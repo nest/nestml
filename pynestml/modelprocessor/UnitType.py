@@ -27,11 +27,11 @@ class UnitType(object):
     as required during context checks.
     
     Attributes:
-        __name  The name of this unit. type: str
-        __unit  The corresponding sympy unit. type: sympy.physics.unit.quantities.Quantity
+        name  The name of this unit. type: str
+        unit  The corresponding sympy unit. type: sympy.physics.unit.quantities.Quantity
     """
-    __name = None
-    __unit = None
+    name = None
+    unit = None
 
     def __init__(self, _name=None, _unit=None):
         """
@@ -46,33 +46,33 @@ class UnitType(object):
         assert (_unit is not None and (isinstance(_unit, Unit) or isinstance(_unit, PrefixUnit)) or
                 isinstance(_unit, IrreducibleUnit) or isinstance(_unit, CompositeUnit) or isinstance(_unit, Quantity)), \
             '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(_unit)
-        self.__name = _name
-        self.__unit = _unit
+        self.name = _name
+        self.unit = _unit
         return
 
-    def getName(self):
+    def get_name(self):
         """
         Returns the name of this unit.
         :return: the name of the unit.
         :rtype: str
         """
-        return self.__name
+        return self.name
 
-    def getUnit(self):
+    def get_unit(self):
         """
         Returns the sympy unit of this unit.
         :return: a single unit quantity
         :rtype: astropy.unit
         """
-        return self.__unit
+        return self.unit
 
-    def printUnit(self):
+    def print_unit(self):
         """
         Returns a string representation of this unit symbol.
         :return: a string representation.
         :rtype: str
         """
-        return str(self.getUnit())
+        return str(self.get_unit())
 
     def equals(self, _obj=None):
         """
@@ -84,4 +84,4 @@ class UnitType(object):
         """
         if not isinstance(_obj, UnitType):
             return False
-        return self.getName() == _obj.getName() and self.getUnit() is _obj.getUnit()
+        return self.get_name() == _obj.get_name() and self.get_unit() is _obj.get_unit()

@@ -107,49 +107,49 @@ class ASTCompoundStmt(ASTNode):
         """
         return self.__forStmt
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
         if self.isIfStmt():
-            if self.getIfStmt() is _ast:
+            if self.getIfStmt() is ast:
                 return self
-            elif self.getIfStmt().getParent(_ast) is not None:
-                return self.getIfStmt().getParent(_ast)
+            elif self.getIfStmt().get_parent(ast) is not None:
+                return self.getIfStmt().get_parent(ast)
         if self.isWhileStmt():
-            if self.getWhileStmt() is _ast:
+            if self.getWhileStmt() is ast:
                 return self
-            elif self.getWhileStmt().getParent(_ast) is not None:
-                return self.getWhileStmt().getParent(_ast)
+            elif self.getWhileStmt().get_parent(ast) is not None:
+                return self.getWhileStmt().get_parent(ast)
         if self.isForStmt():
-            if self.isForStmt() is _ast:
+            if self.isForStmt() is ast:
                 return self
-            elif self.getForStmt().getParent(_ast) is not None:
-                return self.getForStmt().getParent(_ast)
+            elif self.getForStmt().get_parent(ast) is not None:
+                return self.getForStmt().get_parent(ast)
         return None
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTCompoundStmt):
+        if not isinstance(other, ASTCompoundStmt):
             return False
-        if self.getForStmt() is not None and _other.getForStmt() is not None and \
-                not self.getForStmt().equals(_other.getForStmt()):
+        if self.getForStmt() is not None and other.getForStmt() is not None and \
+                not self.getForStmt().equals(other.getForStmt()):
             return False
-        if self.getWhileStmt() is not None and _other.getWhileStmt() is not None and \
-                not self.getWhileStmt().equals(_other.getWhileStmt()):
+        if self.getWhileStmt() is not None and other.getWhileStmt() is not None and \
+                not self.getWhileStmt().equals(other.getWhileStmt()):
             return False
-        if self.getIfStmt() is not None and _other.getIfStmt() is not None and \
-                not self.getIfStmt().equals(_other.getIfStmt()):
+        if self.getIfStmt() is not None and other.getIfStmt() is not None and \
+                not self.getIfStmt().equals(other.getIfStmt()):
             return False
         return True
 

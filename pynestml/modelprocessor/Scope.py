@@ -32,7 +32,7 @@ class Scope(object):
         __enclosingScope The scope this scope is enclosed in. Type: Scope
         __declaredElements Elements declared in this scope, i.e., scopes and symbols. Type: list(Scope,Symbol)
         __scopeType The type of this scope. Type: ScopeType
-        __sourcePosition The position in the source file this scope spans over.
+        sourcePosition The position in the source file this scope spans over.
     """
     __enclosingScope = None
     __declaredElements = None
@@ -192,7 +192,7 @@ class Scope(object):
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         ret = list()
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
+            if sim.get_symbol_name() == _name and sim.get_symbol_kind() == _type:
                 ret.append(self)
         for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
             temp = elem.__resolveToScopeInSpannedScope(_name, _type)
@@ -244,7 +244,7 @@ class Scope(object):
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         ret = list()
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
+            if sim.get_symbol_name() == _name and sim.get_symbol_kind() == _type:
                 ret.append(sim)
         for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
             temp = elem.__resolveToSymbolInSpannedScope(_name, _type)
@@ -268,7 +268,7 @@ class Scope(object):
         assert (_type is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
+            if sim.get_symbol_name() == _name and sim.get_symbol_kind() == _type:
                 return self
         if self.hasEnclosingScope():
             return self.getEnclosingScope().resolveToSymbol(_name, _type)
@@ -291,7 +291,7 @@ class Scope(object):
         assert (_type is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
+            if sim.get_symbol_name() == _name and sim.get_symbol_kind() == _type:
                 return sim
         if self.hasEnclosingScope():
             return self.getEnclosingScope().resolveToSymbol(_name, _type)
@@ -384,7 +384,7 @@ class Scope(object):
               + ',' + str(self.getSourcePosition()) + '>' + '\n'
         for elem in self.__declaredElements:
             if isinstance(elem, Symbol):
-                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.printSymbol() + '\n'
+                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.print_symbol() + '\n'
             else:
                 ret += elem.printScope()
         return ret

@@ -51,15 +51,15 @@ class FunctionMaxOneLhs(ASTVisitor):
     This visitor ensures that every function has exactly one lhs.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, node=None):
         """
         Checks the coco.
-        :param _declaration: a single declaration.
-        :type _declaration: ASTDeclaration
+        :param node: a single declaration.
+        :type node: ASTDeclaration
         """
-        if _declaration.isFunction() and len(_declaration.getVariables()) > 1:
-            code, message = Messages.getSeveralLhs(list((var.getName() for var in _declaration.getVariables())))
-            Logger.logMessage(_errorPosition=_declaration.get_source_position(),
+        if node.is_function() and len(node.get_variables()) > 1:
+            code, message = Messages.getSeveralLhs(list((var.get_name() for var in node.get_variables())))
+            Logger.logMessage(_errorPosition=node.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         return

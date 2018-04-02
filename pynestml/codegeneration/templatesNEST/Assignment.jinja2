@@ -6,14 +6,14 @@
 {%- set lhsVariable = assignments.lhsVariable(ast) -%}
 {%- if assignments.isVectorizedAssignment(ast) -%}
 for (long i=0; i < P_.{{assignments.printSizeParameter(ast)}}; i++) {
-  {%- if lhsVariable.hasVectorParameter() -%}
+  {%- if lhsVariable.has_vector_parameter() -%}
     {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}[i]
   {%- else -%}
     {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}
   {%- endif -%}
   {{assignments.printAssignmentsOperation(ast)}}
-  {{printer.printExpression(ast.getExpression())}};
+  {{printer.printExpression(ast.get_expression())}};
 }
 {%- else -%}
-  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}} {{assignments.printAssignmentsOperation(ast)}} {{printer.printExpression(ast.getExpression())}};
+  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}} {{assignments.printAssignmentsOperation(ast)}} {{printer.printExpression(ast.get_expression())}};
 {%- endif -%}

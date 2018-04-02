@@ -40,10 +40,10 @@ class ASTHigherOrderVisitor(ASTVisitor):
         elif callable(endvisit_funcs):
             self.endvisit_funcs.append(endvisit_funcs)
 
-    def visit(self, _node):
+    def visit(self, node):
         for fun in self.visit_funcs:
-            fun(_node)
+            fun(node)
 
-    def endvisit(self, _node):
+    def endvisit(self, node):
         for fun in self.endvisit_funcs:
-            fun(_node)
+            fun(node)

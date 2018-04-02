@@ -45,61 +45,61 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BlocksUniques) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        if isinstance(_neuron.getStateBlocks(), list) and len(_neuron.getStateBlocks()) > 1:
+        if isinstance(_neuron.get_state_blocks(), list) and len(_neuron.get_state_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('State', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
         # check that update block is defined exactly once
-        if isinstance(_neuron.getUpdateBlocks(), list) and len(_neuron.getUpdateBlocks()) > 1:
+        if isinstance(_neuron.get_update_blocks(), list) and len(_neuron.get_update_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('Update', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
-        elif _neuron.getUpdateBlocks() is None:
+        elif _neuron.get_update_blocks() is None:
             code, message = Messages.getBlockNotDefinedCorrectly('Update', True)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
-        elif isinstance(_neuron.getUpdateBlocks(), list) and len(_neuron.getUpdateBlocks()) == 0:
+        elif isinstance(_neuron.get_update_blocks(), list) and len(_neuron.get_update_blocks()) == 0:
             code, message = Messages.getBlockNotDefinedCorrectly('Update', True)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
         # check that parameters block is defined at most once
-        if isinstance(_neuron.getParameterBlocks(), list) and len(_neuron.getParameterBlocks()) > 1:
+        if isinstance(_neuron.get_parameter_blocks(), list) and len(_neuron.get_parameter_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('Parameters', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
         # check that internals block is defined at most once
-        if isinstance(_neuron.getInternalsBlocks(), list) and len(_neuron.getInternalsBlocks()) > 1:
+        if isinstance(_neuron.get_internals_blocks(), list) and len(_neuron.get_internals_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('Internals', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
         # check that equations block is defined at most once
-        if isinstance(_neuron.getEquationsBlocks(), list) and len(_neuron.getEquationsBlocks()) > 1:
+        if isinstance(_neuron.get_equations_blocks(), list) and len(_neuron.get_equations_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('Equations', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
         # check that input block is defined exactly once
-        if isinstance(_neuron.getInputBlocks(), list) and len(_neuron.getInputBlocks()) > 1:
+        if isinstance(_neuron.get_input_blocks(), list) and len(_neuron.get_input_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('Input', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
-        elif isinstance(_neuron.getInputBlocks(), list) and len(_neuron.getInputBlocks()) == 0:
+        elif isinstance(_neuron.get_input_blocks(), list) and len(_neuron.get_input_blocks()) == 0:
             code, message = Messages.getBlockNotDefinedCorrectly('Input', True)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
-        elif _neuron.getInputBlocks() is None:
+        elif _neuron.get_input_blocks() is None:
             code, message = Messages.getBlockNotDefinedCorrectly('Input', True)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
         # check that output block is defined exactly once
-        if isinstance(_neuron.getOutputBlocks(), list) and len(_neuron.getOutputBlocks()) > 1:
+        if isinstance(_neuron.get_output_blocks(), list) and len(_neuron.get_output_blocks()) > 1:
             code, message = Messages.getBlockNotDefinedCorrectly('Output', False)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
-        elif isinstance(_neuron.getOutputBlocks(), list) and len(_neuron.getOutputBlocks()) == 0:
+        elif isinstance(_neuron.get_output_blocks(), list) and len(_neuron.get_output_blocks()) == 0:
             code, message = Messages.getBlockNotDefinedCorrectly('Output', True)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)
-        elif _neuron.getOutputBlocks() is None:
+        elif _neuron.get_output_blocks() is None:
             code, message = Messages.getBlockNotDefinedCorrectly('Output', True)
             Logger.logMessage(_code=code, _message=message, _neuron=_neuron, _errorPosition=_neuron.get_source_position()
                               , _logLevel=LOGGING_LEVEL.ERROR)

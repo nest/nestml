@@ -5,20 +5,20 @@
                          | ReturnStmt;
   @param stmt ASTSmallStmt
 #}
-{%- if stmt.isAssignment() -%}
-{%- with ast = stmt.getAssignment() -%}
+{%- if stmt.is_assignment() -%}
+{%- with ast = stmt.get_assignment() -%}
 {%- include "Assignment.jinja2" -%}
 {%- endwith -%}
-{%- elif stmt.isFunctionCall() -%}
-{%- with ast = stmt.getFunctionCall() -%}
+{%- elif stmt.is_function_call() -%}
+{%- with ast = stmt.get_function_call() -%}
 {%- include "FunctionCall.jinja2" -%}
 {%- endwith -%}
-{%- elif stmt.isDeclaration() -%}
-{%- with ast = stmt.getDeclaration() -%}
+{%- elif stmt.is_declaration() -%}
+{%- with ast = stmt.get_declaration() -%}
 {%- include "Declaration.jinja2" -%}
 {%- endwith -%}
-{%- elif stmt.isReturnStmt() -%}
-{%- with ast = stmt.getReturnStmt() -%}
+{%- elif stmt.is_return_stmt() -%}
+{%- with ast = stmt.get_return_stmt() -%}
 {%- include "ReturnStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}

@@ -63,16 +63,16 @@ class EquationsOnlyForInitValues(ASTVisitor):
     This visitor ensures that for all ode equations exists an initial value.
     """
 
-    def visitOdeEquation(self, _equation=None):
+    def visit_ode_equation(self, node=None):
         """
         Ensures the coco.
-        :param _equation: a single equation object.
-        :type _equation: ASTOdeEquation
+        :param node: a single equation object.
+        :type node: ASTOdeEquation
         """
-        symbol = _equation.get_scope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
-        if symbol is not None and not symbol.isInitValues():
-            code, message = Messages.getEquationVarNotInInitValuesBlock(_equation.getLhs().getNameOfLhs())
+        symbol = node.get_scope().resolveToSymbol(node.get_lhs().get_name_of_lhs(), SymbolKind.VARIABLE)
+        if symbol is not None and not symbol.is_init_values():
+            code, message = Messages.getEquationVarNotInInitValuesBlock(node.get_lhs().get_name_of_lhs())
             Logger.logMessage(_code=code, _message=message,
-                              _errorPosition=_equation.get_source_position(),
+                              _errorPosition=node.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
             return

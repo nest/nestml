@@ -31,142 +31,79 @@ class ASTAssignment(ASTNode):
             compoundSum='+='     |
             compoundMinus='-='   |
             compoundProduct='*=' |
-            compoundQuotient='/=') expression;
+            compoundQuotient='/=') rhs;
     """
-    __lhsVariable = None
-    __isDirectAssignment = False
-    __isCompoundSum = False
-    __isCompoundMinus = False
-    __isCompoundProduct = False
-    __isCompoundQuotient = False
-    __expression = None
+    lhs = None
+    is_direct_assignment = False
+    is_compound_sum = False
+    is_compound_minus = False
+    is_compound_product = False
+    is_compound_quotient = False
+    rhs = None
 
-    def __init__(self, _lhs=None, _isDirectAssignment=False, _isCompoundSum=False, _isCompoundMinus=False,
-                 _isCompoundProduct=False, _isCompoundQuotient=False, _expression=None, source_position=None):
+    def __init__(self, lhs=None, is_direct_assignment=False, is_compound_sum=False, is_compound_minus=False,
+                 is_compound_product=False, is_compound_quotient=False, rhs=None, source_position=None):
         """
         Standard constructor.
-        :param _sourcePosition: The source position of the assignment
+        :param lhs: the left-hand side variable to which is assigned to.
+        :type lhs: ASTVariable
+        :param is_direct_assignment: is a direct assignment
+        :type is_direct_assignment: bool
+        :param is_compound_sum: is a compound sum
+        :type is_compound_sum: bool
+        :param is_compound_minus: is a compound minus
+        :type is_compound_minus: bool
+        :param is_compound_product: is a compound product
+        :type is_compound_product: bool
+        :param is_compound_quotient: is a compound quotient
+        :type is_compound_quotient: bool
+        :param rhs: an ast-rhs object
+        :type rhs: ASTExpression
+        :param source_position: The source position of the assignment
         :type source_position: ASTSourcePosition
-        :param _lhs: the left-hand side variable to which is assigned to.
-        :type _lhs: ASTVariable 
-        :param _isDirectAssignment: is a direct assignment
-        :type _isDirectAssignment: bool 
-        :param _isCompoundSum: is a compound sum
-        :type _isCompoundSum: bool 
-        :param _isCompoundMinus: is a compound minus
-        :type _isCompoundMinus: bool
-        :param _isCompoundProduct: is a compound product
-        :type _isCompoundProduct: bool
-        :param _isCompoundQuotient: is a compound quotient
-        :type _isCompoundQuotient: bool
-        :param _expression: an ast-expression object
-        :type _expression: ASTExpression
         """
-        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of variable provided (%s)!' % type(_lhs)
-        assert (_isDirectAssignment is not None and isinstance(_isDirectAssignment, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-direct-assignment provided (%s)!' % type(
-                _isDirectAssignment)
-        assert (_isCompoundSum is not None and isinstance(_isCompoundSum, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-sum provided (%s)!' % type(
-                _isCompoundSum)
-        assert (_isCompoundMinus is not None and isinstance(_isCompoundMinus, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-minus provided (%s)!' % type(
-                _isCompoundMinus)
-        assert (_isCompoundMinus is not None and isinstance(_isCompoundMinus, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-minus provided (%s)!' % type(
-                _isCompoundMinus)
-        assert (_isCompoundProduct is not None and isinstance(_isCompoundProduct, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-product provided (%s)!' % type(
-                _isCompoundProduct)
-        assert (_isCompoundQuotient is not None and isinstance(_isCompoundQuotient, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-quotient provided (%s)!' % type(
-                _isCompoundQuotient)
-        assert (_isCompoundQuotient is not None and isinstance(_isCompoundQuotient, bool)), \
-            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-quotient provided (%s)!' % type(
-                _isCompoundQuotient)
         super(ASTAssignment, self).__init__(source_position)
-        self.__lhsVariable = _lhs
-        self.__isDirectAssignment = _isDirectAssignment
-        self.__isCompoundSum = _isCompoundSum
-        self.__isCompoundMinus = _isCompoundMinus
-        self.__isCompoundProduct = _isCompoundProduct
-        self.__isCompoundQuotient = _isCompoundQuotient
-        self.__expression = _expression
+        self.lhs = lhs
+        self.is_direct_assignment = is_direct_assignment
+        self.is_compound_sum = is_compound_sum
+        self.is_compound_minus = is_compound_minus
+        self.is_compound_product = is_compound_product
+        self.is_compound_quotient = is_compound_quotient
+        self.rhs = rhs
         return
 
-    def getVariable(self):
+    def get_variable(self):
         """
         Returns the left-hand side variable.
         :return: left-hand side variable object.
         :rtype: ASTVariable
         """
-        return self.__lhsVariable
+        return self.lhs
 
-    def isDirectAssignment(self):
+    def get_expression(self):
         """
-        Returns whether it is a direct assignment, e.g., V_m = 10mV
-        :return: True if direct assignment, else False.
-        :rtype: bool
-        """
-        return isinstance(self.__isDirectAssignment, bool) and self.__isDirectAssignment
-
-    def isCompoundSum(self):
-        """
-        Returns whether it is a compound sum, e.g., V_m += 10mV
-        :return: True if compound sum, else False.
-        :rtype: bool
-        """
-        return isinstance(self.__isCompoundSum, bool) and self.__isCompoundSum
-
-    def isCompoundMinus(self):
-        """
-        Returns whether it is a compound minus, e.g., V_m -= 10mV
-        :return: True if compound sum, else False.
-        :rtype: bool
-        """
-        return isinstance(self.__isCompoundMinus, bool) and self.__isCompoundMinus
-
-    def isCompoundProduct(self):
-        """
-        Returns whether it is a compound product, e.g., V_m *= 10mV
-        :return: True if compound sum, else False.
-        :rtype: bool
-        """
-        return isinstance(self.__isCompoundProduct, bool) and self.__isCompoundProduct
-
-    def isCompoundQuotient(self):
-        """
-        Returns whether it is a compound quotient, e.g., V_m /= 10mV
-        :return: True if compound sum, else False.
-        :rtype: bool
-        """
-        return isinstance(self.__isCompoundQuotient, bool) and self.__isCompoundQuotient
-
-    def getExpression(self):
-        """
-        Returns the right-hand side expression.
-        :return: expression object.
+        Returns the right-hand side rhs.
+        :return: rhs object.
         :rtype: ASTExpression
         """
-        return self.__expression
+        return self.rhs
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getVariable() is _ast:
+        if self.get_variable() is ast:
             return self
-        elif self.getExpression() is _ast:
+        elif self.get_expression() is ast:
             return self
-        if self.getVariable().getParent(_ast) is not None:
-            return self.getVariable().getParent(_ast)
-        if self.getExpression().getParent(_ast) is not None:
-            return self.getExpression().getParent(_ast)
+        if self.get_variable().get_parent(ast) is not None:
+            return self.get_variable().get_parent(ast)
+        if self.get_expression().get_parent(ast) is not None:
+            return self.get_expression().get_parent(ast)
         return None
 
     def __str__(self):
@@ -175,35 +112,34 @@ class ASTAssignment(ASTNode):
         :return: a string representing the assignment.
         :rtype: str
         """
-        ret = str(self.__lhsVariable)
-        if self.isCompoundQuotient():
+        ret = str(self.lhs)
+        if self.is_compound_quotient:
             ret += '/='
-        elif self.isCompoundProduct():
+        elif self.is_compound_product:
             ret += '*='
-        elif self.isCompoundMinus():
+        elif self.is_compound_minus:
             ret += '-='
-        elif self.isCompoundSum():
+        elif self.is_compound_sum:
             ret += '+='
         else:
             ret += '='
-        ret += str(self.__expression)
+        ret += str(self.rhs)
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other):
         """
         The equals operation.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTAssignment):
+        if not isinstance(other, ASTAssignment):
             return False
-
-        return self.getVariable().equals(_other.getVariable()) and \
-               self.isCompoundQuotient() == _other.isCompoundQuotient() and \
-               self.isCompoundProduct() == _other.isCompoundProduct() and \
-               self.isCompoundMinus() == _other.isCompoundMinus() and \
-               self.isCompoundSum() == _other.isCompoundSum() and \
-               self.isDirectAssignment() == _other.isDirectAssignment() and \
-               self.getExpression().equals(_other.getExpression())
+        return (self.get_variable().equals(other.get_variable()) and
+                self.is_compound_quotient == other.is_compound_quotient and
+                self.is_compound_product == other.is_compound_product and
+                self.is_compound_minus == other.is_compound_minus and
+                self.is_compound_sum == other.is_compound_sum and
+                self.is_direct_assignment == other.is_direct_assignment and
+                self.get_expression().equals(other.get_expression()))

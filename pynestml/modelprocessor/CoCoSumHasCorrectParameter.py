@@ -41,7 +41,7 @@ class CoCoSumHasCorrectParameter(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
+        cls.neuronName = _neuron.get_name()
         visitor = SumIsCorrectVisitor()
         _neuron.accept(visitor)
         return
@@ -49,25 +49,25 @@ class CoCoSumHasCorrectParameter(CoCo):
 
 class SumIsCorrectVisitor(ASTVisitor):
     """
-    This visitor ensures that sums/convolve are provided with a correct expression.
+    This visitor ensures that sums/convolve are provided with a correct rhs.
     """
 
-    def visitFunctionCall(self, _functionCall=None):
+    def visit_function_call(self, node=None):
         """
         Checks the coco on the current function call.
-        :param _functionCall: a single function call.
-        :type _functionCall: ASTFunctionCall
+        :param node: a single function call.
+        :type node: ASTFunctionCall
         """
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
+        assert (node is not None and isinstance(node, ASTFunctionCall)), \
             '(PyNestML.CoCo.SumHasCorrectParameter) No or wrong type of function call provided (%s)!' % type(
-                _functionCall)
-        fName = _functionCall.getName()
+                node)
+        fName = node.get_name()
         if fName == PredefinedFunctions.CURR_SUM or fName == PredefinedFunctions.COND_SUM or \
                         fName == PredefinedFunctions.CONVOLVE:
-            for arg in _functionCall.getArgs():
-                if not isinstance(arg, ASTSimpleExpression) or not arg.isVariable():
+            for arg in node.get_args():
+                if not isinstance(arg, ASTSimpleExpression) or not arg.is_variable():
                     code, message = Messages.getNotAVariable(str(arg))
                     Logger.logMessage(_code=code, _message=message,
                                       _errorPosition=arg.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)

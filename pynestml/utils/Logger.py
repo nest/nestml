@@ -101,15 +101,15 @@ class Logger(object):
             '(PyNestML.Logger) Wrong type of code provided (%s)!' % type(_code)
         if isinstance(_neuron, ASTNeuron):
             cls.__log[cls.__currMessage] = (
-                _neuron.getArtifactName(), _neuron, _logLevel, _code, _errorPosition, _message)
+                _neuron.get_artifact_name(), _neuron, _logLevel, _code, _errorPosition, _message)
         elif cls.__currentNeuron is not None:
-            cls.__log[cls.__currMessage] = (cls.__currentNeuron.getArtifactName(), cls.__currentNeuron,
+            cls.__log[cls.__currMessage] = (cls.__currentNeuron.get_artifact_name(), cls.__currentNeuron,
                                             _logLevel, _code, _errorPosition, _message)
         cls.__currMessage += 1
         if cls.__loggingLevel.value <= _logLevel.value:
             print('[' + str(cls.__currMessage) + ','
-                  + (_neuron.getName() + ', ' if _neuron is not None else
-                     cls.__currentNeuron.getName() + ', ' if cls.__currentNeuron is not None else 'GLOBAL, ')
+                  + (_neuron.get_name() + ', ' if _neuron is not None else
+            cls.__currentNeuron.get_name() + ', ' if cls.__currentNeuron is not None else 'GLOBAL, ')
                   + str(_logLevel.name) + ', ' + str(_code.name) +
                   (', ' + str(_errorPosition) if _errorPosition is not None else '') + ']:'
                   + str(_message))
@@ -185,8 +185,8 @@ class Logger(object):
         ret = list()
         for (artifactName, neuron, logLevel, code, errorPosition, message) in cls.__log.values():
             if (_level == logLevel if _level is not None else True) and (
-                    _neuron if _neuron is not None else True) and (_neuron.getArtifactName() == artifactName
-                                                                   if _neuron is not None else True):
+                    _neuron if _neuron is not None else True) and (_neuron.get_artifact_name() == artifactName
+            if _neuron is not None else True):
                 ret.append((neuron, logLevel, message))
         return ret
 
@@ -216,7 +216,7 @@ class Logger(object):
                    artifactName + \
                    '", ' + \
                    '"neuronName":"' + \
-                   (neuron.getName() if neuron is not None else 'GLOBAL') + '", ' + \
+                   (neuron.get_name() if neuron is not None else 'GLOBAL') + '", ' + \
                    '"severity":"' \
                    + str(logLevel.name) + '", ' \
                    + '"code":"' \

@@ -51,21 +51,21 @@ class InvariantTypeVisitor(ASTVisitor):
     Checks if for each invariant, the type is boolean.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, node=None):
         """
         Checks the coco for a declaration.
-        :param _declaration: a single declaration.
-        :type _declaration: ASTDeclaration
+        :param node: a single declaration.
+        :type node: ASTDeclaration
         """
-        if _declaration.hasInvariant():
-            invariantType = _declaration.getInvariant().getTypeEither()
+        if node.has_invariant():
+            invariantType = node.get_invariant().get_type_either()
             if invariantType is None or invariantType.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(str(_declaration.getInvariant()))
-                Logger.logMessage(_errorPosition=_declaration.getInvariant().get_source_position(), _code=code,
+                code, message = Messages.getTypeCouldNotBeDerived(str(node.get_invariant()))
+                Logger.logMessage(_errorPosition=node.get_invariant().get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
                 code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                       invariantType.getValue())
-                Logger.logMessage(_errorPosition=_declaration.getInvariant().get_source_position(), _code=code,
+                Logger.logMessage(_errorPosition=node.get_invariant().get_source_position(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

@@ -71,10 +71,10 @@ class OdeTransformer(object):
 
         # we define a local collection operation
         def replace_function_call_through_first_argument(node):
-            if isinstance(node, ASTSimpleExpression) and node.isFunctionCall() and node.getFunctionCall() == _toReplace:
-                first_arg = node.getFunctionCall().getArgs()[0].getVariable()
-                node.setFunctionCall(None)
-                node.setVariable(first_arg)
+            if isinstance(node, ASTSimpleExpression) and node.is_function_call() and node.get_function_call() == _toReplace:
+                first_arg = node.get_function_call().get_args()[0].get_variable()
+                node.set_function_call(None)
+                node.set_variable(first_arg)
             return
 
         _ast.accept(ASTHigherOrderVisitor(replace_function_call_through_first_argument))
@@ -116,7 +116,7 @@ class OdeTransformer(object):
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 
         def loc_get_function(node):
-            if isinstance(node, ASTFunctionCall) and node.getName() in _functionList:
+            if isinstance(node, ASTFunctionCall) and node.get_name() in _functionList:
                 res.append(node)
 
         _astNode.accept(ASTHigherOrderVisitor(loc_get_function, list()))
@@ -136,7 +136,7 @@ class OdeTransformer(object):
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 
         def loc_get_cond_sum(node):
-            if isinstance(node, ASTFunctionCall) and node.getName() == PredefinedFunctions.COND_SUM:
+            if isinstance(node, ASTFunctionCall) and node.get_name() == PredefinedFunctions.COND_SUM:
                 res.append(node)
 
         node.accept(ASTHigherOrderVisitor(loc_get_cond_sum))

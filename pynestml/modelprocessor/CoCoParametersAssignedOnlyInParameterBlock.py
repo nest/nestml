@@ -62,21 +62,21 @@ class ParametersAssignmentVisitor(ASTVisitor):
     This visitor checks that no parameters have been assigned outside the parameters block.
     """
 
-    def visitAssignment(self, _assignment=None):
+    def visit_assignment(self, node=None):
         """
         Checks the coco on the current node.
-        :param _assignment: a single assignment.
-        :type _assignment: ASTAssignment
+        :param assignment: a single node.
+        :type node: ASTAssignment
         """
         from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-        assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
-            '(PyNestML.CoCo.ParametersAssignedOutsideParametersBlock) No or wrong type of assignment provided (%s)!' \
-            % type(_assignment)
-        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
-        if symbol is not None and symbol.getBlockType() == BlockType.PARAMETERS and \
-                        _assignment.get_scope().getScopeType() != ScopeType.GLOBAL:
-            code, message = Messages.getAssignmentNotAllowed(_assignment.getVariable().getCompleteName())
-            Logger.logMessage(_errorPosition=_assignment.get_source_position(),
+        assert (node is not None and isinstance(node, ASTAssignment)), \
+            '(PyNestML.CoCo.ParametersAssignedOutsideParametersBlock) No or wrong type of node provided (%s)!' \
+            % type(node)
+        symbol = node.get_scope().resolveToSymbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+        if symbol is not None and symbol.get_block_type() == BlockType.PARAMETERS and \
+                        node.get_scope().getScopeType() != ScopeType.GLOBAL:
+            code, message = Messages.getAssignmentNotAllowed(node.get_variable().get_complete_name())
+            Logger.logMessage(_errorPosition=node.get_source_position(),
                               _code=code, _message=message,
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

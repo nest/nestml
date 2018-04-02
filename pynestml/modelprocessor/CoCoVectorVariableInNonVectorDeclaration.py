@@ -51,28 +51,28 @@ class VectorInDeclarationVisitor(ASTVisitor):
     This visitor checks if somewhere in a declaration of a non-vector value, a vector is used.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, node=None):
         """
         Checks the coco.
-        :param _declaration: a single declaration.
-        :type _declaration: ASTDeclaration
+        :param node: a single declaration.
+        :type node: ASTDeclaration
         """
         from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
+        assert (node is not None and isinstance(node, ASTDeclaration)), \
             '(PyNestML.CoCo.VectorInNonVectorDeclaration) No or wrong type of declaration provided (%s)!' % type(
-                _declaration)
-        if _declaration.hasExpression():
-            variables = _declaration.getExpression().getVariables()
+                node)
+        if node.has_expression():
+            variables = node.get_expression().get_variables()
             for variable in variables:
                 if variable is not None:
-                    symbol = _declaration.get_scope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
-                    if symbol is not None and symbol.hasVectorParameter() and not _declaration.hasSizeParameter():
-                        code, message = Messages.getVectorInNonVector(_vector=symbol.getSymbolName(),
-                                                                      _nonVector=list(var.getCompleteName() for
+                    symbol = node.get_scope().resolveToSymbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+                    if symbol is not None and symbol.has_vector_parameter() and not node.has_size_parameter():
+                        code, message = Messages.getVectorInNonVector(_vector=symbol.get_symbol_name(),
+                                                                      _nonVector=list(var.get_complete_name() for
                                                                                       var in
-                                                                                      _declaration.getVariables()))
+                                                                                      node.get_variables()))
 
-                        Logger.logMessage(_errorPosition=_declaration.get_source_position(),
+                        Logger.logMessage(_errorPosition=node.get_source_position(),
                                           _code=code, _message=message,
                                           _logLevel=LOGGING_LEVEL.ERROR)
         return

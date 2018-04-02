@@ -126,19 +126,19 @@ class ASTBlockWithVariables(ASTNode):
         self.__declarations = list()
         return
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
         for stmt in self.getDeclarations():
-            if stmt is _ast:
+            if stmt is ast:
                 return self
-            if stmt.getParent(_ast) is not None:
-                return stmt.getParent(_ast)
+            if stmt.get_parent(ast) is not None:
+                return stmt.get_parent(ast)
         return None
 
     def __str__(self):
@@ -163,23 +163,23 @@ class ASTBlockWithVariables(ASTNode):
         ret += 'end'
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False
         :rtype: bool
         """
-        if not isinstance(_other, ASTBlockWithVariables):
+        if not isinstance(other, ASTBlockWithVariables):
             return False
-        if not (self.isInitialValues() == _other.isInitialValues() and self.isInternals() == _other.isInternals() and
-                self.isParameters() == _other.isParameters() and self.isState() == _other.isState()):
+        if not (self.isInitialValues() == other.isInitialValues() and self.isInternals() == other.isInternals() and
+                self.isParameters() == other.isParameters() and self.isState() == other.isState()):
             return False
-        if len(self.getDeclarations()) != len(_other.getDeclarations()):
+        if len(self.getDeclarations()) != len(other.getDeclarations()):
             return False
         myDeclarations = self.getDeclarations()
-        yourDeclarations = _other.getDeclarations()
+        yourDeclarations = other.getDeclarations()
         for i in range(0, len(myDeclarations)):
             if not myDeclarations[i].equals(yourDeclarations[i]):
                 return False

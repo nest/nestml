@@ -46,24 +46,24 @@ class EquationsBlockProcessor(object):
             '(PyNestML.Solver.EquationsBlockProcessor) No or wrong type of neuron provided (%s)!' % _neuron
         # if no equations block is present, just return it
         working_version = _neuron
-        if working_version.getEquationsBlocks() is not None:
+        if working_version.get_equations_blocks() is not None:
             deep_copy = deepcopy(_neuron)
-            if len(working_version.getEquationsBlocks().getOdeShapes()) > 0 and \
-                    not cls.__odeShapeExists(working_version.getEquationsBlocks().getOdeShapes()) and \
-                    len(working_version.getEquationsBlocks().getOdeEquations()) == 1:
-                output = SymPySolver.solveOdeWithShapes(deep_copy.getEquationsBlocks())
+            if len(working_version.get_equations_blocks().getOdeShapes()) > 0 and \
+                    not cls.__odeShapeExists(working_version.get_equations_blocks().getOdeShapes()) and \
+                    len(working_version.get_equations_blocks().getOdeEquations()) == 1:
+                output = SymPySolver.solveOdeWithShapes(deep_copy.get_equations_blocks())
                 if not output.status == 'success':
                     code, message = Messages.getCouldNotBeSolved()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
+                                      _errorPosition=_neuron.get_equations_blocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.ERROR)
                     return _neuron
                 if output.solver == 'exact':
                     code, message = Messages.getEquationsSolvedExactly()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
+                                      _errorPosition=_neuron.get_equations_blocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.INFO)
                     working_version = ExactSolutionTransformer.addExactSolution(_neuron=working_version,
                                                                                 _solverOutput=output)
@@ -71,7 +71,7 @@ class EquationsBlockProcessor(object):
                     code, message = Messages.getEquationsSolvedByGLS()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
+                                      _errorPosition=_neuron.get_equations_blocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.INFO)
                     working_version = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron=_neuron,
                                                                                        _solverOutput=output)
@@ -81,17 +81,17 @@ class EquationsBlockProcessor(object):
                     code, message = Messages.getCouldNotBeSolved()
                     Logger.logMessage(_neuron=_neuron,
                                       _message=message, _code=code,
-                                      _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
+                                      _errorPosition=_neuron.get_equations_blocks().get_source_position(),
                                       _logLevel=LOGGING_LEVEL.INFO)
                     return working_version
-            elif len(working_version.getEquationsBlocks().getOdeShapes()) > 0 and \
-                    not cls.__odeShapeExists(working_version.getEquationsBlocks().getOdeShapes()):
+            elif len(working_version.get_equations_blocks().getOdeShapes()) > 0 and \
+                    not cls.__odeShapeExists(working_version.get_equations_blocks().getOdeShapes()):
                 code, message = Messages.getEquationsSolvedByGLS()
                 Logger.logMessage(_neuron=_neuron,
                                   _message=message, _code=code,
-                                  _errorPosition=_neuron.getEquationsBlocks().get_source_position(),
+                                  _errorPosition=_neuron.get_equations_blocks().get_source_position(),
                                   _logLevel=LOGGING_LEVEL.INFO)
-                solver_output = SymPySolver.solveShapes(deep_copy.getEquationsBlocks().getOdeShapes())
+                solver_output = SymPySolver.solveShapes(deep_copy.get_equations_blocks().getOdeShapes())
                 working_version = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron, solver_output)
             else:
                 TransformerBase.applyIncomingSpikes(working_version)
@@ -108,6 +108,6 @@ class EquationsBlockProcessor(object):
         """
         from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
         for shape in _shapes:
-            if isinstance(shape, ASTOdeShape) and shape.getVariable().getDifferentialOrder() > 0:
+            if isinstance(shape, ASTOdeShape) and shape.get_variable().get_differential_order() > 0:
                 return True
         return False

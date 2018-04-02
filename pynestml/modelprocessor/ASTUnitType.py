@@ -35,212 +35,117 @@ class ASTUnitType(ASTNode):
                | unit=NAME;
     """
     # encapsulated or not
-    __hasLeftParentheses = False
-    __hasRightParentheses = False
-    __compoundUnit = None
-    # pow expression
-    __base = None
-    __isPow = False
-    __exponent = None
+    is_encapsulated = False
+    compound_unit = None
+    # pow rhs
+    base = None
+    is_pow = False
+    exponent = None
     # arithmetic combination case
-    __lhs = None
-    __isTimes = False
-    __isDiv = False
-    __rhs = None
+    lhs = None
+    is_times = False
+    is_div = False
+    rhs = None
     # simple case, just a name
-    __unit = None
+    unit = None
 
-    def __init__(self, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None, _isPow=False,
-                 _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None, source_position=None):
+    def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
+                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, source_position=None):
         """
         Standard constructor of ASTUnitType.
-        :param _leftParentheses: contains a left parenthesis
-        :type _leftParentheses: bool
-        :param _compoundUnit: a unit encapsulated in brackets
-        :type _compoundUnit: ASTUnitType
-        :param _rightParentheses: contains a right parenthesis 
-        :type _rightParentheses: bool
-        :param _base: the base expression 
-        :type _base: ASTUnitType
-        :param _isPow: is a power expression
-        :type _isPow: bool
-        :param _exponent: the exponent expression
-        :type _exponent: int
-        :param _lhs: the left-hand side expression
-        :type _lhs: ASTUnitType or Integer
-        :param _rhs: the right-hand side expression
-        :type _rhs: ASTUnitType
-        :param _isDiv: is a division expression
-        :type _isDiv: bool
-        :param _isTimes: is a times expression
-        :type _isTimes: bool
+        :param compound_unit: a unit encapsulated in brackets
+        :type compound_unit: ASTUnitType
+        :param base: the base rhs
+        :type base: ASTUnitType
+        :param is_pow: is a power rhs
+        :type is_pow: bool
+        :param exponent: the exponent rhs
+        :type exponent: int
+        :param lhs: the left-hand side rhs
+        :type lhs: ASTUnitType or Integer
+        :param rhs: the right-hand side rhs
+        :type rhs: ASTUnitType
+        :param is_div: is a division rhs
+        :type is_div: bool
+        :param is_times: is a times rhs
+        :type is_times: bool
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
         """
-        assert (isinstance(_base, ASTUnitType) or isinstance(_base, str) or _base is None), \
-            '(PyNestML.AST.UnitType) Wrong type of base expression provided (%s)!' % type(_base)
-        assert (isinstance(_exponent, int) or _exponent is None), \
-            '(PyNestML.AST.UnitType) Wrong type of exponent provided, expected integer, provided (%s)!' \
-            % type(_exponent)
-        assert (isinstance(_lhs, ASTUnitType) or isinstance(_lhs, str) or isinstance(_lhs, int) or _lhs is None), \
-            '(PyNestML.AST.UnitType) Wrong type of left-hand side expression provided (%s)!' % type(_lhs)
-        assert (isinstance(_rhs, ASTUnitType) or isinstance(_rhs, str) or _rhs is None), \
-            '(PyNestML.AST.UnitType) Wrong type of right-hand side expression provided (%s)!' % type(_rhs)
-        assert (isinstance(_compoundUnit, ASTUnitType) or isinstance(_compoundUnit, str) or _compoundUnit is None), \
-            '(PyNestML.AST.UnitType) Wrong type of encapsulated unit expression provided (%s)!' % type(_compoundUnit)
-        assert (_leftParentheses is not None and isinstance(_leftParentheses, bool)), \
-            '(PyNestML.AST.UnitType) Wrong type of left-bracket provided (%s)!' % type(_leftParentheses)
-        assert (_rightParentheses is not None and isinstance(_rightParentheses, bool)), \
-            '(PyNestML.AST.UnitType) Wrong type of right-bracket provided (%s)!' % type(_rightParentheses)
-        assert ((_rightParentheses + _leftParentheses) % 2 == 0), \
-            '(PyNestML.AST.UnitType) Brackets not consistent!'
-        assert (_isTimes is not None and isinstance(_isTimes, bool)), \
-            '(PyNestML.AST.UnitType) Wrong type of is-times provided (%s)!' % type(_isTimes)
-        assert (_isDiv is not None and isinstance(_isDiv, bool)), \
-            '(PyNestML.AST.UnitType) Wrong type of is-div provided (%s)!' % type(_isDiv)
-        assert (_isPow is not None and isinstance(_isPow, bool)), \
-            '(PyNestML.AST.UnitType) Wrong type of is-pow provided (%s)!' % type(_isPow)
-        assert (_unit is None or isinstance(_unit, str)), \
-            '(PyNestML.AST.UnitType) Wrong type of unit provided (%s)!' % type(_unit)
         super(ASTUnitType, self).__init__(source_position)
-        self.__hasLeftParentheses = _leftParentheses
-        self.__compoundUnit = _compoundUnit
-        self.__hasRightParentheses = _rightParentheses
-        self.__base = _base
-        self.__isPow = _isPow
-        self.__exponent = _exponent
-        self.__lhs = _lhs
-        self.__isTimes = _isTimes
-        self.__isDiv = _isDiv
-        self.__rhs = _rhs
-        self.__unit = _unit
+        self.is_encapsulated = is_encapsulated
+        self.compound_unit = compound_unit
+        self.base = base
+        self.is_pow = is_pow
+        self.exponent = exponent
+        self.lhs = lhs
+        self.is_times = is_times
+        self.is_div = is_div
+        self.rhs = rhs
+        self.unit = _unit
         return
 
-    def isEncapsulated(self):
+    def is_simple_unit(self):
         """
-        Returns whether the expression is encapsulated in parametrises, e.g., (1mV - 0.5mV)
-        :return: True if encapsulated, otherwise False. 
-        :rtype: bool
-        """
-        return self.__hasRightParentheses and self.__hasLeftParentheses
-
-    def isPowerExpression(self):
-        """
-        Returns whether the expression is a combination of a base and exponent, e.g., mV**2
-        :return: True if power expression, otherwise False.
-        :rtype: bool
-        """
-        return self.__isPow and self.__base is not None and self.__exponent is not None
-
-    def isSimpleUnit(self):
-        """
-        Returns whether the expression is a simple unit, e.g., mV.
+        Returns whether the rhs is a simple unit, e.g., mV.
         :return: True if simple unit, otherwise False.
         :rtype: bool
         """
-        return self.__unit is not None
+        return self.unit is not None
 
-    def isArithmeticExpression(self):
+    def is_arithmetic_expression(self):
         """
-        Returns whether the expression is a arithmetic combination, e.g, mV/mS.
-        :return: True if arithmetic expression, otherwise false.
+        Returns whether the rhs is a arithmetic combination, e.g, mV/mS.
+        :return: True if arithmetic rhs, otherwise false.
         :rtype: bool
         """
-        return self.__lhs is not None and self.__rhs is not None and (self.__isDiv or self.__isTimes)
+        return self.lhs is not None and self.rhs is not None and (self.is_div or self.is_times)
 
-    def getBase(self):
+    def get_lhs(self):
         """
-        Returns the base expression if present.
+        Returns the left-hand side rhs if present.
         :return: ASTUnitType instance if present, otherwise None.
         :rtype: ASTUnitType
         """
-        return self.__base
+        return self.lhs
 
-    def getExponent(self):
+    def get_rhs(self):
         """
-        Returns the exponent expression if present.
-        :return: Integer if present, otherwise None.
-        :rtype: int
-        """
-        return self.__exponent
-
-    def getLhs(self):
-        """
-        Returns the left-hand side expression if present.
+        Returns the right-hand side rhs if present.
         :return: ASTUnitType instance if present, otherwise None.
         :rtype: ASTUnitType
         """
-        return self.__lhs
+        return self.rhs
 
-    def getRhs(self):
-        """
-        Returns the right-hand side expression if present.
-        :return: ASTUnitType instance if present, otherwise None.
-        :rtype: ASTUnitType
-        """
-        return self.__rhs
-
-    def isDiv(self):
-        """
-        Returns whether the expression is combined by division operator, e.g., mV/mS.
-        :return: True if combined by the division operator, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.__isDiv, bool) and self.__isDiv
-
-    def isTimes(self):
-        """
-        Returns whether the expression is combined by times operator, e.g., mV*mS.
-        :return: True if combined by the division operator, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.__isTimes, bool) and self.__isTimes
-
-    def getSimpleUnit(self):
-        """
-        Returns the simple unit, e.g. mV.
-        :return: string if present, otherwise None. 
-        :rtype: string
-        """
-        return self.__unit
-
-    def getCompoundUnit(self):
-        """
-        Returns the unit encapsulated in brackets, e.g.(10mV)
-        :return: a unit object.
-        :rtype: ASTUnitType
-        """
-        return self.__compoundUnit
-
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.isEncapsulated():
-            if self.getCompoundUnit() is _ast:
+        if self.is_encapsulated:
+            if self.compound_unit is ast:
                 return self
-            elif self.getCompoundUnit().getParent(_ast) is not None:
-                return self.getCompoundUnit().getParent(_ast)
+            elif self.compound_unit.get_parent(ast) is not None:
+                return self.compound_unit.get_parent(ast)
 
-        if self.isPowerExpression():
-            if self.getBase() is _ast:
+        if self.is_pow:
+            if self.base is ast:
                 return self
-            elif self.getBase().getParent(_ast) is not None:
-                return self.getBase().getParent(_ast)
-        if self.isArithmeticExpression():
-            if isinstance(self.getLhs(), ASTUnitType):
-                if self.getLhs() is _ast:
+            elif self.base.get_parent(ast) is not None:
+                return self.base.get_parent(ast)
+        if self.is_arithmetic_expression():
+            if isinstance(self.get_lhs(), ASTUnitType):
+                if self.get_lhs() is ast:
                     return self
-                elif self.getLhs().getParent(_ast) is not None:
-                    return self.getLhs().getParent(_ast)
-            if self.getRhs() is _ast:
+                elif self.get_lhs().get_parent(ast) is not None:
+                    return self.get_lhs().get_parent(ast)
+            if self.get_rhs() is ast:
                 return self
-            elif self.getRhs().getParent(_ast) is not None:
-                return self.getRhs().getParent(_ast)
+            elif self.get_rhs().get_parent(ast) is not None:
+                return self.get_rhs().get_parent(ast)
         return None
 
     def __str__(self):
@@ -249,47 +154,46 @@ class ASTUnitType(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        if self.isEncapsulated():
-            return '(' + str(self.getCompoundUnit()) + ')'
-        elif self.isPowerExpression():
-            return str(self.getBase()) + '**' + str(self.getExponent())
-        elif self.isArithmeticExpression():
-            tLhs = (str(self.getLhs()) if isinstance(self.getLhs(), ASTUnitType) else self.getLhs())
-            if self.isTimes():
-                return str(tLhs) + '*' + str(self.getRhs())
+        if self.is_encapsulated:
+            return '(' + str(self.compound_unit) + ')'
+        elif self.is_pow:
+            return str(self.base) + '**' + str(self.exponent)
+        elif self.is_arithmetic_expression():
+            t_lhs = (str(self.get_lhs()) if isinstance(self.get_lhs(), ASTUnitType) else self.get_lhs())
+            if self.is_times:
+                return str(t_lhs) + '*' + str(self.get_rhs())
             else:
-                return str(tLhs) + '/' + str(self.getRhs())
+                return str(t_lhs) + '/' + str(self.get_rhs())
         else:
-            return self.getSimpleUnit()
+            return self.unit
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTUnitType):
+        if not isinstance(other, ASTUnitType):
             return False
-        if self.isEncapsulated() + _other.isEncapsulated() == 1:
+        if self.is_encapsulated + other.is_encapsulated == 1:
             return False
-        if self.isEncapsulated() and _other.isEncapsulated() and not self.getCompoundUnit().equals(
-                _other.getCompoundUnit()):
+        if self.is_encapsulated and other.is_encapsulated and not self.compound_unit.equals(other.compound_unit):
             return False
-        if self.isPowerExpression() + _other.isPowerExpression() == 1:
+        if self.is_pow + other.is_pow == 1:
             return False
-        if self.isPowerExpression() and _other.isPowerExpression() and \
-                not (self.getBase().equals(_other.getBase()) and self.getExponent() == _other.getExponent()):
+        if self.is_pow and other.is_pow and \
+                not (self.base.equals(other.base) and self.exponent == other.exponent):
             return False
-        if self.isArithmeticExpression() + _other.isArithmeticExpression() == 1:
+        if self.is_arithmetic_expression() + other.is_arithmetic_expression() == 1:
             return False
-        if self.isArithmeticExpression() and _other.isArithmeticExpression() and \
-                not (self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs()) and
-                     self.isTimes() == _other.isTimes() and self.isDiv() == _other.isDiv()):
+        if self.is_arithmetic_expression() and other.is_arithmetic_expression() and \
+                not (self.get_lhs().equals(other.lhs) and self.rhs.equals(other.rhs) and
+                     self.is_times == other.is_times and self.is_div == other.is_div):
             return False
-        if self.isSimpleUnit() + _other.isSimpleUnit() == 1:
+        if self.is_simple_unit() + other.is_simple_unit() == 1:
             return False
-        if self.isSimpleUnit() and _other.isSimpleUnit() and not self.getSimpleUnit() == _other.getSimpleUnit():
+        if self.is_simple_unit() and other.is_simple_unit() and not self.unit == other.unit:
             return False
         return True

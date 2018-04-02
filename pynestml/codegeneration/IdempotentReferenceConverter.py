@@ -49,7 +49,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         assert (_astVariable is not None and isinstance(_astVariable, ASTVariable)), \
             '(PyNestML.CodeGeneration.ReferenceConverter) No or wrong type of variable provided (%s)!' % type(
                 _astVariable)
-        return _astVariable.getCompleteName()
+        return _astVariable.get_complete_name()
 
     def convertFunctionCall(self, _astFunctionCall):
         """
@@ -64,8 +64,8 @@ class IdempotentReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.ReferenceConverter) No or wrong type of function call provided (%s)!' % type(
                 _astFunctionCall)
 
-        result = _astFunctionCall.getName()
-        if ASTUtils.needsArguments(_astFunctionCall):
+        result = _astFunctionCall.get_name()
+        if ASTUtils.needs_arguments(_astFunctionCall):
             result += '(%s)'
         else:
             result += '()'

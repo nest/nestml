@@ -109,7 +109,7 @@ class OdeAnalyzer(object):
             shape_name = str(tmp[0])
             shape_expr = parse_expr(tmp[1].strip())
             if shape_expr.is_Function and str(shape_expr.func).startswith("delta"):
-                # extract the name of the ODE and its defining expression
+                # extract the name of the ODE and its defining rhs
                 ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
                 ode_var = ode_definition[0].replace("'", "").strip()
                 ode_rhs = ode_definition[1].strip()
@@ -167,7 +167,7 @@ class OdeAnalyzer(object):
             result = OdeAnalyzer.convert_shapes_to_odes(shape_functions)
             return json.dumps(result.__dict__, indent=2)
 
-        # extract the name of the ODE and its defining expression
+        # extract the name of the ODE and its defining rhs
         ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
         ode_var = ode_definition[0].replace("'", "").strip()
         ode_rhs = ode_definition[1].strip()

@@ -21,10 +21,10 @@
 
 class ASTExpressionCollectorVisitor(object):
     """
-    Traverses through the complete neuron and collects all expression as used. This visitor is used to ensure 
+    Traverses through the complete neuron and collects all rhs as used. This visitor is used to ensure
     certain properties, e.g., that all variables are declared and no functions redeclared.
     This visitor can not be directly implemented by the NESTML visitor given the fact, that only the most top
-    level expression, but not its subexpression shall be visited.
+    level rhs, but not its subexpression shall be visited.
     """
 
     @classmethod
@@ -35,27 +35,27 @@ class ASTExpressionCollectorVisitor(object):
         function block, which can be defined more than once.
         :param _neuron: a single neuron instance.
         :type _neuron: ASTNeuron
-        :return: a list of expression objects.
+        :return: a list of rhs objects.
         :rtype: list(ASTExpression)
         """
         from pynestml.modelprocessor.ASTNeuron import ASTNeuron
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of neuron provided (%s)!' % type(_neuron)
         ret = list()
-        if _neuron.getStateBlocks() is not None:
-            ret.extend(cls.collectExpressionsInStateBlock(_neuron.getStateBlocks()))
-        if _neuron.getInitialBlocks() is not None:
-            ret.extend(cls.collectExpressionsInInitialBlock(_neuron.getInitialBlocks()))
-        if _neuron.getInputBlocks() is not None:
-            ret.extend(cls.collectExpressionsInInternalsBlock(_neuron.getInternalsBlocks()))
-        if _neuron.getParameterBlocks():
-            ret.extend(cls.collectExpressionsInParametersBlock(_neuron.getParameterBlocks()))
-        if _neuron.getUpdateBlocks() is not None:
-            ret.extend(cls.collectExpressionInUpdateBlock(_neuron.getUpdateBlocks()))
-        if _neuron.getEquationsBlocks() is not None:
-            ret.extend(cls.collectExpressionsInEquationsBlock(_neuron.getEquationsBlocks()))
-        if _neuron.getFunctions() is not None:
-            for func in _neuron.getFunctions():
+        if _neuron.get_state_blocks() is not None:
+            ret.extend(cls.collectExpressionsInStateBlock(_neuron.get_state_blocks()))
+        if _neuron.get_initial_blocks() is not None:
+            ret.extend(cls.collectExpressionsInInitialBlock(_neuron.get_initial_blocks()))
+        if _neuron.get_input_blocks() is not None:
+            ret.extend(cls.collectExpressionsInInternalsBlock(_neuron.get_internals_blocks()))
+        if _neuron.get_parameter_blocks():
+            ret.extend(cls.collectExpressionsInParametersBlock(_neuron.get_parameter_blocks()))
+        if _neuron.get_update_blocks() is not None:
+            ret.extend(cls.collectExpressionInUpdateBlock(_neuron.get_update_blocks()))
+        if _neuron.get_equations_blocks() is not None:
+            ret.extend(cls.collectExpressionsInEquationsBlock(_neuron.get_equations_blocks()))
+        if _neuron.get_functions() is not None:
+            for func in _neuron.get_functions():
                 ret.extend(cls.collectExpressionsInFunctionBlock(func))
         ret = (x for x in ret if x is not None)
         return ret
@@ -66,7 +66,7 @@ class ASTExpressionCollectorVisitor(object):
         Collects all expressions in the state block.
         :param _block: a single state block.
         :type _block: ASTBlockWithVariables
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -80,10 +80,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpression())
+                    ret.append(decl.get_expression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpression())
+                ret.append(decl.get_expression())
         return ret
 
     @classmethod
@@ -92,7 +92,7 @@ class ASTExpressionCollectorVisitor(object):
         Collects all expressions in the state block.
         :param _block: a single state block.
         :type _block: ASTBlockWithVariables
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -106,19 +106,19 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpression())
+                    ret.append(decl.get_expression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpression())
+                ret.append(decl.get_expression())
         return ret
 
     @classmethod
     def collectExpressionsInParametersBlock(cls, _block=None):
         """
-        Collects all expression in the parameters block
+        Collects all rhs in the parameters block
         :param _block: a single parameters block.
         :type _block: ASTBlockWithVariables
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -132,19 +132,19 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpression())
+                    ret.append(decl.get_expression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpression())
+                ret.append(decl.get_expression())
         return ret
 
     @classmethod
     def collectExpressionsInInternalsBlock(cls, _block=None):
         """
-        Collects all expression in the internals block.
+        Collects all rhs in the internals block.
         :param _block: a single internals block
         :type _block: ASTBlockWithVariables
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -158,10 +158,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpression())
+                    ret.append(decl.get_expression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpression())
+                ret.append(decl.get_expression())
         return ret
 
     @classmethod
@@ -170,7 +170,7 @@ class ASTExpressionCollectorVisitor(object):
         Collects all expressions in the update block.
         :param _block: a single update block
         :type _block: ASTUpdateBlock
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -181,10 +181,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             ret = list()
             for block in _block:
-                ret.extend(cls.collectExpressionInBlock(block.getBlock()))
+                ret.extend(cls.collectExpressionInBlock(block.get_block()))
             return ret
         else:
-            return cls.collectExpressionInBlock(_block.getBlock())
+            return cls.collectExpressionInBlock(_block.get_block())
 
     @classmethod
     def collectExpressionsInEquationsBlock(cls, _block=None):
@@ -192,7 +192,7 @@ class ASTExpressionCollectorVisitor(object):
         Collects all expressions in the equations block.
         :param _block: 
         :type _block: 
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression) 
         """
         if _block is None:
@@ -208,19 +208,19 @@ class ASTExpressionCollectorVisitor(object):
             for block in _block:
                 for decl in block.getDeclarations():
                     if isinstance(decl, ASTOdeFunction):
-                        ret.append(decl.getExpression())
+                        ret.append(decl.get_expression())
                     elif isinstance(decl, ASTOdeShape):
-                        ret.append(decl.getExpression())
+                        ret.append(decl.get_expression())
                     elif isinstance(decl, ASTOdeEquation):
-                        ret.append(decl.getRhs())
+                        ret.append(decl.get_rhs())
         else:
             for decl in _block.getDeclarations():
                 if isinstance(decl, ASTOdeFunction):
-                    ret.append(decl.getExpression())
+                    ret.append(decl.get_expression())
                 elif isinstance(decl, ASTOdeShape):
-                    ret.append(decl.getExpression())
+                    ret.append(decl.get_expression())
                 elif isinstance(decl, ASTOdeEquation):
-                    ret.append(decl.getRhs())
+                    ret.append(decl.get_rhs())
         return ret
 
     @classmethod
@@ -229,7 +229,7 @@ class ASTExpressionCollectorVisitor(object):
         Collects all expressions in the function block.
         :param _block: a single function block
         :type _block: ASTFunction
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -240,10 +240,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             ret = list()
             for block in _block:
-                ret.extend(cls.collectExpressionInBlock(block.getBlock()))
+                ret.extend(cls.collectExpressionInBlock(block.get_block()))
             return ret
         else:
-            return cls.collectExpressionInBlock(_block.getBlock())
+            return cls.collectExpressionInBlock(_block.get_block())
 
     @classmethod
     def collectExpressionInBlock(cls, _block=None):
@@ -251,7 +251,7 @@ class ASTExpressionCollectorVisitor(object):
         Collects all expressions in the  block.
         :param _block: a single block.
         :type _block: ASTBlock
-        :return: a list of all expression in the block
+        :return: a list of all rhs in the block
         :rtype: list(ASTExpression)
         """
         if _block is None:
@@ -262,14 +262,14 @@ class ASTExpressionCollectorVisitor(object):
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of block provided (%s)!' % type(_block)
         ret = list()
-        for stmt in _block.getStmts():
+        for stmt in _block.get_stmts():
             ret.extend(cls.collectExpressionsInStmt(stmt))
         return ret
 
     @classmethod
     def collectExpressionsInCompoundStmt(cls, _stmt=None):
         """
-        Collects all expressions in a compound expression.
+        Collects all expressions in a compound rhs.
         :param _stmt: a single compound statement.
         :type _stmt: ASTCompoundStmt
         :return: a list of all expressions in the compound statement.
@@ -292,7 +292,7 @@ class ASTExpressionCollectorVisitor(object):
     @classmethod
     def collectExpressionsInSmallStmt(cls, _stmt=None):
         """
-        Collects all expressions in a compound expression.
+        Collects all expressions in a compound rhs.
         :param _stmt: a single small statement.
         :type _stmt: ASTSmallStmt
         :return: a list of all expressions in the compound statement.
@@ -304,19 +304,19 @@ class ASTExpressionCollectorVisitor(object):
         assert (_stmt is not None and isinstance(_stmt, ASTSmallStmt)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of statement provided (%s)!' % type(_stmt)
         ret = list()
-        if _stmt.isAssignment():
-            ret.append(_stmt.getAssignment().getExpression())
-        elif _stmt.isDeclaration():
-            if _stmt.getDeclaration().hasExpression():
-                ret.append(_stmt.getDeclaration().getExpression())
-            if _stmt.getDeclaration().hasInvariant():
-                ret.append((_stmt.getDeclaration().getInvariant()))
-        elif _stmt.isReturnStmt():
-            if _stmt.getReturnStmt().hasExpression():
-                ret.append(_stmt.getReturnStmt().getExpression())
-        elif _stmt.isFunctionCall():
-            if _stmt.getFunctionCall().hasArgs():
-                ret.extend(_stmt.getFunctionCall().getArgs())
+        if _stmt.is_assignment():
+            ret.append(_stmt.get_assignment().get_expression())
+        elif _stmt.is_declaration():
+            if _stmt.get_declaration().has_expression():
+                ret.append(_stmt.get_declaration().get_expression())
+            if _stmt.get_declaration().has_invariant():
+                ret.append((_stmt.get_declaration().get_invariant()))
+        elif _stmt.is_return_stmt():
+            if _stmt.get_return_stmt().has_expression():
+                ret.append(_stmt.get_return_stmt().get_expression())
+        elif _stmt.is_function_call():
+            if _stmt.get_function_call().has_args():
+                ret.extend(_stmt.get_function_call().get_args())
         return ret
 
     @classmethod
@@ -334,13 +334,13 @@ class ASTExpressionCollectorVisitor(object):
         assert (_stmt is not None and isinstance(_stmt, ASTIfStmt)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of statement provided (%s)!' % type(_stmt)
         ret = list()
-        ret.append(_stmt.getIfClause().getCondition())
-        ret.extend(cls.collectExpressionInBlock(_stmt.getIfClause().getBlock()))
+        ret.append(_stmt.getIfClause().get_condition())
+        ret.extend(cls.collectExpressionInBlock(_stmt.getIfClause().get_block()))
         for clause in _stmt.getElifClauses():
-            ret.append(clause.getCondition())
-            ret.extend(cls.collectExpressionInBlock(clause.getBlock()))
+            ret.append(clause.get_condition())
+            ret.extend(cls.collectExpressionInBlock(clause.get_block()))
         if _stmt.hasElseClause():
-            ret.extend(cls.collectExpressionInBlock(_stmt.getElseClause().getBlock()))
+            ret.extend(cls.collectExpressionInBlock(_stmt.getElseClause().get_block()))
         return ret
 
     @classmethod
@@ -358,8 +358,8 @@ class ASTExpressionCollectorVisitor(object):
         assert (_stmt is not None and isinstance(_stmt, ASTWhileStmt)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of statement provided (%s)!' % type(_stmt)
         ret = list()
-        ret.append(_stmt.getCondition())
-        ret.extend(cls.collectExpressionInBlock(_stmt.getBlock()))
+        ret.append(_stmt.get_condition())
+        ret.extend(cls.collectExpressionInBlock(_stmt.get_block()))
         return ret
 
     @classmethod
@@ -377,9 +377,9 @@ class ASTExpressionCollectorVisitor(object):
         assert (_stmt is not None and isinstance(_stmt, ASTForStmt)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of statement provided (%s)!' % type(_stmt)
         ret = list()
-        ret.append(_stmt.getFrom())
-        ret.append(_stmt.getTo())
-        ret.extend(cls.collectExpressionInBlock(_stmt.getBlock()))
+        ret.append(_stmt.get_start_from())
+        ret.append(_stmt.get_end_at())
+        ret.extend(cls.collectExpressionInBlock(_stmt.get_block()))
         return ret
 
     @classmethod

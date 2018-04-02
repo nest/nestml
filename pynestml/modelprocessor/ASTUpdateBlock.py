@@ -42,21 +42,18 @@ class ASTUpdateBlock(ASTNode):
     """
     __block = None
 
-    def __init__(self, _block=None, source_position=None):
+    def __init__(self, block, source_position):
         """
         Standard constructor.
-        :param _block: a block of definitions.
-        :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
+        :param block: a block of definitions.
+        :type block: ASTBlock
+        :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
         super(ASTUpdateBlock, self).__init__(source_position)
-        assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.UpdateBlock) No or wrong type of block provided (%s)!' % type(_block)
-        self.__block = _block
-        return
+        self.__block = block
 
-    def getBlock(self):
+    def get_block(self):
         """
         Returns the block of definitions.
         :return: the block
@@ -64,18 +61,18 @@ class ASTUpdateBlock(ASTNode):
         """
         return self.__block
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getBlock() is _ast:
+        if self.get_block() is ast:
             return self
-        elif self.getBlock().getParent(_ast) is not None:
-            return self.getBlock().getParent(_ast)
+        elif self.get_block().get_parent(ast) is not None:
+            return self.get_block().get_parent(ast)
         return None
 
     def __str__(self):
@@ -84,16 +81,16 @@ class ASTUpdateBlock(ASTNode):
         :return: a string representing the update block.
         :rtype: str
         """
-        return 'update:\n' + str(self.getBlock()) + 'end'
+        return 'update:\n' + str(self.get_block()) + 'end'
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTUpdateBlock):
+        if not isinstance(other, ASTUpdateBlock):
             return False
-        return self.getBlock().equals(_other.getBlock())
+        return self.get_block().equals(other.get_block())

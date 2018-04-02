@@ -81,19 +81,19 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         return self.__neuronList
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
         for neuron in self.get_neuron_list():
-            if neuron is _ast:
+            if neuron is ast:
                 return self
-            elif neuron.getParent(_ast) is not None:
-                return neuron.getParent(_ast)
+            elif neuron.get_parent(ast) is not None:
+                return neuron.get_parent(ast)
         return None
 
     def __str__(self):
@@ -108,20 +108,20 @@ class ASTNestMLCompilationUnit(ASTNode):
                 ret += str(neuron) + '\n'
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object
-        :type _other: object
+        :param other: a different object
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTNestMLCompilationUnit):
+        if not isinstance(other, ASTNestMLCompilationUnit):
             return False
-        if len(self.get_neuron_list()) != len(_other.get_neuron_list()):
+        if len(self.get_neuron_list()) != len(other.get_neuron_list()):
             return False
         my_neurons = self.get_neuron_list()
-        your_neurons = _other.get_neuron_list()
+        your_neurons = other.get_neuron_list()
         for i in range(0, len(my_neurons)):
             if not my_neurons[i].equals(your_neurons[i]):
                 return False

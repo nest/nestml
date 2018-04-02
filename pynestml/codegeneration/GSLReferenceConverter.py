@@ -61,21 +61,21 @@ class GSLReferenceConverter(IReferenceConverter):
         assert (_astVariable is not None and isinstance(_astVariable, ASTVariable)), \
             '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of variable provided (%s)!' % type(
                 _astVariable)
-        variableName = NestNamesConverter.convertToCPPName(_astVariable.getName())
-        symbol = _astVariable.get_scope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
+        variableName = NestNamesConverter.convertToCPPName(_astVariable.get_name())
+        symbol = _astVariable.get_scope().resolveToSymbol(_astVariable.get_complete_name(), SymbolKind.VARIABLE)
 
-        if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
+        if PredefinedUnits.isUnit(_astVariable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
-        if symbol.isInitValues():
+                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.get_complete_name()).get_unit()))
+        if symbol.is_init_values():
             return GSLNamesConverter.name(symbol)
-        elif symbol.isBuffer():
+        elif symbol.is_buffer():
             return 'node.B_.' + NestNamesConverter.bufferValue(symbol)
         elif variableName == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
-        elif symbol.isLocal() or symbol.isFunction():
+        elif symbol.is_local() or symbol.is_function():
             return variableName
-        elif symbol.hasVectorParameter():
+        elif symbol.has_vector_parameter():
             return 'node.get_' + variableName + '()[i]'
         else:
             return 'node.get_' + variableName + '()'
@@ -91,7 +91,7 @@ class GSLReferenceConverter(IReferenceConverter):
         assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of function call provided (%s)!' \
             % type(_astFunctionCall)
-        functionName = _astFunctionCall.getName()
+        functionName = _astFunctionCall.get_name()
         if functionName == 'resolution':
             return 'nest::Time::get_resolution().get_ms()'
         if functionName == 'steps':
@@ -155,7 +155,7 @@ class GSLReferenceConverter(IReferenceConverter):
                                                  isinstance(_binaryOperator, ASTLogicalOperator))), \
             '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of binary operator provided (%s)!' \
             % type(_binaryOperator)
-        if isinstance(_binaryOperator, ASTArithmeticOperator) and _binaryOperator.isPowOp():
+        if isinstance(_binaryOperator, ASTArithmeticOperator) and _binaryOperator.is_pow_op:
             return 'pow(%s, %s)'
         else:
             return '%s' + str(_binaryOperator) + '%s'

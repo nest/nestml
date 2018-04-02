@@ -17,19 +17,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTBlock import ASTBlock
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
 class ASTForStmt(ASTNode):
     """
     This class is used to store a for-block.
     Grammar:
-        forStmt : 'for' var=NAME 'in' vrom=expression
-                    '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+        forStmt : 'for' var=NAME 'in' vrom=rhs
+                    '...' to=rhs 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
     """
     __variable = None
     __start_from = None
@@ -37,42 +35,30 @@ class ASTForStmt(ASTNode):
     __step = None
     __block = None
 
-    def __init__(self, _variable=None, _from=None, _to=None, _step=0, _block=None, source_position=None):
+    def __init__(self, variable, start_from, end_at, step, block, source_position):
         """
         Standard constructor.
-        :param _variable: the step variable used for iteration.
-        :type _variable: str
-        :param _from: left bound of the range, i.e., start value.
-        :type _from: ASTExpression
-        :param _to: right bound of the range, i.e., finish value.
-        :type _to: ASTExpression
-        :param _step: the length of a single step.
-        :type _step: float/int
-        :param _block: a block of statements.
-        :type _block: ASTBlock
-        :param _sourcePosition: the position of this element in the source file.
+        :param variable: the step variable used for iteration.
+        :type variable: str
+        :param start_from: left bound of the range, i.e., start value.
+        :type start_from: ASTExpression
+        :param end_at: right bound of the range, i.e., finish value.
+        :type end_at: ASTExpression
+        :param step: the length of a single step.
+        :type step: float/int
+        :param block: a block of statements.
+        :type block: ASTBlock
+        :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert (_variable is not None and isinstance(_variable, str)), \
-            '(PyNestML.AST.ForStmt) No or wrong type of iteration variable provided (%s)!' % type(_variable)
-        assert (_from is not None and (isinstance(_from, ASTExpression) or
-                                       isinstance(_from, ASTSimpleExpression))), \
-            '(PyNestML.AST.ForStmt) No or wrong type of from-statement provided (%s)!' % type(_from)
-        assert (_to is not None and (isinstance(_to, ASTExpression) or isinstance(_to, ASTSimpleExpression))), \
-            '(PyNestML.AST.ForStmt) No or wrong type of to-statement provided (%s)!' % type(_to)
-        assert (_step is not None and (isinstance(_step, int) or isinstance(_step, float))), \
-            '(PyNestML.AST.ForStmt) No step size or wrong type provided (%s)!' % type(_step)
-        assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.ForStmt) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTForStmt, self).__init__(source_position)
-        self.__block = _block
-        self.__step = _step
-        self.__end_at = _to
-        self.__start_from = _from
-        self.__variable = _variable
-        return
+        self.__block = block
+        self.__step = step
+        self.__end_at = end_at
+        self.__start_from = start_from
+        self.__variable = variable
 
-    def getVariable(self):
+    def get_variable(self):
         """
         Returns the name of the step variable.
         :return: the name of the step variable.
@@ -80,23 +66,23 @@ class ASTForStmt(ASTNode):
         """
         return self.__variable
 
-    def getFrom(self):
+    def get_start_from(self):
         """
         Returns the from-statement.
-        :return: the expression indicating the start value.
+        :return: the rhs indicating the start value.
         :rtype: ASTExpression
         """
         return self.__start_from
 
-    def getTo(self):
+    def get_end_at(self):
         """
         Returns the to-statement.
-        :return: the expression indicating the finish value.
+        :return: the rhs indicating the finish value.
         :rtype: ASTExpression
         """
         return self.__end_at
 
-    def getStep(self):
+    def get_step(self):
         """
         Returns the length of a single step.
         :return: the length as a float.
@@ -104,7 +90,7 @@ class ASTForStmt(ASTNode):
         """
         return self.__step
 
-    def getBlock(self):
+    def get_block(self):
         """
         Returns the block of statements.
         :return: the block of statements.
@@ -112,26 +98,26 @@ class ASTForStmt(ASTNode):
         """
         return self.__block
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getFrom() is _ast:
+        if self.get_start_from() is ast:
             return self
-        elif self.getFrom().getParent(_ast) is not None:
-            return self.getFrom().getParent(_ast)
-        if self.getTo() is _ast:
+        elif self.get_start_from().get_parent(ast) is not None:
+            return self.get_start_from().get_parent(ast)
+        if self.get_end_at() is ast:
             return self
-        elif self.getTo().getParent(_ast) is not None:
-            return self.getTo().getParent(_ast)
-        if self.getBlock() is _ast:
+        elif self.get_end_at().get_parent(ast) is not None:
+            return self.get_end_at().get_parent(ast)
+        if self.get_block() is ast:
             return self
-        elif self.getBlock().getParent(_ast) is not None:
-            return self.getBlock().getParent(_ast)
+        elif self.get_block().get_parent(ast) is not None:
+            return self.get_block().get_parent(ast)
         return None
 
     def __str__(self):
@@ -140,25 +126,25 @@ class ASTForStmt(ASTNode):
         :return: a string representing the for statement.
         :rtype: str
         """
-        return 'for ' + self.getVariable() + ' in ' + str(self.getFrom()) + '...' \
-               + str(self.getTo()) + ' step ' + str(self.getStep()) + ':\n' + str(self.getBlock()) + '\nend'
+        return 'for ' + self.get_variable() + ' in ' + str(self.get_start_from()) + '...' \
+               + str(self.get_end_at()) + ' step ' + str(self.get_step()) + ':\n' + str(self.get_block()) + '\nend'
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTForStmt):
+        if not isinstance(other, ASTForStmt):
             return False
-        if self.getVariable() != _other.getVariable():
+        if self.get_variable() != other.get_variable():
             return False
-        if not self.getFrom().equals(_other.getFrom()):
+        if not self.get_start_from().equals(other.get_start_from()):
             return False
-        if not self.getTo().equals(_other.getTo()):
+        if not self.get_end_at().equals(other.get_end_at()):
             return False
-        if self.getStep() != _other.getStep():
+        if self.get_step() != other.get_step():
             return False
-        return self.getBlock().equals(_other.getBlock())
+        return self.get_block().equals(other.get_block())

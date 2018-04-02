@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.Symbol import SymbolKind
 
 
@@ -27,201 +29,170 @@ class ASTUtils(object):
     """
 
     @classmethod
-    def getAllNeurons(cls, _listOfCompilationUnits=list()):
+    def get_all_neurons(cls, list_of_compilation_units):
         """
         For a list of compilation units, it returns a list containing all neurons defined in all compilation
         units.
-        :param _listOfCompilationUnits: a list of compilation units.
-        :type _listOfCompilationUnits: list(ASTNestMLCompilationUnit)
+        :param list_of_compilation_units: a list of compilation units.
+        :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
         :return: a list of neurons
         :rtype: list(ASTNeuron)
         """
         ret = list()
-        for compilationUnit in _listOfCompilationUnits:
+        for compilationUnit in list_of_compilation_units:
             ret.extend(compilationUnit.get_neuron_list())
         return ret
 
     @classmethod
-    def isSmallStmt(cls, _ast=None):
+    def is_small_stmt(cls, ast):
         """
         Indicates whether the handed over ast is a small statement. Used in the template.
-        :param _ast: a single ast object.
-        :type _ast: AST_
+        :param ast: a single ast object.
+        :type ast: AST_
         :return: True if small stmt, otherwise False.
         :rtype: bool
         """
         from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
-        return isinstance(_ast, ASTSmallStmt)
+        return isinstance(ast, ASTSmallStmt)
 
     @classmethod
-    def isCompoundStmt(cls, _ast=None):
+    def is_compound_stmt(cls, ast):
         """
         Indicates whether the handed over ast is a compound statement. Used in the template.
-        :param _ast: a single ast object.
-        :type _ast: AST_
+        :param ast: a single ast object.
+        :type ast: AST_
         :return: True if compound stmt, otherwise False.
         :rtype: bool
         """
         from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
-        return isinstance(_ast, ASTCompoundStmt)
+        return isinstance(ast, ASTCompoundStmt)
 
     @classmethod
-    def isIntegrate(cls, _functionCall=None):
+    def is_integrate(cls, function_call):
         """
         Checks if the handed over function call is a ode integration function call.
-        :param _functionCall: a single function call
-        :type _functionCall: ASTFunctionCall
+        :param function_call: a single function call
+        :type function_call: ASTFunctionCall
         :return: True if ode integration call, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of function-call provided (%s)!' % type(_functionCall)
-        return _functionCall.getName() == PredefinedFunctions.INTEGRATE_ODES
+        return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
-    def isSpikeInput(cls, _body=None):
+    def is_spike_input(cls, body):
         """
         Checks if the handed over neuron contains a spike input buffer.
-        :param _body: a single body element.
-        :type _body: ASTBody
+        :param body: a single body element.
+        :type body: ASTBody
         :return: True if spike buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTBody import ASTBody
-        assert (_body is not None and isinstance(_body, ASTBody)), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
-        inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.getInputLines())
         for inputL in inputs:
-            if inputL.isSpike():
+            if inputL.is_spike():
                 return True
         return False
 
     @classmethod
-    def isCurrentInput(cls, _body=None):
+    def is_current_input(cls, body):
         """
         Checks if the handed over neuron contains a current input buffer.
-        :param _body: a single body element.
-        :type _body: ASTBody
+        :param body: a single body element.
+        :type body: ASTBody
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTBody import ASTBody
-        assert (_body is not None and isinstance(_body, ASTBody)), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
-        inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.getInputLines())
         for inputL in inputs:
-            if inputL.isCurrent():
+            if inputL.is_current():
                 return True
         return False
 
     @classmethod
-    def computeTypeName(cls, _dataType=None):
+    def compute_type_name(cls, data_type):
         """
         Computes the representation of the data type.
-        :param _dataType: a single data type.
-        :type _dataType: ASTDataType
+        :param data_type: a single data type.
+        :type data_type: ASTDataType
         :return: the corresponding representation.
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTDataType import ASTDataType
-        assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of data type provided (%s)!' % type(_dataType)
-        if _dataType.isBoolean():
+        if data_type.is_boolean():
             return 'boolean'
-        elif _dataType.isInteger():
+        elif data_type.is_integer():
             return 'integer'
-        elif _dataType.isReal():
+        elif data_type.is_real():
             return 'real'
-        elif _dataType.isString():
+        elif data_type.is_string():
             return 'string'
-        elif _dataType.isVoid():
+        elif data_type.is_void():
             return 'void'
-        elif _dataType.isUnitType():
-            return str(_dataType)
+        elif data_type.is_unit_type():
+            return str(data_type)
         else:
             Logger.logMessage('Type could not be derived!', LOGGING_LEVEL.ERROR)
             return ''
 
     @classmethod
-    def deconstructAssignment(cls, _lhs=None, _isPlus=False, _isMinus=False, _isTimes=False, _isDivide=False,
+    def deconstructAssignment(cls, lhs=None, is_plus=False, is_minus=False, is_times=False, is_divide=False,
                               _rhs=None):
         """
-        From lhs and rhs it constructs a new expression which corresponds to direct assignment.
+        From lhs and rhs it constructs a new rhs which corresponds to direct assignment.
         E.g.: a += b*c -> a = a + b*c
-        :param _lhs: a lhs expression
-        :type _lhs: ASTExpression or ASTSimpleExpression
-        :param _isPlus: is plus assignment
-        :type _isPlus: bool
-        :param _isMinus: is minus assignment
-        :type _isMinus: bool
-        :param _isTimes: is times assignment
-        :type _isTimes: bool
-        :param _isDivide: is divide assignment
-        :type _isDivide: bool
-        :param _rhs: a rhs expression
+        :param lhs: a lhs rhs
+        :type lhs: ASTExpression or ASTSimpleExpression
+        :param is_plus: is plus assignment
+        :type is_plus: bool
+        :param is_minus: is minus assignment
+        :type is_minus: bool
+        :param is_times: is times assignment
+        :type is_times: bool
+        :param is_divide: is divide assignment
+        :type is_divide: bool
+        :param _rhs: a rhs rhs
         :type _rhs: ASTExpression or ASTSimpleExpression
-        :return: a new direct assignment expression.
+        :return: a new direct assignment rhs.
         :rtype: ASTExpression
         """
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
-        from pynestml.modelprocessor.ASTVariable import ASTVariable
         from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
-        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
-        assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of rhs expression provided (%s)!' % type(_rhs)
-        assert ((_isPlus + _isMinus + _isTimes + _isDivide) == 1), \
+        assert ((is_plus + is_minus + is_times + is_divide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
-        if _isPlus:
+        if is_plus:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
                                                                source_position=_rhs.get_source_position())
-        elif _isMinus:
+        elif is_minus:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True,
                                                                source_position=_rhs.get_source_position())
-        elif _isTimes:
+        elif is_times:
             op = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
                                                                source_position=_rhs.get_source_position())
         else:
-            op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True, source_position=_rhs.get_source_position())
-        varExpr = ASTNodeFactory.create_ast_simple_expression(variable=_lhs,
-                                                              source_position=_lhs.get_source_position())
-        varExpr.update_scope(_lhs.get_scope())
-        op.update_scope(_lhs.get_scope())
-        rhsInBrackets = ASTNodeFactory.create_ast_expression(is_encapsulated=True, expression=_rhs,
+            op = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True,
+                                                               source_position=_rhs.get_source_position())
+        var_expr = ASTNodeFactory.create_ast_simple_expression(variable=lhs,
+                                                               source_position=lhs.get_source_position())
+        var_expr.update_scope(lhs.get_scope())
+        op.update_scope(lhs.get_scope())
+        rhs_in_brackets = ASTNodeFactory.create_ast_expression(is_encapsulated=True, expression=_rhs,
+                                                               source_position=_rhs.get_source_position())
+        rhs_in_brackets.update_scope(_rhs.get_scope())
+        expr = ASTNodeFactory.create_ast_compound_expression(lhs=var_expr, binary_operator=op, rhs=rhs_in_brackets,
                                                              source_position=_rhs.get_source_position())
-        rhsInBrackets.update_scope(_rhs.get_scope())
-        expr = ASTNodeFactory.create_ast_compound_expression(lhs=varExpr, binary_operator=op, rhs=rhsInBrackets,
-                                                             source_position=_rhs.get_source_position())
-        expr.update_scope(_lhs.get_scope())
+        expr.update_scope(lhs.get_scope())
         # update the symbols
-        ASTSymbolTableVisitor.visitExpression(expr)
+        expr.accept(ASTSymbolTableVisitor())
         return expr
 
     @classmethod
-    def getAliasSymbolsFromOdes(cls, _list=list()):
-        """"
-        For a handed over list this
-        :param _list:
-        :type _list:
-        :return:
-        :rtype:
-        """
-        pass
-
-    @classmethod
-    def getAliasSymbols(cls, _ast=None):
+    def get_alias_symbols(cls, ast):
         """
         For the handed over ast, this method collects all functions aka. aliases in it.
-        :param _ast: a single ast node
-        :type _ast: AST_
+        :param ast: a single ast node
+        :type ast: AST_
         :return: a list of all alias variable symbols
         :rtype: list(VariableSymbol)
         """
-        assert (_ast is not None), '(PyNestML.Utils) No AST provided!'
         ret = list()
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTVariable import ASTVariable
@@ -231,87 +202,77 @@ class ASTUtils(object):
             if isinstance(node, ASTVariable):
                 res.append(node)
 
-        _ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_vars))
+        ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_vars))
 
         for var in res:
-            if '\'' not in var.getCompleteName():
-                symbol = _ast.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
-                if symbol.isFunction():
+            if '\'' not in var.get_complete_name():
+                symbol = ast.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                if symbol.is_function():
                     ret.append(symbol)
         return ret
 
     @classmethod
-    def isCastableTo(cls, _typeA=None, _typeB=None):
+    def is_castable_to(cls, type_a, type_b):
         """
         Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
         a unit where unit is expected is allowed.
-        :param _typeA: a single TypeSymbol
-        :type _typeA: TypeSymbol
-        :param _typeB: a single TypeSymbol
-        :type _typeB: TypeSymbol
+        :param type_a: a single TypeSymbol
+        :type type_a: TypeSymbol
+        :param type_b: a single TypeSymbol
+        :type type_b: TypeSymbol
         :return: True if castable, otherwise False
         :rtype: bool
         """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
-        assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
         # we can always cast from unit to real
-        if _typeA.isUnit() and _typeB.isReal():
+        if type_a.is_unit() and type_b.is_real():
             return True
-        elif _typeA.isBoolean() and _typeB.isReal():
+        elif type_a.is_boolean() and type_b.is_real():
             return True
-        elif _typeA.isReal() and _typeB.isBoolean():
+        elif type_a.is_real() and type_b.is_boolean():
             return True
-        elif _typeA.isInteger() and _typeB.isReal():
+        elif type_a.is_integer() and type_b.is_real():
             return True
-        elif _typeA.isReal() and _typeB.isInteger():
+        elif type_a.is_real() and type_b.is_integer():
             return True
         else:
             return False
 
     @classmethod
-    def differsInMagnitude(cls, _typeA=None, _typeB=None):
+    def differs_in_magnitude(cls, type_a, type_b):
         """
         Indicates whether both type represent the same unit but with different magnitudes. This
         case is still valid, e.g., mV can be assigned to volt.
-        :param _typeA: a type
-        :type _typeA:  TypeSymbol
-        :param _typeB: a type
-        :type _typeB: TypeSymbol
+        :param type_a: a type
+        :type type_a:  TypeSymbol
+        :param type_b: a type
+        :type type_b: TypeSymbol
         :return: True if both elements equal or differ in magnitude, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
-        assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
-        if _typeA.equals(_typeB):
+        if type_a.equals(type_b):
             return True
         # in the case that we don't deal with units, there are no magnitudes
-        if not (_typeA.isUnit() and _typeB.isUnit()):
+        if not (type_a.is_unit() and type_b.is_unit()):
             return False
         # if it represents the same unit, if we disregard the prefix and simplify it
-        unitA = _typeA.getUnit().getUnit()
-        unitB = _typeB.getUnit().getUnit()
-        # if isinstance(unitA,)
+        unit_a = type_a.get_unit().unit
+        unit_b = type_b.get_unit().unit
+        # if isinstance(unit_a,)
         from astropy import units
         # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unitA, units.PrefixUnit) and isinstance(_typeB, units.PrefixUnit) \
-                and unitA.physical_type == unitB.physical_type:
+        if isinstance(unit_a, units.PrefixUnit) and isinstance(type_b, units.PrefixUnit) \
+                and unit_a.physical_type == unit_b.physical_type:
             return True
         return False
 
     @classmethod
-    def getAll(cls, _ast=None, _type=None):
+    def get_all(cls, ast, type):
         """
         Finds all ast which are part of the tree as spanned by the handed over ast. The type has to be specified.
-        :param _ast: a single ast node
-        :type _ast: AST_
-        :param _type: the type
-        :type _type: AST_
+        :param ast: a single ast node
+        :type ast: AST_
+        :param type: the type
+        :type type: AST_
         :return: a list of all ast of the specified type
         :rtype: list(AST_)
         """
@@ -319,41 +280,41 @@ class ASTUtils(object):
         ret = list()
 
         def loc_get_all_of_type(node):
-            if isinstance(node, _type):
+            if isinstance(node, type):
                 ret.append(node)
 
-        _ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_all_of_type))
+        ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_all_of_type))
         return ret
 
     @classmethod
-    def getVectorizedVariable(cls, _ast=None, _scope=None):
+    def get_vectorized_variable(cls, ast, scope):
         """
         Returns all variable symbols which are contained in the scope and have a size parameter.
-        :param _ast: a single ast
-        :type _ast: AST_
-        :param _scope: a scope object
-        :type _scope: Scope
+        :param ast: a single ast
+        :type ast: AST_
+        :param scope: a scope object
+        :type scope: Scope
         :return: the first element with the size parameter
         :rtype: VariableSymbol
         """
         from pynestml.modelprocessor.ASTVariable import ASTVariable
         from pynestml.modelprocessor.Symbol import SymbolKind
-        variables = (var for var in cls.getAll(_ast, ASTVariable) if
-                     _scope.resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE))
+        variables = (var for var in cls.get_all(ast, ASTVariable) if
+                     scope.resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE))
         for var in variables:
-            symbol = _scope.resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
-            if symbol is not None and symbol.hasVectorParameter():
+            symbol = scope.resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+            if symbol is not None and symbol.has_vector_parameter():
                 return symbol
         return None
 
     @classmethod
-    def getFunctionCall(cls, _ast=None, _functionName=None):
+    def get_function_call(cls, ast, function_name):
         """
         Collects for a given name all function calls in a given ast node.
-        :param _ast: a single node
-        :type _ast: AST_
-        :param _functionName:
-        :type _functionName:
+        :param ast: a single node
+        :type ast: ASTNode
+        :param function_name: the name of the function
+        :type function_name: str
         :return: a list of all function calls contained in _ast
         :rtype: list(ASTFunctionCall)
         """
@@ -362,86 +323,87 @@ class ASTUtils(object):
         ret = list()
 
         def loc_get_function(node):
-            if isinstance(node, ASTFunctionCall) and node.getName() == _functionName:
+            if isinstance(node, ASTFunctionCall) and node.get_name() == function_name:
                 ret.append(node)
 
-        _ast.accept(ASTHigherOrderVisitor(loc_get_function, list()))
+        ast.accept(ASTHigherOrderVisitor(loc_get_function, list()))
         return ret
 
     @classmethod
-    def getTupleFromSingleDictEntry(cls, _dictEntry=None):
+    def get_tuple_from_single_dict_entry(cls, dict_entry):
         """
         For a given dict of length 1, this method returns a tuple consisting of (key,value)
-        :param _dictEntry: a dict of length 1
-        :type _dictEntry:  dict
+        :param dict_entry: a dict of length 1
+        :type dict_entry:  dict
         :return: a single tuple
         :rtype: tuple
         """
-        if len(_dictEntry.keys()) == 1:
+        if len(dict_entry.keys()) == 1:
             # key() is not an actual list, thus indexing is not possible.
-            for keyIter in _dictEntry.keys():
+            for keyIter in dict_entry.keys():
                 key = keyIter
-                value = _dictEntry[key]
+                value = dict_entry[key]
                 return key, value
         else:
             return None, None
 
     @classmethod
-    def needsArguments(cls, _astFunctionCall):
+    def needs_arguments(cls, ast_function_call):
         """
         Indicates whether a given function call has any arguments
-        :param _astFunctionCall: a function call
-        :type _astFunctionCall: ASTFunctionCall
+        :param ast_function_call: a function call
+        :type ast_function_call: ASTFunctionCall
         :return: True if arguments given, otherwise false
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-        assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
-        return len(_astFunctionCall.getArgs()) > 0
+        return len(ast_function_call.get_args()) > 0
 
     @classmethod
-    def createInternalBlock(cls, _neuron=None):
+    def create_internal_block(cls, neuron):
         """
         Creates a single internal block in the handed over neuron.
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron
+        :type neuron: ASTNeuron
         :return: the modified neuron
         :rtype: ASTNeuron
         """
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
-        if _neuron.getInternalsBlocks() is None:
+        if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
                                                                       ASTSourcePosition.getAddedSourcePosition())
-            _neuron.getBody().getBodyElements().append(internal)
-        return _neuron
+            neuron.get_body().get_body_elements().append(internal)
+        return neuron
 
     @classmethod
-    def createStateBlock(cls, _neuron=None):
+    def create_state_block(cls, neuron):
         """
         Creates a single internal block in the handed over neuron.
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron
+        :type neuron: ASTNeuron
         :return: the modified neuron
         :rtype: ASTNeuron
         """
+        # local import since otherwise circular dependency
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
-        if _neuron.getInternalsBlocks() is None:
+        if neuron.get_internals_blocks() is None:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
                                                                    ASTSourcePosition.getAddedSourcePosition())
-            _neuron.getBody().getBodyElements().append(state)
-        return _neuron
+            neuron.get_body().get_body_elements().append(state)
+        return neuron
 
     @classmethod
-    def createInitialValuesBlock(cls, _neuron=None):
+    def create_initial_values_block(cls, neuron):
         """
         Creates a single initial values block in the handed over neuron.
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron
+        :type neuron: ASTNeuron
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        if _neuron.getInitialBlocks() is None:
+        # local import since otherwise circular dependency
+        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        if neuron.get_initial_blocks() is None:
             inits = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, list(),
                                                                    ASTSourcePosition.getAddedSourcePosition())
-            _neuron.getBody().getBodyElements().append(inits)
-        return _neuron
+            neuron.get_body().get_body_elements().append(inits)
+        return neuron

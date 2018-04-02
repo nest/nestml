@@ -52,14 +52,14 @@ class NumericNumeratorVisitor(ASTVisitor):
     Visits a numeric numerator and checks if the value is 1.
     """
 
-    def visitUnitType(self, _unitType=None):
+    def visit_unit_type(self, node):
         """
         Check if the coco applies,
-        :param _unitType: a single unit type object.
-        :type _unitType: ASTUnitType
+        :param node: a single unit type object.
+        :type node: ASTUnitType
         """
-        if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
-            code, message = Messages.getWrongNumerator(str(_unitType))
-            Logger.logMessage(_code=code, _message=message, _errorPosition=_unitType.get_source_position(),
+        if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
+            code, message = Messages.getWrongNumerator(str(node))
+            Logger.logMessage(_code=code, _message=message, _errorPosition=node.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

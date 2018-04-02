@@ -28,9 +28,9 @@ class ASTNode(object):
     the source position. This class is abstract, thus no instances can be created.
     """
     __metaclass__ = ABCMeta
-    __sourcePosition = None
-    __scope = None
-    __comment = None
+    sourcePosition = None
+    scope = None
+    comment = None
 
     def __init__(self, source_position, scope=None):
         """
@@ -40,22 +40,17 @@ class ASTNode(object):
         :param scope: the scope in which this element is embedded in.
         :type scope: Scope
         """
-        assert (source_position is None or isinstance(source_position, ASTSourcePosition)), \
-            '(PyNestML.AST.Element) No source position provided (%s)!' % type(source_position)
-        assert (scope is None or isinstance(scope, Scope)), \
-            '(PyNestML.AST.Element) Wrong type of scope provided (%s)!' % type(scope)
-        self.__sourcePosition = source_position
-        self.__scope = scope
-        return
-
+        self.sourcePosition = source_position
+        self.scope = scope
+        
     def get_source_position(self):
         """
         Returns the source position of the element.
         :return: a source position object.
         :rtype: ASTSourcePosition
         """
-        if self.__sourcePosition is not None:
-            return self.__sourcePosition
+        if self.sourcePosition is not None:
+            return self.sourcePosition
         else:
             return ASTSourcePosition.getPredefinedSourcePosition()
 
@@ -67,9 +62,7 @@ class ASTNode(object):
         :return: a source position object.
         :rtype: ASTSourcePosition
         """
-        assert (new_position is not None and isinstance(new_position, ASTSourcePosition)), \
-            '(PyNestML.AST.Element) No or wrong type of source position provided (%s)!' % type(new_position)
-        self.__sourcePosition = new_position
+        self.sourcePosition = new_position
         return
 
     def get_scope(self):
@@ -78,82 +71,79 @@ class ASTNode(object):
         :return: a scope object.
         :rtype: Scope 
         """
-        return self.__scope
+        return self.scope
 
-    def update_scope(self, _scope=None):
+    def update_scope(self, _scope):
         """
         Updates the scope of this element.
         :param _scope: a scope object.
         :type _scope: Scope
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.AST.Element) No or wrong type of scope provided (%s)!' % (type(_scope))
-        self.__scope = _scope
-        return
+        self.scope = _scope
 
-    def getComment(self):
+    def get_comment(self):
         """
         Returns the comment of this element.
         :return: a comment.
         :rtype: str
         """
-        return self.__comment
+        return self.comment
 
-    def setComment(self, _comment=None):
+    def set_comment(self, comment):
         """
         Updates the comment of this element.
-        :param _comment: a comment
-        :type _comment: str
+        :param comment: a comment
+        :type comment: str
         """
-        self.__comment = _comment
+        self.comment = comment
 
-    def hasComment(self):
+    def has_comment(self):
         """
         Indicates whether this element stores a prefix.
         :return: True if has comment, otherwise False.
         :rtype: bool
         """
-        return self.__comment is not None and len(self.__comment) > 0
+        return self.comment is not None and len(self.comment) > 0
 
-    def printComment(self, _prefix=None):
+    def print_comment(self, prefix):
         """
         Prints the comment of this ast element.
-        :param _prefix: a prefix string
-        :type _prefix: str
+        :param prefix: a prefix string
+        :type prefix: str
         :return: a comment
         :rtype: str
         """
         ret = ''
-        if not self.hasComment():
-            return _prefix if _prefix is not None else ''
+        if not self.has_comment():
+            return prefix if prefix is not None else ''
         # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
         # between the comment and the element
-        for comment in self.getComment():
-            ret += (_prefix + ' ' if _prefix is not None else '') + comment + \
-                   ('\n' if self.getComment().index(comment) < len(self.getComment()) - 1 else '')
+        for comment in self.get_comment():
+            ret += (prefix + ' ' if prefix is not None else '') + comment + \
+                   ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
         return ret
 
     @abstractmethod
-    def getParent(self, _ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
         pass
 
-    def accept(self, _visitor=None):
+    def accept(self, visitor):
         """
         Double dispatch for visitor pattern.
-        :param _visitor: A visitor.
-        :type _visitor: Inherited from NESTMLVisitor.
+        :param visitor: A visitor.
+        :type visitor: Inherited from NESTMLVisitor.
         """
         from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-        assert (_visitor is not None and isinstance(_visitor, ASTVisitor)), \
-            '(PyNestML.AST.Element) No or wrong type of visitor provided (%s)!' % type(_visitor)
-        _visitor.handle(self)
+        assert (visitor is not None and isinstance(visitor, ASTVisitor)), \
+            '(PyNestML.AST.Element) No or wrong type of visitor provided (%s)!' % type(visitor)
+        visitor.handle(self)
         return
 
     @abstractmethod
@@ -166,11 +156,11 @@ class ASTNode(object):
         pass
 
     @abstractmethod
-    def equals(self, _other=None):
+    def equals(self, other):
         """
         The equals operation.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """

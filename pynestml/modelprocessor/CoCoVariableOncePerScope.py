@@ -60,22 +60,22 @@ class CoCoVariableOncePerScope(CoCo):
         checked = list()
         for sym1 in _scope.getSymbolsInThisScope():
             for sym2 in _scope.getSymbolsInThisScope():
-                if sym1 is not sym2 and sym1.getSymbolName() == sym2.getSymbolName() and \
-                                sym1.getSymbolKind() == sym2.getSymbolKind() and \
-                                sym1.getSymbolKind() == SymbolKind.VARIABLE and \
+                if sym1 is not sym2 and sym1.get_symbol_name() == sym2.get_symbol_name() and \
+                                sym1.get_symbol_kind() == sym2.get_symbol_kind() and \
+                                sym1.get_symbol_kind() == SymbolKind.VARIABLE and \
                                 sym2 not in checked:
-                    if sym1.isPredefined():
-                        code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), True)
-                        Logger.logMessage(_errorPosition=sym2.getReferencedObject().get_source_position(),
+                    if sym1.is_predefined():
+                        code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), True)
+                        Logger.logMessage(_errorPosition=sym2.get_referenced_object().get_source_position(),
                                           _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
-                    elif sym2.isPredefined():
-                        code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), True)
-                        Logger.logMessage(_errorPosition=sym1.getReferencedObject().get_source_position(),
+                    elif sym2.is_predefined():
+                        code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), True)
+                        Logger.logMessage(_errorPosition=sym1.get_referenced_object().get_source_position(),
                                           _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
-                    elif sym1.getReferencedObject().get_source_position().before(
-                            sym2.getReferencedObject().get_source_position()):
-                        code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), False)
-                        Logger.logMessage(_errorPosition=sym2.getReferencedObject().get_source_position(),
+                    elif sym1.get_referenced_object().get_source_position().before(
+                            sym2.get_referenced_object().get_source_position()):
+                        code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), False)
+                        Logger.logMessage(_errorPosition=sym2.get_referenced_object().get_source_position(),
                                           _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
             checked.append(sym1)
         for scope in _scope.getScopes():

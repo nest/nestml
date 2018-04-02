@@ -71,13 +71,13 @@ class CoCosManager(object):
         __returnStmtCorrect: This coco checks tha all return statements in user defined function are correctly stated.
         __equationsOnlyForInits: This coco checks that equitation are only given for variables in the initial values
                                 block.
-        __convolveCorrectlyBuilt: This coco checks that the convolve expression is correctly typed.
+        __convolveCorrectlyBuilt: This coco checks that the convolve rhs is correctly typed.
         __noShapesExceptInConvolve: This coco checks that shapes are only used inside convolve expressions.
         __noCollisionAcrossUnits: This coco checks that no collision of types occurs.
         __invariantCorrectlyTyped: This coco checks that invariants are correctly typed.
         __vectorInNonVectorDetected: This coco checks that no vectors are used in non-vector declaration.
-        __sumIsCorrect: This coco checks that sum expression are correctly used.
-        __expressionCorrect: This checks that types of expression etc. are correctly stated.
+        __sumIsCorrect: This coco checks that sum rhs are correctly used.
+        __expressionCorrect: This checks that types of rhs etc. are correctly stated.
     """
     __functionDefinedUniquely = CoCoFunctionUnique.checkCoCo
     __eachBlockUniqueAndDefined = CoCoEachBlockUniqueAndDefined.checkCoCo
@@ -356,7 +356,7 @@ class CoCosManager(object):
     @classmethod
     def checkConvolveCondCurrIsCorrect(cls, _neuron=None):
         """
-        Checks if all convolve/curr_sum/cond_sum expression are correctly provided with arguments.
+        Checks if all convolve/curr_sum/cond_sum rhs are correctly provided with arguments.
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -428,7 +428,7 @@ class CoCosManager(object):
     @classmethod
     def checkExpressionCorrect(cls, _neuron=None):
         """
-        Checks that all expression in the model are correctly constructed, e.g. type(lhs)==type(rhs).
+        Checks that all rhs in the model are correctly constructed, e.g. type(lhs)==type(rhs).
         :param _neuron: a single neuron
         :type _neuron: ASTNeuron
         """

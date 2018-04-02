@@ -33,50 +33,50 @@ class ASTFunctionCallVisitor(ASTVisitor):
     Visits a single function call and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, node=None):
         """
-        Visits a single function call as stored in a simple expression and derives the correct type of
+        Visits a single function call as stored in a simple rhs and derives the correct type of
          all its parameters.
-        :param _expr: a simple expression
-        :type _expr: ASTSimpleExpression
+        :param node: a simple rhs
+        :type node: ASTSimpleExpression
         :rtype void
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.ASTFunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(
-                _expr)
-        assert (_expr.get_scope() is not None), \
+        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.ASTFunctionCallVisitor) No or wrong type of simple rhs provided (%s)!' % tuple(
+                node)
+        assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.ASTFunctionCallVisitor) No scope found, run symboltable creator!"
-        scope = _expr.get_scope()
-        function_name = _expr.getFunctionCall().getName()
+        scope = node.get_scope()
+        function_name = node.get_function_call().get_name()
         method_symbol = scope.resolveToSymbol(function_name, SymbolKind.FUNCTION)
         # check if this function exists
         if method_symbol is None:
-            error_msg = ErrorStrings.messageResolveFail(self, function_name, _expr.get_source_position())
-            _expr.setTypeEither(Either.error(error_msg))
+            error_msg = ErrorStrings.messageResolveFail(self, function_name, node.get_source_position())
+            node.set_type_either(Either.error(error_msg))
             return
 
         # convolve symbol does not have a return type set.
         # returns whatever type the second parameter is.
         if function_name == PredefinedFunctions.CONVOLVE:
             # Deviations from the assumptions made here are handled in the convolveCoco
-            buffer_parameter = _expr.getFunctionCall().getArgs()[1]
+            buffer_parameter = node.get_function_call().get_args()[1]
 
-            if buffer_parameter.getVariable() is not None:
-                buffer_name = buffer_parameter.getVariable().getName()
+            if buffer_parameter.get_variable() is not None:
+                buffer_name = buffer_parameter.get_variable().get_name()
                 buffer_symbol_resolve = scope.resolveToSymbol(buffer_name, SymbolKind.VARIABLE)
                 if buffer_symbol_resolve is not None:
-                    _expr.setTypeEither(Either.value(buffer_symbol_resolve.getTypeSymbol()))
+                    node.set_type_either(Either.value(buffer_symbol_resolve.get_type_symbol()))
                     return
 
             # getting here means there is an error with the parameters to convolve
-            error_msg = ErrorStrings.messageCannotCalculateConvolveType(self, _expr.get_source_position())
-            _expr.setTypeEither(Either.error(error_msg))
+            error_msg = ErrorStrings.messageCannotCalculateConvolveType(self, node.get_source_position())
+            node.set_type_either(Either.error(error_msg))
             return
 
-        if method_symbol.getReturnType().isVoid():
-            error_msg = ErrorStrings.messageVoidFunctionOnRhs(self, function_name, _expr.get_source_position())
-            _expr.setTypeEither(Either.error(error_msg))
+        if method_symbol.get_return_type().is_void():
+            error_msg = ErrorStrings.messageVoidFunctionOnRhs(self, function_name, node.get_source_position())
+            node.set_type_either(Either.error(error_msg))
             return
 
-        # if nothing special is handled, just get the expression type from the return type of the function
-        _expr.setTypeEither(Either.value(method_symbol.getReturnType()))
+        # if nothing special is handled, just get the rhs type from the return type of the function
+        node.set_type_either(Either.value(method_symbol.get_return_type()))

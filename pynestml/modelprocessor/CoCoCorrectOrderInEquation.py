@@ -56,14 +56,14 @@ class OrderOfEquationVisitor(ASTVisitor):
     This visitor checks that all differential equations have a differential order.
     """
 
-    def visitOdeEquation(self, _equation=None):
+    def visit_ode_equation(self, node=None):
         """
         Checks the coco.
-        :param _equation: A single ode equation.
-        :type _equation: ASTOdeEquation
+        :param node: A single ode equation.
+        :type node: ASTOdeEquation
         """
-        if _equation.getLhs().getDifferentialOrder() == 0:
-            code, message = Messages.getOrderNotDeclared(_equation.getLhs().getName())
-            Logger.logMessage(_errorPosition=_equation.get_source_position(), _code=code,
+        if node.get_lhs().get_differential_order() == 0:
+            code, message = Messages.getOrderNotDeclared(node.get_lhs().get_name())
+            Logger.logMessage(_errorPosition=node.get_source_position(), _code=code,
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

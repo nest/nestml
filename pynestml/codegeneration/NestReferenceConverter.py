@@ -88,35 +88,35 @@ class NESTReferenceConverter(IReferenceConverter):
         assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
                 _astFunctionCall)
-        functionName = _astFunctionCall.getName()
-        if functionName == 'and':
+        function_name = _astFunctionCall.get_name()
+        if function_name == 'and':
             return '&&'
-        elif functionName == 'or':
+        elif function_name == 'or':
             return '||'
-        elif functionName == 'resolution':
+        elif function_name == 'resolution':
             return 'nest::Time::get_resolution().get_ms()'
-        elif functionName == 'steps':
+        elif function_name == 'steps':
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
-        elif functionName == PredefinedFunctions.POW:
+        elif function_name == PredefinedFunctions.POW:
             return 'std::pow(%s)'
-        elif functionName == PredefinedFunctions.MAX or functionName == PredefinedFunctions.BOUNDED_MAX:
+        elif function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
             return 'std::max(%s)'
-        elif functionName == PredefinedFunctions.MIN or functionName == PredefinedFunctions.BOUNDED_MIN:
+        elif function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
             return 'std::min(%s)'
-        elif functionName == PredefinedFunctions.EXP:
+        elif function_name == PredefinedFunctions.EXP:
             return 'std::exp(%s)'
-        elif functionName == PredefinedFunctions.LOG:
+        elif function_name == PredefinedFunctions.LOG:
             return 'std::log(%s)'
-        elif functionName == 'expm1':
+        elif function_name == 'expm1':
             return 'numerics::expm1(%s)'
-        elif functionName == PredefinedFunctions.EMIT_SPIKE:
+        elif function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-        elif ASTUtils.needsArguments(_astFunctionCall):
-            return functionName + '(%s)'
+        elif ASTUtils.needs_arguments(_astFunctionCall):
+            return function_name + '(%s)'
         else:
-            return functionName + '()'
+            return function_name + '()'
 
     def convertNameReference(self, _astVariable):
         """
@@ -130,40 +130,40 @@ class NESTReferenceConverter(IReferenceConverter):
         assert (_astVariable is not None and isinstance(_astVariable, ASTVariable)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
                 _astVariable)
-        variableName = NestNamesConverter.convertToCPPName(_astVariable.getCompleteName())
+        variable_name = NestNamesConverter.convertToCPPName(_astVariable.get_complete_name())
 
-        if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
+        if PredefinedUnits.isUnit(_astVariable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
-        if variableName == PredefinedVariables.E_CONSTANT:
+                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.get_complete_name()).get_unit()))
+        if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
-            symbol = _astVariable.get_scope().resolveToSymbol(variableName, SymbolKind.VARIABLE)
+            symbol = _astVariable.get_scope().resolveToSymbol(variable_name, SymbolKind.VARIABLE)
             if symbol is None:
                 # this should actually not happen, but an error message is better than an exception
-                code, message = Messages.getCouldNotResolve(variableName)
+                code, message = Messages.getCouldNotResolve(variable_name)
                 Logger.logMessage(_logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message,
                                   _errorPosition=_astVariable.get_source_position())
                 return ''
             else:
-                if symbol.isLocal():
-                    return variableName + ('[i]' if symbol.hasVectorParameter() else '')
-                elif symbol.isBuffer():
+                if symbol.is_local():
+                    return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
+                elif symbol.is_buffer():
                     return NestPrinter.printOrigin(symbol) + NestNamesConverter.bufferValue(symbol) \
-                           + ('[i]' if symbol.hasVectorParameter() else '')
+                           + ('[i]' if symbol.has_vector_parameter() else '')
                 else:
-                    if symbol.isFunction():
-                        return 'get_' + variableName + '()' + ('[i]' if symbol.hasVectorParameter() else '')
+                    if symbol.is_function():
+                        return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
                     else:
-                        if symbol.isInitValues():
+                        if symbol.is_init_values():
                             return NestPrinter.printOrigin(symbol) + \
                                    (GSLNamesConverter.name(symbol)
                                     if self.__usesGSL else NestNamesConverter.name(symbol)) + \
-                                   ('[i]' if symbol.hasVectorParameter() else '')
+                                   ('[i]' if symbol.has_vector_parameter() else '')
                         else:
                             return NestPrinter.printOrigin(symbol) + \
                                    NestNamesConverter.name(symbol) + \
-                                   ('[i]' if symbol.hasVectorParameter() else '')
+                                   ('[i]' if symbol.has_vector_parameter() else '')
 
     @classmethod
     def convertConstant(cls, _constantName):
@@ -310,9 +310,9 @@ class NESTReferenceConverter(IReferenceConverter):
         assert (_op is not None and isinstance(_op, ASTArithmeticOperator)), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of arithmetic operator provided (%s)!' \
             % type(_op)
-        if _op.isPlusOp():
+        if _op.is_plus_op:
             return '%s' + '+' + '%s'
-        if _op.isMinusOp():
+        if _op.is_minus_op:
             return '%s' + '-' + '%s'
         if _op.is_times_op:
             return '%s' + '*' + '%s'
@@ -320,7 +320,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return '%s' + '/' + '%s'
         if _op.is_modulo_op:
             return '%s' + '%' + '%s'
-        if _op.isPowOp():
+        if _op.is_pow_op:
             return 'pow' + '(%s,%s)'
         else:
             Logger.logMessage('Cannot determine arithmetic operator!', LOGGING_LEVEL.ERROR)

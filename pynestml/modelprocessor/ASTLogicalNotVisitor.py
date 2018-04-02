@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-expression: logicalNot='not' term=expression
+rhs: logicalNot='not' term=rhs
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
@@ -32,30 +32,30 @@ from pynestml.utils.Messages import MessageCode
 
 class ASTLogicalNotVisitor(ASTVisitor):
     """
-    Visits a single expression and updates the type of the sub-expression.
+    Visits a single rhs and updates the type of the sub-rhs.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, node=None):
         """
-        Visits a single expression with a logical operator and updates the type.
-        :param _expr: a single expression
-        :type _expr: ASTExpression
+        Visits a single rhs with a logical operator and updates the type.
+        :param node: a single rhs
+        :type node: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ASTLogicalNotVisitor) No or wrong type of visitor provided (%s)!' % type(_expr)
-        expr_type_e = _expr.getExpression().getTypeEither()
+        assert (node is not None and isinstance(node, ASTExpression)), \
+            '(PyNestML.Visitor.ASTLogicalNotVisitor) No or wrong type of visitor provided (%s)!' % type(node)
+        expr_type_e = node.get_expression().get_type_either()
 
         if expr_type_e.isError():
-            _expr.setTypeEither(expr_type_e)
+            node.set_type_either(expr_type_e)
             return
 
         expr_type = expr_type_e.getValue()
 
-        if expr_type.isBoolean():
-            _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
+        if expr_type.is_boolean():
+            node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            error_msg = ErrorStrings.messageExpectedBool(self, _expr.get_source_position())
-            _expr.setTypeEither(Either.error(error_msg))
-            Logger.logMessage(_errorPosition=_expr.get_source_position(),
+            error_msg = ErrorStrings.messageExpectedBool(self, node.get_source_position())
+            node.set_type_either(Either.error(error_msg))
+            Logger.logMessage(_errorPosition=node.get_source_position(),
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _message=error_msg, _logLevel=LOGGING_LEVEL.ERROR)

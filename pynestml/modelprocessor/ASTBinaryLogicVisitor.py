@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-expression: left=expression logicalOperator right=expression
+rhs: left=rhs logicalOperator right=rhs
 """
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
@@ -31,31 +31,31 @@ from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 class ASTBinaryLogicVisitor(ASTVisitor):
     """
-    Visits a single binary logical operator expression and updates its types.
+    Visits a single binary logical operator rhs and updates its types.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, node):
         """
-        Visits an expression which uses a binary logic operator and updates the type.
-        :param _expr: a single expression.
-        :type _expr: ASTExpression
+        Visits an rhs which uses a binary logic operator and updates the type.
+        :param node: a single rhs.
+        :type node: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ASTBinaryLogicVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhs_type = _expr.getLhs().getTypeEither()
-        rhs_type = _expr.getRhs().getTypeEither()
+        assert (node is not None and isinstance(node, ASTExpression)), \
+            '(PyNestML.Visitor.ASTBinaryLogicVisitor) No or wrong type of rhs provided (%s)!' % type(node)
+        lhs_type = node.get_lhs().get_type_either()
+        rhs_type = node.get_rhs().get_type_either()
 
         if lhs_type.isError():
-            _expr.setTypeEither(lhs_type)
+            node.set_type_either(lhs_type)
             return
         if rhs_type.isError():
-            _expr.setTypeEither(rhs_type)
+            node.set_type_either(rhs_type)
             return
 
-        if lhs_type.getValue().isBoolean() and rhs_type.getValue().isBoolean():
-            _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
+        if lhs_type.getValue().is_boolean() and rhs_type.getValue().is_boolean():
+            node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            error_msg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.get_source_position())
-            _expr.setTypeEither(Either.error(error_msg))
+            error_msg = ErrorStrings.messageLogicOperandsNotBool(self, node.get_source_position())
+            node.set_type_either(Either.error(error_msg))
             Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
         return

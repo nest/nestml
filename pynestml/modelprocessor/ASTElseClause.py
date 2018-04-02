@@ -27,41 +27,39 @@ class ASTElseClause(ASTNode):
     Grammar:
         elseClause : 'else' BLOCK_OPEN block;
     """
-    __block = None
+    block = None
 
-    def __init__(self, _block=None, source_position=None):
+    def __init__(self, block, source_position):
         """
         Standard constructor.
-        :param _block: a block of statements.
-        :type _block: ASTBlock
+        :param block: a block of statements.
+        :type block: ASTBlock
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.ElseClause) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTElseClause, self).__init__(source_position)
-        self.__block = _block
+        self.block = block
 
-    def getBlock(self):
+    def get_block(self):
         """
         Returns the block of statements.
         :return: the block of statements.
         :rtype: ASTBlock
         """
-        return self.__block
+        return self.block
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getBlock() is _ast:
+        if self.get_block() is ast:
             return self
-        elif self.getBlock().getParent(_ast) is not None:
-            return self.getBlock().getParent(_ast)
+        elif self.get_block().get_parent(ast) is not None:
+            return self.get_block().get_parent(ast)
         return None
 
     def __str__(self):
@@ -70,16 +68,16 @@ class ASTElseClause(ASTNode):
         :return: a string representation of the else clause.
         :rtype: str
         """
-        return 'else:\n' + str(self.getBlock())
+        return 'else:\n' + str(self.get_block())
 
-    def equals(self, _other=None):
+    def equals(self, other):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTElseClause):
+        if not isinstance(other, ASTElseClause):
             return False
-        return self.getBlock().equals(_other.getBlock())
+        return self.get_block().equals(other.get_block())

@@ -20,6 +20,9 @@
 from pynestml.modelprocessor.Symbol import Symbol
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.ASTInputLine import ASTInputLine
+
 from enum import Enum
 
 
@@ -30,13 +33,13 @@ class VariableSymbol(Symbol):
     Attributes:
         __blockType           The type of block in which this symbol has been declared. Type: BlockType
         __vectorParameter     The parameter indicating the position in an array. Type: str
-        __declaringExpression The expression defining the value of this symbol. Type: ASTExpression  
-        __isPredefined        Indicates whether this symbol is predefined, e.g., t or e. Type: bool
+        __declaringExpression The rhs defining the value of this symbol. Type: ASTExpression  
+        is_predefined        Indicates whether this symbol is predefined, e.g., t or e. Type: bool
         __isFunction          Indicates whether this symbol belongs to a function. Type: bool
-        __isRecordable        Indicates whether this symbol belongs to a recordable element. Type: bool
-        __typeSymbol          The concrete type of this variable.
+        is_recordable        Indicates whether this symbol belongs to a recordable element. Type: bool
+        type_symbol          The concrete type of this variable.
         __odeDeclaration      Used to store the corresponding ode declaration. 
-        __isConductanceBased  Indicates whether this buffer is used in a cond_sum expression.
+        __isConductanceBased  Indicates whether this buffer is used in a cond_sum rhs.
         __initialValue        Indicates the initial value if such is declared.
         __variableType        The type of the variable, either a shape, or buffer or function. Type: VariableType
     """
@@ -52,76 +55,50 @@ class VariableSymbol(Symbol):
     __initialValue = None
     __variableType = None
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
-                 _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
-                 _typeSymbol=None, _initialValue=None, _variableType=None):
+    def __init__(self, element_reference=None, scope=None, name=None, block_type=None, vector_parameter=None,
+                 declaring_expression=None, is_predefined=False, is_function=False, is_recordable=False,
+                 type_symbol=None, initial_value=None, variable_type=None):
         """
         Standard constructor.
-        :param _elementReference: a reference to the first element where this type has been used/defined
-        :type _elementReference: Object (or None, if predefined) 
-        :param _scope: the scope in which this type is defined in 
-        :type _scope: Scope
-        :param _name: the name of the type symbol
-        :type _name: str
-        :param _blockType: the type of block in which this element has been defined in
-        :type _blockType: BlockType
-        :param _vectorParameter: the parameter indicating a position in an array
-        :type _vectorParameter: str
-        :param _declaringExpression: a expression declaring the value of this symbol. 
-        :type _declaringExpression: ASTExpression
-        :param _isPredefined: indicates whether this element represents a predefined variable, e.g., e or t
-        :type _isPredefined: bool
-        :param _isFunction: indicates whether this element represents a function (aka. alias)
-        :type _isFunction: bool
-        :param _isRecordable: indicates whether this elements is recordable or not.
-        :type _isRecordable: bool
-        :param _typeSymbol: a type symbol representing the concrete type of this variable
-        :type _typeSymbol: TypeSymbol
-        :param _initialValue: the initial value if such an exists
-        :type _initialValue: ASTExpression
-        :param _variableType: the type of the variable
-        :type _variableType: VariableType
+        :param element_reference: a reference to the first element where this type has been used/defined
+        :type element_reference: Object (or None, if predefined) 
+        :param scope: the scope in which this type is defined in 
+        :type scope: Scope
+        :param name: the name of the type symbol
+        :type name: str
+        :param block_type: the type of block in which this element has been defined in
+        :type block_type: BlockType
+        :param vector_parameter: the parameter indicating a position in an array
+        :type vector_parameter: str
+        :param declaring_expression: a rhs declaring the value of this symbol. 
+        :type declaring_expression: ASTExpression
+        :param is_predefined: indicates whether this element represents a predefined variable, e.g., e or t
+        :type is_predefined: bool
+        :param is_function: indicates whether this element represents a function (aka. alias)
+        :type is_function: bool
+        :param is_recordable: indicates whether this elements is recordable or not.
+        :type is_recordable: bool
+        :param type_symbol: a type symbol representing the concrete type of this variable
+        :type type_symbol: TypeSymbol
+        :param initial_value: the initial value if such an exists
+        :type initial_value: ASTExpression
+        :param variable_type: the type of the variable
+        :type variable_type: VariableType
         """
-        assert (_blockType is not None and isinstance(_blockType, BlockType)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_blockType)
-        assert (_vectorParameter is None or isinstance(_vectorParameter, str)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of vector parameter provided (%s)!' % type(
-                _vectorParameter)
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
-        assert (_declaringExpression is None or isinstance(_declaringExpression, ASTExpression)
-                or isinstance(_declaringExpression, ASTSimpleExpression)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of declaring expression provided (%s)!' % type(
-                _declaringExpression)
-        assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-predefined is not bool (%s)!' % type(_isPredefined)
-        assert (_isFunction is not None and isinstance(_isFunction, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-function is not bool (%s)!' % type(_isFunction)
-        assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-recordable is not bool (%s)!' % type(_isRecordable)
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided (%s)!' % type(_typeSymbol)
-        from pynestml.modelprocessor.Symbol import SymbolKind
-        assert (_initialValue is None or isinstance(_initialValue, ASTExpression) or
-                isinstance(_initialValue, ASTSimpleExpression)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of initial value provided (%s)!' % type(_initialValue)
-        assert (_variableType is not None and isinstance(_variableType, VariableType)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of variable-type provided (%s)!' % type(
-                _variableType)
-        super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
-                                             _name=_name, _symbolKind=SymbolKind.VARIABLE)
-        self.__blockType = _blockType
-        self.__vectorParameter = _vectorParameter
-        self.__declaringExpression = _declaringExpression
-        self.__isPredefined = _isPredefined
-        self.__isFunction = _isFunction
-        self.__isRecordable = _isRecordable
-        self.__typeSymbol = _typeSymbol
-        self.__initialValue = _initialValue
-        self.__variableType = _variableType
+        super(VariableSymbol, self).__init__(element_reference=element_reference, scope=scope,
+                                             name=name, symbol_kind=SymbolKind.VARIABLE)
+        self.__blockType = block_type
+        self.__vectorParameter = vector_parameter
+        self.__declaringExpression = declaring_expression
+        self.__isPredefined = is_predefined
+        self.__isFunction = is_function
+        self.__isRecordable = is_recordable
+        self.__typeSymbol = type_symbol
+        self.__initialValue = initial_value
+        self.__variableType = variable_type
         return
 
-    def hasVectorParameter(self):
+    def has_vector_parameter(self):
         """
         Returns whether this variable symbol has a vector parameter.
         :return: True if vector parameter available, otherwise False. 
@@ -129,7 +106,7 @@ class VariableSymbol(Symbol):
         """
         return self.__vectorParameter is not None and type(self.__vectorParameter) == str
 
-    def getVectorParameter(self):
+    def get_vector_parameter(self):
         """
         Returns the vector parameter of this symbol if any available, e.g., spike[12]
         :return: the vector parameter of this variable symbol.
@@ -137,7 +114,7 @@ class VariableSymbol(Symbol):
         """
         return self.__vectorParameter
 
-    def getBlockType(self):
+    def get_block_type(self):
         """
         Returns the type of the block in which this variable-symbol has been declared in.
         :return: the type of block.
@@ -145,34 +122,32 @@ class VariableSymbol(Symbol):
         """
         return self.__blockType
 
-    def setBlockType(self, _newType=None):
+    def set_block_type(self, new_type):
         """
         Updates the block type of this variable symbol.
-        :param _newType: a new block type.
-        :type _newType: BlockType
+        :param new_type: a new block type.
+        :type new_type: BlockType
         """
-        assert (_newType is not None and isinstance(_newType, BlockType)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_newType)
-        self.__blockType = _newType
+        self.__blockType = new_type
 
-    def getDeclaringExpression(self):
+    def get_declaring_expression(self):
         """
-        Returns the expression declaring the value of this symbol.
-        :return: the expression declaring the value.
+        Returns the rhs declaring the value of this symbol.
+        :return: the rhs declaring the value.
         :rtype: ASTExpression
         """
         return self.__declaringExpression
 
-    def hasDeclaringExpression(self):
+    def has_declaring_expression(self):
         """
-        Indicates whether a declaring expression is present.
+        Indicates whether a declaring rhs is present.
         :return: True if present, otherwise False.
         :rtype: bool
         """
         return self.__declaringExpression is not None and (isinstance(self.__declaringExpression, ASTSimpleExpression)
                                                            or isinstance(self.__declaringExpression, ASTExpression))
 
-    def isPredefined(self):
+    def is_predefined(self):
         """
         Returns whether this symbol is a predefined one or not.
         :return: True if predefined, False otherwise.
@@ -180,7 +155,7 @@ class VariableSymbol(Symbol):
         """
         return self.__isPredefined
 
-    def isFunction(self):
+    def is_function(self):
         """
         Returns whether this symbol represents a function aka. alias.
         :return: True if function, False otherwise.
@@ -188,7 +163,7 @@ class VariableSymbol(Symbol):
         """
         return self.__isFunction
 
-    def isRecordable(self):
+    def is_recordable(self):
         """
         Returns whether this symbol represents a recordable element.
         :return: True if recordable, False otherwise.
@@ -196,99 +171,95 @@ class VariableSymbol(Symbol):
         """
         return self.__isRecordable
 
-    def isSpikeBuffer(self):
+    def is_spike_buffer(self):
         """
         Returns whether this symbol represents a spike buffer.
         :return: True if spike buffer, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isSpike()
+        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_spike()
 
-    def isCurrentBuffer(self):
+    def is_current_buffer(self):
         """
         Returns whether this symbol represents a current buffer.
         :return: True if current buffer, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isCurrent()
+        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_current()
 
-    def isExcitatory(self):
+    def is_excitatory(self):
         """
         Returns whether this symbol represents a buffer of type excitatory.
         :return: True if is excitatory, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isExcitatory()
+        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_excitatory()
 
-    def isInhibitory(self):
+    def is_inhibitory(self):
         """
         Returns whether this symbol represents a buffer of type inhibitory.
         :return: True if is inhibitory, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isInhibitory()
+        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_inhibitory()
 
-    def isState(self):
+    def is_state(self):
         """
         Returns whether this variable symbol has been declared in a state block.
         :return: True if declared in a state block, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.STATE
+        return self.get_block_type() == BlockType.STATE
 
-    def isParameters(self):
+    def is_parameters(self):
         """
         Returns whether this variable symbol has been declared in a parameters block.
         :return: True if declared in a parameters block, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.PARAMETERS
+        return self.get_block_type() == BlockType.PARAMETERS
 
-    def isInternals(self):
+    def is_internals(self):
         """
         Returns whether this variable symbol has been declared in a internals block.
         :return: True if declared in a internals block, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.INTERNALS
+        return self.get_block_type() == BlockType.INTERNALS
 
-    def isEquation(self):
+    def is_equation(self):
         """
         Returns whether this variable symbol has been declared in a equation block.
         :return: True if declared in a equation block, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.EQUATION
+        return self.get_block_type() == BlockType.EQUATION
 
-    def isLocal(self):
+    def is_local(self):
         """
         Returns whether this variable symbol has been declared in a local (e.g., update) block.
         :return: True if declared in a local block, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.LOCAL
+        return self.get_block_type() == BlockType.LOCAL
 
-    def isInputBufferCurrent(self):
+    def is_input_buffer_current(self):
         """
         Returns whether this variable symbol has been declared as a input-buffer current element.
         :return: True if input-buffer current, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.INPUT_BUFFER_CURRENT
+        return self.get_block_type() == BlockType.INPUT_BUFFER_CURRENT
 
-    def isInputBufferSpike(self):
+    def is_input_buffer_spike(self):
         """
         Returns whether this variable symbol has been declared as a input-buffer spike element.
         :return: True if input-buffer spike, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.INPUT_BUFFER_SPIKE
+        return self.get_block_type() == BlockType.INPUT_BUFFER_SPIKE
 
-    def isBuffer(self):
+    def is_buffer(self):
         """
         Returns whether this variable symbol represents a buffer or not.
         :return: True if buffer, otherwise False.
@@ -296,15 +267,15 @@ class VariableSymbol(Symbol):
         """
         return self.__variableType == VariableType.BUFFER
 
-    def isOutput(self):
+    def is_output(self):
         """
         Returns whether this variable symbol has been declared as a output-buffer element.
         :return: True if output element, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.OUTPUT
+        return self.get_block_type() == BlockType.OUTPUT
 
-    def isShape(self):
+    def is_shape(self):
         """
         Returns whether this variable belongs to the definition of a shape.
         :return: True if part of a shape definition, otherwise False.
@@ -312,28 +283,29 @@ class VariableSymbol(Symbol):
         """
         return self.__variableType == VariableType.SHAPE
 
-    def isInitValues(self):
+    def is_init_values(self):
         """
         Returns whether this variable belongs to the definition of a initial value.
         :return: True if part of a initial value, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.INITIAL_VALUES
+        return self.get_block_type() == BlockType.INITIAL_VALUES
 
-    def printSymbol(self):
-        if self.getReferencedObject() is not None:
-            source_position = str(self.getReferencedObject().get_source_position())
+    def print_symbol(self):
+        if self.get_referenced_object() is not None:
+            source_position = str(self.get_referenced_object().get_source_position())
         else:
             source_position = 'predefined'
-        vector_value = self.getVectorParameter() if self.hasVectorParameter() else 'none'
-        typ_e = self.getTypeSymbol().printSymbol()
-        recordable = 'recordable, ' if self.isRecordable() else ''
-        func = 'function, ' if self.isFunction() else ''
-        conductance_based = 'conductance based, ' if self.isConductanceBased() else ''
-        return 'VariableSymbol[' + self.getSymbolName() + ', type=' + typ_e + ', ' + str(self.getBlockType()) + ', ' \
-               + recordable + func + conductance_based + 'array parameter=' + vector_value + ', @' + source_position + ')'
+        vector_value = self.get_vector_parameter() if self.has_vector_parameter() else 'none'
+        typ_e = self.get_type_symbol().print_symbol()
+        recordable = 'recordable, ' if self.is_recordable() else ''
+        func = 'function, ' if self.is_function() else ''
+        conductance_based = 'conductance based, ' if self.is_conductance_based() else ''
+        return ('VariableSymbol[' + self.get_symbol_name() + ', type=' +
+                typ_e + ', ' + str(self.get_block_type()) + ', ' + recordable + func + conductance_based +
+                'array parameter=' + vector_value + ', @' + source_position + ')')
 
-    def getTypeSymbol(self):
+    def get_type_symbol(self):
         """
         Returns the corresponding type symbol.
         :return: the current type symbol.
@@ -341,19 +313,15 @@ class VariableSymbol(Symbol):
         """
         return self.__typeSymbol
 
-    def setTypeSymbol(self, _typeSymbol=None):
+    def set_type_symbol(self, type_symbol):
         """
         Updates the current type symbol to a new one.
-        :param _typeSymbol: a new type symbol.
-        :type _typeSymbol: TypeSymbol
+        :param type_symbol: a new type symbol.
+        :type type_symbol: TypeSymbol
         """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        self.__typeSymbol = _typeSymbol
-        return
+        self.__typeSymbol = type_symbol
 
-    def isOdeDefined(self):
+    def is_ode_defined(self):
         """
         Returns whether this element is defined by a ode.
         :return: True if ode defined, otherwise False.
@@ -362,28 +330,23 @@ class VariableSymbol(Symbol):
         return self.__odeDeclaration is not None and (isinstance(self.__odeDeclaration, ASTExpression) or
                                                       isinstance(self.__odeDeclaration, ASTSimpleExpression))
 
-    def getOdeDefinition(self):
+    def get_ode_definition(self):
         """
         Returns the ode defining the value of this variable symbol.
-        :return: the expression defining the value.
+        :return: the rhs defining the value.
         :rtype: ASTExpression
         """
         return self.__odeDeclaration
 
-    def setOdeDefinition(self, _expression=None):
+    def set_ode_definition(self, expression):
         """
         Updates the currently stored ode-definition to the handed-over one.
-        :param _expression: a single expression object.
-        :type _expression: ASTExpression
+        :param expression: a single rhs object.
+        :type expression: ASTExpression
         """
-        assert (_expression is not None and (isinstance(_expression, ASTExpression) or
-                                             isinstance(_expression, ASTSimpleExpression))), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of expression provided (%s)!' % type(
-                _expression)
-        self.__odeDeclaration = _expression
-        return
+        self.__odeDeclaration = expression
 
-    def isConductanceBased(self):
+    def is_conductance_based(self):
         """
         Indicates whether this element is conductance based.
         :return: True if conductance based, otherwise False.
@@ -391,19 +354,15 @@ class VariableSymbol(Symbol):
         """
         return self.__isConductanceBased
 
-    def setConductanceBased(self, _isConductanceBase=None):
+    def set_conductance_based(self, is_conductance_base):
         """
         Updates the information regarding the conductance property of this element.
-        :param _isConductanceBase: the new status.
-        :type _isConductanceBase: bool
+        :param is_conductance_base: the new status.
+        :type is_conductance_base: bool
         """
-        assert (_isConductanceBase is not None and isinstance(_isConductanceBase, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of conductance-based property provided (%s)!' \
-            % type(_isConductanceBase)
-        self.__isConductanceBased = _isConductanceBase
-        return
+        self.__isConductanceBased = is_conductance_base
 
-    def getVariableType(self):
+    def get_variable_type(self):
         """
         Returns the type of this variable.
         :return:  the type of the variable
@@ -411,18 +370,15 @@ class VariableSymbol(Symbol):
         """
         return self.__variableType
 
-    def setVariableType(self, _type=None):
+    def set_variable_type(self, type):
         """
         Updates the type of this variable symbol.
         :return: a single variable type
         :rtype: VariableType
         """
-        assert (_type is not None and isinstance(_type, VariableType)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of type provided (%s)!' % type(_type)
-        self.__variableType = _type
-        return
+        self.__variableType = type
 
-    def hasInitialValue(self):
+    def has_initial_value(self):
         """
         Returns whether this variable symbol has an initial value or not.
         :return: True if has initial value, otherwise False.
@@ -431,85 +387,73 @@ class VariableSymbol(Symbol):
         return self.__initialValue is not None and (isinstance(self.__initialValue, ASTSimpleExpression) or
                                                     isinstance(self.__initialValue, ASTExpression))
 
-    def getInitialValue(self):
+    def get_initial_value(self):
         """
         Returns the initial value of this variable symbol if one exists.
-        :return: the initial value expression.
+        :return: the initial value rhs.
         :rtype: ASTSimpleExpression or ASTExpression
         """
         return self.__initialValue
 
-    def setInitialValue(self, _value=None):
+    def set_initial_value(self, value):
         """
         Updates the initial value of this variable.
-        :param _value: a new initial value.
-        :type _value: ASTExpression or ASTSimpleExpression
+        :param value: a new initial value.
+        :type value: ASTExpression or ASTSimpleExpression
         """
-        assert (_value is not None and (isinstance(_value, ASTExpression) or isinstance(_value, ASTSimpleExpression))), \
-            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of initial value provided (%s)!' % type(_value)
-        self.__initialValue = _value
-        return
+        self.__initialValue = value
 
-    def equals(self, _other=None):
+    def equals(self, other):
         """
         Compares the handed over object to this value-wise.
-        :param _other: the element to which this is compared to.
-        :type _other: Symbol or subclass
+        :param other: the element to which this is compared to.
+        :type other: Symbol or subclass
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return (type(self) != type(_other) and
-                self.getReferencedObject() == _other.getReferencedObject() and
-                self.getSymbolName() == _other.getSymbolName() and
-                self.getCorrespondingScope() == _other.getCorrespondingScope() and
-                self.getBlockType() == _other.getBlockType() and
-                self.getVectorParameter() == _other.getVectorParameter() and
-                self.getDeclaringExpression() == _other.getDeclaringExpression() and
-                self.isPredefined() == _other.isPredefined() and
-                self.isFunction() == _other.isFunction() and
-                self.isConductanceBased() == _other.isConductanceBased() and
-                self.isRecordable() == _other.isRecordable())
+        return (type(self) != type(other) and
+                self.get_referenced_object() == other.get_referenced_object() and
+                self.get_symbol_name() == other.get_symbol_name() and
+                self.get_corresponding_scope() == other.get_corresponding_scope() and
+                self.get_block_type() == other.getBlockType() and
+                self.get_vector_parameter() == other.getVectorParameter() and
+                self.get_declaring_expression() == other.getDeclaringExpression() and
+                self.is_predefined() == other.isPredefined() and
+                self.is_function() == other.isFunction() and
+                self.is_conductance_based() == other.isConductanceBased() and
+                self.is_recordable() == other.isRecordable())
 
-    def hasComment(self):
-        """
-        Indicates whether this symbol stores a comment.
-        :return: True if comment is stored, otherwise False.
-        :rtype: bool
-        """
-        return self.getComment() is not None and len(self.getComment())
-
-    def printComment(self, _prefix=None):
+    def print_comment(self, prefix=None):
         """
         Prints the stored comment.
         :return: the corresponding comment.
         :rtype: str
         """
-        assert (_prefix is None or isinstance(_prefix, str)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of prefix provided (%s)!' % type(_prefix)
         ret = ''
-        if not self.hasComment():
+        if not self.has_comment():
             return ''
         # in the last part, delete the new line if it is the last comment, otherwise there is an ungly gap
         # between the comment and the element
-        for comment in self.getComment():
-            ret += (_prefix if _prefix is not None else '') + comment + \
-                   ('\n' if self.getComment().index(comment) < len(self.getComment()) - 1 else '')
+        for comment in self.get_comment():
+            ret += (prefix if prefix is not None else '') + comment + \
+                   ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
         return ret
 
-    def containsSumCall(self):
+    def contains_sum_call(self):
         """
-        Indicates whether the declaring expression of this variable symbol has a x_sum or convolve in it.
+        Indicates whether the declaring rhs of this variable symbol has a x_sum or convolve in it.
         :return: True if contained, otherwise False.
         :rtype: bool
         """
+        # todo KP: this is a good candidate for ASTUtils
         from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-        if not self.getDeclaringExpression():
+        if not self.get_declaring_expression():
             return False
         else:
-            for func in self.getDeclaringExpression().getFunctionCalls():
-                if func.getName() == PredefinedFunctions.CONVOLVE or \
-                        func.getName() == PredefinedFunctions.CURR_SUM or \
-                        func.getName() == PredefinedFunctions.COND_SUM:
+            for func in self.get_declaring_expression().get_function_calls():
+                if func.get_name() == PredefinedFunctions.CONVOLVE or \
+                        func.get_name() == PredefinedFunctions.CURR_SUM or \
+                        func.get_name() == PredefinedFunctions.COND_SUM:
                     return True
         return False
 

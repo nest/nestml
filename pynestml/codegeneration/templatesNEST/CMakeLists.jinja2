@@ -61,7 +61,7 @@ set( MODULE_NAME ${SHORT_NAME} )
 set( MODULE_SOURCES
     {{moduleName}}.h {{moduleName}}.cpp
     {% for neuron in neurons %}
-      {{neuron.getName()}}.cpp {{neuron.getName()}}.h
+      {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
     {% endfor %}
     )
 

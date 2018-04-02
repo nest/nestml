@@ -91,7 +91,7 @@ class ShapeFunction(object):
     nestml_ode_form, derivative factors and intitial_values.
     
     in this example: 
-    'name' will be 'shape_alpha' as a symbolic expression
+    'name' will be 'shape_alpha' as a symbolic rhs
     
     'order' is 2, as the function above satisfies a homogeneos ODE of order 2
     
@@ -111,7 +111,7 @@ class ShapeFunction(object):
 
         self.name = parse_expr(name)
 
-        # convert the shape function from a string to a symbolic expression
+        # convert the shape function from a string to a symbolic rhs
         self.shape_expr = parse_expr(function_def)
 
         # found_ode is true if we find a linear homogeneous ODE that

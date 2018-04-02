@@ -48,36 +48,27 @@ class ASTFunction(ASTNode):
     # the corresponding type symbol
     __typeSymbol = None
 
-    def __init__(self, _name=None, _parameters=None, _returnType=None, _block=None, source_position=None):
+    def __init__(self, name, parameters, return_type, block, source_position):
         """
         Standard constructor.
-        :param _name: the name of the defined function.
-        :type _name: str 
-        :param _parameters: (Optional) Set of parameters.  
-        :type _parameters: list(ASTParameter)
-        :param _returnType: (Optional) Return type. 
-        :type _returnType: ASTDataType
-        :param _block: a block of declarations.
-        :type _block: ASTBlock
+        :param name: the name of the defined function.
+        :type name: str
+        :param parameters: (Optional) Set of parameters.
+        :type parameters: list(ASTParameter)
+        :param return_type: (Optional) Return type.
+        :type return_type: ASTDataType
+        :param block: a block of declarations.
+        :type block: ASTBlock
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.AST.Function) No name or wrong type provided (%s)!' % type(_name)
-        assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.Function) No block or wrong type provided (%s)!' % type(_block)
-        assert (_parameters is None or isinstance(_parameters, list)), \
-            '(PyNestML.AST.Function) Wrong type of parameters provided (%s)!' % type(_parameters)
-        assert (_returnType is None or isinstance(_returnType, ASTDataType)), \
-            '(PyNestML.AST.Function) Wrong type of return provided (%s)!' % type(_returnType)
         super(ASTFunction, self).__init__(source_position)
-        self.__block = _block
-        self.__returnType = _returnType
-        self.__parameters = _parameters
-        self.__name = _name
-        return
+        self.__block = block
+        self.__returnType = return_type
+        self.__parameters = parameters
+        self.__name = name
 
-    def getName(self):
+    def get_name(self):
         """
         Returns the name of the function.
         :return: the name of the function.
@@ -85,7 +76,7 @@ class ASTFunction(ASTNode):
         """
         return self.__name
 
-    def hasParameters(self):
+    def has_parameters(self):
         """
         Returns whether parameters have been defined.
         :return: True if parameters defined, otherwise False.
@@ -93,7 +84,7 @@ class ASTFunction(ASTNode):
         """
         return (self.__parameters is not None) and (len(self.__parameters) > 0)
 
-    def getParameters(self):
+    def get_parameters(self):
         """
         Returns the list of parameters.
         :return: a parameters object containing the list.
@@ -101,7 +92,7 @@ class ASTFunction(ASTNode):
         """
         return self.__parameters
 
-    def hasReturnType(self):
+    def has_return_type(self):
         """
         Returns whether return a type has been defined.
         :return: True if return type defined, otherwise False.
@@ -109,7 +100,7 @@ class ASTFunction(ASTNode):
         """
         return self.__returnType is not None
 
-    def getReturnType(self):
+    def get_return_type(self):
         """
         Returns the return type of function.
         :return: the return type 
@@ -117,7 +108,7 @@ class ASTFunction(ASTNode):
         """
         return self.__returnType
 
-    def getBlock(self):
+    def get_block(self):
         """
         Returns the block containing the definitions.
         :return: the block of the definitions.
@@ -125,47 +116,44 @@ class ASTFunction(ASTNode):
         """
         return self.__block
 
-    def getTypeSymbol(self):
+    def get_type_symbol(self):
         """
-        Returns the type symbol of this expression.
+        Returns the type symbol of this rhs.
         :return: a single type symbol.
         :rtype: TypeSymbol
         """
         return self.__typeSymbol
 
-    def setTypeSymbol(self, _typeSymbol=None):
+    def set_type_symbol(self, type_symbol):
         """
         Updates the current type symbol to the handed over one.
-        :param _typeSymbol: a single type symbol object.
-        :type _typeSymbol: TypeSymbol
+        :param type_symbol: a single type symbol object.
+        :type type_symbol: TypeSymbol
         """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        self.__typeSymbol = _typeSymbol
+        self.__typeSymbol = type_symbol
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        for param in self.getParameters():
-            if param is _ast:
+        for param in self.get_parameters():
+            if param is ast:
                 return self
-            elif param.getParent(_ast) is not None:
-                return param.getParent(_ast)
-        if self.hasReturnType():
-            if self.getReturnType() is _ast:
+            elif param.get_parent(ast) is not None:
+                return param.get_parent(ast)
+        if self.has_return_type():
+            if self.get_return_type() is ast:
                 return self
-            elif self.getReturnType().getParent(_ast) is not None:
-                return self.getReturnType().getParent(_ast)
-        if self.getBlock() is _ast:
+            elif self.get_return_type().get_parent(ast) is not None:
+                return self.get_return_type().get_parent(ast)
+        if self.get_block() is ast:
             return self
-        elif self.getBlock().getParent(_ast) is not None:
-            return self.getBlock().getParent(_ast)
+        elif self.get_block().get_parent(ast) is not None:
+            return self.get_block().get_parent(ast)
         return None
 
     def __str__(self):
@@ -174,37 +162,38 @@ class ASTFunction(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        ret = 'function ' + self.getName() + '('
-        if self.hasParameters():
-            for par in self.getParameters():
+        ret = 'function ' + self.get_name() + '('
+        if self.has_parameters():
+            for par in self.get_parameters():
                 ret += str(par)
         ret += ')'
-        if self.hasReturnType():
-            ret += str(self.getReturnType())
-        ret += ':\n' + str(self.getBlock()) + '\nend'
+        if self.has_return_type():
+            ret += str(self.get_return_type())
+        ret += ':\n' + str(self.get_block()) + '\nend'
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTFunction):
+        if not isinstance(other, ASTFunction):
             return False
-        if self.getName() != _other.getName():
+        if self.get_name() != other.get_name():
             return False
-        if len(self.getParameters()) != len(_other.getParameters()):
+        if len(self.get_parameters()) != len(other.get_parameters()):
             return False
-        myParameters = self.getParameters()
-        yourParameters = _other.getParameters()
-        for i in range(0, len(myParameters)):
-            if not myParameters[i].equals(yourParameters[i]):
+        my_parameters = self.get_parameters()
+        your_parameters = other.get_parameters()
+        for i in range(0, len(my_parameters)):
+            if not my_parameters[i].equals(your_parameters[i]):
                 return False
-        if self.hasReturnType() + _other.hasReturnType() == 1:
+        if self.has_return_type() + other.has_return_type() == 1:
             return False
-        if self.hasReturnType() and _other.hasReturnType() and not self.getReturnType().equals(_other.getReturnType()):
+        if (self.has_return_type() and other.has_return_type() and
+                not self.get_return_type().equals(other.get_return_type())):
             return False
-        return self.getBlock().equals(_other.getBlock())
+        return self.get_block().equals(other.get_block())

@@ -54,17 +54,17 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        for userDefinedFunction in _neuron.getFunctions():
+        cls.__neuronName = _neuron.get_name()
+        for userDefinedFunction in _neuron.get_functions():
             cls.__processedFunction = userDefinedFunction
-            symbol = userDefinedFunction.get_scope().resolveToSymbol(userDefinedFunction.getName(), SymbolKind.FUNCTION)
+            symbol = userDefinedFunction.get_scope().resolveToSymbol(userDefinedFunction.get_name(), SymbolKind.FUNCTION)
             # first ensure that the block contains at least one statement
-            if symbol is not None and len(userDefinedFunction.getBlock().getStmts()) > 0:
+            if symbol is not None and len(userDefinedFunction.get_block().get_stmts()) > 0:
                 # now check that the last statement is a return
-                cls.__checkReturnRecursively(symbol.getReturnType(), userDefinedFunction.getBlock().getStmts(), False)
+                cls.__checkReturnRecursively(symbol.get_return_type(), userDefinedFunction.get_block().get_stmts(), False)
             # now if it does not have a statement, but uses a return type, it is an error
-            elif symbol is not None and userDefinedFunction.hasReturnType() and \
-                    not symbol.getReturnType().equals(PredefinedTypes.getVoidType()):
+            elif symbol is not None and userDefinedFunction.has_return_type() and \
+                    not symbol.get_return_type().equals(PredefinedTypes.getVoidType()):
                 code, message = Messages.getNoReturn()
                 Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
                                   _errorPosition=userDefinedFunction.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
@@ -96,7 +96,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         retDefined = False or _retDefined
         if (len(_stmts) > 0 and isinstance(lastStatement, ASTStmt)
                 and lastStatement.is_small_stmt()
-                and lastStatement.small_stmt.isReturnStmt()):
+                and lastStatement.small_stmt.is_return_stmt()):
             retDefined = True
         # now check that returns are there if necessary and correctly typed
         for c_stmt in _stmts:
@@ -106,7 +106,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 stmt = c_stmt.compound_stmt
 
             # if it is a small statement, check if it is a return statement
-            if isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt():
+            if isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt():
                 # first check if the return is the last one in this block of statements
                 if _stmts.index(c_stmt) != (len(_stmts) - 1):
                     code, message = Messages.getNotLastStatement('Return')
@@ -114,22 +114,22 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                                       _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.WARNING)
                 # now check that it corresponds to the declared type
-                if stmt.getReturnStmt().hasExpression() and _typeSymbol is PredefinedTypes.getVoidType():
+                if stmt.get_return_stmt().has_expression() and _typeSymbol is PredefinedTypes.getVoidType():
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
-                                                                          stmt.getReturnStmt().getExpression().
-                                                                          getTypeEither().getValue())
+                                                                          stmt.get_return_stmt().get_expression().
+                                                                          get_type_either().getValue())
                     Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated
-                if not stmt.getReturnStmt().hasExpression() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
+                if not stmt.get_return_stmt().has_expression() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
                                                                           _typeSymbol)
                     Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
-                if stmt.getReturnStmt().hasExpression():
-                    typeOfReturn = stmt.getReturnStmt().getExpression().getTypeEither()
+                if stmt.get_return_stmt().has_expression():
+                    typeOfReturn = stmt.get_return_stmt().get_expression().get_type_either()
                     if typeOfReturn.isError():
-                        code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.getName())
+                        code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.get_name())
                         Logger.logMessage(_errorPosition=stmt.get_source_position(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
                     elif not typeOfReturn.getValue().equals(_typeSymbol):
@@ -140,21 +140,21 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.isIfStmt():
-                    cls.__checkReturnRecursively(_typeSymbol, stmt.getIfStmt().getIfClause().getBlock().getStmts(),
+                    cls.__checkReturnRecursively(_typeSymbol, stmt.getIfStmt().getIfClause().get_block().get_stmts(),
                                                  retDefined)
                     for elifs in stmt.getIfStmt().getElifClauses():
-                        cls.__checkReturnRecursively(_typeSymbol, elifs.getBlock().getStmt(), retDefined)
+                        cls.__checkReturnRecursively(_typeSymbol, elifs.get_block().getStmt(), retDefined)
                     if stmt.getIfStmt().hasElseClause():
                         cls.__checkReturnRecursively(_typeSymbol,
-                                                     stmt.getIfStmt().getElseClause().getBlock().getStmts(), retDefined)
+                                                     stmt.getIfStmt().getElseClause().get_block().get_stmts(), retDefined)
                 elif stmt.isWhileStmt():
-                    cls.__checkReturnRecursively(_typeSymbol, stmt.getWhileStmt().getBlock().getStmts(), retDefined)
+                    cls.__checkReturnRecursively(_typeSymbol, stmt.getWhileStmt().get_block().get_stmts(), retDefined)
                 elif stmt.isForStmt():
-                    cls.__checkReturnRecursively(_typeSymbol, stmt.getForStmt().getBlock().getStmts(), retDefined)
+                    cls.__checkReturnRecursively(_typeSymbol, stmt.getForStmt().get_block().get_stmts(), retDefined)
             # now, if a return statement has not been defined in the corresponding higher level block, we have
             # to ensure that it is defined here
             elif not _retDefined and _stmts.index(c_stmt) == (len(_stmts) - 1):
-                if not (isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt()):
+                if not (isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt()):
                     code, message = Messages.getNoReturn()
                     Logger.logMessage(_errorPosition=stmt.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                                       _code=code, _message=message)

@@ -25,7 +25,7 @@ class TypeSymbol(Symbol):
     This class is used to represent a single type symbol which represents the type of a element, e.g., a variable.
     
         Attributes:
-        __unit              Stores an optional unit used to represent the type of this type symbol.
+        unit              Stores an optional unit used to represent the type of this type symbol.
         __isInteger         Indicates whether it is an integer typed type symbol.
         __isReal            Indicates whether it is a real typed type symbol.
         __isVoid            Indicates whether it is a void typed type symbol.
@@ -42,85 +42,85 @@ class TypeSymbol(Symbol):
     __isString = False
     __isBuffer = False
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None,
-                 _unit=None, _isInteger=False, _isReal=False, _isVoid=False,
-                 _isBoolean=False, _isString=False, _isBuffer=False):
+    def __init__(self, element_reference=None, scope=None, name=None,
+                 unit=None, is_integer=False, is_real=False, is_void=False,
+                 is_boolean=False, is_string=False, is_buffer=False):
         """
         Standard constructor.
-        :param _elementReference: a reference to the first element where this type has been used/defined
-        :type _elementReference: Object (or None, if predefined)
-        :param _name: the name of the type symbol
-        :type _name: str
-        :param _scope: the scope in which this type is defined in 
-        :type _scope: Scope
-        :param _unit: a unit object.
-        :type _unit: UnitType
-        :param _isInteger: indicates whether this is an integer symbol type.
-        :type _isInteger: bool
-        :param _isReal: indicates whether this is a  real symbol type.
-        :type _isReal: bool
-        :param _isVoid: indicates whether this is a void symbol type.
-        :type _isVoid: bool
-        :param _isBoolean: indicates whether this is a boolean symbol type.
-        :type _isBoolean: bool
-        :param _isString: indicates whether this is a string symbol type.
-        :type _isString: bool
-        :param _isBuffer: indicates whether this symbol represents a buffer of a certain type, e.g. integer.
+        :param element_reference: a reference to the first element where this type has been used/defined
+        :type element_reference: Object (or None, if predefined)
+        :param name: the name of the type symbol
+        :type name: str
+        :param scope: the scope in which this type is defined in 
+        :type scope: Scope
+        :param unit: a unit object.
+        :type unit: UnitType
+        :param is_integer: indicates whether this is an integer symbol type.
+        :type is_integer: bool
+        :param is_real: indicates whether this is a  real symbol type.
+        :type is_real: bool
+        :param is_void: indicates whether this is a void symbol type.
+        :type is_void: bool
+        :param is_boolean: indicates whether this is a boolean symbol type.
+        :type is_boolean: bool
+        :param is_string: indicates whether this is a string symbol type.
+        :type is_string: bool
+        :param is_buffer: indicates whether this symbol represents a buffer of a certain type, e.g. integer.
         """
         from pynestml.modelprocessor.UnitType import UnitType
         from pynestml.modelprocessor.Symbol import SymbolKind
-        assert (_unit is None or isinstance(_unit, UnitType)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided (%s)!' % type(_unit)
-        assert (isinstance(_isInteger, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-integer provided (%s)!' % type(_isInteger)
-        assert (isinstance(_isReal, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-real provided (%s)!' % type(_isReal)
-        assert (isinstance(_isVoid, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-void provided (%s)!' % type(_isVoid)
-        assert (isinstance(_isBoolean, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-boolean provided (%s)!' % type(_isBoolean)
-        assert (isinstance(_isString, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-string provided (%s)!' % type(_isString)
-        assert (isinstance(_isBuffer, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-buffer provided (%s)!' % type(_isBuffer)
-        assert (_unit is not None or _isInteger or _isReal or _isVoid or _isBoolean or _isString), \
+        assert (unit is None or isinstance(unit, UnitType)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided (%s)!' % type(unit)
+        assert (isinstance(is_integer, bool)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-integer provided (%s)!' % type(is_integer)
+        assert (isinstance(is_real, bool)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-real provided (%s)!' % type(is_real)
+        assert (isinstance(is_void, bool)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-void provided (%s)!' % type(is_void)
+        assert (isinstance(is_boolean, bool)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-boolean provided (%s)!' % type(is_boolean)
+        assert (isinstance(is_string, bool)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-string provided (%s)!' % type(is_string)
+        assert (isinstance(is_buffer, bool)), \
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-buffer provided (%s)!' % type(is_buffer)
+        assert (unit is not None or is_integer or is_real or is_void or is_boolean or is_string), \
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol not specified!'
-        assert (_isInteger + _isReal + _isVoid + _isBoolean + _isString + (_unit is not None) == 1), \
+        assert (is_integer + is_real + is_void + is_boolean + is_string + (unit is not None) == 1), \
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol over-specified!'
-        super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
-                                         _name=_name, _symbolKind=SymbolKind.TYPE)
-        self.__unit = _unit
-        self.__isInteger = _isInteger
-        self.__isReal = _isReal
-        self.__isVoid = _isVoid
-        self.__isBoolean = _isBoolean
-        self.__isString = _isString
-        self.__isBuffer = _isBuffer
+        super(TypeSymbol, self).__init__(element_reference=element_reference, scope=scope,
+                                         name=name, symbol_kind=SymbolKind.TYPE)
+        self.__unit = unit
+        self.__isInteger = is_integer
+        self.__isReal = is_real
+        self.__isVoid = is_void
+        self.__isBoolean = is_boolean
+        self.__isString = is_string
+        self.__isBuffer = is_buffer
         return
 
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         :return: a string representation.
         :rtype: str
         """
-        if self.isInteger():
-            elemType = 'integer'
-        elif self.isReal():
-            elemType = 'real'
-        elif self.isVoid():
-            elemType = 'void'
-        elif self.isBoolean():
-            elemType = 'boolean'
-        elif self.isString():
-            elemType = 'string'
+        if self.is_integer():
+            elem_type = 'integer'
+        elif self.is_real():
+            elem_type = 'real'
+        elif self.is_void():
+            elem_type = 'void'
+        elif self.is_boolean():
+            elem_type = 'boolean'
+        elif self.is_string():
+            elem_type = 'string'
         else:
-            elemType = self.getUnit().printUnit()
-        if self.isBuffer():
-            elemType += ' buffer'
-        return elemType
+            elem_type = self.get_unit().print_unit()
+        if self.is_buffer():
+            elem_type += ' buffer'
+        return elem_type
 
-    def getUnit(self):
+    def get_unit(self):
         """
         Returns the unit of this type symbol
         :return: a single unit object.
@@ -128,7 +128,7 @@ class TypeSymbol(Symbol):
         """
         return self.__unit
 
-    def isUnit(self):
+    def is_unit(self):
         """
         Returns whether this type symbol's type is represented by a unit. 
         :return: True if unit, False otherwise.
@@ -137,15 +137,15 @@ class TypeSymbol(Symbol):
         from pynestml.modelprocessor.UnitType import UnitType
         return self.__unit is not None and isinstance(self.__unit, UnitType)
 
-    def getEncapsulatedUnit(self):
+    def get_encapsulated_unit(self):
         """
         Returns the sympy unit as encapsulated in the unit type object.
         :return: a single unit in the used type system: currently AstroPy.Units.
         :rtype: Symbol (AstroPy.Units)
         """
-        return self.__unit.getUnit()
+        return self.__unit.get_unit()
 
-    def isPrimitive(self):
+    def is_primitive(self):
         """
         Returns whether this symbol represents a primitive type.
         :return: true if primitive, otherwise false.
@@ -153,23 +153,23 @@ class TypeSymbol(Symbol):
         """
         return self.__isString or self.__isBoolean or self.__isVoid or self.__isReal or self.__isInteger
 
-    def isNumeric(self):
+    def is_numeric(self):
         """
         Returns whether this symbol represents a numeric type.
         :return: True if numeric, otherwise False.
         :rtype: bool
         """
-        return self.isInteger() or self.isReal() or self.isUnit()
+        return self.is_integer() or self.is_real() or self.is_unit()
 
-    def isNumericPrimitive(self):
+    def is_numeric_primitive(self):
         """
         Returns whether this symbol represents a primitive numeric type, i.e., real or integer.
         :return: True if numeric primitive, otherwise False.
         :rtype: bool
         """
-        return self.isInteger() or self.isReal()
+        return self.is_integer() or self.is_real()
 
-    def isInteger(self):
+    def is_integer(self):
         """
         Indicates whether this is an integer typed symbol.
         :return: True if integer, otherwise False.
@@ -177,7 +177,7 @@ class TypeSymbol(Symbol):
         """
         return self.__isInteger
 
-    def isReal(self):
+    def is_real(self):
         """
         Indicates whether this is a real typed symbol.
         :return: True if real, otherwise False.
@@ -185,7 +185,7 @@ class TypeSymbol(Symbol):
         """
         return self.__isReal
 
-    def isVoid(self):
+    def is_void(self):
         """
         Indicates whether this is a real typed symbol.
         :return: True if void, otherwise False.
@@ -193,7 +193,7 @@ class TypeSymbol(Symbol):
         """
         return self.__isVoid
 
-    def isBoolean(self):
+    def is_boolean(self):
         """
         Indicates whether this is a boolean typed symbol.
         :return: True if boolean, otherwise False.
@@ -201,7 +201,7 @@ class TypeSymbol(Symbol):
         """
         return self.__isBoolean
 
-    def isString(self):
+    def is_string(self):
         """
         Indicates whether this is a string typed symbol.
         :return: True if string, otherwise False.
@@ -209,7 +209,7 @@ class TypeSymbol(Symbol):
         """
         return self.__isString
 
-    def isBuffer(self):
+    def is_buffer(self):
         """
         Indicates whether this is a buffer symbol.
         :return: True if buffer, otherwise False.
@@ -217,39 +217,39 @@ class TypeSymbol(Symbol):
         """
         return self.__isBuffer
 
-    def setBuffer(self, _isBuffer=None):
+    def set_buffer(self, is_buffer):
         """
         Indicates whether this is a buffer object or not.
-        :param _isBuffer: True if object shall be buffer, otherwise False.
-        :type _isBuffer: bool
+        :param is_buffer: True if object shall be buffer, otherwise False.
+        :type is_buffer: bool
         """
-        self.__isBuffer = _isBuffer
+        self.__isBuffer = is_buffer
         return
 
-    def equals(self, _other=None):
+    def equals(self, other):
         """
         Checks if the handed over type symbol object is equal to this (value-wise).
-        :param _other: a type symbol object.
-        :type _other: Symbol or subclass.
+        :param other: a type symbol object.
+        :type other: Symbol or subclass.
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, TypeSymbol):
+        if not isinstance(other, TypeSymbol):
             return False
 
         # deferr comparison of units to sympy library
-        if self.isUnit() and _other.isUnit():
-            selfUnit = self.getEncapsulatedUnit()
-            otherUnit = _other.getEncapsulatedUnit()
-            return selfUnit == otherUnit
+        if self.is_unit() and other.is_unit():
+            self_unit = self.get_encapsulated_unit()
+            other_unit = other.get_encapsulated_unit()
+            return self_unit == other_unit
 
-        return self.isInteger() == _other.isInteger() and \
-               self.isReal() == _other.isReal() and \
-               self.isVoid() == _other.isVoid() and \
-               self.isBoolean() == _other.isBoolean() and \
-               self.isString() == _other.isString() and \
-               self.isBuffer() == _other.isBuffer() and \
-               (self.getUnit().equals(_other.getUnit()) if self.isUnit() and _other.isUnit() else True) and \
-               self.getReferencedObject() == _other.getReferencedObject() and \
-               self.getSymbolName() == _other.getSymbolName() and \
-               self.getCorrespondingScope() == _other.getCorrespondingScope()
+        return (self.is_integer() == other.is_integer() and
+                self.is_real() == other.is_real() and
+                self.is_void() == other.is_void() and
+                self.is_boolean() == other.is_boolean() and
+                self.is_string() == other.is_string() and
+                self.is_buffer() == other.is_buffer() and
+                (self.get_unit().equals(other.get_unit()) if self.is_unit() and other.is_unit() else True) and
+                self.get_referenced_object() == other.get_referenced_object() and
+                self.get_symbol_name() == other.get_symbol_name() and
+                self.get_corresponding_scope() == other.get_corresponding_scope())

@@ -30,60 +30,56 @@ class ASTOdeShape(ASTNode):
     Grammar:
         odeShape : 'shape' lhs=variable '=' rhs=expr;
     """
-    __lhs = None
-    __rhs = None
+    lhs = None
+    rhs = None
 
-    def __init__(self, _lhs=None, _rhs=None, source_position=None):
+    def __init__(self, lhs, rhs, source_position):
         """
         Standard constructor of ASTOdeShape.
-        :param _lhs: the variable corresponding to the shape 
-        :type _lhs: ASTVariable
-        :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression or ASTSimpleExpression
-        :param _sourcePosition: the position of this element in the source file.
+        :param lhs: the variable corresponding to the shape
+        :type lhs: ASTVariable
+        :param rhs: the right-hand side rhs
+        :type rhs: ASTExpression or ASTSimpleExpression
+        :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert (_lhs is not None and (isinstance(_lhs, ASTVariable) or isinstance(_lhs, ASTSimpleExpression))), \
-            '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided (%s)!' % type(_lhs)
-        assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
-            '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeShape, self).__init__(source_position)
-        self.__lhs = _lhs
-        self.__rhs = _rhs
+        self.lhs = lhs
+        self.rhs = rhs
         return
 
-    def getVariable(self):
+    def get_variable(self):
         """
         Returns the variable of the left-hand side.
         :return: the variable
         :rtype: ASTVariable
         """
-        return self.__lhs
+        return self.lhs
 
-    def getExpression(self):
+    def get_expression(self):
         """
-        Returns the right-hand side expression.
-        :return: the expression
+        Returns the right-hand side rhs.
+        :return: the rhs
         :rtype: ASTExpression
         """
-        return self.__rhs
+        return self.rhs
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getVariable() is _ast:
+        if self.get_variable() is ast:
             return self
-        elif self.getVariable().getParent(_ast) is not None:
-            return self.getVariable().getParent(_ast)
-        if self.getExpression() is _ast:
+        elif self.get_variable().get_parent(ast) is not None:
+            return self.get_variable().get_parent(ast)
+        if self.get_expression() is ast:
             return self
-        elif self.getExpression().getParent(_ast) is not None:
-            return self.getExpression().getParent(_ast)
+        elif self.get_expression().get_parent(ast) is not None:
+            return self.get_expression().get_parent(ast)
         return None
 
     def __str__(self):
@@ -92,16 +88,16 @@ class ASTOdeShape(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        return 'shape ' + str(self.getVariable()) + ' = ' + str(self.getExpression())
+        return 'shape ' + str(self.get_variable()) + ' = ' + str(self.get_expression())
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTOdeShape):
+        if not isinstance(other, ASTOdeShape):
             return False
-        return self.getVariable().equals(_other.getVariable()) and self.getExpression().equals(_other.getExpression())
+        return self.get_variable().equals(other.get_variable()) and self.get_expression().equals(other.get_expression())

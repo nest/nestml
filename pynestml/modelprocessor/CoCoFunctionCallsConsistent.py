@@ -52,52 +52,52 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
     This visitor ensures that all function calls are consistent.
     """
 
-    def visitFunctionCall(self, _functionCall=None):
+    def visit_function_call(self, _ast=None):
         """
         Checks the coco.
-        :param _functionCall: a single function call.
-        :type _functionCall: ASTFunctionCall
+        :param _ast: a single function call.
+        :type _ast: ASTFunctionCall
         """
-        funcName = _functionCall.getName()
-        if funcName == 'convolve' or funcName == 'cond_sum' or funcName == 'curr_sum':
+        func_name = _ast.get_name()
+        if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':
             return
         # now, for all expressions, check for all function calls, the corresponding function is declared.
-        symbol = _functionCall.get_scope().resolveToSymbol(_functionCall.getName(), SymbolKind.FUNCTION)
+        symbol = _ast.get_scope().resolveToSymbol(_ast.get_name(), SymbolKind.FUNCTION)
         # first check if the function has been declared
         if symbol is None:
-            code, message = Messages.getFunctionNotDeclared(_functionCall.getName())
-            Logger.logMessage(_errorPosition=_functionCall.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
+            code, message = Messages.getFunctionNotDeclared(_ast.get_name())
+            Logger.logMessage(_errorPosition=_ast.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         # now check if the number of arguments is the same as in the symbol
-        if symbol is not None and len(_functionCall.getArgs()) != len(symbol.getParameterTypes()):
-            code, message = Messages.getWrongNumberOfArgs(str(_functionCall), len(symbol.getParameterTypes()),
-                                                          len(_functionCall.getArgs()))
+        if symbol is not None and len(_ast.get_args()) != len(symbol.get_parameter_types()):
+            code, message = Messages.getWrongNumberOfArgs(str(_ast), len(symbol.get_parameter_types()),
+                                                          len(_ast.get_args()))
             Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                              _errorPosition=_functionCall.get_source_position())
+                              _errorPosition=_ast.get_source_position())
         # finally check if the call is correctly typed
         elif symbol is not None:
-            expectedTypes = symbol.getParameterTypes()
-            actualTypes = _functionCall.getArgs()
-            for i in range(0, len(actualTypes)):
-                expectedType = expectedTypes[i]
-                actualType = actualTypes[i].getTypeEither()
-                if actualType.isError():
-                    code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i])
+            expected_types = symbol.get_parameter_types()
+            actual_types = _ast.get_args()
+            for i in range(0, len(actual_types)):
+                expected_type = expected_types[i]
+                actual_type = actual_types[i].get_type_either()
+                if actual_type.isError():
+                    code, message = Messages.getTypeCouldNotBeDerived(actual_types[i])
                     Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                                      _errorPosition=actualTypes[i].get_source_position())
-                elif not actualType.getValue().equals(expectedType):
-                    if ASTUtils.isCastableTo(actualType.getValue(), expectedType):
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
-                                                                             _expectedType=expectedType,
-                                                                             _gotType=actualType, _castable=True)
+                                      _errorPosition=actual_types[i].get_source_position())
+                elif not actual_type.getValue().equals(expected_type):
+                    if ASTUtils.is_castable_to(actual_type.getValue(), expected_type):
+                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_ast,
+                                                                             _expectedType=expected_type,
+                                                                             _gotType=actual_type, _castable=True)
 
-                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].get_source_position(),
+                        Logger.logMessage(_errorPosition=_ast.get_args()[i].get_source_position(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                     else:
-                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
-                                                                             _expectedType=expectedType,
-                                                                             _gotType=actualType, _castable=False)
+                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_ast,
+                                                                             _expectedType=expected_type,
+                                                                             _gotType=actual_type, _castable=False)
 
-                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].get_source_position(),
+                        Logger.logMessage(_errorPosition=_ast.get_args()[i].get_source_position(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
         return

@@ -35,19 +35,19 @@ class ASTStmt(ASTNode):
         self.small_stmt = small_stmt
         self.compound_stmt = compound_stmt
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Returns the parent node of a handed over AST object.
         """
         # type: ASTNode -> ASTNode
-        if self.small_stmt is _ast:
+        if self.small_stmt is ast:
             return self
-        elif self.small_stmt is not None and self.small_stmt.getParent(_ast) is not None:
-            return self.small_stmt.getParent(_ast)
-        if self.compound_stmt is _ast:
+        elif self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
+            return self.small_stmt.get_parent(ast)
+        if self.compound_stmt is ast:
             return self
-        elif self.compound_stmt is not None and self.compound_stmt.getParent(_ast) is not None:
-            return self.compound_stmt.getParent(_ast)
+        elif self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
+            return self.compound_stmt.get_parent(ast)
 
     def __str__(self):
         if self.is_small_stmt():
@@ -61,10 +61,10 @@ class ASTStmt(ASTNode):
     def is_compound_stmt(self):
         return self.compound_stmt is not None
 
-    def equals(self, _other=None):
-        if not isinstance(_other, ASTStmt):
+    def equals(self, other=None):
+        if not isinstance(other, ASTStmt):
             return False
-        if self.is_small_stmt() and _other.is_small_stmt():
-            return self.small_stmt.equals(_other.small_stmt)
-        if self.is_compound_stmt() and _other.is_compound_stmt():
-            return self.compound_stmt.equals(_other.compound_stmt)
+        if self.is_small_stmt() and other.is_small_stmt():
+            return self.small_stmt.equals(other.small_stmt)
+        if self.is_compound_stmt() and other.is_compound_stmt():
+            return self.compound_stmt.equals(other.compound_stmt)

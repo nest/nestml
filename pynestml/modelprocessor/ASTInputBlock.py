@@ -65,19 +65,19 @@ class ASTInputBlock(ASTNode):
         """
         return self.__inputDefinitions
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
         for line in self.getInputLines():
-            if line is _ast:
+            if line is ast:
                 return self
-            elif line.getParent(_ast) is not None:
-                return line.getParent(_ast)
+            elif line.get_parent(ast) is not None:
+                return line.get_parent(ast)
         return None
 
     def __str__(self):
@@ -93,20 +93,20 @@ class ASTInputBlock(ASTNode):
         ret += 'end\n'
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other:  object
+        :param other: a different object.
+        :type other:  object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTInputBlock):
+        if not isinstance(other, ASTInputBlock):
             return False
-        if len(self.getInputLines()) != len(_other.getInputLines()):
+        if len(self.getInputLines()) != len(other.getInputLines()):
             return False
         myInputLines = self.getInputLines()
-        yourInputLines = _other.getInputLines()
+        yourInputLines = other.getInputLines()
         for i in range(0, len(myInputLines)):
             if not myInputLines[i].equals(yourInputLines[i]):
                 return False

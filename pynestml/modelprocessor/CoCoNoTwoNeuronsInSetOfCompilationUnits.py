@@ -38,15 +38,15 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
         assert (_listOfCompilationUnits is not None and isinstance(_listOfCompilationUnits, list)), \
             '(PyNestML.CoCo.NameCollisionAcrossUnits) No or wrong type of list provided (%s)!' % type(
                 _listOfCompilationUnits)
-        listOfNeurons = ASTUtils.getAllNeurons(_listOfCompilationUnits)
+        listOfNeurons = ASTUtils.get_all_neurons(_listOfCompilationUnits)
         conflictingNeurons = list()
         checked = list()
         for neuronA in listOfNeurons:
             for neuronB in listOfNeurons:
-                if neuronA is not neuronB and neuronA.getName() == neuronB.getName():
-                    code, message = Messages.getCompilationUnitNameCollision(neuronA.getName(),
-                                                                             neuronA.getArtifactName(),
-                                                                             neuronB.getArtifactName())
+                if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name():
+                    code, message = Messages.getCompilationUnitNameCollision(neuronA.get_name(),
+                                                                             neuronA.get_artifact_name(),
+                                                                             neuronB.get_artifact_name())
                     Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
                 conflictingNeurons.append(neuronB)
             checked.append(neuronA)

@@ -32,27 +32,27 @@ class ASTNumericLiteralVisitor(ASTVisitor):
     Visits a single numeric literal and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, node=None):
         """
-        Visit a simple expression and update the type of a numeric literal.
-        :param _expr:
-        :type _expr:
+        Visit a simple rhs and update the type of a numeric literal.
+        :param node:
+        :type node:
         :return:
         :rtype:
         """
-        assert _expr.get_scope() is not None, "Run symboltable creator."
-        # if variable is also set in this expression, the var type overrides the literal
-        if _expr.getVariable() is not None:
-            scope = _expr.get_scope()
-            var_name = _expr.getVariable().getName()
+        assert node.get_scope() is not None, "Run symboltable creator."
+        # if variable is also set in this rhs, the var type overrides the literal
+        if node.get_variable() is not None:
+            scope = node.get_scope()
+            var_name = node.get_variable().get_name()
             variable_symbol_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
-            _expr.setTypeEither(Either.value(variable_symbol_resolve.getTypeSymbol()))
+            node.set_type_either(Either.value(variable_symbol_resolve.get_type_symbol()))
             return
 
-        if _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(), float):
-            _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+        if node.get_numeric_literal() is not None and isinstance(node.get_numeric_literal(), float):
+            node.set_type_either(Either.value(PredefinedTypes.getRealType()))
             return
 
-        elif _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(), int):
-            _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
+        elif node.get_numeric_literal() is not None and isinstance(node.get_numeric_literal(), int):
+            node.set_type_either(Either.value(PredefinedTypes.getIntegerType()))
             return

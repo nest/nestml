@@ -32,11 +32,11 @@ class ASTParameter(ASTNode):
     Grammar:
         parameter : NAME datatype;
     Attributes:
-        __name (str): The name of the parameter.
+        name (str): The name of the parameter.
         __dataType (ASTDataType): The data type of the parameter.
     """
-    __name = None
-    __dataType = None
+    name = None
+    data_type = None
 
     def __init__(self, name=None, data_type=None, source_position=None):
         """
@@ -53,37 +53,37 @@ class ASTParameter(ASTNode):
         assert (data_type is not None and isinstance(data_type, ASTDataType)), \
             '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(data_type)
         super(ASTParameter, self).__init__(source_position)
-        self.__dataType = data_type
-        self.__name = name
+        self.data_type = data_type
+        self.name = name
 
-    def getName(self):
+    def get_name(self):
         """
         Returns the name of the parameter.
         :return: the name of the parameter.
         :rtype: str
         """
-        return self.__name
+        return self.name
 
-    def getDataType(self):
+    def get_data_type(self):
         """
         Returns the data type of the parameter.
         :return: the data type of the parameter.
         :rtype: ASTDataType
         """
-        return self.__dataType
+        return self.data_type
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getDataType() is _ast:
+        if self.get_data_type() is ast:
             return self
-        elif self.getDataType().getParent(_ast) is not None:
-            return self.getDataType().getParent(_ast)
+        elif self.get_data_type().get_parent(ast) is not None:
+            return self.get_data_type().get_parent(ast)
         return None
 
     def __str__(self):
@@ -92,16 +92,16 @@ class ASTParameter(ASTNode):
         :return: a string representation.
         :rtype: str
         """
-        return self.getName() + ' ' + str(self.getDataType())
+        return self.get_name() + ' ' + str(self.get_data_type())
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTParameter):
+        if not isinstance(other, ASTParameter):
             return False
-        return self.getName() == _other.getName() and self.getDataType().equals(_other.getDataType())
+        return self.get_name() == other.get_name() and self.get_data_type().equals(other.get_data_type())

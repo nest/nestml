@@ -37,7 +37,7 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getCompleteName(), SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolveToSymbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
         else:
@@ -54,13 +54,13 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        if _assignment.isCompoundSum():
+        if _assignment.is_compound_sum:
             return '+='
-        elif _assignment.isCompoundMinus():
+        elif _assignment.is_compound_minus:
             return '-='
-        elif _assignment.isCompoundProduct():
+        elif _assignment.is_compound_product:
             return '*='
-        elif _assignment.isCompoundQuotient():
+        elif _assignment.is_compound_quotient:
             return '/='
         else:
             return '='
@@ -76,16 +76,16 @@ class NestAssignmentsHelper(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
+        symbol = _assignment.get_scope().resolveToSymbol(_assignment.get_variable().get_complete_name(),
                                                          SymbolKind.VARIABLE)
         if symbol is not None:
-            if symbol.hasVectorParameter():
+            if symbol.has_vector_parameter():
                 return True
             else:
                 # otherwise we have to check if one of the variables used in the rhs is a vector
-                for var in _assignment.getExpression().getVariables():
-                    symbol = var.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
-                    if symbol is not None and symbol.hasVectorParameter():
+                for var in _assignment.get_expression().get_variables():
+                    symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                    if symbol is not None and symbol.has_vector_parameter():
                         return True
                 return False
         else:
@@ -103,14 +103,14 @@ class NestAssignmentsHelper(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        vectorVariable = None
-        for variable in _assignment.getExpression().getVariables():
-            symbol = variable.get_scope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
-            if symbol is not None and symbol.hasVectorParameter():
-                vectorVariable = symbol
+        vector_variable = None
+        for variable in _assignment.get_expression().get_variables():
+            symbol = variable.get_scope().resolveToSymbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+            if symbol is not None and symbol.has_vector_parameter():
+                vector_variable = symbol
                 break
-        if vectorVariable is None:
-            vectorVariable = _assignment.get_scope(). \
-                resolveToSymbol(_assignment.getVariable().getCompleteName(), SymbolKind.VARIABLE)
+        if vector_variable is None:
+            vector_variable = _assignment.get_scope(). \
+                resolveToSymbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
         # this function is called only after the corresponding assignment has been tested for been a vector
-        return vectorVariable.getVectorParameter()
+        return vector_variable.get_vector_parameter()

@@ -2,7 +2,7 @@
   Generates C++ declaration
   @grammar:
   declaration :
-                (isRecordable='recordable')? (isFunction='function')?
+                (is_recordable='recordable')? (is_function='function')?
                 variable (',' variable)*
                 datatype
                 ('[' sizeParameter=NAME ']')?
@@ -10,19 +10,19 @@
                 ('[[' invariant=expression ']]')?;
   @param ast ASTDeclaration
 #}
-{%- for variable in declarations.getVariables(ast) -%}
-{%- if ast.hasSizeParameter() %}
-{{declarations.printVariableType(variable)}} {{variable.getSymbolName()}}(P_.{{declarations.printSizeParameter(ast)}});
-    {%- if ast.hasExpression() %}
+{%- for variable in declarations.get_variables(ast) -%}
+{%- if ast.has_size_parameter() %}
+{{declarations.printVariableType(variable)}} {{variable.get_symbol_name()}}(P_.{{declarations.printSizeParameter(ast)}});
+    {%- if ast.has_expression() %}
 for (long i=0; i < get_{{declarations.printSizeParameter(ast)}}(); i++) {
-  {{variable.getSymbolName()}}[i] = {{printer.printExpression(ast.getExpr())}};
+  {{variable.get_symbol_name()}}[i] = {{printer.printExpression(ast.getExpr())}};
 }
     {%- endif -%}
   {%- else -%}
-    {%- if ast.hasExpression() %}
-{{declarations.printVariableType(variable)}} {{variable.getSymbolName()}} = {{printer.printExpression(ast.getExpression())}};
+    {%- if ast.has_expression() %}
+{{declarations.printVariableType(variable)}} {{variable.get_symbol_name()}} = {{printer.printExpression(ast.get_expression())}};
     {%- else %}
-{{declarations.printVariableType(variable)}} {{variable.getSymbolName()}};
+{{declarations.printVariableType(variable)}} {{variable.get_symbol_name()}};
     {%- endif %}
   {%- endif %}
 {%- endfor -%}

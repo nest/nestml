@@ -17,14 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
 from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
 from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.Either import Either
 
@@ -32,38 +29,38 @@ from pynestml.modelprocessor.Either import Either
 class ASTExpression(ASTNode):
     """
     ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
-    or a simple expression, e.g. 10mV.
+    or a simple rhs, e.g. 10mV.
     Grammar: 
-      expression : leftParentheses='(' expression rightParentheses=')'
-             | <assoc=right> base=expression powOp='**' exponent=expression
-             | unaryOperator term=expression
-             | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
-             | left=expression (plusOp='+'  | minusOp='-') right=expression
-             | left=expression bitOperator right=expression
-             | left=expression comparisonOperator right=expression
-             | logicalNot='not' expression
-             | left=expression logicalOperator right=expression
-             | condition=expression '?' ifTrue=expression ':' ifNot=expression
+      rhs : leftParentheses='(' rhs rightParentheses=')'
+             | <assoc=right> base=rhs powOp='**' exponent=rhs
+             | unaryOperator term=rhs
+             | left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
+             | left=rhs (plusOp='+'  | minusOp='-') right=rhs
+             | left=rhs bitOperator right=rhs
+             | left=rhs comparisonOperator right=rhs
+             | logicalNot='not' rhs
+             | left=rhs logicalOperator right=rhs
+             | condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
              | simpleExpression
              ;
     """
-    # encapsulated or with unary operator or with a logical not or just a simple expression.
-    __isEncapsulated = False
-    __isLogicalNot = False
-    __unaryOperator = None
-    __expression = None
+    # encapsulated or with unary operator or with a logical not or just a simple rhs.
+    is_encapsulated = False
+    is_logical_not = False
+    unary_operator = None
+    expression = None
     # lhs and rhs combined by an operator
-    __lhs = None
-    __binaryOperator = None
-    __rhs = None
+    lhs = None
+    binary_operator = None
+    rhs = None
     # ternary operator
-    __condition = None
-    __ifTrue = None
-    __ifNot = None
-    # simple expression
-    __simpleExpression = None
+    condition = None
+    if_true = None
+    if_not = None
+    # simple rhs
+    simple_expression = None
     # the corresponding type symbol.
-    __typeEither = None
+    type_either = None
 
     def __init__(self, is_encapsulated=False, unary_operator=None, is_logical_not=False,
                  expression=None, lhs=None, binary_operator=None, rhs=None, condition=None, if_true=None,
@@ -74,366 +71,332 @@ class ASTExpression(ASTNode):
         :type is_encapsulated: bool
         :param unary_operator: combined by unary operator, e.g., ~.
         :type unary_operator: ASTUnaryOperator
-        :param is_logical_not: is a negated expression.
+        :param is_logical_not: is a negated rhs.
         :type is_logical_not: bool
-        :param expression: the expression either encapsulated in brackets or negated or with a with a unary op, or
-        a simple expression.
+        :param expression: the rhs either encapsulated in brackets or negated or with a with a unary op, or
+        a simple rhs.
         :type expression: ASTExpression
-        :param lhs: the left-hand side expression.
+        :param lhs: the left-hand side rhs.
         :type lhs: ASTExpression
         :param binary_operator: a binary operator, e.g., a comparison operator or a logical operator.
         :type binary_operator: ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
-        :param rhs: the right-hand side expression
+        :param rhs: the right-hand side rhs
         :type rhs: ASTExpression
         :param condition: the condition of a ternary operator
         :type condition: ASTExpression
-        :param if_true: if condition holds, this expression is executed.
+        :param if_true: if condition holds, this rhs is executed.
         :type if_true: ASTExpression
-        :param if_not: if condition does not hold, this expression is executed.
+        :param if_not: if condition does not hold, this rhs is executed.
         :type if_not: ASTExpression
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert ((unary_operator is None) or (isinstance(unary_operator, ASTUnaryOperator))), \
-            '(PyNestML.AST.Expression) Wrong type of unary operator provided (%s)!' % type(unary_operator)
-        assert ((expression is None) or (isinstance(expression, ASTExpression)) or (
-            isinstance(expression, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) Wrong type of expression provided (%s)!' % type(expression)
         assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator) or
                                               (isinstance(binary_operator, ASTBitOperator)) or
                                               (isinstance(binary_operator, ASTLogicalOperator)) or
                                               (isinstance(binary_operator, ASTComparisonOperator)))), \
             '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(binary_operator)
-        assert (is_encapsulated is None or isinstance(is_encapsulated, bool)), \
-            '(PyNestML.AST.Expression) Wrong type of parenthesis parameter provided (%s)' \
-            % type(is_encapsulated)
-        assert (condition is None or isinstance(condition, ASTExpression)
-                or isinstance(condition, ASTSimpleExpression)), \
-            '(PyNestML.AST.Expression) Wrong type of condition provided (%s)!' % type(condition)
-        assert (if_true is None or isinstance(if_true, ASTExpression) or isinstance(if_true, ASTSimpleExpression)), \
-            '(PyNestML.AST.Expression) Wrong type of if-true consequence provided (%s)!' % type(if_true)
-        assert (if_not is None or isinstance(if_not, ASTExpression) or isinstance(if_not, ASTSimpleExpression)), \
-            '(PyNestML.AST.Expression) Wrong type of if-not consequence provided (%s)!' % type(if_not)
         super(ASTExpression, self).__init__(source_position)
-        self.__isEncapsulated = is_encapsulated
-        self.__isLogicalNot = is_logical_not
-        self.__unaryOperator = unary_operator
-        self.__expression = expression
+        self.is_encapsulated = is_encapsulated
+        self.is_logical_not = is_logical_not
+        self.unary_operator = unary_operator
+        self.expression = expression
         # lhs and rhs combined by an operator
-        self.__lhs = lhs
-        self.__binaryOperator = binary_operator
-        self.__rhs = rhs
+        self.lhs = lhs
+        self.binary_operator = binary_operator
+        self.rhs = rhs
         # ternary operator
-        assert (
-                (condition is None) or (isinstance(condition, ASTExpression)) or (
-            isinstance(condition, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) Condition not an expression!'
-        assert (
-                (if_true is None) or (isinstance(if_true, ASTExpression)) or (
-            isinstance(if_true, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) If-true part of ternary operator not an expression!'
-        assert ((if_not is None) or (isinstance(if_not, ASTExpression)) or (isinstance(if_not, ASTSimpleExpression))), \
-            '(PyNestML.AST.Expression) If-not part of ternary operator not an expression!'
-        self.__condition = condition
-        self.__ifTrue = if_true
-        self.__ifNot = if_not
-        return
+        self.condition = condition
+        self.if_true = if_true
+        self.if_not = if_not
 
-    def isExpression(self):
+    def is_expression(self):
         """
-        Returns whether it is a expression, e.g. ~10mV.
-        :return: True if expression, otherwise false.
+        Returns whether it is a rhs, e.g. ~10mV.
+        :return: True if rhs, otherwise false.
         :rtype: bool 
         """
-        return self.__expression is not None
+        return self.expression is not None
 
-    def getExpression(self):
+    def get_expression(self):
         """
-        Returns the expression.
-        :return: the expression.
+        Returns the rhs.
+        :return: the rhs.
         :rtype: ASTExpression
         """
-        return self.__expression
-
-    def isEncapsulated(self):
-        """
-        Returns whether this expression is encapsulated in brackets.
-        :return: True if encapsulated, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.__isEncapsulated, bool) and self.__isEncapsulated
+        return self.expression
 
     def isLogicalNot(self):
         """
-        Returns whether the expression is negated by a logical not.
+        Returns whether the rhs is negated by a logical not.
         :return: True if negated, otherwise False.  
         :rtype: bool
         """
-        return isinstance(self.__isLogicalNot, bool) and self.__isLogicalNot
+        return isinstance(self.is_logical_not, bool) and self.is_logical_not
 
-    def isUnaryOperator(self):
+    def is_unary_operator(self):
         """
-        Returns whether the expression uses an unary operator.
+        Returns whether the rhs uses an unary operator.
         :return: True if unary operator, otherwise False.  
         :rtype: bool
         """
-        return self.__unaryOperator is not None
+        return self.unary_operator is not None
 
-    def getUnaryOperator(self):
+    def get_unary_operator(self):
         """
         Returns the unary operator.
         :return: the unary operator.
         :rtype: ASTUnaryOperator.
         """
-        return self.__unaryOperator
+        return self.unary_operator
 
-    def isCompoundExpression(self):
+    def is_compound_expression(self):
         """
-        Returns whether it is a compound expression, e.g., 10+10
-        :return: True if compound expression, otherwise False.
+        Returns whether it is a compound rhs, e.g., 10+10
+        :return: True if compound rhs, otherwise False.
         :rtype: bool
         """
-        return (self.__lhs is not None) and (self.__rhs is not None) and (self.__binaryOperator is not None)
+        return (self.lhs is not None) and (self.rhs is not None) and (self.binary_operator is not None)
 
-    def getLhs(self):
+    def get_lhs(self):
         """
-        Returns the left-hand side expression.
-        :return: the left-hand side expression.
+        Returns the left-hand side rhs.
+        :return: the left-hand side rhs.
         :rtype: ASTExpression
         """
-        return self.__lhs
+        return self.lhs
 
-    def getRhs(self):
+    def get_rhs(self):
         """
-        Returns the right-hand side expression.
-        :return: the right-hand side expression.
+        Returns the right-hand side rhs.
+        :return: the right-hand side rhs.
         :rtype: ASTExpression
         """
-        return self.__rhs
+        return self.rhs
 
-    def getBinaryOperator(self):
+    def get_binary_operator(self):
         """
         Returns the binary operator.
         :return: the binary operator.
         :rtype: one of ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
         """
-        return self.__binaryOperator
+        return self.binary_operator
 
-    def isTernaryOperator(self):
+    def is_ternary_operator(self):
         """
         Returns whether it is a ternary operator.
         :return: True if ternary operator, otherwise False.
         :rtype: bool
         """
-        return (self.__condition is not None) and (self.__ifTrue is not None) and (self.__ifNot is not None)
+        return (self.condition is not None) and (self.if_true is not None) and (self.if_not is not None)
 
-    def getCondition(self):
+    def get_condition(self):
         """
-        Returns the condition expression.
-        :return: the condition expression.
+        Returns the condition rhs.
+        :return: the condition rhs.
         :rtype: ASTExpression
         """
-        return self.__condition
+        return self.condition
 
-    def getIfTrue(self):
+    def get_if_true(self):
         """
-        Returns the expression used in the case that the condition holds.
+        Returns the rhs used in the case that the condition holds.
         :return: the if-true condition.
         :rtype: ASTExpression
         """
-        return self.__ifTrue
+        return self.if_true
 
-    def getIfNot(self):
+    def get_if_not(self):
         """
-        Returns the expression used in the case that the condition does not hold.
+        Returns the rhs used in the case that the condition does not hold.
         :return: the if-not condition.
         :rtype: ASTExpression
         """
-        return self.__ifNot
+        return self.if_not
 
-    def getVariables(self):
+    def get_variables(self):
         """
-        Returns a list of all variables as used in this expression.
+        Returns a list of all variables as used in this rhs.
         :return: a list of variables.
         :rtype: list(ASTVariable)
         """
+        # TODO: extract this to utils
         ret = list()
-        if self.isExpression():
-            ret.extend(self.getExpression().getVariables())
-        elif self.isCompoundExpression():
-            ret.extend(self.getLhs().getVariables())
-            ret.extend(self.getRhs().getVariables())
-        elif self.isTernaryOperator():
-            ret.extend(self.getCondition().getVariables())
-            ret.extend(self.getIfTrue().getVariables())
-            ret.extend(self.getIfNot().getVariables())
+        if self.is_expression():
+            ret.extend(self.get_expression().get_variables())
+        elif self.is_compound_expression():
+            ret.extend(self.get_lhs().get_variables())
+            ret.extend(self.get_rhs().get_variables())
+        elif self.is_ternary_operator():
+            ret.extend(self.get_condition().get_variables())
+            ret.extend(self.get_if_true().get_variables())
+            ret.extend(self.get_if_not().get_variables())
         return ret
 
-    def getUnits(self):
+    def get_units(self):
         """
-        Returns a list of all units as use in this expression.
+        Returns a list of all units as use in this rhs.
         :return: a list of all used units.
         :rtype: list(ASTVariable)
         """
+        # TODO: extract this to utils
         ret = list()
-        if self.isExpression():
-            ret.extend(self.getExpression().getUnits())
-        elif self.isCompoundExpression():
-            ret.extend(self.getLhs().getUnits())
-            ret.extend(self.getRhs().getUnits())
-        elif self.isTernaryOperator():
-            ret.extend(self.getCondition().getUnits())
-            ret.extend(self.getIfTrue().getUnits())
-            ret.extend(self.getIfNot().getUnits())
+        if self.is_expression():
+            ret.extend(self.get_expression().get_units())
+        elif self.is_compound_expression():
+            ret.extend(self.get_lhs().get_units())
+            ret.extend(self.get_rhs().get_units())
+        elif self.is_ternary_operator():
+            ret.extend(self.get_condition().get_units())
+            ret.extend(self.get_if_true().get_units())
+            ret.extend(self.get_if_not().get_units())
         return ret
 
-    def getFunctionCalls(self):
+    def get_function_calls(self):
         """
-        Returns a list of all function calls as used in this expression
-        :return: a list of all function calls in this expression.
+        Returns a list of all function calls as used in this rhs
+        :return: a list of all function calls in this rhs.
         :rtype: list(ASTFunctionCall)
         """
+        # TODO: extract this to utils
         ret = list()
-        if self.isExpression():
-            ret.extend(self.getExpression().getFunctionCalls())
-        elif self.isCompoundExpression():
-            ret.extend(self.getLhs().getFunctionCalls())
-            ret.extend(self.getRhs().getFunctionCalls())
-        elif self.isTernaryOperator():
-            ret.extend(self.getCondition().getFunctionCalls())
-            ret.extend(self.getIfTrue().getFunctionCalls())
-            ret.extend(self.getIfNot().getFunctionCalls())
+        if self.is_expression():
+            ret.extend(self.get_expression().get_function_calls())
+        elif self.is_compound_expression():
+            ret.extend(self.get_lhs().get_function_calls())
+            ret.extend(self.get_rhs().get_function_calls())
+        elif self.is_ternary_operator():
+            ret.extend(self.get_condition().get_function_calls())
+            ret.extend(self.get_if_true().get_function_calls())
+            ret.extend(self.get_if_not().get_function_calls())
         return ret
 
-    def getTypeEither(self):
+    def get_type_either(self):
         """
         Returns an Either object holding either the type symbol of
-        this expression or the corresponding error message
+        this rhs or the corresponding error message
         If it does not exist, run the ExpressionTypeVisitor on it to calculate it
         :return: Either a valid type or an error message
         :rtype: Either
         """
         from pynestml.modelprocessor.ASTExpressionTypeVisitor import ASTExpressionTypeVisitor
-        if self.__typeEither is None:
+        if self.type_either is None:
             self.accept(ASTExpressionTypeVisitor())
-        return self.__typeEither
+        return self.type_either
 
-    def setTypeEither(self, _typeEither=None):
+    def set_type_either(self, type_either):
         """
         Updates the current type symbol to the handed over one.
-        :param _typeEither: a single type symbol object.
-        :type _typeEither: TypeSymbol
+        :param type_either: a single type symbol object.
+        :type type_either: TypeSymbol
         """
-        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
-        self.__typeEither = _typeEither
-        return
+        self.type_either = type_either
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.isExpression():
-            if self.getExpression() is _ast:
+        if self.is_expression():
+            if self.get_expression() is ast:
                 return self
-            elif self.getExpression().getParent(_ast) is not None:
-                return self.getExpression().getParent(_ast)
-        if self.isUnaryOperator():
-            if self.getUnaryOperator() is _ast:
+            elif self.get_expression().get_parent(ast) is not None:
+                return self.get_expression().get_parent(ast)
+        if self.is_unary_operator():
+            if self.get_unary_operator() is ast:
                 return self
-            elif self.getUnaryOperator().getParent(_ast) is not None:
-                return self.getUnaryOperator().getParent(_ast)
-        if self.isCompoundExpression():
-            if self.getLhs() is _ast:
+            elif self.get_unary_operator().get_parent(ast) is not None:
+                return self.get_unary_operator().get_parent(ast)
+        if self.is_compound_expression():
+            if self.get_lhs() is ast:
                 return self
-            elif self.getLhs().getParent(_ast) is not None:
-                return self.getLhs().getParent(_ast)
-            if self.getBinaryOperator() is _ast:
+            elif self.get_lhs().get_parent(ast) is not None:
+                return self.get_lhs().get_parent(ast)
+            if self.get_binary_operator() is ast:
                 return self
-            elif self.getBinaryOperator().getParent(_ast) is not None:
-                return self.getBinaryOperator().getParent(_ast)
-            if self.getRhs() is _ast:
+            elif self.get_binary_operator().get_parent(ast) is not None:
+                return self.get_binary_operator().get_parent(ast)
+            if self.get_rhs() is ast:
                 return self
-            elif self.getRhs().getParent(_ast) is not None:
-                return self.getRhs().getParent(_ast)
-        if self.isTernaryOperator():
-            if self.getCondition() is _ast:
+            elif self.get_rhs().get_parent(ast) is not None:
+                return self.get_rhs().get_parent(ast)
+        if self.is_ternary_operator():
+            if self.get_condition() is ast:
                 return self
-            elif self.getCondition().getParent(_ast) is not None:
-                return self.getCondition().getParent(_ast)
-            if self.getIfTrue() is _ast:
+            elif self.get_condition().get_parent(ast) is not None:
+                return self.get_condition().get_parent(ast)
+            if self.get_if_true() is ast:
                 return self
-            elif self.getIfTrue().getParent(_ast) is not None:
-                return self.getIfTrue().getParent(_ast)
-            if self.getIfNot() is _ast:
+            elif self.get_if_true().get_parent(ast) is not None:
+                return self.get_if_true().get_parent(ast)
+            if self.get_if_not() is ast:
                 return self
-            elif self.getIfNot().getParent(_ast) is not None:
-                return self.getIfNot().getParent(_ast)
+            elif self.get_if_not().get_parent(ast) is not None:
+                return self.get_if_not().get_parent(ast)
         return None
 
     def __str__(self):
         """
-        Returns the string representation of the expression.
-        :return: the expression as a string.
+        Returns the string representation of the rhs.
+        :return: the rhs as a string.
         :rtype: str
         """
         ret = ''
-        if self.isExpression():
-            if self.isEncapsulated():
+        if self.is_expression():
+            if self.is_encapsulated:
                 ret += '('
             if self.isLogicalNot():
                 ret += 'not '
-            if self.isUnaryOperator():
-                ret += str(self.getUnaryOperator())
-            ret += str(self.getExpression())
-            if self.isEncapsulated():
+            if self.is_unary_operator():
+                ret += str(self.get_unary_operator())
+            ret += str(self.get_expression())
+            if self.is_encapsulated:
                 ret += ')'
-        elif self.isCompoundExpression():
-            ret += str(self.getLhs())
-            ret += str(self.getBinaryOperator())
-            ret += str(self.getRhs())
-        elif self.isTernaryOperator():
-            ret += str(self.getCondition()) + '?' + str(self.getIfTrue()) + ':' + str(self.getIfNot())
+        elif self.is_compound_expression():
+            ret += str(self.get_lhs())
+            ret += str(self.get_binary_operator())
+            ret += str(self.get_rhs())
+        elif self.is_ternary_operator():
+            ret += str(self.get_condition()) + '?' + str(self.get_if_true()) + ':' + str(self.get_if_not())
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTExpression):
+        if not isinstance(other, ASTExpression):
             return False
         # we have to ensure that both either are encapsulated or not
-        if self.isEncapsulated() + _other.isEncapsulated() == 1:
+        if self.is_encapsulated + other.is_encapsulated == 1:
             return False
-        if self.isLogicalNot() + _other.isLogicalNot() == 1:
+        if self.isLogicalNot() + other.isLogicalNot() == 1:
             return False
-        if self.isUnaryOperator() + _other.isUnaryOperator() == 1:
+        if self.is_unary_operator() + other.is_unary_operator() == 1:
             return False
-        if self.isUnaryOperator() and _other.isUnaryOperator() and \
-                not self.getUnaryOperator().equals(_other.getUnaryOperator()):
+        if self.is_unary_operator() and other.is_unary_operator() and \
+                not self.get_unary_operator().equals(other.get_unary_operator()):
             return False
-        if self.isExpression() + _other.isExpression() == 1:
+        if self.is_expression() + other.is_expression() == 1:
             return False
-        if self.isExpression() and _other.isExpression() and not self.getExpression().equals(_other.getExpression()):
+        if self.is_expression() and other.is_expression() and not self.get_expression().equals(other.get_expression()):
             return False
-        if self.isCompoundExpression() + _other.isCompoundExpression() == 1:
+        if self.is_compound_expression() + other.is_compound_expression() == 1:
             return False
-        if self.isCompoundExpression() and _other.isCompoundExpression() and \
-                not (self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs()) and
-                     self.getBinaryOperator().equals(_other.getBinaryOperator())):
+        if self.is_compound_expression() and other.is_compound_expression() and \
+                not (self.get_lhs().equals(other.get_lhs()) and self.get_rhs().equals(other.get_rhs()) and
+                     self.get_binary_operator().equals(other.get_binary_operator())):
             return False
-        if self.isTernaryOperator() + _other.isTernaryOperator() == 1:
+        if self.is_ternary_operator() + other.is_ternary_operator() == 1:
             return False
-        if self.isTernaryOperator() and _other.isTernaryOperator() and \
-                not (self.getCondition().equals(_other.getCondition()) and
-                     self.getIfTrue().equals(_other.getIfTrue()) and self.getIfNot().equals(_other.getIfNot())):
+        if self.is_ternary_operator() and other.is_ternary_operator() and \
+                not (self.get_condition().equals(other.get_condition()) and
+                     self.get_if_true().equals(other.get_if_true()) and self.get_if_not().equals(other.get_if_not())):
             return False
         return True

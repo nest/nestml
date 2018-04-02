@@ -21,7 +21,6 @@
 
 from pynestml.modelprocessor import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
@@ -44,7 +43,7 @@ from pynestml.modelprocessor.ASTVariableVisitor import ASTVariableVisitor
 
 class ASTExpressionTypeVisitor(ASTVisitor):
     """
-    This is the main visitor as used to derive the type of an expression. By using different sub-visitors and
+    This is the main visitor as used to derive the type of an rhs. By using different sub-visitors and
     real-self it is possible to adapt to different types of sub-expressions.
     """
 
@@ -74,116 +73,116 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         assert (_node is not None), \
             '(PyNestML.Visitor.ExpressionTypeVisitor) No ast node provided (%s)!' % type(_node)
         self.traverse(_node)
-        self.getRealSelf().visit(_node)
-        self.getRealSelf().endvisit(_node)
+        self.get_real_self().visit(_node)
+        self.get_real_self().endvisit(_node)
         return
 
-    def traverseSimpleExpression(self, _node):
+    def traverse_simple_expression(self, node):
         """
-        Traverses a simple expression and invokes required subroutines.
-        :param _node: a single node.
-        :type _node: ASTSimpleExpression
+        Traverses a simple rhs and invokes required subroutines.
+        :param node: a single node.
+        :type node: ASTSimpleExpression
         """
-        assert (_node is not None and isinstance(_node, ASTSimpleExpression)), \
-            '(PyNestML.ExpressionTypeVisitor) No or wrong type of simple-expression provided (%s)!' % type(_node)
+        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+            '(PyNestML.ExpressionTypeVisitor) No or wrong type of simple-rhs provided (%s)!' % type(node)
         # handle all simpleExpressions
-        if isinstance(_node, ASTSimpleExpression):
+        if isinstance(node, ASTSimpleExpression):
             # simpleExpression = functionCall
-            if _node.getFunctionCall() is not None:
-                self.setRealSelf(self.__functionCallVisitor)
+            if node.get_function_call() is not None:
+                self.set_real_self(self.__functionCallVisitor)
                 return
             # simpleExpression =  (INTEGER|FLOAT) (variable)?
-            if _node.getNumericLiteral() is not None or \
-                    (_node.getNumericLiteral() is not None and _node.getVariable() is not None):
-                self.setRealSelf(self.__numericLiteralVisitor)
+            if node.get_numeric_literal() is not None or \
+                    (node.get_numeric_literal() is not None and node.get_variable() is not None):
+                self.set_real_self(self.__numericLiteralVisitor)
                 return
             # simpleExpression =  variable
-            if _node.getVariable() is not None:
-                self.setRealSelf(self.__variableVisitor)
+            if node.get_variable() is not None:
+                self.set_real_self(self.__variableVisitor)
                 return
             # simpleExpression = BOOLEAN_LITERAL
-            if _node.isBooleanTrue() or _node.isBooleanFalse():
-                self.setRealSelf(self.__booleanLiteralVisitor)
+            if node.is_boolean_true() or node.is_boolean_false():
+                self.set_real_self(self.__booleanLiteralVisitor)
                 return
             # simpleExpression = isInf='inf'
-            if _node.isInfLiteral():
-                self.setRealSelf(self.__infVisitor)
+            if node.is_inf_literal():
+                self.set_real_self(self.__infVisitor)
                 return
             # simpleExpression = string=STRING_LITERAL
-            if _node.isString():
-                self.setRealSelf(self.__stringLiteralVisitor)
+            if node.is_string():
+                self.set_real_self(self.__stringLiteralVisitor)
                 return
 
         return
 
-    def traverseExpression(self, _node):
+    def traverse_expression(self, node):
         """
-        Traverses an expression and executes the required sub-routines.
-        :param _node: a single ast node
-        :type _node: ASTExpression
+        Traverses an rhs and executes the required sub-routines.
+        :param node: a single ast node
+        :type node: ASTExpression
         """
-        assert (_node is not None and isinstance(_node, ASTExpression)), \
-            '(PyNestML.ExpressionTypeVisitor) No or wrong type of expression provided (%s)!' % type(_node)
-        # Expr = unaryOperator term=expression
-        if _node.getExpression() is not None and _node.getUnaryOperator() is not None:
-            _node.getExpression().accept(self)
-            self.setRealSelf(self.__unaryVisitor)
+        assert (node is not None and isinstance(node, ASTExpression)), \
+            '(PyNestML.ExpressionTypeVisitor) No or wrong type of rhs provided (%s)!' % type(node)
+        # Expr = unaryOperator term=rhs
+        if node.get_expression() is not None and node.get_unary_operator() is not None:
+            node.get_expression().accept(self)
+            self.set_real_self(self.__unaryVisitor)
             return
 
         # Parentheses and logicalNot
-        if _node.getExpression() is not None:
-            _node.getExpression().accept(self)
-            # Expr = leftParentheses='(' term=expression rightParentheses=')'
-            if _node.isEncapsulated():
-                self.setRealSelf(self.__parenthesesVisitor)
+        if node.get_expression() is not None:
+            node.get_expression().accept(self)
+            # Expr = leftParentheses='(' term=rhs rightParentheses=')'
+            if node.is_encapsulated:
+                self.set_real_self(self.__parenthesesVisitor)
                 return
-            # Expr = logicalNot='not' term=expression
-            if _node.isLogicalNot():
-                self.setRealSelf(self.__logicalNotVisitor)
+            # Expr = logicalNot='not' term=rhs
+            if node.isLogicalNot():
+                self.set_real_self(self.__logicalNotVisitor)
                 return
 
         # Rules with binary operators
-        if _node.getBinaryOperator() is not None:
-            bin_op = _node.getBinaryOperator()
+        if node.get_binary_operator() is not None:
+            bin_op = node.get_binary_operator()
             # All these rules employ left and right side expressions.
-            if _node.getLhs() is not None:
-                _node.getLhs().accept(self)
-            if _node.getRhs() is not None:
-                _node.getRhs().accept(self)
+            if node.get_lhs() is not None:
+                node.get_lhs().accept(self)
+            if node.get_rhs() is not None:
+                node.get_rhs().accept(self)
             # Handle all Arithmetic Operators:
             if isinstance(bin_op, ASTArithmeticOperator.ASTArithmeticOperator):
-                # Expr = <assoc=right> left=expression powOp='**' right=expression
-                if bin_op.isPowOp():
-                    self.setRealSelf(self.__powVisitor)
+                # Expr = <assoc=right> left=rhs powOp='**' right=rhs
+                if bin_op.is_pow_op:
+                    self.set_real_self(self.__powVisitor)
                     return
-                # Expr = left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
+                # Expr = left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
                 if bin_op.is_times_op or bin_op.is_div_op or bin_op.is_modulo_op:
-                    self.setRealSelf(self.__dotOperatorVisitor)
+                    self.set_real_self(self.__dotOperatorVisitor)
                     return
-                # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
-                if bin_op.isPlusOp() or bin_op.isMinusOp():
-                    self.setRealSelf(self.__lineOperatorVisitor)
+                # Expr = left=rhs (plusOp='+'  | minusOp='-') right=rhs
+                if bin_op.is_plus_op or bin_op.is_minus_op:
+                    self.set_real_self(self.__lineOperatorVisitor)
                     return
             # handle all bitOperators:
             if isinstance(bin_op, ASTBitOperator.ASTBitOperator):
-                # Expr = left=expression bitOperator right=expression
-                self.setRealSelf(self.__noSemantics)  # TODO: implement something -> future work with more operators
+                # Expr = left=rhs bitOperator right=rhs
+                self.set_real_self(self.__noSemantics)  # TODO: implement something -> future work with more operators
                 return
             # handle all comparison Operators:
             if isinstance(bin_op, ASTComparisonOperator.ASTComparisonOperator):
-                # Expr = left=expression comparisonOperator right=expression
-                self.setRealSelf(self.__comparisonOperatorVisitor)
+                # Expr = left=rhs comparisonOperator right=rhs
+                self.set_real_self(self.__comparisonOperatorVisitor)
                 return
             # handle all logical Operators
             if isinstance(bin_op, ASTLogicalOperator.ASTLogicalOperator):
-                # Expr = left=expression logicalOperator right=expression
-                self.setRealSelf(self.__binaryLogicVisitor)
+                # Expr = left=rhs logicalOperator right=rhs
+                self.set_real_self(self.__binaryLogicVisitor)
                 return
 
-        # Expr = condition=expression '?' ifTrue=expression ':' ifNot=expression
-        if _node.getCondition() is not None and _node.getIfTrue() is not None and _node.getIfNot() is not None:
-            _node.getCondition().accept(self)
-            _node.getIfTrue().accept(self)
-            _node.getIfNot().accept(self)
-            self.setRealSelf(self.__conditionVisitor)
+        # Expr = condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
+        if node.get_condition() is not None and node.get_if_true() is not None and node.get_if_not() is not None:
+            node.get_condition().accept(self)
+            node.get_if_true().accept(self)
+            node.get_if_not().accept(self)
+            self.set_real_self(self.__conditionVisitor)
             return

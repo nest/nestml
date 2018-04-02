@@ -81,11 +81,11 @@ class ASTUnaryOperator(ASTNode):
         """
         return self.__isUnaryTilde
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
@@ -106,15 +106,15 @@ class ASTUnaryOperator(ASTNode):
         else:
             raise RuntimeError('Type of unary operator not specified!')
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTUnaryOperator):
+        if not isinstance(other, ASTUnaryOperator):
             return False
-        return self.isUnaryMinus() == _other.isUnaryMinus() and self.isUnaryPlus() == _other.isUnaryPlus() and \
-               self.isUnaryTilde() == _other.isUnaryTilde()
+        return self.isUnaryMinus() == other.isUnaryMinus() and self.isUnaryPlus() == other.isUnaryPlus() and \
+               self.isUnaryTilde() == other.isUnaryTilde()

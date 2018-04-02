@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-expression : leftParentheses='(' term=expression rightParentheses=')'
+rhs : leftParentheses='(' term=rhs rightParentheses=')'
 """
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.ASTExpression import ASTExpression
@@ -27,16 +27,16 @@ from pynestml.modelprocessor.ASTExpression import ASTExpression
 
 class ASTParenthesesVisitor(ASTVisitor):
     """
-    Visits a single expression encapsulated in brackets and updates its type.
+    Visits a single rhs encapsulated in brackets and updates its type.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, node=None):
         """
-        Visits a single expression encapsulated in parenthesis and updates its type.
-        :param _expr: a single expression
-        :type _expr: ASTExpression
+        Visits a single rhs encapsulated in parenthesis and updates its type.
+        :param node: a single rhs
+        :type node: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ASTParenthesesVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(_expr.getExpression().getTypeEither())
+        assert (node is not None and isinstance(node, ASTExpression)), \
+            '(PyNestML.Visitor.ASTParenthesesVisitor) No or wrong type of rhs provided (%s)!' % type(node)
+        node.set_type_either(node.get_expression().get_type_either())
         return

@@ -55,10 +55,10 @@ class CurrentTypeSpecifiedVisitor(ASTVisitor):
     This visitor ensures that all current buffers are not specified with keywords.
     """
 
-    def visitInputLine(self, _line=None):
-        if _line.isCurrent() and _line.hasInputTypes() and len(_line.getInputTypes()) > 0:
-            code, message = Messages.getCurrentBufferSpecified(_line.getName(),
-                                                               list((str(buf) for buf in _line.getInputTypes())))
-            Logger.logMessage(_errorPosition=_line.get_source_position(),
+    def visit_input_line(self, node=None):
+        if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
+            code, message = Messages.getCurrentBufferSpecified(node.get_name(),
+                                                               list((str(buf) for buf in node.get_input_types())))
+            Logger.logMessage(_errorPosition=node.get_source_position(),
                               _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

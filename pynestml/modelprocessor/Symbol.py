@@ -25,119 +25,105 @@ class Symbol(object):
     """
     This abstract class represents a super-class for all concrete symbols as stored in a symbol table.
     Attributes:
-        __elementReference (AST_): A reference to an AST node which defined this symbol. This has to be in the
+        element_reference (AST_): A reference to an AST node which defined this symbol. This has to be in the
                                     super-class, since variables as well as functions can be user defined.
-        __scope (Scope): The scope in which this element is stored in.
-        __name (str): The name of this element, e.g., V_m.
-        __symbolKind (SymbolKind): The type of this symbol, i.e., either variable, function or type.
-        __comment (str): A text associated with this symbol, possibly originates from the source model.
+        scope : The scope in which this element is stored in.
+        name (str): The name of this element, e.g., V_m.
+        symbol_kind (SymbolKind): The type of this symbol, i.e., either variable, function or type.
+        comment (str): A text associated with this symbol, possibly originates from the source model.
     """
     __metaclass__ = ABCMeta
-    __elementReference = None
-    __scope = None
-    __name = None
-    __symbolKind = None
-    __comment = None
+    element_reference = None
+    scope = None
+    name = None
+    symbol_kind = None
+    comment = None
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None, _symbolKind=None):
+    def __init__(self, element_reference, scope, name, symbol_kind):
         """
         Standard constructor of the Symbol class.
-        :param _elementReference: an ast object.
-        :type _elementReference: ASTObject
-        :param _scope: the scope in which this element is embedded in.
-        :type _scope: Scope
-        :param _name: the name of the corresponding element
-        :type _name: str
-        :type _symbolKind:
+        :param element_reference: an ast object.
+        :type element_reference: ASTObject
+        :param scope: the scope in which this element is embedded in.
+        :type scope: Scope
+        :param name: the name of the corresponding element
+        :type name: str
+        :type symbol_kind:
         """
-        from pynestml.modelprocessor.Scope import Scope
-        assert (_scope is None or isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Symbol) Wrong type of scope provided (%s)!' % type(_scope)
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of name provided (%s)!' % type(_name)
-        assert (_symbolKind is not None and isinstance(_symbolKind, SymbolKind)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided (%s)!' % type(_symbolKind)
-        self.__elementReference = _elementReference
-        self.__scope = _scope
-        self.__name = _name
-        self.__symbolKind = _symbolKind
-        return
+        self.element_reference = element_reference
+        self.scope = scope
+        self.name = name
+        self.symbol_kind = symbol_kind
 
-    def getReferencedObject(self):
+    def get_referenced_object(self):
         """
         Returns the referenced object.
         :return: the referenced object.
         :rtype: ASTObject
         """
-        return self.__elementReference
+        return self.element_reference
 
-    def getCorrespondingScope(self):
+    def get_corresponding_scope(self):
         """
         Returns the scope in which this symbol is embedded in.
         :return: a scope object.
         :rtype: Scope
         """
-        return self.__scope
+        return self.scope
 
-    def getSymbolName(self):
+    def get_symbol_name(self):
         """
         Returns the name of this symbol.
         :return: the name of the symbol.
         :rtype: str
         """
-        return self.__name
+        return self.name
 
-    def getSymbolKind(self):
+    def get_symbol_kind(self):
         """
         Returns the type of this symbol.
         :return: the type of this symbol.
         :rtype: SymbolKind
         """
-        return self.__symbolKind
+        return self.symbol_kind
 
-    def isDefinedBefore(self, _sourcePosition=None):
+    def is_defined_before(self, source_position):
         """
         For a handed over source position, this method checks if this symbol has been defined before the handed
         over position.
-        :param _sourcePosition: the position of a different element.
-        :type _sourcePosition: ASTSourcePosition
+        :param source_position: the position of a different element.
+        :type source_position: ASTSourcePosition
         :return: True, if defined before or at the sourcePosition, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-        assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided (%s)!' % type(_sourcePosition)
-        return self.getReferencedObject().get_source_position().before(_sourcePosition)
+        return self.get_referenced_object().get_source_position().before(source_position)
 
-    def hasComment(self):
+    def has_comment(self):
         """
         Indicates whether this symbols is commented.
         :return: True if comment is stored, otherwise False.
         :rtype: bool
         """
-        return self.__comment is not None
+        return self.get_comment() is not None and len(self.get_comment())
 
-    def getComment(self):
+    def get_comment(self):
         """
         Returns the comment of this symbol.
         :return: the comment.
         :rtype: list(str)
         """
-        return self.__comment
+        return self.comment
 
-    def setComment(self, _comment=None):
+    def set_comment(self, comment):
         """
         Updates the comment of this element.
-        :param _comment: a list comment lines.
-        :type _comment: list(str)
+        :param comment: a list comment lines.
+        :type comment: list(str)
         """
-        assert (_comment is None or isinstance(_comment, list)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of comment list provided (%s)!' % type(_comment)
-        self.__comment = _comment
-        return
+        self.comment = comment
 
     @abstractmethod
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         """

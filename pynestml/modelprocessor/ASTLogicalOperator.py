@@ -66,11 +66,11 @@ class ASTLogicalOperator(ASTNode):
         """
         return self.__isLogicalOr
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
@@ -87,14 +87,14 @@ class ASTLogicalOperator(ASTNode):
         else:
             return ' or '
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTLogicalOperator):
+        if not isinstance(other, ASTLogicalOperator):
             return False
-        return self.isAnd() == _other.isAnd() and self.isOr() == _other.isOr()
+        return self.isAnd() == other.isAnd() and self.isOr() == other.isOr()

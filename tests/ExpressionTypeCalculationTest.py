@@ -42,39 +42,39 @@ PredefinedFunctions.registerPredefinedFunctions()
 
 
 class expressionTestVisitor(ASTVisitor):
-    def endvisitAssignment(self, _assignment=None):
-        scope = _assignment.get_scope()
-        var_name = _assignment.getVariable().getName()
+    def endvisit_assignment(self, node=None):
+        scope = node.get_scope()
+        var_name = node.lhs.get_name()
 
-        _expr = _assignment.getExpression()
+        _expr = node.get_expression()
 
         var_symbol = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
+        _equals = var_symbol.get_type_symbol().equals(_expr.get_type_either().getValue())
 
         message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
-                  var_symbol.getTypeSymbol().getSymbolName() + \
-                  ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
+                  var_symbol.get_type_symbol().get_symbol_name() + \
+                  ' RHS = ' + _expr.get_type_either().getValue().get_symbol_name() + \
                   ' Equal ? ' + str(_equals)
 
-        if _expr.getTypeEither().getValue().isUnit():
+        if _expr.get_type_either().getValue().is_unit():
             message += (" Neuroscience Factor: " +
-                        str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit())))
+                        str(UnitConverter().getFactor(_expr.get_type_either().getValue().get_unit().get_unit())))
 
-        Logger.logMessage(_errorPosition=_assignment.get_source_position(), _code=MessageCode.TYPE_MISMATCH,
+        Logger.logMessage(_errorPosition=node.get_source_position(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
 
         if _equals is False:
             Logger.logMessage(_message="Type mismatch in test!",
                               _code=MessageCode.TYPE_MISMATCH,
-                              _errorPosition=_assignment.get_source_position(),
+                              _errorPosition=node.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
 
 class ExpressionTypeCalculationTest(unittest.TestCase):
     """
-    A simple test that prints all top-level expression types in a file.
+    A simple test that prints all top-level rhs types in a file.
     """
 
     def test(self):

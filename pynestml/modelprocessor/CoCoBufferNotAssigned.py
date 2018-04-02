@@ -50,12 +50,12 @@ class CoCoBufferNotAssigned(CoCo):
 
 
 class NoBufferAssignedVisitor(ASTVisitor):
-    def visitAssignment(self, _assignment=None):
-        symbol = _assignment.get_scope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
-        if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
-                                           symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
-            code, message = Messages.getValueAssignedToBuffer(_assignment.getVariable().getCompleteName())
+    def visit_assignment(self, node=None):
+        symbol = node.get_scope().resolveToSymbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+        if symbol is not None and (symbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE or
+                                   symbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT):
+            code, message = Messages.getValueAssignedToBuffer(node.get_variable().get_complete_name())
             Logger.logMessage(_code=code, _message=message,
-                              _errorPosition=_assignment.get_source_position(),
+                              _errorPosition=node.get_source_position(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

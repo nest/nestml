@@ -35,7 +35,7 @@ class ASTDeclaration(ASTNode):
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
     @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptors]'
-    @attribute expr An optional initial expression, e.g. 'a real = 10+10'
+    @attribute expr An optional initial rhs, e.g. 'a real = 10+10'
     @attribute invariants List with optional invariants.
     Grammar:
         declaration :
@@ -43,8 +43,8 @@ class ASTDeclaration(ASTNode):
             variable (',' variable)*
             datatype
             ('[' sizeParameter=NAME ']')?
-            ( '=' expression)?
-            ('[[' invariant=expression ']]')?;
+            ( '=' rhs)?
+            ('[[' invariant=rhs ']]')?;
     """
     __isRecordable = False
     __isFunction = False
@@ -54,61 +54,38 @@ class ASTDeclaration(ASTNode):
     __expression = None
     __invariant = None
 
-    def __init__(self, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None, _sizeParameter=None,
-                 _expression=None, _invariant=None, source_position=None):
+    def __init__(self, is_recordable=False, is_function=False, _variables=list(), data_type=None, size_parameter=None,
+                 expression=None, invariant=None, source_position=None):
         """
         Standard constructor.
-        :param _isRecordable: is a recordable declaration.
-        :type _isRecordable: bool
-        :param _isFunction: is a function declaration.
-        :type _isFunction: bool
+        :param is_recordable: is a recordable declaration.
+        :type is_recordable: bool
+        :param is_function: is a function declaration.
+        :type is_function: bool
         :param _variables: a list of variables.
         :type _variables: list(ASTVariable)
-        :param _dataType: the data type.
-        :type _dataType: ASTDataType
-        :param _sizeParameter: an optional size parameter.
-        :type _sizeParameter: str
-        :param _expression: an optional right-hand side expression.
-        :type _expression: ASTExpression
-        :param _invariant: a optional invariant.
-        :type _invariant: ASTExpression.
+        :param data_type: the data type.
+        :type data_type: ASTDataType
+        :param size_parameter: an optional size parameter.
+        :type size_parameter: str
+        :param expression: an optional right-hand side rhs.
+        :type expression: ASTExpression
+        :param invariant: a optional invariant.
+        :type invariant: ASTExpression.
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type source_position: ASTSourcePosition.
         """
-        assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
-            '(PyNestML.AST.Declaration) No or wrong type of is-recordable specification provided (%s)!' \
-            % type(_isRecordable)
-        assert (_isFunction is not None and isinstance(_isFunction, bool)), \
-            '(PyNestML.AST.Declaration) No or wrong type of is-function specification provided (%s)!' \
-            % type(_isFunction)
-        assert (_variables is not None and isinstance(_variables, list)), \
-            '(PyNestML.AST.Declaration) No or wrong type of variable-list provided (%s)!' \
-            % type(_variables)
-        assert (_dataType is not None and isinstance(_dataType, ASTDataType)), \
-            '(PyNestML.AST.Declaration) No or wrong type of data-type provided (%s)!' \
-            % type(_dataType)
-        assert (_sizeParameter is None or isinstance(_sizeParameter, str)), \
-            '(PyNestML.AST.Declaration) No or wrong type of index provided (%s)!' \
-            % type(_sizeParameter)
-        assert (_expression is None or (isinstance(_expression, ASTExpression)
-                                        or isinstance(_expression, ASTSimpleExpression))), \
-            '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
-            % type(_expression)
-        assert (_invariant is None or isinstance(_invariant, ASTExpression)
-                or isinstance(_expression, ASTSimpleExpression)), \
-            '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
-            % type(_expression)
         super(ASTDeclaration, self).__init__(source_position)
-        self.__isRecordable = _isRecordable
-        self.__isFunction = _isFunction
+        self.__isRecordable = is_recordable
+        self.__isFunction = is_function
         self.__variables = _variables
-        self.__dataType = _dataType
-        self.__sizeParameter = _sizeParameter
-        self.__expression = _expression
-        self.__invariant = _invariant
+        self.__dataType = data_type
+        self.__sizeParameter = size_parameter
+        self.__expression = expression
+        self.__invariant = invariant
         return
 
-    def isRecordable(self):
+    def is_recordable(self):
         """
         Returns whether the declaration is recordable or not.
         :return: True if recordable, else False.
@@ -116,7 +93,7 @@ class ASTDeclaration(ASTNode):
         """
         return isinstance(self.__isRecordable, bool) and self.__isRecordable
 
-    def isFunction(self):
+    def is_function(self):
         """
         Returns whether the declaration is a function or not.
         :return: True if function, else False.
@@ -124,7 +101,7 @@ class ASTDeclaration(ASTNode):
         """
         return isinstance(self.__isFunction, bool) and self.__isFunction
 
-    def getVariables(self):
+    def get_variables(self):
         """
         Returns the set of left-hand side variables.
         :return: a list of variables.
@@ -132,7 +109,7 @@ class ASTDeclaration(ASTNode):
         """
         return self.__variables
 
-    def getDataType(self):
+    def get_data_type(self):
         """
         Returns the data type.
         :return: a data type object.
@@ -140,7 +117,7 @@ class ASTDeclaration(ASTNode):
         """
         return self.__dataType
 
-    def hasSizeParameter(self):
+    def has_size_parameter(self):
         """
         Returns whether the declaration has a size parameter or not.
         :return: True if has size parameter, else False.
@@ -148,7 +125,7 @@ class ASTDeclaration(ASTNode):
         """
         return self.__sizeParameter is not None
 
-    def getSizeParameter(self):
+    def get_size_parameter(self):
         """
         Returns the size parameter.
         :return: the size parameter.
@@ -156,7 +133,7 @@ class ASTDeclaration(ASTNode):
         """
         return self.__sizeParameter
 
-    def setSizeParameter(self, _parameter):
+    def set_size_parameter(self, _parameter):
         """
         Updates the current size parameter to a new value.
         :param _parameter: the size parameter
@@ -167,23 +144,23 @@ class ASTDeclaration(ASTNode):
         self.__sizeParameter = _parameter
         return
 
-    def hasExpression(self):
+    def has_expression(self):
         """
-        Returns whether the declaration has a right-hand side expression or not.
-        :return: True if right-hand side expression declared, else False.
+        Returns whether the declaration has a right-hand side rhs or not.
+        :return: True if right-hand side rhs declared, else False.
         :rtype: bool
         """
         return self.__expression is not None
 
-    def getExpression(self):
+    def get_expression(self):
         """
-        Returns the right-hand side expression.
-        :return: the right-hand side expression.
+        Returns the right-hand side rhs.
+        :return: the right-hand side rhs.
         :rtype: ASTExpression
         """
         return self.__expression
 
-    def hasInvariant(self):
+    def has_invariant(self):
         """
         Returns whether the declaration has a invariant or not.
         :return: True if has invariant, otherwise False.
@@ -191,7 +168,7 @@ class ASTDeclaration(ASTNode):
         """
         return self.__invariant is not None
 
-    def getInvariant(self):
+    def get_invariant(self):
         """
         Returns the invariant.
         :return: the invariant
@@ -199,33 +176,33 @@ class ASTDeclaration(ASTNode):
         """
         return self.__invariant
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        for var in self.getVariables():
-            if var is _ast:
+        for var in self.get_variables():
+            if var is ast:
                 return self
-            elif var.getParent(_ast) is not None:
-                return var.getParent(_ast)
-        if self.getDataType() is _ast:
+            elif var.get_parent(ast) is not None:
+                return var.get_parent(ast)
+        if self.get_data_type() is ast:
             return self
-        elif self.getDataType().getParent(_ast) is not None:
-            return self.getDataType().getParent(_ast)
-        if self.hasExpression():
-            if self.getExpression() is _ast:
+        elif self.get_data_type().get_parent(ast) is not None:
+            return self.get_data_type().get_parent(ast)
+        if self.has_expression():
+            if self.get_expression() is ast:
                 return self
-            elif self.getExpression().getParent(_ast) is not None:
-                return self.getExpression().getParent(_ast)
-        if self.hasInvariant():
-            if self.getInvariant() is _ast:
+            elif self.get_expression().get_parent(ast) is not None:
+                return self.get_expression().get_parent(ast)
+        if self.has_invariant():
+            if self.get_invariant() is ast:
                 return self
-            elif self.getInvariant().getParent(_ast) is not None:
-                return self.getInvariant().getParent(_ast)
+            elif self.get_invariant().get_parent(ast) is not None:
+                return self.get_invariant().get_parent(ast)
         return None
 
     def __str__(self):
@@ -235,47 +212,47 @@ class ASTDeclaration(ASTNode):
         :rtype: str
         """
         ret = ''
-        if self.isRecordable():
+        if self.is_recordable():
             ret += 'recordable '
-        if self.isFunction():
+        if self.is_function():
             ret += 'function '
-        for var in self.getVariables():
+        for var in self.get_variables():
             ret += str(var)
-            if self.getVariables().index(var) < len(self.getVariables()) - 1:
+            if self.get_variables().index(var) < len(self.get_variables()) - 1:
                 ret += ','
-        ret += ' ' + str(self.getDataType()) + ' '
-        if self.hasSizeParameter():
-            ret += '[' + self.getSizeParameter() + ']'
-        if self.hasExpression():
-            ret += ' = ' + str(self.getExpression()) + ' '
-        if self.hasInvariant():
-            ret += ' [[' + str(self.getInvariant()) + ']]'
+        ret += ' ' + str(self.get_data_type()) + ' '
+        if self.has_size_parameter():
+            ret += '[' + self.get_size_parameter() + ']'
+        if self.has_expression():
+            ret += ' = ' + str(self.get_expression()) + ' '
+        if self.has_invariant():
+            ret += ' [[' + str(self.get_invariant()) + ']]'
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTDeclaration):
+        if not isinstance(other, ASTDeclaration):
             return False
-        if not (self.isFunction() == _other.isFunction() and self.isRecordable() == _other.isRecordable()):
+        if not (self.is_function() == other.is_function() and self.is_recordable() == other.is_recordable()):
             return False
-        if self.getSizeParameter() != _other.getSizeParameter():
+        if self.get_size_parameter() != other.get_size_parameter():
             return False
-        if len(self.getVariables()) != len(_other.getVariables()):
+        if len(self.get_variables()) != len(other.get_variables()):
             return False
-        myVars = self.getVariables()
-        yourVars = _other.getVariables()
-        for i in range(0, len(myVars)):
+        my_vars = self.get_variables()
+        your_vars = other.get_variables()
+        for i in range(0, len(my_vars)):
             # caution, here the order is also checked
-            if not myVars[i].equals(yourVars[i]):
+            if not my_vars[i].equals(your_vars[i]):
                 return False
-        if self.hasInvariant() + _other.hasInvariant() == 1:
+        if self.has_invariant() + other.has_invariant() == 1:
             return False
-        if self.hasInvariant() and _other.hasInvariant() and not self.getInvariant().equals(_other.getInvariant()):
+        if self.has_invariant() and other.has_invariant() and not self.get_invariant().equals(other.get_invariant()):
             return False
-        return self.getDataType().equals(_other.getDataType()) and self.getExpression().equals(_other.getExpression())
+        return self.get_data_type().equals(other.get_data_type()) and self.get_expression().equals(other.get_expression())

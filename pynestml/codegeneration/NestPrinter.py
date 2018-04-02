@@ -52,14 +52,14 @@ class NestPrinter(object):
     def printExpression(self, _ast=None):
         """
         Pretty
-        Prints the handed over expression to a nest readable format.
+        Prints the handed over rhs to a nest readable format.
         :param _ast: a single ast node.
         :type _ast: ASTExpression or ASTSimpleExpression
         :return: the corresponding string representation
         :rtype: str
         """
         assert (_ast is not None and (isinstance(_ast, ASTSimpleExpression) or isinstance(_ast, ASTExpression))), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of expression provided (%s)!' % type(_ast)
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of rhs provided (%s)!' % type(_ast)
         return self.__expressionPrettyPrinter.printExpression(_ast)
 
     def printMethodCall(self, _ast=None):
@@ -84,7 +84,7 @@ class NestPrinter(object):
         """
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
-        step = _forStmt.getStep()
+        step = _forStmt.get_step()
         if step < 0:
             return '>'
         elif step > 0:
@@ -102,7 +102,7 @@ class NestPrinter(object):
         """
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
-        return _forStmt.getStep()
+        return _forStmt.get_step()
 
     @classmethod
     def printOrigin(cls, _variableSymbol=None):
@@ -116,19 +116,19 @@ class NestPrinter(object):
         assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 _variableSymbol)
-        if _variableSymbol.getBlockType() == BlockType.STATE:
+        if _variableSymbol.get_block_type() == BlockType.STATE:
             return 'S_.'
-        elif _variableSymbol.getBlockType() == BlockType.INITIAL_VALUES:
+        elif _variableSymbol.get_block_type() == BlockType.INITIAL_VALUES:
             return 'S_.'
-        elif _variableSymbol.getBlockType() == BlockType.EQUATION:
+        elif _variableSymbol.get_block_type() == BlockType.EQUATION:
             return 'S_.'
-        elif _variableSymbol.getBlockType() == BlockType.PARAMETERS:
+        elif _variableSymbol.get_block_type() == BlockType.PARAMETERS:
             return 'P_.'
-        elif _variableSymbol.getBlockType() == BlockType.INTERNALS:
+        elif _variableSymbol.get_block_type() == BlockType.INTERNALS:
             return 'V_.'
-        elif _variableSymbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT:
+        elif _variableSymbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT:
             return 'B_.'
-        elif _variableSymbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE:
+        elif _variableSymbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE:
             return 'B_.'
         else:
             return ''
@@ -143,12 +143,12 @@ class NestPrinter(object):
         """
         assert (_astBody is not None and isinstance(_astBody, ASTBody)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(_astBody)
-        outputs = _astBody.getOutputBlocks()
+        outputs = _astBody.get_output_blocks()
         if len(outputs) > 0:
             output = outputs[0]
-            if output.isSpike():
+            if output.is_spike():
                 return 'nest::SpikeEvent'
-            elif output.isCurrent():
+            elif output.is_current():
                 return 'nest::CurrentEvent'
             else:
                 Logger.logMessage('Unexpected output type. Must be current or spike.', LOGGING_LEVEL.ERROR)
@@ -164,7 +164,7 @@ class NestPrinter(object):
         :return: a buffer initialization
         :rtype: str
         """
-        return 'get_' + _variableSymbol.getSymbolName() + '().clear(); //includes resize'
+        return 'get_' + _variableSymbol.get_symbol_name() + '().clear(); //includes resize'
 
     def printFunctionDeclaration(self, _function=None):
         """
@@ -178,20 +178,20 @@ class NestPrinter(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
-        functionSymbol = _function.get_scope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
+        functionSymbol = _function.get_scope().resolveToSymbol(_function.get_name(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
-            declaration = _function.printComment('//') + '\n'
-            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
+            declaration = _function.print_comment('//') + '\n'
+            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.get_return_type()).replace('.', '::')
             declaration += ' '
-            declaration += _function.getName() + '('
-            for typeSym in functionSymbol.getParameterTypes():
+            declaration += _function.get_name() + '('
+            for typeSym in functionSymbol.get_parameter_types():
                 declaration += NESTML2NESTTypeConverter.convert(typeSym)
-                if functionSymbol.getParameterTypes().index(typeSym) < len(functionSymbol.getParameterTypes()) - 1:
+                if functionSymbol.get_parameter_types().index(typeSym) < len(functionSymbol.get_parameter_types()) - 1:
                     declaration += ', '
             declaration += ')\n'
             return declaration
         else:
-            raise RuntimeException('Cannot resolve the method ' + _function.getName())
+            raise RuntimeException('Cannot resolve the method ' + _function.get_name())
 
     def printFunctionDefinition(self, _function=None, _namespace=None):
         """
@@ -207,29 +207,29 @@ class NestPrinter(object):
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
         assert (_namespace is not None and isinstance(_namespace, str)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(_namespace)
-        functionSymbol = _function.get_scope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
+        functionSymbol = _function.get_scope().resolveToSymbol(_function.get_name(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
             # first collect all parameters
             params = list()
-            for param in _function.getParameters():
-                params.append(param.getName())
-            declaration = _function.printComment('//') + '\n'
-            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
+            for param in _function.get_parameters():
+                params.append(param.get_name())
+            declaration = _function.print_comment('//') + '\n'
+            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.get_return_type()).replace('.', '::')
             declaration += ' '
             if _namespace is not None:
                 declaration += _namespace + '::'
-            declaration += _function.getName() + '('
-            for typeSym in functionSymbol.getParameterTypes():
+            declaration += _function.get_name() + '('
+            for typeSym in functionSymbol.get_parameter_types():
                 # create the type name combination, e.g. double Tau
                 declaration += NESTML2NESTTypeConverter.convert(typeSym) + ' ' + \
-                               params[functionSymbol.getParameterTypes().index(typeSym)]
+                               params[functionSymbol.get_parameter_types().index(typeSym)]
                 # if not the last component, separate by ','
-                if functionSymbol.getParameterTypes().index(typeSym) < len(functionSymbol.getParameterTypes()) - 1:
+                if functionSymbol.get_parameter_types().index(typeSym) < len(functionSymbol.get_parameter_types()) - 1:
                     declaration += ', '
             declaration += ')\n'
             return declaration
         else:
-            raise RuntimeException('Cannot resolve the method ' + _function.getName())
+            raise RuntimeException('Cannot resolve the method ' + _function.get_name())
 
     def printBufferArrayGetter(self, _buffer=None):
         """
@@ -241,10 +241,10 @@ class NestPrinter(object):
         """
         assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
-        if _buffer.isSpikeBuffer() and _buffer.isInhibitory() and _buffer.isExcitatory():
-            return 'inline ' + NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol()) + '&' + ' get_' \
-                   + _buffer.getSymbolName() + '() {' + \
-                   '  return spike_inputs_[' + _buffer.getSymbolName().upper() + ' - 1]; }'
+        if _buffer.is_spike_buffer() and _buffer.is_inhibitory() and _buffer.is_excitatory():
+            return 'inline ' + NESTML2NESTTypeConverter.convert(_buffer.get_type_symbol()) + '&' + ' get_' \
+                   + _buffer.get_symbol_name() + '() {' + \
+                   '  return spike_inputs_[' + _buffer.get_symbol_name().upper() + ' - 1]; }'
         else:
             return self.printBufferGetter(_buffer, True)
 
@@ -263,17 +263,17 @@ class NestPrinter(object):
         assert (_isInStruct is not None and isinstance(_isInStruct, bool)), \
             '(PyNestMl.CodeGeneration.Printer) No or wrong type of is-in-struct provided (%s)!' % type(_isInStruct)
         declaration = 'inline '
-        if _buffer.hasVectorParameter():
+        if _buffer.has_vector_parameter():
             declaration += 'std::vector<'
-            declaration += NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol())
+            declaration += NESTML2NESTTypeConverter.convert(_buffer.get_type_symbol())
             declaration += '> &'
         else:
-            declaration += NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol()) + '&'
-        declaration += ' get_' + _buffer.getSymbolName() + '() {'
+            declaration += NESTML2NESTTypeConverter.convert(_buffer.get_type_symbol()) + '&'
+        declaration += ' get_' + _buffer.get_symbol_name() + '() {'
         if _isInStruct:
-            declaration += 'return ' + _buffer.getSymbolName() + ';'
+            declaration += 'return ' + _buffer.get_symbol_name() + ';'
         else:
-            declaration += 'return B_.get_' + _buffer.getSymbolName() + '();'
+            declaration += 'return B_.get_' + _buffer.get_symbol_name() + '();'
         declaration += '}'
         return declaration
 
@@ -287,7 +287,7 @@ class NestPrinter(object):
         """
         assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
-        if _buffer.hasVectorParameter():
+        if _buffer.has_vector_parameter():
             return 'std::vector<double> ' + NestNamesConverter.bufferValue(_buffer)
         else:
             return 'double ' + NestNamesConverter.bufferValue(_buffer)
@@ -302,12 +302,12 @@ class NestPrinter(object):
         """
         assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
-        if _buffer.hasVectorParameter():
-            bufferType = 'std::vector< ' + NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol()) + ' >'
+        if _buffer.has_vector_parameter():
+            bufferType = 'std::vector< ' + NESTML2NESTTypeConverter.convert(_buffer.get_type_symbol()) + ' >'
         else:
-            bufferType = NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol())
+            bufferType = NESTML2NESTTypeConverter.convert(_buffer.get_type_symbol())
         bufferType.replace(".", "::")
-        return bufferType + " " + _buffer.getSymbolName()
+        return bufferType + " " + _buffer.get_symbol_name()
 
     def printBufferDeclarationHeader(self, _buffer=None):
         """
@@ -319,7 +319,7 @@ class NestPrinter(object):
         """
         assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
-        return '//!< Buffer incoming ' + _buffer.getTypeSymbol().getSymbolName() + 's through delay, as sum'
+        return '//!< Buffer incoming ' + _buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
 
 
 class RuntimeException(Exception):

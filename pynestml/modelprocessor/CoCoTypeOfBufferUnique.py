@@ -42,7 +42,7 @@ class CoCoTypeOfBufferUnique(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
+        cls.neuronName = _neuron.get_name()
         _neuron.accept(TypeOfBufferUniqueVisitor())
         return
 
@@ -52,30 +52,30 @@ class TypeOfBufferUniqueVisitor(ASTVisitor):
     This visitor ensures that all buffers are specified uniquely by keywords.
     """
 
-    def visitInputLine(self, _line=None):
+    def visit_input_line(self, node=None):
         """
         Checks the coco on the current node.
-        :param _line: a single input line.
-        :type _line: ASTInputLine
+        :param node: a single input line.
+        :type node: ASTInputLine
         """
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        assert (_line is not None and isinstance(_line, ASTInputLine)), \
-            '(PyNestML.CoCo.TypeOfBufferUnique) No or wrong type of input line provided (%s)!' % type(_line)
-        if _line.isSpike():
-            if _line.hasInputTypes() and len(_line.getInputTypes()) > 1:
+        assert (node is not None and isinstance(node, ASTInputLine)), \
+            '(PyNestML.CoCo.TypeOfBufferUnique) No or wrong type of input line provided (%s)!' % type(node)
+        if node.is_spike():
+            if node.has_input_types() and len(node.get_input_types()) > 1:
                 inh = 0
                 ext = 0
-                for typ in _line.getInputTypes():
-                    if typ.isExcitatory():
+                for typ in node.get_input_types():
+                    if typ.is_excitatory:
                         ext += 1
-                    if typ.isInhibitory():
+                    if typ.is_inhibitory:
                         inh += 1
                 if inh > 1:
                     code, message = Messages.getMultipleKeywords('inhibitory')
-                    Logger.logMessage(_errorPosition=_line.get_source_position(), _code=code, _message=message,
+                    Logger.logMessage(_errorPosition=node.get_source_position(), _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.ERROR)
                 if ext > 1:
                     code, message = Messages.getMultipleKeywords('excitatory')
-                    Logger.logMessage(_errorPosition=_line.get_source_position(), _code=code, _message=message,
+                    Logger.logMessage(_errorPosition=node.get_source_position(), _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.ERROR)
         return

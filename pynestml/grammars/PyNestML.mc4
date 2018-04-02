@@ -135,7 +135,7 @@ grammar PyNESTML{
         @attribute declaration: A list of corresponding declarations.
       */
     BlockWithVariables =
-        (isState:"state"|isParameters:"parameters"|isInternals:"internals"|isInits:"initial_values")
+        (is_state:"state"|is_parameters:"parameters"|is_internals:"internals"|isInits:"initial_values")
         BLOCK_OPEN
           (Declaration | NEWLINE)*
         BLOCK_CLOSE;
@@ -187,28 +187,28 @@ grammar PyNESTML{
         @attribute sizeParameter: Optional parameter representing  multisynapse neuron.
         @attribute datatype: Optional data type of the buffer.
         @attribute inputType: The type of the inputchannel: e.g. inhibitory or excitatory (or both).
-        @attribute isSpike: True iff the neuron is a spike.
-        @attribute isCurrent: True iff. the neuron is a current.
+        @attribute is_spike: True iff the neuron is a spike.
+        @attribute is_current: True iff. the neuron is a current.
       */
     InputLine =
         name:NAME
         ("[" sizeParameter:NAME "]")?
         (Datatype)?
         "<-" InputType*
-        (isCurrent:"current" | isSpike:"spike");
+        (is_current:"current" | is_spike:"spike");
 
       /** ASTInputType represents the type of the inputLine e.g.: inhibitory or excitatory:
-        @attribute isInhibitory: true iff the neuron is a inhibitory.
-        @attribute isExcitatory: true iff. the neuron is a excitatory.
+        @attribute is_inhibitory: true iff the neuron is a inhibitory.
+        @attribute is_excitatory: true iff. the neuron is a excitatory.
       */
-    InputType = (isInhibitory:"inhibitory" | isExcitatory:"excitatory");
+    InputType = (is_inhibitory:"inhibitory" | is_excitatory:"excitatory");
 
       /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
             output: spike
-          @attribute isSpike: true iff the neuron has a spike output.
-          @attribute isCurrent: true iff. the neuron is a current output.
+          @attribute is_spike: true iff the neuron has a spike output.
+          @attribute is_current: true iff. the neuron is a current output.
         */
-    OutputBlock = "output" BLOCK_OPEN (isSpike:"spike" | isCurrent:"current") ;
+    OutputBlock = "output" BLOCK_OPEN (is_spike:"spike" | is_current:"current") ;
 
       /** ASTFunction A single declaration of a user-defined function definition:
           function set_V_m(v mV):
@@ -244,10 +244,10 @@ grammar PyNESTML{
     @attribute unitType a SI data type
   */
   Datatype = isInt:"integer"
-           | isReal:"real"
-           | isString:"string"
+           | is_real:"real"
+           | is_string:"string"
            | isBool:"boolean"
-           | isVoid:"void"
+           | is_void:"void"
            | unit:UnitType;
   /**
     ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a
@@ -355,8 +355,8 @@ grammar PyNESTML{
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
-    @attribute isRecordable: Is true iff. declaration is track-able.
-    @attribute isFunction: Is true iff. declaration is a function.
+    @attribute is_recordable: Is true iff. declaration is track-able.
+    @attribute is_function: Is true iff. declaration is a function.
     @attribute variable: List with variables.
     @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
     @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
@@ -364,7 +364,7 @@ grammar PyNESTML{
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
   Declaration =
-    (isRecordable:"recordable")? (isFunction:"function")?
+    (is_recordable:"recordable")? (is_function:"function")?
     Variable ("," Variable)*
     Datatype
     ("[" sizeParameter:NAME "]")?

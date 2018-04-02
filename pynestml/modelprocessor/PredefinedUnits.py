@@ -131,8 +131,8 @@ class PredefinedUnits(object):
         """
         assert (_unit is not None and isinstance(_unit, UnitType)), \
             '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of unit provided (%s)!' % type(_unit)
-        if _unit.getName() is not cls.__name2unit.keys():
-            cls.__name2unit[_unit.getName()] = _unit
+        if _unit.get_name() is not cls.__name2unit.keys():
+            cls.__name2unit[_unit.get_name()] = _unit
         return
 
     @classmethod

@@ -32,13 +32,13 @@ class StringLiteralVisitor(ASTVisitor):
     Visits a string literal and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, node=None):
         """
-        Visits a singe simple expression which consists of a string literal and updates the type.
-        :param _expr: a simple expression containing a string literal
-        :type _expr: ASTSimpleExpression
+        Visits a singe simple rhs which consists of a string literal and updates the type.
+        :param node: a simple rhs containing a string literal
+        :type node: ASTSimpleExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.StringLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
+        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.StringLiteralVisitor) No or wrong type of simple rhs provided (%s)!' % type(node)
+        node.set_type_either(Either.value(PredefinedTypes.getStringType()))
         return

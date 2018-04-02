@@ -18,10 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os
-from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
+import sys
+import os
+
+from pynestml.frontend.FrontendConfiguration import FrontendConfiguration, InvalidPathException
+
 from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
@@ -36,17 +38,13 @@ def main(args):
     try:
         FrontendConfiguration.config(args)
     except InvalidPathException:
-        print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.getPath())
+        print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return
     # The handed over parameters seem to be correct, proceed with the main routine
-    # initialize the predefined elements
-    PredefinedUnits.registerUnits()
-    PredefinedTypes.registerTypes()
-    PredefinedFunctions.registerPredefinedFunctions()
-    PredefinedVariables.registerPredefinedVariables()
+    init_predefined()
     # now proceed to parse all models
     compilation_units = list()
-    for file in FrontendConfiguration.getFiles():
+    for file in FrontendConfiguration.get_files():
         parsed_unit = ModelParser.parse_model(file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
@@ -57,29 +55,37 @@ def main(args):
     # check if across two files two neurons with same name have been defined
     CoCosManager.checkNotTwoNeuronsAcrossUnits(compilation_units)
     # now exclude those which are broken, i.e. have errors.
-    if not FrontendConfiguration.isDev():
+    if not FrontendConfiguration.is_dev():
         for neuron in neurons:
             if Logger.hasErrors(neuron):
-                code, message = Messages.getNeuronContainsErrors(neuron.getName())
+                code, message = Messages.getNeuronContainsErrors(neuron.get_name())
                 Logger.logMessage(_neuron=neuron, _code=code, _message=message,
                                   _errorPosition=neuron.get_source_position(),
                                   _logLevel=LOGGING_LEVEL.INFO)
                 neurons.remove(neuron)
 
-    if not FrontendConfiguration.isDryRun():
+    if not FrontendConfiguration.is_dry_run():
         nest_generator = NestCodeGenerator()
         nest_generator.analyseAndGenerateNeurons(neurons)
         nest_generator.generateNESTModuleCode(neurons)
     else:
         code, message = Messages.getDryRun()
         Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
-    if FrontendConfiguration.storeLog():
+    if FrontendConfiguration.store_log():
         store_log_to_file()
     return
 
 
+def init_predefined():
+    # initialize the predefined elements
+    PredefinedUnits.registerUnits()
+    PredefinedTypes.registerTypes()
+    PredefinedFunctions.registerPredefinedFunctions()
+    PredefinedVariables.registerPredefinedVariables()
+
+
 def store_log_to_file():
-    with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+    with open(str(os.path.join(FrontendConfiguration.get_target_path(),
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.getPrintableFormat()))
     return

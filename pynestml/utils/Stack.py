@@ -23,25 +23,23 @@ class Stack(object):
     """
     This class represents a simple version of a stack.
     """
-    __list = None
-    __currentIndex = 0
 
     def __init__(self):
         """
         Standard constructor.
         """
-        self.__list = list()
-        self.__currentIndex = 0
+        self.list = list()
+        self.currentIndex = -1
         return
 
-    def push(self,_elem=None):
+    def push(self, elem):
         """
         Pushes an element to the stack
-        :param _elem: a single element
-        :type _elem: object
+        :param elem: a single element
+        :type elem: object
         """
-        self.__currentIndex += 1
-        self.__list.append(_elem)
+        self.currentIndex += 1
+        self.list.append(elem)
         return
 
     def pop(self):
@@ -50,20 +48,21 @@ class Stack(object):
         :return: a single object if not empty, otherwise None
         :rtype: object
         """
-        if self.isEmpty():
-           return None
+        if self.is_empty():
+            return None
         else:
-            temp = self.__list[self.__currentIndex]
-            self.__currentIndex -=1
-            self.__list.remove(temp)
+            temp = self.list[self.currentIndex]
+            self.currentIndex -= 1
+            self.list.remove(temp)
             return temp
 
-    def isEmpty(self):
+    def is_empty(self):
         """
         Returns true if this stack is empty.
         :return: True if empty, otherwise False.
         :rtype: bool
         """
-        return len(self.__list)
+        return len(self.list) == 0
 
-
+    def top(self):
+        return self.list[self.currentIndex]

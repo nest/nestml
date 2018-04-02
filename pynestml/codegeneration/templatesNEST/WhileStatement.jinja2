@@ -3,8 +3,8 @@
   @grammar: WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
   @param ast ASTWhileStmt
 #}
-while( {{printer.printExpression(ast.getCondition())}}) {
-{% with ast = ast.getBlock()) %}
+while( {{printer.printExpression(ast.get_condition())}}) {
+{% with ast = ast.get_block()) %}
 {% include "Block.jinja2" %}
 {% endwith %}
 } /* while end */

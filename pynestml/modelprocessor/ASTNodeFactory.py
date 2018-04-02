@@ -153,7 +153,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_equations_block(cls, declarations=None, source_position=None):
-        # type: (ASTBlock,ASTSourcePosition) -> ASTEquationsBlock
+        # type: (list,ASTSourcePosition) -> ASTEquationsBlock
         return ASTEquationsBlock(declarations, source_position)
 
     @classmethod
@@ -161,8 +161,8 @@ class ASTNodeFactory(object):
                               is_logical_not=False, expression=None, source_position=None):
         # type: (bool,ASTUnaryOperator,bool,ASTExpression|ASTSimpleExpression,ASTSourcePosition) -> ASTExpression
         """
-        The factory method used to create expression which are either encapsulated in parentheses (e.g., (10mV))
-        OR have a unary (e.g., ~bitVar), OR are negated (e.g., not logVar), or are simple expression (e.g., 10mV).
+        The factory method used to create rhs which are either encapsulated in parentheses (e.g., (10mV))
+        OR have a unary (e.g., ~bitVar), OR are negated (e.g., not logVar), or are simple rhs (e.g., 10mV).
         """
         return ASTExpression(is_encapsulated=is_encapsulated, unary_operator=unary_operator,
                              is_logical_not=is_logical_not, expression=expression, source_position=source_position)
@@ -193,7 +193,7 @@ class ASTNodeFactory(object):
                                       source_position  # type: ASTSourcePosition
                                       ):  # type: (...) -> ASTExpression
         """
-        The factory method used to create a ternary operator expression, e.g., 10mV<V_m?10mV:V_m
+        The factory method used to create a ternary operator rhs, e.g., 10mV<V_m?10mV:V_m
         """
         return ASTExpression(condition=condition, if_true=if_true, if_not=if_not, source_position=source_position)
 
@@ -294,12 +294,12 @@ class ASTNodeFactory(object):
         return ASTReturnStmt(expression, source_position)
 
     @classmethod
-    def create_ast_simple_expression(cls, function_call=None,  # type: ASTFunctionCall
-                                     boolean_literal=None,  # type: bool
+    def create_ast_simple_expression(cls, function_call=None,  # type: Union(ASTFunctionCall,None)
+                                     boolean_literal=None,  # type: Union(bool,None)
                                      numeric_literal=None,  # type: Union(float,int)
                                      is_inf=False,  # type: bool
                                      variable=None,  # type: ASTVariable
-                                     string=None,  # type: str
+                                     string=None,  # type: Union(str,None)
                                      source_position=None  # type: ASTSourcePosition
                                      ):  # type: (...) -> ASTSimpleExpression
         return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string,
@@ -323,9 +323,8 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_unit_type(cls,
-                             left_parentheses=False,  # type: bool
+                             is_encapsulated=False,  # type: bool
                              compound_unit=None,  # type: ASTUnitType
-                             right_parentheses=False,  # type: bool
                              base=None,  # type: ASTUnitType
                              is_pow=False,  # type: bool
                              exponent=None,  # type: int
@@ -336,7 +335,7 @@ class ASTNodeFactory(object):
                              unit=None,  # type: str
                              source_position=None  # type: ASTSourcePosition
                              ):  # type: (...) -> ASTUnitType
-        return ASTUnitType(left_parentheses, compound_unit, right_parentheses, base, is_pow, exponent, lhs, rhs, is_div,
+        return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, lhs, rhs, is_div,
                            is_times, unit, source_position)
 
     @classmethod

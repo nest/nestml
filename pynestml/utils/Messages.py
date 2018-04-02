@@ -79,20 +79,20 @@ class Messages(object):
         """
         if not _castable:
             message = str(_argNr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.getValue().printSymbol(),
-                                                        _expectedType.printSymbol())
+                                    ' found \'%s\'.' % (_functionCall.get_name(), _gotType.getValue().print_symbol(),
+                                                        _expectedType.print_symbol())
         else:
             message = str(_argNr) + '. argument of function-call \'%s\' is wrongly typed! ' \
-                                    'Implicit cast from \'%s\' to \'%s\'.' % (_functionCall.getName(),
-                                                                              _gotType.getValue().printSymbol(),
-                                                                              _expectedType.printSymbol())
+                                    'Implicit cast from \'%s\' to \'%s\'.' % (_functionCall.get_name(),
+                                                                              _gotType.getValue().print_symbol(),
+                                                                              _expectedType.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message
 
     @classmethod
     def getTypeCouldNotBeDerived(cls, _rhs=None):
         """
-        Returns a message indicating that the type of the rhs expression could not be derived.
-        :param _rhs: an expression
+        Returns a message indicating that the type of the rhs rhs could not be derived.
+        :param _rhs: an rhs
         :type _rhs: ASTExpression or ASTSimpleExpression
         :return: a message
         :rtype: (MessageCode,str)
@@ -107,9 +107,9 @@ class Messages(object):
         """
         Returns a message indicating that the type of the lhs does not correspond to the one of the rhs, but the rhs
         can be cast down to lhs type.
-        :param _rhsExpression: the rhs expression
+        :param _rhsExpression: the rhs rhs
         :type _rhsExpression: ASTExpression or ASTSimpleExpression
-        :param _lhsExpression: the lhs expression
+        :param _lhsExpression: the lhs rhs
         :type _lhsExpression: ASTExpression or ASTSimpleExpression
         :param _rhsType: the type of the rhs
         :type _rhsType: TypeSymbol
@@ -118,10 +118,10 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
+        message = 'Type of lhs \'%s\' does not correspond to rhs type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
                   % (
-                      _lhsExpression, _rhsExpression, _lhsType.printSymbol(),
-                      _rhsType.printSymbol())
+                      _lhsExpression, _rhsExpression, _lhsType.print_symbol(),
+                      _rhsType.print_symbol())
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -130,9 +130,9 @@ class Messages(object):
         """
         Returns a message indicating that the type of the lhs does not correspond to the one of the rhs and can not
         be cast down to a common type.
-        :param _rhsExpression: the rhs expression
+        :param _rhsExpression: the rhs rhs
         :type _rhsExpression: ASTExpression or ASTSimpleExpression
-        :param _lhsExpression: the lhs expression
+        :param _lhsExpression: the lhs rhs
         :type _lhsExpression: ASTExpression or ASTSimpleExpression
         :param _rhsType: the type of the rhs
         :type _rhsType: TypeSymbol
@@ -144,8 +144,8 @@ class Messages(object):
         message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'.' % (
             _lhsExpression,
             _rhsExpression,
-            _lhsType.printSymbol(),
-            _rhsType.printSymbol())
+            _lhsType.print_symbol(),
+            _rhsType.print_symbol())
         return MessageCode.CAST_NOT_POSSIBLE, message
 
     @classmethod
@@ -165,7 +165,7 @@ class Messages(object):
         assert (_gotType is not None and isinstance(_gotType, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(_gotType)
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
-            _expectedType.printSymbol(), _gotType.printSymbol())
+            _expectedType.print_symbol(), _gotType.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
 
     @classmethod
@@ -223,7 +223,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').printSymbol())
+                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -341,7 +341,7 @@ class Messages(object):
     @classmethod
     def getFirstArgNotShapeOrEquation(cls, _funcName=None):
         """
-        Indicates that the first argument of an expression is not an equation or shape.
+        Indicates that the first argument of an rhs is not an equation or shape.
         :param _funcName: the name of the function
         :type _funcName: str
         :return: a message
@@ -355,7 +355,7 @@ class Messages(object):
     @classmethod
     def getSecondArgNotABuffer(cls, _funcName=None):
         """
-        Indicates that the second argument of an expression is not a buffer.
+        Indicates that the second argument of an rhs is not a buffer.
         :param _funcName: the name of the function
         :type _funcName: str
         :return: a message

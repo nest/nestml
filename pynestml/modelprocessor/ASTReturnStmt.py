@@ -32,53 +32,50 @@ class ASTReturnStmt(ASTNode):
         Grammar:
             returnStmt : 'return' expr?;
     Attributes:
-          __expression (ASTSimpleExpression or ASTExpression): An expression representing the returned value.
+          expression (ASTSimpleExpression or ASTExpression): An rhs representing the returned value.
     """
-    __expression = None
+    expression = None
 
     def __init__(self, expression=None, source_position=None):
         """
         Standard constructor.
-        :param expression: an expression.
+        :param expression: an rhs.
         :type expression: ASTExpression
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert (expression is None or isinstance(expression, ASTExpression)
-                or isinstance(expression, ASTSimpleExpression)), \
-            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided (%s)!' % type(expression)
         super(ASTReturnStmt, self).__init__(source_position)
-        self.__expression = expression
+        self.expression = expression
 
-    def hasExpression(self):
+    def has_expression(self):
         """
-        Returns whether the return statement has an expression or not.
-        :return: True if has expression, otherwise False.
+        Returns whether the return statement has an rhs or not.
+        :return: True if has rhs, otherwise False.
         :rtype: bool
         """
-        return self.__expression is not None
+        return self.expression is not None
 
-    def getExpression(self):
+    def get_expression(self):
         """
-        Returns the expression.
-        :return: an expression.
+        Returns the rhs.
+        :return: an rhs.
         :rtype: ASTExpression
         """
-        return self.__expression
+        return self.expression
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.hasExpression():
-            if self.getExpression() is _ast:
+        if self.has_expression():
+            if self.get_expression() is ast:
                 return self
-            elif self.getExpression().getParent(_ast) is not None:
-                return self.getExpression().getParent(_ast)
+            elif self.get_expression().get_parent(ast) is not None:
+                return self.get_expression().get_parent(ast)
         return None
 
     def __str__(self):
@@ -87,16 +84,16 @@ class ASTReturnStmt(ASTNode):
         :return: a string representation
         :rtype: str
         """
-        return 'return ' + (str(self.getExpression()) if self.hasExpression() else '')
+        return 'return ' + (str(self.get_expression()) if self.has_expression() else '')
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTReturnStmt):
+        if not isinstance(other, ASTReturnStmt):
             return False
-        return self.getExpression().equals(_other.getExpression())
+        return self.get_expression().equals(other.get_expression())

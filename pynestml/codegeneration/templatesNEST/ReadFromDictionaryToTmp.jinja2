@@ -3,7 +3,7 @@
   @param variable VariableSymbol
   @result C++ Block
 #}
-{% if not variable.isFunction() %}
+{% if not variable.is_function() %}
   {{declarations.printVariableType(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
   updateValue<{{declarations.printVariableType(variable)}}>(__d, "{{names.name(variable)}}", tmp_{{names.name(variable)}});
 {% else -%}

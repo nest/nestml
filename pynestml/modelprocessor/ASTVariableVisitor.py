@@ -34,30 +34,30 @@ class ASTVariableVisitor(ASTVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, node=None):
         """
-        Visits a single variable as contained in a simple expression and derives its type.
-        :param _expr: a single simple expression
-        :type _expr: ASTSimpleExpression
+        Visits a single variable as contained in a simple rhs and derives its type.
+        :param node: a single simple rhs
+        :type node: ASTSimpleExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
-            '(PyNestML.Visitor.ASTVariableVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        assert (_expr.get_scope() is not None), \
+        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.ASTVariableVisitor) No or wrong type of simple rhs provided (%s)!' % type(node)
+        assert (node.get_scope() is not None), \
             '(PyNestML.Visitor.ASTVariableVisitor) No scope found, run symboltable creator!'
 
-        scope = _expr.get_scope()
-        var_name = _expr.getVariable().getName()
+        scope = node.get_scope()
+        var_name = node.get_variable().get_name()
         var_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
-            _expr.setTypeEither(Either.value(var_resolve.getTypeSymbol()))
+            node.set_type_either(Either.value(var_resolve.get_type_symbol()))
         else:
-            message = 'Variable ' + str(_expr) + ' could not be resolved!'
+            message = 'Variable ' + str(node) + ' could not be resolved!'
             Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
-                              _errorPosition=_expr.get_source_position(),
+                              _errorPosition=node.get_source_position(),
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-            _expr.setTypeEither(Either.error('Variable could not be resolved!'))
+            node.set_type_either(Either.error('Variable could not be resolved!'))
         return
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, node=None):
         raise Exception("Deprecated method used!")

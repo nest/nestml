@@ -55,20 +55,20 @@ class ConvolveCheckerVisitor(ASTVisitor):
     are correct.
     """
 
-    def visitFunctionCall(self, _functionCall=None):
-        funcName = _functionCall.getName()
+    def visit_function_call(self, node=None):
+        funcName = node.get_name()
         if funcName == 'convolve' or funcName == 'cond_sum' or funcName == 'curr_sum':
-            symbolVar = _functionCall.get_scope().resolveToSymbol(str(_functionCall.getArgs()[0]),
-                                                                  SymbolKind.VARIABLE)
-            symbolBuffer = _functionCall.get_scope().resolveToSymbol(str(_functionCall.getArgs()[1]),
-                                                                     SymbolKind.VARIABLE)
-            if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
+            symbolVar = node.get_scope().resolveToSymbol(str(node.get_args()[0]),
+                                                         SymbolKind.VARIABLE)
+            symbolBuffer = node.get_scope().resolveToSymbol(str(node.get_args()[1]),
+                                                            SymbolKind.VARIABLE)
+            if symbolVar is not None and not symbolVar.is_shape() and not symbolVar.is_init_values():
                 code, message = Messages.getFirstArgNotShapeOrEquation(funcName)
                 Logger.logMessage(_code=code, _message=message,
-                                  _errorPosition=_functionCall.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
-            if symbolBuffer is not None and not symbolBuffer.isInputBufferSpike():
+                                  _errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
+            if symbolBuffer is not None and not symbolBuffer.is_input_buffer_spike():
                 code, message = Messages.getSecondArgNotABuffer(funcName)
-                Logger.logMessage(_errorPosition=_functionCall.get_source_position(),
+                Logger.logMessage(_errorPosition=node.get_source_position(),
                                   _code=code, _message=message,
                                   _logLevel=LOGGING_LEVEL.ERROR)
             return

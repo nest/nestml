@@ -58,8 +58,8 @@ class CoCoNeuronNameUnique(CoCo):
         checked = list()  # a list of already checked elements
         for neuronA in _compilationUnit.get_neuron_list():
             for neuronB in _compilationUnit.get_neuron_list():
-                if neuronA is not neuronB and neuronA.getName() == neuronB.getName() and neuronB not in checked:
-                    code, message = Messages.getNeuronRedeclared(neuronB.getName())
+                if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name() and neuronB not in checked:
+                    code, message = Messages.getNeuronRedeclared(neuronB.get_name())
                     Logger.logMessage(_errorPosition=neuronB.get_source_position(),
                                       _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.ERROR)

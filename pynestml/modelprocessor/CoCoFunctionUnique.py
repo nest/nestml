@@ -38,30 +38,30 @@ class CoCoFunctionUnique(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionUnique) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        checkedFuncsNames = list()
-        for func in _neuron.getFunctions():
-            if func.getName() not in checkedFuncsNames:
-                symbols = func.get_scope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
+        checked_funcs_names = list()
+        for func in _neuron.get_functions():
+            if func.get_name() not in checked_funcs_names:
+                symbols = func.get_scope().resolveToAllSymbols(func.get_name(), SymbolKind.FUNCTION)
                 if isinstance(symbols, list) and len(symbols) > 1:
                     checked = list()
                     for funcA in symbols:
                         for funcB in symbols:
                             if funcA is not funcB and funcB not in checked:
-                                if funcA.isPredefined():
-                                    code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
-                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().get_source_position(),
+                                if funcA.is_predefined:
+                                    code, message = Messages.getFunctionRedeclared(funcA.get_symbol_name(), True)
+                                    Logger.logMessage(_errorPosition=funcB.get_referenced_object().get_source_position(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
-                                elif funcB.isPredefined():
-                                    code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
-                                    Logger.logMessage(_errorPosition=funcA.getReferencedObject().get_source_position(),
+                                elif funcB.is_predefined:
+                                    code, message = Messages.getFunctionRedeclared(funcA.get_symbol_name(), True)
+                                    Logger.logMessage(_errorPosition=funcA.get_referenced_object().get_source_position(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                                 else:
-                                    code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), False)
-                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().get_source_position(),
+                                    code, message = Messages.getFunctionRedeclared(funcA.get_symbol_name(), False)
+                                    Logger.logMessage(_errorPosition=funcB.get_referenced_object().get_source_position(),
                                                       _logLevel=LOGGING_LEVEL.ERROR,
                                                       _message=message, _code=code)
                         checked.append(funcA)
-            checkedFuncsNames.append(func.getName())
+            checked_funcs_names.append(func.get_name())
         return

@@ -33,62 +33,57 @@ class ASTOdeEquation(ASTNode):
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
     Grammar:
-        odeEquation : lhs=variable '=' rhs=expression;
+        odeEquation : lhs=variable '=' rhs=rhs;
     """
-    __lhs = None
-    __rhs = None
+    lhs = None
+    rhs = None
 
-    def __init__(self, _lhs=None, _rhs=None, source_position=None):
+    def __init__(self, lhs, rhs, source_position=None):
         """
         Standard constructor.
-        :param _lhs: an object of type ASTVariable
-        :type _lhs: ASTVariable
-        :param _rhs: an object of type ASTExpression.
-        :type _rhs: ASTExpression or ASTSimpleExpression
+        :param lhs: an object of type ASTVariable
+        :type lhs: ASTVariable
+        :param rhs: an object of type ASTExpression.
+        :type rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.AST.OdeEquation) No or wrong type of left-hand variable provided (%s)!' % type(_lhs)
-        assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
-            '(PyNestML.AST.OdeEquation) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeEquation, self).__init__(source_position)
-        self.__lhs = _lhs
-        self.__rhs = _rhs
-        return
+        self.lhs = lhs
+        self.rhs = rhs
 
-    def getLhs(self):
+    def get_lhs(self):
         """
         Returns the left-hand side of the equation.
         :return: an object of the ast-variable class.
         :rtype: ASTVariable
         """
-        return self.__lhs
+        return self.lhs
 
-    def getRhs(self):
+    def get_rhs(self):
         """
         Returns the left-hand side of the equation.
         :return: an object of the ast-expr class.
         :rtype: ASTExpression
         """
-        return self.__rhs
+        return self.rhs
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.getLhs() is _ast:
+        if self.get_lhs() is ast:
             return self
-        elif self.getLhs().getParent(_ast) is not None:
-            return self.getLhs().getParent(_ast)
-        if self.getRhs() is _ast:
+        elif self.get_lhs().get_parent(ast) is not None:
+            return self.get_lhs().get_parent(ast)
+        if self.get_rhs() is ast:
             return self
-        elif self.getRhs().getParent(_ast) is not None:
-            return self.getRhs().getParent(_ast)
+        elif self.get_rhs().get_parent(ast) is not None:
+            return self.get_rhs().get_parent(ast)
         return None
 
     def __str__(self):
@@ -97,16 +92,16 @@ class ASTOdeEquation(ASTNode):
         :return: a string representing the equation.
         :rtype: str
         """
-        return str(self.getLhs()) + '=' + str(self.getRhs())
+        return str(self.get_lhs()) + '=' + str(self.get_rhs())
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTOdeEquation):
+        if not isinstance(other, ASTOdeEquation):
             return False
-        return self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs())
+        return self.get_lhs().equals(other.get_lhs()) and self.get_rhs().equals(other.get_rhs())

@@ -1,6 +1,6 @@
 {#
   @param variable VariableSymbol
 #}
-{% if not variable.isInternals() -%}
-  def<{{declarations.printVariableType(variable)}}>(__d, "{{variable.getSymbolName()}}", {{names.getter(variable)}}());
+{% if not variable.is_internals() -%}
+  def<{{declarations.printVariableType(variable)}}>(__d, "{{variable.get_symbol_name()}}", {{names.getter(variable)}}());
 {%- endif -%}

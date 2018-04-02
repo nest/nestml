@@ -56,22 +56,22 @@ class BufferDatatypeVisitor(ASTVisitor):
     This visitor checks if each buffer has a datatype selected according to the coco.
     """
 
-    def visitInputLine(self, _line=None):
+    def visit_input_line(self, node=None):
         """
         Checks the coco on the current node.
-        :param _line: a single input line node.
-        :type _line: ASTInputLine
+        :param node: a single input line node.
+        :type node: ASTInputLine
         """
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        assert (_line is not None and isinstance(_line, ASTInputLine)), \
-            '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of input line provided (%s)!' % type(_line)
-        if _line.isSpike() and not _line.hasDatatype():
-            code, message = Messages.getDataTypeNotSpecified(_line.getName())
-            Logger.logMessage(_errorPosition=_line.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
+        assert (node is not None and isinstance(node, ASTInputLine)), \
+            '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of input line provided (%s)!' % type(node)
+        if node.is_spike() and not node.has_datatype():
+            code, message = Messages.getDataTypeNotSpecified(node.get_name())
+            Logger.logMessage(_errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
-        if _line.isCurrent() and _line.hasDatatype():
-            code, message = Messages.getNotTypeAllowed(_line.getName())
-            Logger.logMessage(_errorPosition=str(_line.get_source_position()),
+        if node.is_current() and node.has_datatype():
+            code, message = Messages.getNotTypeAllowed(node.get_name())
+            Logger.logMessage(_errorPosition=str(node.get_source_position()),
                               _code=code, _message=message,
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

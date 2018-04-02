@@ -36,7 +36,7 @@ class NestNamesConverter(object):
         :rtype: str
         """
         if isinstance(_obj, VariableSymbol):
-            return cls.convertToCPPName(_obj.getSymbolName())
+            return cls.convertToCPPName(_obj.get_symbol_name())
         else:
             return cls.convertToCPPName(_obj.getCompleteName())
 
@@ -52,7 +52,7 @@ class NestNamesConverter(object):
         assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
             '(PyNestML.CodeGeneration.NamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
                 _variableSymbol)
-        return 'get_' + cls.convertToCPPName(_variableSymbol.getSymbolName())
+        return 'get_' + cls.convertToCPPName(_variableSymbol.get_symbol_name())
 
     @classmethod
     def bufferValue(cls, _variableSymbol=None):
@@ -66,7 +66,7 @@ class NestNamesConverter(object):
         assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
             '(PyNestML.CodeGeneration.NamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
                 _variableSymbol)
-        return _variableSymbol.getSymbolName() + '_grid_sum_'
+        return _variableSymbol.get_symbol_name() + '_grid_sum_'
 
     @classmethod
     def setter(cls, _variableSymbol=None):
@@ -80,7 +80,7 @@ class NestNamesConverter(object):
         assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
             '(PyNestML.CodeGeneration.NamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
                 _variableSymbol)
-        return 'set_' + cls.convertToCPPName(_variableSymbol.getSymbolName())
+        return 'set_' + cls.convertToCPPName(_variableSymbol.get_symbol_name())
 
     @classmethod
     def convertToCPPName(cls, _variableName=None):

@@ -140,11 +140,11 @@ class ASTComparisonOperator(ASTNode):
         """
         return isinstance(self.__isGt, bool) and self.__isGt
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
@@ -173,16 +173,16 @@ class ASTComparisonOperator(ASTNode):
         else:
             Logger.logMessage('Type of comparison operator not specified!', LOGGING_LEVEL.WARNING)
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTComparisonOperator):
+        if not isinstance(other, ASTComparisonOperator):
             return False
-        return self.isLt() == _other.isLt() and self.isLe() == _other.isLe() and \
-               self.isEq() == _other.isEq() and self.isNe() == _other.isNe() and \
-               self.isNe2() == _other.isNe2() and self.isGe() == _other.isGe() and self.isGt() == _other.isGt()
+        return self.isLt() == other.isLt() and self.isLe() == other.isLe() and \
+               self.isEq() == other.isEq() and self.isNe() == other.isNe() and \
+               self.isNe2() == other.isNe2() and self.isGe() == other.isGe() and self.isGt() == other.isGt()

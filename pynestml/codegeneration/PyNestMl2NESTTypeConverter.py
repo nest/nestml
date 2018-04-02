@@ -41,17 +41,17 @@ class NESTML2NESTTypeConverter(object):
             return 'std::string'
         if _typeSymbol.equals(PredefinedTypes.getVoidType()):
             return 'void'
-        if _typeSymbol.isBuffer():
+        if _typeSymbol.is_buffer():
             return 'nest::RingBuffer'
         if _typeSymbol.equals(PredefinedTypes.getBooleanType()):
             return 'bool'
         if _typeSymbol.equals(PredefinedTypes.getRealType()):
             return 'double'
-        if _typeSymbol.isUnit():
+        if _typeSymbol.is_unit():
             return 'double'
         if _typeSymbol.equals(PredefinedTypes.getIntegerType()):
             return 'long'
-        if 'Time' in _typeSymbol.getSymbolName():
+        if 'Time' in _typeSymbol.get_symbol_name():
             return 'nest::Time'
-        return _typeSymbol.getSymbolName().replace('.', '::')
+        return _typeSymbol.get_symbol_name().replace('.', '::')
 

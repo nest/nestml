@@ -67,9 +67,9 @@ class PredefinedTypes(object):
         from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
         units = PredefinedUnits.getUnits()
         for unitName in units.keys():
-            tSymbol = TypeSymbol(_elementReference=None, _name=unitName,
-                                 _unit=units[unitName], _isInteger=False, _isReal=False, _isVoid=False,
-                                 _isBoolean=False, _isString=False, _isBuffer=False)
+            tSymbol = TypeSymbol(element_reference=None, name=unitName,
+                                 unit=units[unitName], is_integer=False, is_real=False, is_void=False,
+                                 is_boolean=False, is_string=False, is_buffer=False)
             cls.__name2type[unitName] = tSymbol
         return
 
@@ -78,7 +78,7 @@ class PredefinedTypes(object):
         """
         Adds the real type symbol to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__REAL_TYPE, _isReal=True)
+        symbol = TypeSymbol(name=cls.__REAL_TYPE, is_real=True)
         cls.__name2type[cls.__REAL_TYPE] = symbol
         return
 
@@ -87,7 +87,7 @@ class PredefinedTypes(object):
         """
         Adds the void type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__VOID_TYPE, _isVoid=True)
+        symbol = TypeSymbol(name=cls.__VOID_TYPE, is_void=True)
         cls.__name2type[cls.__VOID_TYPE] = symbol
         return
 
@@ -96,7 +96,7 @@ class PredefinedTypes(object):
         """
         Adds the boolean type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__BOOLEAN_TYPE, _isBoolean=True)
+        symbol = TypeSymbol(name=cls.__BOOLEAN_TYPE, is_boolean=True)
         cls.__name2type[cls.__BOOLEAN_TYPE] = symbol
         return
 
@@ -105,7 +105,7 @@ class PredefinedTypes(object):
         """
         Adds the string type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__STRING_TYPE, _isString=True)
+        symbol = TypeSymbol(name=cls.__STRING_TYPE, is_string=True)
         cls.__name2type[cls.__STRING_TYPE] = symbol
         return
 
@@ -114,7 +114,7 @@ class PredefinedTypes(object):
         """
         Adds the integer type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__INTEGER_TYPE, _isInteger=True)
+        symbol = TypeSymbol(name=cls.__INTEGER_TYPE, is_integer=True)
         cls.__name2type[cls.__INTEGER_TYPE] = symbol
         return
 
@@ -242,9 +242,9 @@ class PredefinedTypes(object):
         from pynestml.modelprocessor.TypeSymbol import TypeSymbol
         assert (_symbol is not None and isinstance(_symbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
-        if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
-            cls.__name2type[_symbol.getUnit().getName()] = _symbol
-            code, message = Messages.getNewTypeRegistered(_symbol.getUnit().getName())
+        if not _symbol.is_primitive() and _symbol.get_unit().get_name() not in cls.__name2type.keys():
+            cls.__name2type[_symbol.get_unit().get_name()] = _symbol
+            code, message = Messages.getNewTypeRegistered(_symbol.get_unit().get_name())
             Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         return
 
@@ -258,7 +258,7 @@ class PredefinedTypes(object):
         from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
         unitType = UnitType(str(_unit), _unit)
         PredefinedUnits.registerUnit(unitType)
-        typeSymbol = TypeSymbol(_name=unitType.getName(), _unit=unitType)
+        typeSymbol = TypeSymbol(name=unitType.get_name(), unit=unitType)
         PredefinedTypes.registerType(typeSymbol)
         return
 

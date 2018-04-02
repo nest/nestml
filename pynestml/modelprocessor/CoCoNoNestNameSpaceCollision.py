@@ -52,9 +52,9 @@ class CoCoNoNestNameSpaceCollision(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        for func in _neuron.getFunctions():
-            if func.getName() in cls.__nestNameSpace:
-                code, message = Messages.getNestCollision(func.getName())
+        for func in _neuron.get_functions():
+            if func.get_name() in cls.__nestNameSpace:
+                code, message = Messages.getNestCollision(func.get_name())
                 Logger.logMessage(_errorPosition=func.get_source_position(),
                                   _code=code, _message=message,
                                   _logLevel=LOGGING_LEVEL.ERROR)

@@ -47,14 +47,14 @@ class FunctionRhsVisitor(ASTVisitor):
     This visitor ensures that everything declared as function has a rhs.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, node=None):
         """
         Checks if the coco applies.
-        :param _declaration: a single declaration.
-        :type _declaration: ASTDeclaration.
+        :param node: a single declaration.
+        :type node: ASTDeclaration.
         """
-        if _declaration.isFunction() and not _declaration.hasExpression():
-            code, message = Messages.getNoRhs(_declaration.getVariables()[0].getName())
-            Logger.logMessage(_errorPosition=_declaration.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
+        if node.is_function() and not node.has_expression():
+            code, message = Messages.getNoRhs(node.get_variables()[0].get_name())
+            Logger.logMessage(_errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
                               _code=code, _message=message)
         return

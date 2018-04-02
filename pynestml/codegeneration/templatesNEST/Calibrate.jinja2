@@ -2,21 +2,21 @@
  TODO: instead of using 0 a default value provider must be used
 #}
 
-{%- if variable.hasVectorParameter() -%}
-{{printer.printOrigin(variable)}} {{variable.getSymbolName()}}.resize(P_.{{variable.getVectorParameter()}});
-for (long i=0; i < get_{{variable.getVectorParameter()}}(); i++) {
-  {{printer.printOrigin(variable)}} {{variable.getSymbolName()}}[i] =
-    {% if variable.hasDeclaringExpression() -%}
-    {{printer.printExpression(variable.getDeclaringExpression())}}
+{%- if variable.has_vector_parameter() -%}
+{{printer.printOrigin(variable)}} {{variable.get_symbol_name()}}.resize(P_.{{variable.get_vector_parameter()}});
+for (long i=0; i < get_{{variable.get_vector_parameter()}}(); i++) {
+  {{printer.printOrigin(variable)}} {{variable.get_symbol_name()}}[i] =
+    {% if variable.has_declaring_expression() -%}
+    {{printer.printExpression(variable.get_declaring_expression())}}
     {% else -%}
     0
     {% endif -%}
   ;
 }
 {%- else -%}
-{{printer.printOrigin(variable)}} {{variable.getSymbolName()}} =
-  {%- if variable.hasDeclaringExpression() -%}
-  {{printer.printExpression(variable.getDeclaringExpression())}}
+{{printer.printOrigin(variable)}} {{variable.get_symbol_name()}} =
+  {%- if variable.has_declaring_expression() -%}
+  {{printer.printExpression(variable.get_declaring_expression())}}
   {%- else -%}
   0
   {%- endif %};

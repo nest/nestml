@@ -48,7 +48,7 @@ class ASTBlock(ASTNode):
         super(ASTBlock, self).__init__(source_position)
         self.__stmts = _stmts
 
-    def getStmts(self):
+    def get_stmts(self):
         """
         Returns the list of statements.
         :return: list of stmts.
@@ -56,37 +56,37 @@ class ASTBlock(ASTNode):
         """
         return self.__stmts
 
-    def addStmt(self, _stmt=None):
+    def add_stmt(self, stmt):
         """
         Adds a single statement to the list of statements.
-        :param _stmt: a statement
-        :type _stmt: ASTSmallStmt,ASTCompoundStmt
+        :param stmt: a statement
+        :type stmt: ASTSmallStmt,ASTCompoundStmt
         """
-        self.__stmts.append(_stmt)
+        self.__stmts.append(stmt)
 
-    def deleteStmt(self, _stmt=None):
+    def delete_stmt(self, stmt):
         """
         Deletes the handed over statement.
-        :param _stmt:
-        :type _stmt:
+        :param stmt:
+        :type stmt:
         :return: True if deleted, otherwise False.
         :rtype: bool
         """
-        self.__stmts.remove(_stmt)
+        self.__stmts.remove(stmt)
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        for stmt in self.getStmts():
-            if stmt is _ast:
+        for stmt in self.get_stmts():
+            if stmt is ast:
                 return self
-            if stmt.getParent(_ast) is not None:
-                return stmt.getParent(_ast)
+            if stmt.get_parent(ast) is not None:
+                return stmt.get_parent(ast)
         return None
 
     def __str__(self):
@@ -101,21 +101,21 @@ class ASTBlock(ASTNode):
             ret += '\n'
         return ret
 
-    def equals(self, _other=None):
+    def equals(self, other):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTBlock):
+        if not isinstance(other, ASTBlock):
             return False
-        if len(self.getStmts()) != len(_other.getStmts()):
+        if len(self.get_stmts()) != len(other.get_stmts()):
             return False
-        myStmt = self.getStmts()
-        yourStmts = _other.getStmts()
-        for i in range(0, len(self.getStmts())):
-            if not myStmt[i].equals(yourStmts[i]):
+        my_stmt = self.get_stmts()
+        your_stmts = other.get_stmts()
+        for i in range(0, len(self.get_stmts())):
+            if not my_stmt[i].equals(your_stmts[i]):
                 return False
         return True

@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-expression : left=expression (plusOp='+'  | minusOp='-') right=expression
+rhs : left=rhs (plusOp='+'  | minusOp='-') right=rhs
 """
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -36,78 +36,78 @@ class ASTLineOperatorVisitor(ASTVisitor):
     Visits a single binary operation consisting of + or - and updates the type accordingly.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, node=None):
         """
-        Visits a single expression containing a plus or minus operator and updates its type.
-        :param _expr: a single expression
-        :type _expr: ASTExpression
+        Visits a single rhs containing a plus or minus operator and updates its type.
+        :param node: a single rhs
+        :type node: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.ASTLineOperatorVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhs_type_e = _expr.getLhs().getTypeEither()
-        rhs_type_e = _expr.getRhs().getTypeEither()
+        assert (node is not None and isinstance(node, ASTExpression)), \
+            '(PyNestML.Visitor.ASTLineOperatorVisitor) No or wrong type of rhs provided (%s)!' % type(node)
+        lhs_type_e = node.get_lhs().get_type_either()
+        rhs_type_e = node.get_rhs().get_type_either()
 
         if lhs_type_e.isError():
-            _expr.setTypeEither(lhs_type_e)
+            node.set_type_either(lhs_type_e)
             return
         if rhs_type_e.isError():
-            _expr.setTypeEither(rhs_type_e)
+            node.set_type_either(rhs_type_e)
             return
 
         lhs_type = lhs_type_e.getValue()
         rhs_type = rhs_type_e.getValue()
 
-        arith_op = _expr.getBinaryOperator()
+        arith_op = node.get_binary_operator()
         # arithOp exists if we get into this visitor, but make sure:
         assert arith_op is not None and isinstance(arith_op, ASTArithmeticOperator)
 
         # Plus-exclusive code
-        if arith_op.isPlusOp():
+        if arith_op.is_plus_op:
             # String concatenation has a prio. If one of the operands is a string,
-            # the remaining sub-expression becomes a string
-            if (lhs_type.isString() or rhs_type.isString()) and (not rhs_type.isVoid() and not lhs_type.isVoid()):
-                _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
+            # the remaining sub-rhs becomes a string
+            if (lhs_type.is_string() or rhs_type.is_string()) and (not rhs_type.is_void() and not lhs_type.is_void()):
+                node.set_type_either(Either.value(PredefinedTypes.getStringType()))
                 return
 
         # Common code for plus and minus ops:
-        if lhs_type.isNumeric() and rhs_type.isNumeric():
+        if lhs_type.is_numeric() and rhs_type.is_numeric():
             # both match exactly -> any is valid
             if lhs_type.equals(rhs_type):
-                _expr.setTypeEither(Either.value(lhs_type))
+                node.set_type_either(Either.value(lhs_type))
                 return
             # both numeric primitive, not matching -> one is real one is integer -> real
-            if lhs_type.isNumericPrimitive() and rhs_type.isNumericPrimitive():
-                _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+            if lhs_type.is_numeric_primitive() and rhs_type.is_numeric_primitive():
+                node.set_type_either(Either.value(PredefinedTypes.getRealType()))
                 return
             # Both are units, not matching -> real, WARN
-            if lhs_type.isUnit() and rhs_type.isUnit():
-                error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.printSymbol(),
-                                                                   rhs_type.printSymbol(), 'real',
-                                                                   _expr.get_source_position())
-                _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+            if lhs_type.is_unit() and rhs_type.is_unit():
+                error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.print_symbol(),
+                                                                   rhs_type.print_symbol(), 'real',
+                                                                   node.get_source_position())
+                node.set_type_either(Either.value(PredefinedTypes.getRealType()))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
-                                  _errorPosition=_expr.get_source_position(),
+                                  _errorPosition=node.get_source_position(),
                                   _message=error_msg, _logLevel=LOGGING_LEVEL.WARNING)
                 return
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
-            if (lhs_type.isUnit() and rhs_type.isNumericPrimitive()) or (
-                    rhs_type.isUnit() and lhs_type.isNumericPrimitive()):
-                if lhs_type.isUnit():
+            if (lhs_type.is_unit() and rhs_type.is_numeric_primitive()) or (
+                    rhs_type.is_unit() and lhs_type.is_numeric_primitive()):
+                if lhs_type.is_unit():
                     unit_type = lhs_type
                 else:
                     unit_type = rhs_type
-                error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.printSymbol(),
-                                                                   rhs_type.printSymbol(), unit_type.printSymbol(),
-                                                                   _expr.get_source_position())
-                _expr.setTypeEither(Either.value(unit_type))
+                error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.print_symbol(),
+                                                                   rhs_type.print_symbol(), unit_type.print_symbol(),
+                                                                   node.get_source_position())
+                node.set_type_either(Either.value(unit_type))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=error_msg,
-                                  _errorPosition=_expr.get_source_position(), _logLevel=LOGGING_LEVEL.WARNING)
+                                  _errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.WARNING)
                 return
 
         # if we get here, we are in a general error state
-        error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.printSymbol(),
-                                                           rhs_type.printSymbol(), 'ERROR',
-                                                           _expr.get_source_position())
-        _expr.setTypeEither(Either.error(error_msg))
+        error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.print_symbol(),
+                                                           rhs_type.print_symbol(), 'ERROR',
+                                                           node.get_source_position())
+        node.set_type_either(Either.error(error_msg))
         Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=error_msg,
-                          _errorPosition=_expr.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
+                          _errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)

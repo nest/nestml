@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTSignalType import ASTSignalType
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
@@ -36,21 +34,19 @@ class ASTOutputBlock(ASTNode):
     """
     __type = None
 
-    def __init__(self, _type=None, source_position=None):
+    def __init__(self, type, source_position):
         # type: (ASTSignalType,ASTSourcePosition) -> None
         """
         Standard constructor.
-        :param _type: the type of the output buffer.
-        :type _type: SignalType
-        :param _sourcePosition: the position of this element in the source file.
+        :param type: the type of the output buffer.
+        :type type: SignalType
+        :param source_position: the position of this element in the source file.
         :type source_position: ASTSourcePosition.
         """
-        assert (_type is ASTSignalType.SPIKE or _type is ASTSignalType.CURRENT), \
-            '(PyNestML.AST.OutputBlock) No or wrong type specification buffer provided (%s)!' % type(_type)
         super(ASTOutputBlock, self).__init__(source_position)
-        self.__type = _type
+        self.__type = type
 
-    def isSpike(self):
+    def is_spike(self):
         """
         Returns whether it is a spike buffer or not.
         :return: True if spike, otherwise False.
@@ -58,7 +54,7 @@ class ASTOutputBlock(ASTNode):
         """
         return self.__type is ASTSignalType.SPIKE
 
-    def isCurrent(self):
+    def is_current(self):
         """
         Returns whether it is a current buffer or not.
         :return: True if current, otherwise False.
@@ -66,11 +62,11 @@ class ASTOutputBlock(ASTNode):
         """
         return self.__type is ASTSignalType.CURRENT
 
-    def getParent(self, _ast=None):
+    def get_parent(self, ast=None):
         """
         Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
+        :param ast: an arbitrary ast node.
+        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
@@ -82,16 +78,16 @@ class ASTOutputBlock(ASTNode):
         :return: a string representation
         :rtype: str
         """
-        return 'output: ' + ('spike' if self.isSpike() else 'current') + '\n'
+        return 'output: ' + ('spike' if self.is_spike() else 'current') + '\n'
 
-    def equals(self, _other=None):
+    def equals(self, other=None):
         """
         The equals method.
-        :param _other: a different object.
-        :type _other: object
+        :param other: a different object.
+        :type other: object
         :return: True if equals, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other, ASTOutputBlock):
+        if not isinstance(other, ASTOutputBlock):
             return False
-        return self.isSpike() == _other.isSpike() and self.isCurrent() == _other.isCurrent()
+        return self.is_spike() == other.is_spike() and self.is_current() == other.is_current()

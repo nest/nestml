@@ -52,26 +52,26 @@ class CoCoAllVariablesDefined(CoCo):
         # for each variable in all expressions, check if the variable has been defined previously
         expressions = list(ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron))
         for expr in expressions:
-            for var in expr.getVariables():
-                symbol = var.get_scope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+            for var in expr.get_variables():
+                symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 # first test if the symbol has been defined at least
                 if symbol is None:
-                    code, message = Messages.getNoVariableFound(var.getName())
+                    code, message = Messages.getNoVariableFound(var.get_name())
                     Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=var.get_source_position())
                 # now check if it has been defined before usage, except for buffers, those are special cases
-                elif (not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and
-                      symbol.getBlockType() != BlockType.INPUT_BUFFER_SPIKE):
+                elif (not symbol.is_predefined() and symbol.get_block_type() != BlockType.INPUT_BUFFER_CURRENT and
+                      symbol.get_block_type() != BlockType.INPUT_BUFFER_SPIKE):
                     # except for parameters, those can be defined after
-                    if not symbol.getReferencedObject().get_source_position().before(var.get_source_position()) and \
-                            symbol.getBlockType() != BlockType.PARAMETERS:
-                        code, message = Messages.getVariableUsedBeforeDeclaration(var.getName())
+                    if not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and \
+                            symbol.get_block_type() != BlockType.PARAMETERS:
+                        code, message = Messages.getVariableUsedBeforeDeclaration(var.get_name())
                         Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.get_source_position(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
-                    if symbol.getReferencedObject().get_source_position().encloses(var.get_source_position()) and not \
-                            symbol.getReferencedObject().get_source_position().isAddedSourcePosition():
-                        code, message = Messages.getVariableDefinedRecursively(var.getName())
-                        Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.getReferencedObject().
+                    if symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and not \
+                            symbol.get_referenced_object().get_source_position().isAddedSourcePosition():
+                        code, message = Messages.getVariableDefinedRecursively(var.get_name())
+                        Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.get_referenced_object().
                                           get_source_position(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=_neuron)
         return

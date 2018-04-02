@@ -51,10 +51,10 @@ class PredefinedVariables(object):
         Registers all predefined type variables, e.g., mV and integer.
         """
         for name in PredefinedTypes.getTypes().keys():
-            symbol = VariableSymbol(_name=name, _blockType=BlockType.PREDEFINED,
-                                    _isPredefined=True,
-                                    _typeSymbol=PredefinedTypes.getTypeIfExists(name),
-                                    _variableType=VariableType.VARIABLE)
+            symbol = VariableSymbol(name=name, block_type=BlockType.PREDEFINED,
+                                    is_predefined=True,
+                                    type_symbol=PredefinedTypes.getTypeIfExists(name),
+                                    variable_type=VariableType.VARIABLE)
             cls.__name2variable[name] = symbol
         return
 
@@ -63,9 +63,9 @@ class PredefinedVariables(object):
         """
         Adds the euler constant e.
         """
-        symbol = VariableSymbol(_name='e', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType(),
-                                _variableType=VariableType.VARIABLE)
+        symbol = VariableSymbol(name='e', block_type=BlockType.STATE,
+                                is_predefined=True, type_symbol=PredefinedTypes.getRealType(),
+                                variable_type=VariableType.VARIABLE)
         cls.__name2variable[cls.E_CONSTANT] = symbol
         return
 
@@ -74,9 +74,9 @@ class PredefinedVariables(object):
         """
         Adds the time constant t.
         """
-        symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists('ms'),
-                                _variableType=VariableType.VARIABLE)
+        symbol = VariableSymbol(name='t', block_type=BlockType.STATE,
+                                is_predefined=True, type_symbol=PredefinedTypes.getTypeIfExists('ms'),
+                                variable_type=VariableType.VARIABLE)
         cls.__name2variable[cls.TIME_CONSTANT] = symbol
         return
 
