@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.CoCo import CoCo
@@ -49,15 +50,24 @@ class CoCoAllVariablesDefined(CoCo):
         expression_collector_visitor = ASTExpressionCollectorVisitor()
         node.accept(expression_collector_visitor)
         expressions = expression_collector_visitor.ret
-
         for expr in expressions:
             for var in expr.get_variables():
                 symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                # this part is required to check that we handle invariants differently
+                expr_par = node.get_parent(expr)
+
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     code, message = Messages.getNoVariableFound(var.get_name())
                     Logger.log_message(neuron=node, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=var.get_source_position())
+                # first check if it is part of an invariant
+                # if it is the case, there is no "recursive" declaration
+                # so check if the parent is a declaration and the expression the invariant
+                elif isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
+                    # in this case its ok if it is recursive or defined later on
+                    continue
+
                 # now check if it has been defined before usage, except for buffers, those are special cases
                 elif (not symbol.is_predefined() and symbol.get_block_type() != BlockType.INPUT_BUFFER_CURRENT and
                       symbol.get_block_type() != BlockType.INPUT_BUFFER_SPIKE):
@@ -68,6 +78,7 @@ class CoCoAllVariablesDefined(CoCo):
                         Logger.log_message(neuron=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
+                    # todo by KP: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and
                             not symbol.get_referenced_object().get_source_position().isAddedSourcePosition()):
                         code, message = Messages.getVariableDefinedRecursively(var.get_name())

@@ -163,7 +163,7 @@ class Logger(object):
         if level is None and neuron is None:
             return cls.get_log()
         ret = list()
-        for (artifactName, neuron, logLevel, code, errorPosition, message) in cls.log.values():
+        for (artifactName, neuron_i, logLevel, code, errorPosition, message) in cls.log.values():
             if (level == logLevel if level is not None else True) and (
                     neuron if neuron is not None else True) and (
                     neuron.get_artifact_name() == artifactName if neuron is not None else True):
