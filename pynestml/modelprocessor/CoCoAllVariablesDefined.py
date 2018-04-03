@@ -17,15 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTExpressionCollectorVisitor import ASTExpressionCollectorVisitor
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.utils.Messages import Messages
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoAllVariablesDefined(CoCo):
@@ -40,17 +38,18 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not 
         correct.
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(node)
         # for each variable in all expressions, check if the variable has been defined previously
-        expressions = list(ASTExpressionCollectorVisitor.collectExpressionsInNeuron(node))
+        expression_collector_visitor = ASTExpressionCollectorVisitor()
+        node.accept(expression_collector_visitor)
+        expressions = expression_collector_visitor.ret
+
         for expr in expressions:
             for var in expr.get_variables():
                 symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
@@ -63,15 +62,36 @@ class CoCoAllVariablesDefined(CoCo):
                 elif (not symbol.is_predefined() and symbol.get_block_type() != BlockType.INPUT_BUFFER_CURRENT and
                       symbol.get_block_type() != BlockType.INPUT_BUFFER_SPIKE):
                     # except for parameters, those can be defined after
-                    if not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and \
-                            symbol.get_block_type() != BlockType.PARAMETERS:
+                    if (not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and
+                            symbol.get_block_type() != BlockType.PARAMETERS):
                         code, message = Messages.getVariableUsedBeforeDeclaration(var.get_name())
                         Logger.logMessage(_neuron=node, _message=message, _errorPosition=var.get_source_position(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
-                    if symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and not \
-                            symbol.get_referenced_object().get_source_position().isAddedSourcePosition():
+                    if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and
+                            not symbol.get_referenced_object().get_source_position().isAddedSourcePosition()):
                         code, message = Messages.getVariableDefinedRecursively(var.get_name())
                         Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.get_referenced_object().
                                           get_source_position(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=node)
         return
+
+
+class ASTExpressionCollectorVisitor(ASTVisitor):
+
+    def __init__(self):
+        super(ASTExpressionCollectorVisitor, self).__init__()
+        self.ret = list()
+
+    def visit_expression(self, node):
+        self.ret.append(node)
+
+    def traverse_expression(self, node):
+        # we deactivate traversal in order to get only the root of the expression
+        pass
+
+    def visit_simple_expression(self, node):
+        self.ret.append(node)
+
+    def traverse_simple_expression(self, node):
+        # we deactivate traversal in order to get only the root of the expression
+        pass

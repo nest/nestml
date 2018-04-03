@@ -53,7 +53,7 @@ def main(args):
     for compilationUnit in compilation_units:
         neurons.extend(compilationUnit.get_neuron_list())
     # check if across two files two neurons with same name have been defined
-    CoCosManager.checkNotTwoNeuronsAcrossUnits(compilation_units)
+    CoCosManager.check_not_two_neurons_across_units(compilation_units)
     # now exclude those which are broken, i.e. have errors.
     if not FrontendConfiguration.is_dev():
         for neuron in neurons:

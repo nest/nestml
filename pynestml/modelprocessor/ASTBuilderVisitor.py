@@ -55,7 +55,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
         # first ensure certain properties of the neuron
-        CoCosManager.checkNeuronNamesUnique(compilation_unit)
+        CoCosManager.check_neuron_names_unique(compilation_unit)
         return compilation_unit
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.

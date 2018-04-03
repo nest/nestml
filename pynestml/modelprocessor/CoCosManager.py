@@ -18,487 +18,331 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.CoCoFunctionUnique import CoCoFunctionUnique
-from pynestml.modelprocessor.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
-from pynestml.modelprocessor.CoCoFunctionCallsConsistent import CoCoFunctionCallsConsistent
 from pynestml.modelprocessor.CoCoAllVariablesDefined import CoCoAllVariablesDefined
-from pynestml.modelprocessor.CoCoVariableOncePerScope import CoCoVariableOncePerScope
+from pynestml.modelprocessor.CoCoBufferNotAssigned import CoCoBufferNotAssigned
+from pynestml.modelprocessor.CoCoConvolveCondCorrectlyBuilt import CoCoConvolveCondCorrectlyBuilt
+from pynestml.modelprocessor.CoCoCorrectNumeratorOfUnit import CoCoCorrectNumeratorOfUnit
+from pynestml.modelprocessor.CoCoCorrectOrderInEquation import CoCoCorrectOrderInEquation
+from pynestml.modelprocessor.CoCoCurrentBuffersNotSpecified import CoCoCurrentBuffersNotSpecified
+from pynestml.modelprocessor.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
+from pynestml.modelprocessor.CoCoEquationsOnlyForInitValues import CoCoEquationsOnlyForInitValues
+from pynestml.modelprocessor.CoCoFunctionCallsConsistent import CoCoFunctionCallsConsistent
 from pynestml.modelprocessor.CoCoFunctionHaveRhs import CoCoFunctionHaveRhs
 from pynestml.modelprocessor.CoCoFunctionMaxOneLhs import CoCoFunctionMaxOneLhs
-from pynestml.modelprocessor.CoCoBufferNotAssigned import CoCoBufferNotAssigned
-from pynestml.modelprocessor.CoCoCorrectOrderInEquation import CoCoCorrectOrderInEquation
-from pynestml.modelprocessor.CoCoCorrectNumeratorOfUnit import CoCoCorrectNumeratorOfUnit
+from pynestml.modelprocessor.CoCoFunctionUnique import CoCoFunctionUnique
+from pynestml.modelprocessor.CoCoIllegalExpression import CoCoIllegalExpression
+from pynestml.modelprocessor.CoCoInitVarsWithOdesProvided import CoCoInitVarsWithOdesProvided
+from pynestml.modelprocessor.CoCoInvariantIsBoolean import CoCoInvariantIsBoolean
 from pynestml.modelprocessor.CoCoNeuronNameUnique import CoCoNeuronNameUnique
 from pynestml.modelprocessor.CoCoNoNestNameSpaceCollision import CoCoNoNestNameSpaceCollision
-from pynestml.modelprocessor.CoCoTypeOfBufferUnique import CoCoTypeOfBufferUnique
-from pynestml.modelprocessor.CoCoParametersAssignedOnlyInParameterBlock import CoCoParametersAssignedOnlyInParameterBlock
-from pynestml.modelprocessor.CoCoCurrentBuffersNotSpecified import CoCoCurrentBuffersNotSpecified
-from pynestml.modelprocessor.CoCoOnlySpikeBufferDataTypes import CoCoOnlySpikeBufferDataTypes
-from pynestml.modelprocessor.CoCoInitVarsWithOdesProvided import CoCoInitVarsWithOdesProvided
-from pynestml.modelprocessor.CoCoUserDefinedFunctionCorrectlyDefined import CoCoUserDefinedFunctionCorrectlyDefined
-from pynestml.modelprocessor.CoCoEquationsOnlyForInitValues import CoCoEquationsOnlyForInitValues
-from pynestml.modelprocessor.CoCoConvolveCondCorrectlyBuilt import CoCoConvolveCondCorrectlyBuilt
 from pynestml.modelprocessor.CoCoNoShapesExceptInConvolve import CoCoNoShapesExceptInConvolve
 from pynestml.modelprocessor.CoCoNoTwoNeuronsInSetOfCompilationUnits import CoCoNoTwoNeuronsInSetOfCompilationUnits
-from pynestml.modelprocessor.CoCoInvariantIsBoolean import CoCoInvariantIsBoolean
-from pynestml.modelprocessor.CoCoVectorVariableInNonVectorDeclaration import CoCoVectorVariableInNonVectorDeclaration
+from pynestml.modelprocessor.CoCoOnlySpikeBufferDataTypes import CoCoOnlySpikeBufferDataTypes
+from pynestml.modelprocessor.CoCoParametersAssignedOnlyInParameterBlock import \
+    CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.modelprocessor.CoCoSumHasCorrectParameter import CoCoSumHasCorrectParameter
-from pynestml.modelprocessor.CoCoIllegalExpression import CoCoIllegalExpression
+from pynestml.modelprocessor.CoCoTypeOfBufferUnique import CoCoTypeOfBufferUnique
+from pynestml.modelprocessor.CoCoUserDefinedFunctionCorrectlyDefined import CoCoUserDefinedFunctionCorrectlyDefined
+from pynestml.modelprocessor.CoCoVariableOncePerScope import CoCoVariableOncePerScope
+from pynestml.modelprocessor.CoCoVectorVariableInNonVectorDeclaration import CoCoVectorVariableInNonVectorDeclaration
 
 
 class CoCosManager(object):
     """
-    This class is used to ensure that a handed over list of cocos holds.
-    Attributes:
-        __functionDefinedUniquely: This coco checks if each function is defined uniquely.
-        __eachBlockUniqueAndDefined: This coco checks if each block is defined correctly.
-        __functionCallDefinedAndTyped: This coco checks if all function calls are correctly defined.
-        __variablesUnique: This coco checks if all variables are uniquely defined.
-        __variablesDefinedBeforeUsage: This coco checks if all variables are defined before usage.
-        __functionsHaveRhs: This coco checks if all function declarations have a rhs.
-        __functionsHaveMaxOneLhs: This coco checks that all functions have exactly one lhs.
-        __noValuesAssignedToBuffers: This coco checks that no values are assigned to buffers.
-        __orderOfEquationsCorrect: This coco checks that orders of equations are correct.
-        __numeratorOfUnitIsOne: This coco checks that the numerator of units is 1.
-        __multipleNeuronsWithSameName: This coco checks if no two neurons with the same name are processed.
-        __nestNameSpaceCollision: This coco checks that there are no collisions with NEST namespace.
-        __bufferTypesDefinedUniquely: This coco checks if buffer keyword are not redundant.
-        __parametersNotAssignedOutsideCorrespondingBlock: This coco checks that no parameters are assigned outside
-                                                            the parameters block.
-        __currentBuffersNotSpecified: This coco checks current buffers are not specified with a type.
-        __buffersDatatypeCorrect: This coco checks that data types for buffers are correctly stated.
-        __initialValuesCorrect: This coco checks that all initial values are correctly defined.
-        __returnStmtCorrect: This coco checks tha all return statements in user defined function are correctly stated.
-        __equationsOnlyForInits: This coco checks that equitation are only given for variables in the initial values
-                                block.
-        __convolveCorrectlyBuilt: This coco checks that the convolve rhs is correctly typed.
-        __noShapesExceptInConvolve: This coco checks that shapes are only used inside convolve expressions.
-        __noCollisionAcrossUnits: This coco checks that no collision of types occurs.
-        __invariantCorrectlyTyped: This coco checks that invariants are correctly typed.
-        __vectorInNonVectorDetected: This coco checks that no vectors are used in non-vector declaration.
-        __sumIsCorrect: This coco checks that sum rhs are correctly used.
-        __expressionCorrect: This checks that types of rhs etc. are correctly stated.
+    This class provides a set of context conditions which have to hold for each neuron instance.
     """
-    __functionDefinedUniquely = CoCoFunctionUnique.check_co_co
-    __eachBlockUniqueAndDefined = CoCoEachBlockUniqueAndDefined.check_co_co
-    __functionCallDefinedAndTyped = CoCoFunctionCallsConsistent.check_co_co
-    __variablesUnique = CoCoVariableOncePerScope.check_co_co
-    __variablesDefinedBeforeUsage = CoCoAllVariablesDefined.check_co_co
-    __functionsHaveRhs = CoCoFunctionHaveRhs.check_co_co
-    __functionsHaveMaxOneLhs = CoCoFunctionMaxOneLhs.check_co_co
-    __noValuesAssignedToBuffers = CoCoBufferNotAssigned.check_co_co
-    __orderOfEquationsCorrect = CoCoCorrectOrderInEquation.check_co_co
-    __numeratorOfUnitIsOne = CoCoCorrectNumeratorOfUnit.check_co_co
-    __multipleNeuronsWithSameName = CoCoNeuronNameUnique.check_co_co
-    __nestNameSpaceCollision = CoCoNoNestNameSpaceCollision.check_co_co
-    __bufferTypesDefinedUniquely = CoCoTypeOfBufferUnique.check_co_co
-    __parametersNotAssignedOutsideCorrespondingBlock = CoCoParametersAssignedOnlyInParameterBlock.check_co_co
-    __currentBuffersNotSpecified = CoCoCurrentBuffersNotSpecified.check_co_co
-    __buffersDatatypeCorrect = CoCoOnlySpikeBufferDataTypes.check_co_co
-    __initialValuesCorrect = CoCoInitVarsWithOdesProvided.check_co_co
-    __returnStmtCorrect = CoCoUserDefinedFunctionCorrectlyDefined.check_co_co
-    __equationsOnlyForInits = CoCoEquationsOnlyForInitValues.check_co_co
-    __convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.check_co_co
-    __noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.check_co_co
-    __noCollisionAcrossUnits = CoCoNoTwoNeuronsInSetOfCompilationUnits.check_co_co
-    __invariantCorrectlyTyped = CoCoInvariantIsBoolean.check_co_co
-    __vectorInNonVectorDetected = CoCoVectorVariableInNonVectorDeclaration.check_co_co
-    __sumIsCorrect = CoCoSumHasCorrectParameter.check_co_co
-    __expressionCorrect = CoCoIllegalExpression.check_co_co
 
     @classmethod
-    def checkCocos(cls, _neuron):
-        """
-        Checks for the handle over neuron, consisting of a AST and the corresponding symbol table, whether all currently
-        active cocos hold or not. It is is left to the cocos to take correct, further processes, i.e., either stating
-        a simple error message or terminate with an exception.
-        :param _neuron: the neuron instance to check.
-        :type _neuron: ASTNeuron
-        """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.checkFunctionDefined(_neuron)
-        cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
-        cls.checkVariablesUniqueInScope(_neuron)
-        cls.checkVariablesDefinedBeforeUsage(_neuron)
-        return
-
-    @classmethod
-    def checkFunctionDefined(cls, _neuron=None):
+    def check_function_defined(cls, neuron):
         """
         Checks for the handed over neuron that each used function it is defined.
-        
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__functionDefinedUniquely(_neuron)
-        return
+        CoCoFunctionUnique.check_co_co(neuron)
 
     @classmethod
-    def checkEachBlockUniqueAndDefined(cls, _neuron=None):
+    def check_each_block_unique_and_defined(cls, neuron):
         """
         Checks if in the handed over neuron each block ist defined at most once and mandatory blocks are defined.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron instance
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__eachBlockUniqueAndDefined(_neuron)
-        return
+        CoCoEachBlockUniqueAndDefined.check_co_co(neuron)
 
     @classmethod
-    def checkFunctionDeclaredAndCorrectlyTyped(cls, _neuron=None):
+    def check_function_declared_and_correctly_typed(cls, neuron):
         """
         Checks if in the handed over neuron all function calls use existing functions and the argumets are 
         correctly typed.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron instance
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__functionCallDefinedAndTyped(_neuron)
-        return
+        CoCoFunctionCallsConsistent.check_co_co(neuron)
 
     @classmethod
-    def checkVariablesUniqueInScope(cls, _neuron=None):
+    def check_variables_unique_in_scope(cls, neuron):
         """
         Checks that all variables have been declared at most once per scope.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron instance
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__variablesUnique(_neuron)
-        return
+        CoCoVariableOncePerScope.check_co_co(neuron)
 
     @classmethod
-    def checkVariablesDefinedBeforeUsage(cls, _neuron=None):
+    def check_variables_defined_before_usage(cls, neuron):
         """
         Checks that all variables are defined before being used.
-        :param _neuron: a single neuron.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__variablesDefinedBeforeUsage(_neuron)
-        return
+        CoCoAllVariablesDefined.check_co_co(neuron)
 
     @classmethod
-    def checkFunctionsHaveRhs(cls, _neuron=None):
+    def check_functions_have_rhs(cls, neuron):
         """
         Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV 
-        :param _neuron: a single neuron object
-        :type _neuron: ASTNeuron 
+        :param neuron: a single neuron object
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__functionsHaveRhs(_neuron)
-        return
+        CoCoFunctionHaveRhs.check_co_co(neuron)
 
     @classmethod
-    def checkFunctionHasMaxOneLhs(cls, _neuron=None):
+    def check_function_has_max_one_lhs(cls, neuron):
         """
         Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV 
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__functionsHaveMaxOneLhs(_neuron)
-        return
+        CoCoFunctionMaxOneLhs.check_co_co(neuron)
 
     @classmethod
-    def checkNoValuesAssignedToBuffers(cls, _neuron=None):
+    def check_no_values_assigned_to_buffers(cls, neuron):
         """
         Checks that no values are assigned to buffers.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__noValuesAssignedToBuffers(_neuron)
-        return
+        CoCoBufferNotAssigned.check_co_co(neuron)
 
     @classmethod
-    def checkOrderOfEquationsCorrect(cls, _neuron=None):
+    def check_order_of_equations_correct(cls, neuron):
         """
         Checks that all equations specify the order of the variable.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__orderOfEquationsCorrect(_neuron)
-        return
+        CoCoCorrectOrderInEquation.check_co_co(neuron)
 
     @classmethod
-    def checkNumeratorOfUnitIsOneIfNumeric(cls, _neuron=None):
+    def check_numerator_of_unit_is_one_if_numeric(cls, neuron):
         """
         Checks that all units which have a numeric numerator use 1.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__numeratorOfUnitIsOne(_neuron)
-        return
+        CoCoCorrectNumeratorOfUnit.check_co_co(neuron)
 
     @classmethod
-    def checkNeuronNamesUnique(cls, _compilationUnit=None):
+    def check_neuron_names_unique(cls, compilation_unit):
         """
         Checks that all declared neurons in a compilation unit have a unique name.
-        :param _compilationUnit: a single compilation unit.
-        :type _compilationUnit: ASTCompilationUnit
+        :param compilation_unit: a single compilation unit.
+        :type compilation_unit: ASTCompilationUnit
         """
-        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNestMLCompilationUnit)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(_compilationUnit)
-        cls.__multipleNeuronsWithSameName(_compilationUnit)
-        return
+        CoCoNeuronNameUnique.check_co_co(compilation_unit)
 
     @classmethod
-    def checkNoNestNamespaceCollisions(cls, _neuron=None):
+    def check_no_nest_namespace_collisions(cls, neuron):
         """
         Checks that all units which have a numeric numerator use 1.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__nestNameSpaceCollision(_neuron)
-        return
+        CoCoNoNestNameSpaceCollision.check_co_co(neuron)
 
     @classmethod
-    def checkTypeOfBufferUnique(cls, _neuron=None):
+    def check_type_of_buffer_unique(cls, neuron):
         """
         Checks that all spike buffers have a unique type, i.e., no buffer is defined with redundant keywords.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__bufferTypesDefinedUniquely(_neuron)
-        return
+        CoCoTypeOfBufferUnique.check_co_co(neuron)
 
     @classmethod
-    def checkParametersNotAssignedOutsideParametersBlock(cls, _neuron=None):
+    def check_parameters_not_assigned_outside_parameters_block(cls, neuron):
         """
         Checks that parameters are not assigned outside the parameters block.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__parametersNotAssignedOutsideCorrespondingBlock(_neuron)
-        return
+        CoCoParametersAssignedOnlyInParameterBlock.check_co_co(neuron)
 
     @classmethod
-    def checkCurrentBuffersNoKeywords(cls, _neuron=None):
+    def check_current_buffers_no_keywords(cls, neuron):
         """
         Checks that input current buffers have not been specified with keywords, e.g., inhibitory.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__currentBuffersNotSpecified(_neuron)
-        return
+        CoCoCurrentBuffersNotSpecified.check_co_co(neuron)
 
     @classmethod
-    def checkBufferTypesAreCorrect(cls, _neuron=None):
+    def check_buffer_types_are_correct(cls, neuron):
         """
         Checks that input buffers have specified the data type if required an no data type if not allowed.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__buffersDatatypeCorrect(_neuron)
-        return
+        CoCoOnlySpikeBufferDataTypes.check_co_co(neuron)
 
     @classmethod
-    def checkInitVarsWithOdesProvided(cls, _neuron=None):
+    def check_init_vars_with_odes_provided(cls, neuron):
         """
         Checks that all initial variables have a rhs and are provided with the corresponding ode declaration.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__initialValuesCorrect(_neuron)
-        return
+        CoCoInitVarsWithOdesProvided.check_co_co(neuron)
 
     @classmethod
-    def checkUserDefinedFunctionCorrectlyBuilt(cls, _neuron=None):
+    def check_user_defined_function_correctly_built(cls, neuron):
         """
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
         and that the type corresponds to the declared one.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__returnStmtCorrect(_neuron)
-        return
+        CoCoUserDefinedFunctionCorrectlyDefined.check_co_co(neuron)
 
     @classmethod
-    def checkInitialOdeInitialValues(cls, _neuron=None):
+    def check_initial_ode_initial_values(cls, neuron):
         """
         Checks if variables of odes are declared in the initial_values block.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__equationsOnlyForInits(_neuron)
-        return
+        CoCoEquationsOnlyForInitValues.check_co_co(neuron)
 
     @classmethod
-    def checkConvolveCondCurrIsCorrect(cls, _neuron=None):
+    def check_convolve_cond_curr_is_correct(cls, neuron):
         """
         Checks if all convolve/curr_sum/cond_sum rhs are correctly provided with arguments.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__convolveCorrectlyBuilt(_neuron)
-        return
+        CoCoConvolveCondCorrectlyBuilt.check_co_co(neuron)
 
     @classmethod
-    def checkCorrectUsageOfShapes(cls, _neuron=None):
+    def check_correct_usage_of_shapes(cls, neuron):
         """
         Checks if all shapes are only used in cond_sum, cur_sum, convolve.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__noShapesExceptInConvolve(_neuron)
-        return
+        CoCoNoShapesExceptInConvolve.check_co_co(neuron)
 
     @classmethod
-    def checkNotTwoNeuronsAcrossUnits(cls, _compilationUnits=list()):
+    def check_not_two_neurons_across_units(cls, compilation_units):
         """
         Checks if in a set of compilation units, two neurons have the same name.
-        :param _compilationUnits: a  list of compilation units
-        :type _compilationUnits: list(ASTNestMLCompilationUnit)
+        :param compilation_units: a  list of compilation units
+        :type compilation_units: list(ASTNestMLCompilationUnit)
         """
-        assert (_compilationUnits is not None and isinstance(_compilationUnits, list)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(list)
-        cls.__noCollisionAcrossUnits(_compilationUnits)
-        return
+        CoCoNoTwoNeuronsInSetOfCompilationUnits.check_co_co(compilation_units)
 
     @classmethod
-    def checkInvariantTypeCorrect(cls, _neuron=None):
+    def check_invariant_type_correct(cls, neuron):
         """
         Checks if all invariants are of type boolean.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__invariantCorrectlyTyped(_neuron)
-        return
+        CoCoInvariantIsBoolean.check_co_co(neuron)
 
     @classmethod
-    def checkVectorInNonVectorDeclarationDetected(cls, _neuron=None):
+    def check_vector_in_non_vector_declaration_detected(cls, neuron):
         """
         Checks if no declaration a vector value is added to a non vector one.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__vectorInNonVectorDetected(_neuron)
-        return
+        CoCoVectorVariableInNonVectorDeclaration.check_co_co(neuron)
 
     @classmethod
-    def checkSumHasCorrectParameter(cls, _neuron=None):
+    def check_sum_has_correct_parameter(cls, neuron):
         """
         Checks that all cond_sum,cur_sum and convolve have variables as arguments.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__sumIsCorrect(_neuron)
-        return
+        CoCoSumHasCorrectParameter.check_co_co(neuron)
 
     @classmethod
-    def checkExpressionCorrect(cls, _neuron=None):
+    def check_expression_correct(cls, neuron):
         """
         Checks that all rhs in the model are correctly constructed, e.g. type(lhs)==type(rhs).
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
+        :param neuron: a single neuron
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__expressionCorrect(_neuron)
-        return
+        CoCoIllegalExpression.check_co_co(neuron)
 
     @classmethod
-    def postSymbolTableBuilderChecks(cls, _neuron=None):
+    def post_symbol_table_builder_checks(cls, neuron):
         """
         Checks the following constraints:
-            cls.checkFunctionDefined(_neuron)
-            cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
-            cls.checkVariablesUniqueInScope(_neuron)
-            cls.checkVariablesDefinedBeforeUsage(_neuron)
-            cls.checkFunctionsHaveRhs(_neuron)
-            cls.checkFunctionHasMaxOneLhs(_neuron)
-            cls.checkNoValuesAssignedToBuffers(_neuron)
-            cls.checkOrderOfEquationsCorrect(_neuron)
-            cls.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
-            cls.checkNoNestNamespaceCollisions(_neuron)
-            cls.checkTypeOfBufferUnique(_neuron)
-            cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
-            cls.checkCurrentBuffersNoKeywords(_neuron)
-            cls.checkBufferTypesAreCorrect(_neuron)
+            cls.check_function_defined(_neuron)
+            cls.check_function_declared_and_correctly_typed(_neuron)
+            cls.check_variables_unique_in_scope(_neuron)
+            cls.check_variables_defined_before_usage(_neuron)
+            cls.check_functions_have_rhs(_neuron)
+            cls.check_function_has_max_one_lhs(_neuron)
+            cls.check_no_values_assigned_to_buffers(_neuron)
+            cls.check_order_of_equations_correct(_neuron)
+            cls.check_numerator_of_unit_is_one_if_numeric(_neuron)
+            cls.check_no_nest_namespace_collisions(_neuron)
+            cls.check_type_of_buffer_unique(_neuron)
+            cls.check_parameters_not_assigned_outside_parameters_block(_neuron)
+            cls.check_current_buffers_no_keywords(_neuron)
+            cls.check_buffer_types_are_correct(_neuron)
             cls.checkUsedDefinedFunctionCorrectlyBuilt(_neuron)
-            cls.checkInitialOdeInitialValues(_neuron)
-            cls.checkInvariantTypeCorrect(_neuron)
-            cls.checkVectorInNonVectorDeclarationDetected(_neuron)
-            cls.checkSumHasCorrectParameter(_neuron)
-            cls.checkExpressionCorrect(_neuron)
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+            cls.check_initial_ode_initial_values(_neuron)
+            cls.check_invariant_type_correct(_neuron)
+            cls.check_vector_in_non_vector_declaration_detected(_neuron)
+            cls.check_sum_has_correct_parameter(_neuron)
+            cls.check_expression_correct(_neuron)
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.checkFunctionDefined(_neuron)
-        cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
-        cls.checkVariablesUniqueInScope(_neuron)
-        cls.checkVariablesDefinedBeforeUsage(_neuron)
-        cls.checkFunctionsHaveRhs(_neuron)
-        cls.checkFunctionHasMaxOneLhs(_neuron)
-        cls.checkNoValuesAssignedToBuffers(_neuron)
-        cls.checkOrderOfEquationsCorrect(_neuron)
-        cls.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
-        cls.checkNoNestNamespaceCollisions(_neuron)
-        cls.checkTypeOfBufferUnique(_neuron)
-        cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
-        cls.checkCurrentBuffersNoKeywords(_neuron)
-        cls.checkBufferTypesAreCorrect(_neuron)
-        cls.checkUserDefinedFunctionCorrectlyBuilt(_neuron)
-        cls.checkInitialOdeInitialValues(_neuron)
-        cls.checkConvolveCondCurrIsCorrect(_neuron)
-        cls.checkCorrectUsageOfShapes(_neuron)
-        cls.checkInvariantTypeCorrect(_neuron)
-        cls.checkVectorInNonVectorDeclarationDetected(_neuron)
-        cls.checkSumHasCorrectParameter(_neuron)
-        cls.checkExpressionCorrect(_neuron)
+        cls.check_function_defined(neuron)
+        cls.check_function_declared_and_correctly_typed(neuron)
+        cls.check_variables_unique_in_scope(neuron)
+        cls.check_variables_defined_before_usage(neuron)
+        cls.check_functions_have_rhs(neuron)
+        cls.check_function_has_max_one_lhs(neuron)
+        cls.check_no_values_assigned_to_buffers(neuron)
+        cls.check_order_of_equations_correct(neuron)
+        cls.check_numerator_of_unit_is_one_if_numeric(neuron)
+        cls.check_no_nest_namespace_collisions(neuron)
+        cls.check_type_of_buffer_unique(neuron)
+        cls.check_parameters_not_assigned_outside_parameters_block(neuron)
+        cls.check_current_buffers_no_keywords(neuron)
+        cls.check_buffer_types_are_correct(neuron)
+        cls.check_user_defined_function_correctly_built(neuron)
+        cls.check_initial_ode_initial_values(neuron)
+        cls.check_convolve_cond_curr_is_correct(neuron)
+        cls.check_correct_usage_of_shapes(neuron)
+        cls.check_invariant_type_correct(neuron)
+        cls.check_vector_in_non_vector_declaration_detected(neuron)
+        cls.check_sum_has_correct_parameter(neuron)
+        cls.check_expression_correct(neuron)
         return
 
     @classmethod
-    def postOdeSpecificationChecks(cls, _neuron=None):
+    def post_ode_specification_checks(cls, neuron):
         """
         Checks the following constraints:
-            cls.checkInitVarsWithOdesProvided
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+            cls.check_init_vars_with_odes_provided
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.checkInitVarsWithOdesProvided(_neuron)
-        return
+        cls.check_init_vars_with_odes_provided(neuron)
