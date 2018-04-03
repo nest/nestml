@@ -27,7 +27,7 @@ from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 
 
 class ASTUnaryVisitor(ASTVisitor):
@@ -60,7 +60,7 @@ class ASTUnaryVisitor(ASTVisitor):
                 error_msg = ErrorStrings.messageNonNumericType(self, term_type.print_symbol(),
                                                                node.get_source_position())
                 node.set_type_either(Either.error(error_msg))
-                Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+                Logger.log_message(error_msg, LoggingLevel.ERROR)
                 return
         elif unary_op.isUnaryTilde():
             if term_type.is_integer():
@@ -70,10 +70,10 @@ class ASTUnaryVisitor(ASTVisitor):
                 error_msg = ErrorStrings.messageNonNumericType(self, term_type.print_symbol(),
                                                                node.get_source_position())
                 node.set_type_either(Either.error(error_msg))
-                Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+                Logger.log_message(error_msg, LoggingLevel.ERROR)
                 return
         # Catch-all if no case has matched
         error_msg = ErrorStrings.messageTypeError(self, str(node), node.get_source_position())
-        Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+        Logger.log_message(error_msg, LoggingLevel.ERROR)
         node.set_type_either(Either.error(error_msg))
         return

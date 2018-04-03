@@ -22,7 +22,7 @@ from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -58,11 +58,11 @@ class InvariantTypeVisitor(ASTVisitor):
             invariant_type = node.get_invariant().get_type_either()
             if invariant_type is None or invariant_type.isError():
                 code, message = Messages.getTypeCouldNotBeDerived(str(node.get_invariant()))
-                Logger.logMessage(_errorPosition=node.get_invariant().get_source_position(), _code=code,
-                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+                Logger.log_message(error_position=node.get_invariant().get_source_position(), code=code,
+                                   message=message, log_level=LoggingLevel.ERROR)
             elif not invariant_type.getValue().equals(PredefinedTypes.getBooleanType()):
                 code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                       invariant_type.getValue())
-                Logger.logMessage(_errorPosition=node.get_invariant().get_source_position(), _code=code,
-                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+                Logger.log_message(error_position=node.get_invariant().get_source_position(), code=code,
+                                   message=message, log_level=LoggingLevel.ERROR)
         return

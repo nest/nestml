@@ -20,7 +20,7 @@
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -60,6 +60,6 @@ class NumericNumeratorVisitor(ASTVisitor):
         """
         if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
             code, message = Messages.getWrongNumerator(str(node))
-            Logger.logMessage(_code=code, _message=message, _errorPosition=node.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
         return

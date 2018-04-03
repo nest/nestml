@@ -25,7 +25,7 @@ from pynestml.modelprocessor.ASTStmt import ASTStmt
 
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.OdeTransformer import OdeTransformer
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
@@ -124,9 +124,9 @@ class TransformerBase(object):
                     break
         else:
             code, message = Messages.getOdeSolutionNotUsed()
-            Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
-                              _errorPosition=_neuron.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.INFO)
+            Logger.log_message(neuron=_neuron, code=code, message=message,
+                               error_position=_neuron.get_source_position(),
+                               log_level=LoggingLevel.INFO)
         return _neuron
 
     @classmethod

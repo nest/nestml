@@ -27,7 +27,7 @@ from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 
 
 class ASTPowerVisitor(ASTVisitor):
@@ -65,7 +65,7 @@ class ASTPowerVisitor(ASTVisitor):
                 if not exponent_type.is_integer():
                     error_msg = ErrorStrings.messageUnitBase(self, node.get_source_position())
                     node.set_type_either(Either.error(error_msg))
-                    Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+                    Logger.log_message(error_msg, LoggingLevel.ERROR)
                     return
                 base_unit = base_type.get_encapsulated_unit()
                 # TODO the following part is broken @ptraeder?
@@ -78,7 +78,7 @@ class ASTPowerVisitor(ASTVisitor):
                 else:
                     error_msg = exponent_value.getError()
                     node.set_type_either(Either.error(error_msg))
-                    Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+                    Logger.log_message(error_msg, LoggingLevel.ERROR)
                     return
             else:
                 node.set_type_either(Either.value(PredefinedTypes.getRealType()))
@@ -86,7 +86,7 @@ class ASTPowerVisitor(ASTVisitor):
         # Catch-all if no case has matched
         error_msg = ErrorStrings.messageUnitBase(self, node.get_source_position())
         node.set_type_either(Either.error(error_msg))
-        Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+        Logger.log_message(error_msg, LoggingLevel.ERROR)
 
     def calculate_numeric_value(self, expr):
         """

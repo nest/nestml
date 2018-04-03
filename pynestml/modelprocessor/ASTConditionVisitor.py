@@ -26,7 +26,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 
@@ -62,9 +62,9 @@ class ASTConditionVisitor(ASTVisitor):
         if not condition_e.getValue().equals(PredefinedTypes.getBooleanType()):
             error_msg = ErrorStrings.messageTernary(self, node.get_source_position())
             node.set_type_either(Either.error(error_msg))
-            Logger.logMessage(_message=error_msg, _errorPosition=node.get_source_position(),
-                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(message=error_msg, error_position=node.get_source_position(),
+                               code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                               log_level=LoggingLevel.ERROR)
             return
 
         # Alternatives match exactly -> any is valid
@@ -77,10 +77,10 @@ class ASTConditionVisitor(ASTVisitor):
             error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.print_symbol(), if_not.print_symbol(),
                                                             node.get_source_position())
             node.set_type_either(Either.value(PredefinedTypes.getRealType()))
-            Logger.logMessage(_message=error_msg,
-                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _errorPosition=if_true.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.WARNING)
+            Logger.log_message(message=error_msg,
+                               code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                               error_position=if_true.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
             return
 
         # one Unit and one numeric primitive and vice versa -> assume unit, WARN
@@ -93,10 +93,10 @@ class ASTConditionVisitor(ASTVisitor):
             error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
                                                             node.get_source_position())
             node.set_type_either(Either.value(unit_type))
-            Logger.logMessage(_message=error_msg,
-                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                              _errorPosition=if_true.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.WARNING)
+            Logger.log_message(message=error_msg,
+                               code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                               error_position=if_true.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
             return
 
         # both are numeric primitives (and not equal) ergo one is real and one is integer -> real
@@ -108,7 +108,7 @@ class ASTConditionVisitor(ASTVisitor):
         error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
                                                         node.get_source_position())
         node.set_type_either(Either.error(error_msg))
-        Logger.logMessage(_message=error_msg,
-                          _errorPosition=node.get_source_position(),
-                          _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                          _logLevel=LOGGING_LEVEL.ERROR)
+        Logger.log_message(message=error_msg,
+                           error_position=node.get_source_position(),
+                           code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                           log_level=LoggingLevel.ERROR)

@@ -26,7 +26,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 
 
 class ASTBinaryLogicVisitor(ASTVisitor):
@@ -55,5 +55,5 @@ class ASTBinaryLogicVisitor(ASTVisitor):
         else:
             error_msg = ErrorStrings.messageLogicOperandsNotBool(self, node.get_source_position())
             node.set_type_either(Either.error(error_msg))
-            Logger.logMessage(error_msg, LOGGING_LEVEL.ERROR)
+            Logger.log_message(error_msg, LoggingLevel.ERROR)
         return

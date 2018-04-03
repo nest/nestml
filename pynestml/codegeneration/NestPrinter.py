@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
@@ -151,7 +151,7 @@ class NestPrinter(object):
             elif output.is_current():
                 return 'nest::CurrentEvent'
             else:
-                Logger.logMessage('Unexpected output type. Must be current or spike.', LOGGING_LEVEL.ERROR)
+                Logger.log_message('Unexpected output type. Must be current or spike.', LoggingLevel.ERROR)
                 return 'none'
         else:
             return 'none'

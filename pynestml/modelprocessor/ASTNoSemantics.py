@@ -24,7 +24,7 @@ Placeholder for rhs productions that are not implemented
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 
@@ -43,8 +43,8 @@ class ASTNoSemantics(ASTVisitor):
         error_msg = ErrorStrings.messageNoSemantics(self, str(node), node.get_source_position())
         node.set_type_either(Either.error(error_msg))
         # just warn though
-        Logger.logMessage(_message=error_msg,
-                          _code=MessageCode.NO_SEMANTICS,
-                          _errorPosition=node.get_source_position(),
-                          _logLevel=LOGGING_LEVEL.WARNING)
+        Logger.log_message(message=error_msg,
+                           code=MessageCode.NO_SEMANTICS,
+                           error_position=node.get_source_position(),
+                           log_level=LoggingLevel.WARNING)
         return

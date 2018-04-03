@@ -22,7 +22,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -55,7 +55,7 @@ class NoBufferAssignedVisitor(ASTVisitor):
         if symbol is not None and (symbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE or
                                    symbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT):
             code, message = Messages.getValueAssignedToBuffer(node.get_variable().get_complete_name())
-            Logger.logMessage(_code=code, _message=message,
-                              _errorPosition=node.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(code=code, message=message,
+                               error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
         return

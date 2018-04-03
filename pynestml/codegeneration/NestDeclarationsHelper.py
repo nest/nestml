@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
 
@@ -56,8 +56,8 @@ class NestDeclarationsHelper(object):
                 ret.append(symbol)
             else:
                 code, message = Messages.getCouldNotResolve(var.get_complete_name())
-                Logger.logMessage(_code=code, _message=message,
-                                  _errorPosition=ast_declaration.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
+                Logger.log_message(code=code, message=message,
+                                   error_position=ast_declaration.get_source_position(), log_level=LoggingLevel.ERROR)
             return ret
 
     def printVariableType(self, _variableSymbol=None):

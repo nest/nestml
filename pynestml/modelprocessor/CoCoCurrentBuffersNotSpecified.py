@@ -20,7 +20,7 @@
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -59,6 +59,6 @@ class CurrentTypeSpecifiedVisitor(ASTVisitor):
         if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
             code, message = Messages.getCurrentBufferSpecified(node.get_name(),
                                                                list((str(buf) for buf in node.get_input_types())))
-            Logger.logMessage(_errorPosition=node.get_source_position(),
-                              _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(error_position=node.get_source_position(),
+                               code=code, message=message, log_level=LoggingLevel.ERROR)
         return

@@ -23,7 +23,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -64,6 +64,6 @@ class SumIsCorrectVisitor(ASTVisitor):
             for arg in node.get_args():
                 if not isinstance(arg, ASTSimpleExpression) or not arg.is_variable():
                     code, message = Messages.getNotAVariable(str(arg))
-                    Logger.logMessage(_code=code, _message=message,
-                                      _errorPosition=arg.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
+                    Logger.log_message(code=code, message=message,
+                                       error_position=arg.get_source_position(), log_level=LoggingLevel.ERROR)
         return

@@ -27,7 +27,7 @@ from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 
@@ -67,10 +67,10 @@ class ASTDotOperatorVisitor(ASTVisitor):
             else:
                 error_msg = ErrorStrings.messageExpectedInt(self, node.get_source_position())
                 node.set_type_either(Either.error(error_msg))
-                Logger.logMessage(_code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                                  _message=error_msg,
-                                  _errorPosition=node.get_source_position(),
-                                  _logLevel=LOGGING_LEVEL.ERROR)
+                Logger.log_message(code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                                   message=error_msg,
+                                   error_position=node.get_source_position(),
+                                   log_level=LoggingLevel.ERROR)
                 return
         if arith_op.is_div_op or arith_op.is_times_op:
             if lhs_type.is_numeric() and rhs_type.is_numeric():
@@ -112,7 +112,7 @@ class ASTDotOperatorVisitor(ASTVisitor):
         type_mismatch = lhs_type.print_symbol() + " / " if arith_op.is_div_op else " * " + rhs_type.print_symbol()
         error_msg = ErrorStrings.messageTypeMismatch(self, type_mismatch, node.get_source_position())
         node.set_type_either(Either.error(error_msg))
-        Logger.logMessage(_message=error_msg,
-                          _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                          _errorPosition=node.get_source_position(),
-                          _logLevel=LOGGING_LEVEL.ERROR)
+        Logger.log_message(message=error_msg,
+                           code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                           error_position=node.get_source_position(),
+                           log_level=LoggingLevel.ERROR)

@@ -25,7 +25,7 @@ from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import MessageCode
 
 
@@ -51,9 +51,9 @@ class ASTVariableVisitor(ASTVisitor):
             node.set_type_either(Either.value(var_resolve.get_type_symbol()))
         else:
             message = 'Variable ' + str(node) + ' could not be resolved!'
-            Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
-                              _errorPosition=node.get_source_position(),
-                              _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
+                               error_position=node.get_source_position(),
+                               message=message, log_level=LoggingLevel.ERROR)
             node.set_type_either(Either.error('Variable could not be resolved!'))
         return
 

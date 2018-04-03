@@ -67,7 +67,7 @@ from pynestml.modelprocessor.ASTVariable import ASTVariable
 from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
 
 
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
 
 
@@ -91,7 +91,7 @@ class ModelParser(object):
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
         code, message = Messages.getStartProcessingFile(file_path)
-        Logger.logMessage(_neuron=None, _code=code, _message=message, _errorPosition=None, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
         # create a lexer and hand over the input
         lexer = PyNestMLLexer(input_file)
         # create a token stream

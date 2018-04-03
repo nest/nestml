@@ -23,7 +23,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
 from pynestml.modelprocessor.Scope import ScopeType
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -72,7 +72,7 @@ class ParametersAssignmentVisitor(ASTVisitor):
         if symbol is not None and symbol.get_block_type() == BlockType.PARAMETERS and \
                         node.get_scope().getScopeType() != ScopeType.GLOBAL:
             code, message = Messages.getAssignmentNotAllowed(node.get_variable().get_complete_name())
-            Logger.logMessage(_errorPosition=node.get_source_position(),
-                              _code=code, _message=message,
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(error_position=node.get_source_position(),
+                               code=code, message=message,
+                               log_level=LoggingLevel.ERROR)
         return

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -60,8 +60,8 @@ class CoCoNeuronNameUnique(CoCo):
             for neuronB in _compilationUnit.get_neuron_list():
                 if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name() and neuronB not in checked:
                     code, message = Messages.getNeuronRedeclared(neuronB.get_name())
-                    Logger.logMessage(_errorPosition=neuronB.get_source_position(),
-                                      _code=code, _message=message,
-                                      _logLevel=LOGGING_LEVEL.ERROR)
+                    Logger.log_message(error_position=neuronB.get_source_position(),
+                                       code=code, message=message,
+                                       log_level=LoggingLevel.ERROR)
             checked.append(neuronA)
         return

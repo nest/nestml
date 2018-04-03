@@ -22,7 +22,7 @@
 from pynestml.modelprocessor.ASTBody import ASTBody
 from pynestml.modelprocessor.VariableSymbol import VariableSymbol
 from pynestml.modelprocessor.ASTNode import ASTNode
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 from pynestml.utils.ASTUtils import ASTUtils
 
@@ -412,11 +412,11 @@ class ASTNeuron(ASTNode):
                     ret.append(iBuffer)
                 else:
                     code, message = Messages.getCouldNotResolve(iBuffer.getSymbolName())
-                    Logger.logMessage(
-                        _message=message,
-                        _code=code,
-                        _errorPosition=iBuffer.getSourcePosition(),
-                        _logLevel=LOGGING_LEVEL.ERROR)
+                    Logger.log_message(
+                        message=message,
+                        code=code,
+                        error_position=iBuffer.getSourcePosition(),
+                        log_level=LoggingLevel.ERROR)
         return ret
 
     def getParameterNonAliasSymbols(self):

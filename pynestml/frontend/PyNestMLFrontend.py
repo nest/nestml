@@ -30,7 +30,7 @@ from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
 
 
@@ -57,11 +57,11 @@ def main(args):
     # now exclude those which are broken, i.e. have errors.
     if not FrontendConfiguration.is_dev():
         for neuron in neurons:
-            if Logger.hasErrors(neuron):
+            if Logger.has_errors(neuron):
                 code, message = Messages.getNeuronContainsErrors(neuron.get_name())
-                Logger.logMessage(_neuron=neuron, _code=code, _message=message,
-                                  _errorPosition=neuron.get_source_position(),
-                                  _logLevel=LOGGING_LEVEL.INFO)
+                Logger.log_message(neuron=neuron, code=code, message=message,
+                                   error_position=neuron.get_source_position(),
+                                   log_level=LoggingLevel.INFO)
                 neurons.remove(neuron)
 
     if not FrontendConfiguration.is_dry_run():
@@ -70,7 +70,7 @@ def main(args):
         nest_generator.generateNESTModuleCode(neurons)
     else:
         code, message = Messages.getDryRun()
-        Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
     if FrontendConfiguration.store_log():
         store_log_to_file()
     return
@@ -87,7 +87,7 @@ def init_predefined():
 def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(),
                                'log')) + '.txt', 'w+') as f:
-        f.write(str(Logger.getPrintableFormat()))
+        f.write(str(Logger.get_json_format()))
     return
 
 

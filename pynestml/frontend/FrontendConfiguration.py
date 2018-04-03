@@ -93,10 +93,10 @@ class FrontendConfiguration(object):
 
         if parsed_args.logging_level is not None:
             cls.__loggingLevel = parsed_args.logging_level
-            Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level[0]))
+            Logger.init_logger(Logger.string_to_level(parsed_args.logging_level[0]))
         else:
             cls.__loggingLevel = "ERROR"
-            Logger.initLogger(Logger.stringToLevel("ERROR"))
+            Logger.init_logger(Logger.string_to_level("ERROR"))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.__dryRun = parsed_args.dry
         # check if a target has been selected, otherwise set the buildNest as target
@@ -151,7 +151,7 @@ class FrontendConfiguration(object):
         """
         Returns the set logging level.
         :return: the logging level
-        :rtype: LOGGING_LEVEL
+        :rtype: LoggingLevel
         """
         return cls.__loggingLevel
 

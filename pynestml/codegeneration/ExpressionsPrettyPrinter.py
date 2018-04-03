@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTExpression import ASTExpression
@@ -122,7 +122,7 @@ class ExpressionsPrettyPrinter(object):
                 ifNot = self.printExpression(_expr.if_not)
                 return self.__referenceConverter.convertTernaryOperator() % (condition, ifTrue, ifNot)
         else:
-            Logger.logMessage('Unsupported rhs in rhs pretty printer!', LOGGING_LEVEL.ERROR)
+            Logger.log_message('Unsupported rhs in rhs pretty printer!', LoggingLevel.ERROR)
             return ''
 
     def printFunctionCall(self, _functionCall):

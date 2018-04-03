@@ -34,7 +34,7 @@ from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()
@@ -42,7 +42,7 @@ PredefinedTypes.registerTypes()
 PredefinedFunctions.registerPredefinedFunctions()
 PredefinedVariables.registerPredefinedVariables()
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-Logger.initLogger(LOGGING_LEVEL.NO)
+Logger.init_logger(LoggingLevel.NO)
 
 
 class ExpressionParsingTest(unittest.TestCase):

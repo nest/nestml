@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -66,17 +66,17 @@ class CoCoVariableOncePerScope(CoCo):
                                 sym2 not in checked:
                     if sym1.is_predefined():
                         code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), True)
-                        Logger.logMessage(_errorPosition=sym2.get_referenced_object().get_source_position(),
-                                          _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
+                        Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
+                                           neuron=_neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
                     elif sym2.is_predefined():
                         code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), True)
-                        Logger.logMessage(_errorPosition=sym1.get_referenced_object().get_source_position(),
-                                          _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
+                        Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),
+                                           neuron=_neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
                     elif sym1.get_referenced_object().get_source_position().before(
                             sym2.get_referenced_object().get_source_position()):
                         code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), False)
-                        Logger.logMessage(_errorPosition=sym2.get_referenced_object().get_source_position(),
-                                          _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
+                        Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
+                                           neuron=_neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
             checked.append(sym1)
         for scope in _scope.getScopes():
             cls.__checkScope(_neuron, scope)

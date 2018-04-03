@@ -26,7 +26,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 
@@ -65,15 +65,15 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
             error_msg = ErrorStrings.messageComparison(self, node.get_source_position())
             node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
-            Logger.logMessage(_message=error_msg, _code=MessageCode.SOFT_INCOMPATIBILITY,
-                              _errorPosition=node.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.WARNING)
+            Logger.log_message(message=error_msg, code=MessageCode.SOFT_INCOMPATIBILITY,
+                               error_position=node.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
             return
         else:
             # hard incompatibility, cannot recover in c++, ERROR
             error_msg = ErrorStrings.messageComparison(self, node.get_source_position())
             node.set_type_either(Either.error(error_msg))
-            Logger.logMessage(_code=MessageCode.HARD_INCOMPATIBILITY,
-                              _errorPosition=node.get_source_position(),
-                              _message=error_msg, _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(code=MessageCode.HARD_INCOMPATIBILITY,
+                               error_position=node.get_source_position(),
+                               message=error_msg, log_level=LoggingLevel.ERROR)
             return

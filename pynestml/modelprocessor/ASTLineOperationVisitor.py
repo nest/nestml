@@ -27,7 +27,7 @@ from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 
@@ -83,9 +83,9 @@ class ASTLineOperatorVisitor(ASTVisitor):
                                                                    rhs_type.print_symbol(), 'real',
                                                                    node.get_source_position())
                 node.set_type_either(Either.value(PredefinedTypes.getRealType()))
-                Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
-                                  _errorPosition=node.get_source_position(),
-                                  _message=error_msg, _logLevel=LOGGING_LEVEL.WARNING)
+                Logger.log_message(code=MessageCode.ADD_SUB_TYPE_MISMATCH,
+                                   error_position=node.get_source_position(),
+                                   message=error_msg, log_level=LoggingLevel.WARNING)
                 return
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
             if (lhs_type.is_unit() and rhs_type.is_numeric_primitive()) or (
@@ -98,8 +98,8 @@ class ASTLineOperatorVisitor(ASTVisitor):
                                                                    rhs_type.print_symbol(), unit_type.print_symbol(),
                                                                    node.get_source_position())
                 node.set_type_either(Either.value(unit_type))
-                Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=error_msg,
-                                  _errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.WARNING)
+                Logger.log_message(code=MessageCode.ADD_SUB_TYPE_MISMATCH, message=error_msg,
+                                   error_position=node.get_source_position(), log_level=LoggingLevel.WARNING)
                 return
 
         # if we get here, we are in a general error state
@@ -107,5 +107,5 @@ class ASTLineOperatorVisitor(ASTVisitor):
                                                            rhs_type.print_symbol(), 'ERROR',
                                                            node.get_source_position())
         node.set_type_either(Either.error(error_msg))
-        Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=error_msg,
-                          _errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
+        Logger.log_message(code=MessageCode.ADD_SUB_TYPE_MISMATCH, message=error_msg,
+                           error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)

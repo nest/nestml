@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.Symbol import SymbolKind
@@ -130,7 +130,7 @@ class ASTUtils(object):
         elif data_type.is_unit_type():
             return str(data_type)
         else:
-            Logger.logMessage('Type could not be derived!', LOGGING_LEVEL.ERROR)
+            Logger.log_message('Type could not be derived!', LoggingLevel.ERROR)
             return ''
 
     @classmethod

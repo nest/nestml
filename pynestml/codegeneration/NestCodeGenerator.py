@@ -28,7 +28,7 @@ from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.GSLReferenceConverter import GSLReferenceConverter
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
@@ -92,7 +92,7 @@ class NestCodeGenerator(object):
                                    FrontendConfiguration.get_module_name() + "-init")) + '.sli', 'w+') as f:
             f.write(str(self.__templateSLIInit.render(namespace)))
         code, message = Messages.getModuleGenerated(FrontendConfiguration.get_target_path())
-        Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
         return
 
     def analyseAndGenerateNeuron(self, _neuron=None):
@@ -104,8 +104,8 @@ class NestCodeGenerator(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGenerator.NEST) No or wrong type of module neuron provided (%s)!' % type(_neuron)
         code, message = Messages.getStartProcessingNeuron(_neuron.get_name())
-        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.get_source_position(), _code=code, _message=message,
-                          _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(neuron=_neuron, error_position=_neuron.get_source_position(), code=code, message=message,
+                           log_level=LoggingLevel.INFO)
         workingVersion = deepcopy(_neuron)
         # solve all equations
         workingVersion = self.solveOdesAndShapes(workingVersion)
@@ -113,8 +113,8 @@ class NestCodeGenerator(object):
         workingVersion.accept(ASTSymbolTableVisitor())
         self.generateNestCode(workingVersion)
         code, message = Messages.getCodeGenerated(_neuron.get_name(), FrontendConfiguration.get_target_path())
-        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.get_source_position(), _code=code, _message=message,
-                          _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(neuron=_neuron, error_position=_neuron.get_source_position(), code=code, message=message,
+                           log_level=LoggingLevel.INFO)
         return
 
     def analyseAndGenerateNeurons(self, _neurons=None):
@@ -254,13 +254,13 @@ class NestCodeGenerator(object):
         else:
             if len(equationsBlock.getOdeEquations()) > 1 and len(equationsBlock.getOdeShapes()) == 0:
                 code, message = Messages.getNeuronSolvedBySolver(_neuron.get_name())
-                Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
-                                  _errorPosition=_neuron.get_source_position(), _logLevel=LOGGING_LEVEL.INFO)
+                Logger.log_message(neuron=_neuron, code=code, message=message,
+                                   error_position=_neuron.get_source_position(), log_level=LoggingLevel.INFO)
                 return _neuron
             else:
                 code, message = Messages.getNeuronAnalyzed(_neuron.get_name())
-                Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
-                                  _errorPosition=_neuron.get_source_position(),
-                                  _logLevel=LOGGING_LEVEL.INFO)
+                Logger.log_message(neuron=_neuron, code=code, message=message,
+                                   error_position=_neuron.get_source_position(),
+                                   log_level=LoggingLevel.INFO)
                 workingCopy = EquationsBlockProcessor.solveOdeWithShapes(_neuron)
                 return workingCopy

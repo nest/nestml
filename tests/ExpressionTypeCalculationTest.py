@@ -30,7 +30,7 @@ from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 # minor setup steps required
@@ -61,14 +61,14 @@ class expressionTestVisitor(ASTVisitor):
             message += (" Neuroscience Factor: " +
                         str(UnitConverter().getFactor(_expr.get_type_either().getValue().get_unit().get_unit())))
 
-        Logger.logMessage(_errorPosition=node.get_source_position(), _code=MessageCode.TYPE_MISMATCH,
-                          _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
+                           message=message, log_level=LoggingLevel.INFO)
 
         if _equals is False:
-            Logger.logMessage(_message="Type mismatch in test!",
-                              _code=MessageCode.TYPE_MISMATCH,
-                              _errorPosition=node.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            Logger.log_message(message="Type mismatch in test!",
+                               code=MessageCode.TYPE_MISMATCH,
+                               error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
         return
 
 
@@ -78,14 +78,14 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     """
 
     def test(self):
-        Logger.initLogger(LOGGING_LEVEL.NO)
+        Logger.init_logger(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
-        Logger.setCurrentNeuron(model.get_neuron_list()[0])
+        Logger.set_current_neuron(model.get_neuron_list()[0])
         expressionTestVisitor().handle(model)
-        Logger.setCurrentNeuron(None)
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.get_neuron_list()[0], LOGGING_LEVEL.ERROR)) == 2)
+        Logger.set_current_neuron(None)
+        assert (len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)) == 2)
 
 
 if __name__ == '__main__':

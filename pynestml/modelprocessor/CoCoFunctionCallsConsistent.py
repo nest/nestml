@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Messages import Messages
 from pynestml.modelprocessor.CoCo import CoCo
@@ -66,14 +66,14 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         # first check if the function has been declared
         if symbol is None:
             code, message = Messages.getFunctionNotDeclared(node.get_name())
-            Logger.logMessage(_errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR,
-                              _code=code, _message=message)
+            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                               code=code, message=message)
         # now check if the number of arguments is the same as in the symbol
         if symbol is not None and len(node.get_args()) != len(symbol.get_parameter_types()):
             code, message = Messages.getWrongNumberOfArgs(str(node), len(symbol.get_parameter_types()),
                                                           len(node.get_args()))
-            Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                              _errorPosition=node.get_source_position())
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
+                               error_position=node.get_source_position())
         # finally check if the call is correctly typed
         elif symbol is not None:
             expected_types = symbol.get_parameter_types()
@@ -83,21 +83,21 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
                 actual_type = actual_types[i].get_type_either()
                 if actual_type.isError():
                     code, message = Messages.getTypeCouldNotBeDerived(actual_types[i])
-                    Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                                      _errorPosition=actual_types[i].get_source_position())
+                    Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
+                                       error_position=actual_types[i].get_source_position())
                 elif not actual_type.getValue().equals(expected_type):
                     if ASTUtils.is_castable_to(actual_type.getValue(), expected_type):
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=node,
                                                                              _expectedType=expected_type,
                                                                              _gotType=actual_type, _castable=True)
 
-                        Logger.logMessage(_errorPosition=node.get_args()[i].get_source_position(),
-                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                        Logger.log_message(error_position=node.get_args()[i].get_source_position(),
+                                           code=code, message=message, log_level=LoggingLevel.WARNING)
                     else:
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=node,
                                                                              _expectedType=expected_type,
                                                                              _gotType=actual_type, _castable=False)
 
-                        Logger.logMessage(_errorPosition=node.get_args()[i].get_source_position(),
-                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                        Logger.log_message(error_position=node.get_args()[i].get_source_position(),
+                                           code=code, message=message, log_level=LoggingLevel.WARNING)
         return

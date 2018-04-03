@@ -30,7 +30,7 @@ from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.Scope import Scope, ScopeType
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
 from pynestml.utils.Stack import Stack
 
@@ -53,10 +53,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :rtype: ASTNeuron
         """
         # set current processed neuron
-        Logger.setCurrentNeuron(node)
+        Logger.set_current_neuron(node)
         code, message = Messages.getStartBuildingSymbolTable()
-        Logger.logMessage(_neuron=node, _code=code, _errorPosition=node.get_source_position(),
-                          _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
+                           message=message, log_level=LoggingLevel.INFO)
         # before starting the work on the neuron, make everything which was implicit explicit
         # but if we have a model without an equations block, just skip this step
         if node.get_equations_blocks() is not None:
@@ -94,7 +94,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             equation_block = node.get_equations_blocks()
             assign_ode_to_variables(equation_block)
         CoCosManager.post_ode_specification_checks(node)
-        Logger.setCurrentNeuron(None)
+        Logger.set_current_neuron(None)
         return
 
     def visit_body(self, node):
@@ -525,8 +525,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_datatype().update_scope(node.get_scope())
         elif node.is_spike():
             code, message = Messages.getBufferTypeNotDefined(node.get_name())
-            Logger.logMessage(_code=code, _message=message, _errorPosition=node.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.WARNING)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
         for inputType in node.get_input_types():
             inputType.update_scope(node.get_scope())
 
@@ -536,8 +536,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
             type_symbol = node.get_datatype().get_type_symbol()
         elif node.is_spike():
             code, message = Messages.getBufferTypeNotDefined(node.get_name())
-            Logger.logMessage(_code=code, _message=message, _errorPosition=node.get_source_position(),
-                              _logLevel=LOGGING_LEVEL.WARNING)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
             type_symbol = PredefinedTypes.getTypeIfExists('nS')
         else:
             type_symbol = PredefinedTypes.getTypeIfExists('pA')
@@ -687,12 +687,12 @@ def add_ode_to_variable(ode_equation):
     if existing_symbol is not None:
         existing_symbol.set_ode_definition(ode_equation.get_rhs())
         code, message = Messages.getOdeUpdated(ode_equation.get_lhs().get_name_of_lhs())
-        Logger.logMessage(_errorPosition=existing_symbol.get_referenced_object().get_source_position(),
-                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
+                           code=code, message=message, log_level=LoggingLevel.INFO)
     else:
         code, message = Messages.getNoVariableFound(ode_equation.get_lhs().get_name_of_lhs())
-        Logger.logMessage(_code=code, _message=message, _errorPosition=ode_equation.get_source_position(),
-                          _logLevel=LOGGING_LEVEL.ERROR)
+        Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
     return
 
 
@@ -712,10 +712,10 @@ def add_ode_shape_to_variable(ode_shape):
         existing_symbol.set_ode_definition(ode_shape.get_expression())
         existing_symbol.set_variable_type(VariableType.SHAPE)
         code, message = Messages.getOdeUpdated(ode_shape.get_variable().get_name_of_lhs())
-        Logger.logMessage(_errorPosition=existing_symbol.get_referenced_object().get_source_position(),
-                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
+                           code=code, message=message, log_level=LoggingLevel.INFO)
     else:
         code, message = Messages.getNoVariableFound(ode_shape.get_variable().get_name_of_lhs())
-        Logger.logMessage(_code=code, _message=message, _errorPosition=ode_shape.get_source_position(),
-                          _logLevel=LOGGING_LEVEL.ERROR)
+        Logger.log_message(code=code, message=message, error_position=ode_shape.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
     return

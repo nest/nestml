@@ -21,7 +21,7 @@ from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -64,11 +64,11 @@ class ConvolveCheckerVisitor(ASTVisitor):
                                                              SymbolKind.VARIABLE)
             if symbol_var is not None and not symbol_var.is_shape() and not symbol_var.is_init_values():
                 code, message = Messages.getFirstArgNotShapeOrEquation(func_name)
-                Logger.logMessage(_code=code, _message=message,
-                                  _errorPosition=node.get_source_position(), _logLevel=LOGGING_LEVEL.ERROR)
+                Logger.log_message(code=code, message=message,
+                                   error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
             if symbol_buffer is not None and not symbol_buffer.is_input_buffer_spike():
                 code, message = Messages.getSecondArgNotABuffer(func_name)
-                Logger.logMessage(_errorPosition=node.get_source_position(),
-                                  _code=code, _message=message,
-                                  _logLevel=LOGGING_LEVEL.ERROR)
+                Logger.log_message(error_position=node.get_source_position(),
+                                   code=code, message=message,
+                                   log_level=LoggingLevel.ERROR)
             return

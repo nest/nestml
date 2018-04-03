@@ -22,7 +22,7 @@ from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
 
 
@@ -56,8 +56,8 @@ class CoCoAllVariablesDefined(CoCo):
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     code, message = Messages.getNoVariableFound(var.get_name())
-                    Logger.logMessage(_neuron=node, _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
-                                      _errorPosition=var.get_source_position())
+                    Logger.log_message(neuron=node, code=code, message=message, log_level=LoggingLevel.ERROR,
+                                       error_position=var.get_source_position())
                 # now check if it has been defined before usage, except for buffers, those are special cases
                 elif (not symbol.is_predefined() and symbol.get_block_type() != BlockType.INPUT_BUFFER_CURRENT and
                       symbol.get_block_type() != BlockType.INPUT_BUFFER_SPIKE):
@@ -65,14 +65,14 @@ class CoCoAllVariablesDefined(CoCo):
                     if (not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and
                             symbol.get_block_type() != BlockType.PARAMETERS):
                         code, message = Messages.getVariableUsedBeforeDeclaration(var.get_name())
-                        Logger.logMessage(_neuron=node, _message=message, _errorPosition=var.get_source_position(),
-                                          _code=code, _logLevel=LOGGING_LEVEL.ERROR)
+                        Logger.log_message(neuron=node, message=message, error_position=var.get_source_position(),
+                                           code=code, log_level=LoggingLevel.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and
                             not symbol.get_referenced_object().get_source_position().isAddedSourcePosition()):
                         code, message = Messages.getVariableDefinedRecursively(var.get_name())
-                        Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.get_referenced_object().
-                                          get_source_position(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=node)
+                        Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
+                                           get_source_position(), log_level=LoggingLevel.ERROR, neuron=node)
         return
 
 

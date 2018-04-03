@@ -29,7 +29,7 @@ from pynestml.modelprocessor.CoCoEachBlockUniqueAndDefined import CoCoEachBlockU
 from pynestml.modelprocessor.ASTSignalType import ASTSignalType
 from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
 
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 
 class ASTBuilderVisitor(PyNestMLVisitor):
@@ -427,9 +427,9 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         # update the comments
         neuron.set_comment(self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.setCurrentNeuron(neuron)
+        Logger.set_current_neuron(neuron)
         CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
-        Logger.setCurrentNeuron(neuron)
+        Logger.set_current_neuron(neuron)
         # now the ast seems to be correct, return it
         return neuron
 
@@ -484,8 +484,8 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         elif block_type == 'initial_values':
             ret = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, declarations, source_pos)
         else:
-            Logger.logMessage('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
-                              LOGGING_LEVEL.ERROR)
+            Logger.log_message('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
+                               LoggingLevel.ERROR)
             return
         ret.set_comment(self.__comments.visit(ctx))
         return ret
