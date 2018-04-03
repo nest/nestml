@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.Either import Either
@@ -140,7 +140,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for arg in node.get_parameters():
             # given the fact that the name is not directly equivalent to the one as stated in the model,
             # we have to get it by the sub-visitor
-            type_name = ASTDataTypeVisitor.visitDatatype(arg.get_data_type())
+            data_type_visitor = ASTDataTypeVisitor()
+            arg.get_data_type().accept(data_type_visitor)
+            type_name = data_type_visitor.result
             # first collect the types for the parameters of the function symbol
             symbol.add_parameter_type(PredefinedTypes.getTypeIfExists(type_name))
             # update the scope of the arg
@@ -153,8 +155,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                         variable_type=VariableType.VARIABLE)
             scope.addSymbol(var_symbol)
         if node.has_return_type():
-            symbol.set_return_type(
-                PredefinedTypes.getTypeIfExists(ASTDataTypeVisitor.visitDatatype(node.get_return_type())))
+            data_type_visitor = ASTDataTypeVisitor()
+            node.get_return_type().accept(data_type_visitor)
+            symbol.set_return_type(PredefinedTypes.getTypeIfExists(data_type_visitor.result))
         else:
             symbol.set_return_type(PredefinedTypes.getVoidType())
         self.block_type_stack.pop()  # before leaving update the type
@@ -250,7 +253,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :rtype: void
         """
         expression = node.get_expression() if node.has_expression() else None
-        type_name = ASTDataTypeVisitor.visitDatatype(node.get_data_type())
+        visitor = ASTDataTypeVisitor()
+        node.get_data_type().accept(visitor)
+        type_name = visitor.result
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable() or
                          self.block_type_stack.top() == BlockType.STATE or
@@ -425,7 +430,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single ode-function.
         :type node: ASTOdeFunction
         """
-        type_symbol = PredefinedTypes.getTypeIfExists(ASTDataTypeVisitor.visitDatatype(node.get_data_type()))
+        data_type_visitor = ASTDataTypeVisitor()
+        node.get_data_type().accept(data_type_visitor)
+        type_symbol = PredefinedTypes.getTypeIfExists(data_type_visitor.result)
         # now a new symbol
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
                                 name=node.get_variable_name(),

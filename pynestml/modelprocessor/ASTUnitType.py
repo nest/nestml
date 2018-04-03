@@ -48,6 +48,8 @@ class ASTUnitType(ASTNode):
     rhs = None
     # simple case, just a name
     unit = None
+    # the corresponding symbol
+    type_symbol = None
 
     def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
                  exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, source_position=None):
@@ -117,7 +119,13 @@ class ASTUnitType(ASTNode):
         """
         return self.rhs
 
-    def get_parent(self, ast=None):
+    def get_type_symbol(self):
+        return self.type_symbol
+
+    def set_type_symbol(self, type_symbol):
+        self.type_symbol = type_symbol
+
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary ast node.
@@ -167,7 +175,7 @@ class ASTUnitType(ASTNode):
         else:
             return self.unit
 
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.

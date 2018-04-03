@@ -70,7 +70,8 @@ class ASTBuilderVisitor(PyNestMLVisitor):
                                                   is_real=is_real, is_string=is_string, is_void=is_void,
                                                   is_unit_type=unit, source_position=create_source_pos(ctx))
         # now update the type
-        self.data_type_visitor.visitDatatype(ret)
+        ret.accept(ASTDataTypeVisitor())
+        #self.data_type_visitor.visit_datatype(ret)
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.
