@@ -78,10 +78,10 @@ def main(args):
 
 def init_predefined():
     # initialize the predefined elements
-    PredefinedUnits.registerUnits()
-    PredefinedTypes.registerTypes()
-    PredefinedFunctions.registerPredefinedFunctions()
-    PredefinedVariables.registerPredefinedVariables()
+    PredefinedUnits.register_units()
+    PredefinedTypes.register_types()
+    PredefinedFunctions.register_predefined_functions()
+    PredefinedVariables.register_predefined_variables()
 
 
 def store_log_to_file():

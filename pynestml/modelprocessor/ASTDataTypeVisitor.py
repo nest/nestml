@@ -47,19 +47,19 @@ class ASTDataTypeVisitor(ASTVisitor):
         :type node: ASTDataType
         """
         if node.is_integer():
-            self.symbol = PredefinedTypes.getIntegerType()
+            self.symbol = PredefinedTypes.get_integer_type()
             node.set_type_symbol(self.symbol)
         elif node.is_real():
-            self.symbol = PredefinedTypes.getRealType()
+            self.symbol = PredefinedTypes.get_real_type()
             node.set_type_symbol(self.symbol)
         elif node.is_string():
-            self.symbol = PredefinedTypes.getStringType()
+            self.symbol = PredefinedTypes.get_string_type()
             node.set_type_symbol(self.symbol)
         elif node.is_boolean():
-            self.symbol = PredefinedTypes.getBooleanType()
+            self.symbol = PredefinedTypes.get_boolean_type()
             node.set_type_symbol(self.symbol)
         elif node.is_void():
-            self.symbol = PredefinedTypes.getVoidType()
+            self.symbol = PredefinedTypes.get_void_type()
             node.set_type_symbol(self.symbol)
 
     def endvisit_data_type(self, node):
@@ -80,7 +80,7 @@ class ASTDataTypeVisitor(ASTVisitor):
         :rtype: TypeSymbol
         """
         if node.is_simple_unit():
-            type_s = PredefinedTypes.getTypeIfExists(node.unit)
+            type_s = PredefinedTypes.get_type_if_exists(node.unit)
             if type_s is None:
                 raise RuntimeError('Unknown atomic unit %s.' % node.unit)
             else:
@@ -136,14 +136,14 @@ def handle_unit(unit_type):
         to_process = unit_type.unit
     else:
         to_process = unit_type
-    if str(to_process) not in PredefinedUnits.getUnits().keys():
+    if str(to_process) not in PredefinedUnits.get_units().keys():
         unit_type = UnitType(_name=str(to_process), _unit=to_process)
-        PredefinedUnits.registerUnit(unit_type)
+        PredefinedUnits.register_unit(unit_type)
     # now create the corresponding type symbol if it does not exists
-    if PredefinedTypes.getTypeIfExists(str(to_process)) is None:
+    if PredefinedTypes.get_type_if_exists(str(to_process)) is None:
         type_symbol = TypeSymbol(name=str(to_process),
-                                 unit=PredefinedUnits.getUnitIfExists(str(to_process)),
+                                 unit=PredefinedUnits.get_unit_if_exists(str(to_process)),
                                  is_integer=False, is_real=False, is_void=False,
                                  is_boolean=False, is_string=False, is_buffer=False)
-        PredefinedTypes.registerType(type_symbol)
-    return PredefinedTypes.getTypeIfExists(_name=str(to_process))
+        PredefinedTypes.register_type(type_symbol)
+    return PredefinedTypes.get_type_if_exists(name=str(to_process))

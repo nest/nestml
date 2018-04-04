@@ -26,17 +26,17 @@ from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LoggingLevel
 
 # minor setup steps required
 Logger.init_logger(LoggingLevel.NO)
-SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-PredefinedUnits.registerUnits()
-PredefinedTypes.registerTypes()
-PredefinedVariables.registerPredefinedVariables()
-PredefinedFunctions.registerPredefinedFunctions()
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+PredefinedUnits.register_units()
+PredefinedTypes.register_types()
+PredefinedVariables.register_predefined_variables()
+PredefinedFunctions.register_predefined_functions()
 
 
 class SymbolTableResolutionTest(unittest.TestCase):
@@ -49,20 +49,20 @@ class SymbolTableResolutionTest(unittest.TestCase):
             os.path.join(
                 os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', 'ResolutionTest.nestml'))))
         scope = model.get_neuron_list()[0].get_scope()
-        res1 = scope.resolveToAllScopes('test1', SymbolKind.VARIABLE)
+        res1 = scope.resolve_to_all_scopes('test1', SymbolKind.VARIABLE)
         assert (res1 is not None)
-        res2 = scope.resolveToAllScopes('testNot', SymbolKind.VARIABLE)
+        res2 = scope.resolve_to_all_scopes('testNot', SymbolKind.VARIABLE)
         assert (res2 is None)
-        res3 = scope.resolveToAllScopes('test2', SymbolKind.VARIABLE)
-        assert (res3 is not None and res3.getScopeType() == ScopeType.FUNCTION)
-        res4 = scope.resolveToAllScopes('arg1', SymbolKind.VARIABLE)
-        assert (res4 is not None and res4.getScopeType() == ScopeType.FUNCTION)
-        res5 = scope.resolveToAllScopes('test3', SymbolKind.VARIABLE)
-        assert (res5 is not None and res5.getScopeType() == ScopeType.FUNCTION)
-        res6 = scope.resolveToAllScopes('test1', SymbolKind.FUNCTION)
-        assert (res6 is not None and res6.getScopeType() == ScopeType.GLOBAL)
-        res7 = scope.resolveToAllScopes('test6', SymbolKind.VARIABLE)
-        assert (res7 is not None and res7.getScopeType() == ScopeType.UPDATE)
+        res3 = scope.resolve_to_all_scopes('test2', SymbolKind.VARIABLE)
+        assert (res3 is not None and res3.get_scope_type() == ScopeType.FUNCTION)
+        res4 = scope.resolve_to_all_scopes('arg1', SymbolKind.VARIABLE)
+        assert (res4 is not None and res4.get_scope_type() == ScopeType.FUNCTION)
+        res5 = scope.resolve_to_all_scopes('test3', SymbolKind.VARIABLE)
+        assert (res5 is not None and res5.get_scope_type() == ScopeType.FUNCTION)
+        res6 = scope.resolve_to_all_scopes('test1', SymbolKind.FUNCTION)
+        assert (res6 is not None and res6.get_scope_type() == ScopeType.GLOBAL)
+        res7 = scope.resolve_to_all_scopes('test6', SymbolKind.VARIABLE)
+        assert (res7 is not None and res7.get_scope_type() == ScopeType.UPDATE)
         return
 
 

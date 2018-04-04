@@ -45,21 +45,21 @@ class ASTConditionVisitor(ASTVisitor):
         if_true_e = node.get_if_true().get_type_either()
         if_not_e = node.get_if_not().get_type_either()
 
-        if condition_e.isError():
+        if condition_e.is_error():
             node.set_type_either(condition_e)
             return
-        if if_true_e.isError():
+        if if_true_e.is_error():
             node.set_type_either(if_true_e)
             return
-        if if_not_e.isError():
+        if if_not_e.is_error():
             node.set_type_either(if_not_e)
             return
 
-        if_true = if_true_e.getValue()
-        if_not = if_not_e.getValue()
+        if_true = if_true_e.get_value()
+        if_not = if_not_e.get_value()
 
         # Condition must be a bool
-        if not condition_e.getValue().equals(PredefinedTypes.getBooleanType()):
+        if not condition_e.get_value().equals(PredefinedTypes.get_boolean_type()):
             error_msg = ErrorStrings.messageTernary(self, node.get_source_position())
             node.set_type_either(Either.error(error_msg))
             Logger.log_message(message=error_msg, error_position=node.get_source_position(),
@@ -76,7 +76,7 @@ class ASTConditionVisitor(ASTVisitor):
         if if_true.is_unit() and if_not.is_unit():
             error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.print_symbol(), if_not.print_symbol(),
                                                             node.get_source_position())
-            node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
             Logger.log_message(message=error_msg,
                                code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                                error_position=if_true.get_source_position(),
@@ -101,7 +101,7 @@ class ASTConditionVisitor(ASTVisitor):
 
         # both are numeric primitives (and not equal) ergo one is real and one is integer -> real
         if if_true.is_numeric_primitive() and if_not.is_numeric_primitive():
-            node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
             return
 
         # if we get here it is an error

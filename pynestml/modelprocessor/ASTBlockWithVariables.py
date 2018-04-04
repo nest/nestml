@@ -62,7 +62,7 @@ class ASTBlockWithVariables(ASTNode):
         :param _declarations: a list of declarations.
         :type _declarations: list(ASTDeclaration)
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         assert (_isInternals or _isParameters or _isState or _isInitialValues), \
             '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'

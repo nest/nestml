@@ -73,7 +73,7 @@ class ASTSimpleExpression(ASTNode):
         :param _string: a single string literal
         :type _string: str
         :param _sourcePosition: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
             '(PyNestML.AST.SimpleExpression) Not a function call provided (%s)!' % type(_functionCall)

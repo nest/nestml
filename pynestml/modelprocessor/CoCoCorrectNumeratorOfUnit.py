@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
@@ -41,10 +41,7 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(NumericNumeratorVisitor())
-        return
 
 
 class NumericNumeratorVisitor(ASTVisitor):
@@ -62,4 +59,3 @@ class NumericNumeratorVisitor(ASTVisitor):
             code, message = Messages.getWrongNumerator(str(node))
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        return

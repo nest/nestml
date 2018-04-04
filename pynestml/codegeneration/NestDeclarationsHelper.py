@@ -51,7 +51,7 @@ class NestDeclarationsHelper(object):
                 ast_declaration)
         ret = list()
         for var in ast_declaration.get_variables():
-            symbol = ast_declaration.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+            symbol = ast_declaration.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
             if symbol is not None:
                 ret.append(symbol)
             else:

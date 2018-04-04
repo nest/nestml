@@ -37,7 +37,7 @@ class ASTLogicalOperator(ASTNode):
         :param _isLogicalOr: is logical or.
         :type _isLogicalOr: bool
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type _sourcePosition: ASTSourceLocation.
         """
         assert (_isLogicalOr is None or isinstance(_isLogicalOr, bool)), \
             '(PyNestML.AST.LogicalOperator) Wrong type of is-logical-and provided (%s)!' % type(_isLogicalAnd)

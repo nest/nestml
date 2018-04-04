@@ -21,7 +21,7 @@ import re
 import ntpath
 
 from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.CommentCollectorVisitor import CommentCollectorVisitor
@@ -110,45 +110,45 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         # otherwise it is a combined one, check first lhs, then the operator and finally rhs
         lhs = (self.visit(ctx.left) if ctx.left is not None else None)
         if ctx.powOp is not None:
-            source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.powOp.line,
-                                                                 _startColumn=ctx.powOp.column,
-                                                                 _endLine=ctx.powOp.line,
-                                                                 _endColumn=ctx.powOp.column)
+            source_pos = ASTSourceLocation.make_ast_source_position(_startLine=ctx.powOp.line,
+                                                                    _startColumn=ctx.powOp.column,
+                                                                    _endLine=ctx.powOp.line,
+                                                                    _endColumn=ctx.powOp.column)
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_pow_op=True,
                                                                             source_position=source_pos)
         elif ctx.timesOp is not None:
-            source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.timesOp.line,
-                                                                 _startColumn=ctx.timesOp.column,
-                                                                 _endLine=ctx.timesOp.line,
-                                                                 _endColumn=ctx.timesOp.column)
+            source_pos = ASTSourceLocation.make_ast_source_position(_startLine=ctx.timesOp.line,
+                                                                    _startColumn=ctx.timesOp.column,
+                                                                    _endLine=ctx.timesOp.line,
+                                                                    _endColumn=ctx.timesOp.column)
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_times_op=True,
                                                                             source_position=source_pos)
         elif ctx.divOp is not None:
-            source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.divOp.line,
-                                                                 _startColumn=ctx.divOp.column,
-                                                                 _endLine=ctx.divOp.line,
-                                                                 _endColumn=ctx.divOp.column)
+            source_pos = ASTSourceLocation.make_ast_source_position(_startLine=ctx.divOp.line,
+                                                                    _startColumn=ctx.divOp.column,
+                                                                    _endLine=ctx.divOp.line,
+                                                                    _endColumn=ctx.divOp.column)
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_div_op=True,
                                                                             source_position=source_pos)
         elif ctx.moduloOp is not None:
-            source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.moduloOp.line,
-                                                                 _startColumn=ctx.moduloOp.column,
-                                                                 _endLine=ctx.moduloOp.line,
-                                                                 _endColumn=ctx.moduloOp.column)
+            source_pos = ASTSourceLocation.make_ast_source_position(_startLine=ctx.moduloOp.line,
+                                                                    _startColumn=ctx.moduloOp.column,
+                                                                    _endLine=ctx.moduloOp.line,
+                                                                    _endColumn=ctx.moduloOp.column)
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_modulo_op=True,
                                                                             source_position=source_pos)
         elif ctx.plusOp is not None:
-            source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.plusOp.line,
-                                                                 _startColumn=ctx.plusOp.column,
-                                                                 _endLine=ctx.plusOp.line,
-                                                                 _endColumn=ctx.plusOp.column)
+            source_pos = ASTSourceLocation.make_ast_source_position(_startLine=ctx.plusOp.line,
+                                                                    _startColumn=ctx.plusOp.column,
+                                                                    _endLine=ctx.plusOp.line,
+                                                                    _endColumn=ctx.plusOp.column)
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_plus_op=True,
                                                                             source_position=source_pos)
         elif ctx.minusOp is not None:
-            source_pos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.minusOp.line,
-                                                                 _startColumn=ctx.minusOp.column,
-                                                                 _endLine=ctx.minusOp.line,
-                                                                 _endColumn=ctx.minusOp.column)
+            source_pos = ASTSourceLocation.make_ast_source_position(_startLine=ctx.minusOp.line,
+                                                                    _startColumn=ctx.minusOp.column,
+                                                                    _endLine=ctx.minusOp.line,
+                                                                    _endColumn=ctx.minusOp.column)
             binary_operator = ASTNodeFactory.create_ast_arithmetic_operator(is_minus_op=True,
                                                                             source_position=source_pos)
         elif ctx.bitOperator() is not None:
@@ -614,7 +614,7 @@ def get_next(_elements=list()):
 
 
 def create_source_pos(ctx):
-    return ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                   _startColumn=ctx.start.column,
-                                                   _endLine=ctx.stop.line,
-                                                   _endColumn=ctx.stop.column)
+    return ASTSourceLocation.make_ast_source_position(_startLine=ctx.start.line,
+                                                      _startColumn=ctx.start.column,
+                                                      _endLine=ctx.stop.line,
+                                                      _endColumn=ctx.stop.column)

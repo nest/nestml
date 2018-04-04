@@ -27,17 +27,17 @@ from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.utils.Logger import LoggingLevel, Logger
 
 # setups the infrastructure
-PredefinedUnits.registerUnits()
-PredefinedTypes.registerTypes()
-PredefinedFunctions.registerPredefinedFunctions()
-PredefinedVariables.registerPredefinedVariables()
-SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
+PredefinedUnits.register_units()
+PredefinedTypes.register_types()
+PredefinedFunctions.register_predefined_functions()
+PredefinedVariables.register_predefined_variables()
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 Logger.init_logger(LoggingLevel.NO)
 
 

@@ -38,7 +38,7 @@ class ASTBitOperator(ASTNode):
         """
         Standard constructor.
         :param_sourcePosition: the position of the element in the source
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         :param _isBitAnd: is bit and operator.
         :type _isBitAnd: bool
         :param _isBitXor: is bit xor operator.

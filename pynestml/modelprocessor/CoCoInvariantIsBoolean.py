@@ -56,13 +56,13 @@ class InvariantTypeVisitor(ASTVisitor):
         """
         if node.has_invariant():
             invariant_type = node.get_invariant().get_type_either()
-            if invariant_type is None or invariant_type.isError():
+            if invariant_type is None or invariant_type.is_error():
                 code, message = Messages.getTypeCouldNotBeDerived(str(node.get_invariant()))
                 Logger.log_message(error_position=node.get_invariant().get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.ERROR)
-            elif not invariant_type.getValue().equals(PredefinedTypes.getBooleanType()):
-                code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
-                                                                      invariant_type.getValue())
+            elif not invariant_type.get_value().equals(PredefinedTypes.get_boolean_type()):
+                code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_boolean_type(),
+                                                                      invariant_type.get_value())
                 Logger.log_message(error_position=node.get_invariant().get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.ERROR)
         return

@@ -48,7 +48,7 @@ class ASTUpdateBlock(ASTNode):
         :param block: a block of definitions.
         :type block: ASTBlock
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         super(ASTUpdateBlock, self).__init__(source_position)
         self.__block = block

@@ -43,11 +43,11 @@ class ASTUnaryVisitor(ASTVisitor):
         """
         term_type_e = node.get_expression().get_type_either()
 
-        if term_type_e.isError():
+        if term_type_e.is_error():
             node.set_type_either(term_type_e)
             return
 
-        term_type = term_type_e.getValue()
+        term_type = term_type_e.get_value()
         unary_op = node.get_unary_operator()
         # unaryOp exists if we get into this visitor but make sure:
         assert unary_op is not None and isinstance(unary_op, ASTUnaryOperator)

@@ -49,7 +49,7 @@ class CoCoInitVarsWithOdesProvided(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Checks this coco on the handed over neuron.
         :param node: a single neuron instance.
@@ -73,7 +73,7 @@ class InitVarsVisitor(ASTVisitor):
         :type node: ASTDeclaration
         """
         for var in node.get_variables():
-            symbol = node.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+            symbol = node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
             # first check that all initial value variables have a lhs
             if symbol is not None and symbol.is_init_values() and not node.has_expression():
                 code, message = Messages.getNoRhs(symbol.get_symbol_name())

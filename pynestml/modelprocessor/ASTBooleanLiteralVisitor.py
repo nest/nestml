@@ -38,4 +38,4 @@ class ASTBooleanLiteralVisitor(ASTVisitor):
         :param node: a simple rhs.
         :type node: ASTSimpleExpression
         """
-        node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
+        node.set_type_either(Either.value(PredefinedTypes.get_boolean_type()))

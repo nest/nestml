@@ -46,7 +46,7 @@ class ASTInputBlock(ASTNode):
         :param _inputDefinitions: 
         :type _inputDefinitions: list(ASTInputLine)
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type _sourcePosition: ASTSourceLocation.
         """
         assert (_inputDefinitions is not None and isinstance(_inputDefinitions, list)), \
             '(PyNestML.AST.Input) No or wrong type of input definitions provided (%s)!' % type(_inputDefinitions)

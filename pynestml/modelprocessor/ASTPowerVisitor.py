@@ -44,20 +44,20 @@ class ASTPowerVisitor(ASTVisitor):
         base_type_e = node.get_lhs().get_type_either()
         exponent_type_e = node.get_rhs().get_type_either()
 
-        if base_type_e.isError():
+        if base_type_e.is_error():
             node.set_type_either(base_type_e)
             return
 
-        if exponent_type_e.isError():
+        if exponent_type_e.is_error():
             node.set_type_either(exponent_type_e)
             return
 
-        base_type = base_type_e.getValue()
-        exponent_type = exponent_type_e.getValue()
+        base_type = base_type_e.get_value()
+        exponent_type = exponent_type_e.get_value()
 
         if base_type.is_numeric() and exponent_type.is_numeric():
             if base_type.is_integer() and exponent_type.is_integer():
-                node.set_type_either(Either.value(PredefinedTypes.getIntegerType()))
+                node.set_type_either(Either.value(PredefinedTypes.get_integer_type()))
                 return
             elif base_type.is_unit():
                 # exponents to units MUST be integer and calculable at time of analysis.
@@ -71,17 +71,17 @@ class ASTPowerVisitor(ASTVisitor):
                 # TODO the following part is broken @ptraeder?
                 exponent_value = self.calculate_numeric_value(
                     node.get_rhs())  # calculate exponent value if exponent composed of literals
-                if exponent_value.isValue():
+                if exponent_value.is_value():
                     node.set_type_either(
-                        Either.value(PredefinedTypes.getTypeIfExists(base_unit ** exponent_value.getValue())))
+                        Either.value(PredefinedTypes.get_type_if_exists(base_unit ** exponent_value.get_value())))
                     return
                 else:
-                    error_msg = exponent_value.getError()
+                    error_msg = exponent_value.get_error()
                     node.set_type_either(Either.error(error_msg))
                     Logger.log_message(error_msg, LoggingLevel.ERROR)
                     return
             else:
-                node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+                node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
                 return
         # Catch-all if no case has matched
         error_msg = ErrorStrings.messageUnitBase(self, node.get_source_position())
@@ -108,8 +108,8 @@ class ASTPowerVisitor(ASTVisitor):
                 return Either.error(error_message)
         elif expr.is_unary_operator() and expr.get_unary_operator().isUnaryMinus():
             term = self.calculate_numeric_value(expr.get_expression())
-            if term.isError():
+            if term.is_error():
                 return term
-            return Either.value(-term.getValue())
+            return Either.value(-term.get_value())
         error_message = ErrorStrings.messageNonConstantExponent(self, expr.get_source_position())
         return Either.error(error_message)

@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.ASTNode import ASTNode
 from pynestml.modelprocessor.ASTSignalType import ASTSignalType
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 
 
 class ASTOutputBlock(ASTNode):
@@ -35,13 +35,13 @@ class ASTOutputBlock(ASTNode):
     __type = None
 
     def __init__(self, type, source_position):
-        # type: (ASTSignalType,ASTSourcePosition) -> None
+        # type: (ASTSignalType,ASTSourceLocation) -> None
         """
         Standard constructor.
         :param type: the type of the output buffer.
         :type type: SignalType
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         super(ASTOutputBlock, self).__init__(source_position)
         self.__type = type

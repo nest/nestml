@@ -35,7 +35,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         Standard constructor of ASTNestMLCompilationUnit.
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file where ths model is contained in
         :type artifact_name: str
         """

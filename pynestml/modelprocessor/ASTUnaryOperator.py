@@ -41,7 +41,7 @@ class ASTUnaryOperator(ASTNode):
         :param _isUnaryTilde: is a unary tilde.
         :type _isUnaryTilde: bool
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type _sourcePosition: ASTSourceLocation.
         """
         assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
             '(PyNestML.AST.UnaryOperator) Wrong type of unary minus provided (%s)!' % type(_isUnaryMinus)

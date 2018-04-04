@@ -62,7 +62,7 @@ class ASTInputLine(ASTNode):
         :param signal_type: type of signal received, i.e., spikes or currents
         :type signal_type: SignalType
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(name)

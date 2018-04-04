@@ -38,5 +38,5 @@ class ASTInfVisitor(ASTVisitor):
         :param node: a simple rhs
         :type node: ASTSimpleExpression
         """
-        node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+        node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
         

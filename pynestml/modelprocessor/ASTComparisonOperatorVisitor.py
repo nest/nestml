@@ -44,27 +44,27 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
         lhs_type_e = node.get_lhs().get_type_either()
         rhs_type_e = node.get_rhs().get_type_either()
 
-        if lhs_type_e.isError():
+        if lhs_type_e.is_error():
             node.set_type_either(lhs_type_e)
             return
-        if rhs_type_e.isError():
+        if rhs_type_e.is_error():
             node.set_type_either(rhs_type_e)
             return
 
-        lhs_type = lhs_type_e.getValue()
-        rhs_type = rhs_type_e.getValue()
+        lhs_type = lhs_type_e.get_value()
+        rhs_type = rhs_type_e.get_value()
 
         if ((lhs_type.is_real() or lhs_type.is_integer()) and (rhs_type.is_real() or rhs_type.is_integer())) \
                 or (lhs_type.equals(rhs_type) and lhs_type.is_numeric()) or (lhs_type.is_boolean() and
                                                                              rhs_type.is_boolean()):
-            node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_boolean_type()))
             return
 
         # Error message for any other operation
         if (lhs_type.is_unit() and rhs_type.is_numeric()) or (rhs_type.is_unit() and lhs_type.is_numeric()):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
             error_msg = ErrorStrings.messageComparison(self, node.get_source_position())
-            node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_boolean_type()))
             Logger.log_message(message=error_msg, code=MessageCode.SOFT_INCOMPATIBILITY,
                                error_position=node.get_source_position(),
                                log_level=LoggingLevel.WARNING)

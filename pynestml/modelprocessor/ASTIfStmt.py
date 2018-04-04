@@ -47,7 +47,7 @@ class ASTIfStmt(ASTNode):
         :param _elseClause: (optional) else clause
         :type _elseClause: ASTElseClause
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type _sourcePosition: ASTSourceLocation.
         """
         assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause)), \
             '(PyNestML.AST.IfStmt) No or wrong type of if-clause provided (%s)!' % type(_ifClause)

@@ -23,7 +23,7 @@ from __future__ import print_function
 import os
 import unittest
 
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -34,11 +34,11 @@ from pynestml.utils.Logger import LoggingLevel, Logger
 
 # minor setup steps required
 Logger.init_logger(LoggingLevel.INFO)
-SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-PredefinedUnits.registerUnits()
-PredefinedTypes.registerTypes()
-PredefinedVariables.registerPredefinedVariables()
-PredefinedFunctions.registerPredefinedFunctions()
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+PredefinedUnits.register_units()
+PredefinedTypes.register_types()
+PredefinedVariables.register_predefined_variables()
+PredefinedFunctions.register_predefined_functions()
 
 
 class InvalidElementDefinedAfterUsage(unittest.TestCase):

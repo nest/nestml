@@ -34,17 +34,14 @@ class CoCoTypeOfBufferUnique(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
         cls.neuronName = node.get_name()
         node.accept(TypeOfBufferUniqueVisitor())
-        return
 
 
 class TypeOfBufferUniqueVisitor(ASTVisitor):

@@ -54,7 +54,7 @@ class ASTComparisonOperator(ASTNode):
         :param _isGt: is greater than operator.
         :type _isGt: bool
         :param _sourcePosition: the position of the element in the source
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         """
         assert (_isLt is not None and isinstance(_isLt, bool)), \
             '(PyNestML.AST.ComparisonOperator) No or wrong type of is-less-than operator provided (%s)!' % type(_isLt)

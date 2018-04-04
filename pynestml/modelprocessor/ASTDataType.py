@@ -60,7 +60,7 @@ class ASTDataType(ASTNode):
         :param is_unit_type: an object of type ASTUnitType
         :type is_unit_type: ASTUnitType
         :param source_position: The source position of the assignment
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         """
         super(ASTDataType, self).__init__(source_position)
         self.__isUnitType = is_unit_type

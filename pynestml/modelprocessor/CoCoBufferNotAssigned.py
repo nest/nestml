@@ -43,15 +43,12 @@ class CoCoBufferNotAssigned(CoCo):
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(NoBufferAssignedVisitor())
-        return
 
 
 class NoBufferAssignedVisitor(ASTVisitor):
     def visit_assignment(self, node):
-        symbol = node.get_scope().resolveToSymbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
         if symbol is not None and (symbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE or
                                    symbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT):
             code, message = Messages.getValueAssignedToBuffer(node.get_variable().get_complete_name())

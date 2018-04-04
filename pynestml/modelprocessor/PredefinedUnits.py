@@ -17,129 +17,125 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from astropy import units as u
+
 from pynestml.modelprocessor.UnitType import UnitType
 from pynestml.utils.Logger import Logger, LoggingLevel
-from astropy import units as u
+from pynestml.utils.Messages import Messages
 
 
 class PredefinedUnits(object):
     """
-    This class represents a collection of physical units. Units can be retrieved by means of getUnitIfExists(name).
+    This class represents a collection of physical units. Units can be retrieved by means of get_unit_if_exists(name).
     Attribute:
-        __name2unit (dict):  Dict of all predefined units, map from name to unit object.
-        __prefixlessUnits (list): A list of all units, stored without a prefix.
-        __prefixes (list): A list of all available prefixes.
+        name2unit (dict):  Dict of all predefined units, map from name to unit object.
+        prefixless_units (list): A list of all units, stored without a prefix.
+        prefixes (list): A list of all available prefixes.
     """
-    __name2unit = None
-    __prefixlessUnits = None
-    __prefixes = None
+    name2unit = None
+    prefixless_units = None
+    prefixes = None
 
     @classmethod
-    def registerUnits(cls):
+    def register_units(cls):
         """
         Registers all predefined units into th system.
         """
         # first store all base units and the derived units without the prefix in a list
-        cls.__name2unit = {}
-        cls.__prefixlessUnits = list()
-        cls.__prefixes = list()
+        cls.name2unit = {}
+        cls.prefixless_units = list()
+        cls.prefixes = list()
         # first construct the prefix
         for prefix in u.si_prefixes:
-            cls.__prefixes.append((prefix[0][0], prefix[1][0]))
+            cls.prefixes.append((prefix[0][0], prefix[1][0]))
         # now construct the prefix units
-        cls.__prefixlessUnits.append(('m', 'meter'))
-        cls.__prefixlessUnits.append(('g', 'gram'))
-        cls.__prefixlessUnits.append(('s', 'second'))
-        cls.__prefixlessUnits.append(('A', 'ampere'))
-        cls.__prefixlessUnits.append(('K', 'Kelvin'))
-        cls.__prefixlessUnits.append(('mol', 'mole'))
-        cls.__prefixlessUnits.append(('cd', 'candela'))
-        cls.__prefixlessUnits.append(('rad', 'radian'))
-        cls.__prefixlessUnits.append(('st', 'steradian'))
-        cls.__prefixlessUnits.append(('Hz', 'hertz'))
-        cls.__prefixlessUnits.append(('N', 'newton'))
-        cls.__prefixlessUnits.append(('Pa', 'Pascal'))
-        cls.__prefixlessUnits.append(('J', 'Joule'))
-        cls.__prefixlessUnits.append(('W', 'watt'))
-        cls.__prefixlessUnits.append(('C', 'coulomb'))
-        cls.__prefixlessUnits.append(('V', 'Volt'))
-        cls.__prefixlessUnits.append(('F', 'farad'))
-        cls.__prefixlessUnits.append(('Ohm', 'Ohm'))
-        cls.__prefixlessUnits.append(('S', 'Siemens'))
-        cls.__prefixlessUnits.append(('Wb', 'Weber'))
-        cls.__prefixlessUnits.append(('T', 'Tesla'))
-        cls.__prefixlessUnits.append(('H', 'Henry'))
-        cls.__prefixlessUnits.append(('lx', 'lux'))
-        cls.__prefixlessUnits.append(('lm', 'lumen'))
+        cls.prefixless_units.append(('m', 'meter'))
+        cls.prefixless_units.append(('g', 'gram'))
+        cls.prefixless_units.append(('s', 'second'))
+        cls.prefixless_units.append(('A', 'ampere'))
+        cls.prefixless_units.append(('K', 'Kelvin'))
+        cls.prefixless_units.append(('mol', 'mole'))
+        cls.prefixless_units.append(('cd', 'candela'))
+        cls.prefixless_units.append(('rad', 'radian'))
+        cls.prefixless_units.append(('st', 'steradian'))
+        cls.prefixless_units.append(('Hz', 'hertz'))
+        cls.prefixless_units.append(('N', 'newton'))
+        cls.prefixless_units.append(('Pa', 'Pascal'))
+        cls.prefixless_units.append(('J', 'Joule'))
+        cls.prefixless_units.append(('W', 'watt'))
+        cls.prefixless_units.append(('C', 'coulomb'))
+        cls.prefixless_units.append(('V', 'Volt'))
+        cls.prefixless_units.append(('F', 'farad'))
+        cls.prefixless_units.append(('Ohm', 'Ohm'))
+        cls.prefixless_units.append(('S', 'Siemens'))
+        cls.prefixless_units.append(('Wb', 'Weber'))
+        cls.prefixless_units.append(('T', 'Tesla'))
+        cls.prefixless_units.append(('H', 'Henry'))
+        cls.prefixless_units.append(('lx', 'lux'))
+        cls.prefixless_units.append(('lm', 'lumen'))
         # then generate all combinations with all prefixes
-        for unit in cls.__prefixlessUnits:
-            for prefix in cls.__prefixes:
+        for unit in cls.prefixless_units:
+            for prefix in cls.prefixes:
                 temp = eval(str('u.' + prefix[1] + unit[1]))
-                tempUnit = UnitType(_name=str(prefix[0] + unit[0]), _unit=temp)
-                cls.__name2unit[str(prefix[0] + unit[0])] = tempUnit
+                temp_unit = UnitType(_name=str(prefix[0] + unit[0]), _unit=temp)
+                cls.name2unit[str(prefix[0] + unit[0])] = temp_unit
             # add also without the prefix, e.g., s for seconds
-            tempUnit = UnitType(_name=str(unit[0]), _unit=eval(str('u.' + unit[1])))
-            cls.__name2unit[str(unit[0])] = tempUnit
+            temp_unit = UnitType(_name=str(unit[0]), _unit=eval(str('u.' + unit[1])))
+            cls.name2unit[str(unit[0])] = temp_unit
         # additionally four units are not directly defined, we define them by hand, Bq,Gy,Sv,kat
-        Bq = u.def_unit(['Bq', 'Becquerel'], 1 / u.s)
-        Gy = u.def_unit(['Gy', 'Gray'], (u.meter ** 2) / (u.s ** 2))
-        Sv = u.def_unit(['Sv', 'Sievert'], (u.meter ** 2) / (u.s ** 2))
+        bq = u.def_unit(['Bq', 'Becquerel'], 1 / u.s)
+        gy = u.def_unit(['Gy', 'Gray'], (u.meter ** 2) / (u.s ** 2))
+        sv = u.def_unit(['Sv', 'Sievert'], (u.meter ** 2) / (u.s ** 2))
         kat = u.def_unit(['kat', 'Katal'], u.mol / u.s)
-        for prefix in cls.__prefixes:
-            cls.__name2unit[str(prefix[0] + str(Bq.name))] = UnitType(_name=str(prefix[0] + str(Bq.name)), _unit=Bq)
-            cls.__name2unit[str(prefix[0] + str(Gy.name))] = UnitType(_name=str(prefix[0] + str(Gy.name)), _unit=Gy)
-            cls.__name2unit[str(prefix[0] + str(Sv.name))] = UnitType(_name=str(prefix[0] + str(Sv.name)), _unit=Sv)
-            cls.__name2unit[str(prefix[0] + str(kat.name))] = UnitType(_name=str(prefix[0] + str(kat.name)), _unit=kat)
+        for prefix in cls.prefixes:
+            cls.name2unit[str(prefix[0] + str(bq.name))] = UnitType(_name=str(prefix[0] + str(bq.name)), _unit=bq)
+            cls.name2unit[str(prefix[0] + str(gy.name))] = UnitType(_name=str(prefix[0] + str(gy.name)), _unit=gy)
+            cls.name2unit[str(prefix[0] + str(sv.name))] = UnitType(_name=str(prefix[0] + str(sv.name)), _unit=sv)
+            cls.name2unit[str(prefix[0] + str(kat.name))] = UnitType(_name=str(prefix[0] + str(kat.name)), _unit=kat)
         return
 
     @classmethod
-    def getUnitIfExists(cls, _name=None):
+    def get_unit_if_exists(cls, name):
         """
         Returns a single sympy unit symbol if the corresponding unit has been predefined.
-        :param _name: the name of a unit
-        :type _name: str
+        :param name: the name of a unit
+        :type name: str
         :return: a single UnitType object.
         :rtype: UnitType
         """
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of name provided (%s)!' % type(_name)
-        if _name in cls.__name2unit.keys():
-            return cls.__name2unit[_name]
+        if name in cls.name2unit.keys():
+            return cls.name2unit[name]
         else:
-            from pynestml.utils.Messages import Messages
-            code, message = Messages.getUnitDoesNotExist(_name)
+            code, message = Messages.getUnitDoesNotExist(name)
             Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
             return None
 
     @classmethod
-    def isUnit(cls, _name=None):
+    def is_unit(cls, name):
         """
         Indicates whether the handed over name represents a stored unit.
-        :param _name: a single name
-        :type _name: str
+        :param name: a single name
+        :type name: str
         :return: True if unit name, otherwise False.
         :rtype: bool
         """
-        return _name in cls.__name2unit.keys()
+        return name in cls.name2unit.keys()
 
     @classmethod
-    def registerUnit(cls, _unit=None):
+    def register_unit(cls, unit):
         """
         Registers the handed over unit in the set of the predefined units.
-        :param _unit: a single unit type.
-        :type _unit: UnitType
+        :param unit: a single unit type.
+        :type unit: UnitType
         """
-        assert (_unit is not None and isinstance(_unit, UnitType)), \
-            '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of unit provided (%s)!' % type(_unit)
-        if _unit.get_name() is not cls.__name2unit.keys():
-            cls.__name2unit[_unit.get_name()] = _unit
-        return
+        if unit.get_name() is not cls.name2unit.keys():
+            cls.name2unit[unit.get_name()] = unit
 
     @classmethod
-    def getUnits(cls):
+    def get_units(cls):
         """
         Returns the list of all currently defined units.
         :return: a list of all defined units.
         :rtype: list(UnitType)
         """
-        return cls.__name2unit
+        return cls.name2unit

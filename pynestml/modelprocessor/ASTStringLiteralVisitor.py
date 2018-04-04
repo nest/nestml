@@ -38,4 +38,4 @@ class StringLiteralVisitor(ASTVisitor):
         :param node: a simple rhs containing a string literal
         :type node: ASTSimpleExpression
         """
-        node.set_type_either(Either.value(PredefinedTypes.getStringType()))
+        node.set_type_either(Either.value(PredefinedTypes.get_string_type()))

@@ -60,7 +60,7 @@ class ASTAssignment(ASTNode):
         :param rhs: an ast-rhs object
         :type rhs: ASTExpression
         :param source_position: The source position of the assignment
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         """
         super(ASTAssignment, self).__init__(source_position)
         self.lhs = lhs

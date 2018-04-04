@@ -1,5 +1,5 @@
 #
-# ASTSourcePosition.py
+# ASTSourceLocation.py
 #
 # This file is part of NEST.
 #
@@ -19,43 +19,35 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 
-class ASTSourcePosition(object):
+
+class ASTSourceLocation(object):
     """
     This class is used to store information regarding the source position of an element.
     """
-    __startLine = 0
-    __startColumn = 0
-    __endLine = 0
-    __endColumn = 0
+    start_line = 0
+    start_column = 0
+    end_line = 0
+    end_column = 0
 
-    def __init__(self, _startLine=0, _startColumn=0, _endLine=0, _endColumn=0):
+    def __init__(self, start_line=0, start_column=0, end_line=0, end_column=0):
         """
         Standard constructor.
-        :param _startLine: The start line of the object
-        :type _startLine: int
-        :param _startColumn: The start column of the object
-        :type _startColumn: int
-        :param _endLine: The end line of the object
-        :type _endLine: int
-        :param _endColumn: The end column of the object
-        :type _endColumn: int
+        :param start_line: The start line of the object
+        :type start_line: int
+        :param start_column: The start column of the object
+        :type start_column: int
+        :param end_line: The end line of the object
+        :type end_line: int
+        :param end_column: The end column of the object
+        :type end_column: int
         """
-        assert (_startColumn is not None and isinstance(_startColumn, int)), \
-            '(PyNestML.AST.SourcePosition) No or wrong type of start-column provided (%s)!' % type(_startColumn)
-        assert (_startLine is not None and isinstance(_startLine, int)), \
-            '(PyNestML.AST.SourcePosition) No or wrong type of start-line provided (%s)!' % type(_startLine)
-        assert (_endColumn is not None and isinstance(_endColumn, int)), \
-            '(PyNestML.AST.SourcePosition) No or wrong type of end-column provided (%s)!' % type(_endColumn)
-        assert (_endLine is not None and isinstance(_endLine, int)), \
-            '(PyNestML.AST.SourcePosition) No or wrong type of end-line provided (%s)!' % type(_endLine)
-        self.__startLine = _startLine
-        self.__startColumn = _startColumn
-        self.__endLine = _endLine
-        self.__endColumn = _endColumn
-        return
+        self.start_line = start_line
+        self.start_column = start_column
+        self.end_line = end_line
+        self.end_column = end_column
 
     @classmethod
-    def makeASTSourcePosition(cls, _startLine=0, _startColumn=0, _endLine=0, _endColumn=0):
+    def make_ast_source_position(cls, _startLine=0, _startColumn=0, _endLine=0, _endColumn=0):
         """
         Factory method of the ASTSourcePosition class.
         :param _startLine: The start line of the object
@@ -67,7 +59,7 @@ class ASTSourcePosition(object):
         :param _endColumn: The end column of the object
         :type _endColumn: int
         :return: a new ASTSourcePosition object
-        :rtype: ASTSourcePosition
+        :rtype: ASTSourceLocation
         """
         return cls(_startLine=_startLine, _startColumn=_startColumn, _endLine=_endLine, _endColumn=_endColumn)
 
@@ -77,7 +69,7 @@ class ASTSourcePosition(object):
         :return: the start line as int
         :rtype: int
         """
-        return self.__startLine
+        return self.start_line
 
     def getStartColumn(self):
         """
@@ -85,7 +77,7 @@ class ASTSourcePosition(object):
         :return: the start column as int
         :rtype: int
         """
-        return self.__startColumn
+        return self.start_column
 
     def getEndLine(self):
         """
@@ -93,7 +85,7 @@ class ASTSourcePosition(object):
         :return: the end line as int
         :rtype: int
         """
-        return self.__endLine
+        return self.end_line
 
     def getEndColumn(self):
         """
@@ -101,17 +93,17 @@ class ASTSourcePosition(object):
         :return: the end column as int
         :rtype: int
         """
-        return self.__endColumn
+        return self.end_column
 
     def equals(self, _sourcePosition=None):
         """
         Checks if the handed over position is equal to this.
         :param _sourcePosition: a source position.
-        :type _sourcePosition: ASTSourcePosition
+        :type _sourcePosition: ASTSourceLocation
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_sourcePosition, ASTSourcePosition):
+        if not isinstance(_sourcePosition, ASTSourceLocation):
             return False
         return self.getStartLine() == _sourcePosition.getStartLine() and \
                self.getStartColumn() == _sourcePosition.getStartColumn() and \
@@ -122,11 +114,11 @@ class ASTSourcePosition(object):
         """
         Checks if the handed over position is smaller than this.
         :param _sourcePosition: a source position.
-        :type _sourcePosition: ASTSourcePosition
+        :type _sourcePosition: ASTSourceLocation
         :return: True if smaller, otherwise False
         :rtype: bool
         """
-        if not isinstance(_sourcePosition, ASTSourcePosition):
+        if not isinstance(_sourcePosition, ASTSourceLocation):
             return False
         # in th case that it is artificially added or that it is predefined, the rule for before does not apply
         # here we assume that the insertion is added at a correct point.
@@ -144,7 +136,7 @@ class ASTSourcePosition(object):
         if self.getStartLine() < _sourcePosition.getStartLine():
             return True
         elif self.getStartLine() == _sourcePosition.getStartLine() and \
-                        self.getStartColumn() < _sourcePosition.getStartColumn():
+                self.getStartColumn() < _sourcePosition.getStartColumn():
             return True
         else:
             return False
@@ -154,7 +146,7 @@ class ASTSourcePosition(object):
         """
         Returns a source position which symbolizes that the corresponding element is predefined.
         :return: a source position
-        :rtype: ASTSourcePosition
+        :rtype: ASTSourceLocation
         """
         return cls(-1, -1, -1, -1)
 
@@ -163,7 +155,7 @@ class ASTSourcePosition(object):
         """
         Returns a source position which symbolize that the corresponding element has been added by the solver.
         :return: a source position.
-        :rtype: ASTSourcePosition
+        :rtype: ASTSourceLocation
         """
         return cls(sys.maxsize, sys.maxsize, sys.maxsize, sys.maxsize)
 
@@ -173,32 +165,32 @@ class ASTSourcePosition(object):
         :return: True if predefined, otherwise False.
         :rtype: bool
         """
-        return self.equals(ASTSourcePosition.getPredefinedSourcePosition())
+        return self.equals(ASTSourceLocation.getPredefinedSourcePosition())
 
     def isAddedSourcePosition(self):
         """
         Indicates whether this represents an artificially added source position..
         :return: a source position.
-        :rtype: ASTSourcePosition
+        :rtype: ASTSourceLocation
         """
-        return self.equals(ASTSourcePosition.getAddedSourcePosition())
+        return self.equals(ASTSourceLocation.getAddedSourcePosition())
 
     def encloses(self, _sourcePosition=None):
         """
         Checks if the handed over position is enclosed in this source position, e.g.,
             line 0 to 10 encloses lines 0 to 9 etc.
         :param _sourcePosition: a source position 
-        :type _sourcePosition: ASTSourcePosition
+        :type _sourcePosition: ASTSourceLocation
         :return: True if enclosed, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_sourcePosition, ASTSourcePosition):
+        if not isinstance(_sourcePosition, ASTSourceLocation):
             return False
 
         if self.getStartLine() <= _sourcePosition.getStartLine() and \
-                        self.getEndLine() >= _sourcePosition.getEndLine() and \
-                        self.getStartColumn() <= _sourcePosition.getStartColumn() and \
-                        self.getEndColumn() >= _sourcePosition.getEndColumn():
+                self.getEndLine() >= _sourcePosition.getEndLine() and \
+                self.getStartColumn() <= _sourcePosition.getStartColumn() and \
+                self.getEndColumn() >= _sourcePosition.getEndColumn():
             return True
         else:
             return False

@@ -206,7 +206,7 @@ class ASTUtils(object):
 
         for var in res:
             if '\'' not in var.get_complete_name():
-                symbol = ast.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 if symbol.is_function():
                     ret.append(symbol)
         return ret
@@ -300,9 +300,9 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTVariable import ASTVariable
         from pynestml.modelprocessor.Symbol import SymbolKind
         variables = (var for var in cls.get_all(ast, ASTVariable) if
-                     scope.resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE))
+                     scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE))
         for var in variables:
-            symbol = scope.resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+            symbol = scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
             if symbol is not None and symbol.has_vector_parameter():
                 return symbol
         return None

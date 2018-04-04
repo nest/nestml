@@ -57,7 +57,7 @@ class ASTSmallStmt(ASTNode):
         :param return_stmt: an ast-return statement object.
         :type return_stmt: ASTReturnStmt
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         super(ASTSmallStmt, self).__init__(source_position)
         self.assignment = assignment

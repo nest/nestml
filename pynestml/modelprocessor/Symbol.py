@@ -92,7 +92,7 @@ class Symbol(object):
         For a handed over source position, this method checks if this symbol has been defined before the handed
         over position.
         :param source_position: the position of a different element.
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         :return: True, if defined before or at the sourcePosition, otherwise False.
         :rtype: bool
         """

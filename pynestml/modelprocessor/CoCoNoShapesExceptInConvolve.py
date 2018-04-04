@@ -42,19 +42,16 @@ class CoCoNoShapesExceptInConvolve(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
         shape_collector_visitor = ShapeCollectingVisitor()
         shape_names = shape_collector_visitor.collect_shapes(neuron=node)
         shape_usage_visitor = ShapeUsageVisitor(_shapes=shape_names)
         shape_usage_visitor.work_on(node)
-        return
 
 
 class ShapeUsageVisitor(ASTVisitor):
@@ -84,7 +81,7 @@ class ShapeUsageVisitor(ASTVisitor):
         """
         for shapeName in self.__shapes:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
-            symbol = node.get_scope().resolveToSymbol(shapeName, SymbolKind.VARIABLE)
+            symbol = node.get_scope().resolve_to_symbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
             if not symbol.is_shape():
                 continue

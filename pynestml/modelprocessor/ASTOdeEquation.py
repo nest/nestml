@@ -46,7 +46,7 @@ class ASTOdeEquation(ASTNode):
         :param rhs: an object of type ASTExpression.
         :type rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         super(ASTOdeEquation, self).__init__(source_position)
         self.lhs = lhs

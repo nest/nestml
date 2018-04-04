@@ -45,14 +45,14 @@ class ASTNumericLiteralVisitor(ASTVisitor):
         if node.get_variable() is not None:
             scope = node.get_scope()
             var_name = node.get_variable().get_name()
-            variable_symbol_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
+            variable_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
             node.set_type_either(Either.value(variable_symbol_resolve.get_type_symbol()))
             return
 
         if node.get_numeric_literal() is not None and isinstance(node.get_numeric_literal(), float):
-            node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
             return
 
         elif node.get_numeric_literal() is not None and isinstance(node.get_numeric_literal(), int):
-            node.set_type_either(Either.value(PredefinedTypes.getIntegerType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_integer_type()))
             return

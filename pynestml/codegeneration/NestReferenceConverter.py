@@ -132,13 +132,13 @@ class NESTReferenceConverter(IReferenceConverter):
                 _astVariable)
         variable_name = NestNamesConverter.convertToCPPName(_astVariable.get_complete_name())
 
-        if PredefinedUnits.isUnit(_astVariable.get_complete_name()):
+        if PredefinedUnits.is_unit(_astVariable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.get_complete_name()).get_unit()))
+                UnitConverter.getFactor(PredefinedUnits.get_unit_if_exists(_astVariable.get_complete_name()).get_unit()))
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
-            symbol = _astVariable.get_scope().resolveToSymbol(variable_name, SymbolKind.VARIABLE)
+            symbol = _astVariable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
             if symbol is None:
                 # this should actually not happen, but an error message is better than an exception
                 code, message = Messages.getCouldNotResolve(variable_name)

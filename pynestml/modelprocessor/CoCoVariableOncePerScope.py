@@ -29,55 +29,45 @@ class CoCoVariableOncePerScope(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Checks if each variable is defined at most once per scope. Obviously, this test does not check if a declaration
         is shadowed by an embedded scope.
         :param node: a single neuron
         :type node: ASTNeuron
         """
-        from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of neuron provided (%s)!' % type(node)
-        cls.__checkScope(node, node.get_scope())
-        return
+        cls.__check_scope(node, node.get_scope())
 
     @classmethod
-    def __checkScope(cls, _neuron=None, _scope=None):
+    def __check_scope(cls, neuron, scope):
         """
         Checks a single scope and proceeds recursively.
-        :param _neuron: a single neuron object, required for correct printing of messages.
-        :type _neuron: ASTNeuron
-        :param _scope: a single scope to check.
-        :type _scope: Scope
+        :param neuron: a single neuron object, required for correct printing of messages.
+        :type neuron: ASTNeuron
+        :param scope: a single scope to check.
+        :type scope: Scope
         """
-        from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-        from pynestml.modelprocessor.Scope import Scope
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of scope provided (%s)!' % type(_scope)
         checked = list()
-        for sym1 in _scope.getSymbolsInThisScope():
-            for sym2 in _scope.getSymbolsInThisScope():
-                if sym1 is not sym2 and sym1.get_symbol_name() == sym2.get_symbol_name() and \
-                                sym1.get_symbol_kind() == sym2.get_symbol_kind() and \
-                                sym1.get_symbol_kind() == SymbolKind.VARIABLE and \
-                                sym2 not in checked:
+        for sym1 in scope.get_symbols_in_this_scope():
+            for sym2 in scope.get_symbols_in_this_scope():
+                if (sym1 is not sym2 and sym1.get_symbol_name() == sym2.get_symbol_name() and
+                        sym1.get_symbol_kind() == sym2.get_symbol_kind() and
+                        sym1.get_symbol_kind() == SymbolKind.VARIABLE and
+                        sym2 not in checked):
                     if sym1.is_predefined():
                         code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), True)
                         Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
-                                           neuron=_neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
                     elif sym2.is_predefined():
                         code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), True)
                         Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),
-                                           neuron=_neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
                     elif sym1.get_referenced_object().get_source_position().before(
                             sym2.get_referenced_object().get_source_position()):
                         code, message = Messages.getVariableRedeclared(sym1.get_symbol_name(), False)
                         Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
-                                           neuron=_neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
             checked.append(sym1)
-        for scope in _scope.getScopes():
-            cls.__checkScope(_neuron, scope)
+        for scope in scope.get_scopes():
+            cls.__check_scope(neuron, scope)
         return

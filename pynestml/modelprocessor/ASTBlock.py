@@ -36,7 +36,7 @@ class ASTBlock(ASTNode):
         :param _stmts: a list of statements 
         :type _stmts: list(ASTSmallStmt/ASTCompoundStmt)
         :param source_position: the position of this element
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         """
         from pynestml.modelprocessor.ASTStmt import ASTStmt
         assert (_stmts is not None and isinstance(_stmts, list)), \

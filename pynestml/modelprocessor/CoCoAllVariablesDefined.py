@@ -52,7 +52,7 @@ class CoCoAllVariablesDefined(CoCo):
         expressions = expression_collector_visitor.ret
         for expr in expressions:
             for var in expr.get_variables():
-                symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 # this part is required to check that we handle invariants differently
                 expr_par = node.get_parent(expr)
 

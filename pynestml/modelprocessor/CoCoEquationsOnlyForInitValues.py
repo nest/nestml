@@ -46,16 +46,13 @@ class CoCoEquationsOnlyForInitValues(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(EquationsOnlyForInitValues())
-        return
 
 
 class EquationsOnlyForInitValues(ASTVisitor):
@@ -63,13 +60,13 @@ class EquationsOnlyForInitValues(ASTVisitor):
     This visitor ensures that for all ode equations exists an initial value.
     """
 
-    def visit_ode_equation(self, node=None):
+    def visit_ode_equation(self, node):
         """
         Ensures the coco.
         :param node: a single equation object.
         :type node: ASTOdeEquation
         """
-        symbol = node.get_scope().resolveToSymbol(node.get_lhs().get_name_of_lhs(), SymbolKind.VARIABLE)
+        symbol = node.get_scope().resolve_to_symbol(node.get_lhs().get_name_of_lhs(), SymbolKind.VARIABLE)
         if symbol is not None and not symbol.is_init_values():
             code, message = Messages.getEquationVarNotInInitValuesBlock(node.get_lhs().get_name_of_lhs())
             Logger.log_message(code=code, message=message,

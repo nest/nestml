@@ -29,16 +29,16 @@ from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
 # minor setup steps required
-SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-PredefinedUnits.registerUnits()
-PredefinedTypes.registerTypes()
-PredefinedVariables.registerPredefinedVariables()
-PredefinedFunctions.registerPredefinedFunctions()
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+PredefinedUnits.register_units()
+PredefinedTypes.register_types()
+PredefinedVariables.register_predefined_variables()
+PredefinedFunctions.register_predefined_functions()
 
 
 class expressionTestVisitor(ASTVisitor):
@@ -48,18 +48,18 @@ class expressionTestVisitor(ASTVisitor):
 
         _expr = node.get_expression()
 
-        var_symbol = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
+        var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.get_type_symbol().equals(_expr.get_type_either().getValue())
+        _equals = var_symbol.get_type_symbol().equals(_expr.get_type_either().get_value())
 
         message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
                   var_symbol.get_type_symbol().get_symbol_name() + \
-                  ' RHS = ' + _expr.get_type_either().getValue().get_symbol_name() + \
+                  ' RHS = ' + _expr.get_type_either().get_value().get_symbol_name() + \
                   ' Equal ? ' + str(_equals)
 
-        if _expr.get_type_either().getValue().is_unit():
+        if _expr.get_type_either().get_value().is_unit():
             message += (" Neuroscience Factor: " +
-                        str(UnitConverter().getFactor(_expr.get_type_either().getValue().get_unit().get_unit())))
+                        str(UnitConverter().getFactor(_expr.get_type_either().get_value().get_unit().get_unit())))
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)

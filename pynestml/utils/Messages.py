@@ -79,12 +79,12 @@ class Messages(object):
         """
         if not _castable:
             message = str(_argNr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (_functionCall.get_name(), _gotType.getValue().print_symbol(),
+                                    ' found \'%s\'.' % (_functionCall.get_name(), _gotType.get_value().print_symbol(),
                                                         _expectedType.print_symbol())
         else:
             message = str(_argNr) + '. argument of function-call \'%s\' is wrongly typed! ' \
                                     'Implicit cast from \'%s\' to \'%s\'.' % (_functionCall.get_name(),
-                                                                              _gotType.getValue().print_symbol(),
+                                                                              _gotType.get_value().print_symbol(),
                                                                               _expectedType.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message
 
@@ -223,7 +223,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').print_symbol())
+                  % (_bufferName, PredefinedTypes.get_type_if_exists('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod

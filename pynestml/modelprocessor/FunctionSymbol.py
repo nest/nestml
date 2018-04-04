@@ -70,7 +70,7 @@ class FunctionSymbol(Symbol):
         ret += '}, return type = ' + (self.get_return_type().print_symbol())
         ret += (', @' + (str(
             self.get_referenced_object().get_source_position()) if
-        self.get_referenced_object() is not None else 'predefined') + ']')
+            self.get_referenced_object() is not None else 'predefined') + ']')
         return ret
 
     def get_return_type(self):

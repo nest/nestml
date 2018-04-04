@@ -44,7 +44,7 @@ class ASTVariable(ASTNode):
         :param differential_order: the differential order of the variable.
         :type differential_order: int
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourcePosition.
+        :type _sourcePosition: ASTSourceLocation.
         """
         assert (differential_order is not None and isinstance(differential_order, int)), \
             '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(differential_order)
@@ -129,7 +129,7 @@ class ASTVariable(ASTNode):
         :rtype: bool
         """
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-        if self.get_name() in PredefinedTypes.getTypes():
+        if self.get_name() in PredefinedTypes.get_types():
             return True
         else:
             return False

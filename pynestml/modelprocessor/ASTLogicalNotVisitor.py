@@ -43,14 +43,14 @@ class ASTLogicalNotVisitor(ASTVisitor):
         """
         expr_type_e = node.get_expression().get_type_either()
 
-        if expr_type_e.isError():
+        if expr_type_e.is_error():
             node.set_type_either(expr_type_e)
             return
 
-        expr_type = expr_type_e.getValue()
+        expr_type = expr_type_e.get_value()
 
         if expr_type.is_boolean():
-            node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
+            node.set_type_either(Either.value(PredefinedTypes.get_boolean_type()))
         else:
             error_msg = ErrorStrings.messageExpectedBool(self, node.get_source_position())
             node.set_type_either(Either.error(error_msg))

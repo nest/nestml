@@ -17,18 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
-from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
-from pynestml.modelprocessor.ASTFunction import ASTFunction
-from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.modelprocessor.ASTBody import ASTBody
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTForStmt import ASTForStmt
+from pynestml.modelprocessor.ASTFunction import ASTFunction
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType
-from pynestml.modelprocessor.ASTBody import ASTBody
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 
 class NestPrinter(object):
@@ -178,7 +178,7 @@ class NestPrinter(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
-        functionSymbol = _function.get_scope().resolveToSymbol(_function.get_name(), SymbolKind.FUNCTION)
+        functionSymbol = _function.get_scope().resolve_to_symbol(_function.get_name(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
             declaration = _function.print_comment('//') + '\n'
             declaration += NESTML2NESTTypeConverter.convert(functionSymbol.get_return_type()).replace('.', '::')
@@ -191,7 +191,7 @@ class NestPrinter(object):
             declaration += ')\n'
             return declaration
         else:
-            raise RuntimeException('Cannot resolve the method ' + _function.get_name())
+            raise RuntimeError('Cannot resolve the method ' + _function.get_name())
 
     def printFunctionDefinition(self, _function=None, _namespace=None):
         """
@@ -207,7 +207,7 @@ class NestPrinter(object):
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
         assert (_namespace is not None and isinstance(_namespace, str)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(_namespace)
-        functionSymbol = _function.get_scope().resolveToSymbol(_function.get_name(), SymbolKind.FUNCTION)
+        functionSymbol = _function.get_scope().resolve_to_symbol(_function.get_name(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
             # first collect all parameters
             params = list()
@@ -229,7 +229,7 @@ class NestPrinter(object):
             declaration += ')\n'
             return declaration
         else:
-            raise RuntimeException('Cannot resolve the method ' + _function.get_name())
+            raise RuntimeError('Cannot resolve the method ' + _function.get_name())
 
     def printBufferArrayGetter(self, _buffer=None):
         """
@@ -320,10 +320,3 @@ class NestPrinter(object):
         assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
         return '//!< Buffer incoming ' + _buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
-
-
-class RuntimeException(Exception):
-    """
-    This exception is thrown whenever a problem during runtime occurs.
-    """
-    pass

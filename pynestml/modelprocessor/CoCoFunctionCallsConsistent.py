@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Messages import Messages
-from pynestml.modelprocessor.CoCo import CoCo
-from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.utils.Messages import Messages
 
 
 class CoCoFunctionCallsConsistent(CoCo):
@@ -35,16 +35,13 @@ class CoCoFunctionCallsConsistent(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node=None):
+    def check_co_co(cls, node):
         """
         Checks the coco for the handed over neuron.
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(FunctionCallConsistencyVisitor())
-        return
 
 
 class FunctionCallConsistencyVisitor(ASTVisitor):
@@ -62,7 +59,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':
             return
         # now, for all expressions, check for all function calls, the corresponding function is declared.
-        symbol = node.get_scope().resolveToSymbol(node.get_name(), SymbolKind.FUNCTION)
+        symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.FUNCTION)
         # first check if the function has been declared
         if symbol is None:
             code, message = Messages.getFunctionNotDeclared(node.get_name())
@@ -81,12 +78,12 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
             for i in range(0, len(actual_types)):
                 expected_type = expected_types[i]
                 actual_type = actual_types[i].get_type_either()
-                if actual_type.isError():
+                if actual_type.is_error():
                     code, message = Messages.getTypeCouldNotBeDerived(actual_types[i])
                     Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=actual_types[i].get_source_position())
-                elif not actual_type.getValue().equals(expected_type):
-                    if ASTUtils.is_castable_to(actual_type.getValue(), expected_type):
+                elif not actual_type.get_value().equals(expected_type):
+                    if ASTUtils.is_castable_to(actual_type.get_value(), expected_type):
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=node,
                                                                              _expectedType=expected_type,
                                                                              _gotType=actual_type, _castable=True)

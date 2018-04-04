@@ -63,15 +63,15 @@ class ASTVisitor(object):
     """
     This class represents a standard implementation of a visitor as used to create concrete instances.
     Attributes:
-        __realSelf (ASTVisitor): The visitor which will be used during the visiting of a node.
+        real_self (ASTVisitor): The visitor which will be used during the visiting of a node.
     """
-    __realSelf = None
+    real_self = None
 
     def __init__(self):
         """
         Standard constructor.
         """
-        self.__realSelf = self
+        self.real_self = self
         return
 
     def visit_compilation_unit(self, node):
@@ -695,11 +695,11 @@ class ASTVisitor(object):
 
     def set_real_self(self, _visitor):
         assert (_visitor is not None and isinstance(_visitor, ASTVisitor))
-        self.__realSelf = _visitor
+        self.real_self = _visitor
         return
 
     def get_real_self(self):
-        return self.__realSelf
+        return self.real_self
 
     def handle(self, _node):
         self.get_real_self().visit(_node)

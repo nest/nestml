@@ -41,7 +41,7 @@ class ASTOdeShape(ASTNode):
         :param rhs: the right-hand side rhs
         :type rhs: ASTExpression or ASTSimpleExpression
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         super(ASTOdeShape, self).__init__(source_position)
         self.lhs = lhs

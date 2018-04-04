@@ -43,15 +43,15 @@ class ASTBinaryLogicVisitor(ASTVisitor):
         lhs_type = node.get_lhs().get_type_either()
         rhs_type = node.get_rhs().get_type_either()
 
-        if lhs_type.isError():
+        if lhs_type.is_error():
             node.set_type_either(lhs_type)
             return
-        if rhs_type.isError():
+        if rhs_type.is_error():
             node.set_type_either(rhs_type)
             return
 
-        if lhs_type.getValue().is_boolean() and rhs_type.getValue().is_boolean():
-            node.set_type_either(Either.value(PredefinedTypes.getBooleanType()))
+        if lhs_type.get_value().is_boolean() and rhs_type.get_value().is_boolean():
+            node.set_type_either(Either.value(PredefinedTypes.get_boolean_type()))
         else:
             error_msg = ErrorStrings.messageLogicOperandsNotBool(self, node.get_source_position())
             node.set_type_either(Either.error(error_msg))

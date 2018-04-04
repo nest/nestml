@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.modelprocessor.CoCo import CoCo
-from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -29,25 +29,22 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, _listOfCompilationUnits=None):
+    def check_co_co(cls, list_of_compilation_units):
         """
         Checks the coco.
-        :param _listOfCompilationUnits: a list of compilation units.
-        :type _listOfCompilationUnits: list(ASTNestMLCompilationUnit)
+        :param list_of_compilation_units: a list of compilation units.
+        :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
         """
-        assert (_listOfCompilationUnits is not None and isinstance(_listOfCompilationUnits, list)), \
-            '(PyNestML.CoCo.NameCollisionAcrossUnits) No or wrong type of list provided (%s)!' % type(
-                _listOfCompilationUnits)
-        listOfNeurons = ASTUtils.get_all_neurons(_listOfCompilationUnits)
-        conflictingNeurons = list()
+        list_of_neurons = ASTUtils.get_all_neurons(list_of_compilation_units)
+        conflicting_neurons = list()
         checked = list()
-        for neuronA in listOfNeurons:
-            for neuronB in listOfNeurons:
+        for neuronA in list_of_neurons:
+            for neuronB in list_of_neurons:
                 if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name():
                     code, message = Messages.getCompilationUnitNameCollision(neuronA.get_name(),
                                                                              neuronA.get_artifact_name(),
                                                                              neuronB.get_artifact_name())
                     Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
-                conflictingNeurons.append(neuronB)
+                conflicting_neurons.append(neuronB)
             checked.append(neuronA)
-        return conflictingNeurons
+        return conflicting_neurons

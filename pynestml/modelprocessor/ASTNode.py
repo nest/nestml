@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.Scope import Scope
 
 
@@ -36,7 +36,7 @@ class ASTNode(object):
         """
         The standard constructor.
         :param source_position: a source position element.
-        :type source_position: ASTSourcePosition
+        :type source_position: ASTSourceLocation
         :param scope: the scope in which this element is embedded in.
         :type scope: Scope
         """
@@ -47,12 +47,12 @@ class ASTNode(object):
         """
         Returns the source position of the element.
         :return: a source position object.
-        :rtype: ASTSourcePosition
+        :rtype: ASTSourceLocation
         """
         if self.sourcePosition is not None:
             return self.sourcePosition
         else:
-            return ASTSourcePosition.getPredefinedSourcePosition()
+            return ASTSourceLocation.getPredefinedSourcePosition()
 
     def set_source_position(self, new_position):
         """
@@ -60,7 +60,7 @@ class ASTNode(object):
         :param new_position: a new source position
         :type new_position: ASTSourcePosition
         :return: a source position object.
-        :rtype: ASTSourcePosition
+        :rtype: ASTSourceLocation
         """
         self.sourcePosition = new_position
         return

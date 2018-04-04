@@ -40,12 +40,9 @@ class ASTVariableVisitor(ASTVisitor):
         :param node: a single simple rhs
         :type node: ASTSimpleExpression
         """
-        assert (node.get_scope() is not None), \
-            '(PyNestML.Visitor.ASTVariableVisitor) No scope found, run symboltable creator!'
-
         scope = node.get_scope()
         var_name = node.get_variable().get_name()
-        var_resolve = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
+        var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
             node.set_type_either(Either.value(var_resolve.get_type_symbol()))
@@ -58,4 +55,4 @@ class ASTVariableVisitor(ASTVisitor):
         return
 
     def visit_expression(self, node=None):
-        raise Exception("Deprecated method used!")
+        raise RuntimeError('Deprecated method used!')

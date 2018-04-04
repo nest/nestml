@@ -89,7 +89,7 @@ class ASTExpression(ASTNode):
         :param if_not: if condition does not hold, this rhs is executed.
         :type if_not: ASTExpression
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator) or
                                               (isinstance(binary_operator, ASTBitOperator)) or

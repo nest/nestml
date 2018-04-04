@@ -25,72 +25,64 @@ class SymbolTable(object):
     This class is used to store a single symbol table, consisting of scope and symbols.
     
     Attributes:
-        __name2neuronScope A dict from the name of a neuron to the corresponding scope. Type str->Scope
-        sourcePosition The source position of the overall compilation unit. Type ASTSourcePosition
+        name2neuron_scope A dict from the name of a neuron to the corresponding scope. Type str->Scope
+        sourcePosition The source position of the overall compilation unit. Type ASTSourceLocation
     """
-    __name2neuronScope = {}
-    __sourcePosition = None
+    name2neuron_scope = {}
+    source_location = None
 
     @classmethod
-    def initializeSymbolTable(cls, _sourcePosition=None):
+    def initialize_symbol_table(cls, source_position):
         """
         Standard initializer.
         """
-        from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-        assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of source position provided (%s)!' % type(
-                _sourcePosition)
-        cls.__sourcePosition = _sourcePosition
-        cls.__name2neuronScope = {}
-        return
-
+        cls.source_location = source_position
+        cls.name2neuron_scope = {}
+        
     @classmethod
-    def addNeuronScope(cls, _name, _scope=None):
+    def add_neuron_scope(cls, name, scope):
         """
         Adds a single neuron scope to the set of stored scopes.
         :return: a single scope element.
         :rtype: Scope
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!' % type(_scope)
-        assert (_scope.getScopeType() == ScopeType.GLOBAL), \
+        assert (scope is not None and isinstance(scope, Scope)), \
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!' % type(scope)
+        assert (scope.get_scope_type() == ScopeType.GLOBAL), \
             '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(_name)
-        if _name not in cls.__name2neuronScope.keys():
-            cls.__name2neuronScope[_name] = _scope
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(name)
+        if name not in cls.name2neuron_scope.keys():
+            cls.name2neuron_scope[name] = scope
         return
 
     @classmethod
-    def deleteNeuronScope(cls, _name=None):
+    def delete_neuron_scope(cls, name):
         """
         Deletes a single neuron scope from the set of stored scopes.
         :return: the name of the scope to delete.
         :rtype: Scope
         """
-        assert (_name is not None and isinstance(_name, Scope)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(_name)
-        if _name in cls.__name2neuronScope.keys():
-            del cls.__name2neuronScope[_name]
+        if name in cls.name2neuron_scope.keys():
+            del cls.name2neuron_scope[name]
         return
 
     @classmethod
-    def cleanUpTable(cls):
+    def clean_up_table(cls):
         """
         Deletes all entries as stored in the symbol table.
         """
-        del cls.__name2neuronScope
-        cls.__name2neuronScope = {}
-        return
+        del cls.name2neuron_scope
+        cls.name2neuron_scope = {}
 
     @classmethod
-    def printSymbolTable(cls):
+    def print_symbol_table(cls):
         """
         Prints the content of this symbol table.
         """
         ret = ''
-        for _name in cls.__name2neuronScope.keys():
+        for _name in cls.name2neuron_scope.keys():
             ret += '--------------------------------------------------\n'
             ret += _name + ':\n'
-            ret += cls.__name2neuronScope[_name].printScope()
+            ret += cls.name2neuron_scope[_name].print_scope()
         return ret

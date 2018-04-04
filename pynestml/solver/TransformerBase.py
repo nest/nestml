@@ -20,7 +20,7 @@
 from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
 from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.ASTStmt import ASTStmt
 
 from pynestml.utils.ASTUtils import ASTUtils
@@ -214,15 +214,15 @@ class TransformerBase(object):
         """
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
         from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-        from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+        from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
         small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=_assignment,
-                                                          source_position=ASTSourcePosition.getAddedSourcePosition())
+                                                          source_position=ASTSourceLocation.getAddedSourcePosition())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
-                                              source_position=ASTSourcePosition.getAddedSourcePosition())
+                                              source_position=ASTSourceLocation.getAddedSourcePosition())
         _neuron.get_update_blocks().get_block().get_stmts().append(stmt)
         return _neuron
 
@@ -243,9 +243,9 @@ class TransformerBase(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
         small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=_declaration,
-                                                          source_position=ASTSourcePosition.getAddedSourcePosition())
+                                                          source_position=ASTSourceLocation.getAddedSourcePosition())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
-                                              source_position=ASTSourcePosition.getAddedSourcePosition())
+                                              source_position=ASTSourceLocation.getAddedSourcePosition())
         _neuron.get_update_blocks().get_block().get_stmts().append(stmt)
         return _neuron
 

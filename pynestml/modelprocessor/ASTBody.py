@@ -39,7 +39,7 @@ class ASTBody(ASTNode):
         :param body_elements: a list of elements, e.g. variable blocks.
         :type body_elements: list()
         :param source_position: the position of the element in the source model
-        :rtype source_position: ASTSourcePosition
+        :rtype source_location: ASTSourceLocation
         """
         super(ASTBody, self).__init__(source_position)
         self.bodyElements = body_elements

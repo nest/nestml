@@ -47,7 +47,7 @@ class ASTEquationsBlock(ASTNode):
         :param declarations: a block of definitions.
         :type declarations: ASTBlock
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)

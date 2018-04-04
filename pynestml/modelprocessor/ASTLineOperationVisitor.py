@@ -45,15 +45,15 @@ class ASTLineOperatorVisitor(ASTVisitor):
         lhs_type_e = node.get_lhs().get_type_either()
         rhs_type_e = node.get_rhs().get_type_either()
 
-        if lhs_type_e.isError():
+        if lhs_type_e.is_error():
             node.set_type_either(lhs_type_e)
             return
-        if rhs_type_e.isError():
+        if rhs_type_e.is_error():
             node.set_type_either(rhs_type_e)
             return
 
-        lhs_type = lhs_type_e.getValue()
-        rhs_type = rhs_type_e.getValue()
+        lhs_type = lhs_type_e.get_value()
+        rhs_type = rhs_type_e.get_value()
 
         arith_op = node.get_binary_operator()
         # arithOp exists if we get into this visitor, but make sure:
@@ -64,7 +64,7 @@ class ASTLineOperatorVisitor(ASTVisitor):
             # String concatenation has a prio. If one of the operands is a string,
             # the remaining sub-rhs becomes a string
             if (lhs_type.is_string() or rhs_type.is_string()) and (not rhs_type.is_void() and not lhs_type.is_void()):
-                node.set_type_either(Either.value(PredefinedTypes.getStringType()))
+                node.set_type_either(Either.value(PredefinedTypes.get_string_type()))
                 return
 
         # Common code for plus and minus ops:
@@ -75,14 +75,14 @@ class ASTLineOperatorVisitor(ASTVisitor):
                 return
             # both numeric primitive, not matching -> one is real one is integer -> real
             if lhs_type.is_numeric_primitive() and rhs_type.is_numeric_primitive():
-                node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+                node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
                 return
             # Both are units, not matching -> real, WARN
             if lhs_type.is_unit() and rhs_type.is_unit():
                 error_msg = ErrorStrings.messageAddSubTypeMismatch(self, lhs_type.print_symbol(),
                                                                    rhs_type.print_symbol(), 'real',
                                                                    node.get_source_position())
-                node.set_type_either(Either.value(PredefinedTypes.getRealType()))
+                node.set_type_either(Either.value(PredefinedTypes.get_real_type()))
                 Logger.log_message(code=MessageCode.ADD_SUB_TYPE_MISMATCH,
                                    error_position=node.get_source_position(),
                                    message=error_msg, log_level=LoggingLevel.WARNING)

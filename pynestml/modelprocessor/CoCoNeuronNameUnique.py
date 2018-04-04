@@ -45,19 +45,15 @@ class CoCoNeuronNameUnique(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, _compilationUnit=None):
+    def check_co_co(cls, compilation_unit):
         """
         Checks the coco for the handed over compilation unit.
-        :param _compilationUnit: a single compilation unit.
-        :type _compilationUnit: ASTCompilationUnit
+        :param compilation_unit: a single compilation unit.
+        :type compilation_unit: ASTCompilationUnit
         """
-        from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNestMLCompilationUnit)), \
-            '(PyNestML.CoCo.NeuronNameUnique) No or wrong type of compilation unit provided (%s)!' % type(
-                _compilationUnit)
         checked = list()  # a list of already checked elements
-        for neuronA in _compilationUnit.get_neuron_list():
-            for neuronB in _compilationUnit.get_neuron_list():
+        for neuronA in compilation_unit.get_neuron_list():
+            for neuronB in compilation_unit.get_neuron_list():
                 if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name() and neuronB not in checked:
                     code, message = Messages.getNeuronRedeclared(neuronB.get_name())
                     Logger.log_message(error_position=neuronB.get_source_position(),

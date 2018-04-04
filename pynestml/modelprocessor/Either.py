@@ -29,45 +29,41 @@ class Either(object):
     __value = None
     __error = None
 
-    def __init__(self, _value=None, _error=None):
+    def __init__(self, value=None, error=None):
         """
         Constructor for Either. Do not call directly! Use Either.value() or Either.error instead!
-        :param _value: a value
-        :type _value: object
-        :param _error: an error
-        :type _error: object
+        :param value: a value
+        :type value: object
+        :param error: an error
+        :type error: object
         """
-        self.__value = _value
-        self.__error = _error
+        self.__value = value
+        self.__error = error
         return
 
     @classmethod
-    def value(cls, _value=None):
+    def value(cls, value):
         """
         Construct an Either holding a valid value
-        :param _value: the value to hold
+        :param value: the value to hold
         :type: _value: anything
         :return: an Either object holding a valid value
         :rtype: Either
         """
-        assert (_value is not None), \
-            '(PyNestML.Utils.Either) No or wrong type of value provided (%s)!' % type(_value)
-        return Either(_value, None)
+        return Either(value, None)
 
     @classmethod
-    def error(cls, _error=None):
+    def error(cls, error):
         """
         Construct an Either holding an error message
-        :param _error: an error message
-        :type _error: str
+        :param error: an error message
+        :type error: str
         :return: an Either object holding an error message
         :rtype: Either
         """
-        assert (_error is not None and isinstance(_error, str)), \
-            '(PyNestML.Utils.Either) No or wrong type of error provided (%s)!' % type(_error)
-        return Either(None, _error)
+        return Either(None, error)
 
-    def getValue(self):
+    def get_value(self):
         """
         Get the valid value saved in the Either object
         :return: valid value
@@ -75,7 +71,7 @@ class Either(object):
         """
         return self.__value
 
-    def getError(self):
+    def get_error(self):
         """
         Get the error message saved in the Either object
         :return: an error message
@@ -83,7 +79,7 @@ class Either(object):
         """
         return self.__error
 
-    def isValue(self):
+    def is_value(self):
         """
         Return whether the object holds a valid value
         :return: true iff object holds a valid value
@@ -91,7 +87,7 @@ class Either(object):
         """
         return self.__value is not None
 
-    def isError(self):
+    def is_error(self):
         """
         Return whether the object holds an error message
         :return: true iff the object holds an error message
@@ -99,7 +95,7 @@ class Either(object):
         """
         return self.__error is not None
 
-    def printSelf(self):
+    def __str__(self):
         """
         Constructs string representation of the Either object
         :return: string representation of the object

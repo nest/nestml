@@ -25,7 +25,7 @@ from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.modelprocessor.ASTBlock import ASTBlock
@@ -104,11 +104,11 @@ class ModelParser(object):
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
         # create and update the corresponding symbol tables
-        SymbolTable.initializeSymbolTable(ast.get_source_position())
+        SymbolTable.initialize_symbol_table(ast.get_source_position())
         symbol_table_visitor = ASTSymbolTableVisitor()
         for neuron in ast.get_neuron_list():
             neuron.accept(symbol_table_visitor)
-            SymbolTable.addNeuronScope(neuron.get_name(), neuron.get_scope())
+            SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
         return ast
 
     @classmethod
@@ -428,4 +428,4 @@ def tokenize(string):
 
 
 def log_set_added_source_position(node):
-    node.set_source_position(ASTSourcePosition.getAddedSourcePosition())
+    node.set_source_position(ASTSourceLocation.getAddedSourcePosition())

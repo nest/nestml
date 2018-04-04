@@ -25,11 +25,11 @@ class CoCo:
     This class represents an abstract super-class for all concrete context conditions to check. All concrete CoCos
     have to inherit from this class. Hereby, the description can be used to state the condition the CoCo checks.
     Attributes:
-        __description (str): This field can be used to give a short description regarding the properties which
+        description (str): This field can be used to give a short description regarding the properties which
                                 are checked by this coco.
     """
     __metaclass__ = ABCMeta
-    __description = None
+    description = None
 
     @abstractmethod
     def check_co_co(self, node):

@@ -43,10 +43,7 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(ConvolveCheckerVisitor())
-        return
 
 
 class ConvolveCheckerVisitor(ASTVisitor):
@@ -58,10 +55,10 @@ class ConvolveCheckerVisitor(ASTVisitor):
     def visit_function_call(self, node):
         func_name = node.get_name()
         if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':
-            symbol_var = node.get_scope().resolveToSymbol(str(node.get_args()[0]),
-                                                          SymbolKind.VARIABLE)
-            symbol_buffer = node.get_scope().resolveToSymbol(str(node.get_args()[1]),
-                                                             SymbolKind.VARIABLE)
+            symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
+                                                            SymbolKind.VARIABLE)
+            symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
+                                                               SymbolKind.VARIABLE)
             if symbol_var is not None and not symbol_var.is_shape() and not symbol_var.is_init_values():
                 code, message = Messages.getFirstArgNotShapeOrEquation(func_name)
                 Logger.log_message(code=code, message=message,

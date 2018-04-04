@@ -37,7 +37,7 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.get_scope().resolveToSymbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolve_to_symbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
         else:
@@ -76,15 +76,15 @@ class NestAssignmentsHelper(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.get_scope().resolveToSymbol(_assignment.get_variable().get_complete_name(),
-                                                         SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolve_to_symbol(_assignment.get_variable().get_complete_name(),
+                                                           SymbolKind.VARIABLE)
         if symbol is not None:
             if symbol.has_vector_parameter():
                 return True
             else:
                 # otherwise we have to check if one of the variables used in the rhs is a vector
                 for var in _assignment.get_expression().get_variables():
-                    symbol = var.get_scope().resolveToSymbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                     if symbol is not None and symbol.has_vector_parameter():
                         return True
                 return False
@@ -105,12 +105,12 @@ class NestAssignmentsHelper(object):
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         vector_variable = None
         for variable in _assignment.get_expression().get_variables():
-            symbol = variable.get_scope().resolveToSymbol(variable.get_complete_name(), SymbolKind.VARIABLE)
+            symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
             if symbol is not None and symbol.has_vector_parameter():
                 vector_variable = symbol
                 break
         if vector_variable is None:
             vector_variable = _assignment.get_scope(). \
-                resolveToSymbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
+                resolve_to_symbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
         # this function is called only after the corresponding assignment has been tested for been a vector
         return vector_variable.get_vector_parameter()

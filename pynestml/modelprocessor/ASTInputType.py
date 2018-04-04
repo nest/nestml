@@ -42,7 +42,7 @@ class ASTInputType(ASTNode):
         :param is_excitatory: is excitatory buffer.
         :type is_excitatory: book
         :param _sourcePosition: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         super(ASTInputType, self).__init__(source_position)
         self.is_excitatory = is_excitatory

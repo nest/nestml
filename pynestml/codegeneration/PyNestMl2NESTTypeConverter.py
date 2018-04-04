@@ -37,19 +37,19 @@ class NESTML2NESTTypeConverter(object):
         """
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
             '(PyNestML.CodeGeneration.TypeConverter) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        if _typeSymbol.equals(PredefinedTypes.getStringType()):
+        if _typeSymbol.equals(PredefinedTypes.get_string_type()):
             return 'std::string'
-        if _typeSymbol.equals(PredefinedTypes.getVoidType()):
+        if _typeSymbol.equals(PredefinedTypes.get_void_type()):
             return 'void'
         if _typeSymbol.is_buffer():
             return 'nest::RingBuffer'
-        if _typeSymbol.equals(PredefinedTypes.getBooleanType()):
+        if _typeSymbol.equals(PredefinedTypes.get_boolean_type()):
             return 'bool'
-        if _typeSymbol.equals(PredefinedTypes.getRealType()):
+        if _typeSymbol.equals(PredefinedTypes.get_real_type()):
             return 'double'
         if _typeSymbol.is_unit():
             return 'double'
-        if _typeSymbol.equals(PredefinedTypes.getIntegerType()):
+        if _typeSymbol.equals(PredefinedTypes.get_integer_type()):
             return 'long'
         if 'Time' in _typeSymbol.get_symbol_name():
             return 'nest::Time'

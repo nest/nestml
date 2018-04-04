@@ -17,12 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.Scope import ScopeType
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.VariableSymbol import BlockType
-from pynestml.modelprocessor.Scope import ScopeType
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 
@@ -65,12 +65,12 @@ class ParametersAssignmentVisitor(ASTVisitor):
     def visit_assignment(self, node):
         """
         Checks the coco on the current node.
-        :param assignment: a single node.
+        :param node: a single node.
         :type node: ASTAssignment
         """
-        symbol = node.get_scope().resolveToSymbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-        if symbol is not None and symbol.get_block_type() == BlockType.PARAMETERS and \
-                        node.get_scope().getScopeType() != ScopeType.GLOBAL:
+        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+        if (symbol is not None and symbol.get_block_type() == BlockType.PARAMETERS and
+                node.get_scope().get_scope_type() != ScopeType.GLOBAL):
             code, message = Messages.getAssignmentNotAllowed(node.get_variable().get_complete_name())
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message,

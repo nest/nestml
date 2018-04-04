@@ -45,7 +45,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
             "(PyNestML.Visitor.ASTFunctionCallVisitor) No scope found, run symboltable creator!"
         scope = node.get_scope()
         function_name = node.get_function_call().get_name()
-        method_symbol = scope.resolveToSymbol(function_name, SymbolKind.FUNCTION)
+        method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
         # check if this function exists
         if method_symbol is None:
             error_msg = ErrorStrings.messageResolveFail(self, function_name, node.get_source_position())
@@ -60,7 +60,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
             if buffer_parameter.get_variable() is not None:
                 buffer_name = buffer_parameter.get_variable().get_name()
-                buffer_symbol_resolve = scope.resolveToSymbol(buffer_name, SymbolKind.VARIABLE)
+                buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
                 if buffer_symbol_resolve is not None:
                     node.set_type_either(Either.value(buffer_symbol_resolve.get_type_symbol()))
                     return

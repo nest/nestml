@@ -46,7 +46,7 @@ class ASTParameter(ASTNode):
         :param data_type: the type of the parameter.
         :type data_type: ASTDataType
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(name)

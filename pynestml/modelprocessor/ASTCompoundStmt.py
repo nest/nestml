@@ -45,7 +45,7 @@ class ASTCompoundStmt(ASTNode):
         :param _forStmt: a for statement object
         :type _forStmt: ASTForStmt
         :param source_position: The source position of the assignment
-        :type _sourcePosition: ASTSourcePosition
+        :type _sourcePosition: ASTSourceLocation
         """
         assert (_ifStmt is None or isinstance(_ifStmt, ASTIfStmt)), \
             '(PyNestML.AST.CompoundStmt) Wrong type of if-statement provided (%s)!' % type(_ifStmt)

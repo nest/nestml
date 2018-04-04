@@ -48,7 +48,7 @@ class ASTNeuron(ASTNode):
         :param body: the body containing the definitions.
         :type body: ASTBody
         :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourcePosition.
+        :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
@@ -264,7 +264,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and (symbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE or
@@ -303,7 +303,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.PARAMETERS and \
@@ -318,7 +318,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.STATE and \
@@ -333,7 +333,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.INTERNALS and \
@@ -348,7 +348,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol,
@@ -362,7 +362,7 @@ class ASTNeuron(ASTNode):
         :return: a list of variable symbols
         :rtype: list(VariableSymbol)
         """
-        symbols = self.get_scope().getSymbolsInCompleteScope()
+        symbols = self.get_scope().get_symbols_in_complete_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.is_ode_defined():
@@ -463,7 +463,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.INITIAL_VALUES and \
@@ -503,7 +503,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and \
@@ -519,7 +519,7 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
         from pynestml.modelprocessor.VariableSymbol import BlockType
-        symbols = self.get_scope().getSymbolsInThisScope()
+        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and \
