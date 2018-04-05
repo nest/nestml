@@ -59,7 +59,7 @@ class GSLReferenceConverter(IReferenceConverter):
 
         if PredefinedUnits.is_unit(ast_variable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.get_unit_if_exists(ast_variable.get_complete_name()).get_unit()))
+                UnitConverter.getFactor(PredefinedUnits.get_unit(ast_variable.get_complete_name()).get_unit()))
         if symbol.is_init_values():
             return GSLNamesConverter.name(symbol)
         elif symbol.is_buffer():

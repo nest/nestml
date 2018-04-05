@@ -7,7 +7,7 @@
 
 {%- if variable.is_function() and not variable.contains_sum_call() %}
   inline {{declarations.printVariableType(variable)}} {{names.getter(variable)}}() const {
-    {%- set simpleExpression = odeTransformer.replaceSumCalls(variable.get_declaring_expression()) %}
+    {%- set simpleExpression = odeTransformer.replace_sum_calls(variable.get_declaring_expression()) %}
     return {{printer.printExpression(simpleExpression)}};
   }
 {% else %}

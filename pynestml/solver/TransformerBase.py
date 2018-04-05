@@ -181,7 +181,7 @@ class TransformerBase(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        conv_calls = OdeTransformer.get_sumFunctionCalls(_neuron)
+        conv_calls = OdeTransformer.get_sum_function_calls(_neuron)
         printer = ExpressionsPrettyPrinter()
         spikes_updates = list()
         for convCall in conv_calls:
@@ -220,9 +220,9 @@ class TransformerBase(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
         small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=_assignment,
-                                                          source_position=ASTSourceLocation.getAddedSourcePosition())
+                                                          source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
-                                              source_position=ASTSourceLocation.getAddedSourcePosition())
+                                              source_position=ASTSourceLocation.get_added_source_position())
         _neuron.get_update_blocks().get_block().get_stmts().append(stmt)
         return _neuron
 
@@ -243,9 +243,9 @@ class TransformerBase(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
         small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=_declaration,
-                                                          source_position=ASTSourceLocation.getAddedSourcePosition())
+                                                          source_position=ASTSourceLocation.get_added_source_position())
         stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
-                                              source_position=ASTSourceLocation.getAddedSourcePosition())
+                                              source_position=ASTSourceLocation.get_added_source_position())
         _neuron.get_update_blocks().get_block().get_stmts().append(stmt)
         return _neuron
 

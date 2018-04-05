@@ -80,7 +80,7 @@ class CoCoAllVariablesDefined(CoCo):
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
                     # todo by KP: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and
-                            not symbol.get_referenced_object().get_source_position().isAddedSourcePosition()):
+                            not symbol.get_referenced_object().get_source_position().is_added_source_position()):
                         code, message = Messages.getVariableDefinedRecursively(var.get_name())
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, neuron=node)

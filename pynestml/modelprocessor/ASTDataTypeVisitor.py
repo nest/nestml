@@ -80,7 +80,7 @@ class ASTDataTypeVisitor(ASTVisitor):
         :rtype: TypeSymbol
         """
         if node.is_simple_unit():
-            type_s = PredefinedTypes.get_type_if_exists(node.unit)
+            type_s = PredefinedTypes.get_type(node.unit)
             if type_s is None:
                 raise RuntimeError('Unknown atomic unit %s.' % node.unit)
             else:
@@ -140,10 +140,10 @@ def handle_unit(unit_type):
         unit_type = UnitType(_name=str(to_process), _unit=to_process)
         PredefinedUnits.register_unit(unit_type)
     # now create the corresponding type symbol if it does not exists
-    if PredefinedTypes.get_type_if_exists(str(to_process)) is None:
+    if PredefinedTypes.get_type(str(to_process)) is None:
         type_symbol = TypeSymbol(name=str(to_process),
-                                 unit=PredefinedUnits.get_unit_if_exists(str(to_process)),
+                                 unit=PredefinedUnits.get_unit(str(to_process)),
                                  is_integer=False, is_real=False, is_void=False,
                                  is_boolean=False, is_string=False, is_buffer=False)
         PredefinedTypes.register_type(type_symbol)
-    return PredefinedTypes.get_type_if_exists(name=str(to_process))
+    return PredefinedTypes.get_type(name=str(to_process))

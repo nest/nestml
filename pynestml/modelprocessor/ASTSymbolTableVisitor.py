@@ -144,21 +144,21 @@ class ASTSymbolTableVisitor(ASTVisitor):
             arg.get_data_type().accept(data_type_visitor)
             type_name = data_type_visitor.result
             # first collect the types for the parameters of the function symbol
-            symbol.add_parameter_type(PredefinedTypes.get_type_if_exists(type_name))
+            symbol.add_parameter_type(PredefinedTypes.get_type(type_name))
             # update the scope of the arg
             arg.update_scope(scope)
             # create the corresponding variable symbol representing the parameter
             var_symbol = VariableSymbol(element_reference=arg, scope=scope, name=arg.get_name(),
                                         block_type=BlockType.LOCAL, is_predefined=False, is_function=False,
                                         is_recordable=False,
-                                        type_symbol=PredefinedTypes.get_type_if_exists(type_name),
+                                        type_symbol=PredefinedTypes.get_type(type_name),
                                         variable_type=VariableType.VARIABLE)
             assert isinstance(scope, Scope)
             scope.add_symbol(var_symbol)
         if node.has_return_type():
             data_type_visitor = ASTDataTypeVisitor()
             node.get_return_type().accept(data_type_visitor)
-            symbol.set_return_type(PredefinedTypes.get_type_if_exists(data_type_visitor.result))
+            symbol.set_return_type(PredefinedTypes.get_type(data_type_visitor.result))
         else:
             symbol.set_return_type(PredefinedTypes.get_void_type())
         self.block_type_stack.pop()  # before leaving update the type
@@ -266,7 +266,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # now for each variable create a symbol and update the scope
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
-            type_symbol = PredefinedTypes.get_type_if_exists(type_name)
+            type_symbol = PredefinedTypes.get_type(type_name)
             symbol = VariableSymbol(element_reference=node,
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
@@ -433,7 +433,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         data_type_visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(data_type_visitor)
-        type_symbol = PredefinedTypes.get_type_if_exists(data_type_visitor.result)
+        type_symbol = PredefinedTypes.get_type(data_type_visitor.result)
         # now a new symbol
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
                                 name=node.get_variable_name(),
@@ -539,9 +539,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
             code, message = Messages.getBufferTypeNotDefined(node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.WARNING)
-            type_symbol = PredefinedTypes.get_type_if_exists('nS')
+            type_symbol = PredefinedTypes.get_type('nS')
         else:
-            type_symbol = PredefinedTypes.get_type_if_exists('pA')
+            type_symbol = PredefinedTypes.get_type('pA')
         type_symbol.set_buffer(True)  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=buffer_type, vector_parameter=node.get_index_parameter(),
@@ -592,18 +592,18 @@ def make_implicit_odes_explicit(equations_block):
                     lhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_variable().get_name(),
                                                                       differential_order=i,
                                                                       source_position=ASTSourceLocation.
-                                                                      getAddedSourcePosition())
+                                                                      get_added_source_position())
                     rhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_variable().get_name(),
                                                                       differential_order=i,
                                                                       source_position=ASTSourceLocation.
-                                                                      getAddedSourcePosition())
+                                                                      get_added_source_position())
                     expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
                                                                              source_position=ASTSourceLocation.
-                                                                             getAddedSourcePosition())
+                                                                             get_added_source_position())
                     equations_block.getDeclarations().append(
                         ASTNodeFactory.create_ast_ode_shape(lhs=lhs_variable,
                                                             rhs=expression,
-                                                            source_position=ASTSourceLocation.getAddedSourcePosition()))
+                                                            source_position=ASTSourceLocation.get_added_source_position()))
         if isinstance(declaration, ASTOdeEquation):
             # now we found a variable with order > 0, thus check if all previous orders have been defined
             order = declaration.get_lhs().get_differential_order()
@@ -620,21 +620,21 @@ def make_implicit_odes_explicit(equations_block):
                     lhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_lhs().get_name(),
                                                                       differential_order=i,
                                                                       source_position=ASTSourceLocation.
-                                                                      getAddedSourcePosition())
+                                                                      get_added_source_position())
                     rhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_lhs().get_name(),
                                                                       differential_order=i,
                                                                       source_position=ASTSourceLocation.
-                                                                      getAddedSourcePosition())
+                                                                      get_added_source_position())
                     expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
                                                                              source_position=ASTSourceLocation.
-                                                                             getAddedSourcePosition(),
+                                                                             get_added_source_position(),
                                                                              function_call=None,
                                                                              boolean_literal=None,
                                                                              is_inf=False,
                                                                              string=None,
                                                                              numeric_literal=None)
 
-                    ode_eq_pos = ASTSourceLocation.getAddedSourcePosition()
+                    ode_eq_pos = ASTSourceLocation.get_added_source_position()
                     ode_eq = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression,
                                                                     source_position=ode_eq_pos)
                     equations_block.getDeclarations().append(ode_eq)
@@ -653,7 +653,7 @@ def mark_conductance_based_buffers(input_lines):
         if bufferDeclaration.is_spike():
             symbol = bufferDeclaration.get_scope().resolve_to_symbol(bufferDeclaration.get_name(),
                                                                      SymbolKind.VARIABLE)
-            if symbol is not None and symbol.get_type_symbol().equals(PredefinedTypes.get_type_if_exists('nS')):
+            if symbol is not None and symbol.get_type_symbol().equals(PredefinedTypes.get_type('nS')):
                 symbol.set_conductance_based(True)
     return
 

@@ -238,10 +238,10 @@ class Logger(object):
                    + code.name + \
                    '", ' + \
                    '"row":"' + \
-                   (str(errorPosition.getStartLine()) if errorPosition is not None else '') + \
+                   (str(errorPosition.get_start_line()) if errorPosition is not None else '') + \
                    '", ' + \
                    '"col":"' \
-                   + (str(errorPosition.getStartColumn()) if errorPosition is not None else '') + \
+                   + (str(errorPosition.get_start_column()) if errorPosition is not None else '') + \
                    '", ' + \
                    '"message":"' + str(message).replace('"', "'") + '"}'
             ret += ','

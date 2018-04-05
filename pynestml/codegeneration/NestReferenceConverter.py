@@ -134,7 +134,7 @@ class NESTReferenceConverter(IReferenceConverter):
 
         if PredefinedUnits.is_unit(_astVariable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.get_unit_if_exists(_astVariable.get_complete_name()).get_unit()))
+                UnitConverter.getFactor(PredefinedUnits.get_unit(_astVariable.get_complete_name()).get_unit()))
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:

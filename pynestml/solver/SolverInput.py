@@ -50,7 +50,7 @@ class SolverInput(object):
         """
         assert (_equationsBlock is not None and isinstance(_equationsBlock, ASTEquationsBlock)), \
             '(PyNestML.Solver.Input) No or wrong type of equations block provided (%s)!' % _equationsBlock
-        workingCopy = OdeTransformer.replaceSumCalls(deepcopy(_equationsBlock))
+        workingCopy = OdeTransformer.replace_sum_calls(deepcopy(_equationsBlock))
         self.__ode = self.printEquation(workingCopy.getOdeEquations()[0])
         self.__functions = list()
         for func in workingCopy.getOdeFunctions():

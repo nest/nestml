@@ -52,7 +52,7 @@ class ASTNode(object):
         if self.sourcePosition is not None:
             return self.sourcePosition
         else:
-            return ASTSourceLocation.getPredefinedSourcePosition()
+            return ASTSourceLocation.get_predefined_source_position()
 
     def set_source_position(self, new_position):
         """

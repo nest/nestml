@@ -223,7 +223,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (_bufferName, PredefinedTypes.get_type_if_exists('nS').print_symbol())
+                  % (_bufferName, PredefinedTypes.get_type('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod

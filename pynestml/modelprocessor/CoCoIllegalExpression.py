@@ -115,12 +115,12 @@ class CorrectExpressionVisitor(ASTVisitor):
                     Logger.log_message(error_position=node.get_source_position(),
                                        code=code, message=message, log_level=LoggingLevel.ERROR)
         else:
-            expr = ASTUtils.deconstructAssignment(lhs=node.get_variable(),
-                                                  is_plus=node.is_compound_sum,
-                                                  is_minus=node.is_compound_minus,
-                                                  is_times=node.is_compound_product,
-                                                  is_divide=node.is_compound_quotient,
-                                                  _rhs=node.get_expression())
+            expr = ASTUtils.deconstruct_assignment(lhs=node.get_variable(),
+                                                   is_plus=node.is_compound_sum,
+                                                   is_minus=node.is_compound_minus,
+                                                   is_times=node.is_compound_product,
+                                                   is_divide=node.is_compound_quotient,
+                                                   _rhs=node.get_expression())
             lhs_symbol_type = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
                                                                  SymbolKind.VARIABLE)
             rhs_symbol_type = expr.get_type_either()

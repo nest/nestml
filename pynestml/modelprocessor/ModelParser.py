@@ -428,4 +428,4 @@ def tokenize(string):
 
 
 def log_set_added_source_position(node):
-    node.set_source_position(ASTSourceLocation.getAddedSourcePosition())
+    node.set_source_position(ASTSourceLocation.get_added_source_position())

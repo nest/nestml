@@ -290,7 +290,7 @@ class ASTSimpleExpression(ASTNode):
         """
         Updates the function call of this node.
         :param function_call: a single function call
-        :type function_call: ASTFunctionCall
+        :type function_call: Union(ASTFunctionCall,None)
         """
         assert (function_call is None or isinstance(function_call, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(function_call)

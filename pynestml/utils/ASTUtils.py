@@ -134,8 +134,8 @@ class ASTUtils(object):
             return ''
 
     @classmethod
-    def deconstructAssignment(cls, lhs=None, is_plus=False, is_minus=False, is_times=False, is_divide=False,
-                              _rhs=None):
+    def deconstruct_assignment(cls, lhs=None, is_plus=False, is_minus=False, is_times=False, is_divide=False,
+                               _rhs=None):
         """
         From lhs and rhs it constructs a new rhs which corresponds to direct assignment.
         E.g.: a += b*c -> a = a + b*c
@@ -370,7 +370,7 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
-                                                                      ASTSourcePosition.getAddedSourcePosition())
+                                                                      ASTSourcePosition.get_added_source_position())
             neuron.get_body().get_body_elements().append(internal)
         return neuron
 
@@ -387,7 +387,7 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
-                                                                   ASTSourcePosition.getAddedSourcePosition())
+                                                                   ASTSourcePosition.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
         return neuron
 
@@ -404,6 +404,6 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
         if neuron.get_initial_blocks() is None:
             inits = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, list(),
-                                                                   ASTSourcePosition.getAddedSourcePosition())
+                                                                   ASTSourcePosition.get_added_source_position())
             neuron.get_body().get_body_elements().append(inits)
         return neuron

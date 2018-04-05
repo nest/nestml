@@ -48,7 +48,7 @@ class PredefinedVariables(object):
         for name in PredefinedTypes.get_types().keys():
             symbol = VariableSymbol(name=name, block_type=BlockType.PREDEFINED,
                                     is_predefined=True,
-                                    type_symbol=PredefinedTypes.get_type_if_exists(name),
+                                    type_symbol=PredefinedTypes.get_type(name),
                                     variable_type=VariableType.VARIABLE)
             cls.name2variable[name] = symbol
         return
@@ -70,7 +70,7 @@ class PredefinedVariables(object):
         Adds the time constant t.
         """
         symbol = VariableSymbol(name='t', block_type=BlockType.STATE,
-                                is_predefined=True, type_symbol=PredefinedTypes.get_type_if_exists('ms'),
+                                is_predefined=True, type_symbol=PredefinedTypes.get_type('ms'),
                                 variable_type=VariableType.VARIABLE)
         cls.name2variable[cls.TIME_CONSTANT] = symbol
         return
@@ -94,18 +94,16 @@ class PredefinedVariables(object):
         return cls.name2variable[cls.E_CONSTANT]
 
     @classmethod
-    def get_variable_if_exists(cls, _name=None):
+    def get_variable(cls, name):
         """
         Returns the variable symbol belonging to the handed over name if such an element exists.
-        :param _name: the name of a symbol.
-        :type _name: str
+        :param name: the name of a symbol.
+        :type name: str
         :return: a variable symbol if one exists, otherwise none
         :rtype: None or VariableSymbol
         """
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedVariables) No or wrong type of name provided (%s)!' % type(_name)
-        if _name in cls.name2variable.keys():
-            return cls.name2variable[_name]
+        if name in cls.name2variable.keys():
+            return cls.name2variable[name]
         else:
             return None
 

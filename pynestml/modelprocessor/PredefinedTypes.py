@@ -134,22 +134,6 @@ class PredefinedTypes(object):
     @classmethod
     def get_type(cls, name):
         """
-        Returns the symbol corresponding to the handed over name.
-        :param name: the name of a symbol
-        :type name: str
-        :return: a copy of a TypeSymbol
-        :rtype: copy(TypeSymbol)
-        """
-        typ_e = cls.get_type_if_exists(name)
-        if typ_e is not None:
-            return typ_e
-        else:
-            raise RuntimeError(
-                '(PyNestML.SymbolTable.PredefinedTypes) Cannot resolve the predefined type: ' + name)
-
-    @classmethod
-    def get_type_if_exists(cls, name):
-        """
         Return a TypeSymbol for
         -registered types
         -Correct SI Units in name ("ms")
@@ -170,16 +154,16 @@ class PredefinedTypes(object):
             else:
                 # otherwise its a prefix, store it as such
                 cls.register_unit(name)
-                return cls.get_type_if_exists(str(name))
+                return cls.get_type(str(name))
         # this case deals with something like 1.0 if we have (ms/ms)
         if isinstance(name, CompositeUnit) and len(name.bases) == 0:
             return cls.get_real_type()
         if isinstance(name, CompositeUnit):
             cls.register_unit(name)
-            return cls.get_type_if_exists(str(name))
+            return cls.get_type(str(name))
         if isinstance(name, Quantity):
             cls.register_unit(name.unit)
-            return cls.get_type_if_exists(str(name.unit))
+            return cls.get_type(str(name.unit))
         if name in cls.name2type:
             return copy(cls.name2type[name])
         else:

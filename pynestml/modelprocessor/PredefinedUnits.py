@@ -26,7 +26,7 @@ from pynestml.utils.Messages import Messages
 
 class PredefinedUnits(object):
     """
-    This class represents a collection of physical units. Units can be retrieved by means of get_unit_if_exists(name).
+    This class represents a collection of physical units. Units can be retrieved by means of get_unit(name).
     Attribute:
         name2unit (dict):  Dict of all predefined units, map from name to unit object.
         prefixless_units (list): A list of all units, stored without a prefix.
@@ -95,7 +95,7 @@ class PredefinedUnits(object):
         return
 
     @classmethod
-    def get_unit_if_exists(cls, name):
+    def get_unit(cls, name):
         """
         Returns a single sympy unit symbol if the corresponding unit has been predefined.
         :param name: the name of a unit

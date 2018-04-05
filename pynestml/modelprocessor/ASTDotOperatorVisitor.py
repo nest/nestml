@@ -79,11 +79,11 @@ class ASTDotOperatorVisitor(ASTVisitor):
                     left_unit = lhs_type.get_encapsulated_unit()
                     right_unit = rhs_type.get_encapsulated_unit()
                     if arith_op.is_times_op:
-                        return_type = PredefinedTypes.get_type_if_exists(left_unit * right_unit)
+                        return_type = PredefinedTypes.get_type(left_unit * right_unit)
                         node.set_type_either(Either.value(return_type))
                         return
                     elif arith_op.is_div_op:
-                        return_type = PredefinedTypes.get_type_if_exists(left_unit / right_unit)
+                        return_type = PredefinedTypes.get_type(left_unit / right_unit)
                         node.set_type_either(Either.value(return_type))
                         return
                 # if lhs is Unit, and rhs real or integer, return same Unit
@@ -97,7 +97,7 @@ class ASTDotOperatorVisitor(ASTVisitor):
                         return
                     elif arith_op.is_div_op:
                         right_unit = rhs_type.get_encapsulated_unit()
-                        return_type = PredefinedTypes.get_type_if_exists(1 / right_unit)
+                        return_type = PredefinedTypes.get_type(1 / right_unit)
                         node.set_type_either(Either.value(return_type))
                         return
                 # if no Units are involved, Real takes priority

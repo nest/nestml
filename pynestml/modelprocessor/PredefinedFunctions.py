@@ -110,7 +110,7 @@ class PredefinedFunctions(object):
         Registers the time-resolution.
         """
         params = list()
-        params.append(PredefinedTypes.get_type_if_exists('ms'))
+        params.append(PredefinedTypes.get_type('ms'))
         symbol = FunctionSymbol(name=cls.TIME_STEPS, param_types=params,
                                 return_type=PredefinedTypes.get_integer_type(),
                                 element_reference=None, is_predefined=True)
@@ -236,7 +236,7 @@ class PredefinedFunctions(object):
         Registers the time resolution function.
         """
         symbol = FunctionSymbol(name=cls.TIME_RESOLUTION, param_types=list(),
-                                return_type=PredefinedTypes.get_type_if_exists('ms'),
+                                return_type=PredefinedTypes.get_type('ms'),
                                 element_reference=None, is_predefined=True, scope=None)
         cls.name2function[cls.TIME_RESOLUTION] = symbol
 
@@ -258,8 +258,8 @@ class PredefinedFunctions(object):
         Registers the delta function.
         """
         params = list()
-        params.append(PredefinedTypes.get_type_if_exists('ms'))
-        params.append(PredefinedTypes.get_type_if_exists('ms'))
+        params.append(PredefinedTypes.get_type('ms'))
+        params.append(PredefinedTypes.get_type('ms'))
         symbol = FunctionSymbol(name=cls.DELTA, param_types=params,
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
@@ -334,10 +334,10 @@ class PredefinedFunctions(object):
         Registers the curr_sum function into scope.
         """
         params = list()
-        params.append(PredefinedTypes.get_type_if_exists('pA'))
+        params.append(PredefinedTypes.get_type('pA'))
         params.append(PredefinedTypes.get_real_type())
         symbol = FunctionSymbol(name=cls.CURR_SUM, param_types=params,
-                                return_type=PredefinedTypes.get_type_if_exists('pA'),
+                                return_type=PredefinedTypes.get_type('pA'),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.CURR_SUM] = symbol
 
@@ -347,10 +347,10 @@ class PredefinedFunctions(object):
         Registers the cond_sum function into scope.
         """
         params = list()
-        params.append(PredefinedTypes.get_type_if_exists('nS'))
+        params.append(PredefinedTypes.get_type('nS'))
         params.append(PredefinedTypes.get_real_type())
         symbol = FunctionSymbol(name=cls.COND_SUM, param_types=params,
-                                return_type=PredefinedTypes.get_type_if_exists('nS'),
+                                return_type=PredefinedTypes.get_type('nS'),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.COND_SUM] = symbol
 
@@ -377,7 +377,7 @@ class PredefinedFunctions(object):
         return cls.name2function
 
     @classmethod
-    def get_function_symbol_if_exists(cls, name):
+    def get_function(cls, name):
         """
         Returns a copy of a element in the set of defined functions if one exists, otherwise None
         :param name: the name of the function symbol

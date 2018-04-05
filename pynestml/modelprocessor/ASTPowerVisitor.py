@@ -73,7 +73,7 @@ class ASTPowerVisitor(ASTVisitor):
                     node.get_rhs())  # calculate exponent value if exponent composed of literals
                 if exponent_value.is_value():
                     node.set_type_either(
-                        Either.value(PredefinedTypes.get_type_if_exists(base_unit ** exponent_value.get_value())))
+                        Either.value(PredefinedTypes.get_type(base_unit ** exponent_value.get_value())))
                     return
                 else:
                     error_msg = exponent_value.get_error()
