@@ -514,6 +514,12 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {% include "WriteInDictionary.jinja2" %}
   {% endfilter -%}{% endwith -%}
   {%- endfor -%}
+  {%- for init in neuron.get_initial_values_symbols() -%}
+  {%- with variable = init -%}{%- filter indent(2,True) -%}
+  {% include "WriteInDictionary.jinja2" %}
+  {% endfilter -%}{% endwith -%}
+  {%- endfor -%}
+
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
@@ -544,6 +550,12 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- include "ReadFromDictionaryToTmp.jinja2" %}
   {% endwith -%}
   {% endfor -%}
+  {%- for init in neuron.get_initial_values_symbols() %}
+  {%- with variable = init %}
+  {%- include "ReadFromDictionaryToTmp.jinja2" %}
+  {% endwith -%}
+  {% endfor -%}
+
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that

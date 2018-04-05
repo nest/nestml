@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from pynestml.modelprocessor.ASTBody import ASTBody
-from pynestml.modelprocessor.VariableSymbol import VariableSymbol
 from pynestml.modelprocessor.ASTNode import ASTNode
+from pynestml.modelprocessor.VariableSymbol import BlockType
+from pynestml.modelprocessor.VariableSymbol import VariableSymbol
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
-from pynestml.utils.ASTUtils import ASTUtils
 
 
 class ASTNeuron(ASTNode):
@@ -302,11 +302,24 @@ class ASTNeuron(ASTNode):
         :return: a list of parameter symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.modelprocessor.VariableSymbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.PARAMETERS and \
+                    not symbol.is_predefined():
+                ret.append(symbol)
+        return ret
+
+    def get_initial_values_symbols(self):
+        """
+        Returns a list of all parameter symbol defined in the model.
+        :return: a list of parameter symbols.
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.INITIAL_VALUES and \
                     not symbol.is_predefined():
                 ret.append(symbol)
         return ret
@@ -317,7 +330,6 @@ class ASTNeuron(ASTNode):
         :return: a list of state symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.modelprocessor.VariableSymbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
