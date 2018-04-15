@@ -17,19 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.ast.ASTFunctionCall import ASTFunctionCall
+from pynestml.ast.ASTVariable import ASTVariable
+from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
-from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.codegeneration.UnitConverter import UnitConverter
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.Symbol import SymbolKind
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
-from pynestml.utils.ASTUtils import ASTUtils
 
 
 class NESTReferenceConverter(IReferenceConverter):
@@ -60,10 +60,10 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: the corresponding nest representation
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
-        from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
-        from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+        from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.ast.ASTBitOperator import ASTBitOperator
+        from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
         if isinstance(_binaryOperator, ASTArithmeticOperator):
             return cls.convertArithmeticOperator(_binaryOperator)
         if isinstance(_binaryOperator, ASTBitOperator):
@@ -158,7 +158,7 @@ class NESTReferenceConverter(IReferenceConverter):
                         if symbol.is_init_values():
                             return NestPrinter.printOrigin(symbol) + \
                                    (GSLNamesConverter.name(symbol)
-                                    if self.__usesGSL else NestNamesConverter.name(symbol)) + \
+                                   if self.__usesGSL else NestNamesConverter.name(symbol)) + \
                                    ('[i]' if symbol.has_vector_parameter() else '')
                         else:
                             return NestPrinter.printOrigin(symbol) + \
@@ -188,7 +188,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: the same operator
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
+        from pynestml.ast.ASTUnaryOperator import ASTUnaryOperator
         assert (_unaryOperator is not None and isinstance(_unaryOperator, ASTUnaryOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of unary operator provided (%s)!' \
             % type(_unaryOperator)
@@ -229,13 +229,13 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+        from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
         assert (_op is not None and isinstance(_op, ASTLogicalOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
             % type(_op)
-        if _op.isAnd():
+        if _op.is_and():
             return '%s' + '&&' + '%s'
-        elif _op.isOr():
+        elif _op.is_or():
             return '%s' + '||' + '%s'
         else:
             Logger.log_message('Cannot determine logical operator!', LoggingLevel.ERROR)
@@ -250,7 +250,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
         assert (_op is not None and isinstance(_op, ASTComparisonOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
             % type(_op)
@@ -279,7 +279,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+        from pynestml.ast.ASTBitOperator import ASTBitOperator
         assert (_op is not None and isinstance(_op, ASTBitOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of bit operator provided (%s)!' \
             % type(_op)
@@ -306,7 +306,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
         assert (_op is not None and isinstance(_op, ASTArithmeticOperator)), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of arithmetic operator provided (%s)!' \
             % type(_op)

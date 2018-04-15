@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.VariableSymbol import VariableSymbol
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+from pynestml.symbols.VariableSymbol import VariableSymbol
 
 
 class GSLNamesConverter(object):

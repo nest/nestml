@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.ast.ASTNeuron import ASTNeuron
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
-from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.ModelParser import ModelParser
 
 
 class ExactSolutionTransformer(object):

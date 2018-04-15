@@ -45,7 +45,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same string
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTVariable import ASTVariable
+        from pynestml.ast.ASTVariable import ASTVariable
         assert (_astVariable is not None and isinstance(_astVariable, ASTVariable)), \
             '(PyNestML.CodeGeneration.ReferenceConverter) No or wrong type of variable provided (%s)!' % type(
                 _astVariable)
@@ -59,7 +59,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same sting back
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        from pynestml.ast.ASTFunctionCall import ASTFunctionCall
         assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.ReferenceConverter) No or wrong type of function call provided (%s)!' % type(
                 _astFunctionCall)

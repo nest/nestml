@@ -17,13 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
-from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
-from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
-from pynestml.utils.OdeTransformer import OdeTransformer
-from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from copy import deepcopy
+
+from pynestml.ast.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.ast.ASTOdeEquation import ASTOdeEquation
+from pynestml.ast.ASTOdeFunction import ASTOdeFunction
+from pynestml.ast.ASTOdeShape import ASTOdeShape
+from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
+from pynestml.utils.OdeTransformer import OdeTransformer
 
 
 class SolverInput(object):
@@ -51,13 +52,13 @@ class SolverInput(object):
         assert (_equationsBlock is not None and isinstance(_equationsBlock, ASTEquationsBlock)), \
             '(PyNestML.Solver.Input) No or wrong type of equations block provided (%s)!' % _equationsBlock
         workingCopy = OdeTransformer.replace_sum_calls(deepcopy(_equationsBlock))
-        self.__ode = self.printEquation(workingCopy.getOdeEquations()[0])
+        self.__ode = self.printEquation(workingCopy.get_ode_equations()[0])
         self.__functions = list()
-        for func in workingCopy.getOdeFunctions():
+        for func in workingCopy.get_ode_functions():
             self.__functions.append(self.printFunction(func))
 
         self.__shapes = list()
-        for shape in workingCopy.getOdeShapes():
+        for shape in workingCopy.get_ode_shapes():
             self.__shapes.append(self.printShape(shape))
         return self
 

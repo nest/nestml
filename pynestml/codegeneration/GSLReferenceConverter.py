@@ -22,12 +22,10 @@ from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
 from pynestml.codegeneration.UnitConverter import UnitConverter
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.Symbol import SymbolKind
 
 
 class GSLReferenceConverter(IReferenceConverter):
@@ -135,7 +133,7 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: a string representing the included binary operator.
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
         if isinstance(binary_operator, ASTArithmeticOperator) and binary_operator.is_pow_op:
             return 'pow(%s, %s)'
         else:

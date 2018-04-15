@@ -1,7 +1,7 @@
 .settings/
 target/
 .idea/
-
+.mypy_cache/
 build/
 buildNest/
 

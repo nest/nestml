@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.ast.ASTAssignment import ASTAssignment
+from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-from pynestml.modelprocessor.Symbol import SymbolKind
 
 
 class NestAssignmentsHelper(object):
@@ -37,7 +37,8 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.get_scope().resolve_to_symbol(_assignment.get_variable().get_complete_name(), SymbolKind.VARIABLE)
+        symbol = _assignment.get_scope().resolve_to_symbol(_assignment.get_variable().get_complete_name(),
+                                                           SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
         else:
@@ -73,7 +74,7 @@ class NestAssignmentsHelper(object):
         :return: True if vectorized, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.Symbol import SymbolKind
+        from pynestml.symbols.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         symbol = _assignment.get_scope().resolve_to_symbol(_assignment.get_variable().get_complete_name(),
@@ -100,7 +101,7 @@ class NestAssignmentsHelper(object):
         :return: the corresponding size parameter
         :rtype: str
         """
-        from pynestml.modelprocessor.Symbol import SymbolKind
+        from pynestml.symbols.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         vector_variable = None

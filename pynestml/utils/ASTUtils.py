@@ -17,10 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LoggingLevel, Logger
-
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 
 class ASTUtils(object):

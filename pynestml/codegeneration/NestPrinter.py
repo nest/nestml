@@ -17,17 +17,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.ast.ASTBody import ASTBody
+from pynestml.ast.ASTExpression import ASTExpression
+from pynestml.ast.ASTForStmt import ASTForStmt
+from pynestml.ast.ASTFunction import ASTFunction
+from pynestml.ast.ASTFunctionCall import ASTFunctionCall
+from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
-from pynestml.modelprocessor.ASTBody import ASTBody
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTForStmt import ASTForStmt
-from pynestml.modelprocessor.ASTFunction import ASTFunction
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType
+from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.VariableSymbol import VariableSymbol, BlockType
 from pynestml.utils.Logger import LoggingLevel, Logger
 
 
@@ -174,19 +174,19 @@ class NestPrinter(object):
         :return: the corresponding string representation.
         :rtype: str
         """
-        from pynestml.modelprocessor.ASTFunction import ASTFunction
-        from pynestml.modelprocessor.Symbol import SymbolKind
+        from pynestml.ast.ASTFunction import ASTFunction
+        from pynestml.symbols.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
-        functionSymbol = _function.get_scope().resolve_to_symbol(_function.get_name(), SymbolKind.FUNCTION)
-        if functionSymbol is not None:
+        function_symbol = _function.get_scope().resolve_to_symbol(_function.get_name(), SymbolKind.FUNCTION)
+        if function_symbol is not None:
             declaration = _function.print_comment('//') + '\n'
-            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.get_return_type()).replace('.', '::')
+            declaration += NESTML2NESTTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
             declaration += ' '
             declaration += _function.get_name() + '('
-            for typeSym in functionSymbol.get_parameter_types():
+            for typeSym in function_symbol.get_parameter_types():
                 declaration += NESTML2NESTTypeConverter.convert(typeSym)
-                if functionSymbol.get_parameter_types().index(typeSym) < len(functionSymbol.get_parameter_types()) - 1:
+                if function_symbol.get_parameter_types().index(typeSym) < len(function_symbol.get_parameter_types()) - 1:
                     declaration += ', '
             declaration += ')\n'
             return declaration

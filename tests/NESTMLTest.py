@@ -41,6 +41,7 @@ SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column
 Logger.init_logger(LoggingLevel.NO)
 
 
+# TODO: this is not a unit test. Don't run it with unittests or use mocks to hide filesystem, solver etc
 class NESTMLTest(unittest.TestCase):
     """
     Tests if the overall model processing frontend works as intended.

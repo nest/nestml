@@ -1,2 +1,1 @@
-
-__all__ = ['FrontendConfiguration','PyNestMLFrontend']
+__all__ = ['FrontendConfiguration', 'PyNestMLFrontend']

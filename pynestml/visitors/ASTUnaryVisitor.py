@@ -1,0 +1,58 @@
+#
+# UnaryVisitor.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Expr = unaryOperator term=rhs
+unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+"""
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.utils.Logger import Logger, LoggingLevel
+
+
+class ASTUnaryVisitor(ASTVisitor):
+    """
+    Visits an rhs consisting of a unary operator, e.g., -, and a sub-rhs.
+    """
+
+    def visit_expression(self, node):
+        """
+        Visits a single unary operator and updates the type of the corresponding expression.
+        :param node: a single expression
+        :type node: ASTExpression
+        """
+        term_type = node.get_expression().type
+
+        unary_op = node.get_unary_operator()
+
+        term_type.referenced_object = node.get_expression()
+
+        if unary_op.isUnaryMinus():
+            node.type = -term_type
+            return
+        if unary_op.isUnaryPlus():
+            node.type = +term_type
+            return
+        if unary_op.isUnaryTilde():
+            node.type = ~term_type
+            return

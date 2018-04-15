@@ -17,19 +17,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
 import os
+import unittest
+
+from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
 
 from pynestml.codegeneration.UnitConverter import UnitConverter
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 
@@ -41,25 +43,25 @@ PredefinedVariables.register_predefined_variables()
 PredefinedFunctions.register_predefined_functions()
 
 
-class expressionTestVisitor(ASTVisitor):
-    def endvisit_assignment(self, node=None):
-        scope = node.get_scope()
-        var_name = node.lhs.get_name()
+class ExpressionTestVisitor(ASTVisitor):
+    def end_visit_assignment(self, node):
+        scope = node.getScope()
+        var_name = node.getVariable().getName()
 
-        _expr = node.get_expression()
+        _expr = node.getExpression()
 
-        var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+        var_symbol = scope.resolveToSymbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.get_type_symbol().equals(_expr.get_type_either().get_value())
+        _equals = var_symbol.getTypeSymbol().equals(_expr.type)
 
-        message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
-                  var_symbol.get_type_symbol().get_symbol_name() + \
-                  ' RHS = ' + _expr.get_type_either().get_value().get_symbol_name() + \
+        message = 'line ' + str(_expr.getSourcePosition()) + ' : LHS = ' + \
+                  var_symbol.getTypeSymbol().getSymbolName() + \
+                  ' RHS = ' + _expr.type.getSymbolName() + \
                   ' Equal ? ' + str(_equals)
 
-        if _expr.get_type_either().get_value().is_unit():
-            message += (" Neuroscience Factor: " +
-                        str(UnitConverter().getFactor(_expr.get_type_either().get_value().get_unit().get_unit())))
+        if isinstance(_expr.type, UnitTypeSymbol):
+            message += " Neuroscience Factor: " + \
+                       str(UnitConverter().getFactor(_expr.type.astropy_unit))
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)
@@ -74,18 +76,21 @@ class expressionTestVisitor(ASTVisitor):
 
 class ExpressionTypeCalculationTest(unittest.TestCase):
     """
-    A simple test that prints all top-level rhs types in a file.
+    A simple test that prints all top-level expression types in a file.
     """
 
+    # TODO: this test needs to be refactored.
     def test(self):
-        Logger.init_logger(LoggingLevel.NO)
+        Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         Logger.set_current_neuron(model.get_neuron_list()[0])
-        expressionTestVisitor().handle(model)
+        model.accept(ExpressionTestVisitor())
+        # ExpressionTestVisitor().handle(model)
         Logger.set_current_neuron(None)
-        assert (len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)) == 2)
+        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
+                                                                            LoggingLevel.ERROR)), 2)
 
 
 if __name__ == '__main__':

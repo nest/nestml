@@ -19,5 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __all__ = ['NestAssignmentsHelper', 'NestCodeGenerator', 'NestDeclarationsHelper',
-           'NestExpressionPrettyPrinter', 'NestFunctions', 'NESTML2NESTTypeConverter',
-           'NestNamesConverter', 'NestPrinter']
+           'ExpressionsPrettyPrinter', 'PyNestMl2NESTTypeConverter',
+           'NestNamesConverter', 'NestPrinter', 'GSLNamesConverter', 'GSLReferenceConverter',
+           'IReferenceConverter', 'IdempotentReferenceConverter', 'NestReferenceConverter', 'LegacyExpressionPrinter',
+           'UnitConverter']

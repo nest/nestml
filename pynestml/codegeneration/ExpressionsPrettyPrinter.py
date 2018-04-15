@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
+from pynestml.ast.ASTExpression import ASTExpression
+from pynestml.ast.ASTFunctionCall import ASTFunctionCall
+from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
+from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
+from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 
 class ExpressionsPrettyPrinter(object):
@@ -68,7 +68,10 @@ class ExpressionsPrettyPrinter(object):
         assert (_expr is not None and (isinstance(_expr, ASTSimpleExpression) or isinstance(_expr, ASTExpression))), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of rhs provided (%s)!' % type(
                 _expr)
-        return self.__doPrint(_expr)
+        if _expr.getImplicitConversionFactor() is not None:
+            return str(_expr.getImplicitConversionFactor()) + ' * (' + self.__doPrint(_expr) + ')'
+        else:
+            return self.__doPrint(_expr)
 
     def __doPrint(self, _expr=None):
         """
@@ -80,6 +83,7 @@ class ExpressionsPrettyPrinter(object):
         """
         if isinstance(_expr, ASTSimpleExpression):
             if _expr.has_unit():
+                #todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.__typesPrinter.prettyPrint(_expr.get_numeric_literal()) + '*' + \
                        self.__referenceConverter.convertNameReference(_expr.get_variable())
             elif _expr.is_numeric_literal():
@@ -106,7 +110,7 @@ class ExpressionsPrettyPrinter(object):
             elif _expr.is_encapsulated:
                 return self.__referenceConverter.convertEncapsulated() % self.printExpression(_expr.get_expression())
             # logical not
-            elif _expr.isLogicalNot():
+            elif _expr.is_logical_not:
                 op = self.__referenceConverter.convertLogicalNot()
                 rhs = self.printExpression(_expr.get_expression())
                 return op % rhs

@@ -63,7 +63,7 @@ class CommentTest(unittest.TestCase):
         # check if init values comment is correctly detected
         assert (neuron_body_elements[0].get_comment()[0] == 'init_values comment ok')
         # check that all declaration comments are detected
-        comments = neuron_body_elements[0].getDeclarations()[0].get_comment()
+        comments = neuron_body_elements[0].get_declarations()[0].get_comment()
         assert (comments[0] == 'pre comment 1 ok')
         assert (comments[1] == 'pre comment 2 ok')
         assert (comments[2] == 'inline comment ok')

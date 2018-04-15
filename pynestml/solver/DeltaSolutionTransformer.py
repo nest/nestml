@@ -17,14 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.ast.ASTFunctionCall import ASTFunctionCall
+from pynestml.ast.ASTNeuron import ASTNeuron
+from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
-from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
+from pynestml.utils.ModelParser import ModelParser
 
 
 class DeltaSolutionTransformer(object):

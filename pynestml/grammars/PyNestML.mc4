@@ -387,7 +387,7 @@ grammar PyNESTML{
 
   ElseClause = "else" BLOCK_OPEN Block;
 
-  ForStmt = "for" var:NAME "in" vrom:Expression "..." to:Expression "step" step:SignedNumericLiteral
+  ForStmt = "for" var:NAME "in" from:Expression "..." to:Expression "step" step:SignedNumericLiteral
             BLOCK_OPEN
              Block
             BLOCK_CLOSE;

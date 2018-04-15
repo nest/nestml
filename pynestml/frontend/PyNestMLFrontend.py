@@ -18,20 +18,19 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os
+import sys
 
-from pynestml.frontend.FrontendConfiguration import FrontendConfiguration, InvalidPathException
-
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.CoCosManager import CoCosManager
+from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
+from pynestml.frontend.FrontendConfiguration import FrontendConfiguration, InvalidPathException
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
+from pynestml.utils.ModelParser import ModelParser
 
 
 def main(args):

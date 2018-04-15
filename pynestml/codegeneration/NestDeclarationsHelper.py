@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.ast.ASTDeclaration import ASTDeclaration
+from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
-from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
 
 
 class NestDeclarationsHelper(object):

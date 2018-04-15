@@ -36,8 +36,7 @@ setup(
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
                        'antlr4-python3-runtime'),
                       'Jinja2',
-                      'astropy',
+                      'astropy == 2.0.3',
                       'typing'],
     test_suite='tests',
-
 )

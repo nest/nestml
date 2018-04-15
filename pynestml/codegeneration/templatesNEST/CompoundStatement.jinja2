@@ -2,16 +2,16 @@
   Handles the compound statement.
   @grammar: Compound_Stmt = IF_Stmt | FOR_Stmt | WHILE_Stmt;
 #}
-{%- if stmt.isIfStmt() -%}
-{%- with ast = stmt.getIfStmt() -%}
+{%- if stmt.is_if_stmt() -%}
+{%- with ast = stmt.get_if_stmt() -%}
 {%- include "IfStatement.jinja2" -%}
 {%- endwith -%}
-{%- elif stmt.isForStmt() -%}
-{%- with ast = stmt.getForStmt() -%}}
+{%- elif stmt.is_for_stmt() -%}
+{%- with ast = stmt.get_for_stmt() -%}}
 {%- include "ForStatement.jinja2" -%}
 {%- endwith -%}
-{%- elif stmt.isWhileStmt() -%}
-{%- with ast = stmt.getWhileStmt() -%}}
+{%- elif stmt.is_while_stmt() -%}
+{%- with ast = stmt.get_while_stmt() -%}}
 {%- include "WhileStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}

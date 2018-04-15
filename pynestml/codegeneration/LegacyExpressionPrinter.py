@@ -17,17 +17,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.ast.ASTBitOperator import ASTBitOperator
+from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.ast.ASTExpression import ASTExpression
+from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
-from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
+from pynestml.utils.Logger import LoggingLevel, Logger
 
 
 class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
@@ -59,6 +57,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
         :return: string representation of the rhs
         :rtype: str
         """
+        # todo : printing of literals etc. should be done by constant converter, not a type converter
         if isinstance(_expr, ASTSimpleExpression):
             if _expr.is_numeric_literal():
                 return self.__typesPrinter.prettyPrint(_expr.get_numeric_literal())
@@ -88,7 +87,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
             elif _expr.is_encapsulated:
                 return '(' + self.printExpression(_expr.get_expression()) + ')'
             # logical not
-            elif _expr.isLogicalNot():
+            elif _expr.is_logical_not:
                 return self.__referenceConverter.convertUnaryOp('not') + ' ' + \
                        self.printExpression(_expr.get_expression())
             # compound rhs with lhs + rhs
@@ -98,6 +97,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
                         (_expr.get_binary_operator().is_times_op or _expr.get_binary_operator().is_div_op or
                          _expr.get_binary_operator().is_minus_op() or _expr.get_binary_operator().is_plus_op() or
                          _expr.get_binary_operator().is_modulo_op):
+                    # todo by kp: is this printer even used? if so, the printArithmeticOp function is not here
                     return self.printExpression(_expr.get_lhs()) + ' ' + \
                            self.printArithmeticOperator(_expr.get_binary_operator()) + ' ' + \
                            self.printExpression(_expr.get_rhs())
