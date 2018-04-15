@@ -11,6 +11,7 @@ before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
+  - pip install mathplotlib
   - git clone https://github.com/nest/nest-simulator nest_source
   - mkdir nest_install
   - cmake -DCMAKE_INSTALL_PREFIX=nest_install nest_source
