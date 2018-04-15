@@ -20,6 +20,11 @@ before_install:
 
 install:
   - python setup.py install
+  - python PyNestML.py -path models -target target
+  - cd target
+  - cmake -Dwith-nest=../nest_install/bin/nest-config .
+  - make all
+  - make install
 
 sudo: true
 
