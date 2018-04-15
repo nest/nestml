@@ -33,4 +33,5 @@ script:
   - python tests/PyNestMLFrontendTest.py
   - python tests/NESTMLTest.py
   - python tests/ExpressionTypeCalculationTest.py
+  - python tests/resources/NestmlIntegrationTest.py
 
