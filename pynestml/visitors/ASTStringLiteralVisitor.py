@@ -21,9 +21,8 @@
 """
 simpleExpression : string=STRING_LITERAL
 """
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTStringLiteralVisitor(ASTVisitor):

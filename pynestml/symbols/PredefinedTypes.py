@@ -81,7 +81,7 @@ class PredefinedTypes(object):
         """
         Adds the real type symbol to the dict of predefined types.
         """
-        from symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
         symbol = RealTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -101,7 +101,7 @@ class PredefinedTypes(object):
         """
         Adds the boolean type to the dict of predefined types.
         """
-        from symbols.BooleanTypeSymbol import BooleanTypeSymbol
+        from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
         symbol = BooleanTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -111,7 +111,7 @@ class PredefinedTypes(object):
         """
         Adds the string type to the dict of predefined types.
         """
-        from symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
         symbol = StringTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -121,7 +121,7 @@ class PredefinedTypes(object):
         """
         Adds the integer type to the dict of predefined types.
         """
-        from symbols.IntegerTypeSymbol import IntegerTypeSymbol
+        from pynestml.symbols.IntegerTypeSymbol import IntegerTypeSymbol
         symbol = IntegerTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return

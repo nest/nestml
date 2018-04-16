@@ -41,7 +41,7 @@ class IntegerTypeSymbol(TypeSymbol):
         return 'long'
 
     def __mul__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
             return other
@@ -50,7 +50,7 @@ class IntegerTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('*', other)
 
     def __mod__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
             return other
@@ -59,7 +59,7 @@ class IntegerTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('%', other)
 
     def __truediv__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
@@ -80,8 +80,8 @@ class IntegerTypeSymbol(TypeSymbol):
         return self
 
     def __pow__(self, power, modulo=None):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
 
         if power.is_instance_of(ErrorTypeSymbol):
             return power
@@ -123,7 +123,7 @@ class IntegerTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('-', other)
 
     def is_castable_to(self, _other_type):
-        from symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
         if _other_type.is_instance_of(RealTypeSymbol):
             return True
         else:

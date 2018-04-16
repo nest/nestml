@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VariableSymbol import BlockType

@@ -19,56 +19,53 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from antlr4 import *
 
-from pynestml.generated.PyNestMLParser import PyNestMLParser
+from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.meta_model.ASTAssignment import ASTAssignment
+from pynestml.meta_model.ASTBlock import ASTBlock
+from pynestml.meta_model.ASTBlockWithVariables import ASTBlockWithVariables
+from pynestml.meta_model.ASTBody import ASTBody
+from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
+from pynestml.meta_model.ASTDataType import ASTDataType
+from pynestml.meta_model.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ASTElifClause import ASTElifClause
+from pynestml.meta_model.ASTElseClause import ASTElseClause
+from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTForStmt import ASTForStmt
+from pynestml.meta_model.ASTFunction import ASTFunction
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTIfClause import ASTIfClause
+from pynestml.meta_model.ASTIfStmt import ASTIfStmt
+from pynestml.meta_model.ASTInputBlock import ASTInputBlock
+from pynestml.meta_model.ASTInputLine import ASTInputLine
+from pynestml.meta_model.ASTInputType import ASTInputType
+from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
+from pynestml.meta_model.ASTOdeFunction import ASTOdeFunction
+from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+from pynestml.meta_model.ASTOutputBlock import ASTOutputBlock
+from pynestml.meta_model.ASTParameter import ASTParameter
+from pynestml.meta_model.ASTReturnStmt import ASTReturnStmt
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ASTStmt import ASTStmt
+from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.meta_model.ASTUnitType import ASTUnitType
+from pynestml.meta_model.ASTUpdateBlock import ASTUpdateBlock
+from pynestml.meta_model.ASTVariable import ASTVariable
+from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-
-from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
-from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.modelprocessor.ASTBlock import ASTBlock
-from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
-from pynestml.modelprocessor.ASTBody import ASTBody
-from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
-from pynestml.modelprocessor.ASTDataType import ASTDataType
-from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-from pynestml.modelprocessor.ASTElifClause import ASTElifClause
-from pynestml.modelprocessor.ASTElseClause import ASTElseClause
-from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTForStmt import ASTForStmt
-from pynestml.modelprocessor.ASTFunction import ASTFunction
-from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
-from pynestml.modelprocessor.ASTIfClause import ASTIfClause
-from pynestml.modelprocessor.ASTIfStmt import ASTIfStmt
-from pynestml.modelprocessor.ASTInputBlock import ASTInputBlock
-from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-from pynestml.modelprocessor.ASTInputType import ASTInputType
-from pynestml.modelprocessor.ASTStmt import ASTStmt
-from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
-from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
-from pynestml.modelprocessor.ASTOdeFunction import ASTOdeFunction
-from pynestml.modelprocessor.ASTOutputBlock import ASTOutputBlock
-from pynestml.modelprocessor.ASTParameter import ASTParameter
-from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
-from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-from pynestml.modelprocessor.ASTUpdateBlock import ASTUpdateBlock
-from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.ASTWhileStmt import ASTWhileStmt
-
-
+from pynestml.generated.PyNestMLParser import PyNestMLParser
+from pynestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
+from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 
 
 class ModelParser(object):
@@ -79,7 +76,7 @@ class ModelParser(object):
     @classmethod
     def parse_model(cls, file_path=None):
         """
-        Parses a handed over model and returns the ast representation of it.
+        Parses a handed over model and returns the meta_model representation of it.
         :param file_path: the path to the file which shall be parsed.
         :type file_path: str
         :return: a new ASTNESTMLCompilationUnit object.

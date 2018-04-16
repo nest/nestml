@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import re as re
 
-from pynestml.ast.ASTNeuron import ASTNeuron
-from pynestml.ast.ASTNodeFactory import ASTNodeFactory
-from pynestml.ast.ASTSourceLocation import ASTSourceLocation
-from pynestml.ast.ASTStmt import ASTStmt
+from pynestml.meta_model.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ASTStmt import ASTStmt
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LoggingLevel, Logger
@@ -93,8 +93,8 @@ class TransformerBase(object):
         :rtype: ASTNeuron
         """
         from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-        from pynestml.ast.ASTSmallStmt import ASTSmallStmt
-        from pynestml.ast.ASTBlock import ASTBlock
+        from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+        from pynestml.meta_model.ASTBlock import ASTBlock
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
         assert (_propagatorSteps is not None and isinstance(_propagatorSteps, list)), \
@@ -210,9 +210,9 @@ class TransformerBase(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.ast.ASTNodeFactory import ASTNodeFactory
-        from pynestml.ast.ASTAssignment import ASTAssignment
-        from pynestml.ast.ASTSourceLocation import ASTSourceLocation
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ASTAssignment import ASTAssignment
+        from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
@@ -235,7 +235,7 @@ class TransformerBase(object):
         :return: a modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.ast.ASTDeclaration import ASTDeclaration
+        from pynestml.meta_model.ASTDeclaration import ASTDeclaration
         assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \

@@ -133,7 +133,7 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: a string representing the included binary operator.
         :rtype: str
         """
-        from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
         if isinstance(binary_operator, ASTArithmeticOperator) and binary_operator.is_pow_op:
             return 'pow(%s, %s)'
         else:

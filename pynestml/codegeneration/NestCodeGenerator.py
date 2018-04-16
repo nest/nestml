@@ -22,7 +22,7 @@ from copy import deepcopy
 
 from jinja2 import Environment, FileSystemLoader
 
-from pynestml.ast.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.GSLReferenceConverter import GSLReferenceConverter
 from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
@@ -42,7 +42,7 @@ from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 
 class NestCodeGenerator(object):
     """
-    This class represents a generator which can be used to print an internal ast to a model in
+    This class represents a generator which can be used to print an internal meta_model to a model in
     nest format.
     """
     __templateCMakeLists = None
@@ -234,7 +234,7 @@ class NestCodeGenerator(object):
         :return: True if at leas one shape with diff. order of 0 exits, otherwise False.
         :rtype: bool
         """
-        from pynestml.ast.ASTOdeShape import ASTOdeShape
+        from pynestml.meta_model.ASTOdeShape import ASTOdeShape
         for shape in _shapes:
             if isinstance(shape, ASTOdeShape) and shape.get_variable().get_differential_order() == 0:
                 return True

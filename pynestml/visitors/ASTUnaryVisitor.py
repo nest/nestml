@@ -22,12 +22,7 @@
 Expr = unaryOperator term=rhs
 unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTUnaryVisitor(ASTVisitor):

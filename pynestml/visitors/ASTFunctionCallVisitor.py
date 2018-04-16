@@ -1,5 +1,5 @@
 #
-# ASTFunctionCallVisitortor.py
+# ASTFunctionCallVisitor.py
 #
 # This file is part of NEST.
 #
@@ -20,15 +20,15 @@
 """
 simpleExpression : functionCall
 """
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
+from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTFunctionCallVisitor(ASTVisitor):
@@ -79,6 +79,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
             return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
+            # todo by KP: the error message is not used here, @ptraeder fix this
             error_msg = ErrorStrings.messageVoidFunctionOnRhs(self, function_name, node.get_source_position())
             node.type = ErrorTypeSymbol()
             return

@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 
 
 class ErrorStrings(object):
@@ -37,34 +37,34 @@ class ErrorStrings(object):
         :rtype: str
         """
         assert _origin is not None
-        from pynestml.modelprocessor.ASTUnaryVisitor import ASTUnaryVisitor
+        from pynestml.visitors.ASTUnaryVisitor import ASTUnaryVisitor
         if isinstance(_origin, ASTUnaryVisitor):
             return "SPL_UNARY_VISITOR"
-        from pynestml.modelprocessor.ASTPowerVisitor import ASTPowerVisitor
+        from pynestml.visitors.ASTPowerVisitor import ASTPowerVisitor
         if isinstance(_origin, ASTPowerVisitor):
             return "SPL_POW_VISITOR"
-        from pynestml.modelprocessor.ASTLogicalNotVisitor import ASTLogicalNotVisitor
+        from pynestml.visitors.ASTLogicalNotVisitor import ASTLogicalNotVisitor
         if isinstance(_origin, ASTLogicalNotVisitor):
             return "SPL_LOGICAL_NOT_VISITOR"
-        from pynestml.modelprocessor.ASTDotOperatorVisitor import ASTDotOperatorVisitor
+        from pynestml.visitors.ASTDotOperatorVisitor import ASTDotOperatorVisitor
         if isinstance(_origin, ASTDotOperatorVisitor):
             return "SPL_DOT_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.ASTLineOperationVisitor import ASTLineOperatorVisitor
+        from pynestml.visitors.ASTLineOperationVisitor import ASTLineOperatorVisitor
         if isinstance(_origin, ASTLineOperatorVisitor):
             return "SPL_LINE_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.ASTNoSemantics import ASTNoSemantics
-        if isinstance(_origin, ASTNoSemantics):
+        from pynestml.visitors.ASTNoSemanticsVisitor import ASTNoSemanticsVisitor
+        if isinstance(_origin, ASTNoSemanticsVisitor):
             return "SPL_NO_SEMANTICS"
-        from pynestml.modelprocessor.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
+        from pynestml.visitors.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
         if isinstance(_origin, ASTComparisonOperatorVisitor):
             return "SPL_COMPARISON_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
+        from pynestml.visitors.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
         if isinstance(_origin, ASTBinaryLogicVisitor):
             return "SPL_BINARY_LOGIC_VISITOR"
-        from pynestml.modelprocessor.ASTConditionVisitor import ASTConditionVisitor
+        from pynestml.visitors.ASTConditionVisitor import ASTConditionVisitor
         if isinstance(_origin, ASTConditionVisitor):
             return "SPL_CONDITION_VISITOR"
-        from pynestml.modelprocessor.ASTFunctionCallVisitor import ASTFunctionCallVisitor
+        from pynestml.visitors.ASTFunctionCallVisitor import ASTFunctionCallVisitor
         if isinstance(_origin, ASTFunctionCallVisitor):
             return "SPL_FUNCTION_CALL_VISITOR"
         return ""
@@ -84,8 +84,8 @@ class ErrorStrings(object):
         assert _origin is not None
         assert _typeName is not None and isinstance(_typeName, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Cannot perform an arithmetic operation on a non-numeric type: " + _typeName
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot perform an arithmetic operation on a non-numeric type: " + _typeName
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageTypeError(cls, _origin=None, _expressionText=None, _sourcePosition=None):
@@ -102,8 +102,8 @@ class ErrorStrings(object):
         assert _origin is not None
         assert _expressionText is not None and isinstance(_expressionText, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Cannot determine the type of the rhs: " + _expressionText
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot determine the type of the rhs: " + _expressionText
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageImplicitMagnitudeConversion(cls, _origin, _parentNode=None):
@@ -115,63 +115,64 @@ class ErrorStrings(object):
         :return: the warning message
         """
 
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
-        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.modelprocessor.ASTAssignment import ASTAssignment
-        from pynestml.modelprocessor.Symbol import SymbolKind
+        from pynestml.meta_model.ASTExpression import ASTExpression
+        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.meta_model.ASTAssignment import ASTAssignment
+        from pynestml.symbols.Symbol import SymbolKind
 
         assert _origin is not None
         assert _parentNode is not None and (
-            isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
+                isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
 
-        targetExpression = None
-        targetUnit = None
-        converteeExpression = None
+        target_expression = None
+        target_unit = None
+        convertee_expression = None
         convertee_unit = None
-        operation = None;
+        operation = None
 
         if (isinstance(_parentNode, ASTExpression)):
             # code duplication from ASTExpressionTypeVisitor:
             # Rules with binary operators
-            if _parentNode.getBinaryOperator() is not None:
-                binOp = _parentNode.getBinaryOperator()
+            if _parentNode.get_binary_operator() is not None:
+                bin_op = _parentNode.get_binary_operator()
                 # All these rules employ left and right side expressions.
-                if _parentNode.getLhs() is not None:
-                    targetExpression = _parentNode.getLhs()
-                    targetUnit = targetExpression.type.astropy_unit
-                if _parentNode.getRhs() is not None:
-                    converteeExpression = _parentNode.getRhs()
-                    convertee_unit = converteeExpression.type.astropy_unit
+                if _parentNode.get_lhs() is not None:
+                    target_expression = _parentNode.get_lhs()
+                    target_unit = target_expression.type.astropy_unit
+                if _parentNode.get_rhs() is not None:
+                    convertee_expression = _parentNode.get_rhs()
+                    convertee_unit = convertee_expression.type.astropy_unit
                 # Handle all Arithmetic Operators:
-                if isinstance(binOp, ASTArithmeticOperator):
+                if isinstance(bin_op, ASTArithmeticOperator):
                     # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
-                    if binOp.isPlusOp():
+                    if bin_op.is_plus_op:
                         operation = "+"
-                    if binOp.isMinusOp():
+                    if bin_op.is_minus_op:
                         operation = "-"
 
         if (isinstance(_parentNode, ASTAssignment)):
-            lhsVariableSymbol = _parentNode.getScope().resolveToSymbol(_parentNode.getVariable().getCompleteName(),
-                                                                       SymbolKind.VARIABLE)
+            lhs_variable_symbol = _parentNode.get_scope().resolve_to_symbol(
+                _parentNode.get_variable().get_complete_name(),
+                SymbolKind.VARIABLE)
             operation = "="
-            targetExpression = _parentNode.getVariable()
-            targetUnit = lhsVariableSymbol.getTypeSymbol().astropy_unit
-            converteeExpression = _parentNode.getExpression()
-            convertee_unit = converteeExpression.type.astropy_unit
+            target_expression = _parentNode.get_variable()
+            target_unit = lhs_variable_symbol.get_type_symbol().astropy_unit
+            convertee_expression = _parentNode.get_expression()
+            convertee_unit = convertee_expression.type.astropy_unit
 
-        assert targetExpression is not None and converteeExpression is not None and \
-               operation is not None, "Only call this on an addition/subtraction  or assignment after " \
-                                      "an implicit conversion wrt unit magnitudes has already been determined"
+        assert (target_expression is not None and convertee_expression is not None and
+                operation is not None), "Only call this on an addition/subtraction  or assignment after " \
+                                        "an implicit conversion wrt unit magnitudes has already been determined"
 
-        ERROR_MSG_FORMAT = "Non-matching unit types at '" + str(_parentNode)
-        ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs"
-        ERROR_MSG_FORMAT += " (units: " + str(convertee_unit) + " and " + \
-                            str(targetUnit) + " )"
-        ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation \
-                            + converteeExpression.printImplicitVersion() + "'"
+        error_msg_format = "Non-matching unit types at '" + str(_parentNode)
+        error_msg_format += "'. Implicit conversion of rhs to lhs"
+        error_msg_format += " (units: " + str(convertee_unit) + " and " + \
+                            str(target_unit) + " )"
+        error_msg_format += " implicitly replaced by '" + str(target_expression) + operation \
+                            + convertee_expression.printImplicitVersion() + "'"
 
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" \
-               + str(_parentNode.getSourcePosition()) + ")"
+        return (cls.code(_origin) + cls.SEPARATOR + error_msg_format + "("
+                + str(_parentNode.get_source_position()) + ")")
 
     @classmethod
     def messageUnitBase(cls, _origin=None, _sourcePosition=None):
@@ -185,8 +186,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "With a Unit base, the exponent must be an integer."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "With a Unit base, the exponent must be an integer."
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageNonConstantExponent(cls, _origin=None, _sourcePosition=None):
@@ -200,8 +201,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Cannot calculate value of exponent. Must be a constant value!"
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot calculate value of exponent. Must be a constant value!"
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageExpectedBool(cls, _origin=None, _sourcePosition=None):
@@ -215,8 +216,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Expected a bool"
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Expected a bool"
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageExpectedInt(cls, _origin=None, _sourcePosition=None):
@@ -230,8 +231,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Expected an int"
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Expected an int"
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageTypeMismatch(cls, _origin=None, _mismatchText=None):
@@ -247,8 +248,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _mismatchText is not None and isinstance(_mismatchText, str)
-        ERROR_MSG_FORMAT = "Operation not defined: " + _mismatchText
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT
+        error_msg_format = "Operation not defined: " + _mismatchText
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format
 
     @classmethod
     def messageAddSubTypeMismatch(cls, _origin=None, _lhsTypeText=None, _rhsTypeText=None, _resultTypeText=None,
@@ -277,9 +278,9 @@ class ErrorStrings(object):
             '(PyNestML.Utils.ErrorStrings) No or wrong type of rhs-type text provided (%s)!' % type(_resultTypeText)
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)), \
             '(PyNestML.Utils.ErrorStrings) No or wrong type of source position provided (%s)!' % type(_sourcePosition)
-        ERROR_MSG_FORMAT = "Addition/substraction of " + _lhsTypeText + " and " + _rhsTypeText + \
+        error_msg_format = "Addition/subtraction of " + _lhsTypeText + " and " + _rhsTypeText + \
                            ". Assuming: " + _resultTypeText + "."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageNoSemantics(cls, _origin=None, _exprText=None, _sourcePosition=None):
@@ -296,8 +297,8 @@ class ErrorStrings(object):
         assert _origin is not None
         assert _exprText is not None and isinstance(_exprText, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "This rhs is not implemented: " + _exprText
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "This rhs is not implemented: " + _exprText
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageComparison(cls, _origin=None, _sourcePosition=None):
@@ -311,8 +312,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Operands of a logical rhs not compatible."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Operands of a logical rhs not compatible."
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageLogicOperandsNotBool(cls, _origin=None, _sourcePosition=None):
@@ -326,8 +327,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Both operands of a logical rhs must be boolean."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Both operands of a logical rhs must be boolean."
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageTernary(cls, _origin=None, _sourcePosition=None):
@@ -362,9 +363,9 @@ class ErrorStrings(object):
         assert _ifTrueText is not None and isinstance(_ifTrueText, str)
         assert _ifNotText is not None and isinstance(_ifNotText, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Mismatched conditional alternatives " + _ifTrueText + " and " + \
+        error_msg_format = "Mismatched conditional alternatives " + _ifTrueText + " and " + \
                            _ifNotText + "-> Assuming real."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageResolveFail(cls, _origin=None, _symbolName=None, _sourcePosition=None):
@@ -381,8 +382,8 @@ class ErrorStrings(object):
         assert _origin is not None
         assert _symbolName is not None and isinstance(_symbolName, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "Cannot resolve the symbol: " + _symbolName + "."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot resolve the symbol: " + _symbolName + "."
+        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
 
     @classmethod
     def messageCannotCalculateConvolveType(cls, _origin=None, _sourcePosition=None):

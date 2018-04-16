@@ -19,11 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleExpression : BOOLEAN_LITERAL // true & false;
+simpleExpression : BOOLEAN_LITERAL // true & false ;
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTBooleanLiteralVisitor(ASTVisitor):

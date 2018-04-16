@@ -17,10 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTCompoundStmt import ASTCompoundStmt
-from pynestml.ast.ASTNeuron import ASTNeuron
-from pynestml.ast.ASTSmallStmt import ASTSmallStmt
-from pynestml.ast.ASTStmt import ASTStmt
+from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
+from pynestml.meta_model.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+from pynestml.meta_model.ASTStmt import ASTStmt
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedTypes import PredefinedTypes

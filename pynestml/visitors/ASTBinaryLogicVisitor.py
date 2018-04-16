@@ -1,5 +1,5 @@
 #
-# ASTBinaryLogicVisitortor.py
+# ASTBinaryLogicVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,12 +21,12 @@
 """
 rhs: left=rhs logicalOperator right=rhs
 """
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from symbols.BooleanTypeSymbol import BooleanTypeSymbol
-from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
+from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTBinaryLogicVisitor(ASTVisitor):

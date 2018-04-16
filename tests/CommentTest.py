@@ -22,16 +22,17 @@ import os
 import unittest
 
 from antlr4 import *
+
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
-from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -56,7 +57,7 @@ class CommentTest(unittest.TestCase):
         parser = PyNestMLParser(stream)
         # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
-        # now build the ast
+        # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
         neuron_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
@@ -72,17 +73,17 @@ class CommentTest(unittest.TestCase):
         assert ('pre comment not ok' not in comments)
         assert ('post comment not ok' not in comments)
         # check that equation block comment is detected
-        assert (neuron_body_elements[1].get_comment()[0] == 'equations comment ok')
+        self.assertEqual(neuron_body_elements[1].get_comment()[0], 'equations comment ok')
         # check that parameters block comment is detected
-        assert (neuron_body_elements[2].get_comment()[0] == 'parameters comment ok')
+        self.assertEqual(neuron_body_elements[2].get_comment()[0], 'parameters comment ok')
         # check that internals block comment is detected
-        assert (neuron_body_elements[3].get_comment()[0] == 'internals comment ok')
-        # check that intput comment is detected
-        assert (neuron_body_elements[4].get_comment()[0] == 'input comment ok')
+        self.assertEqual(neuron_body_elements[3].get_comment()[0], 'internals comment ok')
+        # check that input comment is detected
+        self.assertEqual(neuron_body_elements[4].get_comment()[0], 'input comment ok')
         # check that output comment is detected
-        assert (neuron_body_elements[5].get_comment()[0] == 'output comment ok')
+        self.assertEqual(neuron_body_elements[5].get_comment()[0], 'output comment ok')
         # check that update comment is detected
-        assert (neuron_body_elements[6].get_comment()[0] == 'update comment ok')
+        self.assertEqual(neuron_body_elements[6].get_comment()[0], 'update comment ok')
 
 
 if __name__ == '__main__':

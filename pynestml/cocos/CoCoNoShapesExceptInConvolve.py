@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTFunctionCall import ASTFunctionCall
-from pynestml.ast.ASTOdeShape import ASTOdeShape
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTOdeShape import ASTOdeShape
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LoggingLevel

@@ -21,7 +21,9 @@
 
 import os
 import unittest
+
 from antlr4 import *
+
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 
@@ -42,8 +44,9 @@ class LexerParserTest(unittest.TestCase):
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 # parse the file
-                PyNestMLParser(stream)
+                tree = PyNestMLParser(stream)
                 # print(' ...done')
+                self.assertTrue(tree is not None)
         return
 
 

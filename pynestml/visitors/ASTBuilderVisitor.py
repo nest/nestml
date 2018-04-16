@@ -17,19 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import re
 import ntpath
+import re
 
+from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+from pynestml.meta_model.ASTSignalType import ASTSignalType
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.cocos.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
+from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.CoCosManager import CoCosManager
-from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
-from visitors.CommentCollectorVisitor import CommentCollectorVisitor
-from pynestml.modelprocessor.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
-from pynestml.modelprocessor.ASTSignalType import ASTSignalType
-from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
-
 from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.visitors.ASTDataTypeVisitor import ASTDataTypeVisitor
+from pynestml.visitors.CommentCollectorVisitor import CommentCollectorVisitor
 
 
 class ASTBuilderVisitor(PyNestMLVisitor):
@@ -71,7 +70,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
                                                   is_unit_type=unit, source_position=create_source_pos(ctx))
         # now update the type
         ret.accept(ASTDataTypeVisitor())
-        #self.data_type_visitor.visit_datatype(ret)
+        # self.data_type_visitor.visit_datatype(ret)
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.
@@ -418,7 +417,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
     def visitNeuron(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.body()) if ctx.body() is not None else None
-        # after we have constructed the ast of the neuron, we can ensure some basic properties which should always hold
+        # after we have constructed the meta_model of the neuron, we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
         # and update are defined once
         artifact_name = ntpath.basename(ctx.start.source[1].fileName)
@@ -430,7 +429,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         Logger.set_current_neuron(neuron)
         CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
         Logger.set_current_neuron(neuron)
-        # now the ast seems to be correct, return it
+        # now the meta_model seems to be correct, return it
         return neuron
 
     # Visit a parse tree produced by PyNESTMLParser#body.
@@ -498,21 +497,21 @@ class ASTBuilderVisitor(PyNestMLVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#equations.
     def visitEquationsBlock(self, ctx):
-        elems = list()
+        elements = list()
         if ctx.odeEquation() is not None:
             for eq in ctx.odeEquation():
-                elems.append(eq)
+                elements.append(eq)
         if ctx.odeShape() is not None:
             for shape in ctx.odeShape():
-                elems.append(shape)
+                elements.append(shape)
         if ctx.odeFunction() is not None:
             for fun in ctx.odeFunction():
-                elems.append(fun)
+                elements.append(fun)
         ordered = list()
-        while len(elems) > 0:
-            elem = get_next(elems)
+        while len(elements) > 0:
+            elem = get_next(elements)
             ordered.append(self.visit(elem))
-            elems.remove(elem)
+            elements.remove(elem)
         ret = ASTNodeFactory.create_ast_equations_block(declarations=ordered,
                                                         source_position=create_source_pos(ctx))
         ret.set_comment(self.__comments.visit(ctx))
@@ -614,6 +613,11 @@ def get_next(_elements=list()):
 
 
 def create_source_pos(ctx):
+    """
+    Returns a new source location object. Used in order to avoid code duplication.
+    :param ctx: a context variable
+    :return: ctx
+    """
     return ASTSourceLocation.make_ast_source_position(start_line=ctx.start.line,
                                                       start_column=ctx.start.column,
                                                       end_line=ctx.stop.line,

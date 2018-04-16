@@ -1,5 +1,5 @@
 #
-# ASTPowerVisitor.pyor.py
+# ASTPowerVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,12 +21,12 @@
 """
 rhs : <assoc=right> left=rhs powOp='**' right=rhs
 """
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.utils.Either import Either
+from pynestml.utils.ErrorStrings import ErrorStrings
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTPowerVisitor(ASTVisitor):

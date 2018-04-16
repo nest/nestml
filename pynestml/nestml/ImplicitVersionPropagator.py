@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import copy
 
-from pynestml.ast.ASTNodeFactory import ASTNodeFactory
+from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.visitors.ASTVisitor import ASTVisitor
 
 """
@@ -62,7 +62,7 @@ class ImplicitVersionPropagator(ASTVisitor):
         return
 
     def endvisit_expression(self, node):
-        from pynestml.ast.ASTExpression import ASTExpression
+        from pynestml.meta_model.ASTExpression import ASTExpression
         assert node is not None
         assert isinstance(node, ASTExpression)
 

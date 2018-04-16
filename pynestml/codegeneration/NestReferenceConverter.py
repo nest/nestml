@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTFunctionCall import ASTFunctionCall
-from pynestml.ast.ASTVariable import ASTVariable
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTVariable import ASTVariable
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
@@ -60,10 +60,10 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: the corresponding nest representation
         :rtype: str
         """
-        from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.ast.ASTBitOperator import ASTBitOperator
-        from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
-        from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
+        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.meta_model.ASTBitOperator import ASTBitOperator
+        from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
         if isinstance(_binaryOperator, ASTArithmeticOperator):
             return cls.convertArithmeticOperator(_binaryOperator)
         if isinstance(_binaryOperator, ASTBitOperator):
@@ -188,7 +188,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: the same operator
         :rtype: str
         """
-        from pynestml.ast.ASTUnaryOperator import ASTUnaryOperator
+        from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
         assert (_unaryOperator is not None and isinstance(_unaryOperator, ASTUnaryOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of unary operator provided (%s)!' \
             % type(_unaryOperator)
@@ -229,7 +229,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
+        from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
         assert (_op is not None and isinstance(_op, ASTLogicalOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
             % type(_op)
@@ -250,7 +250,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
         assert (_op is not None and isinstance(_op, ASTComparisonOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
             % type(_op)
@@ -279,7 +279,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.ast.ASTBitOperator import ASTBitOperator
+        from pynestml.meta_model.ASTBitOperator import ASTBitOperator
         assert (_op is not None and isinstance(_op, ASTBitOperator)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of bit operator provided (%s)!' \
             % type(_op)
@@ -306,7 +306,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
         assert (_op is not None and isinstance(_op, ASTArithmeticOperator)), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of arithmetic operator provided (%s)!' \
             % type(_op)

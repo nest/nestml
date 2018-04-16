@@ -19,26 +19,26 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.modelprocessor import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator
-from pynestml.modelprocessor.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
-from pynestml.modelprocessor.ASTBooleanLiteralVisitor import ASTBooleanLiteralVisitor
-from pynestml.modelprocessor.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
-from pynestml.modelprocessor.ASTConditionVisitor import ASTConditionVisitor
-from pynestml.modelprocessor.ASTDotOperatorVisitor import ASTDotOperatorVisitor
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTFunctionCallVisitor import ASTFunctionCallVisitor
-from pynestml.modelprocessor.ASTInfVisitor import ASTInfVisitor
-from pynestml.modelprocessor.ASTLineOperationVisitor import ASTLineOperatorVisitor
-from pynestml.modelprocessor.ASTLogicalNotVisitor import ASTLogicalNotVisitor
-from pynestml.modelprocessor.ASTNoSemantics import ASTNoSemantics
-from pynestml.modelprocessor.ASTNumericLiteralVisitor import ASTNumericLiteralVisitor
-from pynestml.modelprocessor.ASTParenthesesVisitor import ASTParenthesesVisitor
-from pynestml.modelprocessor.ASTPowerVisitor import ASTPowerVisitor
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTStringLiteralVisitor import ASTStringLiteralVisitor
-from pynestml.modelprocessor.ASTUnaryVisitor import ASTUnaryVisitor
-from pynestml.modelprocessor.ASTVariableVisitor import ASTVariableVisitor
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.meta_model import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.visitors.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
+from pynestml.visitors.ASTBooleanLiteralVisitor import ASTBooleanLiteralVisitor
+from pynestml.visitors.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
+from pynestml.visitors.ASTConditionVisitor import ASTConditionVisitor
+from pynestml.visitors.ASTDotOperatorVisitor import ASTDotOperatorVisitor
+from pynestml.visitors.ASTFunctionCallVisitor import ASTFunctionCallVisitor
+from pynestml.visitors.ASTInfVisitor import ASTInfVisitor
+from pynestml.visitors.ASTLineOperationVisitor import ASTLineOperatorVisitor
+from pynestml.visitors.ASTLogicalNotVisitor import ASTLogicalNotVisitor
+from pynestml.visitors.ASTNoSemanticsVisitor import ASTNoSemanticsVisitor
+from pynestml.visitors.ASTNumericLiteralVisitor import ASTNumericLiteralVisitor
+from pynestml.visitors.ASTParenthesesVisitor import ASTParenthesesVisitor
+from pynestml.visitors.ASTPowerVisitor import ASTPowerVisitor
+from pynestml.visitors.ASTStringLiteralVisitor import ASTStringLiteralVisitor
+from pynestml.visitors.ASTUnaryVisitor import ASTUnaryVisitor
+from pynestml.visitors.ASTVariableVisitor import ASTVariableVisitor
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTExpressionTypeVisitor(ASTVisitor):
@@ -53,7 +53,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
     __logicalNotVisitor = ASTLogicalNotVisitor()
     __dotOperatorVisitor = ASTDotOperatorVisitor()
     __lineOperatorVisitor = ASTLineOperatorVisitor()
-    __noSemantics = ASTNoSemantics()
+    __noSemantics = ASTNoSemanticsVisitor()
     __comparisonOperatorVisitor = ASTComparisonOperatorVisitor()
     __binaryLogicVisitor = ASTBinaryLogicVisitor()
     __conditionVisitor = ASTConditionVisitor()
@@ -67,7 +67,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
     def handle(self, _node):
         """
         Handles the handed over node and executes the required sub routines.
-        :param _node: a ast node.
+        :param _node: a meta_model node.
         :type _node: AST_
         """
         self.traverse(_node)
@@ -115,7 +115,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
     def traverse_expression(self, _node):
         """
         Traverses an expression and executes the required sub-routines.
-        :param _node: a single ast node
+        :param _node: a single meta_model node
         :type _node: ASTExpression
         """
         assert (_node is not None and isinstance(_node, ASTExpression)), \

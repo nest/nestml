@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTExpression import ASTExpression
-from pynestml.ast.ASTFunctionCall import ASTFunctionCall
-from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 from pynestml.utils.ASTUtils import ASTUtils

@@ -1,5 +1,5 @@
 #
-# ASTVariableVisitortor.py
+# ASTVariableVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,12 +21,12 @@
 """
 simpleExpression : variable
 """
-from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import MessageCode
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTVariableVisitor(ASTVisitor):

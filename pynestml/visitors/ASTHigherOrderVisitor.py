@@ -17,12 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTHigherOrderVisitor(ASTVisitor):
     """
-    This visitor is used to visit each node of the ast and and preform an arbitrary on it..
+    This visitor is used to visit each node of the meta_model and and preform an arbitrary on it..
     """
     visit_funcs = list()
     endvisit_funcs = list()

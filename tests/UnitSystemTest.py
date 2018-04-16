@@ -20,17 +20,17 @@
 import os
 import unittest
 
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.codegeneration.NestPrinter import NestPrinter
 from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.utils.ModelParser import ModelParser
 
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 PredefinedUnits.register_units()
@@ -59,8 +59,8 @@ def print_rhs_of_first_assignment_in_update_block(model):
 
 
 def print_first_function_call_in_update_block(model):
-    functon_call = get_first_statement_in_update_block(model).small_stmt.get_function_call()
-    return printer.printMethodCall(functon_call)
+    function_call = get_first_statement_in_update_block(model).small_stmt.get_function_call()
+    return printer.printMethodCall(function_call)
 
 
 def print_rhs_of_first_declaration_in_state_block(model):
@@ -70,8 +70,8 @@ def print_rhs_of_first_declaration_in_state_block(model):
 
 
 def print_first_return_statement_in_first_declared_function(model):
-    function = get_first_declared_function(model)
-    return_expression = function.get_block().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
+    func = get_first_declared_function(model)
+    return_expression = func.get_block().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
     return printer.printExpression(return_expression)
 
 

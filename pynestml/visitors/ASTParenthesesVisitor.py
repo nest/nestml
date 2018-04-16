@@ -21,8 +21,7 @@
 """
 rhs : leftParentheses='(' term=rhs rightParentheses=')'
 """
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTParenthesesVisitor(ASTVisitor):

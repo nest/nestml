@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.ast.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
 from pynestml.utils.ModelParser import ModelParser

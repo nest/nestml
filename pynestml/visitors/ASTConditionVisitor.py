@@ -21,13 +21,13 @@
 """
 rhs : condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
 """
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTConditionVisitor(ASTVisitor):
@@ -67,10 +67,10 @@ class ASTConditionVisitor(ASTVisitor):
         if isinstance(if_true, UnitTypeSymbol) and isinstance(if_not, UnitTypeSymbol):
             error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.print_symbol(), if_not.print_symbol(),
                                                             node.get_source_position())
-            node.type = PredefinedTypes.getRealType()
+            node.type = PredefinedTypes.get_real_type()
             Logger.log_message(message=error_msg,
                                code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                               error_position=if_true.get_source_position(),
+                               error_position=if_true.referenced_object.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return
 
@@ -86,7 +86,7 @@ class ASTConditionVisitor(ASTVisitor):
             node.type = unit_type
             Logger.log_message(message=error_msg,
                                code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                               error_position=if_true.get_source_position(),
+                               error_position=if_true.referenced_object.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return
 

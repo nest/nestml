@@ -21,14 +21,14 @@
 """
 rhs : left=rhs comparisonOperator right=rhs
 """
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from symbols.BooleanTypeSymbol import BooleanTypeSymbol
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
+from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
+from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 
 
 class ASTComparisonOperatorVisitor(ASTVisitor):

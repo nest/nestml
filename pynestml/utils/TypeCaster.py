@@ -18,9 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.LoggingHelper import LoggingHelper
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.utils.LoggingHelper import LoggingHelper
 from pynestml.utils.Messages import Messages
 
 

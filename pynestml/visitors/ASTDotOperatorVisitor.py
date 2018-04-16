@@ -1,5 +1,5 @@
 #
-# ASTDotOperatorVisitortor.py
+# ASTDotOperatorVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,8 +21,7 @@
 """
 rhs : left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
 """
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTDotOperatorVisitor(ASTVisitor):

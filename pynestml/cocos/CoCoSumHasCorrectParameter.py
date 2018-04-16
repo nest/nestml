@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.utils.Logger import LoggingLevel, Logger

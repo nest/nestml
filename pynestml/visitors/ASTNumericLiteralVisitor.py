@@ -1,5 +1,5 @@
 #
-# ASTNumericLiteralVisitortor.py
+# ASTNumericLiteralVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,10 +21,9 @@
 """
 simpleExpression : (INTEGER|FLOAT) (variable)?
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.Either import Either
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.Symbol import SymbolKind
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTNumericLiteralVisitor(ASTVisitor):
@@ -35,10 +34,10 @@ class ASTNumericLiteralVisitor(ASTVisitor):
     def visit_simple_expression(self, node):
         """
         Visit a simple rhs and update the type of a numeric literal.
-        :param node:
-        :type node:
-        :return:
-        :rtype:
+        :param node: a single meta_model node
+        :type node: ASTNode
+        :return: no value returned, the type is updated in-place
+        :rtype: void
         """
         assert node.get_scope() is not None, "Run symboltable creator."
         # if variable is also set in this rhs, the var type overrides the literal

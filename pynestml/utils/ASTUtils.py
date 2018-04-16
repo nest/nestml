@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
 
 
@@ -45,25 +45,25 @@ class ASTUtils(object):
     @classmethod
     def is_small_stmt(cls, ast):
         """
-        Indicates whether the handed over ast is a small statement. Used in the template.
-        :param ast: a single ast object.
+        Indicates whether the handed over meta_model is a small statement. Used in the template.
+        :param ast: a single meta_model object.
         :type ast: AST_
         :return: True if small stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
+        from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
         return isinstance(ast, ASTSmallStmt)
 
     @classmethod
     def is_compound_stmt(cls, ast):
         """
-        Indicates whether the handed over ast is a compound statement. Used in the template.
-        :param ast: a single ast object.
+        Indicates whether the handed over meta_model is a compound statement. Used in the template.
+        :param ast: a single meta_model object.
         :type ast: AST_
         :return: True if compound stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
+        from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
         return isinstance(ast, ASTCompoundStmt)
 
     @classmethod
@@ -153,8 +153,8 @@ class ASTUtils(object):
         :return: a new direct assignment rhs.
         :rtype: ASTExpression
         """
-        from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
-        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         assert ((is_plus + is_minus + is_times + is_divide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
         if is_plus:
@@ -186,15 +186,15 @@ class ASTUtils(object):
     @classmethod
     def get_alias_symbols(cls, ast):
         """
-        For the handed over ast, this method collects all functions aka. aliases in it.
-        :param ast: a single ast node
+        For the handed over meta_model, this method collects all functions aka. aliases in it.
+        :param ast: a single meta_model node
         :type ast: AST_
         :return: a list of all alias variable symbols
         :rtype: list(VariableSymbol)
         """
         ret = list()
-        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-        from pynestml.modelprocessor.ASTVariable import ASTVariable
+        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.meta_model.ASTVariable import ASTVariable
         res = list()
 
         def loc_get_vars(node):
@@ -265,21 +265,21 @@ class ASTUtils(object):
         return False
 
     @classmethod
-    def get_all(cls, ast, type):
+    def get_all(cls, ast, node_type):
         """
-        Finds all ast which are part of the tree as spanned by the handed over ast. The type has to be specified.
-        :param ast: a single ast node
+        Finds all meta_model which are part of the tree as spanned by the handed over meta_model. The type has to be specified.
+        :param ast: a single meta_model node
         :type ast: AST_
-        :param type: the type
-        :type type: AST_
-        :return: a list of all ast of the specified type
+        :param node_type: the type
+        :type node_type: AST_
+        :return: a list of all meta_model of the specified type
         :rtype: list(AST_)
         """
-        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         ret = list()
 
         def loc_get_all_of_type(node):
-            if isinstance(node, type):
+            if isinstance(node, node_type):
                 ret.append(node)
 
         ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_all_of_type))
@@ -289,15 +289,15 @@ class ASTUtils(object):
     def get_vectorized_variable(cls, ast, scope):
         """
         Returns all variable symbols which are contained in the scope and have a size parameter.
-        :param ast: a single ast
+        :param ast: a single meta_model
         :type ast: AST_
         :param scope: a scope object
         :type scope: Scope
         :return: the first element with the size parameter
         :rtype: VariableSymbol
         """
-        from pynestml.modelprocessor.ASTVariable import ASTVariable
-        from pynestml.modelprocessor.Symbol import SymbolKind
+        from pynestml.meta_model.ASTVariable import ASTVariable
+        from pynestml.symbols.Symbol import SymbolKind
         variables = (var for var in cls.get_all(ast, ASTVariable) if
                      scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE))
         for var in variables:
@@ -309,7 +309,7 @@ class ASTUtils(object):
     @classmethod
     def get_function_call(cls, ast, function_name):
         """
-        Collects for a given name all function calls in a given ast node.
+        Collects for a given name all function calls in a given meta_model node.
         :param ast: a single node
         :type ast: ASTNode
         :param function_name: the name of the function
@@ -317,8 +317,8 @@ class ASTUtils(object):
         :return: a list of all function calls contained in _ast
         :rtype: list(ASTFunctionCall)
         """
-        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
         ret = list()
 
         def loc_get_function(node):
@@ -366,7 +366,7 @@ class ASTUtils(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
                                                                       ASTSourcePosition.get_added_source_position())
@@ -383,7 +383,7 @@ class ASTUtils(object):
         :rtype: ASTNeuron
         """
         # local import since otherwise circular dependency
-        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
                                                                    ASTSourcePosition.get_added_source_position())
@@ -400,7 +400,7 @@ class ASTUtils(object):
         :rtype: ASTNeuron
         """
         # local import since otherwise circular dependency
-        from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         if neuron.get_initial_blocks() is None:
             inits = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, list(),
                                                                    ASTSourcePosition.get_added_source_position())

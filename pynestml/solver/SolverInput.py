@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from copy import deepcopy
 
-from pynestml.ast.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.ast.ASTOdeEquation import ASTOdeEquation
-from pynestml.ast.ASTOdeFunction import ASTOdeFunction
-from pynestml.ast.ASTOdeShape import ASTOdeShape
+from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
+from pynestml.meta_model.ASTOdeFunction import ASTOdeFunction
+from pynestml.meta_model.ASTOdeShape import ASTOdeShape
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.utils.OdeTransformer import OdeTransformer
 

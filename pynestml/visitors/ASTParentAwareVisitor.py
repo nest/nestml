@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
 from pynestml.utils.Stack import Stack
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTParentAwareVisitor(ASTVisitor):
@@ -26,7 +26,7 @@ class ASTParentAwareVisitor(ASTVisitor):
     The parent aware visitor storing a trace. This visitor enables a given visitor to inspect the corresponding
     parent node.
     Attributes:
-        parents (Stack): A stack containing the predecessor of this node.
+        parents type(Stack): A stack containing the predecessor of this node.
     """
     parents = Stack()
 

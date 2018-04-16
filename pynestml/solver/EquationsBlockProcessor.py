@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from copy import deepcopy
 
-from pynestml.ast.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.solver.DeltaSolutionTransformer import DeltaSolutionTransformer
 from pynestml.solver.ExactSolutionTransformer import ExactSolutionTransformer
 from pynestml.solver.ShapesToOdesTransformer import ShapesToOdesTransformer
@@ -107,7 +107,7 @@ class EquationsBlockProcessor(object):
         :return: True if an ode shape exits, otherwise False.
         :rtype: bool
         """
-        from pynestml.ast.ASTOdeShape import ASTOdeShape
+        from pynestml.meta_model.ASTOdeShape import ASTOdeShape
         for shape in _shapes:
             if isinstance(shape, ASTOdeShape) and shape.get_variable().get_differential_order() > 0:
                 return True

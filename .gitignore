@@ -4,6 +4,8 @@ target/
 .mypy_cache/
 build/
 buildNest/
+venv/
+
 
 __*
 
@@ -15,8 +17,7 @@ PyNESTML.egg-info/
 
 !__init__.py
 
-pynestml/grammars/antlr-4.7-complete.jar
-
+*.jar
 
 .DS_Store
 .project

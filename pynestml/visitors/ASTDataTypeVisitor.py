@@ -20,20 +20,19 @@
 
 from astropy import units
 
-from pynestml.modelprocessor.ASTUnitType import ASTUnitType
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-from pynestml.modelprocessor.UnitType import UnitType
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.meta_model.ASTUnitType import ASTUnitType
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.utils.UnitType import UnitType
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTDataTypeVisitor(ASTVisitor):
     """
     This class represents a visitor which inspects a handed over data type, checks if correct typing has been used
     (e.g., no computation between primitive and non primitive data types etc.) and finally updates the type symbols
-    of the datatype ast.
+    of the datatype meta_model.
     """
 
     def __init__(self):
@@ -43,7 +42,7 @@ class ASTDataTypeVisitor(ASTVisitor):
 
     def visit_data_type(self, node):
         """
-        Visits a single data type ast node and updates, checks correctness and updates its type symbol.
+        Visits a single data type meta_model node and updates, checks correctness and updates its type symbol.
         This visitor can also be used to derive the original name of the unit.
         :param node: a single datatype node.
         :type node: ASTDataType
@@ -76,7 +75,7 @@ class ASTDataTypeVisitor(ASTVisitor):
         """
         Visits a single unit type element, checks for correct usage of units and builds the corresponding combined 
         unit.
-        :param node: a single unit type ast.
+        :param node: a single unit type meta_model.
         :type node: ASTUnitType
         :return: a new type symbol representing this unit type.
         :rtype: TypeSymbol
@@ -126,8 +125,8 @@ def handle_unit(unit_type):
     """
     Handles a handed over unit by creating the corresponding unit-type, storing it in the list of predefined
     units, creating a type symbol and returning it.
-    :param _unitType: a single sympy unit symbol
-    :type _unitType: Symbol (sympy)
+    :param unit_type: a single sympy unit symbol
+    :type unit_type: Symbol (sympy)
     :return: a new type symbol
     :rtype: TypeSymbol
     """

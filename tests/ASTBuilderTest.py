@@ -21,17 +21,18 @@ import os
 import unittest
 
 from antlr4 import *
+
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
-from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -43,7 +44,8 @@ Logger.init_logger(LoggingLevel.NO)
 
 
 class ASTBuildingTest(unittest.TestCase):
-    def test(self):
+    @classmethod
+    def test(cls):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
@@ -58,7 +60,7 @@ class ASTBuildingTest(unittest.TestCase):
                 parser = PyNestMLParser(stream)
                 # process the comments
                 compilation_unit = parser.nestMLCompilationUnit()
-                # now build the ast
+                # now build the meta_model
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)
                 assert isinstance(ast, ASTNestMLCompilationUnit)

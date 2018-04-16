@@ -41,7 +41,7 @@ class StringTypeSymbol(TypeSymbol):
         return 'std::string'
 
     def __add__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other

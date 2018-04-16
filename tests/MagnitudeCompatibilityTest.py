@@ -20,15 +20,15 @@
 import os
 import unittest
 
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.utils.ModelParser import ModelParser
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 # minor setup steps required
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
@@ -52,7 +52,7 @@ class MagnitudeCompatibilityTest(unittest.TestCase):
     """
 
     def test(self):
-        # Todo: this test is not yet complete
+        # Todo: this test is not yet complete, @ptraeder complete it
         Logger.init_logger(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),

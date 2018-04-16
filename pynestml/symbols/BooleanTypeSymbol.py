@@ -44,13 +44,13 @@ class BooleanTypeSymbol(TypeSymbol):
         return self
 
     def __add__(self, other):
-        from symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
         if other.is_instance_of(StringTypeSymbol):
             return other
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
-        from symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
 
         if _other_type.is_instance_of(RealTypeSymbol):
             return True

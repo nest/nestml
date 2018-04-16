@@ -17,8 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
 import os
+import unittest
+
 from pynestml.frontend.PyNestMLFrontend import main
 
 
@@ -39,7 +40,11 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('-store_log')
         params.append('-dev')
-        main(params)
+        try:
+            main(params)
+            self.assertTrue(True)  # the goal is to reach this point without exceptions
+        except Exception:
+            self.assertTrue(False)
 
 
 if __name__ == '__main__':

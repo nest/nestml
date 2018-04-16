@@ -17,18 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
 import os
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.Scope import ScopeType
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.Symbol import SymbolKind
+import unittest
+
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.symbol_table.Scope import ScopeType
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.utils.ModelParser import ModelParser
 
 # minor setup steps required
 Logger.init_logger(LoggingLevel.NO)
@@ -50,20 +51,19 @@ class SymbolTableResolutionTest(unittest.TestCase):
                 os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', 'ResolutionTest.nestml'))))
         scope = model.get_neuron_list()[0].get_scope()
         res1 = scope.resolve_to_all_scopes('test1', SymbolKind.VARIABLE)
-        assert (res1 is not None)
+        self.assertTrue(res1 is not None)
         res2 = scope.resolve_to_all_scopes('testNot', SymbolKind.VARIABLE)
-        assert (res2 is None)
+        self.assertTrue(res2 is None)
         res3 = scope.resolve_to_all_scopes('test2', SymbolKind.VARIABLE)
-        assert (res3 is not None and res3.get_scope_type() == ScopeType.FUNCTION)
+        self.assertTrue(res3 is not None and res3.get_scope_type() == ScopeType.FUNCTION)
         res4 = scope.resolve_to_all_scopes('arg1', SymbolKind.VARIABLE)
-        assert (res4 is not None and res4.get_scope_type() == ScopeType.FUNCTION)
+        self.assertTrue(res4 is not None and res4.get_scope_type() == ScopeType.FUNCTION)
         res5 = scope.resolve_to_all_scopes('test3', SymbolKind.VARIABLE)
-        assert (res5 is not None and res5.get_scope_type() == ScopeType.FUNCTION)
+        self.assertTrue(res5 is not None and res5.get_scope_type() == ScopeType.FUNCTION)
         res6 = scope.resolve_to_all_scopes('test1', SymbolKind.FUNCTION)
-        assert (res6 is not None and res6.get_scope_type() == ScopeType.GLOBAL)
+        self.assertTrue(res6 is not None and res6.get_scope_type() == ScopeType.GLOBAL)
         res7 = scope.resolve_to_all_scopes('test6', SymbolKind.VARIABLE)
-        assert (res7 is not None and res7.get_scope_type() == ScopeType.UPDATE)
-        return
+        self.assertTrue(res7 is not None and res7.get_scope_type() == ScopeType.UPDATE)
 
 
 if __name__ == '__main__':

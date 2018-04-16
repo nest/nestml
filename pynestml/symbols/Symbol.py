@@ -42,7 +42,7 @@ class Symbol(object):
     def __init__(self, element_reference, scope, name, symbol_kind):
         """
         Standard constructor of the Symbol class.
-        :param element_reference: an ast object.
+        :param element_reference: an meta_model object.
         :type element_reference: ASTObject
         :param scope: the scope in which this element is embedded in.
         :type scope: Scope

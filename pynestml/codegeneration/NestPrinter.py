@@ -17,12 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTBody import ASTBody
-from pynestml.ast.ASTExpression import ASTExpression
-from pynestml.ast.ASTForStmt import ASTForStmt
-from pynestml.ast.ASTFunction import ASTFunction
-from pynestml.ast.ASTFunctionCall import ASTFunctionCall
-from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTBody import ASTBody
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTForStmt import ASTForStmt
+from pynestml.meta_model.ASTFunction import ASTFunction
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
@@ -53,7 +53,7 @@ class NestPrinter(object):
         """
         Pretty
         Prints the handed over rhs to a nest readable format.
-        :param _ast: a single ast node.
+        :param _ast: a single meta_model node.
         :type _ast: ASTExpression or ASTSimpleExpression
         :return: the corresponding string representation
         :rtype: str
@@ -174,7 +174,7 @@ class NestPrinter(object):
         :return: the corresponding string representation.
         :rtype: str
         """
-        from pynestml.ast.ASTFunction import ASTFunction
+        from pynestml.meta_model.ASTFunction import ASTFunction
         from pynestml.symbols.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)

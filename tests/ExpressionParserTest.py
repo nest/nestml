@@ -24,17 +24,17 @@ import unittest
 
 from antlr4 import *
 
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
-from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -66,7 +66,7 @@ class ExpressionParsingTest(unittest.TestCase):
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
         # print('done')
-        assert isinstance(ast, ASTNestMLCompilationUnit)
+        self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 
 if __name__ == '__main__':

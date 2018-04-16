@@ -18,45 +18,45 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.ast.ASTAssignment import ASTAssignment
-from pynestml.ast.ASTBitOperator import ASTBitOperator
-from pynestml.ast.ASTBlock import ASTBlock
-from pynestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
-from pynestml.ast.ASTBody import ASTBody
-from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.ast.ASTCompoundStmt import ASTCompoundStmt
-from pynestml.ast.ASTDataType import ASTDataType
-from pynestml.ast.ASTDeclaration import ASTDeclaration
-from pynestml.ast.ASTElifClause import ASTElifClause
-from pynestml.ast.ASTElseClause import ASTElseClause
-from pynestml.ast.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.ast.ASTExpression import ASTExpression
-from pynestml.ast.ASTForStmt import ASTForStmt
-from pynestml.ast.ASTFunction import ASTFunction
-from pynestml.ast.ASTFunctionCall import ASTFunctionCall
-from pynestml.ast.ASTIfClause import ASTIfClause
-from pynestml.ast.ASTIfStmt import ASTIfStmt
-from pynestml.ast.ASTInputBlock import ASTInputBlock
-from pynestml.ast.ASTInputLine import ASTInputLine
-from pynestml.ast.ASTInputType import ASTInputType
-from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.ast.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.ast.ASTNeuron import ASTNeuron
-from pynestml.ast.ASTOdeEquation import ASTOdeEquation
-from pynestml.ast.ASTOdeFunction import ASTOdeFunction
-from pynestml.ast.ASTOdeShape import ASTOdeShape
-from pynestml.ast.ASTOutputBlock import ASTOutputBlock
-from pynestml.ast.ASTParameter import ASTParameter
-from pynestml.ast.ASTReturnStmt import ASTReturnStmt
-from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.ast.ASTSmallStmt import ASTSmallStmt
-from pynestml.ast.ASTStmt import ASTStmt
-from pynestml.ast.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.ast.ASTUnitType import ASTUnitType
-from pynestml.ast.ASTUpdateBlock import ASTUpdateBlock
-from pynestml.ast.ASTVariable import ASTVariable
-from pynestml.ast.ASTWhileStmt import ASTWhileStmt
+from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.meta_model.ASTAssignment import ASTAssignment
+from pynestml.meta_model.ASTBitOperator import ASTBitOperator
+from pynestml.meta_model.ASTBlock import ASTBlock
+from pynestml.meta_model.ASTBlockWithVariables import ASTBlockWithVariables
+from pynestml.meta_model.ASTBody import ASTBody
+from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
+from pynestml.meta_model.ASTDataType import ASTDataType
+from pynestml.meta_model.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ASTElifClause import ASTElifClause
+from pynestml.meta_model.ASTElseClause import ASTElseClause
+from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTForStmt import ASTForStmt
+from pynestml.meta_model.ASTFunction import ASTFunction
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTIfClause import ASTIfClause
+from pynestml.meta_model.ASTIfStmt import ASTIfStmt
+from pynestml.meta_model.ASTInputBlock import ASTInputBlock
+from pynestml.meta_model.ASTInputLine import ASTInputLine
+from pynestml.meta_model.ASTInputType import ASTInputType
+from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
+from pynestml.meta_model.ASTOdeFunction import ASTOdeFunction
+from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+from pynestml.meta_model.ASTOutputBlock import ASTOutputBlock
+from pynestml.meta_model.ASTParameter import ASTParameter
+from pynestml.meta_model.ASTReturnStmt import ASTReturnStmt
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+from pynestml.meta_model.ASTStmt import ASTStmt
+from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.meta_model.ASTUnitType import ASTUnitType
+from pynestml.meta_model.ASTUpdateBlock import ASTUpdateBlock
+from pynestml.meta_model.ASTVariable import ASTVariable
+from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
 
 
 class ASTVisitor(object):
@@ -1097,20 +1097,20 @@ class ASTVisitor(object):
 
     def traverse_block(self, node):
         if node.get_stmts() is not None:
-            for subnode in node.get_stmts():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_stmts():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_block_with_variables(self, _node):
         if _node.get_declarations() is not None:
-            for subnode in _node.get_declarations():
-                subnode.accept(self.get_real_self())
+            for sub_node in _node.get_declarations():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_body(self, node):
         if node.get_body_elements() is not None:
-            for subnode in node.get_body_elements():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_body_elements():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_comparison_operator(self, node):
@@ -1132,8 +1132,8 @@ class ASTVisitor(object):
 
     def traverse_declaration(self, node):
         if node.get_variables() is not None:
-            for subnode in node.get_variables():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_variables():
+                sub_node.accept(self.get_real_self())
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
@@ -1156,8 +1156,8 @@ class ASTVisitor(object):
 
     def traverse_equations_block(self, node):
         if node.get_declarations() is not None:
-            for subnode in node.get_declarations():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_declarations():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_expression(self, node):
@@ -1190,8 +1190,8 @@ class ASTVisitor(object):
 
     def traverse_function(self, node):
         if node.get_parameters() is not None:
-            for subnode in node.get_parameters():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_parameters():
+                sub_node.accept(self.get_real_self())
         if node.get_return_type() is not None:
             node.get_return_type().accept(self.get_real_self())
         if node.get_block() is not None:
@@ -1200,8 +1200,8 @@ class ASTVisitor(object):
 
     def traverse_function_call(self, node):
         if node.get_args() is not None:
-            for subnode in node.get_args():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_args():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_if_clause(self, node):
@@ -1222,14 +1222,14 @@ class ASTVisitor(object):
 
     def traverse_input_block(self, node):
         if node.getInputLines() is not None:
-            for subnode in node.getInputLines():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.getInputLines():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_input_line(self, node):
         if node.get_input_types() is not None:
-            for subnode in node.get_input_types():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_input_types():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_input_type(self, node):
@@ -1240,8 +1240,8 @@ class ASTVisitor(object):
 
     def traverse_compilation_unit(self, node):
         if node.get_neuron_list() is not None:
-            for subnode in node.get_neuron_list():
-                subnode.accept(self.get_real_self())
+            for sub_node in node.get_neuron_list():
+                sub_node.accept(self.get_real_self())
         return
 
     def traverse_neuron(self, node):

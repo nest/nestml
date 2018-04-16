@@ -17,22 +17,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ASTDataTypeVisitor import ASTDataTypeVisitor
-from pynestml.modelprocessor.ASTNodeFactory import ASTNodeFactory
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.CoCosManager import CoCosManager
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.FunctionSymbol import FunctionSymbol
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.Scope import Scope, ScopeType
-from pynestml.modelprocessor.Symbol import SymbolKind
-from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType, VariableType
+from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.cocos.CoCosManager import CoCosManager
+from pynestml.symbol_table.Scope import Scope, ScopeType
+from pynestml.symbols.FunctionSymbol import FunctionSymbol
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.VariableSymbol import VariableSymbol, BlockType, VariableType
+from pynestml.utils.Either import Either
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
 from pynestml.utils.Stack import Stack
+from pynestml.visitors.ASTDataTypeVisitor import ASTDataTypeVisitor
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTSymbolTableVisitor(ASTVisitor):
@@ -84,8 +84,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.getInputLines())
             else:
                 buffers = (buffer for buffer in node.get_input_blocks().getInputLines())
-            from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
-            # todo by KP: ode decls are not used, is this correct?
+            from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+            # todo by KP: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
             #                    not isinstance(decl, ASTOdeShape))
             mark_conductance_based_buffers(input_lines=buffers)
@@ -377,7 +377,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a unit type.
         :type node: ASTUnitType
         """
-        from pynestml.modelprocessor.ASTUnitType import ASTUnitType
+        from pynestml.meta_model.ASTUnitType import ASTUnitType
         if node.is_pow:
             node.base.update_scope(node.get_scope())
         elif node.is_encapsulated:
@@ -394,7 +394,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: an rhs.
         :type node: ASTExpression
         """
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
         if isinstance(node, ASTSimpleExpression):
             return self.visit_simple_expression(node)
         if node.is_logical_not:
@@ -571,8 +571,8 @@ def make_implicit_odes_explicit(equations_block):
     :param equations_block: a single equations block
     :type equations_block: ASTEquationsBlock
     """
-    from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
-    from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
+    from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+    from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
     checked = list()  # used to avoid redundant checking
     for declaration in equations_block.get_declarations():
         if declaration in checked:
@@ -601,10 +601,11 @@ def make_implicit_odes_explicit(equations_block):
                     expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
                                                                              source_position=ASTSourceLocation.
                                                                              get_added_source_position())
+                    source_loc = ASTSourceLocation.get_added_source_position()
                     equations_block.get_declarations().append(
                         ASTNodeFactory.create_ast_ode_shape(lhs=lhs_variable,
                                                             rhs=expression,
-                                                            source_position=ASTSourceLocation.get_added_source_position()))
+                                                            source_position=source_loc))
         if isinstance(declaration, ASTOdeEquation):
             # now we found a variable with order > 0, thus check if all previous orders have been defined
             order = declaration.get_lhs().get_differential_order()
@@ -612,8 +613,8 @@ def make_implicit_odes_explicit(equations_block):
             for i in range(1, order):
                 found = False
                 for ode in equations_block.get_ode_equations():
-                    if ode.get_lhs().get_name() == declaration.get_lhs().get_name() and \
-                            ode.get_lhs().get_differential_order() == i:
+                    if (ode.get_lhs().get_name() == declaration.get_lhs().get_name() and
+                            ode.get_lhs().get_differential_order() == i):
                         found = True
                         break
                 # now if we did not found the corresponding declaration, we have to add it by hand
@@ -665,8 +666,8 @@ def assign_ode_to_variables(ode_block):
     :param ode_block: a single block of ode declarations.
     :type ode_block: ASTEquations
     """
-    from pynestml.modelprocessor.ASTOdeEquation import ASTOdeEquation
-    from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
+    from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
+    from pynestml.meta_model.ASTOdeShape import ASTOdeShape
     for decl in ode_block.get_declarations():
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)

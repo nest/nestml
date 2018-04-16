@@ -20,17 +20,18 @@
 
 from __future__ import print_function
 
-import unittest
 import os
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+import unittest
+
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.utils.ModelParser import ModelParser
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -54,7 +55,7 @@ class NESTMLTest(unittest.TestCase):
                 # print('Start creating AST for ' + filename + ' ...'),
                 model = ModelParser.parse_model(os.path.join(os.path.dirname(__file__),
                                                              os.path.join(os.path.join('..', 'models'), filename)))
-                assert (isinstance(model, ASTNestMLCompilationUnit))
+                self.assertTrue(isinstance(model, ASTNestMLCompilationUnit))
         return
 
 

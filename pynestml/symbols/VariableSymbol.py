@@ -20,9 +20,9 @@
 from copy import copy
 from enum import Enum
 
-from pynestml.ast.ASTExpression import ASTExpression
-from pynestml.ast.ASTInputLine import ASTInputLine
-from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTInputLine import ASTInputLine
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.symbols.Symbol import Symbol
 from pynestml.symbols.Symbol import SymbolKind
 

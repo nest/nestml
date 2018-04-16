@@ -61,7 +61,7 @@ class UnitTypeSymbol(TypeSymbol):
         return False
 
     def __mul__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(UnitTypeSymbol):
@@ -75,7 +75,7 @@ class UnitTypeSymbol(TypeSymbol):
         return PredefinedTypes.get_type(self.astropy_unit * other.astropy_unit)
 
     def __truediv__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(UnitTypeSymbol):
@@ -98,7 +98,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
         if isinstance(power, int):
@@ -110,8 +110,8 @@ class UnitTypeSymbol(TypeSymbol):
         return PredefinedTypes.get_type(self.astropy_unit ** power)
 
     def __add__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(StringTypeSymbol):
@@ -123,7 +123,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('+', other)
 
     def __sub__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_numeric_primitive():
@@ -162,7 +162,7 @@ class UnitTypeSymbol(TypeSymbol):
         return factor
 
     def is_castable_to(self, _other_type):
-        from symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
         if _other_type.is_instance_of(RealTypeSymbol):
             return True
         else:

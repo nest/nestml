@@ -69,7 +69,8 @@ class Messages(object):
     def get_implicit_magnitude_conversion(cls, _lhs, _rhs, _conversion_factor):
         message = 'Non-matching unit types at %s +/- %s! ' \
                   'Implicitly replaced by %s +/- %s * %s' % (
-                      _lhs.print_symbol(), _rhs.print_symbol(), _lhs.print_symbol(), _conversion_factor, _rhs.print_symbol())
+                      _lhs.print_symbol(), _rhs.print_symbol(), _lhs.print_symbol(), _conversion_factor,
+                      _rhs.print_symbol())
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -173,7 +174,7 @@ class Messages(object):
         :return: a message
         :rtype: (MessageCode,str)
         """
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
+        from pynestml.symbols.TypeSymbol import TypeSymbol
         assert (_expectedType is not None and isinstance(_expectedType, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(_expectedType)
         assert (_gotType is not None and isinstance(_gotType, TypeSymbol)), \
@@ -235,7 +236,7 @@ class Messages(object):
         """
         assert (_bufferName is not None and isinstance(_bufferName, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
-        from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
                   % (_bufferName, PredefinedTypes.get_type('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
@@ -718,7 +719,7 @@ class Messages(object):
         functions or with predefined functions (second parameter).
         :param _name: the name of the variable
         :type _name: str
-        :param _predefined: True if a predefiend variable has been redeclared, otherwise False.
+        :param _predefined: True if a pre-defined variable has been redeclared, otherwise False.
         :type _predefined: bool
         :return: a message
         :rtype: (MessageCode,str)

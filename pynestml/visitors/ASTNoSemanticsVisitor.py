@@ -1,5 +1,5 @@
 #
-# ASTNoSemanticsics.py
+# ASTNoSemanticsVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,12 +21,11 @@
 """
 Placeholder for rhs productions that are not implemented
 """
-from visitors.ASTVisitor import ASTVisitor
-
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTNoSemanticsVisitor(ASTVisitor):

@@ -41,7 +41,7 @@ class NESTTimeTypeSymbol(TypeSymbol):
         return 'nest::Time'
 
     def __add__(self, other):
-        from symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
         if other.is_instance_of(StringTypeSymbol):
             return other
         return self.binary_operation_not_defined_error('+', other)

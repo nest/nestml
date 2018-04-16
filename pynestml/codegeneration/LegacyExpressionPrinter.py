@@ -17,12 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.ast.ASTBitOperator import ASTBitOperator
-from pynestml.ast.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.ast.ASTExpression import ASTExpression
-from pynestml.ast.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.ast.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.meta_model.ASTBitOperator import ASTBitOperator
+from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.meta_model.ASTExpression import ASTExpression
+from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 from pynestml.utils.Logger import LoggingLevel, Logger

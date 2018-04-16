@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.ast.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
@@ -39,8 +39,8 @@ class NestDeclarationsHelper(object):
 
     def get_variables(self, ast_declaration=None):
         """
-        For a given ast declaration it returns a list of all corresponding variable symbols.
-        :param ast_declaration: a single ast declaration.
+        For a given meta_model declaration it returns a list of all corresponding variable symbols.
+        :param ast_declaration: a single meta_model declaration.
         :type ast_declaration: ASTDeclaration
         :return: a list of all corresponding variable symbols.
         :rtype: list(VariableSymbol)
@@ -75,8 +75,8 @@ class NestDeclarationsHelper(object):
 
     def printSizeParameter(self, _astDeclaration=None):
         """
-        Prints the size parameter of a single ast declaration.
-        :param _astDeclaration: a single ast declaration.
+        Prints the size parameter of a single meta_model declaration.
+        :param _astDeclaration: a single meta_model declaration.
         :type _astDeclaration: ASTDeclaration
         :return: a string representation of the size parameter.
         :rtype: str

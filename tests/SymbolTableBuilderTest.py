@@ -21,18 +21,19 @@ import os
 import unittest
 
 from antlr4 import *
+
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
-from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.modelprocessor.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.modelprocessor.ASTSourceLocation import ASTSourceLocation
-from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -67,7 +68,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 for neuron in ast.get_neuron_list():
                     neuron.accept(symbol_table_visitor)
                     SymbolTable.add_neuron_scope(name=neuron.get_name(), scope=neuron.get_scope())
-                assert isinstance(ast, ASTNestMLCompilationUnit)
+                self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
         return
 
 

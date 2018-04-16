@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.ast.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
@@ -72,7 +72,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         :param node: a single assignment.
         :type node: ASTAssignment
         """
-        from pynestml.ast.ASTAssignment import ASTAssignment
+        from pynestml.meta_model.ASTAssignment import ASTAssignment
         assert isinstance(node, ASTAssignment)
         if node.is_direct_assignment:  # case a = b is simple
             self.handle_simple_assignment(node)
@@ -122,7 +122,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.getCondition())
+            code, message = Messages.getTypeCouldNotBeDerived(node.get_condition())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
@@ -142,7 +142,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.getCondition())
+            code, message = Messages.getTypeCouldNotBeDerived(node.get_condition())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
@@ -162,7 +162,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.getCondition())
+            code, message = Messages.getTypeCouldNotBeDerived(node.get_condition())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)

@@ -107,19 +107,19 @@ class TypeSymbol(Symbol):
         pass
 
     def __mul__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('*', other)
 
     def __mod__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('%', other)
 
     def __truediv__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('/', other)
@@ -134,7 +134,7 @@ class TypeSymbol(Symbol):
         self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
         self.binary_operation_not_defined_error('**', power)
@@ -143,13 +143,13 @@ class TypeSymbol(Symbol):
         self.unary_operation_not_defined_error('not ')
 
     def __add__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('+', other)
 
     def __sub__(self, other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('-', other)
@@ -213,7 +213,7 @@ class TypeSymbol(Symbol):
         pass
 
     def binary_operation_not_defined_error(self, _operator, _other):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
         code, message = Messages.get_binary_operation_not_defined(_lhs=self, _operator=_operator, _rhs=_other)
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
@@ -221,7 +221,7 @@ class TypeSymbol(Symbol):
         return result
 
     def unary_operation_not_defined_error(self, _operator):
-        from symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
         code, message = Messages.get_unary_operation_not_defined(_operator,
                                                                  self.print_symbol())

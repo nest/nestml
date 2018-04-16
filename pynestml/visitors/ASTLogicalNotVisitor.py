@@ -1,5 +1,5 @@
 #
-# ASTLogicalNotVisitortor.py
+# ASTLogicalNotVisitor.py
 #
 # This file is part of NEST.
 #
@@ -21,13 +21,7 @@
 """
 rhs: logicalNot='not' term=rhs
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ASTVisitor import ASTVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import MessageCode
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 
 class ASTLogicalNotVisitor(ASTVisitor):
@@ -42,7 +36,5 @@ class ASTLogicalNotVisitor(ASTVisitor):
         :type node: ASTExpression
         """
         expr_type = node.get_expression().type
-
         expr_type.referenced_object = node.get_expression()
-
         node.type = expr_type.negate()
