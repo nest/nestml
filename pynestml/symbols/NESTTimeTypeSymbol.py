@@ -28,7 +28,7 @@ class NESTTimeTypeSymbol(TypeSymbol):
     def is_primitive(self):
         return False
 
-    def __init__(self, name=None):
+    def __init__(self):
         super(NESTTimeTypeSymbol, self).__init__(name='time')
 
     def print_symbol(self):

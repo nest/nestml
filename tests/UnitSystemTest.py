@@ -55,24 +55,24 @@ def get_first_declared_function(model):
 def print_rhs_of_first_assignment_in_update_block(model):
     assignment = get_first_statement_in_update_block(model).small_stmt.get_assignment()
     expression = assignment.get_expression()
-    return printer.printExpression(expression)
+    return printer.print_expression(expression)
 
 
 def print_first_function_call_in_update_block(model):
     function_call = get_first_statement_in_update_block(model).small_stmt.get_function_call()
-    return printer.printMethodCall(function_call)
+    return printer.print_method_call(function_call)
 
 
 def print_rhs_of_first_declaration_in_state_block(model):
     declaration = get_first_declaration_in_state_block(model)
     expression = declaration.get_expression()
-    return printer.printExpression(expression)
+    return printer.print_expression(expression)
 
 
 def print_first_return_statement_in_first_declared_function(model):
     func = get_first_declared_function(model)
     return_expression = func.get_block().get_stmts()[0].small_stmt.get_return_stmt().get_expression()
-    return printer.printExpression(return_expression)
+    return printer.print_expression(return_expression)
 
 
 class UnitSystemTest(unittest.TestCase):

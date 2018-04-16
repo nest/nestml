@@ -5,10 +5,10 @@
   @result C++ function
 #}
 
-{%- if variable.is_function() and not variable.contains_sum_call() %}
+{%- if variable.is_function and not utils.contains_sum_call(variable) %}
   inline {{declarations.printVariableType(variable)}} {{names.getter(variable)}}() const {
     {%- set simpleExpression = odeTransformer.replace_sum_calls(variable.get_declaring_expression()) %}
-    return {{printer.printExpression(simpleExpression)}};
+    return {{printer.print_expression(simpleExpression)}};
   }
 {% else %}
   inline {{declarations.printVariableType(variable)}} {{names.getter(variable)}}() const {

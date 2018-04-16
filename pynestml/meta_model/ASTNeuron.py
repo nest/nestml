@@ -266,8 +266,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and (symbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE or
-                                                       symbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT):
+            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
+                                                       symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
@@ -304,8 +304,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.PARAMETERS and \
-                    not symbol.is_predefined():
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.PARAMETERS and \
+                    not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -318,8 +318,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.INITIAL_VALUES and \
-                    not symbol.is_predefined():
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INITIAL_VALUES and \
+                    not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -332,8 +332,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.STATE and \
-                    not symbol.is_predefined():
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.STATE and \
+                    not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -347,8 +347,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.INTERNALS and \
-                    not symbol.is_predefined():
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INTERNALS and \
+                    not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -363,7 +363,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol,
-                          VariableSymbol) and symbol.get_block_type() == BlockType.EQUATION and symbol.is_function():
+                          VariableSymbol) and symbol.block_type == BlockType.EQUATION and symbol.is_function:
                 ret.append(symbol)
         return ret
 
@@ -438,7 +438,7 @@ class ASTNeuron(ASTNode):
         """
         ret = list()
         for param in self.get_parameter_symbols():
-            if not param.is_function() and not param.is_predefined():
+            if not param.is_function and not param.is_predefined:
                 ret.append(param)
         return ret
 
@@ -450,7 +450,7 @@ class ASTNeuron(ASTNode):
         """
         ret = list()
         for param in self.get_state_symbols():
-            if not param.is_function() and not param.is_predefined():
+            if not param.is_function and not param.is_predefined:
                 ret.append(param)
         return ret
 
@@ -462,7 +462,7 @@ class ASTNeuron(ASTNode):
         """
         ret = list()
         for param in self.get_internal_symbols():
-            if not param.is_function() and not param.is_predefined():
+            if not param.is_function and not param.is_predefined:
                 ret.append(param)
 
         return ret
@@ -477,8 +477,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.get_block_type() == BlockType.INITIAL_VALUES and \
-                    not symbol.is_predefined():
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INITIAL_VALUES and \
+                    not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -490,7 +490,7 @@ class ASTNeuron(ASTNode):
         """
         ret = list()
         for symbol in self.getInitialValuesSymbols():
-            if symbol.is_function():
+            if symbol.is_function:
                 ret.append(symbol)
         return ret
 
@@ -502,7 +502,7 @@ class ASTNeuron(ASTNode):
         """
         ret = list()
         for symbol in self.getInitialValuesSymbols():
-            if not symbol.is_function():
+            if not symbol.is_function:
                 ret.append(symbol)
         return ret
 
@@ -518,8 +518,8 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and \
-                    symbol.get_block_type() == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
-                    and not symbol.is_predefined() and not symbol.is_predefined():
+                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -534,8 +534,8 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and \
-                    symbol.get_block_type() == BlockType.STATE and not symbol.is_ode_defined() \
-                    and not symbol.is_predefined() and not symbol.is_predefined():
+                    symbol.block_type == BlockType.STATE and not symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 

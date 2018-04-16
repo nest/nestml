@@ -27,7 +27,7 @@ class GSLNamesConverter(object):
     """
 
     @classmethod
-    def arrayIndex(cls, _symbol=None):
+    def array_index(cls, _symbol=None):
         """
         Transforms the haded over symbol to a GSL processable format.
         :param _symbol: a single variable symbol
@@ -52,7 +52,7 @@ class GSLNamesConverter(object):
         assert (_symbol is not None and isinstance(_symbol, VariableSymbol)), \
             '(PyNestML.CodeGeneration.GSLNamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
                 _symbol)
-        if _symbol.is_init_values() and not _symbol.is_function():
+        if _symbol.is_init_values() and not _symbol.is_function:
             return 'ode_state[State_::' + NestNamesConverter.convertToCPPName(_symbol.get_symbol_name()) + ']'
         else:
             return NestNamesConverter.name(_symbol)

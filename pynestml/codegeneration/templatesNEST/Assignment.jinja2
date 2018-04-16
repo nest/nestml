@@ -12,8 +12,8 @@ for (long i=0; i < P_.{{assignments.printSizeParameter(ast)}}; i++) {
     {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}
   {%- endif -%}
   {{assignments.printAssignmentsOperation(ast)}}
-  {{printer.printExpression(ast.get_expression())}};
+  {{printer.print_expression(ast.get_expression())}};
 }
 {%- else -%}
-  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}} {{assignments.printAssignmentsOperation(ast)}} {{printer.printExpression(ast.get_expression())}};
+  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}} {{assignments.printAssignmentsOperation(ast)}} {{printer.print_expression(ast.get_expression())}};
 {%- endif -%}

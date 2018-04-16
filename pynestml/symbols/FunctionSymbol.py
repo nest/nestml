@@ -66,9 +66,12 @@ class FunctionSymbol(Symbol):
                     self.param_types) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
         ret += '}, return type = ' + (self.get_return_type().print_symbol())
-        ret += (', @' + (str(
-            (
-            self.get_referenced_object().get_source_position()) if self.get_referenced_object() is not None else 'predefined') + ']'))
+        ret += ', @['
+        if self.get_referenced_object() is not None:
+            ret += str(self.get_referenced_object().get_source_position())
+        else:
+            ret += 'predefined'
+        ret += ']'
         return ret
 
     def get_return_type(self):
@@ -102,14 +105,6 @@ class FunctionSymbol(Symbol):
         :type new_type: TypeSymbol
         """
         self.param_types.append(new_type)
-
-    def isPredefined(self):
-        """
-        Returns whether it is a predefined function or not.
-        :return: True if predefined, otherwise False
-        :rtype: bool
-        """
-        return self.is_predefined
 
     def equals(self, _other=None):
         """

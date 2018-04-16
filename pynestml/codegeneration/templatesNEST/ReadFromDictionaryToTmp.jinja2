@@ -3,10 +3,10 @@
   @param variable VariableSymbol
   @result C++ Block
 #}
-{% if not variable.is_function() and not variable.is_init_values()%}
+{% if not variable.is_function and not variable.is_init_values()%}
   {{declarations.printVariableType(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
   updateValue<{{declarations.printVariableType(variable)}}>(__d, "{{names.name(variable)}}", tmp_{{names.name(variable)}});
-{% elif not variable.is_function() and variable.is_init_values() %}
+{% elif not variable.is_function and variable.is_init_values() %}
   {{declarations.printVariableType(variable)}} tmp_{{names.convertToCPPName(variable.get_symbol_name())}} = {{names.getter(variable)}}();
   updateValue<{{declarations.printVariableType(variable)}}>(__d, "{{variable.get_symbol_name()}}", tmp_{{names.convertToCPPName(variable.get_symbol_name())}});
 {% else -%}

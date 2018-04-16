@@ -22,17 +22,17 @@ import copy
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.visitors.ASTVisitor import ASTVisitor
 
-"""
-Updates the hierarchy of expressions by merging implicitVersions from sub-expressions into the implicitVersions of their parent
-"""
-
 
 class ImplicitVersionPropagator(ASTVisitor):
+    """
+    Updates the hierarchy of expressions by merging implicitVersions from sub-expressions into the implicitVersions
+    of their parent
+    """
+
     # TODO: this class is currently not used, but under construction
 
-
     @classmethod
-    def propagateImplicitVersions(cls, node):
+    def propagate_implicit_versions(cls, node):
         instance = ImplicitVersionPropagator()
         node.accept(instance)
         return

@@ -182,9 +182,9 @@ class NestCodeGenerator(object):
         namespace['neuron'] = _neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         # helper classes and objects
-        converter = NESTReferenceConverter(_usesGSL=False)
-        legacy_pretty_printer = LegacyExpressionPrinter(_referenceConverter=converter)
-        namespace['printer'] = NestPrinter(_expressionPrettyPrinter=legacy_pretty_printer)
+        converter = NESTReferenceConverter(uses_gsl=False)
+        legacy_pretty_printer = LegacyExpressionPrinter(reference_converter=converter)
+        namespace['printer'] = NestPrinter(expression_pretty_printer=legacy_pretty_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
@@ -199,7 +199,7 @@ class NestCodeGenerator(object):
         self.defineSolverType(namespace, _neuron)
         # GSL stuff
         gsl_converter = GSLReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(_referenceConverter=gsl_converter)
+        gsl_printer = LegacyExpressionPrinter(reference_converter=gsl_converter)
         namespace['printerGSL'] = gsl_printer
         return namespace
 
@@ -220,9 +220,9 @@ class NestCodeGenerator(object):
                     len(_neuron.get_equations_blocks().get_ode_equations()) > 1:
                 _namespace['names'] = GSLNamesConverter()
                 _namespace['useGSL'] = True
-                converter = NESTReferenceConverter(_usesGSL=True)
-                legacy_pretty_printer = LegacyExpressionPrinter(_referenceConverter=converter)
-                _namespace['printer'] = NestPrinter(_expressionPrettyPrinter=legacy_pretty_printer)
+                converter = NESTReferenceConverter(uses_gsl=True)
+                legacy_pretty_printer = LegacyExpressionPrinter(reference_converter=converter)
+                _namespace['printer'] = NestPrinter(expression_pretty_printer=legacy_pretty_printer)
         return
 
     @classmethod

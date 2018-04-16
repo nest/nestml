@@ -44,7 +44,7 @@ class ASTDeclaration(ASTNode):
             ('[[' invariant=rhs ']]')?;
     """
     __isRecordable = False
-    __isFunction = False
+    is_function = False
     __variables = None
     __dataType = None
     __sizeParameter = None
@@ -74,7 +74,7 @@ class ASTDeclaration(ASTNode):
         """
         super(ASTDeclaration, self).__init__(source_position)
         self.__isRecordable = is_recordable
-        self.__isFunction = is_function
+        self.is_function = is_function
         self.__variables = _variables
         self.__dataType = data_type
         self.__sizeParameter = size_parameter
@@ -89,14 +89,6 @@ class ASTDeclaration(ASTNode):
         :rtype: bool
         """
         return isinstance(self.__isRecordable, bool) and self.__isRecordable
-
-    def is_function(self):
-        """
-        Returns whether the declaration is a function or not.
-        :return: True if function, else False.
-        :rtype: bool
-        """
-        return isinstance(self.__isFunction, bool) and self.__isFunction
 
     def get_variables(self):
         """

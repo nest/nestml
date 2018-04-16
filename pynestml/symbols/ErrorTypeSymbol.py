@@ -24,14 +24,13 @@ from pynestml.symbols.TypeSymbol import TypeSymbol
 class ErrorTypeSymbol(TypeSymbol):
     """
     Originally intended to only be a 'Null type' for the TypeSymbol hierarchy,
-    it is now also a device to communicate errors and warnings back to a place where they can
-    be properly logged (we cant do that here because we dont know t
-    he sourceposition)
+    it is now also a device to communicate errors and warnings back to a place where they can be properly logged
+    (we cant do that here because we don't know t he source-position).
     Thought about using Exceptions but that would lead to loads of code duplication in the
     visitors responsible for expression typing.
     In the end a little bit of ugliness here saves us a lot throughout the project -ptraeder
 
-    p.s. could possibly resolve this by associating typesymbol objects with expressions they belong to.
+    p.s. could possibly resolve this by associating type-symbol objects with expressions they belong to.
     The field for that is already present from Symbol and we already instantiate types for every expression
     anyways
     """

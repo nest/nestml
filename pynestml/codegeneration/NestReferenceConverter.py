@@ -17,12 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.meta_model.ASTVariable import ASTVariable
+
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.UnitConverter import UnitConverter
+from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.meta_model.ASTBitOperator import ASTBitOperator
+from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.meta_model.ASTVariable import ASTVariable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
@@ -37,58 +43,48 @@ class NESTReferenceConverter(IReferenceConverter):
     This concrete reference converter is used to transfer internal names to counter-pieces in NEST.
     """
 
-    __usesGSL = False
+    uses_gsl = False
 
-    def __init__(self, _usesGSL=False):
+    def __init__(self, uses_gsl=False):
         """
         Standard constructor.
-        :param _usesGSL: indicates whether GSL is used.
-        :type _usesGSL: bool
+        :param uses_gsl: indicates whether GSL is used.
+        :type uses_gsl: bool
         """
-        assert (_usesGSL is not None and isinstance(_usesGSL, bool)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
-                _usesGSL)
-        self.__usesGSL = _usesGSL
+        self.uses_gsl = uses_gsl
         return
 
     @classmethod
-    def convertBinaryOp(cls, _binaryOperator):
+    def convertBinaryOp(cls, binary_operator):
         """
         Converts a single binary operator to nest processable format.
-        :param _binaryOperator: a single binary operator string.
-        :type _binaryOperator: AST_
+        :param binary_operator: a single binary operator string.
+        :type binary_operator: AST_
         :return: the corresponding nest representation
         :rtype: str
         """
-        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.meta_model.ASTBitOperator import ASTBitOperator
-        from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
-        from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
-        if isinstance(_binaryOperator, ASTArithmeticOperator):
-            return cls.convertArithmeticOperator(_binaryOperator)
-        if isinstance(_binaryOperator, ASTBitOperator):
-            return cls.convertBitOperator(_binaryOperator)
-        if isinstance(_binaryOperator, ASTComparisonOperator):
-            return cls.convertComparisonOperator(_binaryOperator)
-        if isinstance(_binaryOperator, ASTLogicalOperator):
-            return cls.convertLogicalOperator(_binaryOperator)
+        if isinstance(binary_operator, ASTArithmeticOperator):
+            return cls.convertArithmeticOperator(binary_operator)
+        if isinstance(binary_operator, ASTBitOperator):
+            return cls.convertBitOperator(binary_operator)
+        if isinstance(binary_operator, ASTComparisonOperator):
+            return cls.convertComparisonOperator(binary_operator)
+        if isinstance(binary_operator, ASTLogicalOperator):
+            return cls.convertLogicalOperator(binary_operator)
         else:
             Logger.log_message('Cannot determine binary operator!', LoggingLevel.ERROR)
             return '(%s) ERROR (%s)'
 
     @classmethod
-    def convertFunctionCall(cls, _astFunctionCall):
+    def convertFunctionCall(cls, function_call):
         """
         Converts a single handed over function call to nest processable format.
-        :param _astFunctionCall: a single function call
-        :type _astFunctionCall:  ASTFunctionCall
+        :param function_call: a single function call
+        :type function_call:  ASTFunctionCall
         :return: a string representation
         :rtype: str
         """
-        assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
-                _astFunctionCall)
-        function_name = _astFunctionCall.get_name()
+        function_name = function_call.get_name()
         if function_name == 'and':
             return '&&'
         elif function_name == 'or':
@@ -113,37 +109,37 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-        elif ASTUtils.needs_arguments(_astFunctionCall):
+        elif ASTUtils.needs_arguments(function_call):
             return function_name + '(%s)'
         else:
             return function_name + '()'
 
-    def convertNameReference(self, _astVariable):
+    def convertNameReference(self, variable):
         """
         Converts a single variable to nest processable format.
-        :param _astVariable: a single variable.
-        :type _astVariable: ASTVariable
+        :param variable: a single variable.
+        :type variable: ASTVariable
         :return: a nest processable format.
         :rtype: str
         """
         from pynestml.codegeneration.NestPrinter import NestPrinter
-        assert (_astVariable is not None and isinstance(_astVariable, ASTVariable)), \
+        assert (variable is not None and isinstance(variable, ASTVariable)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
-                _astVariable)
-        variable_name = NestNamesConverter.convertToCPPName(_astVariable.get_complete_name())
+                variable)
+        variable_name = NestNamesConverter.convertToCPPName(variable.get_complete_name())
 
-        if PredefinedUnits.is_unit(_astVariable.get_complete_name()):
+        if PredefinedUnits.is_unit(variable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.get_unit(_astVariable.get_complete_name()).get_unit()))
+                UnitConverter.getFactor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
-            symbol = _astVariable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+            symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
             if symbol is None:
                 # this should actually not happen, but an error message is better than an exception
                 code, message = Messages.get_could_not_resolve(variable_name)
                 Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                                   error_position=_astVariable.get_source_position())
+                                   error_position=variable.get_source_position())
                 return ''
             else:
                 if symbol.is_local():
@@ -152,51 +148,50 @@ class NESTReferenceConverter(IReferenceConverter):
                     return NestPrinter.printOrigin(symbol) + NestNamesConverter.bufferValue(symbol) \
                            + ('[i]' if symbol.has_vector_parameter() else '')
                 else:
-                    if symbol.is_function():
+                    if symbol.is_function:
                         return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
                     else:
                         if symbol.is_init_values():
-                            return NestPrinter.printOrigin(symbol) + \
-                                   (GSLNamesConverter.name(symbol)
-                                   if self.__usesGSL else NestNamesConverter.name(symbol)) + \
-                                   ('[i]' if symbol.has_vector_parameter() else '')
+                            temp = NestPrinter.printOrigin(symbol)
+                            if self.uses_gsl:
+                                temp += GSLNamesConverter.name(symbol)
+                            else:
+                                temp += NestNamesConverter.name(symbol)
+                            temp += ('[i]' if symbol.has_vector_parameter() else '')
+                            return temp
                         else:
                             return NestPrinter.printOrigin(symbol) + \
                                    NestNamesConverter.name(symbol) + \
                                    ('[i]' if symbol.has_vector_parameter() else '')
 
     @classmethod
-    def convertConstant(cls, _constantName):
+    def convertConstant(cls, constant_name):
         """
         Converts a single handed over constant.
-        :param _constantName: a constant as string.
-        :type _constantName: str
+        :param constant_name: a constant as string.
+        :type constant_name: str
         :return: the corresponding nest representation
         :rtype: str
         """
-        if _constantName == 'inf':
+        if constant_name == 'inf':
             return 'std::numeric_limits<double_t>::infinity()'
         else:
-            return _constantName
+            return constant_name
 
     @classmethod
-    def convertUnaryOp(cls, _unaryOperator):
+    def convertUnaryOp(cls, unary_operator):
         """
         Depending on the concretely used operator, a string is returned.
-        :param _unaryOperator: a single operator.
-        :type _unaryOperator:  str
+        :param unary_operator: a single operator.
+        :type unary_operator:  ASTUnaryOperator
         :return: the same operator
         :rtype: str
         """
-        from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
-        assert (_unaryOperator is not None and isinstance(_unaryOperator, ASTUnaryOperator)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of unary operator provided (%s)!' \
-            % type(_unaryOperator)
-        if _unaryOperator.isUnaryPlus():
+        if unary_operator.isUnaryPlus():
             return '(' + '+' + '%s' + ')'
-        elif _unaryOperator.isUnaryMinus():
+        elif unary_operator.isUnaryMinus():
             return '(' + '-' + '%s' + ')'
-        elif _unaryOperator.isUnaryTilde():
+        elif unary_operator.isUnaryTilde():
             return '(' + '~' + '%s' + ')'
         else:
             Logger.log_message('Cannot determine unary operator!', LoggingLevel.ERROR)
@@ -229,10 +224,6 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
-        assert (_op is not None and isinstance(_op, ASTLogicalOperator)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
-            % type(_op)
         if _op.is_and():
             return '%s' + '&&' + '%s'
         elif _op.is_or():
@@ -246,14 +237,10 @@ class NESTReferenceConverter(IReferenceConverter):
         """
         Prints a logical operator in NEST syntax.
         :param _op: a logical operator object
-        :type _op: ASTLogicalOperator
+        :type _op: ASTComparisonOperator
         :return: a string representation
         :rtype: str
         """
-        from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
-        assert (_op is not None and isinstance(_op, ASTComparisonOperator)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
-            % type(_op)
         if _op.isLt():
             return '%s' + '<' + '%s'
         elif _op.isLe():
@@ -275,14 +262,10 @@ class NESTReferenceConverter(IReferenceConverter):
         """
         Prints a logical operator in NEST syntax.
         :param _op: a logical operator object
-        :type _op: ASTLogicalOperator
+        :type _op: ASTBitOperator
         :return: a string representation
         :rtype: str
         """
-        from pynestml.meta_model.ASTBitOperator import ASTBitOperator
-        assert (_op is not None and isinstance(_op, ASTBitOperator)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of bit operator provided (%s)!' \
-            % type(_op)
         if _op.isBitShiftLeft():
             return '%s' + '<<' '%s'
         if _op.isBitShiftRight():
@@ -302,14 +285,10 @@ class NESTReferenceConverter(IReferenceConverter):
         """
         Prints a logical operator in NEST syntax.
         :param _op: a logical operator object
-        :type _op: ASTLogicalOperator
+        :type _op: ASTArithmeticOperator
         :return: a string representation
         :rtype: str
         """
-        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
-        assert (_op is not None and isinstance(_op, ASTArithmeticOperator)), \
-            '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of arithmetic operator provided (%s)!' \
-            % type(_op)
         if _op.is_plus_op:
             return '%s' + '+' + '%s'
         if _op.is_minus_op:

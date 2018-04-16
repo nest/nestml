@@ -7,7 +7,7 @@
 for (long i=0; i < get_{{variable.get_vector_parameter()}}(); i++) {
   {{printer.printOrigin(variable)}} {{variable.get_symbol_name()}}[i] =
     {% if variable.has_declaring_expression() -%}
-    {{printer.printExpression(variable.get_declaring_expression())}}
+    {{printer.print_expression(variable.get_declaring_expression())}}
     {% else -%}
     0
     {% endif -%}
@@ -16,7 +16,7 @@ for (long i=0; i < get_{{variable.get_vector_parameter()}}(); i++) {
 {%- else -%}
 {{printer.printOrigin(variable)}} {{variable.get_symbol_name()}} =
   {%- if variable.has_declaring_expression() -%}
-  {{printer.printExpression(variable.get_declaring_expression())}}
+  {{printer.print_expression(variable.get_declaring_expression())}}
   {%- else -%}
   0
   {%- endif %};

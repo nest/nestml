@@ -70,22 +70,7 @@ class TypeSymbol(Symbol):
         :return: a string representation.
         :rtype: str
         """
-        raise RuntimeError('This should not happen!')
-        if self.isInteger():
-            elemType = 'integer'
-        elif self.isReal():
-            elemType = 'real'
-        elif self.isVoid():
-            elemType = 'void'
-        elif self.isBoolean():
-            elemType = 'boolean'
-        elif self.isString():
-            elemType = 'string'
-        else:
-            elemType = self.getUnit().printUnit()
-        if self.is_buffer:
-            elemType += ' buffer'
-        return elemType
+        pass
 
     @abstractmethod
     def is_primitive(self):
@@ -162,7 +147,7 @@ class TypeSymbol(Symbol):
         """
         return self.is_numeric() and self.is_primitive()
 
-    def equals(self, other=None):
+    def equals(self, other):
         """
         Checks if the handed over type symbol object is equal to this (value-wise).
         :param other: a type symbol object.
@@ -229,14 +214,15 @@ class TypeSymbol(Symbol):
                            log_level=LoggingLevel.ERROR)
         return result
 
-    def inverse_of_unit(self, _other):
+    @classmethod
+    def inverse_of_unit(cls, other):
         """
         :param other: the unit to invert
         :type other: UnitTypeSymbol
         :return: UnitTypeSymbol
         """
         from pynestml.symbols.PredefinedTypes import PredefinedTypes
-        result = PredefinedTypes.get_type(1 / _other.astropy_unit)
+        result = PredefinedTypes.get_type(1 / other.astropy_unit)
         return result
 
     def warn_implicit_cast_from_to(self, _from, _to):

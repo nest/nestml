@@ -108,7 +108,7 @@ class OdeAnalyzer(object):
             tmp = input_ode_block.shapes[0].split('=')
             shape_name = str(tmp[0])
             shape_expr = parse_expr(tmp[1].strip())
-            if shape_expr.is_Function and str(shape_expr.func).startswith("delta"):
+            if shape_expr.is_function and str(shape_expr.func).startswith("delta"):
                 # extract the name of the ODE and its defining rhs
                 ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
                 ode_var = ode_definition[0].replace("'", "").strip()

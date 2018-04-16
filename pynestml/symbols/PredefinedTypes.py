@@ -144,6 +144,8 @@ class PredefinedTypes(object):
         :return: a copy of a TypeSymbol
         :rtype: copy(TypeSymbol)
         """
+        # todo by kp: we now have two times getType? (cf. get_types)
+        raise RuntimeError('No longer used, remove me!!!')
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
         typ_e = cls.get_type(_name)

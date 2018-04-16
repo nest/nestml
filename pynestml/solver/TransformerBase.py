@@ -192,7 +192,7 @@ class TransformerBase(object):
                     if re.match(shape + "[\']*", variable.get_complete_name()) or re.match(shape + '__[\\d]+$',
                                                                                            variable.get_complete_name()):
                         assignment = ModelParser.parse_assignment(
-                            variable.get_complete_name() + " += " + buffer + " * " + printer.printExpression(
+                            variable.get_complete_name() + " += " + buffer + " * " + printer.print_expression(
                                 astDeclaration.get_expression()))
                         spikes_updates.append(assignment)
         for update in spikes_updates:

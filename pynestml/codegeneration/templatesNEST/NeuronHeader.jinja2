@@ -576,8 +576,8 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endwith %}
   {%- endfor %}
   {%- for invariant in neuron.getParameterInvariants() %}
-  if ( !({{printer.printExpression(invariant)}}) ) {
-    throw nest::BadProperty("The constraint '{{idemPrinter.printExpression(invariant)}}' is violated!");
+  if ( !({{printer.print_expression(invariant)}}) ) {
+    throw nest::BadProperty("The constraint '{{idemPrinter.print_expression(invariant)}}' is violated!");
   }
   {%- endfor -%}
 

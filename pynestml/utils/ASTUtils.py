@@ -206,7 +206,7 @@ class ASTUtils(object):
         for var in res:
             if '\'' not in var.get_complete_name():
                 symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-                if symbol.is_function():
+                if symbol.is_function:
                     ret.append(symbol)
         return ret
 
@@ -408,3 +408,20 @@ class ASTUtils(object):
                                                 ASTSourcePosition.get_added_source_position())
             neuron.get_body().get_body_elements().append(initial_values)
         return neuron
+
+    @classmethod
+    def contains_sum_call(cls, variable):
+        """
+        Indicates whether the declaring rhs of this variable symbol has a x_sum or convolve in it.
+        :return: True if contained, otherwise False.
+        :rtype: bool
+        """
+        if not variable.get_declaring_expression():
+            return False
+        else:
+            for func in variable.get_declaring_expression().get_function_calls():
+                if func.get_name() == PredefinedFunctions.CONVOLVE or \
+                        func.get_name() == PredefinedFunctions.CURR_SUM or \
+                        func.get_name() == PredefinedFunctions.COND_SUM:
+                    return True
+        return False

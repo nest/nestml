@@ -68,11 +68,11 @@ class CoCoAllVariablesDefined(CoCo):
                     continue
 
                 # now check if it has been defined before usage, except for buffers, those are special cases
-                elif (not symbol.is_predefined() and symbol.get_block_type() != BlockType.INPUT_BUFFER_CURRENT and
-                      symbol.get_block_type() != BlockType.INPUT_BUFFER_SPIKE):
+                elif (not symbol.is_predefined and symbol.block_type != BlockType.INPUT_BUFFER_CURRENT and
+                      symbol.block_type != BlockType.INPUT_BUFFER_SPIKE):
                     # except for parameters, those can be defined after
                     if (not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and
-                            symbol.get_block_type() != BlockType.PARAMETERS):
+                            symbol.block_type != BlockType.PARAMETERS):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(neuron=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)

@@ -48,8 +48,8 @@ class CoCoBufferNotAssigned(CoCo):
 class NoBufferAssignedVisitor(ASTVisitor):
     def visit_assignment(self, node):
         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-        if symbol is not None and (symbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE or
-                                   symbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT):
+        if symbol is not None and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
+                                   symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
             code, message = Messages.get_value_assigned_to_buffer(node.get_variable().get_complete_name())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_source_position(),

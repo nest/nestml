@@ -64,7 +64,7 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'node.B_.' + NestNamesConverter.bufferValue(symbol)
         elif variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
-        elif symbol.is_local() or symbol.is_function():
+        elif symbol.is_local() or symbol.is_function:
             return variable_name
         elif symbol.has_vector_parameter():
             return 'node.get_' + variable_name + '()[i]'

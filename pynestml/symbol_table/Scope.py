@@ -60,9 +60,10 @@ class Scope(object):
         """
         self.declared_elements.append(symbol)
 
-    def updateVariableSymbol(self, _symbol):
+    def update_variable_symbol(self, _symbol):
         for symbol in self.declared_elements:
-            if symbol.get_symbol_kind() == SymbolKind.VARIABLE and symbol.get_symbol_name() == _symbol.get_symbol_name():
+            if (symbol.get_symbol_kind() == SymbolKind.VARIABLE
+                    and symbol.get_symbol_name() == _symbol.get_symbol_name()):
                 self.declared_elements.remove(symbol)
                 self.add_symbol(_symbol)
                 break
@@ -342,8 +343,8 @@ class Scope(object):
         :return: a string representation of the scope and its sub-scope.
         :rtype: str
         """
-        ret = ('-' * 2 * (self.get_depth_of_scope())) + '<' + self.get_scope_type().name \
-              + ',' + str(self.get_source_position()) + '>' + '\n'
+        ret = ('-' * 2 * (self.get_depth_of_scope()))
+        ret += '<' + self.get_scope_type().name + ',' + str(self.get_source_position()) + '>' + '\n'
         for elem in self.declared_elements:
             if isinstance(elem, Symbol):
                 ret += ('-' * 2 * (self.get_depth_of_scope() + 1)) + elem.print_symbol() + '\n'

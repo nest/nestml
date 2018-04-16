@@ -273,7 +273,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                     name=var.get_complete_name(),
                                     block_type=self.block_type_stack.top(),
                                     declaring_expression=expression, is_predefined=False,
-                                    is_function=node.is_function(),
+                                    is_function=node.is_function,
                                     is_recordable=is_recordable,
                                     type_symbol=type_symbol,
                                     initial_value=init_value,
@@ -714,7 +714,7 @@ def add_ode_shape_to_variable(ode_shape):
     if existing_symbol is not None:
         existing_symbol.set_ode_definition(ode_shape.get_expression())
         existing_symbol.set_variable_type(VariableType.SHAPE)
-        ode_shape.get_scope().updateVariableSymbol(existing_symbol)
+        ode_shape.get_scope().update_variable_symbol(existing_symbol)
         code, message = Messages.get_ode_updated(ode_shape.get_variable().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)

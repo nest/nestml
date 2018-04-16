@@ -6,5 +6,5 @@
 {%- if utils.is_integrate(ast) -%}
 {%- include "GSLIntegrator.jinja2" -%}
 {%- else -%}
-{{printer.printMethodCall(ast)}};
+{{printer.print_method_call(ast)}};
 {%- endif -%}

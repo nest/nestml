@@ -153,12 +153,12 @@ class UnitTypeSymbol(TypeSymbol):
     # TODO: change order of parameters to conform with the from_to scheme.
     # TODO: Also rename to reflect that, i.e. get_conversion_factor_from_to
     @classmethod
-    def get_conversion_factor(cls, _to, _from):
+    def get_conversion_factor(cls, to, _from):
         """
-        Calculates the conversion factor from _convertee_unit to _targe_unit.
+        Calculates the conversion factor from _convertee_unit to target_unit.
         Behaviour is only well-defined if both units have the same physical base type
         """
-        factor = (_from / _to).si.scale
+        factor = (_from / to).si.scale
         return factor
 
     def is_castable_to(self, _other_type):

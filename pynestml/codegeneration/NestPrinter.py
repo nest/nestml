@@ -35,34 +35,34 @@ class NestPrinter(object):
     """
     This class contains all methods as required to transform
     """
-    __expressionPrettyPrinter = None
+    expression_pretty_printer = None
 
-    def __init__(self, _expressionPrettyPrinter, _referenceConvert=None):
+    def __init__(self, expression_pretty_printer, reference_convert=None):
         """
         The standard constructor.
-        :param _referenceConvert: a single reference converter
-        :type _referenceConvert:  IReferenceConverter
+        :param reference_convert: a single reference converter
+        :type reference_convert:  IReferenceConverter
         """
-        if _expressionPrettyPrinter is not None:
-            self.__expressionPrettyPrinter = _expressionPrettyPrinter
+        if expression_pretty_printer is not None:
+            self.expression_pretty_printer = expression_pretty_printer
         else:
-            self.__expressionPrettyPrinter = ExpressionsPrettyPrinter(_referenceConvert)
+            self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
         return
 
-    def printExpression(self, _ast=None):
+    def print_expression(self, node):
         """
         Pretty
         Prints the handed over rhs to a nest readable format.
-        :param _ast: a single meta_model node.
-        :type _ast: ASTExpression or ASTSimpleExpression
+        :param node: a single meta_model node.
+        :type node: ASTExpression or ASTSimpleExpression
         :return: the corresponding string representation
         :rtype: str
         """
-        assert (_ast is not None and (isinstance(_ast, ASTSimpleExpression) or isinstance(_ast, ASTExpression))), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of rhs provided (%s)!' % type(_ast)
-        return self.__expressionPrettyPrinter.printExpression(_ast)
+        assert (node is not None and (isinstance(node, ASTSimpleExpression) or isinstance(node, ASTExpression))), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of rhs provided (%s)!' % type(node)
+        return self.expression_pretty_printer.print_expression(node)
 
-    def printMethodCall(self, _ast=None):
+    def print_method_call(self, _ast=None):
         """
         Prints a single handed over function call.
         :param _ast: a single function call.
@@ -72,19 +72,17 @@ class NestPrinter(object):
         """
         assert (_ast is not None and isinstance(_ast, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function call provided (%s)!' % type(_ast)
-        return self.__expressionPrettyPrinter.printFunctionCall(_ast)
+        return self.expression_pretty_printer.print_function_call(_ast)
 
-    def printComparisonOperator(self, _forStmt=None):
+    def print_comparison_operator(self, for_stmt):
         """
         Prints a single handed over comparison operator for a for stmt to a Nest processable format.
-        :param _forStmt: a single for stmt
-        :type _forStmt: ASTForStmt
+        :param for_stmt: a single for stmt
+        :type for_stmt: ASTForStmt
         :return: a string representation
         :rtype: str
         """
-        assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
-        step = _forStmt.get_step()
+        step = for_stmt.get_step()
         if step < 0:
             return '>'
         elif step > 0:
@@ -116,19 +114,19 @@ class NestPrinter(object):
         assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 _variableSymbol)
-        if _variableSymbol.get_block_type() == BlockType.STATE:
+        if _variableSymbol.block_type == BlockType.STATE:
             return 'S_.'
-        elif _variableSymbol.get_block_type() == BlockType.INITIAL_VALUES:
+        elif _variableSymbol.block_type == BlockType.INITIAL_VALUES:
             return 'S_.'
-        elif _variableSymbol.get_block_type() == BlockType.EQUATION:
+        elif _variableSymbol.block_type == BlockType.EQUATION:
             return 'S_.'
-        elif _variableSymbol.get_block_type() == BlockType.PARAMETERS:
+        elif _variableSymbol.block_type == BlockType.PARAMETERS:
             return 'P_.'
-        elif _variableSymbol.get_block_type() == BlockType.INTERNALS:
+        elif _variableSymbol.block_type == BlockType.INTERNALS:
             return 'V_.'
-        elif _variableSymbol.get_block_type() == BlockType.INPUT_BUFFER_CURRENT:
+        elif _variableSymbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
             return 'B_.'
-        elif _variableSymbol.get_block_type() == BlockType.INPUT_BUFFER_SPIKE:
+        elif _variableSymbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
             return 'B_.'
         else:
             return ''

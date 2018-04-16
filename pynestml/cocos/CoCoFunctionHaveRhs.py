@@ -49,7 +49,7 @@ class FunctionRhsVisitor(ASTVisitor):
         :param node: a single declaration.
         :type node: ASTDeclaration.
         """
-        if node.is_function() and not node.has_expression():
+        if node.is_function and not node.has_expression():
             code, message = Messages.get_no_rhs(node.get_variables()[0].get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                code=code, message=message)

@@ -54,11 +54,11 @@ class CoCoVariableOncePerScope(CoCo):
                         sym1.get_symbol_kind() == sym2.get_symbol_kind() and
                         sym1.get_symbol_kind() == SymbolKind.VARIABLE and
                         sym2 not in checked):
-                    if sym1.is_predefined():
+                    if sym1.is_predefined:
                         code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
                         Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
                                            neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
-                    elif sym2.is_predefined():
+                    elif sym2.is_predefined:
                         code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
                         Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),
                                            neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)

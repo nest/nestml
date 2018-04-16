@@ -3,7 +3,7 @@
   @param: ast A single ast-return stmt object. ASTReturnStmt
 #}
 {% if ast.has_expression() %}
-return {{printer.printExpression(ast.get_expression())}};
+return {{printer.print_expression(ast.get_expression())}};
 {% else %}
 return ;
 {% endif %}

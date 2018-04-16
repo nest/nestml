@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
+from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 from pynestml.meta_model.ASTExpression import ASTExpression
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
-from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LoggingLevel, Logger
 
@@ -36,44 +36,41 @@ class ExpressionsPrettyPrinter(object):
     __referenceConverter = None
     __typesPrinter = None
 
-    def __init__(self, _referenceConverter=None, _typesPrinter=None):
+    def __init__(self, reference_converter=None, types_printer=None):
         """
         Standard constructor.
-        :param _referenceConverter: a single reference converter object.
-        :type _referenceConverter: IReferenceConverter
-        :param _typesPrinter: a types Printer
-        :type _typesPrinter: ITypesPrinter
+        :param reference_converter: a single reference converter object.
+        :type reference_converter: IReferenceConverter
+        :param types_printer: a types Printer
+        :type types_printer: ITypesPrinter
         """
-        assert (_referenceConverter is None or isinstance(_referenceConverter, IReferenceConverter)), \
+        assert (reference_converter is None or isinstance(reference_converter, IReferenceConverter)), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of reference converter provided (%s)!'
-        assert (_referenceConverter is None or isinstance(_referenceConverter, IReferenceConverter)), \
+        assert (reference_converter is None or isinstance(reference_converter, IReferenceConverter)), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of reference converter provided (%s)!'
-        if _referenceConverter is not None:
-            self.__referenceConverter = _referenceConverter
+        if reference_converter is not None:
+            self.__referenceConverter = reference_converter
         else:
             self.__referenceConverter = IdempotentReferenceConverter()
-        if _typesPrinter is not None:
-            self.__typesPrinter = _typesPrinter
+        if types_printer is not None:
+            self.__typesPrinter = types_printer
         else:
             self.__typesPrinter = TypesPrinter()
 
-    def printExpression(self, _expr=None):
+    def print_expression(self, expr):
         """
         Prints a single rhs.
-        :param _expr: a single rhs.
-        :type _expr: ASTExpression or ASTSimpleExpression.
+        :param expr: a single rhs.
+        :type expr: ASTExpression or ASTSimpleExpression.
         :return: string representation of the rhs
         :rtype: str
         """
-        assert (_expr is not None and (isinstance(_expr, ASTSimpleExpression) or isinstance(_expr, ASTExpression))), \
-            '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of rhs provided (%s)!' % type(
-                _expr)
-        if _expr.getImplicitConversionFactor() is not None:
-            return str(_expr.getImplicitConversionFactor()) + ' * (' + self.__doPrint(_expr) + ')'
+        if expr.getImplicitConversionFactor() is not None:
+            return str(expr.getImplicitConversionFactor()) + ' * (' + self.__do_print(expr) + ')'
         else:
-            return self.__doPrint(_expr)
+            return self.__do_print(expr)
 
-    def __doPrint(self, _expr=None):
+    def __do_print(self, _expr=None):
         """
         Prints a single rhs.
         :param _expr: a single rhs.
@@ -83,84 +80,81 @@ class ExpressionsPrettyPrinter(object):
         """
         if isinstance(_expr, ASTSimpleExpression):
             if _expr.has_unit():
-                #todo by kp: this should not be done in the typesPrinter, obsolete
-                return self.__typesPrinter.prettyPrint(_expr.get_numeric_literal()) + '*' + \
+                # todo by kp: this should not be done in the typesPrinter, obsolete
+                return self.__typesPrinter.pretty_print(_expr.get_numeric_literal()) + '*' + \
                        self.__referenceConverter.convertNameReference(_expr.get_variable())
             elif _expr.is_numeric_literal():
                 return str(_expr.get_numeric_literal())
             elif _expr.is_inf_literal():
                 return self.__referenceConverter.convertConstant('inf')
             elif _expr.is_string():
-                return self.__typesPrinter.prettyPrint(_expr.get_string())
+                return self.__typesPrinter.pretty_print(_expr.get_string())
             elif _expr.is_boolean_true():
-                return self.__typesPrinter.prettyPrint(True)
+                return self.__typesPrinter.pretty_print(True)
             elif _expr.is_boolean_false():
-                return self.__typesPrinter.prettyPrint(False)
+                return self.__typesPrinter.pretty_print(False)
             elif _expr.is_variable():
                 return self.__referenceConverter.convertNameReference(_expr.get_variable())
             elif _expr.is_function_call():
-                return self.printFunctionCall(_expr.get_function_call())
+                return self.print_function_call(_expr.get_function_call())
         elif isinstance(_expr, ASTExpression):
             # a unary operator
             if _expr.is_unary_operator():
                 op = self.__referenceConverter.convertUnaryOp(_expr.get_unary_operator())
-                rhs = self.printExpression(_expr.get_expression())
+                rhs = self.print_expression(_expr.get_expression())
                 return op % rhs
             # encapsulated in brackets
             elif _expr.is_encapsulated:
-                return self.__referenceConverter.convertEncapsulated() % self.printExpression(_expr.get_expression())
+                return self.__referenceConverter.convertEncapsulated() % self.print_expression(_expr.get_expression())
             # logical not
             elif _expr.is_logical_not:
                 op = self.__referenceConverter.convertLogicalNot()
-                rhs = self.printExpression(_expr.get_expression())
+                rhs = self.print_expression(_expr.get_expression())
                 return op % rhs
             # compound rhs with lhs + rhs
             elif _expr.is_compound_expression():
-                lhs = self.printExpression(_expr.get_lhs())
+                lhs = self.print_expression(_expr.get_lhs())
                 op = self.__referenceConverter.convertBinaryOp(_expr.get_binary_operator())
-                rhs = self.printExpression(_expr.get_rhs())
+                rhs = self.print_expression(_expr.get_rhs())
                 return op % (lhs, rhs)
             elif _expr.is_ternary_operator():
-                condition = self.printExpression(_expr.get_condition())
-                ifTrue = self.printExpression(_expr.get_if_true())
-                ifNot = self.printExpression(_expr.if_not)
-                return self.__referenceConverter.convertTernaryOperator() % (condition, ifTrue, ifNot)
+                condition = self.print_expression(_expr.get_condition())
+                if_true = self.print_expression(_expr.get_if_true())
+                if_not = self.print_expression(_expr.if_not)
+                return self.__referenceConverter.convertTernaryOperator() % (condition, if_true, if_not)
         else:
             Logger.log_message('Unsupported rhs in rhs pretty printer!', LoggingLevel.ERROR)
             return ''
 
-    def printFunctionCall(self, _functionCall):
+    def print_function_call(self, function_call):
         """
         Prints a single function call.
-        :param _functionCall: a single function call.
-        :type _functionCall: ASTFunctionCall
+        :param function_call: a single function call.
+        :type function_call: ASTFunctionCall
         :return: a string representation
         :rtype: str
         """
-        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
+        assert (function_call is not None and isinstance(function_call, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of function call provided (%s)!' \
-            % type(_functionCall)
-        functionName = self.__referenceConverter.convertFunctionCall(_functionCall)
-        if ASTUtils.needs_arguments(_functionCall):
-            return functionName % self.printFunctionCallArguments(_functionCall)
+            % type(function_call)
+        function_name = self.__referenceConverter.convertFunctionCall(function_call)
+        if ASTUtils.needs_arguments(function_call):
+            return function_name % self.print_function_call_arguments(function_call)
         else:
-            return functionName
+            return function_name
 
-    def printFunctionCallArguments(self, _functionCall=None):
+    def print_function_call_arguments(self, function_call):
         """
         Prints the arguments of the handed over function call.
-        :param _functionCall: a single function call
-        :type _functionCall: ASTFunctionCall
+        :param function_call: a single function call
+        :type function_call: ASTFunctionCall
         :return: a string representation
         :rtype: str
         """
-        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of function call provided (%s)!' \
-            % type(_functionCall)
         ret = ''
-        for arg in _functionCall.get_args():
-            ret += self.printExpression(arg)
-            if _functionCall.get_args().index(arg) < len(_functionCall.get_args()) - 1:
+        for arg in function_call.get_args():
+            ret += self.print_expression(arg)
+            if function_call.get_args().index(arg) < len(function_call.get_args()) - 1:
                 ret += ', '
         return ret
 
@@ -170,7 +164,7 @@ class TypesPrinter(object):
     Returns a processable format of the handed over element.
     """
 
-    def prettyPrint(self, _element=None):
+    def pretty_print(self, _element=None):
         assert (_element is not None), \
             '(PyNestML.CodeGeneration.PrettyPrinter) No element provided (%s)!' % _element
         if isinstance(_element, bool) and _element:
