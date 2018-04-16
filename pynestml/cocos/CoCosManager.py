@@ -70,7 +70,7 @@ class CoCosManager(object):
     @classmethod
     def check_function_declared_and_correctly_typed(cls, neuron):
         """
-        Checks if in the handed over neuron all function calls use existing functions and the argumets are 
+        Checks if in the handed over neuron all function calls use existing functions and the arguments are
         correctly typed.
         :param neuron: a single neuron instance
         :type neuron: ASTNeuron

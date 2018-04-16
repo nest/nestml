@@ -24,4 +24,3 @@ class TypeDictionary(dict):
 
     def __getitem__(self, item):
         return copy(self.get(item))
-

@@ -77,12 +77,12 @@ class ASTPowerVisitor(ASTVisitor):
                 literal = expr.get_numeric_literal()
                 return Either.value(literal)
             else:
-                error_message = ErrorStrings.messageUnitBase(self, expr.get_source_position())
+                error_message = ErrorStrings.message_unit_base(self, expr.get_source_position())
                 return Either.error(error_message)
         elif expr.is_unary_operator() and expr.get_unary_operator().isUnaryMinus():
             term = self.calculate_numeric_value(expr.get_expression())
             if term.is_error():
                 return term
             return Either.value(-term.get_value())
-        error_message = ErrorStrings.messageNonConstantExponent(self, expr.get_source_position())
+        error_message = ErrorStrings.message_non_constant_exponent(self, expr.get_source_position())
         return Either.error(error_message)

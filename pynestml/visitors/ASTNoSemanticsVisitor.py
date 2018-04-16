@@ -40,7 +40,7 @@ class ASTNoSemanticsVisitor(ASTVisitor):
         :param node: a single rhs
         :type node: ASTExpression or ASTSimpleExpression
         """
-        error_msg = ErrorStrings.messageNoSemantics(self, str(node), node.getSourcePosition())
+        error_msg = ErrorStrings.message_no_semantics(self, str(node), node.getSourcePosition())
         node.type = ErrorTypeSymbol()
         # just warn though
         Logger.log_message(message=error_msg,

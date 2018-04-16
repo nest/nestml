@@ -25,7 +25,6 @@ from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
-from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
 from pynestml.visitors.ASTVisitor import ASTVisitor
@@ -80,7 +79,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
             # todo by KP: the error message is not used here, @ptraeder fix this
-            error_msg = ErrorStrings.messageVoidFunctionOnRhs(self, function_name, node.get_source_position())
+            # error_msg = ErrorStrings.message_void_function_on_rhs(self, function_name, node.get_source_position())
             node.type = ErrorTypeSymbol()
             return
 

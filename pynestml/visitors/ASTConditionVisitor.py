@@ -51,7 +51,7 @@ class ASTConditionVisitor(ASTVisitor):
 
         # Condition must be a bool
         if not condition.equals(PredefinedTypes.get_boolean_type()):
-            error_msg = ErrorStrings.messageTernary(self, node.get_source_position())
+            error_msg = ErrorStrings.message_ternary(self, node.get_source_position())
             node.type = ErrorTypeSymbol()
             Logger.log_message(message=error_msg, error_position=node.get_source_position(),
                                code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
@@ -65,8 +65,8 @@ class ASTConditionVisitor(ASTVisitor):
 
         # Both are units but not matching-> real WARN
         if isinstance(if_true, UnitTypeSymbol) and isinstance(if_not, UnitTypeSymbol):
-            error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.print_symbol(), if_not.print_symbol(),
-                                                            node.get_source_position())
+            error_msg = ErrorStrings.message_ternary_mismatch(self, if_true.print_symbol(), if_not.print_symbol(),
+                                                              node.get_source_position())
             node.type = PredefinedTypes.get_real_type()
             Logger.log_message(message=error_msg,
                                code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
@@ -81,8 +81,8 @@ class ASTConditionVisitor(ASTVisitor):
                 unit_type = if_true
             else:
                 unit_type = if_not
-            error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
-                                                            node.get_source_position())
+            error_msg = ErrorStrings.message_ternary_mismatch(self, str(if_true), str(if_not),
+                                                              node.get_source_position())
             node.type = unit_type
             Logger.log_message(message=error_msg,
                                code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
@@ -96,8 +96,8 @@ class ASTConditionVisitor(ASTVisitor):
             return
 
         # if we get here it is an error
-        error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
-                                                        node.get_source_position())
+        error_msg = ErrorStrings.message_ternary_mismatch(self, str(if_true), str(if_not),
+                                                          node.get_source_position())
         node.type = ErrorTypeSymbol()
         Logger.log_message(message=error_msg,
                            error_position=node.get_source_position(),

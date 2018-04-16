@@ -138,8 +138,8 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     cls.__check_return_recursively(type_symbol,
                                                    stmt.get_if_stmt().get_if_clause().get_block().get_stmts(),
                                                    ret_defined)
-                    for elifs in stmt.get_if_stmt().get_elif_clauses():
-                        cls.__check_return_recursively(type_symbol, elifs.get_block().get_stmt(), ret_defined)
+                    for else_ifs in stmt.get_if_stmt().get_elif_clauses():
+                        cls.__check_return_recursively(type_symbol, else_ifs.get_block().get_stmt(), ret_defined)
                     if stmt.get_if_stmt().has_else_clause():
                         cls.__check_return_recursively(type_symbol,
                                                        stmt.get_if_stmt().get_else_clause().get_block().get_stmts(),

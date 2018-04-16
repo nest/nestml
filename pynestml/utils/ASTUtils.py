@@ -267,7 +267,8 @@ class ASTUtils(object):
     @classmethod
     def get_all(cls, ast, node_type):
         """
-        Finds all meta_model which are part of the tree as spanned by the handed over meta_model. The type has to be specified.
+        Finds all meta_model which are part of the tree as spanned by the handed over meta_model.
+        The type has to be specified.
         :param ast: a single meta_model node
         :type ast: AST_
         :param node_type: the type
@@ -402,7 +403,8 @@ class ASTUtils(object):
         # local import since otherwise circular dependency
         from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         if neuron.get_initial_blocks() is None:
-            inits = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, list(),
-                                                                   ASTSourcePosition.get_added_source_position())
-            neuron.get_body().get_body_elements().append(inits)
+            initial_values = ASTNodeFactory. \
+                create_ast_block_with_variables(False, False, False, True, list(),
+                                                ASTSourcePosition.get_added_source_position())
+            neuron.get_body().get_body_elements().append(initial_values)
         return neuron

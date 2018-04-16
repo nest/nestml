@@ -20,12 +20,12 @@
 import ntpath
 import re
 
-from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-from pynestml.meta_model.ASTSignalType import ASTSignalType
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.cocos.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
 from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
+from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+from pynestml.meta_model.ASTSignalType import ASTSignalType
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.visitors.ASTDataTypeVisitor import ASTDataTypeVisitor
 from pynestml.visitors.CommentCollectorVisitor import CommentCollectorVisitor
@@ -417,7 +417,8 @@ class ASTBuilderVisitor(PyNestMLVisitor):
     def visitNeuron(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.body()) if ctx.body() is not None else None
-        # after we have constructed the meta_model of the neuron, we can ensure some basic properties which should always hold
+        # after we have constructed the meta_model of the neuron,
+        # we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
         # and update are defined once
         artifact_name = ntpath.basename(ctx.start.source[1].fileName)

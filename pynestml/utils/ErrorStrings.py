@@ -70,48 +70,43 @@ class ErrorStrings(object):
         return ""
 
     @classmethod
-    def messageNonNumericType(cls, _origin=None, _typeName=None, _sourcePosition=None):
+    def message_non_numeric_type(cls, origin, type_name, source_position):
         """
         construct an error message indicating an expected numeric type is not, in fact, numeric
-        :param _origin: the class reporting the error
-        :param _typeName: plain text representation of the wrong type that was encountered
-        :type _typeName: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation 
+        :param origin: the class reporting the error
+        :param type_name: plain text representation of the wrong type that was encountered
+        :type type_name: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str 
         """
-        assert _origin is not None
-        assert _typeName is not None and isinstance(_typeName, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        error_msg_format = "Cannot perform an arithmetic operation on a non-numeric type: " + _typeName
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot perform an arithmetic operation on a non-numeric type: " + type_name
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageTypeError(cls, _origin=None, _expressionText=None, _sourcePosition=None):
+    def message_type_error(cls, origin, expression_text, source_position):
         """
         construct an error message indicating a generic error in rhs type calculation
-        :param _origin: the class reporting the error
-        :param _expressionText: plain text representation of the offending rhs
-        :type _expressionText: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param expression_text: plain text representation of the offending rhs
+        :type expression_text: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _expressionText is not None and isinstance(_expressionText, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        error_msg_format = "Cannot determine the type of the rhs: " + _expressionText
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot determine the type of the rhs: " + expression_text
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageImplicitMagnitudeConversion(cls, _origin, _parentNode=None):
+    def message_implicit_magnitude_conversion(cls, origin, parent_node):
         """
-        construct an warning for implicit conversion from _parentExpressen.rhs to _parentExpression.lhs
-        :param _origin: the class dropping the warning
-        :param _parentNode: the addition,substraction or assignment that requires implicit conversion
-        :type: an ASTExpression that is either an Addition or a Substraction for wich an implicit conversion has already been determined
+        Construct an warning for implicit conversion from parent_node.rhs to parent_node.lhs
+        :param origin: the class dropping the warning
+        :param parent_node: the addition,subtraction or assignment that requires implicit conversion
+        :type: an ASTExpression that is either an Addition or a Subtraction for which an implicit conversion
+        has already been determined
         :return: the warning message
         """
 
@@ -119,10 +114,8 @@ class ErrorStrings(object):
         from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
         from pynestml.meta_model.ASTAssignment import ASTAssignment
         from pynestml.symbols.Symbol import SymbolKind
-
-        assert _origin is not None
-        assert _parentNode is not None and (
-                isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
+        assert parent_node is not None and (
+                isinstance(parent_node, ASTExpression) or isinstance(parent_node, ASTAssignment))
 
         target_expression = None
         target_unit = None
@@ -130,17 +123,17 @@ class ErrorStrings(object):
         convertee_unit = None
         operation = None
 
-        if (isinstance(_parentNode, ASTExpression)):
+        if isinstance(parent_node, ASTExpression):
             # code duplication from ASTExpressionTypeVisitor:
             # Rules with binary operators
-            if _parentNode.get_binary_operator() is not None:
-                bin_op = _parentNode.get_binary_operator()
+            if parent_node.get_binary_operator() is not None:
+                bin_op = parent_node.get_binary_operator()
                 # All these rules employ left and right side expressions.
-                if _parentNode.get_lhs() is not None:
-                    target_expression = _parentNode.get_lhs()
+                if parent_node.get_lhs() is not None:
+                    target_expression = parent_node.get_lhs()
                     target_unit = target_expression.type.astropy_unit
-                if _parentNode.get_rhs() is not None:
-                    convertee_expression = _parentNode.get_rhs()
+                if parent_node.get_rhs() is not None:
+                    convertee_expression = parent_node.get_rhs()
                     convertee_unit = convertee_expression.type.astropy_unit
                 # Handle all Arithmetic Operators:
                 if isinstance(bin_op, ASTArithmeticOperator):
@@ -150,269 +143,229 @@ class ErrorStrings(object):
                     if bin_op.is_minus_op:
                         operation = "-"
 
-        if (isinstance(_parentNode, ASTAssignment)):
-            lhs_variable_symbol = _parentNode.get_scope().resolve_to_symbol(
-                _parentNode.get_variable().get_complete_name(),
+        if isinstance(parent_node, ASTAssignment):
+            lhs_variable_symbol = parent_node.get_scope().resolve_to_symbol(
+                parent_node.get_variable().get_complete_name(),
                 SymbolKind.VARIABLE)
             operation = "="
-            target_expression = _parentNode.get_variable()
+            target_expression = parent_node.get_variable()
             target_unit = lhs_variable_symbol.get_type_symbol().astropy_unit
-            convertee_expression = _parentNode.get_expression()
+            convertee_expression = parent_node.get_expression()
             convertee_unit = convertee_expression.type.astropy_unit
 
         assert (target_expression is not None and convertee_expression is not None and
                 operation is not None), "Only call this on an addition/subtraction  or assignment after " \
                                         "an implicit conversion wrt unit magnitudes has already been determined"
 
-        error_msg_format = "Non-matching unit types at '" + str(_parentNode)
+        error_msg_format = "Non-matching unit types at '" + str(parent_node)
         error_msg_format += "'. Implicit conversion of rhs to lhs"
         error_msg_format += " (units: " + str(convertee_unit) + " and " + \
                             str(target_unit) + " )"
         error_msg_format += " implicitly replaced by '" + str(target_expression) + operation \
                             + convertee_expression.printImplicitVersion() + "'"
 
-        return (cls.code(_origin) + cls.SEPARATOR + error_msg_format + "("
-                + str(_parentNode.get_source_position()) + ")")
+        return (cls.code(origin) + cls.SEPARATOR + error_msg_format + "("
+                + str(parent_node.get_source_position()) + ")")
 
     @classmethod
-    def messageUnitBase(cls, _origin=None, _sourcePosition=None):
+    def message_unit_base(cls, origin, source_position):
         """
         construct an error message indicating that a non-int type was given as exponent to a unit type
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "With a Unit base, the exponent must be an integer."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageNonConstantExponent(cls, _origin=None, _sourcePosition=None):
+    def message_non_constant_exponent(cls, origin, source_position):
         """
         construct an error message indicating that the exponent given to a unit base is not a constant value
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "Cannot calculate value of exponent. Must be a constant value!"
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageExpectedBool(cls, _origin=None, _sourcePosition=None):
+    def message_expected_bool(cls, origin, source_position):
         """
         construct an error message indicating that an expected bool value was not found
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "Expected a bool"
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageExpectedInt(cls, _origin=None, _sourcePosition=None):
+    def message_expected_int(cls, origin, source_position):
         """
         construct an error message indicating that an expected int value was not found
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "Expected an int"
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageTypeMismatch(cls, _origin=None, _mismatchText=None):
+    def message_type_mismatch(cls, origin, mismatch_text):
         """
         construct an error message indicating that an expected int value was not found
-        :param _origin: the class reporting the error
-        :param _mismatchText: the operation with mismatched types printed in plain text
-        :type _mismatchText: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param mismatch_text: the operation with mismatched types printed in plain text
+        :type mismatch_text: str
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _mismatchText is not None and isinstance(_mismatchText, str)
-        error_msg_format = "Operation not defined: " + _mismatchText
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format
+        error_msg_format = "Operation not defined: " + mismatch_text
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format
 
     @classmethod
-    def messageAddSubTypeMismatch(cls, _origin=None, _lhsTypeText=None, _rhsTypeText=None, _resultTypeText=None,
-                                  _sourcePosition=None):
+    def message_add_sub_type_mismatch(cls, origin, lhs_type_text,
+                                      rhs_type_text, result_type_text,
+                                      source_position):
         """
-        construct an message indicating that the types of an addition/substraction are not compatible
+        construct an message indicating that the types of an addition/subtraction are not compatible
         and that the result is implicitly cast to a different type
-        :param _origin: the class reporting the error
-        :param _lhsTypeText: plain text of Lhs type
-        :type _lhsTypeText: str
-        :param _rhsTypeText: plain text of Rhs type
-        :type _rhsTypeText: str
-        :param _resultTypeText: plain text of resulting type (implicit cast)
-        :type _resultTypeText: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param lhs_type_text: plain text of Lhs type
+        :type lhs_type_text: str
+        :param rhs_type_text: plain text of Rhs type
+        :type rhs_type_text: str
+        :param result_type_text: plain text of resulting type (implicit cast)
+        :type result_type_text: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert (_origin is not None), '(PyNestML.Utils.ErrorStrings) No origin provided (%s)!' % type(_origin)
-        assert (_lhsTypeText is not None and isinstance(_lhsTypeText, str)), \
-            '(PyNestML.Utils.ErrorStrings) No or wrong type of lhs-type text provided (%s)!' % type(_lhsTypeText)
-        assert (_rhsTypeText is not None and isinstance(_rhsTypeText, str)), \
-            '(PyNestML.Utils.ErrorStrings) No or wrong type of rhs-type text provided (%s)!' % type(_rhsTypeText)
-        assert (_resultTypeText is not None and isinstance(_resultTypeText, str)), \
-            '(PyNestML.Utils.ErrorStrings) No or wrong type of rhs-type text provided (%s)!' % type(_resultTypeText)
-        assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)), \
-            '(PyNestML.Utils.ErrorStrings) No or wrong type of source position provided (%s)!' % type(_sourcePosition)
-        error_msg_format = "Addition/subtraction of " + _lhsTypeText + " and " + _rhsTypeText + \
-                           ". Assuming: " + _resultTypeText + "."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Addition/subtraction of " + lhs_type_text + " and " + rhs_type_text + \
+                           ". Assuming: " + result_type_text + "."
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageNoSemantics(cls, _origin=None, _exprText=None, _sourcePosition=None):
+    def message_no_semantics(cls, origin, expr_text, source_position):
         """
         construct an error message indicating that an rhs is not implemented
-        :param _origin: the class reporting the error
-        :param _exprText: plain text of the unimplemented rhs
-        :type _exprText: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param expr_text: plain text of the unimplemented rhs
+        :type expr_text: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _exprText is not None and isinstance(_exprText, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        error_msg_format = "This rhs is not implemented: " + _exprText
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "This rhs is not implemented: " + expr_text
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageComparison(cls, _origin=None, _sourcePosition=None):
+    def message_comparison(cls, origin, source_position):
         """
         construct an error message indicating that an a comparison operation has incompatible operands
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "Operands of a logical rhs not compatible."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageLogicOperandsNotBool(cls, _origin=None, _sourcePosition=None):
+    def message_logic_operands_not_bool(cls, origin, source_position):
         """
         construct an error message indicating that an a comparison operation has incompatible operands
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "Both operands of a logical rhs must be boolean."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageTernary(cls, _origin=None, _sourcePosition=None):
+    def message_ternary(cls, origin, source_position):
         """
         construct an error message indicating that an a comparison operation has incompatible operands
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        ERROR_MSG_FORMAT = "The ternary operator condition must be boolean."
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "The ternary operator condition must be boolean."
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageTernaryMismatch(cls, _origin=None, _ifTrueText=None, _ifNotText=None, _sourcePosition=None):
+    def message_ternary_mismatch(cls, origin, if_true_text, if_not_text, source_position):
         """
         construct an error message indicating that an a comparison operation has incompatible operands
-        :param _origin: the class reporting the error
-        :param _ifTrueText: plain text of the positive branch of the ternary operator
-        :type _ifTrueText: str
-        :param _ifNotText: plain text of the negative branch of the ternary operator
-        :type _ifNotText: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param if_true_text: plain text of the positive branch of the ternary operator
+        :type if_true_text: str
+        :param if_not_text: plain text of the negative branch of the ternary operator
+        :type if_not_text: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _ifTrueText is not None and isinstance(_ifTrueText, str)
-        assert _ifNotText is not None and isinstance(_ifNotText, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        error_msg_format = "Mismatched conditional alternatives " + _ifTrueText + " and " + \
-                           _ifNotText + "-> Assuming real."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Mismatched conditional alternatives " + if_true_text + " and " + \
+                           if_not_text + "-> Assuming real."
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageResolveFail(cls, _origin=None, _symbolName=None, _sourcePosition=None):
+    def message_resolve_fail(cls, origin, symbol_name, source_position):
         """
         construct an error message indicating that a symbol could not be resolved
-        :param _origin: the class reporting the error
-        :param _symbolName: the name of the symbol
-        :type _symbolName: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param symbol_name: the name of the symbol
+        :type symbol_name: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _symbolName is not None and isinstance(_symbolName, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        error_msg_format = "Cannot resolve the symbol: " + _symbolName + "."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Cannot resolve the symbol: " + symbol_name + "."
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageCannotCalculateConvolveType(cls, _origin=None, _sourcePosition=None):
+    def message_cannot_calculate_convolve_type(cls, origin, source_position):
         """
         construct an error message indicating that the type of a convolve() call is ill-defined
-        :param _origin: the class reporting the error
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
         error_msg_format = "Cannot calculate return type of convolve()."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def messageVoidFunctionOnRhs(cls, _origin=None, _functionName=None, _sourcePosition=None):
+    def message_void_function_on_rhs(cls, origin, function_name, source_position):
         """
         construct an error message indicating that a void function cannot be used on a RHS
-        :param _origin: the class reporting the error
-        :param _functionName: the offending function
-        :type _functionName: str
-        :param _sourcePosition: The location where the error was encountered
-        :type _sourcePosition: ASTSourceLocation
+        :param origin: the class reporting the error
+        :param function_name: the offending function
+        :type function_name: str
+        :param source_position: The location where the error was encountered
+        :type source_position: ASTSourceLocation
         :return: the error message
         :rtype: str
         """
-        assert _origin is not None
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourceLocation)
-        error_msg_format = "Function " + _functionName + " with the return-type 'void' cannot be used in expressions."
-        return cls.code(_origin) + cls.SEPARATOR + error_msg_format + "(" + str(_sourcePosition) + ")"
+        error_msg_format = "Function " + function_name + " with the return-type 'void' cannot be used in expressions."
+        return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"

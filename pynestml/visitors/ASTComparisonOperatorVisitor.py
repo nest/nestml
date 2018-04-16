@@ -58,7 +58,7 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
         if (isinstance(lhs_type, UnitTypeSymbol) and rhs_type.is_numeric()) or (
                 isinstance(rhs_type, UnitTypeSymbol) and lhs_type.is_numeric()):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
-            error_msg = ErrorStrings.messageComparison(self, _expr.get_source_position())
+            error_msg = ErrorStrings.message_comparison(self, _expr.get_source_position())
             _expr.type = PredefinedTypes.get_boolean_type()
             Logger.log_message(message=error_msg, code=MessageCode.SOFT_INCOMPATIBILITY,
                                error_position=_expr.get_source_position(),
@@ -66,7 +66,7 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
             return
         else:
             # hard incompatibility, cannot recover in c++, ERROR
-            error_msg = ErrorStrings.messageComparison(self, _expr.get_source_position())
+            error_msg = ErrorStrings.message_comparison(self, _expr.get_source_position())
             _expr.type = ErrorTypeSymbol()
             Logger.log_message(code=MessageCode.HARD_INCOMPATIBILITY,
                                error_position=_expr.get_source_position(),
