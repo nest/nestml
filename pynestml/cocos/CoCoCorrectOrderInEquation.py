@@ -59,6 +59,6 @@ class OrderOfEquationVisitor(ASTVisitor):
         :type node: ASTOdeEquation
         """
         if node.get_lhs().get_differential_order() == 0:
-            code, message = Messages.getOrderNotDeclared(node.get_lhs().get_name())
+            code, message = Messages.get_order_not_declared(node.get_lhs().get_name())
             Logger.log_message(error_position=node.get_source_position(), code=code,
                                message=message, log_level=LoggingLevel.ERROR)

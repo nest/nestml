@@ -95,7 +95,7 @@ class ShapeUsageVisitor(ASTVisitor):
                         if grandparent_func_name == 'curr_sum' or grandparent_func_name == 'cond_sum' or \
                                 grandparent_func_name == 'convolve':
                             continue
-                code, message = Messages.getShapeOutsideConvolve(shapeName)
+                code, message = Messages.get_shape_outside_convolve(shapeName)
                 Logger.log_message(error_position=node.get_source_position(),
                                    code=code, message=message,
                                    log_level=LoggingLevel.ERROR)

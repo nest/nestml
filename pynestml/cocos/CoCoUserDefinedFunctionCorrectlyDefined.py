@@ -69,7 +69,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             # now if it does not have a statement, but uses a return type, it is an error
             elif symbol is not None and userDefinedFunction.has_return_type() and \
                     not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
-                code, message = Messages.getNoReturn()
+                code, message = Messages.get_no_return()
                 Logger.log_message(neuron=_neuron, code=code, message=message,
                                    error_position=userDefinedFunction.get_source_position(),
                                    log_level=LoggingLevel.ERROR)
@@ -106,27 +106,27 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             if isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt():
                 # first check if the return is the last one in this block of statements
                 if stmts.index(c_stmt) != (len(stmts) - 1):
-                    code, message = Messages.getNotLastStatement('Return')
+                    code, message = Messages.get_not_last_statement('Return')
                     Logger.log_message(error_position=stmt.get_source_position(),
                                        code=code, message=message,
                                        log_level=LoggingLevel.WARNING)
                 # now check that it corresponds to the declared type
                 if stmt.get_return_stmt().has_expression() and type_symbol is PredefinedTypes.get_void_type():
-                    code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_void_type(),
-                                                                          stmt.get_return_stmt().get_expression().type)
+                    code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_void_type(),
+                                                                              stmt.get_return_stmt().get_expression().type)
                     Logger.log_message(error_position=stmt.get_source_position(),
                                        message=message, code=code, log_level=LoggingLevel.ERROR)
                 # if it is not void check if the type corresponds to the one stated
                 if not stmt.get_return_stmt().has_expression() and \
                         not type_symbol.equals(PredefinedTypes.get_void_type()):
-                    code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_void_type(),
-                                                                          type_symbol)
+                    code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_void_type(),
+                                                                              type_symbol)
                     Logger.log_message(error_position=stmt.get_source_position(),
                                        message=message, code=code, log_level=LoggingLevel.ERROR)
                 if stmt.get_return_stmt().has_expression():
                     type_of_return = stmt.get_return_stmt().get_expression().type
                     if isinstance(type_of_return, ErrorTypeSymbol):
-                        code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.get_name())
+                        code, message = Messages.get_type_could_not_be_derived(cls.__processedFunction.get_name())
                         Logger.log_message(error_position=stmt.get_source_position(),
                                            code=code, message=message, log_level=LoggingLevel.ERROR)
                     elif not type_of_return.equals(type_symbol):
@@ -154,7 +154,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             # to ensure that it is defined here
             elif not ret_defined and stmts.index(c_stmt) == (len(stmts) - 1):
                 if not (isinstance(stmt, ASTSmallStmt) and stmt.is_return_stmt()):
-                    code, message = Messages.getNoReturn()
+                    code, message = Messages.get_no_return()
                     Logger.log_message(error_position=stmt.get_source_position(), log_level=LoggingLevel.ERROR,
                                        code=code, message=message)
         return

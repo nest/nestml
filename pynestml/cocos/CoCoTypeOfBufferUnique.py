@@ -64,11 +64,11 @@ class TypeOfBufferUniqueVisitor(ASTVisitor):
                     if typ.is_inhibitory:
                         inh += 1
                 if inh > 1:
-                    code, message = Messages.getMultipleKeywords('inhibitory')
+                    code, message = Messages.get_multiple_keywords('inhibitory')
                     Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
                                        log_level=LoggingLevel.ERROR)
                 if ext > 1:
-                    code, message = Messages.getMultipleKeywords('excitatory')
+                    code, message = Messages.get_multiple_keywords('excitatory')
                     Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
                                        log_level=LoggingLevel.ERROR)
         return

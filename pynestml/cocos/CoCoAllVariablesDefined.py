@@ -57,7 +57,7 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # first test if the symbol has been defined at least
                 if symbol is None:
-                    code, message = Messages.getNoVariableFound(var.get_name())
+                    code, message = Messages.get_no_variable_found(var.get_name())
                     Logger.log_message(neuron=node, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=var.get_source_position())
                 # first check if it is part of an invariant
@@ -73,14 +73,14 @@ class CoCoAllVariablesDefined(CoCo):
                     # except for parameters, those can be defined after
                     if (not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and
                             symbol.get_block_type() != BlockType.PARAMETERS):
-                        code, message = Messages.getVariableUsedBeforeDeclaration(var.get_name())
+                        code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(neuron=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
                     # todo by KP: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and
                             not symbol.get_referenced_object().get_source_position().is_added_source_position()):
-                        code, message = Messages.getVariableDefinedRecursively(var.get_name())
+                        code, message = Messages.get_variable_defined_recursively(var.get_name())
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, neuron=node)
         return

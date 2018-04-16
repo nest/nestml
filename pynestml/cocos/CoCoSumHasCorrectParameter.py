@@ -61,7 +61,7 @@ class SumIsCorrectVisitor(ASTVisitor):
                 f_name == PredefinedFunctions.COND_SUM or f_name == PredefinedFunctions.CONVOLVE:
             for arg in node.get_args():
                 if not isinstance(arg, ASTSimpleExpression) or not arg.is_variable():
-                    code, message = Messages.getNotAVariable(str(arg))
+                    code, message = Messages.get_not_a_variable(str(arg))
                     Logger.log_message(code=code, message=message,
                                        error_position=arg.get_source_position(), log_level=LoggingLevel.ERROR)
         return

@@ -63,10 +63,10 @@ class VectorInDeclarationVisitor(ASTVisitor):
                 if variable is not None:
                     symbol = node.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
                     if symbol is not None and symbol.has_vector_parameter() and not node.has_size_parameter():
-                        code, message = Messages.getVectorInNonVector(_vector=symbol.get_symbol_name(),
-                                                                      _nonVector=list(var.get_complete_name() for
-                                                                                      var in
-                                                                                      node.get_variables()))
+                        code, message = Messages.get_vector_in_non_vector(vector=symbol.get_symbol_name(),
+                                                                          non_vector=list(var.get_complete_name() for
+                                                                                          var in
+                                                                                          node.get_variables()))
 
                         Logger.log_message(error_position=node.get_source_position(),
                                            code=code, message=message,

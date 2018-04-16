@@ -121,7 +121,7 @@ class TransformerBase(object):
                     block.get_stmts()[i:i] = update_statements
                     break
         else:
-            code, message = Messages.getOdeSolutionNotUsed()
+            code, message = Messages.get_ode_solution_not_used()
             Logger.log_message(neuron=_neuron, code=code, message=message,
                                error_position=_neuron.get_source_position(),
                                log_level=LoggingLevel.INFO)

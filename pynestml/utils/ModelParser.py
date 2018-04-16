@@ -87,7 +87,7 @@ class ModelParser(object):
         except IOError:
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
-        code, message = Messages.getStartProcessingFile(file_path)
+        code, message = Messages.get_start_processing_file(file_path)
         Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
         # create a lexer and hand over the input
         lexer = PyNestMLLexer(input_file)

@@ -141,7 +141,7 @@ class NESTReferenceConverter(IReferenceConverter):
             symbol = _astVariable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
             if symbol is None:
                 # this should actually not happen, but an error message is better than an exception
-                code, message = Messages.getCouldNotResolve(variable_name)
+                code, message = Messages.get_could_not_resolve(variable_name)
                 Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                    error_position=_astVariable.get_source_position())
                 return ''

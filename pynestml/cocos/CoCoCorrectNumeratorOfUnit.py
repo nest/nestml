@@ -55,6 +55,6 @@ class NumericNumeratorVisitor(ASTVisitor):
         :type node: ASTUnitType
         """
         if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
-            code, message = Messages.getWrongNumerator(str(node))
+            code, message = Messages.get_wrong_numerator(str(node))
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)

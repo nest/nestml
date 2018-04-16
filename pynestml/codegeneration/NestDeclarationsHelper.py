@@ -55,7 +55,7 @@ class NestDeclarationsHelper(object):
             if symbol is not None:
                 ret.append(symbol)
             else:
-                code, message = Messages.getCouldNotResolve(var.get_complete_name())
+                code, message = Messages.get_could_not_resolve(var.get_complete_name())
                 Logger.log_message(code=code, message=message,
                                    error_position=ast_declaration.get_source_position(), log_level=LoggingLevel.ERROR)
             return ret

@@ -122,13 +122,13 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.get_condition())
+            code, message = Messages.get_type_could_not_be_derived(node.get_condition())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not cond_type.equals(PredefinedTypes.get_boolean_type()):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_boolean_type(),
-                                                                  cond_type)
+            code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_boolean_type(),
+                                                                      cond_type)
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
@@ -142,13 +142,13 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.get_condition())
+            code, message = Messages.get_type_could_not_be_derived(node.get_condition())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not cond_type.equals(PredefinedTypes.get_boolean_type()):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_boolean_type(),
-                                                                  cond_type)
+            code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_boolean_type(),
+                                                                      cond_type)
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
@@ -162,13 +162,13 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.get_condition())
+            code, message = Messages.get_type_could_not_be_derived(node.get_condition())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not cond_type.equals(PredefinedTypes.get_boolean_type()):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_boolean_type(),
-                                                                  cond_type)
+            code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_boolean_type(),
+                                                                      cond_type)
             Logger.log_message(code=code, message=message,
                                error_position=node.get_condition().get_source_position(),
                                log_level=LoggingLevel.ERROR)
@@ -183,25 +183,25 @@ class CorrectExpressionVisitor(ASTVisitor):
         # check that the from stmt is an integer or real
         from_type = node.get_start_from().type
         if isinstance(from_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.get_start_from())
+            code, message = Messages.get_type_could_not_be_derived(node.get_start_from())
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not (from_type.equals(PredefinedTypes.get_integer_type())
                   or from_type.equals(
                     PredefinedTypes.get_real_type())):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_integer_type(),
-                                                                  from_type)
+            code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_integer_type(),
+                                                                      from_type)
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that the to stmt is an integer or real
         to_type = node.get_end_at().type
         if isinstance(to_type, ErrorTypeSymbol):
-            code, message = Messages.getTypeCouldNotBeDerived(node.get_end_at())
+            code, message = Messages.get_type_could_not_be_derived(node.get_end_at())
             Logger.log_message(code=code, message=message, error_position=node.get_end_at().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         elif not (to_type.equals(PredefinedTypes.get_integer_type())
                   or to_type.equals(PredefinedTypes.get_real_type())):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_integer_type(), to_type)
+            code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_integer_type(), to_type)
             Logger.log_message(code=code, message=message, error_position=node.get_end_at().get_source_position(),
                                log_level=LoggingLevel.ERROR)
         return

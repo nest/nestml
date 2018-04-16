@@ -53,7 +53,7 @@ class ASTBinaryLogicVisitor(ASTVisitor):
                 offending_type = lhs_type
             else:
                 offending_type = rhs_type
-            code, message = Messages.getTypeDifferentFromExpected(BooleanTypeSymbol(), offending_type)
+            code, message = Messages.get_type_different_from_expected(BooleanTypeSymbol(), offending_type)
             Logger.log_message(code=code, message=message,
                                error_position=lhs_type.referenced_object.get_source_position(),
                                log_level=LoggingLevel.ERROR)

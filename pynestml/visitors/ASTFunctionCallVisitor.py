@@ -49,7 +49,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
         method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
         # check if this function exists
         if method_symbol is None:
-            code, message = Messages.getCouldNotResolve(function_name)
+            code, message = Messages.get_could_not_resolve(function_name)
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
             node.type = ErrorTypeSymbol()

@@ -215,7 +215,7 @@ class TypeSymbol(Symbol):
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
-        code, message = Messages.get_binary_operation_not_defined(_lhs=self, _operator=_operator, _rhs=_other)
+        code, message = Messages.get_binary_operation_not_defined(lhs=self, operator=_operator, rhs=_other)
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
                            log_level=LoggingLevel.ERROR)
         return result
@@ -240,7 +240,7 @@ class TypeSymbol(Symbol):
         return result
 
     def warn_implicit_cast_from_to(self, _from, _to):
-        code, message = Messages.getImplicitCastRhsToLhs(_to.print_symbol(), _from.print_symbol())
+        code, message = Messages.get_implicit_cast_rhs_to_lhs(_to.print_symbol(), _from.print_symbol())
         Logger.log_message(code=code, message=message,
                            error_position=self.get_referenced_object().get_source_position(),
                            log_level=LoggingLevel.WARNING)

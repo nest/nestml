@@ -54,14 +54,14 @@ class EquationsBlockProcessor(object):
                     len(working_version.get_equations_blocks().get_ode_equations()) == 1:
                 output = SymPySolver.solveOdeWithShapes(deep_copy.get_equations_blocks())
                 if not output.status == 'success':
-                    code, message = Messages.getCouldNotBeSolved()
+                    code, message = Messages.get_could_not_be_solved()
                     Logger.log_message(neuron=_neuron,
                                        message=message, code=code,
                                        error_position=_neuron.get_equations_blocks().get_source_position(),
                                        log_level=LoggingLevel.ERROR)
                     return _neuron
                 if output.solver == 'exact':
-                    code, message = Messages.getEquationsSolvedExactly()
+                    code, message = Messages.get_equations_solved_exactly()
                     Logger.log_message(neuron=_neuron,
                                        message=message, code=code,
                                        error_position=_neuron.get_equations_blocks().get_source_position(),
@@ -69,7 +69,7 @@ class EquationsBlockProcessor(object):
                     working_version = ExactSolutionTransformer.addExactSolution(_neuron=working_version,
                                                                                 _solverOutput=output)
                 elif output.solver == 'numeric':
-                    code, message = Messages.getEquationsSolvedByGLS()
+                    code, message = Messages.get_equations_solved_by_gls()
                     Logger.log_message(neuron=_neuron,
                                        message=message, code=code,
                                        error_position=_neuron.get_equations_blocks().get_source_position(),
@@ -79,7 +79,7 @@ class EquationsBlockProcessor(object):
                 elif output.solver == 'delta':
                     return DeltaSolutionTransformer.addExactSolution(_solverOutput=output, _neuron=_neuron)
                 else:
-                    code, message = Messages.getCouldNotBeSolved()
+                    code, message = Messages.get_could_not_be_solved()
                     Logger.log_message(neuron=_neuron,
                                        message=message, code=code,
                                        error_position=_neuron.get_equations_blocks().get_source_position(),
@@ -87,7 +87,7 @@ class EquationsBlockProcessor(object):
                     return working_version
             elif len(working_version.get_equations_blocks().get_ode_shapes()) > 0 and \
                     not cls.__ode_shape_exists(working_version.get_equations_blocks().get_ode_shapes()):
-                code, message = Messages.getEquationsSolvedByGLS()
+                code, message = Messages.get_equations_solved_by_gls()
                 Logger.log_message(neuron=_neuron,
                                    message=message, code=code,
                                    error_position=_neuron.get_equations_blocks().get_source_position(),

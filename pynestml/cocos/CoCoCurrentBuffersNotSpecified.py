@@ -53,7 +53,7 @@ class CurrentTypeSpecifiedVisitor(ASTVisitor):
 
     def visit_input_line(self, node):
         if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
-            code, message = Messages.getCurrentBufferSpecified(node.get_name(),
-                                                               list((str(buf) for buf in node.get_input_types())))
+            code, message = Messages.get_current_buffer_specified(node.get_name(),
+                                                                  list((str(buf) for buf in node.get_input_types())))
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message, log_level=LoggingLevel.ERROR)

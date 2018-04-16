@@ -244,7 +244,7 @@ class PredefinedTypes(object):
         """
         if not symbol.is_primitive() and symbol.unit.get_name() not in cls.name2type.keys():
             cls.name2type[symbol.unit.get_name()] = symbol
-            code, message = Messages.getNewTypeRegistered(symbol.unit.get_name())
+            code, message = Messages.get_new_type_registered(symbol.unit.get_name())
             Logger.log_message(code=code, message=message, log_level=LoggingLevel.INFO)
         return
 

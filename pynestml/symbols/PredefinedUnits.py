@@ -106,7 +106,7 @@ class PredefinedUnits(object):
         if name in cls.name2unit.keys():
             return cls.name2unit[name]
         else:
-            code, message = Messages.getUnitDoesNotExist(name)
+            code, message = Messages.get_unit_does_not_exist(name)
             Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
             return None
 

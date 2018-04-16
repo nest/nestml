@@ -41,9 +41,9 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
         for neuronA in list_of_neurons:
             for neuronB in list_of_neurons:
                 if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name():
-                    code, message = Messages.getCompilationUnitNameCollision(neuronA.get_name(),
-                                                                             neuronA.get_artifact_name(),
-                                                                             neuronB.get_artifact_name())
+                    code, message = Messages.get_compilation_unit_name_collision(neuronA.get_name(),
+                                                                                 neuronA.get_artifact_name(),
+                                                                                 neuronB.get_artifact_name())
                     Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
                 conflicting_neurons.append(neuronB)
             checked.append(neuronA)

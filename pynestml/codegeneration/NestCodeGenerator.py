@@ -93,7 +93,7 @@ class NestCodeGenerator(object):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'sli',
                                    FrontendConfiguration.get_module_name() + "-init")) + '.sli', 'w+') as f:
             f.write(str(self.__templateSLIInit.render(namespace)))
-        code, message = Messages.getModuleGenerated(FrontendConfiguration.get_target_path())
+        code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
         return
 
@@ -105,7 +105,7 @@ class NestCodeGenerator(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGenerator.NEST) No or wrong type of module neuron provided (%s)!' % type(_neuron)
-        code, message = Messages.getStartProcessingNeuron(_neuron.get_name())
+        code, message = Messages.get_start_processing_neuron(_neuron.get_name())
         Logger.log_message(neuron=_neuron, error_position=_neuron.get_source_position(), code=code, message=message,
                            log_level=LoggingLevel.INFO)
         working_version = deepcopy(_neuron)
@@ -114,7 +114,7 @@ class NestCodeGenerator(object):
         # update the symbol table
         working_version.accept(ASTSymbolTableVisitor())
         self.generateNestCode(working_version)
-        code, message = Messages.getCodeGenerated(_neuron.get_name(), FrontendConfiguration.get_target_path())
+        code, message = Messages.get_code_generated(_neuron.get_name(), FrontendConfiguration.get_target_path())
         Logger.log_message(neuron=_neuron, error_position=_neuron.get_source_position(), code=code, message=message,
                            log_level=LoggingLevel.INFO)
         return
@@ -255,12 +255,12 @@ class NestCodeGenerator(object):
             return _neuron
         else:
             if len(equations_block.get_ode_equations()) > 1 and len(equations_block.get_ode_shapes()) == 0:
-                code, message = Messages.getNeuronSolvedBySolver(_neuron.get_name())
+                code, message = Messages.get_neuron_solved_by_solver(_neuron.get_name())
                 Logger.log_message(neuron=_neuron, code=code, message=message,
                                    error_position=_neuron.get_source_position(), log_level=LoggingLevel.INFO)
                 return _neuron
             else:
-                code, message = Messages.getNeuronAnalyzed(_neuron.get_name())
+                code, message = Messages.get_neuron_analyzed(_neuron.get_name())
                 Logger.log_message(neuron=_neuron, code=code, message=message,
                                    error_position=_neuron.get_source_position(),
                                    log_level=LoggingLevel.INFO)

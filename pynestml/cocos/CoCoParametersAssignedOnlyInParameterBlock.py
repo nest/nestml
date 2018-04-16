@@ -71,7 +71,7 @@ class ParametersAssignmentVisitor(ASTVisitor):
         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
         if (symbol is not None and symbol.get_block_type() == BlockType.PARAMETERS and
                 node.get_scope().get_scope_type() != ScopeType.GLOBAL):
-            code, message = Messages.getAssignmentNotAllowed(node.get_variable().get_complete_name())
+            code, message = Messages.get_assignment_not_allowed(node.get_variable().get_complete_name())
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message,
                                log_level=LoggingLevel.ERROR)

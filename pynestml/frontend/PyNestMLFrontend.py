@@ -57,7 +57,7 @@ def main(args):
     if not FrontendConfiguration.is_dev():
         for neuron in neurons:
             if Logger.has_errors(neuron):
-                code, message = Messages.getNeuronContainsErrors(neuron.get_name())
+                code, message = Messages.get_neuron_contains_errors(neuron.get_name())
                 Logger.log_message(neuron=neuron, code=code, message=message,
                                    error_position=neuron.get_source_position(),
                                    log_level=LoggingLevel.INFO)
@@ -68,7 +68,7 @@ def main(args):
         nest_generator.analyseAndGenerateNeurons(neurons)
         nest_generator.generateNESTModuleCode(neurons)
     else:
-        code, message = Messages.getDryRun()
+        code, message = Messages.get_dry_run()
         Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
     if FrontendConfiguration.store_log():
         store_log_to_file()

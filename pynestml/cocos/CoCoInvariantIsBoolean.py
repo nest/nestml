@@ -60,12 +60,12 @@ class InvariantTypeVisitor(ASTVisitor):
         if node.has_invariant():
             invariant_type = node.get_invariant().type
             if invariant_type is None or isinstance(invariant_type, ErrorTypeSymbol):
-                code, message = Messages.getTypeCouldNotBeDerived(str(node.get_invariant()))
+                code, message = Messages.get_type_could_not_be_derived(str(node.get_invariant()))
                 Logger.log_message(error_position=node.get_invariant().get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.ERROR)
             elif not invariant_type.equals(PredefinedTypes.get_boolean_type()):
-                code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.get_boolean_type(),
-                                                                      invariant_type)
+                code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_boolean_type(),
+                                                                          invariant_type)
                 Logger.log_message(error_position=node.get_invariant().get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.ERROR)
         return

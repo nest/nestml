@@ -62,13 +62,13 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.FUNCTION)
         # first check if the function has been declared
         if symbol is None:
-            code, message = Messages.getFunctionNotDeclared(node.get_name())
+            code, message = Messages.get_function_not_declared(node.get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                code=code, message=message)
         # now check if the number of arguments is the same as in the symbol
         if symbol is not None and len(node.get_args()) != len(symbol.get_parameter_types()):
-            code, message = Messages.getWrongNumberOfArgs(str(node), len(symbol.get_parameter_types()),
-                                                          len(node.get_args()))
+            code, message = Messages.get_wrong_number_of_args(str(node), len(symbol.get_parameter_types()),
+                                                              len(node.get_args()))
             Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
                                error_position=node.get_source_position())
         # finally check if the call is correctly typed
@@ -79,7 +79,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
                 expected_type = expected_types[i]
                 actual_type = actual_types[i].type
                 if isinstance(actual_type, ErrorTypeSymbol):
-                    code, message = Messages.getTypeCouldNotBeDerived(actual_types[i])
+                    code, message = Messages.get_type_could_not_be_derived(actual_types[i])
                     Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=actual_types[i].get_source_position())
                     return

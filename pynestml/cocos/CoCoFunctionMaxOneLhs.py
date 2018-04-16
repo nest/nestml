@@ -54,7 +54,7 @@ class FunctionMaxOneLhs(ASTVisitor):
         :type node: ASTDeclaration
         """
         if node.is_function() and len(node.get_variables()) > 1:
-            code, message = Messages.getSeveralLhs(list((var.get_name() for var in node.get_variables())))
+            code, message = Messages.get_several_lhs(list((var.get_name() for var in node.get_variables())))
             Logger.log_message(error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR,
                                code=code, message=message)

@@ -51,7 +51,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
         """
         for func in node.get_functions():
             if func.get_name() in cls.__nestNameSpace:
-                code, message = Messages.getNestCollision(func.get_name())
+                code, message = Messages.get_nest_collision(func.get_name())
                 Logger.log_message(error_position=func.get_source_position(),
                                    code=code, message=message,
                                    log_level=LoggingLevel.ERROR)
