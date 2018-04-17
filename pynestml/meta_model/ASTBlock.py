@@ -28,7 +28,7 @@ class ASTBlock(ASTNode):
     Grammar:
         block : ( smallStmt | compoundStmt | NEWLINE )*;
     """
-    __stmts = None
+    stmts = None
 
     def __init__(self, _stmts=list(), source_position=None):
         """
@@ -46,7 +46,7 @@ class ASTBlock(ASTNode):
                 '(PyNestML.AST.Bloc) No or wrong type of statement provided (%s)!' % type(stmt)
 
         super(ASTBlock, self).__init__(source_position)
-        self.__stmts = _stmts
+        self.stmts = _stmts
 
     def get_stmts(self):
         """
@@ -54,7 +54,7 @@ class ASTBlock(ASTNode):
         :return: list of stmts.
         :rtype: list(ASTSmallStmt/ASTCompoundStmt)
         """
-        return self.__stmts
+        return self.stmts
 
     def add_stmt(self, stmt):
         """
@@ -62,7 +62,7 @@ class ASTBlock(ASTNode):
         :param stmt: a statement
         :type stmt: ASTSmallStmt,ASTCompoundStmt
         """
-        self.__stmts.append(stmt)
+        self.stmts.append(stmt)
 
     def delete_stmt(self, stmt):
         """
@@ -72,7 +72,7 @@ class ASTBlock(ASTNode):
         :return: True if deleted, otherwise False.
         :rtype: bool
         """
-        self.__stmts.remove(stmt)
+        self.stmts.remove(stmt)
 
     def get_parent(self, ast):
         """
@@ -96,7 +96,7 @@ class ASTBlock(ASTNode):
         :rtype: str
         """
         ret = ''
-        for stmt in self.__stmts:
+        for stmt in self.stmts:
             ret += str(stmt)
             ret += '\n'
         return ret

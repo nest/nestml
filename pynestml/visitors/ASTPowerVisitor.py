@@ -79,7 +79,7 @@ class ASTPowerVisitor(ASTVisitor):
             else:
                 error_message = ErrorStrings.message_unit_base(self, expr.get_source_position())
                 return Either.error(error_message)
-        elif expr.is_unary_operator() and expr.get_unary_operator().isUnaryMinus():
+        elif expr.is_unary_operator() and expr.get_unary_operator().is_unary_minus:
             term = self.calculate_numeric_value(expr.get_expression())
             if term.is_error():
                 return term

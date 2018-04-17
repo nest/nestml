@@ -57,7 +57,7 @@ class ASTVariable(ASTNode):
         self.name = name
         self.differential_order = differential_order
 
-    def resolveInOwnScope(self):
+    def resolve_in_own_scope(self):
         from pynestml.symbols.Symbol import SymbolKind
         assert self.get_scope() is not None
         return self.get_scope().resolve_to_symbol(self.get_complete_name(), SymbolKind.VARIABLE)

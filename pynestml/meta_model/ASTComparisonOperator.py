@@ -35,53 +35,37 @@ class ASTComparisonOperator(ASTNode):
     __isGe = False
     __isGt = False
 
-    def __init__(self, _isLt=False, _isLe=False, _isEq=False, _isNe=False, _isNe2=False,
-                 _isGe=False, _isGt=False, source_position=None):
+    def __init__(self, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False, is_ge=False,
+                 is_gt=False, source_position=None):
         """
         Standard constructor.
-        :param _isLt: is less than operator.
-        :type _isLt: bool
-        :param _isLe: is less equal operator.
-        :type _isLe: bool
-        :param _isEq: is equality operator.
-        :type _isEq: bool
-        :param _isNe: is not equal operator.
-        :type _isNe: bool
-        :param _isNe2: is not equal operator (alternative syntax).
-        :type _isNe2: bool
-        :param _isGe: is greater equal operator.
-        :type _isGe: bool
-        :param _isGt: is greater than operator.
-        :type _isGt: bool
-        :param _sourcePosition: the position of the element in the source
+        :param is_lt: is less than operator.
+        :type is_lt: bool
+        :param is_le: is less equal operator.
+        :type is_le: bool
+        :param is_eq: is equality operator.
+        :type is_eq: bool
+        :param is_ne: is not equal operator.
+        :type is_ne: bool
+        :param is_ne2: is not equal operator (alternative syntax).
+        :type is_ne2: bool
+        :param is_ge: is greater equal operator.
+        :type is_ge: bool
+        :param is_gt: is greater than operator.
+        :type is_gt: bool
+        :param source_position: the position of the element in the source
         :type source_position: ASTSourceLocation
         """
-        assert (_isLt is not None and isinstance(_isLt, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-less-than operator provided (%s)!' % type(_isLt)
-        assert (_isLe is not None and isinstance(_isLe, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-less-equal operator provided (%s)!' % type(_isLe)
-        assert (_isEq is not None and isinstance(_isEq, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-equal operator provided (%s)!' % type(_isEq)
-        assert (_isNe is not None and isinstance(_isNe, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-not-equal operator provided (%s)!' % type(_isNe)
-        assert (_isNe2 is not None and isinstance(_isNe2, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-not-equal2 operator provided (%s)!' % type(_isNe2)
-        assert (_isGe is not None and isinstance(_isGe, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-greater-equal operator provided (%s)!' % type(
-                _isGe)
-        assert (_isGt is not None and isinstance(_isGt, bool)), \
-            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-greater-than operator provided (%s)!' % type(
-                _isGt)
-        assert ((_isLt + _isLe + _isEq + _isNe + _isNe2 + _isGe + _isGt) == 1), \
+        assert ((is_lt + is_le + is_eq + is_ne + is_ne2 + is_ge + is_gt) == 1), \
             '(PyNestML.AST.ComparisonOperator) Comparison operator not correctly specified!'
         super(ASTComparisonOperator, self).__init__(source_position)
-        self.__isGt = _isGt
-        self.__isGe = _isGe
-        self.__isNe2 = _isNe2
-        self.__isNe = _isNe
-        self.__isEq = _isEq
-        self.__isLe = _isLe
-        self.__isLt = _isLt
+        self.__isGt = is_gt
+        self.__isGe = is_ge
+        self.__isNe2 = is_ne2
+        self.__isNe = is_ne
+        self.__isEq = is_eq
+        self.__isLe = is_le
+        self.__isLt = is_lt
         return
 
     def isLt(self):
@@ -183,6 +167,6 @@ class ASTComparisonOperator(ASTNode):
         """
         if not isinstance(other, ASTComparisonOperator):
             return False
-        return self.isLt() == other.isLt() and self.isLe() == other.isLe() and \
-               self.isEq() == other.isEq() and self.isNe() == other.isNe() and \
-               self.isNe2() == other.isNe2() and self.isGe() == other.isGe() and self.isGt() == other.isGt()
+        return (self.isLt() == other.isLt() and self.isLe() == other.isLe() and
+                self.isEq() == other.isEq() and self.isNe() == other.isNe() and
+                self.isNe2() == other.isNe2() and self.isGe() == other.isGe() and self.isGt() == other.isGt())

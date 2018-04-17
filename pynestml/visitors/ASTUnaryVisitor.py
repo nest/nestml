@@ -42,12 +42,12 @@ class ASTUnaryVisitor(ASTVisitor):
 
         term_type.referenced_object = node.get_expression()
 
-        if unary_op.isUnaryMinus():
+        if unary_op.is_unary_minus:
             node.type = -term_type
             return
-        if unary_op.isUnaryPlus():
+        if unary_op.is_unary_plus:
             node.type = +term_type
             return
-        if unary_op.isUnaryTilde():
+        if unary_op.is_unary_tilde:
             node.type = ~term_type
             return

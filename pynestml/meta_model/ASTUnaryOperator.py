@@ -27,61 +27,31 @@ class ASTUnaryOperator(ASTNode):
     Grammar:
         unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
     """
-    __isUnaryPlus = False
-    __isUnaryMinus = False
-    __isUnaryTilde = False
+    is_unary_plus = False
+    is_unary_minus = False
+    is_unary_tilde = False
 
-    def __init__(self, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, source_position=None):
+    def __init__(self, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False, source_position=None):
         """
         Standard constructor.
-        :param _isUnaryPlus: is a unary plus.
-        :type _isUnaryPlus: bool
-        :param _isUnaryMinus: is a unary minus.
-        :type _isUnaryMinus: bool
-        :param _isUnaryTilde: is a unary tilde.
-        :type _isUnaryTilde: bool
+        :param is_unary_plus: is a unary plus.
+        :type is_unary_plus: bool
+        :param is_unary_minus: is a unary minus.
+        :type is_unary_minus: bool
+        :param is_unary_tilde: is a unary tilde.
+        :type is_unary_tilde: bool
         :param source_position: the position of this element in the source file.
-        :type _sourcePosition: ASTSourceLocation.
+        :type source_position: ASTSourceLocation.
         """
-        assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
-            '(PyNestML.AST.UnaryOperator) Wrong type of unary minus provided (%s)!' % type(_isUnaryMinus)
-        assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
-            '(PyNestML.AST.UnaryOperator) Wrong type of unary plus provided (%s)!' % type(_isUnaryPlus)
-        assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
-            '(PyNestML.AST.UnaryOperator) Wrong type of unary tilde provided (%s)!' % type(_isUnaryTilde)
-        assert ((_isUnaryTilde + _isUnaryMinus + _isUnaryPlus) == 1), \
+        assert ((is_unary_tilde + is_unary_minus + is_unary_plus) == 1), \
             '(PyNestML.AST.UnaryOperator) Type of unary operator not correctly specified!'
         super(ASTUnaryOperator, self).__init__(source_position)
-        self.__isUnaryPlus = _isUnaryPlus
-        self.__isUnaryMinus = _isUnaryMinus
-        self.__isUnaryTilde = _isUnaryTilde
+        self.is_unary_plus = is_unary_plus
+        self.is_unary_minus = is_unary_minus
+        self.is_unary_tilde = is_unary_tilde
         return
 
-    def isUnaryPlus(self):
-        """
-        Returns whether it is a unary plus.
-        :return: True if unary plus, otherwise False.
-        :rtype: bool
-        """
-        return self.__isUnaryPlus
-
-    def isUnaryMinus(self):
-        """
-        Returns whether it is a minus plus.
-        :return: True if unary minus, otherwise False.
-        :rtype: bool
-        """
-        return self.__isUnaryMinus
-
-    def isUnaryTilde(self):
-        """
-        Returns whether it is a tilde plus.
-        :return: True if unary tilde, otherwise False.
-        :rtype: bool
-        """
-        return self.__isUnaryTilde
-
-    def get_parent(self, ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
@@ -97,16 +67,16 @@ class ASTUnaryOperator(ASTNode):
         :return: the operator as a string.
         :rtype: str
         """
-        if self.__isUnaryPlus:
+        if self.is_unary_plus:
             return '+'
-        elif self.__isUnaryMinus:
+        elif self.is_unary_minus:
             return '-'
-        elif self.__isUnaryTilde:
+        elif self.is_unary_tilde:
             return '~'
         else:
             raise RuntimeError('Type of unary operator not specified!')
 
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.
@@ -116,6 +86,6 @@ class ASTUnaryOperator(ASTNode):
         """
         if not isinstance(other, ASTUnaryOperator):
             return False
-        return (self.isUnaryMinus() == other.isUnaryMinus()
-                and self.isUnaryPlus() == other.isUnaryPlus()
-                and self.isUnaryTilde() == other.isUnaryTilde())
+        return (self.is_unary_minus == other.is_unary_minus
+                and self.is_unary_plus == other.is_unary_plus
+                and self.is_unary_tilde == other.is_unary_tilde)

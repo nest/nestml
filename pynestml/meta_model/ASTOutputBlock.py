@@ -32,19 +32,19 @@ class ASTOutputBlock(ASTNode):
     Grammar:
         outputBlock: 'output' BLOCK_OPEN ('spike' | 'current') ;
     """
-    __type = None
+    type = None
 
-    def __init__(self, type, source_position):
+    def __init__(self, o_type, source_position):
         # type: (ASTSignalType,ASTSourceLocation) -> None
         """
         Standard constructor.
-        :param type: the type of the output buffer.
-        :type type: SignalType
+        :param o_type: the type of the output buffer.
+        :type o_type: SignalType
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
         super(ASTOutputBlock, self).__init__(source_position)
-        self.__type = type
+        self.type = o_type
 
     def is_spike(self):
         """
@@ -52,7 +52,7 @@ class ASTOutputBlock(ASTNode):
         :return: True if spike, otherwise False.
         :rtype: bool
         """
-        return self.__type is ASTSignalType.SPIKE
+        return self.type is ASTSignalType.SPIKE
 
     def is_current(self):
         """
@@ -60,7 +60,7 @@ class ASTOutputBlock(ASTNode):
         :return: True if current, otherwise False.
         :rtype: bool
         """
-        return self.__type is ASTSignalType.CURRENT
+        return self.type is ASTSignalType.CURRENT
 
     def get_parent(self, ast=None):
         """

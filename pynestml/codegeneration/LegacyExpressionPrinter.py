@@ -75,13 +75,13 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
                 return self.print_function_call(_expr.get_function_call())
         elif isinstance(_expr, ASTExpression):
             if _expr.is_unary_operator():
-                if _expr.get_unary_operator().isUnaryPlus():
+                if _expr.get_unary_operator().is_unary_plus:
                     return '(' + self.__referenceConverter.convertUnaryOp('+') + \
                            self.print_expression(_expr.get_expression()) + ')'
-                elif _expr.get_unary_operator().isUnaryMinus():
+                elif _expr.get_unary_operator().is_unary_minus:
                     return '(' + self.__referenceConverter.convertUnaryOp('-') + \
                            self.print_expression(_expr.get_expression()) + ')'
-                elif _expr.get_unary_operator().isUnaryTilde():
+                elif _expr.get_unary_operator().is_unary_tilde:
                     return '(' + self.__referenceConverter.convertUnaryOp('~') + \
                            self.print_expression(_expr.get_expression()) + ')'
             elif _expr.is_encapsulated:

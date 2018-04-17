@@ -39,7 +39,7 @@ class ASTUpdateBlock(ASTNode):
               block
             BLOCK_CLOSE;
     """
-    __block = None
+    block = None
 
     def __init__(self, block, source_position):
         """
@@ -50,7 +50,7 @@ class ASTUpdateBlock(ASTNode):
         :type source_position: ASTSourceLocation.
         """
         super(ASTUpdateBlock, self).__init__(source_position)
-        self.__block = block
+        self.block = block
 
     def get_block(self):
         """
@@ -58,7 +58,7 @@ class ASTUpdateBlock(ASTNode):
         :return: the block
         :rtype: ASTBlock
         """
-        return self.__block
+        return self.block
 
     def get_parent(self, ast=None):
         """

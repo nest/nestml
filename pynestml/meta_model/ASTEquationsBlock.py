@@ -39,7 +39,7 @@ class ASTEquationsBlock(ASTNode):
               (odeFunction|odeEquation|odeShape|NEWLINE)+
             BLOCK_CLOSE;
     """
-    __declarations = None
+    declarations = None
 
     def __init__(self, declarations, source_position):
         """
@@ -57,7 +57,7 @@ class ASTEquationsBlock(ASTNode):
                                           isinstance(decl, ASTOdeFunction))), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(source_position)
-        self.__declarations = declarations
+        self.declarations = declarations
 
     def get_declarations(self):
         """
@@ -65,7 +65,7 @@ class ASTEquationsBlock(ASTNode):
         :return: the block
         :rtype: list(ASTOdeFunction|ASTOdeEquation|ASTOdeShape)
         """
-        return self.__declarations
+        return self.declarations
 
     def get_parent(self, ast=None):
         """
@@ -122,8 +122,8 @@ class ASTEquationsBlock(ASTNode):
         """
         Deletes all declarations as stored in this block.
         """
-        del self.__declarations
-        self.__declarations = list()
+        del self.declarations
+        self.declarations = list()
         return
 
     def __str__(self):

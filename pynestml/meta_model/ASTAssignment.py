@@ -209,4 +209,4 @@ class ASTAssignment(ASTNode):
         return result
 
     def resolveLhsVariableSymbol(self):
-        return self.get_variable().resolveInOwnScope()
+        return self.get_variable().resolve_in_own_scope()

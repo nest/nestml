@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Union
+
 from pynestml.meta_model.ASTExpressionElement import ASTExpressionNode
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTVariable import ASTVariable
@@ -28,71 +30,72 @@ class ASTSimpleExpression(ASTExpressionNode):
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
     Grammar:
     simpleExpression : functionCall
-                   | BOOLEAN_LITERAL // true & false;
+                   | BOOLEAN_LITERAL // true & false ;
                    | (INTEGER|FLOAT) (variable)?
                    | isInf='inf'
                    | STRING_LITERAL
                    | variable;
     Attributes:
-        __functionCall (ASTFunctionCall): A function call reference.
-        __numericLiteral (int or float): A numeric literal.
-        __variable (ASTVariable): A variable reference.
+        function_call: A function call reference.
+        numeric_literal: A numeric literal.
+        variable: A variable reference.
         __isBooleanTrue (bool): True if this is a boolean true literal.
         __isBooleanFalse (bool): True if this is a boolean false literal.
         __isInf (bool): True if this is a infinity literal.
         __string (str): A string literal.
 
     """
-    __functionCall = None
-    __numericLiteral = None
-    __variable = None
-    __isBooleanTrue = False
-    __isBooleanFalse = False
-    __isInf = False
-    __string = None
+    # todo by kp: change attributes
+    function_call = None  # type:ASTFunctionCall
+    numeric_literal = None  # type: Union(float,int)
+    variable = None  # type: ASTVariable
+    __isBooleanTrue = False  # type: bool
+    __isBooleanFalse = False  # type: bool
+    __isInf = False  # type: bool
+    __string = None  # type: str
 
-    def __init__(self, _functionCall=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
-                 _variable=None, _string=None, source_position=None):
+    def __init__(self, function_call=None, boolean_literal=None, numeric_literal=None, is_inf=False,
+                 variable=None, string=None, source_position=None):
         """
         Standard constructor.
-        :param _functionCall: a function call.
-        :type _functionCall: ASTFunctionCall
-        :param _booleanLiteral: a boolean value.
-        :type _booleanLiteral: bool
-        :param _numericLiteral: a numeric value.
-        :type _numericLiteral: float/int
-        :param _isInf: is inf symbol.
-        :type _isInf: bool
-        :param _variable: a variable object.
-        :type _variable: ASTVariable
-        :param _string: a single string literal
-        :type _string: str
+        :param function_call: a function call.
+        :type function_call: ASTFunctionCall
+        :param boolean_literal: a boolean value.
+        :type boolean_literal: bool
+        :param numeric_literal: a numeric value.
+        :type numeric_literal: float/int
+        :param is_inf: is inf symbol.
+        :type is_inf: bool
+        :param variable: a variable object.
+        :type variable: ASTVariable
+        :param string: a single string literal
+        :type string: str
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNestML.AST.SimpleExpression) Not a function call provided (%s)!' % type(_functionCall)
-        assert (_booleanLiteral is None or isinstance(_booleanLiteral, bool)), \
-            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(_booleanLiteral)
-        assert (_isInf is None or isinstance(_isInf, bool)), \
-            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(_isInf)
-        assert (_variable is None or isinstance(_variable, ASTVariable)), \
-            '(PyNestML.AST.SimpleExpression) Not a variable provided (%s)!' % type(_variable)
-        assert (_numericLiteral is None or isinstance(_numericLiteral, int) or isinstance(_numericLiteral, float)), \
-            '(PyNestML.AST.SimpleExpression) Not a number provided (%s)!' % type(_numericLiteral)
-        assert (_string is None or isinstance(_string, str)), \
-            '(PyNestML.AST.SimpleExpression) Not a string provided (%s)!' % type(_string)
+        assert (function_call is None or isinstance(function_call, ASTFunctionCall)), \
+            '(PyNestML.AST.SimpleExpression) Not a function call provided (%s)!' % type(function_call)
+        assert (boolean_literal is None or isinstance(boolean_literal, bool)), \
+            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(boolean_literal)
+        assert (is_inf is None or isinstance(is_inf, bool)), \
+            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(is_inf)
+        assert (variable is None or isinstance(variable, ASTVariable)), \
+            '(PyNestML.AST.SimpleExpression) Not a variable provided (%s)!' % type(variable)
+        assert (numeric_literal is None or isinstance(numeric_literal, int) or isinstance(numeric_literal, float)), \
+            '(PyNestML.AST.SimpleExpression) Not a number provided (%s)!' % type(numeric_literal)
+        assert (string is None or isinstance(string, str)), \
+            '(PyNestML.AST.SimpleExpression) Not a string provided (%s)!' % type(string)
         super(ASTSimpleExpression, self).__init__(source_position)
-        self.__functionCall = _functionCall
-        if _booleanLiteral is not None:
-            if _booleanLiteral:
+        self.function_call = function_call
+        if boolean_literal is not None:
+            if boolean_literal:
                 self.__isBooleanTrue = True
             else:
                 self.__isBooleanFalse = True
-        self.__numericLiteral = _numericLiteral
-        self.__isInf = _isInf
-        self.__variable = _variable
-        self.__string = _string
+        self.numeric_literal = numeric_literal
+        self.__isInf = is_inf
+        self.variable = variable
+        self.__string = string
         return
 
     def is_function_call(self):
@@ -101,7 +104,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if function call, otherwise False.
         :rtype: bool
         """
-        return self.__functionCall is not None
+        return self.function_call is not None
 
     def get_function_call(self):
         """
@@ -109,7 +112,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: the function call object.
         :rtype: ASTFunctionCall
         """
-        return self.__functionCall
+        return self.function_call
 
     def get_function_calls(self):
         """
@@ -144,7 +147,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if numeric literal, otherwise False.
         :rtype: bool
         """
-        return self.__numericLiteral is not None
+        return self.numeric_literal is not None
 
     def get_numeric_literal(self):
         """
@@ -152,7 +155,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: the value of the numeric literal.
         :rtype: int/float
         """
-        return self.__numericLiteral
+        return self.numeric_literal
 
     def is_inf_literal(self):
         """
@@ -168,7 +171,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if has a variable, otherwise False.
         :rtype: bool
         """
-        return self.__variable is not None and self.__numericLiteral is None
+        return self.variable is not None and self.numeric_literal is None
 
     def get_variables(self):
         """
@@ -187,7 +190,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if numeric literal with unit, otherwise False. 
         :rtype: bool
         """
-        return self.__variable is not None and self.__numericLiteral is not None
+        return self.variable is not None and self.numeric_literal is not None
 
     def get_units(self):
         """
@@ -206,7 +209,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: the variable object.
         :rtype: ASTVariable
         """
-        return self.__variable
+        return self.variable
 
     def is_string(self):
         """
@@ -237,11 +240,11 @@ class ASTSimpleExpression(ASTExpressionNode):
                 return self
             elif self.get_function_call().get_parent(ast) is not None:
                 return self.get_function_call().get_parent(ast)
-        if self.__variable is not None:
-            if self.__variable is ast:
+        if self.variable is not None:
+            if self.variable is ast:
                 return self
-            elif self.__variable.get_parent(ast) is not None:
-                return self.__variable.get_parent(ast)
+            elif self.variable.get_parent(ast) is not None:
+                return self.variable.get_parent(ast)
         return None
 
     def set_variable(self, variable):
@@ -252,7 +255,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         assert (variable is None or isinstance(variable, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(variable)
-        self.__variable = variable
+        self.variable = variable
         return
 
     def set_function_call(self, function_call):
@@ -263,7 +266,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         assert (function_call is None or isinstance(function_call, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(function_call)
-        self.__functionCall = function_call
+        self.function_call = function_call
         return
 
     def __str__(self):
@@ -273,7 +276,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :rtype: str
         """
         if self.is_function_call():
-            return str(self.__functionCall)
+            return str(self.function_call)
         elif self.is_boolean_true():
             return 'True'
         elif self.is_boolean_false():
@@ -281,12 +284,12 @@ class ASTSimpleExpression(ASTExpressionNode):
         elif self.is_inf_literal():
             return 'inf'
         elif self.is_numeric_literal():
-            if self.__variable is not None:
-                return str(self.__numericLiteral) + str(self.__variable)
+            if self.variable is not None:
+                return str(self.numeric_literal) + str(self.variable)
             else:
-                return str(self.__numericLiteral)
+                return str(self.numeric_literal)
         elif self.is_variable():
-            return str(self.__variable)
+            return str(self.variable)
         elif self.is_string():
             return self.get_string()
         else:

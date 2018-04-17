@@ -309,20 +309,6 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_initial_values_symbols(self):
-        """
-        Returns a list of all parameter symbol defined in the model.
-        :return: a list of parameter symbols.
-        :rtype: list(VariableSymbol)
-        """
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INITIAL_VALUES and \
-                    not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
-
     def get_state_symbols(self):
         """
         Returns a list of all state symbol defined in the model.
@@ -430,7 +416,7 @@ class ASTNeuron(ASTNode):
                         log_level=LoggingLevel.ERROR)
         return ret
 
-    def getParameterNonAliasSymbols(self):
+    def get_parameter_non_alias_symbols(self):
         """
         Returns a list of all variable symbols representing non-function parameter variables.
         :return: a list of variable symbols
@@ -442,7 +428,7 @@ class ASTNeuron(ASTNode):
                 ret.append(param)
         return ret
 
-    def getStateNonAliasSymbols(self):
+    def get_state_non_alias_symbols(self):
         """
         Returns a list of all variable symbols representing non-function state variables.
         :return: a list of variable symbols
@@ -454,7 +440,7 @@ class ASTNeuron(ASTNode):
                 ret.append(param)
         return ret
 
-    def getInternalNonAliasSymbols(self):
+    def get_internal_non_alias_symbols(self):
         """
         Returns a list of all variable symbols representing non-function internal variables.
         :return: a list of variable symbols
@@ -467,7 +453,7 @@ class ASTNeuron(ASTNode):
 
         return ret
 
-    def getInitialValuesSymbols(self):
+    def get_initial_values_symbols(self):
         """
         Returns a list of all initial values symbol defined in the model.
         :return: a list of initial values symbols.
@@ -482,31 +468,31 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def getFunctionInitialValuesSymbols(self):
+    def get_function_initial_values_symbols(self):
         """
         Returns a list of all initial values symbols as defined in the model which are marked as functions.
         :return: a list of symbols
         :rtype: list(VariableSymbol)
         """
         ret = list()
-        for symbol in self.getInitialValuesSymbols():
+        for symbol in self.get_initial_values_symbols():
             if symbol.is_function:
                 ret.append(symbol)
         return ret
 
-    def getNonFunctionInitialValuesSymbols(self):
+    def get_non_function_initial_values_symbols(self):
         """
         Returns a list of all initial values symbols as defined in the model which are not marked as functions.
         :return: a list of symbols
         :rtype:list(VariableSymbol)
         """
         ret = list()
-        for symbol in self.getInitialValuesSymbols():
+        for symbol in self.get_initial_values_symbols():
             if not symbol.is_function:
                 ret.append(symbol)
         return ret
 
-    def getOdeDefinedSymbols(self):
+    def get_ode_defined_symbols(self):
         """
         Returns a list of all variable symbols which have been defined in th initial_values blocks
         and are provided with an ode.
@@ -523,7 +509,7 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def getStateSymbolsWithoutOde(self):
+    def get_state_symbols_without_ode(self):
         """
         Returns a list of all elements which have been defined in the state block.
         :return: a list of of state variable symbols.
@@ -539,7 +525,7 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def isArrayBuffer(self):
+    def is_array_buffer(self):
         """
         This method indicates whether this neuron uses buffers defined vector-wise.
         :return: True if vector buffers defined, otherwise False.
@@ -551,7 +537,7 @@ class ASTNeuron(ASTNode):
                 return True
         return False
 
-    def getParameterInvariants(self):
+    def get_parameter_invariants(self):
         """
         Returns a list of all invariants of all parameters.
         :return: a list of rhs representing invariants
@@ -572,18 +558,8 @@ class ASTNeuron(ASTNode):
                     ret.append(decl.get_invariant())
         return ret
 
-    def addToStateBlock(self, _declaration=None):
-        """
-        Adds the handed over declaration the state block
-        :param _declaration: a single declaration
-        :type _declaration: ASTDeclaration
-        """
-        if self.get_state_blocks() is None:
-            ASTUtils.create_state_block(self)
-        self.get_state_blocks().get_declarations().append(_declaration)
-        return
-
     def addToInternalBlock(self, _declaration=None):
+        # todo by KP: factor me out to utils
         """
         Adds the handed over declaration the internal block
         :param _declaration: a single declaration
@@ -595,6 +571,7 @@ class ASTNeuron(ASTNode):
         return
 
     def addToInitialValuesBlock(self, _declaration=None):
+        # todo by KP: factor me out to utils
         """
         Adds the handed over declaration to the initial values block.
         :param _declaration: a single declaration.
@@ -631,6 +608,7 @@ class ASTNeuron(ASTNode):
         :return: the corresponding comment.
         :rtype: str
         """
+        # todo by kp: parameter block is not mandatory, this can lead to problems
         block = self.get_parameter_blocks()
         if block is None:
             return _prefix if _prefix is not None else ''

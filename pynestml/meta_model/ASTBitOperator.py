@@ -37,7 +37,7 @@ class ASTBitOperator(ASTNode):
                  source_position=None):
         """
         Standard constructor.
-        :param_sourcePosition: the position of the element in the source
+        :param source_position: the position of the element in the source
         :type source_position: ASTSourceLocation
         :param _isBitAnd: is bit and operator.
         :type _isBitAnd: bool
@@ -149,6 +149,6 @@ class ASTBitOperator(ASTNode):
         """
         if not isinstance(other, ASTBitOperator):
             return False
-        return self.isBitAnd() == other.isBitAnd() and self.isBitOr() == other.isBitOr() and \
-               self.isBitXor() == other.isBitXor() and self.isBitShiftLeft() == self.isBitShiftLeft() and \
-               self.isBitShiftRight() == other.isBitShiftRight()
+        return (self.isBitAnd() == other.isBitAnd() and self.isBitOr() == other.isBitOr() and
+                self.isBitXor() == other.isBitXor() and self.isBitShiftLeft() == self.isBitShiftLeft() and
+                self.isBitShiftRight() == other.isBitShiftRight())

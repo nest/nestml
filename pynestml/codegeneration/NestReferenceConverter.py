@@ -187,11 +187,11 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: the same operator
         :rtype: str
         """
-        if unary_operator.isUnaryPlus():
+        if unary_operator.is_unary_plus:
             return '(' + '+' + '%s' + ')'
-        elif unary_operator.isUnaryMinus():
+        elif unary_operator.is_unary_minus:
             return '(' + '-' + '%s' + ')'
-        elif unary_operator.isUnaryTilde():
+        elif unary_operator.is_unary_tilde:
             return '(' + '~' + '%s' + ')'
         else:
             Logger.log_message('Cannot determine unary operator!', LoggingLevel.ERROR)

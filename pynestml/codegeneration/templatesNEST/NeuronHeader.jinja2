@@ -103,7 +103,7 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
   {% endfor %}
 
   Initial values:
-  {% for init in neuron.getInitialValuesSymbols() -%}
+  {% for init in neuron.get_initial_values_symbols() -%}
   {% if init.has_comment() -%}
     {{init.get_symbol_name()}} [{{init.get_type_symbol().print_symbol()}}] {{init.print_comment()}}
   {% endif -%}
@@ -231,7 +231,7 @@ private:
   */
   struct Parameters_{
     {% filter indent(4,True) %}
-    {% for variable in neuron.getParameterNonAliasSymbols() -%}
+    {% for variable in neuron.get_parameter_non_alias_symbols() -%}
       {% include 'MemberDeclaration.jinja2' -%}
     {% endfor -%}{% endfilter %}
 
@@ -265,16 +265,16 @@ private:
   */
   struct State_{
     {% if not useGSL %}{% filter indent(4,True) -%}
-    {% for variable in neuron.getStateNonAliasSymbols() -%}
+    {% for variable in neuron.get_state_non_alias_symbols() -%}
     {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}
-    {% for variable in neuron.getInitialValuesSymbols() -%}
+    {% for variable in neuron.get_initial_values_symbols() -%}
     {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% else -%}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
-    {% for variable in neuron.getOdeDefinedSymbols() -%}
+    {% for variable in neuron.get_ode_defined_symbols() -%}
       {{variable.print_comment("// ")}}
       {{names.convertToCPPName(variable.get_symbol_name())}},
       {% endfor -%}
@@ -285,7 +285,7 @@ private:
     {% for variable in neuron.get_state_symbols() -%}
       {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}
-    {% for variable in neuron.getFunctionInitialValuesSymbols() -%}
+    {% for variable in neuron.get_function_initial_values_symbols() -%}
       {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% endif -%}
@@ -311,7 +311,7 @@ private:
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {
-    {%- for variable in neuron.getInternalNonAliasSymbols() -%}
+    {%- for variable in neuron.get_internal_non_alias_symbols() -%}
       {% filter indent(4,True) %}{% include "MemberDeclaration.jinja2" -%}{% endfilter %}
     {% endfor %}
   };
@@ -332,7 +332,7 @@ private:
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<{{neuronName}}> logger_;
-    {% if ((neuron.get_multiple_receptors())|length > 1) or neuron.isArrayBuffer() %}
+    {% if ((neuron.get_multiple_receptors())|length > 1) or neuron.is_array_buffer() %}
     std::vector<long> receptor_types_;
     {% endif %}
 
@@ -382,7 +382,7 @@ private:
   {%- endwith -%}
   {%- endfor -%}
 
-  {%- for init in neuron.getInitialValuesSymbols() -%}
+  {%- for init in neuron.get_initial_values_symbols() -%}
   {%- with variable = init -%}
   {%- include "MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
@@ -575,7 +575,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- include "AssignTmpDictionaryValue.jinja2" %}
   {%- endwith %}
   {%- endfor %}
-  {%- for invariant in neuron.getParameterInvariants() %}
+  {%- for invariant in neuron.get_parameter_invariants() %}
   if ( !({{printer.print_expression(invariant)}}) ) {
     throw nest::BadProperty("The constraint '{{idemPrinter.print_expression(invariant)}}' is violated!");
   }

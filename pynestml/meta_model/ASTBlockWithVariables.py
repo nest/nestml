@@ -47,35 +47,35 @@ class ASTBlockWithVariables(ASTNode):
     __isInitValues = False
     __declarations = None
 
-    def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _isInitialValues=False,
-                 _declarations=list(), source_position=None):
+    def __init__(self, is_state=False, is_parameters=False, is_internals=False, is_initial_values=False,
+                 declarations=list(), source_position=None):
         """
         Standard constructor.
-        :param _isState: is a state block.
-        :type _isState: bool
-        :param _isParameters: is a parameter block.
-        :type _isParameters: bool 
-        :param _isInternals: is an internals block.
-        :type _isInternals: bool
-        :param _isInitialValues: is an initial values block.
-        :type _isInitialValues: bool
-        :param _declarations: a list of declarations.
-        :type _declarations: list(ASTDeclaration)
+        :param is_state: is a state block.
+        :type is_state: bool
+        :param is_parameters: is a parameter block.
+        :type is_parameters: bool 
+        :param is_internals: is an internals block.
+        :type is_internals: bool
+        :param is_initial_values: is an initial values block.
+        :type is_initial_values: bool
+        :param declarations: a list of declarations.
+        :type declarations: list(ASTDeclaration)
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        assert (_isInternals or _isParameters or _isState or _isInitialValues), \
+        assert (is_internals or is_parameters or is_state or is_initial_values), \
             '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
-        assert ((_isInternals + _isParameters + _isState + _isInitialValues) == 1), \
+        assert ((is_internals + is_parameters + is_state + is_initial_values) == 1), \
             '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
-        assert (_declarations is None or isinstance(_declarations, list)), \
-            '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(_declarations)
+        assert (declarations is None or isinstance(declarations, list)), \
+            '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(declarations)
         super(ASTBlockWithVariables, self).__init__(source_position)
-        self.__declarations = _declarations
-        self.__isInternals = _isInternals
-        self.__isParameters = _isParameters
-        self.__isInitValues = _isInitialValues
-        self.__isState = _isState
+        self.__declarations = declarations
+        self.__isInternals = is_internals
+        self.__isParameters = is_parameters
+        self.__isInitValues = is_initial_values
+        self.__isState = is_state
         return
 
     def is_state(self):
@@ -173,7 +173,8 @@ class ASTBlockWithVariables(ASTNode):
         """
         if not isinstance(other, ASTBlockWithVariables):
             return False
-        if not (self.is_initial_values() == other.is_initial_values() and self.is_internals() == other.is_internals() and
+        if not (self.is_initial_values() == other.is_initial_values()
+                and self.is_internals() == other.is_internals() and
                 self.is_parameters() == other.is_parameters() and self.is_state() == other.is_state()):
             return False
         if len(self.get_declarations()) != len(other.get_declarations()):

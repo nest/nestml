@@ -425,3 +425,17 @@ class ASTUtils(object):
                         func.get_name() == PredefinedFunctions.COND_SUM:
                     return True
         return False
+
+    @classmethod
+    def add_to_state_block(cls, neuron, declaration):
+        """
+        Adds the handed over declaration the state block
+        :param neuron: a single neuron instance
+        :type neuron: ASTNeuron
+        :param declaration: a single declaration
+        :type declaration: ASTDeclaration
+        """
+        if neuron.get_state_blocks() is None:
+            ASTUtils.create_state_block(neuron)
+        neuron.get_state_blocks().get_declarations().append(declaration)
+        return

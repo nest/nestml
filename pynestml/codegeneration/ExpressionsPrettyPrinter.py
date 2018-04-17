@@ -65,8 +65,8 @@ class ExpressionsPrettyPrinter(object):
         :return: string representation of the rhs
         :rtype: str
         """
-        if expr.getImplicitConversionFactor() is not None:
-            return str(expr.getImplicitConversionFactor()) + ' * (' + self.__do_print(expr) + ')'
+        if expr.get_implicit_conversion_factor() is not None:
+            return str(expr.get_implicit_conversion_factor()) + ' * (' + self.__do_print(expr) + ')'
         else:
             return self.__do_print(expr)
 

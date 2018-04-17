@@ -203,7 +203,7 @@ class ASTDeclaration(ASTNode):
         ret = ''
         if self.is_recordable():
             ret += 'recordable '
-        if self.is_function():
+        if self.is_function:
             ret += 'function '
         for var in self.get_variables():
             ret += str(var)
@@ -228,7 +228,7 @@ class ASTDeclaration(ASTNode):
         """
         if not isinstance(other, ASTDeclaration):
             return False
-        if not (self.is_function() == other.is_function() and self.is_recordable() == other.is_recordable()):
+        if not (self.is_function == other.is_function and self.is_recordable() == other.is_recordable()):
             return False
         if self.get_size_parameter() != other.get_size_parameter():
             return False

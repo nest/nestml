@@ -56,7 +56,7 @@ class ExactSolutionTransformer(object):
             _solverOutput)
         # copy initial block variables to the state block, since they are not backed through an ODE.
         for decl in _neuron.get_initial_values_declarations():
-            _neuron.addToStateBlock(decl)
+            ASTUtils.add_to_state_block(_neuron, decl)
         working_version = TransformerBase.addVariablesToInitialValues(working_version,
                                                                       state_shape_variables_with_initial_values)
         cls.__addStateUpdates(_solverOutput, working_version)
@@ -69,7 +69,7 @@ class ExactSolutionTransformer(object):
         working_version.get_equations_blocks().clear()
 
         for variable in state_shape_variables_with_initial_values:
-            _neuron.addToStateBlock(ModelParser.parse_declaration(variable[0] + ' real'))
+            ASTUtils.add_to_state_block(_neuron, ModelParser.parse_declaration(variable[0] + ' real'))
 
         if working_version.get_initial_blocks() is not None:
             working_version.get_initial_blocks().clear()

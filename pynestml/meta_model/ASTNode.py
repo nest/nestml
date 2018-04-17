@@ -31,7 +31,7 @@ class ASTNode(object):
     sourcePosition = None
     scope = None
     comment = None
-    _implicitConversionFactor = None
+    implicit_conversion_factor = None
 
     def __init__(self, source_position, scope=None):
         """
@@ -44,22 +44,23 @@ class ASTNode(object):
         self.sourcePosition = source_position
         self.scope = scope
 
-    def setImplicitConversionFactor(self, _implicitFactor=None):
+    def set_implicit_conversion_factor(self, implicit_factor):
         """
-        Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the context where
-        it is used. eg. Volt + milliVolt needs to either be 1000*Volt + milliVolt or Volt + 0.001 * milliVolt
-        :param _implicitFactor: the factor to be installed
-        :type _implicitFactor: float
+        Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the
+        context where it is used. eg. Volt + milliVolt needs to either be
+        1000*Volt + milliVolt or Volt + 0.001 * milliVolt
+        :param implicit_factor: the factor to be installed
+        :type implicit_factor: float
         :return: nothing
         """
         from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.meta_model.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
-        self._implicitConversionFactor = _implicitFactor
+        self.implicit_conversion_factor = implicit_factor
         return
 
-    def getImplicitConversionFactor(self):
+    def get_implicit_conversion_factor(self):
         """
         Returns the factor installed as implicitConversionFactor for this expression
         :return: the conversion factor, if present, or None
@@ -69,7 +70,7 @@ class ASTNode(object):
         from pynestml.meta_model.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
-        return self._implicitConversionFactor
+        return self.implicit_conversion_factor
 
     def get_source_position(self):
         """
