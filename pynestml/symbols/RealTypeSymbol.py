@@ -64,6 +64,9 @@ class RealTypeSymbol(TypeSymbol):
             return self
         return self.binary_operation_not_defined_error('/', other)
 
+    def __div__(self, other):
+        return self.__truediv__(other)
+
     def __neg__(self):
         return self
 

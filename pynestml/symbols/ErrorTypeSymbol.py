@@ -59,6 +59,9 @@ class ErrorTypeSymbol(TypeSymbol):
     def __truediv__(self, other):
         return self
 
+    def __div__(self, other):
+        return self
+
     def __neg__(self):
         return self
 

@@ -82,7 +82,10 @@ class UnitTypeSymbol(TypeSymbol):
             return self.divide_by(other)
         if other.is_numeric_primitive():
             return self
-        return self.binary_operation_not_defined_error('*', other)
+        return self.binary_operation_not_defined_error('/', other)
+
+    def __div__(self, other):
+        return self.__truediv__(other)
 
     def divide_by(self, other):
         from pynestml.symbols.PredefinedTypes import PredefinedTypes
