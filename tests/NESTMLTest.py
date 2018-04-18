@@ -36,8 +36,8 @@ from pynestml.utils.ModelParser import ModelParser
 # setups the infrastructure
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()
-PredefinedFunctions.register_predefined_functions()
-PredefinedVariables.register_predefined_variables()
+PredefinedFunctions.register_functions()
+PredefinedVariables.register_variables()
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 Logger.init_logger(LoggingLevel.NO)
 

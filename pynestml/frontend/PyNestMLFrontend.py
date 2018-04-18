@@ -79,8 +79,8 @@ def init_predefined():
     # initialize the predefined elements
     PredefinedUnits.register_units()
     PredefinedTypes.register_types()
-    PredefinedFunctions.register_predefined_functions()
-    PredefinedVariables.register_predefined_variables()
+    PredefinedFunctions.register_functions()
+    PredefinedVariables.register_variables()
 
 
 def store_log_to_file():

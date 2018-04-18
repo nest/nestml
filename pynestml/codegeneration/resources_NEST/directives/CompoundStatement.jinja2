@@ -4,14 +4,14 @@
 #}
 {%- if stmt.is_if_stmt() -%}
 {%- with ast = stmt.get_if_stmt() -%}
-{%- include "IfStatement.jinja2" -%}
+{%- include "directives/IfStatement.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_for_stmt() -%}
 {%- with ast = stmt.get_for_stmt() -%}}
-{%- include "ForStatement.jinja2" -%}
+{%- include "directives/ForStatement.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_while_stmt() -%}
 {%- with ast = stmt.get_while_stmt() -%}}
-{%- include "WhileStatement.jinja2" -%}
+{%- include "directives/WhileStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}

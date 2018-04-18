@@ -57,15 +57,18 @@ class NestCodeGenerator(object):
         Standard constructor to init the generator.
         """
         # setup the environment
-        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templatesNEST')))
+        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_NEST')))
+        setup = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__),
+                                                                 'resources_NEST',
+                                                                 'setup')))
         # setup the cmake template
-        self.__templateCMakeLists = env.get_template('CMakeLists.jinja2')
+        self.__templateCMakeLists = setup.get_template('CMakeLists.jinja2')
         # setup the module class template
         self.__templateModuleClass = env.get_template('ModuleClass.jinja2')
         # setup the module header
         self.__templateModuleHeader = env.get_template('ModuleHeader.jinja2')
         # setup the SLI_Init file
-        self.__templateSLIInit = env.get_template('SLI_Init.jinja2')
+        self.__templateSLIInit = setup.get_template('SLI_Init.jinja2')
         # setup the neuron header template
         self.__templateNeuronHeader = env.get_template('NeuronHeader.jinja2')
         # setup the neuron implementation template
@@ -201,6 +204,7 @@ class NestCodeGenerator(object):
         gsl_converter = GSLReferenceConverter()
         gsl_printer = LegacyExpressionPrinter(reference_converter=gsl_converter)
         namespace['printerGSL'] = gsl_printer
+        namespace['tracing'] = True  # todo
         return namespace
 
     def defineSolverType(self, _namespace=dict, _neuron=None):

@@ -12,7 +12,7 @@ for( {{ast.get_variable()}} =  {{printer.print_expression(ast.get_start_from())}
      {{ast.get_variable()}} += {{ast.get_step()}} )
 {
   {% with ast = ast.get_block() %}
-  {% include "Block.jinja2" %}
+  {% include "directives/Block.jinja2" %}
   {% endwith %}
 } /* for end */
 

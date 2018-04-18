@@ -38,8 +38,8 @@ from pynestml.visitors.ASTVisitor import ASTVisitor
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()
-PredefinedVariables.register_predefined_variables()
-PredefinedFunctions.register_predefined_functions()
+PredefinedVariables.register_variables()
+PredefinedFunctions.register_functions()
 
 
 class ExpressionTestVisitor(ASTVisitor):

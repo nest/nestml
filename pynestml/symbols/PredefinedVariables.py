@@ -30,7 +30,7 @@ class PredefinedVariables(object):
     TIME_CONSTANT = 't'  # type: str
 
     @classmethod
-    def register_predefined_variables(cls):
+    def register_variables(cls):
         """
         Registers the predefined variables.
         """

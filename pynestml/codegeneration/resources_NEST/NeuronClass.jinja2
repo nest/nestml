@@ -76,20 +76,20 @@ namespace nest
   template <> void RecordablesMap<{{neuronName}}>::create(){
   // use standard names whereever you can for consistency!{% filter indent(2,True) %}
   {%- for variable in neuron.get_state_symbols() %}
-    {%- include "RecordCallback.jinja2" %}
+    {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for variable in neuron.get_initial_values_symbols() %}
-    {%- include "RecordCallback.jinja2" %}
+    {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for variable in neuron.get_internal_symbols() %}
-    {%- include "RecordCallback.jinja2" %}
+    {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for variable in neuron.get_parameter_symbols() %}
-    {%- include "RecordCallback.jinja2" %}
+    {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for odeAlias in neuron.get_ode_aliases() %}
     {%- with variable = odeAlias %}
-      {%- include "RecordCallback.jinja2" %}
+      {%- include "directives/RecordCallback.jinja2" %}
     {%- endwith %}
   {%- endfor %}{% endfilter %}
   }
@@ -148,19 +148,19 @@ namespace nest
 
   {%- for parameter in neuron.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
-  {%- include "MemberInitialization.jinja2" %}
+  {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
   {%- for state in neuron.get_state_non_alias_symbols() -%}
   {%- with variable = state %}
-  {%- include "MemberInitialization.jinja2" %}
+  {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
   {%- for init in neuron.get_initial_values_symbols() -%}
   {%- with variable = init -%}
-  {%- include "MemberInitialization.jinja2" %}
+  {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}{% endfor %}
 }
 
@@ -197,7 +197,7 @@ void {{neuronName}}::init_state_(const Node& proto){
 }
 
 {% if useGSL %}
-{% include "GSLDifferentiationFunction.jinja2" %}
+{% include "directives/GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
 void {{neuronName}}::init_buffers_(){
@@ -237,12 +237,12 @@ void {{neuronName}}::calibrate(){
   B_.logger_.init();
 
   {%- for variable in neuron.get_internal_non_alias_symbols() %}
-  {% include "Calibrate.jinja2" %}
+  {% include "directives/Calibrate.jinja2" %}
   {%- endfor %}
 
   {%- for variable in neuron.get_state_non_alias_symbols() -%}
   {%- if variable.has_vector_parameter() %}{% filter indent(2,True) %}
-  {%- include "Calibrate.jinja2" -%}{% endfilter -%}
+  {%- include "directives/Calibrate.jinja2" -%}{% endfilter -%}
   {%- endif -%}
   {%- endfor -%}
 
@@ -278,7 +278,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     {%- endfor -%}
     {%- set dynamics = neuron.get_update_blocks() -%}
     {%- with ast = dynamics.get_block() -%}{%- filter indent(2,True) -%}
-    {%- include "Block.jinja2" -%}{%- endfilter -%}
+    {%- include "directives/Block.jinja2" -%}{%- endfilter -%}
     {%- endwith %}
     // voltage logging
     B_.logger_.record_data(origin.get_steps()+lag);
@@ -296,7 +296,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 {{printer.printFunctionDefinition(function, neuronName)}}
 {
   {%- with ast = function.get_block() -%}
-  {%- include "Block.jinja2" -%}
+  {%- include "directives/Block.jinja2" -%}
   {%- endwith -%}
 }
 {% endfor -%}

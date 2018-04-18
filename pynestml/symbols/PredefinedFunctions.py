@@ -75,7 +75,7 @@ class PredefinedFunctions(object):
     name2function = {}  # a map dict from function-names to symbols
 
     @classmethod
-    def register_predefined_functions(cls):
+    def register_functions(cls):
         """
         Registers all predefined functions.
         """

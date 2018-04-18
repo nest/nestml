@@ -7,18 +7,18 @@
 #}
 {%- if stmt.is_assignment() -%}
 {%- with ast = stmt.get_assignment() -%}
-{%- include "Assignment.jinja2" -%}
+{%- include "directives/Assignment.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_function_call() -%}
 {%- with ast = stmt.get_function_call() -%}
-{%- include "FunctionCall.jinja2" -%}
+{%- include "directives/FunctionCall.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_declaration() -%}
 {%- with ast = stmt.get_declaration() -%}
-{%- include "Declaration.jinja2" -%}
+{%- include "directives/Declaration.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_return_stmt() -%}
 {%- with ast = stmt.get_return_stmt() -%}
-{%- include "ReturnStatement.jinja2" -%}
+{%- include "directives/ReturnStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}
