@@ -204,7 +204,7 @@ class NestCodeGenerator(object):
         gsl_converter = GSLReferenceConverter()
         gsl_printer = LegacyExpressionPrinter(reference_converter=gsl_converter)
         namespace['printerGSL'] = gsl_printer
-        namespace['tracing'] = True  # todo
+        namespace['tracing'] = True#FrontendConfiguration.is_dev()
         return namespace
 
     def defineSolverType(self, _namespace=dict, _neuron=None):
