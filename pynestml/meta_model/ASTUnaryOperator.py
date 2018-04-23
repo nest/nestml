@@ -61,21 +61,6 @@ class ASTUnaryOperator(ASTNode):
         """
         return None
 
-    def __str__(self):
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
-        if self.is_unary_plus:
-            return '+'
-        elif self.is_unary_minus:
-            return '-'
-        elif self.is_unary_tilde:
-            return '~'
-        else:
-            raise RuntimeError('Type of unary operator not specified!')
-
     def equals(self, other):
         """
         The equals method.

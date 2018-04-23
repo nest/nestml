@@ -86,14 +86,6 @@ class ASTParameter(ASTNode):
             return self.get_data_type().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the parameter.
-        :return: a string representation.
-        :rtype: str
-        """
-        return self.get_name() + ' ' + str(self.get_data_type())
-
     def equals(self, other=None):
         """
         The equals method.

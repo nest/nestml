@@ -74,14 +74,6 @@ class ASTUpdateBlock(ASTNode):
             return self.get_block().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of an update block.
-        :return: a string representing the update block.
-        :rtype: str
-        """
-        return 'update:\n' + str(self.get_block()) + 'end'
-
     def equals(self, other=None):
         """
         The equals method.

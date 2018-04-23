@@ -126,17 +126,6 @@ class ASTEquationsBlock(ASTNode):
         self.declarations = list()
         return
 
-    def __str__(self):
-        """
-        Returns a string representation of the equations block.
-        :return: a string representing an equations block.
-        :rtype: str
-        """
-        ret = 'equations:\n'
-        for decl in self.get_declarations():
-            ret += str(decl) + '\n'
-        return ret + 'end'
-
     def equals(self, other=None):
         """
         The equals method.

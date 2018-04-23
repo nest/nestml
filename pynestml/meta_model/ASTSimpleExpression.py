@@ -269,32 +269,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.function_call = function_call
         return
 
-    def __str__(self):
-        """
-        Returns the string representation of the simple rhs.
-        :return: the operator as a string.
-        :rtype: str
-        """
-        if self.is_function_call():
-            return str(self.function_call)
-        elif self.is_boolean_true():
-            return 'True'
-        elif self.is_boolean_false():
-            return 'False'
-        elif self.is_inf_literal():
-            return 'inf'
-        elif self.is_numeric_literal():
-            if self.variable is not None:
-                return str(self.numeric_literal) + str(self.variable)
-            else:
-                return str(self.numeric_literal)
-        elif self.is_variable():
-            return str(self.variable)
-        elif self.is_string():
-            return self.get_string()
-        else:
-            raise RuntimeError('Simple rhs at %s not specified!' % str(self.get_source_position()))
-
     def equals(self, other=None):
         """
         The equals method.

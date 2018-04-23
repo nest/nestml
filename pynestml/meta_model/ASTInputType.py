@@ -58,17 +58,6 @@ class ASTInputType(ASTNode):
         """
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the input type.
-        :return: a string representation.
-        :rtype: str
-        """
-        if self.is_inhibitory:
-            return 'inhibitory'
-        else:
-            return 'excitatory'
-
     def equals(self, other=None):
         """
         The equals method.

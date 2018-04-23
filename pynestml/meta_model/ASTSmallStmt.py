@@ -155,21 +155,6 @@ class ASTSmallStmt(ASTNode):
                 return self.get_return_stmt().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the small statement.
-        :return: a string representation.
-        :rtype: str
-        """
-        if self.is_assignment():
-            return str(self.get_assignment())
-        elif self.is_function_call():
-            return str(self.get_function_call())
-        elif self.is_declaration():
-            return str(self.get_declaration())
-        else:
-            return str(self.get_return_stmt())
-
     def equals(self, other=None):
         """
         The equals method.

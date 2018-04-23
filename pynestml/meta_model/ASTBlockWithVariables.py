@@ -141,28 +141,6 @@ class ASTBlockWithVariables(ASTNode):
                 return stmt.get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the variable block.
-        :return: a string representation
-        :rtype: str
-        """
-        ret = ''
-        if self.is_state():
-            ret += 'state'
-        elif self.is_parameters():
-            ret += 'parameters'
-        elif self.is_internals():
-            ret += 'internals'
-        else:
-            ret += 'initial_values'
-        ret += ':\n'
-        if self.get_declarations() is not None:
-            for decl in self.get_declarations():
-                ret += str(decl) + '\n'
-        ret += 'end'
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

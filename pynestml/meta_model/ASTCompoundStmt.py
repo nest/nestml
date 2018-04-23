@@ -152,18 +152,3 @@ class ASTCompoundStmt(ASTNode):
                 not self.get_if_stmt().equals(other.get_if_stmt()):
             return False
         return True
-
-    def __str__(self):
-        """
-        Returns a string representation of the compound statement.
-        :return: a string representing the compound statement.
-        :rtype: str
-        """
-        if self.is_if_stmt():
-            return str(self.get_if_stmt())
-        elif self.is_for_stmt():
-            return str(self.get_for_stmt())
-        elif self.is_while_stmt():
-            return str(self.get_while_stmt())
-        else:
-            raise RuntimeError('Type of compound statement not specified!')

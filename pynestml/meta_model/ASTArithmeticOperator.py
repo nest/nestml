@@ -48,29 +48,7 @@ class ASTArithmeticOperator(ASTNode):
         self.is_pow_op = is_pow_op
         return
 
-    def __str__(self):
-        # type: () -> str
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
-        if self.is_times_op:
-            return ' * '
-        elif self.is_div_op:
-            return ' / '
-        elif self.is_modulo_op:
-            return ' % '
-        elif self.is_plus_op:
-            return ' + '
-        elif self.is_minus_op:
-            return ' - '
-        elif self.is_pow_op:
-            return ' ** '
-        else:
-            raise InvalidArithmeticOperator('(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.')
-
-    def get_parent(self, ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.

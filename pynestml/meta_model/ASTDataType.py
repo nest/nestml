@@ -163,27 +163,6 @@ class ASTDataType(ASTNode):
                 return self.get_unit_type().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the data type.
-        :return: a string representation
-        :rtype: str
-        """
-        if self.is_void():
-            return 'void'
-        elif self.is_string():
-            return 'string'
-        elif self.is_boolean():
-            return 'boolean'
-        elif self.is_integer():
-            return 'integer'
-        elif self.is_real():
-            return 'real'
-        elif self.is_unit_type():
-            return str(self.get_unit_type())
-        else:
-            raise RuntimeError('Type of datatype not specified!')
-
     def equals(self, other):
         """
         The equals method.

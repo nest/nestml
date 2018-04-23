@@ -80,19 +80,6 @@ class ASTInputBlock(ASTNode):
                 return line.get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the input block.
-        :return: a string representation.
-        :rtype: str
-        """
-        ret = 'input:\n'
-        if self.getInputLines() is not None:
-            for inputDef in self.getInputLines():
-                ret += str(inputDef) + '\n'
-        ret += 'end\n'
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

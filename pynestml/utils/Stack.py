@@ -66,3 +66,40 @@ class Stack(object):
 
     def top(self):
         return self.list[self.currentIndex]
+
+    def pop_n_to_list(self, n):
+        """
+        Pops the first n items and returns them in a list
+        :param n: the number of items
+        :return: int
+        """
+        ret = list()
+        for i in range(0, n):
+            ret.append(self.pop())
+        return ret
+
+    def pop_n_first_to_list(self, n):
+        """
+        Pops the first n items and returns them in a list
+        :param n: the number of items
+        :return: int
+        """
+        ret = list()
+        for i in range(0, n):
+            ret.append(self.pop_first())
+        return ret
+
+
+    def pop_first(self):
+        """
+        Returns the first element on the stack.
+        :return: a single object if not empty, otherwise None
+        :rtype: object
+        """
+        if self.is_empty():
+            return None
+        else:
+            temp = self.list[0]
+            self.currentIndex = self.currentIndex - 1
+            self.list.remove(temp)
+            return temp

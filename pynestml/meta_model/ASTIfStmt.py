@@ -118,21 +118,6 @@ class ASTIfStmt(ASTNode):
                 return self.get_else_clause().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the if-statement.
-        :return: a string representation
-        :rtype: str
-        """
-        ret = str(self.get_if_clause())
-        if self.get_elif_clauses() is not None:
-            for clause in self.get_elif_clauses():
-                ret += str(clause)
-        if self.get_else_clause() is not None:
-            ret += str(self.get_else_clause())
-        ret += 'end'
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

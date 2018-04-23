@@ -49,12 +49,6 @@ class ASTStmt(ASTNode):
         elif self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
             return self.compound_stmt.get_parent(ast)
 
-    def __str__(self):
-        if self.is_small_stmt():
-            return str(self.small_stmt)
-        else:
-            return str(self.compound_stmt)
-
     def is_small_stmt(self):
         return self.small_stmt is not None
 

@@ -76,17 +76,6 @@ class ASTLogicalOperator(ASTNode):
         """
         return None
 
-    def __str__(self):
-        """
-        Returns a string representing the operator.
-        :return: a string representing the operator
-        :rtype: str
-        """
-        if self.__isLogicalAnd:
-            return ' and '
-        else:
-            return ' or '
-
     def equals(self, other=None):
         """
         The equals method.

@@ -172,14 +172,9 @@ class ASTNode(object):
         """
         visitor.handle(self)
 
-    @abstractmethod
     def __str__(self):
-        """
-        Prints the node to a readable format.
-        :return: a string representation of the node.
-        :rtype: str
-        """
-        pass
+        from pynestml.visitors.ASTNestMLPrinter import ASTNestMLPrinter
+        return ASTNestMLPrinter().print_node(self)
 
     @abstractmethod
     def equals(self, other):

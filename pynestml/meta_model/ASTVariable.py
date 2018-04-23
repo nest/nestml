@@ -139,17 +139,6 @@ class ASTVariable(ASTNode):
         else:
             return False
 
-    def __str__(self):
-        """
-        Returns the string representation of the variable.
-        :return: the variable as a string.
-        :rtype: str
-        """
-        ret = self.name
-        for i in range(1, self.differential_order + 1):
-            ret += "'"
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

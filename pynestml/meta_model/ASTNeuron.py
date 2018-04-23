@@ -673,14 +673,6 @@ class ASTNeuron(ASTNode):
             return self.get_body().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the neuron.
-        :return: a string representation.
-        :rtype: str
-        """
-        return 'neuron ' + self.get_name() + ':\n' + str(self.get_body()) + '\nend'
-
     def equals(self, other=None):
         """
         The equals method.

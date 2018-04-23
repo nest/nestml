@@ -305,32 +305,6 @@ class ASTExpression(ASTExpressionNode):
                 return self.get_if_not().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns the string representation of the expression.
-        :param
-        :return: the expression as a string.
-        :rtype: str
-        """
-        ret = ''
-        if self.is_expression():
-            if self.is_encapsulated:
-                ret += '('
-            if self.is_logical_not:
-                ret += 'not '
-            if self.is_unary_operator():
-                ret += str(self.get_unary_operator())
-            ret += str(self.get_expression())
-            if self.is_encapsulated:
-                ret += ')'
-        elif self.is_compound_expression():
-            ret += str(self.get_lhs())
-            ret += str(self.get_binary_operator())
-            ret += str(self.get_rhs())
-        elif self.is_ternary_operator():
-            ret += str(self.get_condition()) + '?' + str(self.get_if_true()) + ':' + str(self.get_if_not())
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

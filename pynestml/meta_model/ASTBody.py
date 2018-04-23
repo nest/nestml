@@ -188,18 +188,6 @@ class ASTBody(ASTNode):
         else:
             return ret
 
-    def __str__(self):
-        """
-        Returns a string representation of the body.
-        :return: a string representing the body.
-        :rtype: str
-        """
-        ret = ''
-        for elem in self.bodyElements:
-            ret += str(elem)
-            ret += '\n'
-        return ret
-
     def equals(self, other):
         """
         The equals method.

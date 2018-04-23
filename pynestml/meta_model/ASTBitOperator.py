@@ -120,25 +120,6 @@ class ASTBitOperator(ASTNode):
         """
         return None
 
-    def __str__(self):
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
-        if self.__isBitAnd:
-            return ' & '
-        elif self.__isBitXor:
-            return ' ^ '
-        elif self.__isBitOr:
-            return ' | '
-        elif self.__isBitShiftLeft:
-            return ' << '
-        elif self.__isBitShiftRight:
-            return ' >> '
-        else:
-            raise RuntimeError('Type of bit operator not specified!')
-
     def equals(self, other=None):
         """
         The equals method.

@@ -62,7 +62,7 @@ class ASTOutputBlock(ASTNode):
         """
         return self.type is ASTSignalType.CURRENT
 
-    def get_parent(self, ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
@@ -72,15 +72,7 @@ class ASTOutputBlock(ASTNode):
         """
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the output declaration.
-        :return: a string representation
-        :rtype: str
-        """
-        return 'output: ' + ('spike' if self.is_spike() else 'current') + '\n'
-
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.

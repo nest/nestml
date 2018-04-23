@@ -89,18 +89,6 @@ class ASTBlock(ASTNode):
                 return stmt.get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns the raw representation of the block as a string.
-        :return: a string representation
-        :rtype: str
-        """
-        ret = ''
-        for stmt in self.stmts:
-            ret += str(stmt)
-            ret += '\n'
-        return ret
-
     def equals(self, other):
         """
         The equals method.

@@ -421,7 +421,10 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         # we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
         # and update are defined once
-        artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        if hasattr(ctx.start.source[1],'fileName'):
+            artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        else:
+            artifact_name = 'parsed from string'
         neuron = ASTNodeFactory.create_ast_neuron(name=name, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
         # update the comments

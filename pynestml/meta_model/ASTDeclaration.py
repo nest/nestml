@@ -194,30 +194,6 @@ class ASTDeclaration(ASTNode):
                 return self.get_invariant().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the declaration.
-        :return: a string representation.
-        :rtype: str
-        """
-        ret = ''
-        if self.is_recordable():
-            ret += 'recordable '
-        if self.is_function:
-            ret += 'function '
-        for var in self.get_variables():
-            ret += str(var)
-            if self.get_variables().index(var) < len(self.get_variables()) - 1:
-                ret += ','
-        ret += ' ' + str(self.get_data_type()) + ' '
-        if self.has_size_parameter():
-            ret += '[' + self.get_size_parameter() + ']'
-        if self.has_expression():
-            ret += ' = ' + str(self.get_expression()) + ' '
-        if self.has_invariant():
-            ret += ' [[' + str(self.get_invariant()) + ']]'
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

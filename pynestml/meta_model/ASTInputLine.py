@@ -205,27 +205,6 @@ class ASTInputLine(ASTNode):
                 return line.get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the input line.
-        :return: a string representing the input line.
-        :rtype: str
-        """
-        ret = self.get_name()
-        if self.has_datatype():
-            ret += ' ' + str(self.get_datatype()) + ' '
-        if self.has_index_parameter():
-            ret += '[' + self.get_index_parameter() + ']'
-        ret += '<-'
-        if self.has_input_types():
-            for iType in self.get_input_types():
-                ret += str(iType) + ' '
-        if self.is_spike():
-            ret += 'spike'
-        else:
-            ret += 'current'
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

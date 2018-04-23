@@ -79,14 +79,6 @@ class ASTOdeShape(ASTNode):
             return self.get_expression().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the shape.
-        :return: a string representation.
-        :rtype: str
-        """
-        return 'shape ' + str(self.get_variable()) + ' = ' + str(self.get_expression())
-
     def equals(self, other=None):
         """
         The equals method.

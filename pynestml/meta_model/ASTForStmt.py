@@ -118,15 +118,6 @@ class ASTForStmt(ASTNode):
             return self.get_block().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the for statement.
-        :return: a string representing the for statement.
-        :rtype: str
-        """
-        return 'for ' + self.get_variable() + ' in ' + str(self.get_start_from()) + '...' \
-               + str(self.get_end_at()) + ' step ' + str(self.get_step()) + ':\n' + str(self.get_block()) + '\nend'
-
     def equals(self, other=None):
         """
         The equals method.

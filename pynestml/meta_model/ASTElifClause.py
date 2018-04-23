@@ -77,14 +77,6 @@ class ASTElifClause(ASTNode):
             return self.get_block().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the elif clause.
-        :return: a string representation of the elif clause.
-        :rtype: str
-        """
-        return 'elif ' + str(self.get_condition()) + ':\n' + str(self.get_block())
-
     def equals(self, other=None):
         """
         The equals method.

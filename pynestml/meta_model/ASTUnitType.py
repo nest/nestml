@@ -156,25 +156,6 @@ class ASTUnitType(ASTNode):
                 return self.get_rhs().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the unit type.
-        :return: a string representation.
-        :rtype: str
-        """
-        if self.is_encapsulated:
-            return '(' + str(self.compound_unit) + ')'
-        elif self.is_pow:
-            return str(self.base) + '**' + str(self.exponent)
-        elif self.is_arithmetic_expression():
-            t_lhs = (str(self.get_lhs()) if isinstance(self.get_lhs(), ASTUnitType) else self.get_lhs())
-            if self.is_times:
-                return str(t_lhs) + '*' + str(self.get_rhs())
-            else:
-                return str(t_lhs) + '/' + str(self.get_rhs())
-        else:
-            return self.unit
-
     def equals(self, other):
         """
         The equals method.

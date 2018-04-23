@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ASTNode import ASTNode
-from pynestml.utils.Logger import LoggingLevel, Logger
 
 
 class ASTComparisonOperator(ASTNode):
@@ -133,29 +132,6 @@ class ASTComparisonOperator(ASTNode):
         :rtype: AST_ or None
         """
         return None
-
-    def __str__(self):
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
-        if self.__isLt:
-            return ' < '
-        elif self.__isLe:
-            return ' <= '
-        elif self.__isEq:
-            return ' == '
-        elif self.__isNe:
-            return ' != '
-        elif self.__isNe2:
-            return ' <> '
-        elif self.__isGe:
-            return ' >= '
-        elif self.__isGt:
-            return ' > '
-        else:
-            Logger.log_message('Type of comparison operator not specified!', LoggingLevel.WARNING)
 
     def equals(self, other=None):
         """

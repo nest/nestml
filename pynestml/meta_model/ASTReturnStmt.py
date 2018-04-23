@@ -78,14 +78,6 @@ class ASTReturnStmt(ASTNode):
                 return self.get_expression().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the return statement.
-        :return: a string representation
-        :rtype: str
-        """
-        return 'return ' + (str(self.get_expression()) if self.has_expression() else '')
-
     def equals(self, other=None):
         """
         The equals method.

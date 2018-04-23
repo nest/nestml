@@ -88,20 +88,6 @@ class ASTFunctionCall(ASTNode):
                 return param.get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns the string representation of the function call.
-        :return: the function call as a string.
-        :rtype: str
-        """
-        ret = str(self.__calleeName) + '('
-        for i in range(0, len(self.__args)):
-            ret += str(self.__args[i])
-            if i < len(self.__args) - 1:  # in the case that it is not the last arg, print also a comma
-                ret += ','
-        ret += ')'
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

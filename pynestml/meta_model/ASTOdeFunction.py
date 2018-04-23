@@ -104,19 +104,6 @@ class ASTOdeFunction(ASTNode):
             return self.get_expression().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the ode function.
-        :return: a string representation
-        :rtype: str
-        """
-        ret = ''
-        if self.isRecordable():
-            ret += 'recordable'
-        ret += 'function ' + str(self.get_variable_name()) + ' ' + str(self.get_data_type()) + \
-               ' = ' + str(self.get_expression())
-        return ret
-
     def equals(self, other=None):
         """
         The equals method.

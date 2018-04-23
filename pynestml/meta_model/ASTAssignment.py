@@ -106,26 +106,6 @@ class ASTAssignment(ASTNode):
             return self.get_expression().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representing the assignment.
-        :return: a string representing the assignment.
-        :rtype: str
-        """
-        ret = str(self.lhs)
-        if self.is_compound_quotient:
-            ret += '/='
-        elif self.is_compound_product:
-            ret += '*='
-        elif self.is_compound_minus:
-            ret += '-='
-        elif self.is_compound_sum:
-            ret += '+='
-        else:
-            ret += '='
-        ret += str(self.rhs)
-        return ret
-
     def equals(self, other):
         """
         The equals operation.

@@ -83,14 +83,6 @@ class ASTOdeEquation(ASTNode):
             return self.get_rhs().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the equation.
-        :return: a string representing the equation.
-        :rtype: str
-        """
-        return str(self.get_lhs()) + '=' + str(self.get_rhs())
-
     def equals(self, other=None):
         """
         The equals method.

@@ -131,7 +131,7 @@ class ASTFunction(ASTNode):
         """
         self.__typeSymbol = type_symbol
 
-    def get_parent(self, ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
@@ -155,23 +155,7 @@ class ASTFunction(ASTNode):
             return self.get_block().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the function definition.
-        :return: a string representation.
-        :rtype: str
-        """
-        ret = 'function ' + self.get_name() + '('
-        if self.has_parameters():
-            for par in self.get_parameters():
-                ret += str(par)
-        ret += ')'
-        if self.has_return_type():
-            ret += str(self.get_return_type())
-        ret += ':\n' + str(self.get_block()) + '\nend'
-        return ret
-
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.

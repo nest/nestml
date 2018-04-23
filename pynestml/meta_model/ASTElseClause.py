@@ -61,14 +61,6 @@ class ASTElseClause(ASTNode):
             return self.get_block().get_parent(ast)
         return None
 
-    def __str__(self):
-        """
-        Returns a string representation of the else clause.
-        :return: a string representation of the else clause.
-        :rtype: str
-        """
-        return 'else:\n' + str(self.get_block())
-
     def equals(self, other):
         """
         The equals method.
