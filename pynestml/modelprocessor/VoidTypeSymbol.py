@@ -30,13 +30,10 @@ class VoidTypeSymbol(TypeSymbol):
     def __init__(self):
         super(VoidTypeSymbol, self).__init__(_name='void')
 
-    def print_symbol(self):
-        result = 'void'
-        if self.is_buffer:
-            result += ' buffer'
-        return result
+    def print_nestml_type(self):
+        return 'void'
 
-    def _get_concrete_nest_type(self):
+    def print_nest_type(self):
         return 'void'
 
     def is_castable_to(self, _other_type):

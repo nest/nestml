@@ -32,13 +32,11 @@ class NESTTimeTypeSymbol(TypeSymbol):
     def __init__(self, _name=None):
         super(NESTTimeTypeSymbol, self).__init__(_name='time')
 
-    def print_symbol(self):
-        result = 'time'
-        if self.is_buffer:
-            result += ' buffer'
-        return result
+    def print_nestml_type(self):
+        return 'time'
 
-    def _get_concrete_nest_type(self):
+
+    def print_nest_type(self):
         return 'nest::Time'
 
     def __add__(self, other):

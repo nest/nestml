@@ -32,13 +32,10 @@ class StringTypeSymbol(TypeSymbol):
     def __init__(self):
         super(StringTypeSymbol, self).__init__(_name='string')
 
-    def print_symbol(self):
-        result = 'string'
-        if self.is_buffer:
-            result += ' buffer'
-        return result
+    def print_nestml_type(self):
+        return 'string'
 
-    def _get_concrete_nest_type(self):
+    def print_nest_type(self):
         return 'std::string'
 
     def __add__(self, other):

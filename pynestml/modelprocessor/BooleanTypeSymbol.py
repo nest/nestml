@@ -32,13 +32,11 @@ class BooleanTypeSymbol(TypeSymbol):
     def __init__(self):
         super(BooleanTypeSymbol, self).__init__(_name='boolean')
 
-    def print_symbol(self):
-        result = 'boolean'
-        if self.is_buffer:
-            result += ' buffer'
-        return result
+    def print_nestml_type(self):
+        return 'boolean'
 
-    def _get_concrete_nest_type(self):
+
+    def print_nest_type(self):
         return 'bool'
 
     def negate(self):
