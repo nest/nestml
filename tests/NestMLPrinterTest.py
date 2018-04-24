@@ -1,5 +1,5 @@
-import os
 import unittest
+import os
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbol_table.SymbolTable import SymbolTable
@@ -9,7 +9,7 @@ from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.ModelParser import ModelParser
-from pynestml.visitors.ASTNestMLPrinter import ASTNestMLPrinter
+from utils.ASTNestMLPrinter import ASTNestMLPrinter
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -33,7 +33,10 @@ class NESTMLTest(unittest.TestCase):
             '   end\n' \
             'end\n' \
             ''
-        model = ModelParser.parse_neuron(neuron)
+        #model = ModelParser.parse_neuron(neuron)
+        model = ModelParser.parse_model(os.path.join(os.path.dirname(__file__),
+                                                             os.path.join(os.path.join('..', 'models'),
+                                                                          'aeif_cond_alpha.nestml')))
         # now create a new visitor and use it
         model_printer = ASTNestMLPrinter()
         print(model_printer.print_node(model))

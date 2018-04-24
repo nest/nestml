@@ -40,6 +40,10 @@ from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
 
 
 class ASTNestMLPrinter(object):
+    tab_size = 2
+
+    def __init__(self):
+        self.indent = 0
 
     def print_node(self, node):
         if isinstance(node, ASTArithmeticOperator):
@@ -124,20 +128,13 @@ class ASTNestMLPrinter(object):
 
     def print_neuron(self, node):
         # type: (ASTNeuron) -> str
-        """
-        Returns a string representation of the neuron.
-        :return: a string representation.
-        :rtype: str
-        """
-        return 'neuron ' + node.get_name() + ':\n' + self.print_node(node.get_body()) + '\nend'
+        self.inc_indent()
+        ret = 'neuron ' + node.get_name() + ':\n' + self.print_node(node.get_body()) + 'end'
+        self.dec_indent()
+        return ret
 
     def print_arithmetic_operator(self, node):
         # type: (ASTArithmeticOperator) -> str
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
         if node.is_times_op:
             return ' * '
         elif node.is_div_op:
@@ -155,13 +152,7 @@ class ASTNestMLPrinter(object):
 
     def print_assignment(self, node):
         # type: (ASTAssignment) -> str
-        """
-        Returns a string representing the assignment.
-        :return: a string representing the assignment.
-        :rtype: str
-        """
-
-        ret = str(node.lhs)
+        ret = self.print_node(node.lhs)
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -172,16 +163,11 @@ class ASTNestMLPrinter(object):
             ret += '+='
         else:
             ret += '='
-        ret += str(node.rhs)
-        return ret
+        ret += self.print_node(node.rhs)
+        return ' ' * self.indent + ret
 
     def print_bit_operator(self, node):
         # type: (ASTBitOperator) -> str
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
         if node.isBitAnd():
             return ' & '
         elif node.isBitOr():
@@ -197,25 +183,17 @@ class ASTNestMLPrinter(object):
 
     def print_block(self, node):
         # type: (ASTBlock) -> str
-        """
-        Returns the raw representation of the block as a string.
-        :return: a string representation
-        :rtype: str
-        """
         ret = ''
         for stmt in node.stmts:
-            ret += str(stmt)
+            ret += self.print_node(stmt)
             ret += '\n'
         return ret
 
     def print_block_with_variables(self, node):
         # type: (ASTBlockWithVariables) -> str
-        """
-        Returns a string representation of the variable block.
-        :return: a string representation
-        :rtype: str
-        """
-        ret = ''
+        temp_indent = self.indent
+        self.inc_indent()
+        ret = self.print_n_spaces(temp_indent)
         if node.is_state():
             ret += 'state'
         elif node.is_parameters():
@@ -227,30 +205,22 @@ class ASTNestMLPrinter(object):
         ret += ':\n'
         if node.get_declarations() is not None:
             for decl in node.get_declarations():
-                ret += str(decl) + '\n'
-        ret += 'end'
+                ret += self.print_node(decl) + '\n'
+        ret += self.print_n_spaces(temp_indent) + 'end'
+        self.dec_indent()
         return ret
 
     def print_body(self, node):
         # type: (ASTBody) -> str
-        """
-        Returns a string representation of the body.
-        :return: a string representing the body.
-        :rtype: str
-        """
         ret = ''
         for elem in node.bodyElements:
-            ret += str(elem)
+            ret += self.print_node(elem)
             ret += '\n'
+        ret += '\n'
         return ret
 
     def print_comparison_operator(self, node):
         # type: (ASTComparisonOperator) -> str
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
         if node.isLt():
             return ' < '
         elif node.isLe():
@@ -270,27 +240,17 @@ class ASTNestMLPrinter(object):
 
     def print_compound_stmt(self, node):
         # type: (ASTCompoundStmt) -> str
-        """
-        Returns a string representation of the compound statement.
-        :return: a string representing the compound statement.
-        :rtype: str
-        """
         if node.is_if_stmt():
-            return str(node.get_if_stmt())
+            return self.print_node(node.get_if_stmt())
         elif node.is_for_stmt():
-            return str(node.get_for_stmt())
+            return self.print_node(node.get_for_stmt())
         elif node.is_while_stmt():
-            return str(node.get_while_stmt())
+            return self.print_node(node.get_while_stmt())
         else:
             raise RuntimeError('(PyNestML.CompoundStmt.Print) Type of compound statement not specified!')
 
     def print_data_type(self, node):
         # type: (ASTDataType) -> str
-        """
-        Returns a string representation of the data type.
-        :return: a string representation
-        :rtype: str
-        """
         if node.is_void():
             return 'void'
         elif node.is_string():
@@ -302,73 +262,52 @@ class ASTNestMLPrinter(object):
         elif node.is_real():
             return 'real'
         elif node.is_unit_type():
-            return str(node.get_unit_type())
+            return self.print_node(node.get_unit_type())
         else:
             raise RuntimeError('Type of datatype not specified!')
 
     def print_declaration(self, node):
         # type: (ASTDeclaration) -> str
-        """
-        Returns a string representation of the declaration.
-        :return: a string representation.
-        :rtype: str
-        """
         ret = ''
         if node.is_recordable():
             ret += 'recordable '
         if node.is_function:
             ret += 'function '
         for var in node.get_variables():
-            ret += str(var)
+            ret += self.print_node(var)
             if node.get_variables().index(var) < len(node.get_variables()) - 1:
                 ret += ','
-        ret += ' ' + str(node.get_data_type()) + ' '
+        ret += ' ' + self.print_node(node.get_data_type()) + ' '
         if node.has_size_parameter():
             ret += '[' + node.get_size_parameter() + ']'
         if node.has_expression():
             ret += ' = ' + self.print_node(node.get_expression()) + ' '
         if node.has_invariant():
             ret += ' [[' + self.print_node(node.get_invariant()) + ']]'
-        return ret
+        return ' ' * self.indent + ret
 
     def print_elif_clause(self, node):
         # type: (ASTElifClause) -> str
-        """
-        Returns a string representation of the elif clause.
-        :return: a string representation of the elif clause.
-        :rtype: str
-        """
-        return 'elif ' + self.print_node(node.get_condition()) + ':\n' + self.print_node(node.get_block())
+        return (self.print_n_spaces(self.indent) + 'elif ' + self.print_node(node.get_condition()) + ':\n'
+                + self.print_node(node.get_block()))
 
     def print_else_clause(self, node):
         # type: (ASTElseClause) -> str
-        """
-        Returns a string representation of the else clause.
-        :return: a string representation of the else clause.
-        :rtype: str
-        """
-        return 'else:\n' + self.print_node(node.get_block())
+        return self.print_n_spaces(self.indent) + 'else:\n' + self.print_node(node.get_block())
 
     def print_equations_block(self, node):
         # type: (ASTEquationsBlock) -> str
-        """
-        Returns a string representation of the equations block.
-        :return: a string representing an equations block.
-        :rtype: str
-        """
-        ret = 'equations:\n'
+        temp_indent = self.indent
+        self.inc_indent()
+        ret = self.print_n_spaces(temp_indent)
+        ret += 'equations:\n'
         for decl in node.get_declarations():
-            ret += self.print_node(decl) + '\n'
-        return ret + 'end'
+            ret += self.print_n_spaces(self.indent) + self.print_node(decl) + '\n'
+        self.dec_indent()
+        return ret + self.print_n_spaces(temp_indent) + 'end'
 
     def print_expression(self, node):
         # type: (ASTExpression) -> str
-        """
-        Returns the string representation of the expression.
-        :param
-        :return: the expression as a string.
-        :rtype: str
-        """
         ret = ''
         if node.is_expression():
             if node.is_encapsulated:
@@ -391,22 +330,12 @@ class ASTNestMLPrinter(object):
 
     def print_for_stmt(self, node):
         # type: (ASTForStmt) -> str
-        """
-        Returns a string representation of the for statement.
-        :return: a string representing the for statement.
-        :rtype: str
-        """
         return ('for ' + node.get_variable() + ' in ' + self.print_node(node.get_start_from()) + '...'
                 + self.print_node(node.get_end_at()) + ' step ' +
                 str(node.get_step()) + ':\n' + self.print_node(node.get_block()) + '\nend')
 
     def print_function(self, node):
         # type: (ASTFunction) -> str
-        """
-        Returns a string representation of the function definition.
-        :return: a string representation.
-        :rtype: str
-        """
         ret = 'function ' + node.get_name() + '('
         if node.has_parameters():
             for par in node.get_parameters():
@@ -419,11 +348,6 @@ class ASTNestMLPrinter(object):
 
     def print_function_call(self, node):
         # type: (ASTFunctionCall) -> str
-        """
-        Returns the string representation of the function call.
-        :return: the function call as a string.
-        :rtype: str
-        """
         ret = str(node.get_name()) + '('
         for i in range(0, len(node.get_args())):
             ret += self.print_node(node.get_args()[i])
@@ -434,50 +358,34 @@ class ASTNestMLPrinter(object):
 
     def print_if_clause(self, node):
         # type: (ASTIfClause) -> str
-        """
-        Returns a string representation of the if clause.
-        :return: a string representation
-        :rtype: str
-        """
-        return 'if ' + self.print_node(node.get_condition()) + ':\n' + self.print_node(node.get_block())
+        return (self.print_n_spaces(self.indent) + 'if ' + self.print_node(node.get_condition()) + ':\n'
+                + self.print_node(node.get_block()))
 
     def print_if_stmt(self, node):
         # type: (ASTIfStmt) -> str
-        """
-        Returns a string representation of the if-statement.
-        :return: a string representation
-        :rtype: str
-        """
         ret = self.print_node(node.get_if_clause())
         if node.get_elif_clauses() is not None:
             for clause in node.get_elif_clauses():
                 ret += self.print_node(clause)
         if node.get_else_clause() is not None:
             ret += self.print_node(node.get_else_clause())
-        ret += 'end'
+        ret += self.print_n_spaces(self.indent) + 'end'
         return ret
 
     def print_input_block(self, node):
         # type: (ASTInputBlock) -> str
-        """
-        Returns a string representation of the input block.
-        :return: a string representation.
-        :rtype: str
-        """
-        ret = 'input:\n'
+        temp_indent = self.indent
+        self.inc_indent()
+        ret = self.print_n_spaces(temp_indent) + 'input:\n'
         if node.getInputLines() is not None:
             for inputDef in node.getInputLines():
-                ret += self.print_node(inputDef) + '\n'
-        ret += 'end\n'
+                ret += self.print_n_spaces(self.indent) + self.print_node(inputDef) + '\n'
+        ret += self.print_n_spaces(temp_indent) + 'end\n'
+        self.dec_indent()
         return ret
 
     def print_input_line(self, node):
         # type: (ASTInputLine) -> str
-        """
-        Returns a string representation of the input line.
-        :return: a string representing the input line.
-        :rtype: str
-        """
         ret = node.get_name()
         if node.has_datatype():
             ret += ' ' + self.print_node(node.get_datatype()) + ' '
@@ -495,11 +403,6 @@ class ASTNestMLPrinter(object):
 
     def print_input_type(self, node):
         # type: (ASTInputType) -> str
-        """
-        Returns a string representation of the input type.
-        :return: a string representation.
-        :rtype: str
-        """
         if node.is_inhibitory:
             return 'inhibitory'
         else:
@@ -507,11 +410,6 @@ class ASTNestMLPrinter(object):
 
     def print_logical_operator(self, node):
         # type: (ASTLogicalOperator) -> str
-        """
-        Returns a string representing the operator.
-        :return: a string representing the operator
-        :rtype: str
-        """
         if node.is_and():
             return ' and '
         else:
@@ -519,11 +417,6 @@ class ASTNestMLPrinter(object):
 
     def print_compilation_unit(self, node):
         # type: (ASTNestMLCompilationUnit) -> str
-        """
-        Returns a string representation of the compilation unit.
-        :return: a string representation.
-        :rtype: str
-        """
         ret = ''
         if node.get_neuron_list() is not None:
             for neuron in node.get_neuron_list():
@@ -532,20 +425,10 @@ class ASTNestMLPrinter(object):
 
     def print_ode_equation(self, node):
         # type: (ASTOdeEquation) -> str
-        """
-        Returns a string representation of the equation.
-        :return: a string representing the equation.
-        :rtype: str
-        """
         return self.print_node(node.get_lhs()) + '=' + self.print_node(node.get_rhs())
 
     def print_ode_function(self, node):
         # type: (ASTOdeFunction) -> str
-        """
-        Returns a string representation of the ode function.
-        :return: a string representation
-        :rtype: str
-        """
         ret = ''
         if node.isRecordable():
             ret += 'recordable'
@@ -555,47 +438,22 @@ class ASTNestMLPrinter(object):
 
     def print_ode_shape(self, node):
         # type: (ASTOdeShape) -> str
-        """
-        Returns a string representation of the shape.
-        :return: a string representation.
-        :rtype: str
-        """
         return 'shape ' + self.print_node(node.get_variable()) + ' = ' + self.print_node(node.get_expression())
 
     def print_output_block(self, node):
         # type: (ASTOutputBlock) -> str
-        """
-        Returns a string representation of the output declaration.
-        :return: a string representation
-        :rtype: str
-        """
-        return 'output: ' + ('spike' if node.is_spike() else 'current') + '\n'
+        return self.print_n_spaces(self.indent) + 'output: ' + ('spike' if node.is_spike() else 'current') + '\n'
 
     def print_parameter(self, node):
         # type: (ASTParameter) -> str
-        """
-        Returns a string representation of the parameter.
-        :return: a string representation.
-        :rtype: str
-        """
         return node.get_name() + ' ' + self.print_node(node.get_data_type())
 
     def print_return_stmt(self, node):
         # type: (ASTReturnStmt) -> str
-        """
-        Returns a string representation of the return statement.
-        :return: a string representation
-        :rtype: str
-        """
         return 'return ' + (self.print_node(node.get_expression()) if node.has_expression() else '')
 
     def print_simple_expression(self, node):
         # type: (ASTSimpleExpression) -> str
-        """
-        Returns the string representation of the simple rhs.
-        :return: the operator as a string.
-        :rtype: str
-        """
         if node.is_function_call():
             return self.print_node(node.function_call)
         elif node.is_boolean_true():
@@ -618,19 +476,14 @@ class ASTNestMLPrinter(object):
 
     def print_small_stmt(self, node):
         # type: (ASTSmallStmt) -> str
-        """
-        Returns a string representation of the small statement.
-        :return: a string representation.
-        :rtype: str
-        """
         if node.is_assignment():
-            return self.print_node(node.get_assignment())
+            return self.print_n_spaces(self.indent) + self.print_node(node.get_assignment())
         elif node.is_function_call():
-            return self.print_node(node.get_function_call())
+            return self.print_n_spaces(self.indent) + self.print_node(node.get_function_call())
         elif node.is_declaration():
-            return self.print_node(node.get_declaration())
+            return self.print_n_spaces(self.indent) + self.print_node(node.get_declaration())
         else:
-            return self.print_node(node.get_return_stmt())
+            return self.print_n_spaces(self.indent) + self.print_node(node.get_return_stmt())
 
     def print_stmt(self, node):
         # type: (ASTStmt) -> str
@@ -641,11 +494,6 @@ class ASTNestMLPrinter(object):
 
     def print_unary_operator(self, node):
         # type: (ASTUnaryOperator) -> str
-        """
-        Returns the string representation of the operator.
-        :return: the operator as a string.
-        :rtype: str
-        """
         if node.is_unary_plus:
             return '+'
         elif node.is_unary_minus:
@@ -656,11 +504,7 @@ class ASTNestMLPrinter(object):
             raise RuntimeError('Type of unary operator not specified!')
 
     def print_unit_type(self, node):
-        """
-        Returns a string representation of the unit type.
-        :return: a string representation.
-        :rtype: str
-        """
+        # type: (ASTUnitType) -> str
         if node.is_encapsulated:
             return '(' + self.print_node(node.compound_unit) + ')'
         elif node.is_pow:
@@ -676,20 +520,16 @@ class ASTNestMLPrinter(object):
 
     def print_update_block(self, node):
         # type: (ASTUpdateBlock) -> str
-        """
-        Returns a string representation of an update block.
-        :return: a string representing the update block.
-        :rtype: str
-        """
-        return 'update:\n' + self.print_node(node.get_block()) + 'end'
+        temp_indent = self.indent
+        self.inc_indent()
+        ret = (self.print_n_spaces(temp_indent) + 'update:\n' +
+               self.print_node(node.get_block()) +
+               self.print_n_spaces(temp_indent) + 'end')
+        self.dec_indent()
+        return ret
 
     def print_variable(self, node):
         # type: (ASTVariable) -> str
-        """
-        Returns the string representation of the variable.
-        :return: the variable as a string.
-        :rtype: str
-        """
         ret = node.name
         for i in range(1, node.differential_order + 1):
             ret += "'"
@@ -697,9 +537,19 @@ class ASTNestMLPrinter(object):
 
     def print_while_stmt(self, node):
         # type: (ASTWhileStmt) -> str
-        """
-        Returns a string representation of the while statement.
-        :return: a string representation.
-        :rtype: str
-        """
-        return 'while ' + self.print_node(node.get_condition()) + ':\n' + self.print_node(node.get_block()) + '\nend'
+        temp_indent = self.indent
+        self.inc_indent()
+        ret = self.print_n_spaces(temp_indent) + 'while ' + self.print_node(
+            node.get_condition()) + ':\n' + self.print_node(node.get_block()) + '\n' + self.print_n_spaces(
+            temp_indent) + 'end'
+        self.dec_indent()
+        return ret
+
+    def inc_indent(self):
+        self.indent += self.tab_size
+
+    def dec_indent(self):
+        self.indent -= self.tab_size
+
+    def print_n_spaces(self, n):
+        return ' ' * n
