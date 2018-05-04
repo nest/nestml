@@ -655,7 +655,7 @@ def mark_conductance_based_buffers(input_lines):
         if bufferDeclaration.is_spike():
             symbol = bufferDeclaration.get_scope().resolve_to_symbol(bufferDeclaration.get_name(),
                                                                      SymbolKind.VARIABLE)
-            if symbol is not None and symbol.get_type_symbol().equals(PredefinedTypes.get_type('nS')):
+            if symbol is not None and symbol.get_type_symbol().equals(PredefinedTypes.get_buffer_type_if_exists('nS')):
                 symbol.set_conductance_based(True)
     return
 

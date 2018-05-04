@@ -262,3 +262,10 @@ class PredefinedTypes(object):
         type_symbol = UnitTypeSymbol(_unit=unit_type)
         cls.register_type(type_symbol)
         return
+
+    @classmethod
+    def get_buffer_type_if_exists(cls, name):
+        from copy import copy
+        result = copy(cls.get_type(name))
+        result.is_buffer = True
+        return result

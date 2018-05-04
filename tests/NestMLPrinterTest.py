@@ -9,7 +9,7 @@ from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.ModelParser import ModelParser
-from utils.ASTNestMLPrinter import ASTNestMLPrinter
+from pynestml.utils.ASTNestMLPrinter import ASTNestMLPrinter
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -39,6 +39,6 @@ class NESTMLTest(unittest.TestCase):
                                                                           'aeif_cond_alpha.nestml')))
         # now create a new visitor and use it
         model_printer = ASTNestMLPrinter()
-        print(model_printer.print_node(model))
+        #print(model_printer.print_node(model))
         # get the results and compare against constants
         return

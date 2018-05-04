@@ -1,5 +1,5 @@
 #
-# __init__.py.py
+# __init__.py
 #
 # This file is part of NEST.
 #
@@ -19,4 +19,4 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __all__ = ['ASTUtils', 'Logger', 'Stack', 'Either', 'ErrorStrings', 'LoggingHelper', 'Messages', 'ModelParser',
-           'OdeTransformer', 'TypeCaster', 'TypeDictionary', 'UnitType']
+           'OdeTransformer', 'TypeCaster', 'TypeDictionary', 'UnitType', 'ASTNestMLPrinter']
