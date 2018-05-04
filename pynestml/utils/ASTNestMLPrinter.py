@@ -129,7 +129,7 @@ class ASTNestMLPrinter(object):
     def print_neuron(self, node):
         # type: (ASTNeuron) -> str
         self.inc_indent()
-        ret = 'neuron ' + node.get_name() + ':\n' + self.print_node(node.get_body()) + 'end'
+        ret = 'neuron ' + node.get_name() + ':\n' + self.print_node(node.get_body()) + 'end' + '\n'
         self.dec_indent()
         return ret
 
@@ -164,7 +164,7 @@ class ASTNestMLPrinter(object):
         else:
             ret += '='
         ret += self.print_node(node.rhs)
-        return ' ' * self.indent + ret
+        return ret
 
     def print_bit_operator(self, node):
         # type: (ASTBitOperator) -> str
@@ -184,9 +184,11 @@ class ASTNestMLPrinter(object):
     def print_block(self, node):
         # type: (ASTBlock) -> str
         ret = ''
+        self.inc_indent()
         for stmt in node.stmts:
             ret += self.print_node(stmt)
             ret += '\n'
+        self.dec_indent()
         return ret
 
     def print_block_with_variables(self, node):
@@ -212,11 +214,10 @@ class ASTNestMLPrinter(object):
 
     def print_body(self, node):
         # type: (ASTBody) -> str
-        ret = ''
+        ret = '\n'
         for elem in node.bodyElements:
             ret += self.print_node(elem)
-            ret += '\n'
-        ret += '\n'
+            ret += '\n\n'
         return ret
 
     def print_comparison_operator(self, node):
@@ -380,7 +381,7 @@ class ASTNestMLPrinter(object):
         if node.getInputLines() is not None:
             for inputDef in node.getInputLines():
                 ret += self.print_n_spaces(self.indent) + self.print_node(inputDef) + '\n'
-        ret += self.print_n_spaces(temp_indent) + 'end\n'
+        ret += self.print_n_spaces(temp_indent) + 'end'
         self.dec_indent()
         return ret
 
@@ -442,7 +443,7 @@ class ASTNestMLPrinter(object):
 
     def print_output_block(self, node):
         # type: (ASTOutputBlock) -> str
-        return self.print_n_spaces(self.indent) + 'output: ' + ('spike' if node.is_spike() else 'current') + '\n'
+        return self.print_n_spaces(self.indent) + 'output: ' + ('spike' if node.is_spike() else 'current')
 
     def print_parameter(self, node):
         # type: (ASTParameter) -> str
@@ -477,13 +478,14 @@ class ASTNestMLPrinter(object):
     def print_small_stmt(self, node):
         # type: (ASTSmallStmt) -> str
         if node.is_assignment():
-            return self.print_n_spaces(self.indent) + self.print_node(node.get_assignment())
+            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_assignment())
         elif node.is_function_call():
-            return self.print_n_spaces(self.indent) + self.print_node(node.get_function_call())
+            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_function_call())
         elif node.is_declaration():
-            return self.print_n_spaces(self.indent) + self.print_node(node.get_declaration())
+            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_declaration())
         else:
-            return self.print_n_spaces(self.indent) + self.print_node(node.get_return_stmt())
+            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_return_stmt())
+        return ret
 
     def print_stmt(self, node):
         # type: (ASTStmt) -> str
@@ -520,12 +522,9 @@ class ASTNestMLPrinter(object):
 
     def print_update_block(self, node):
         # type: (ASTUpdateBlock) -> str
-        temp_indent = self.indent
-        self.inc_indent()
-        ret = (self.print_n_spaces(temp_indent) + 'update:\n' +
+        ret = (self.print_n_spaces(self.indent) + 'update:\n' +
                self.print_node(node.get_block()) +
-               self.print_n_spaces(temp_indent) + 'end')
-        self.dec_indent()
+               self.print_n_spaces(self.indent) + 'end')
         return ret
 
     def print_variable(self, node):
