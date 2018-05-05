@@ -22,7 +22,8 @@ Logger.init_logger(LoggingLevel.NO)
 
 class NESTMLTest(unittest.TestCase):
     """
-    Tests if the overall model processing frontend works as intended.
+    Tests if the NestML printer works as intended.
+    TODO: work in progress
     """
 
     def test_neuron_print(self):
@@ -42,3 +43,16 @@ class NESTMLTest(unittest.TestCase):
         #print(model_printer.print_node(model))
         # get the results and compare against constants
         return
+
+    def test_block_with_variables_print(self):
+        block = '/* pre1\n ' \
+                '* pre2\n' \
+                '*/\n' \
+                'state:#in1\n' \
+                'end\n' \
+                '/* post1\n' \
+                '* post2\n' \
+                '*/'
+        model = ModelParser.parse_block_with_variables(block)
+        model_printer = ASTNestMLPrinter()
+        #print(model_printer.print_node(model))

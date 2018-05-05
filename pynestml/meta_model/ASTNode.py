@@ -31,6 +31,11 @@ class ASTNode(object):
     sourcePosition = None
     scope = None
     comment = None
+    #
+    pre_comments = list()
+    in_comment = None
+    post_comments = list()
+    #
     implicit_conversion_factor = None
 
     def __init__(self, source_position, scope=None):

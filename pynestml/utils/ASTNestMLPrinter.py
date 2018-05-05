@@ -195,7 +195,8 @@ class ASTNestMLPrinter(object):
         # type: (ASTBlockWithVariables) -> str
         temp_indent = self.indent
         self.inc_indent()
-        ret = self.print_n_spaces(temp_indent)
+        ret = print_ml_comments(node.pre_comments, temp_indent)
+        ret += print_n_spaces(temp_indent)
         if node.is_state():
             ret += 'state'
         elif node.is_parameters():
@@ -204,11 +205,12 @@ class ASTNestMLPrinter(object):
             ret += 'internals'
         else:
             ret += 'initial_values'
-        ret += ':\n'
+        ret += ':' + print_sl_comment(node.in_comment) + '\n'
         if node.get_declarations() is not None:
             for decl in node.get_declarations():
                 ret += self.print_node(decl) + '\n'
-        ret += self.print_n_spaces(temp_indent) + 'end'
+        ret += print_n_spaces(temp_indent) + 'end' + ('\n' if len(node.post_comments) else '')
+        ret += print_ml_comments(node.post_comments, temp_indent)
         self.dec_indent()
         return ret
 
@@ -289,23 +291,23 @@ class ASTNestMLPrinter(object):
 
     def print_elif_clause(self, node):
         # type: (ASTElifClause) -> str
-        return (self.print_n_spaces(self.indent) + 'elif ' + self.print_node(node.get_condition()) + ':\n'
-                + self.print_node(node.get_block()))
+        return (print_n_spaces(self.indent) + 'elif ' + self.print_node(node.get_condition()) +
+                ':\n' + self.print_node(node.get_block()))
 
     def print_else_clause(self, node):
         # type: (ASTElseClause) -> str
-        return self.print_n_spaces(self.indent) + 'else:\n' + self.print_node(node.get_block())
+        return print_n_spaces(self.indent) + 'else:\n' + self.print_node(node.get_block())
 
     def print_equations_block(self, node):
         # type: (ASTEquationsBlock) -> str
         temp_indent = self.indent
         self.inc_indent()
-        ret = self.print_n_spaces(temp_indent)
+        ret = print_n_spaces(temp_indent)
         ret += 'equations:\n'
         for decl in node.get_declarations():
-            ret += self.print_n_spaces(self.indent) + self.print_node(decl) + '\n'
+            ret += print_n_spaces(self.indent) + self.print_node(decl) + '\n'
         self.dec_indent()
-        return ret + self.print_n_spaces(temp_indent) + 'end'
+        return ret + print_n_spaces(temp_indent) + 'end'
 
     def print_expression(self, node):
         # type: (ASTExpression) -> str
@@ -359,7 +361,7 @@ class ASTNestMLPrinter(object):
 
     def print_if_clause(self, node):
         # type: (ASTIfClause) -> str
-        return (self.print_n_spaces(self.indent) + 'if ' + self.print_node(node.get_condition()) + ':\n'
+        return (print_n_spaces(self.indent) + 'if ' + self.print_node(node.get_condition()) + ':\n'
                 + self.print_node(node.get_block()))
 
     def print_if_stmt(self, node):
@@ -370,18 +372,18 @@ class ASTNestMLPrinter(object):
                 ret += self.print_node(clause)
         if node.get_else_clause() is not None:
             ret += self.print_node(node.get_else_clause())
-        ret += self.print_n_spaces(self.indent) + 'end'
+        ret += print_n_spaces(self.indent) + 'end'
         return ret
 
     def print_input_block(self, node):
         # type: (ASTInputBlock) -> str
         temp_indent = self.indent
         self.inc_indent()
-        ret = self.print_n_spaces(temp_indent) + 'input:\n'
+        ret = print_n_spaces(temp_indent) + 'input:\n'
         if node.getInputLines() is not None:
             for inputDef in node.getInputLines():
-                ret += self.print_n_spaces(self.indent) + self.print_node(inputDef) + '\n'
-        ret += self.print_n_spaces(temp_indent) + 'end'
+                ret += print_n_spaces(self.indent) + self.print_node(inputDef) + '\n'
+        ret += print_n_spaces(temp_indent) + 'end'
         self.dec_indent()
         return ret
 
@@ -443,7 +445,7 @@ class ASTNestMLPrinter(object):
 
     def print_output_block(self, node):
         # type: (ASTOutputBlock) -> str
-        return self.print_n_spaces(self.indent) + 'output: ' + ('spike' if node.is_spike() else 'current')
+        return print_n_spaces(self.indent) + 'output: ' + ('spike' if node.is_spike() else 'current')
 
     def print_parameter(self, node):
         # type: (ASTParameter) -> str
@@ -478,13 +480,13 @@ class ASTNestMLPrinter(object):
     def print_small_stmt(self, node):
         # type: (ASTSmallStmt) -> str
         if node.is_assignment():
-            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_assignment())
+            ret = print_n_spaces(self.indent) + self.print_node(node.get_assignment())
         elif node.is_function_call():
-            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_function_call())
+            ret = print_n_spaces(self.indent) + self.print_node(node.get_function_call())
         elif node.is_declaration():
-            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_declaration())
+            ret = print_n_spaces(self.indent) + self.print_node(node.get_declaration())
         else:
-            ret = self.print_n_spaces(self.indent) + self.print_node(node.get_return_stmt())
+            ret = print_n_spaces(self.indent) + self.print_node(node.get_return_stmt())
         return ret
 
     def print_stmt(self, node):
@@ -522,9 +524,9 @@ class ASTNestMLPrinter(object):
 
     def print_update_block(self, node):
         # type: (ASTUpdateBlock) -> str
-        ret = (self.print_n_spaces(self.indent) + 'update:\n' +
+        ret = (print_n_spaces(self.indent) + 'update:\n' +
                self.print_node(node.get_block()) +
-               self.print_n_spaces(self.indent) + 'end')
+               print_n_spaces(self.indent) + 'end')
         return ret
 
     def print_variable(self, node):
@@ -538,9 +540,8 @@ class ASTNestMLPrinter(object):
         # type: (ASTWhileStmt) -> str
         temp_indent = self.indent
         self.inc_indent()
-        ret = self.print_n_spaces(temp_indent) + 'while ' + self.print_node(
-            node.get_condition()) + ':\n' + self.print_node(node.get_block()) + '\n' + self.print_n_spaces(
-            temp_indent) + 'end'
+        ret = (print_n_spaces(temp_indent) + 'while ' + self.print_node(node.get_condition()) +
+               ':\n' + self.print_node(node.get_block()) + '\n' + print_n_spaces(temp_indent) + 'end')
         self.dec_indent()
         return ret
 
@@ -550,5 +551,23 @@ class ASTNestMLPrinter(object):
     def dec_indent(self):
         self.indent -= self.tab_size
 
-    def print_n_spaces(self, n):
-        return ' ' * n
+
+def print_n_spaces(n):
+    return ' ' * n
+
+
+def print_ml_comments(comments, indent=0):
+    if len(comments) == 0:
+        return ''
+    ret = print_n_spaces(indent) + '/*'
+    for c in comments:
+        ret += print_n_spaces(indent) + c + '\n'
+    ret += '*/\n'
+    return ret
+
+
+def print_sl_comment(comment):
+    if comment is not None:
+        return '# ' + comment
+    else:
+        return ''
