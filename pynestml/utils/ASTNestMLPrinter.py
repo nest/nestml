@@ -128,9 +128,12 @@ class ASTNestMLPrinter(object):
 
     def print_neuron(self, node):
         # type: (ASTNeuron) -> str
+        ret = print_ml_comments(node.pre_comments, self.indent)
         self.inc_indent()
-        ret = 'neuron ' + node.get_name() + ':\n' + self.print_node(node.get_body()) + 'end' + '\n'
+        ret += 'neuron ' + node.get_name() + ':' + print_sl_comment(node.in_comment) + '\n' + \
+               self.print_node(node.get_body()) + 'end' + '\n'
         self.dec_indent()
+        ret += print_ml_comments(node.post_comments, self.indent)
         return ret
 
     def print_arithmetic_operator(self, node):
@@ -183,12 +186,13 @@ class ASTNestMLPrinter(object):
 
     def print_block(self, node):
         # type: (ASTBlock) -> str
-        ret = ''
+        ret = print_ml_comments(node.pre_comments, self.indent)
         self.inc_indent()
         for stmt in node.stmts:
             ret += self.print_node(stmt)
             ret += '\n'
         self.dec_indent()
+        ret += print_ml_comments(node.post_comments, self.indent)
         return ret
 
     def print_block_with_variables(self, node):
@@ -557,12 +561,18 @@ def print_n_spaces(n):
 
 
 def print_ml_comments(comments, indent=0):
-    if len(comments) == 0:
+    if len(list(comments)) == 0:
         return ''
     ret = print_n_spaces(indent) + '/*'
-    for c in comments:
-        ret += print_n_spaces(indent) + c + '\n'
-    ret += '*/\n'
+    for comment in comments:
+        for c_line in comment.splitlines(True):
+            if c_line == '\n':
+                ret += print_n_spaces(indent) + '*' + '\n'
+                continue
+            ret += print_n_spaces(indent)
+            ret += '*   ' if c_line[len(c_line) - len(c_line.lstrip())] != '*' else ''
+            ret += c_line
+    ret += print_n_spaces(indent) + '*/\n'
     return ret
 
 

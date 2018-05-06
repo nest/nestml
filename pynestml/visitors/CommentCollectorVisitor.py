@@ -33,46 +33,68 @@ class CommentCollectorVisitor(PyNestMLVisitor):
         self.__tokens = tokens
 
     def visitBlockWithVariables(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitBlock(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitNeuron(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitOdeEquation(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitOdeFunction(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitOdeShape(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitStmt(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+
+    def visitSmallStmt(self, ctx):
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+
+    def visitCompoundStmt(self, ctx):
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitInputLine(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitDeclaration(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitAssignment(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitUpdateBlock(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitEquationsBlock(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitInputBlock(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitOutputBlock(self, ctx):
-        return get_comments(ctx, self.__tokens)
+        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
+                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
 
 def get_comments(ctx, tokens):
@@ -142,7 +164,7 @@ def get_pre_comment(ctx, tokens):
     if empty_before and temp is not None:
         comments.append(temp)
     # we reverse it in order to get the right order of comments
-    return reversed(comments) if len(comments) > 0 else None
+    return list(reversed(comments)) if len(comments) > 0 else list()
 
 
 def __no_definitions_before(ctx, tokens):
@@ -215,7 +237,7 @@ def get_post_comments(ctx, tokens):
         if possibleCommentToken.channel == 0:
             break
 
-    return comments if len(comments) > 0 else None
+    return comments if len(comments) > 0 else list()
 
 
 def replace_delimiters(comment):

@@ -271,7 +271,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         ode_function = ASTNodeFactory.create_ast_ode_function(is_recordable=is_recordable, variable_name=variable_name,
                                                               data_type=data_type, expression=expression,
                                                               source_position=create_source_pos(ctx))
-        ode_function.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ode_function, self.__comments.visit(ctx))
         return ode_function
 
     # Visit a parse tree produced by PyNESTMLParser#equation.
@@ -279,7 +279,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
         ode_equation = ASTNodeFactory.create_ast_ode_equation(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx))
-        ode_equation.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 
     # Visit a parse tree produced by PyNESTMLParser#shape.
@@ -287,7 +287,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
         shape = ASTNodeFactory.create_ast_ode_shape(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx))
-        shape.set_comment(self.__comments.visit(ctx))
+        update_node_comments(shape, self.__comments.visit(ctx))
         return shape
 
     # Visit a parse tree produced by PyNESTMLParser#block.
@@ -297,7 +297,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
             for stmt in ctx.stmt():
                 stmts.append(self.visit(stmt))
         block = ASTNodeFactory.create_ast_block(stmts=stmts, source_position=create_source_pos(ctx))
-        block.set_comment(self.__comments.visit(ctx))
+        update_node_comments(block, self.__comments.visit(ctx))
         return block
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
@@ -306,7 +306,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         while_stmt = self.visit(ctx.whileStmt()) if ctx.whileStmt() is not None else None
         for_stmt = self.visit(ctx.forStmt()) if ctx.forStmt() is not None else None
         node = ASTNodeFactory.create_ast_compound_stmt(if_stmt, while_stmt, for_stmt, create_source_pos(ctx))
-        node.set_comment(self.__comments.visit(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
         return node
 
     # Visit a parse tree produced by PyNESTMLParser#small_Stmt.
@@ -318,7 +318,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         node = ASTNodeFactory.create_ast_small_stmt(assignment=assignment, function_call=function_call,
                                                     declaration=declaration, return_stmt=return_stmt,
                                                     source_position=create_source_pos(ctx))
-        node.set_comment(self.__comments.visit(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
         return node
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
@@ -353,7 +353,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
                                                             size_parameter=size_param,
                                                             expression=expression,
                                                             invariant=invariant, source_position=create_source_pos(ctx))
-        declaration.set_comment(self.__comments.visit(ctx))
+        update_node_comments(declaration, self.__comments.visit(ctx))
         return declaration
 
     # Visit a parse tree produced by PyNESTMLParser#returnStmt.
@@ -421,14 +421,14 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         # we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
         # and update are defined once
-        if hasattr(ctx.start.source[1],'fileName'):
+        if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
         neuron = ASTNodeFactory.create_ast_neuron(name=name, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
         # update the comments
-        neuron.set_comment(self.__comments.visit(ctx))
+        update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_neuron(neuron)
         CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
@@ -490,13 +490,13 @@ class ASTBuilderVisitor(PyNestMLVisitor):
             Logger.log_message('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
                                LoggingLevel.ERROR)
             return
-        ret.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
     def visitUpdateBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         ret = ASTNodeFactory.create_ast_update_block(block=block, source_position=create_source_pos(ctx))
-        ret.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#equations.
@@ -518,7 +518,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
             elements.remove(elem)
         ret = ASTNodeFactory.create_ast_equations_block(declarations=ordered,
                                                         source_position=create_source_pos(ctx))
-        ret.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
@@ -529,7 +529,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
                 input_lines.append(self.visit(line))
         ret = ASTNodeFactory.create_ast_input_block(input_definitions=input_lines,
                                                     source_position=create_source_pos(ctx))
-        ret.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#inputLine.
@@ -550,7 +550,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         ret = ASTNodeFactory.create_ast_input_line(name=name, size_parameter=size_parameter, data_type=data_type,
                                                    input_types=input_types, signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
-        ret.set_comment(self.__comments.visit(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
     # Visit a parse tree produced by PyNESTMLParser#inputType.
@@ -565,11 +565,11 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         source_pos = create_source_pos(ctx)
         if ctx.isSpike is not None:
             ret = ASTNodeFactory.create_ast_output_block(s_type=ASTSignalType.SPIKE, source_position=source_pos)
-            ret.set_comment(self.__comments.visit(ctx))
+            update_node_comments(ret, self.__comments.visit(ctx))
             return ret
         elif ctx.isCurrent is not None:
             ret = ASTNodeFactory.create_ast_output_block(s_type=ASTSignalType.CURRENT, source_position=source_pos)
-            ret.set_comment(self.__comments.visit(ctx))
+            update_node_comments(ret, self.__comments.visit(ctx))
             return ret
         else:
             raise RuntimeError('(PyNestML.ASTBuilder) Type of output buffer not recognized.')
@@ -602,6 +602,13 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
 
 
+def update_node_comments(node, comments):
+    node.comment = comments[0]
+    node.pre_comments = comments[1]
+    node.in_comment = comments[2]
+    node.post_comments = comments[3]
+
+
 def get_next(_elements=list()):
     """
     This method is used to get the next element according to its source position.
@@ -626,4 +633,3 @@ def create_source_pos(ctx):
                                                       start_column=ctx.start.column,
                                                       end_line=ctx.stop.line,
                                                       end_column=ctx.stop.column)
-
