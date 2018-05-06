@@ -35,6 +35,7 @@ from pynestml.utils.Messages import Messages
 def main(args):
     try:
         FrontendConfiguration.config(args)
+        print (FrontendConfiguration.getModuleName())
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.getPath())
         return

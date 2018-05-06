@@ -939,7 +939,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         for bufferDeclaration in _inputLines:
             if bufferDeclaration.isSpike():
                 symbol = bufferDeclaration.getScope().resolveToSymbol(bufferDeclaration.getName(), SymbolKind.VARIABLE)
-                if symbol is not None and symbol.getTypeSymbol().equals(PredefinedTypes.getTypeIfExists('nS')):
+                if symbol is not None and symbol.getTypeSymbol().equals(PredefinedTypes.get_buffer_type_if_exists('nS')):
                     symbol.setConductanceBased(True)
         return
 
