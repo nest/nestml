@@ -9,24 +9,22 @@ python:
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - echo $TRAVIS_BUILD_DIR
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
   - pip install matplotlib
-  - git clone https://github.com/nest/nest-simulator nest_source
+  - cd ~ && git clone https://github.com/nest/nest-simulator nest_source
   - mkdir nest_install
   - cd nest_source && mkdir build && cd build
-  - cmake -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/nest_install .. && make && make install
+  - cmake -DCMAKE_INSTALL_PREFIX=~/nest_install .. && make && make install
   - cd $TRAVIS_BUILD_DIR
 
 install:
   - python setup.py install
   - python PyNestML.py -path models -target target
   - cd ../target && mkdir build && cd build
-  - cmake -Dwith-nest=$TRAVIS_BUILD_DIR/nest_install/bin/nest-config .. && make && make install
+  - cmake -Dwith-nest=~/nest_install/bin/nest-config .. && make && make install
   - cd $TRAVIS_BUILD_DIR
   - source $TRAVIS_BUILD_DIR/nest_install/bin/nest_vars.sh
-  - python tests/resources/NestmlIntegrationTest.py
 
 sudo: true
 
