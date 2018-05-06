@@ -300,7 +300,7 @@ class Scope(object):
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
-                return copy(sim)
+                return sim
         if self.hasEnclosingScope():
             return self.getEnclosingScope().resolveToSymbol(_name, _type)
         else:
