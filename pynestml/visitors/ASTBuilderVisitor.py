@@ -318,7 +318,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         node = ASTNodeFactory.create_ast_small_stmt(assignment=assignment, function_call=function_call,
                                                     declaration=declaration, return_stmt=return_stmt,
                                                     source_position=create_source_pos(ctx))
-        update_node_comments(node, self.__comments.visit(ctx))
+        #update_node_comments(node, self.__comments.visit(ctx))
         return node
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
@@ -330,12 +330,14 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         is_compound_product = True if ctx.compoundProduct is not None else False
         is_compound_quotient = True if ctx.compoundQuotient is not None else False
         expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
-        return ASTNodeFactory.create_ast_assignment(lhs=lhs, is_direct_assignment=is_direct_assignment,
+        node = ASTNodeFactory.create_ast_assignment(lhs=lhs, is_direct_assignment=is_direct_assignment,
                                                     is_compound_sum=is_compound_sum,
                                                     is_compound_minus=is_compound_minus,
                                                     is_compound_product=is_compound_product,
                                                     is_compound_quotient=is_compound_quotient,
                                                     expression=expression, source_position=create_source_pos(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#declaration.
     def visitDeclaration(self, ctx):

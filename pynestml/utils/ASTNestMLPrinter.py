@@ -154,8 +154,10 @@ class ASTNestMLPrinter(object):
             raise RuntimeError('(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.')
 
     def print_assignment(self, node):
+        # todo by kp: there are still problems with the leading indentation
         # type: (ASTAssignment) -> str
-        ret = self.print_node(node.lhs)
+        ret = print_ml_comments(node.pre_comments, self.indent)
+        ret += print_n_spaces(self.indent) + self.print_node(node.lhs) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -166,7 +168,8 @@ class ASTNestMLPrinter(object):
             ret += '+='
         else:
             ret += '='
-        ret += self.print_node(node.rhs)
+        ret += ' ' + self.print_node(node.rhs) + print_sl_comment(node.in_comment) + '\n'
+        ret += print_ml_comments(node.post_comments, self.indent)
         return ret
 
     def print_bit_operator(self, node):
@@ -570,7 +573,9 @@ def print_ml_comments(comments, indent=0):
                 ret += print_n_spaces(indent) + '*' + '\n'
                 continue
             ret += print_n_spaces(indent)
-            ret += '*   ' if c_line[len(c_line) - len(c_line.lstrip())] != '*' else ''
+            if comment.splitlines(True).index(c_line) != 0:
+                ret += ('*  ' if c_line[len(c_line) - len(c_line.lstrip())] != '*' and len(
+                    comment.splitlines(True)) > 1 else '')
             ret += c_line
     ret += print_n_spaces(indent) + '*/\n'
     return ret
@@ -578,6 +583,6 @@ def print_ml_comments(comments, indent=0):
 
 def print_sl_comment(comment):
     if comment is not None:
-        return '# ' + comment
+        return ' # ' + comment.lstrip()
     else:
         return ''

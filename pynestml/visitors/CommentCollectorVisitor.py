@@ -194,7 +194,7 @@ def get_in_comments(ctx, tokens):
     :return: a comment
     :rtype: str
     """
-    for possibleComment in tokens[tokens.index(ctx.stop):]:
+    for possibleComment in tokens[tokens.index(ctx.start):]:
         if possibleComment.channel == 2:
             return replace_delimiters(possibleComment.text)
         if possibleComment.channel == 3:  # channel 3 == new line, thus the one line comment ends here
