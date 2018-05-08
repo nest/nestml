@@ -77,3 +77,47 @@ class NestMLPrinterTest(unittest.TestCase):
         model = ModelParser.parse_assignment(assignment)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(model_printer.print_node(model), assignment)
+
+    def test_function_call_with_comments(self):
+        function_call = '/* pre */\n' \
+                        'min(1,2) # in\n' \
+                        '/* post */\n'
+        model = ModelParser.parse_stmt(function_call)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(model_printer.print_node(model), function_call)
+
+    def test_function_call_without_comments(self):
+        function_call = 'min(1,2)\n'
+        model = ModelParser.parse_stmt(function_call)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(model_printer.print_node(model), function_call)
+
+    def test_neuron_with_comments(self):
+        neuron = '/*pre*/\n' \
+                 'neuron test: # in\n' \
+                 'end\n' \
+                 '/*post*/\n'
+        model = ModelParser.parse_neuron(neuron)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(model_printer.print_node(model), neuron)
+
+    def test_neuron_without_comments(self):
+        neuron = 'neuron test:\n' \
+                 'end\n'
+        model = ModelParser.parse_neuron(neuron)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(model_printer.print_node(model), neuron)
+
+    def test_declaration_with_comments(self):
+        declaration = '/*pre*/\n' \
+                      'test mV = 10mV # in\n' \
+                      '/*post*/\n'
+        model = ModelParser.parse_declaration(declaration)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(model_printer.print_node(model), declaration)
+
+    def test_declaration_without_comments(self):
+        declaration = 'test mV = 10mV\n'
+        model = ModelParser.parse_declaration(declaration)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(model_printer.print_node(model), declaration)

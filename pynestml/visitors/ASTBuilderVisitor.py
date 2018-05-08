@@ -259,8 +259,9 @@ class ASTBuilderVisitor(PyNestMLVisitor):
                 args.append(self.visit(arg))
         elif ctx.expression() is not None:
             args.append(self.visit(ctx.expression()))
-        return ASTNodeFactory.create_ast_function_call(callee_name=name, args=args,
+        node = ASTNodeFactory.create_ast_function_call(callee_name=name, args=args,
                                                        source_position=create_source_pos(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):
@@ -318,7 +319,8 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         node = ASTNodeFactory.create_ast_small_stmt(assignment=assignment, function_call=function_call,
                                                     declaration=declaration, return_stmt=return_stmt,
                                                     source_position=create_source_pos(ctx))
-        #update_node_comments(node, self.__comments.visit(ctx))
+        # update_node_comments(node, self.__comments.visit(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
         return node
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.

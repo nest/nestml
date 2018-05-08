@@ -130,8 +130,8 @@ class ASTNestMLPrinter(object):
         # type: (ASTNeuron) -> str
         ret = print_ml_comments(node.pre_comments, self.indent)
         self.inc_indent()
-        ret += 'neuron ' + node.get_name() + ':' + print_sl_comment(node.in_comment) + '\n' + \
-               self.print_node(node.get_body()) + 'end' + '\n'
+        ret += 'neuron ' + node.get_name() + ':' + print_sl_comment(node.in_comment)
+        ret += '\n' + self.print_node(node.get_body()) + 'end' + '\n'
         self.dec_indent()
         ret += print_ml_comments(node.post_comments, self.indent)
         return ret
@@ -154,7 +154,6 @@ class ASTNestMLPrinter(object):
             raise RuntimeError('(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.')
 
     def print_assignment(self, node):
-        # todo by kp: there are still problems with the leading indentation
         # type: (ASTAssignment) -> str
         ret = print_ml_comments(node.pre_comments, self.indent)
         ret += print_n_spaces(self.indent) + self.print_node(node.lhs) + ' '
@@ -193,7 +192,6 @@ class ASTNestMLPrinter(object):
         self.inc_indent()
         for stmt in node.stmts:
             ret += self.print_node(stmt)
-            ret += '\n'
         self.dec_indent()
         ret += print_ml_comments(node.post_comments, self.indent)
         return ret
@@ -223,7 +221,7 @@ class ASTNestMLPrinter(object):
 
     def print_body(self, node):
         # type: (ASTBody) -> str
-        ret = '\n'
+        ret = ''
         for elem in node.bodyElements:
             ret += self.print_node(elem)
             ret += '\n\n'
@@ -278,7 +276,8 @@ class ASTNestMLPrinter(object):
 
     def print_declaration(self, node):
         # type: (ASTDeclaration) -> str
-        ret = ''
+        ret = print_ml_comments(node.pre_comments,self.indent)
+        ret += print_n_spaces(self.indent)
         if node.is_recordable():
             ret += 'recordable '
         if node.is_function:
@@ -289,12 +288,15 @@ class ASTNestMLPrinter(object):
                 ret += ','
         ret += ' ' + self.print_node(node.get_data_type()) + ' '
         if node.has_size_parameter():
-            ret += '[' + node.get_size_parameter() + ']'
+            ret += '[' + node.get_size_parameter() + '] '
         if node.has_expression():
-            ret += ' = ' + self.print_node(node.get_expression()) + ' '
+            ret += '= ' + self.print_node(node.get_expression())
         if node.has_invariant():
             ret += ' [[' + self.print_node(node.get_invariant()) + ']]'
-        return ' ' * self.indent + ret
+        ret += print_sl_comment(node.in_comment)
+        ret += '\n'
+        ret += print_ml_comments(node.post_comments,self.indent)
+        return ret
 
     def print_elif_clause(self, node):
         # type: (ASTElifClause) -> str
@@ -379,7 +381,7 @@ class ASTNestMLPrinter(object):
                 ret += self.print_node(clause)
         if node.get_else_clause() is not None:
             ret += self.print_node(node.get_else_clause())
-        ret += print_n_spaces(self.indent) + 'end'
+        ret += print_n_spaces(self.indent) + 'end\n'
         return ret
 
     def print_input_block(self, node):
@@ -487,13 +489,18 @@ class ASTNestMLPrinter(object):
     def print_small_stmt(self, node):
         # type: (ASTSmallStmt) -> str
         if node.is_assignment():
-            ret = print_n_spaces(self.indent) + self.print_node(node.get_assignment())
+            ret = self.print_node(node.get_assignment())
         elif node.is_function_call():
-            ret = print_n_spaces(self.indent) + self.print_node(node.get_function_call())
+            # the problem with the function is that it is used inside an expression or as a simple statement
+            # we therefore have to include the right printing here
+            ret = print_ml_comments(node.pre_comments, self.indent)
+            ret += print_n_spaces(self.indent) + self.print_node(node.get_function_call())
+            ret += print_sl_comment(node.in_comment) + '\n'
+            ret += print_ml_comments(node.post_comments, self.indent)
         elif node.is_declaration():
-            ret = print_n_spaces(self.indent) + self.print_node(node.get_declaration())
+            ret = self.print_node(node.get_declaration())
         else:
-            ret = print_n_spaces(self.indent) + self.print_node(node.get_return_stmt())
+            ret = self.print_node(node.get_return_stmt())
         return ret
 
     def print_stmt(self, node):
