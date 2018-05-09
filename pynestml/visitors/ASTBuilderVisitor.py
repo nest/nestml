@@ -408,14 +408,18 @@ class ASTBuilderVisitor(PyNestMLVisitor):
 
         step = step_scalar * value
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        return ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=start_from, end_at=end_at, step=step,
+        node = ASTNodeFactory.create_ast_for_stmt(variable=variable, start_from=start_from, end_at=end_at, step=step,
                                                   block=block, source_position=create_source_pos(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#whileStmt.
     def visitWhileStmt(self, ctx):
         cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        return ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=create_source_pos(ctx))
+        node = ASTNodeFactory.create_ast_while_stmt(condition=cond, block=block, source_position=create_source_pos(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitNeuron(self, ctx):

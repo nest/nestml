@@ -276,7 +276,7 @@ class ASTNestMLPrinter(object):
 
     def print_declaration(self, node):
         # type: (ASTDeclaration) -> str
-        ret = print_ml_comments(node.pre_comments,self.indent)
+        ret = print_ml_comments(node.pre_comments, self.indent)
         ret += print_n_spaces(self.indent)
         if node.is_recordable():
             ret += 'recordable '
@@ -295,7 +295,7 @@ class ASTNestMLPrinter(object):
             ret += ' [[' + self.print_node(node.get_invariant()) + ']]'
         ret += print_sl_comment(node.in_comment)
         ret += '\n'
-        ret += print_ml_comments(node.post_comments,self.indent)
+        ret += print_ml_comments(node.post_comments, self.indent)
         return ret
 
     def print_elif_clause(self, node):
@@ -311,12 +311,15 @@ class ASTNestMLPrinter(object):
         # type: (ASTEquationsBlock) -> str
         temp_indent = self.indent
         self.inc_indent()
-        ret = print_n_spaces(temp_indent)
-        ret += 'equations:\n'
+        ret = print_ml_comments(node.pre_comments, temp_indent)
+        ret += print_n_spaces(temp_indent)
+        ret += 'equations:' + print_sl_comment(node.in_comment) + '\n'
         for decl in node.get_declarations():
             ret += print_n_spaces(self.indent) + self.print_node(decl) + '\n'
         self.dec_indent()
-        return ret + print_n_spaces(temp_indent) + 'end'
+        ret += print_n_spaces(temp_indent) + 'end' + '\n'
+        ret += print_ml_comments(node.post_comments, temp_indent)
+        return ret
 
     def print_expression(self, node):
         # type: (ASTExpression) -> str
@@ -342,9 +345,13 @@ class ASTNestMLPrinter(object):
 
     def print_for_stmt(self, node):
         # type: (ASTForStmt) -> str
-        return ('for ' + node.get_variable() + ' in ' + self.print_node(node.get_start_from()) + '...'
+        ret = print_ml_comments(node.pre_comments, self.indent)
+        ret += ('for ' + node.get_variable() + ' in ' + self.print_node(node.get_start_from()) + '...'
                 + self.print_node(node.get_end_at()) + ' step ' +
-                str(node.get_step()) + ':\n' + self.print_node(node.get_block()) + '\nend')
+                str(node.get_step()) + ':' + print_sl_comment(node.in_comment) + '\n')
+        ret += self.print_node(node.get_block()) + 'end\n'
+        ret += print_ml_comments(node.post_comments, self.indent)
+        return ret
 
     def print_function(self, node):
         # type: (ASTFunction) -> str
@@ -469,9 +476,9 @@ class ASTNestMLPrinter(object):
         if node.is_function_call():
             return self.print_node(node.function_call)
         elif node.is_boolean_true():
-            return 'True'
+            return 'true'
         elif node.is_boolean_false():
-            return 'False'
+            return 'false'
         elif node.is_inf_literal():
             return 'inf'
         elif node.is_numeric_literal():
@@ -528,19 +535,20 @@ class ASTNestMLPrinter(object):
         elif node.is_pow:
             return self.print_node(node.base) + '**' + str(node.exponent)
         elif node.is_arithmetic_expression():
-            t_lhs = (self.print_node(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else node.get_lhs())
+            t_lhs = (self.print_node(node.get_lhs()) if isinstance(node.get_lhs(), ASTUnitType) else str(node.get_lhs()))
             if node.is_times:
-                return self.print_node(t_lhs) + '*' + self.print_node(node.get_rhs())
+                return t_lhs + '*' + self.print_node(node.get_rhs())
             else:
-                return self.print_node(t_lhs) + '/' + self.print_node(node.get_rhs())
+                return t_lhs + '/' + self.print_node(node.get_rhs())
         else:
             return node.unit
 
     def print_update_block(self, node):
         # type: (ASTUpdateBlock) -> str
-        ret = (print_n_spaces(self.indent) + 'update:\n' +
-               self.print_node(node.get_block()) +
-               print_n_spaces(self.indent) + 'end')
+        ret = print_ml_comments(node.pre_comments, self.indent)
+        ret += print_n_spaces(self.indent) + 'update:' + print_sl_comment(node.in_comment) + '\n'
+        ret += (self.print_node(node.get_block()) + print_n_spaces(self.indent) + 'end\n')
+        ret += print_ml_comments(node.post_comments, self.indent)
         return ret
 
     def print_variable(self, node):
@@ -554,9 +562,12 @@ class ASTNestMLPrinter(object):
         # type: (ASTWhileStmt) -> str
         temp_indent = self.indent
         self.inc_indent()
-        ret = (print_n_spaces(temp_indent) + 'while ' + self.print_node(node.get_condition()) +
-               ':\n' + self.print_node(node.get_block()) + '\n' + print_n_spaces(temp_indent) + 'end')
+        ret = print_ml_comments(node.pre_comments, temp_indent)
+        ret += (print_n_spaces(temp_indent) + 'while ' + self.print_node(node.get_condition()) +
+                ':' + print_sl_comment(node.in_comment) + '\n')
+        ret += self.print_node(node.get_block()) + print_n_spaces(temp_indent) + 'end\n'
         self.dec_indent()
+        ret += print_ml_comments(node.post_comments, temp_indent)
         return ret
 
     def inc_indent(self):
