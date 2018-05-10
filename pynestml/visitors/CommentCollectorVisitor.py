@@ -174,7 +174,7 @@ def get_pre_comment(ctx, tokens):
             eol = True
             continue
     # this last part is required in the case, that the very fist token is a comment
-    if empty_before and temp is not None:
+    if empty_before and temp is not None and temp not in comments:
         comments.append(temp)
     # we reverse it in order to get the right order of comments
     return list(reversed(comments)) if len(comments) > 0 else list()

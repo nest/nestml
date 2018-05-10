@@ -26,26 +26,20 @@ class NestMLPrinterTest(unittest.TestCase):
     TODO: work in progress
     """
 
-    def test_neuron_print(self):
-        neuron = \
-            'neuron neuron_print_test:\n' \
-            '   state:\n' \
-            '       test_var mV = 10mV\n' \
-            '   end\n' \
-            'end\n' \
-            ''
+    def test_complete_print(self):
         # model = ModelParser.parse_neuron(neuron)
-        model = ModelParser.parse_model(os.path.join(os.path.dirname(__file__),
-                                                     os.path.join(os.path.join('..', 'models'),
-                                                                  'aeif_cond_alpha.nestml')))
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+                         'NestMLPrinterTest.nestml'))
         # now create a new visitor and use it
         model_printer = ASTNestMLPrinter()
-        #print(model_printer.print_node(model))
+        print(model_printer.print_node(model))
         # get the results and compare against constants
         return
 
     def test_block_with_variables_with_comments(self):
-        block = '/* pre1\n' \
+        block = '\n' \
+                '/* pre1\n' \
                 '* pre2\n' \
                 '*/\n' \
                 'state: # in\n' \
@@ -65,9 +59,11 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(block, model_printer.print_node(model))
 
     def test_assignment_with_comments(self):
-        assignment = '/* pre */\n' \
+        assignment = '\n' \
+                     '/* pre */\n' \
                      'a = b # in\n' \
-                     '/* post */\n'
+                     '/* post */\n' \
+                     '\n'
         model = ModelParser.parse_assignment(assignment)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(assignment, model_printer.print_node(model))
@@ -109,7 +105,8 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(neuron, model_printer.print_node(model))
 
     def test_declaration_with_comments(self):
-        declaration = '/*pre*/\n' \
+        declaration = '\n' \
+                      '/*pre*/\n' \
                       'test mV = 10mV # in\n' \
                       '/*post*/\n'
         model = ModelParser.parse_declaration(declaration)

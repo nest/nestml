@@ -82,6 +82,10 @@ class ShapeUsageVisitor(ASTVisitor):
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
             symbol = node.get_scope().resolve_to_symbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
+            if symbol is None:
+                code, message = Messages.get_no_variable_found(shapeName)
+                Logger.log_message(neuron=self.__neuronNode, code=code, message=message, log_level=LoggingLevel.ERROR)
+                continue
             if not symbol.is_shape():
                 continue
             if node.get_complete_name() == shapeName:
