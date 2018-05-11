@@ -37,7 +37,8 @@ script:
   - python tests/SymbolTableResolutionTest.py
   - python tests/CoCosTest.py
   - python tests/PyNestMLFrontendTest.py
+  - python tests/PyNestMLFrontendTest.py
   - python tests/NESTMLTest.py
   - python tests/ExpressionTypeCalculationTest.py
-  - python tests/resources/NestmlIntegrationTest.py
+ # - python tests/resources/NestmlIntegrationTest.py
 
