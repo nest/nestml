@@ -32,13 +32,11 @@ class IntegerTypeSymbol(TypeSymbol):
     def __init__(self):
         super(IntegerTypeSymbol, self).__init__(_name='integer')
 
-    def print_symbol(self):
-        result = 'integer'
-        if self.is_buffer:
-            result += ' buffer'
-        return result
+    def print_nestml_type(self):
+        return 'integer'
 
-    def _get_concrete_nest_type(self):
+
+    def print_nest_type(self):
         return 'long'
 
     def __mul__(self, other):

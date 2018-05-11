@@ -40,7 +40,7 @@ class ErrorTypeSymbol(TypeSymbol):
     def isNumeric(self):
         return False
 
-    def print_symbol(self):
+    def print_nestml_type(self):
         return 'error'
 
     def isPrimitive(self):
@@ -49,7 +49,7 @@ class ErrorTypeSymbol(TypeSymbol):
     def __init__(self):
         super(ErrorTypeSymbol, self).__init__(_name='error')
 
-    def _get_concrete_nest_type(self):
+    def print_nest_type(self):
         return 'ERROR'
 
     def __mul__(self, other):

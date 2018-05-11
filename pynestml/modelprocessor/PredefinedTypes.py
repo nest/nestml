@@ -153,6 +153,12 @@ class PredefinedTypes(object):
                 '(PyNestML.SymbolTable.PredefinedTypes) Cannot resolve the predefined type: ' + _name)
 
     @classmethod
+    def get_buffer_type_if_exists(cls, name):
+        result = copy(cls.getTypeIfExists(name))
+        result.is_buffer = True
+        return result
+
+    @classmethod
     def getTypeIfExists(cls, _name=None):
         """
         Return a TypeSymbol for

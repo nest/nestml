@@ -185,6 +185,7 @@ class TransformerBase(object):
         for convCall in convCalls:
             shape = convCall.getArgs()[0].getVariable().getCompleteName()
             buffer = convCall.getArgs()[1].getVariable().getCompleteName()
+            bufferType = convCall.getArgs()[1].type
             initialValues = (_neuron.getInitialBlocks().getDeclarations()
                              if _neuron.getInitialBlocks() is not None else list())
             for astDeclaration in initialValues:
@@ -192,7 +193,7 @@ class TransformerBase(object):
                     if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
                                                                                          variable.getCompleteName()):
                         spikesUpdates.append(ASTCreator.createAssignment(
-                            variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
+                            variable.getCompleteName() + " += (" + buffer + "/"+bufferType.print_nestml_type() + ") * " + printer.printExpression(
                                 astDeclaration.getExpression())))
         for update in spikesUpdates:
             cls.addAssignmentToUpdateBlock(update, _neuron)
