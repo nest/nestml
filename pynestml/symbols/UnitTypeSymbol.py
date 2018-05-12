@@ -40,13 +40,10 @@ class UnitTypeSymbol(TypeSymbol):
         self.unit = _unit
         super(UnitTypeSymbol, self).__init__(name=str(_unit.get_unit()))
 
-    def print_symbol(self):
-        result = self.unit.print_unit()
-        if self.is_buffer:
-            result += ' buffer'
-        return result
+    def print_nestml_type(self):
+        return self.unit.print_unit()
 
-    def _get_concrete_nest_type(self):
+    def print_nest_type(self):
         return 'double'
 
     def equals(self, other=None):

@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
 
 from astropy.units.core import CompositeUnit
 from astropy.units.quantity import Quantity
@@ -155,6 +156,12 @@ class PredefinedTypes(object):
             raise RuntimeError('(PyNestML.SymbolTable.PredefinedTypes) Cannot resolve the predefined type: ' + _name)
 
     @classmethod
+    def get_buffer_type_if_exists(cls, name):
+        result = copy(cls.get_type(name))
+        result.is_buffer = True
+        return result
+
+    @classmethod
     def get_type(cls, name):
         """
         Return a TypeSymbol for
@@ -262,10 +269,3 @@ class PredefinedTypes(object):
         type_symbol = UnitTypeSymbol(_unit=unit_type)
         cls.register_type(type_symbol)
         return
-
-    @classmethod
-    def get_buffer_type_if_exists(cls, name):
-        from copy import copy
-        result = copy(cls.get_type(name))
-        result.is_buffer = True
-        return result

@@ -57,20 +57,26 @@ class TypeSymbol(Symbol):
         if self.is_buffer:
             return 'nest::RingBuffer'
         else:
-            return self._get_concrete_nest_type()
+            return self.print_nest_type()
 
     @abstractmethod
-    def _get_concrete_nest_type(self):
+    def print_nest_type(self):
         pass
 
     @abstractmethod
+    def print_nestml_type(self):
+        pass
+
     def print_symbol(self):
         """
         Returns a string representation of this symbol.
         :return: a string representation.
         :rtype: str
         """
-        pass
+        elem_type = self.print_nestml_type()
+        if self.is_buffer:
+            elem_type += ' buffer'
+        return elem_type
 
     @abstractmethod
     def is_primitive(self):

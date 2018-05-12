@@ -5,7 +5,7 @@ and the resulting post-synaptic potentials have a finite rise time.
 The threshold crossing is followed by an absolute refractory period
 during which the membrane potential is clamped to the resting potential.
 
-The subthreshold membrane potential dynamics are given by [3]
+The sub threshold membrane potential dynamics are given by [3]
 
 dV_m/dt = - ( V_m - E_L ) / tau_m + I_syn(t) / C_m + I_e / C_m
 

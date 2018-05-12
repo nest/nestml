@@ -130,6 +130,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             arg.get_data_type().update_scope(scope)
         if node.has_return_type():
             node.get_return_type().update_scope(scope)
+
         node.get_block().update_scope(scope)
         return
 
@@ -537,9 +538,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.is_spike() and node.has_datatype():
             type_symbol = node.get_datatype().get_type_symbol()
         elif node.is_spike():
-            code, message = Messages.get_buffer_type_not_defined(node.get_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.WARNING)
             type_symbol = PredefinedTypes.get_type('nS')
         else:
             type_symbol = PredefinedTypes.get_type('pA')
@@ -689,6 +687,8 @@ def add_ode_to_variable(ode_equation):
                                                                   SymbolKind.VARIABLE))
     if existing_symbol is not None:
         existing_symbol.set_ode_definition(ode_equation.get_rhs())
+        # todo added on merge
+        ode_equation.get_scope().update_variable_symbol(existing_symbol)
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)

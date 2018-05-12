@@ -117,13 +117,21 @@ class CommentCollectorVisitor(PyNestMLVisitor):
                 get_in_comments(ctx, self.__tokens), list())
 
     def visitElifClause(self, ctx):
-        temp = list(get_in_comments(ctx, self.__tokens))
+        temp = get_in_comments(ctx, self.__tokens)
+        if temp is None:
+            temp = list()
+        else:
+            temp = list(temp)
         # for elif clauses, only in comments are supported
         return (temp, list(), get_in_comments(ctx, self.__tokens),
                 list())
 
     def visitElseClause(self, ctx):
-        temp = list(get_in_comments(ctx, self.__tokens))
+        temp = get_in_comments(ctx, self.__tokens)
+        if temp is None:
+            temp = list()
+        else:
+            temp = list(temp)
         return (temp, list(), get_in_comments(ctx, self.__tokens),
                 get_post_comments(ctx, self.__tokens))
 

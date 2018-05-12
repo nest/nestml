@@ -19,11 +19,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import re as re
 
+from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.meta_model.ASTStmt import ASTStmt
-from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
@@ -182,19 +182,19 @@ class TransformerBase(object):
         conv_calls = OdeTransformer.get_sum_function_calls(_neuron)
         printer = ExpressionsPrettyPrinter()
         spikes_updates = list()
-        for convCall in conv_calls:
-            shape = convCall.get_args()[0].get_variable().get_complete_name()
-            buffer = convCall.get_args()[1].get_variable().get_complete_name()
-            initialValues = (_neuron.get_initial_blocks().get_declarations()
-            if _neuron.get_initial_blocks() is not None else list())
-            for astDeclaration in initialValues:
+        for conv_call in conv_calls:
+            shape = conv_call.get_args()[0].get_variable().get_complete_name()
+            buffer = conv_call.get_args()[1].get_variable().get_complete_name()
+            buffer_type = conv_call.get_args()[1].type
+            initial_values = (_neuron.get_initial_blocks().get_declarations() if _neuron.get_initial_blocks()
+                                                                                 is not None else list())
+            for astDeclaration in initial_values:
                 for variable in astDeclaration.get_variables():
                     if re.match(shape + "[\']*", variable.get_complete_name()) or re.match(shape + '__[\\d]+$',
                                                                                            variable.get_complete_name()):
-                        assignment = ModelParser.parse_assignment(
-                            variable.get_complete_name() + " += " + buffer + " * " + printer.print_expression(
-                                astDeclaration.get_expression()))
-                        spikes_updates.append(assignment)
+                        spikes_updates.append(ModelParser.parse_assignment(
+                            variable.get_complete_name() + " += (" + buffer + "/" + buffer_type.print_nestml_type() + ") * "
+                            + printer.print_expression(astDeclaration.get_expression())))
         for update in spikes_updates:
             cls.addAssignmentToUpdateBlock(update, _neuron)
         return _neuron

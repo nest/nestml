@@ -33,7 +33,7 @@ class NestMLPrinterTest(unittest.TestCase):
                          'NestMLPrinterTest.nestml'))
         # now create a new visitor and use it
         model_printer = ASTNestMLPrinter()
-        print(model_printer.print_node(model))
+        #print(model_printer.print_node(model))
         # get the results and compare against constants
         return
 
