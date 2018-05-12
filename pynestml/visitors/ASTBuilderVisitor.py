@@ -298,7 +298,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
             for stmt in ctx.stmt():
                 stmts.append(self.visit(stmt))
         block = ASTNodeFactory.create_ast_block(stmts=stmts, source_position=create_source_pos(ctx))
-        update_node_comments(block, self.__comments.visit(ctx))
+        #update_node_comments(block, self.__comments.visit(ctx))
         return block
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
@@ -380,20 +380,26 @@ class ASTBuilderVisitor(PyNestMLVisitor):
     def visitIfClause(self, ctx):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        return ASTNodeFactory.create_ast_if_clause(condition=condition, block=block,
-                                                   source_position=create_source_pos(ctx))
+        ret = ASTNodeFactory.create_ast_if_clause(condition=condition, block=block,
+                                                  source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visitStmt(ctx))
+        return ret
 
     # Visit a parse tree produced by PyNESTMLParser#elifClause.
     def visitElifClause(self, ctx):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        return ASTNodeFactory.create_ast_elif_clause(condition=condition, block=block,
+        node = ASTNodeFactory.create_ast_elif_clause(condition=condition, block=block,
                                                      source_position=create_source_pos(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#elseClause.
     def visitElseClause(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        return ASTNodeFactory.create_ast_else_clause(block=block, source_position=create_source_pos(ctx))
+        node = ASTNodeFactory.create_ast_else_clause(block=block, source_position=create_source_pos(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#forStmt.
     def visitForStmt(self, ctx):

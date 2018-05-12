@@ -46,85 +46,87 @@ class ASTNestMLPrinter(object):
         self.indent = 0
 
     def print_node(self, node):
+        ret = ''
         if isinstance(node, ASTArithmeticOperator):
-            return self.print_arithmetic_operator(node)
+            ret = self.print_arithmetic_operator(node)
         if isinstance(node, ASTAssignment):
-            return self.print_assignment(node)
+            ret = self.print_assignment(node)
         if isinstance(node, ASTBitOperator):
-            return self.print_bit_operator(node)
+            ret = self.print_bit_operator(node)
         if isinstance(node, ASTBlock):
-            return self.print_block(node)
+            ret = self.print_block(node)
         if isinstance(node, ASTBlockWithVariables):
-            return self.print_block_with_variables(node)
+            ret = self.print_block_with_variables(node)
         if isinstance(node, ASTBody):
-            return self.print_body(node)
+            ret = self.print_body(node)
         if isinstance(node, ASTComparisonOperator):
-            return self.print_comparison_operator(node)
+            ret = self.print_comparison_operator(node)
         if isinstance(node, ASTCompoundStmt):
-            return self.print_compound_stmt(node)
+            ret = self.print_compound_stmt(node)
         if isinstance(node, ASTDataType):
-            return self.print_data_type(node)
+            ret = self.print_data_type(node)
         if isinstance(node, ASTDeclaration):
-            return self.print_declaration(node)
+            ret = self.print_declaration(node)
         if isinstance(node, ASTElifClause):
-            return self.print_elif_clause(node)
+            ret = self.print_elif_clause(node)
         if isinstance(node, ASTElseClause):
-            return self.print_else_clause(node)
+            ret = self.print_else_clause(node)
         if isinstance(node, ASTEquationsBlock):
-            return self.print_equations_block(node)
+            ret = self.print_equations_block(node)
         if isinstance(node, ASTExpression):
-            return self.print_expression(node)
+            ret = self.print_expression(node)
         if isinstance(node, ASTForStmt):
-            return self.print_for_stmt(node)
+            ret = self.print_for_stmt(node)
         if isinstance(node, ASTFunction):
-            return self.print_function(node)
+            ret = self.print_function(node)
         if isinstance(node, ASTFunctionCall):
-            return self.print_function_call(node)
+            ret = self.print_function_call(node)
         if isinstance(node, ASTIfClause):
-            return self.print_if_clause(node)
+            ret = self.print_if_clause(node)
         if isinstance(node, ASTIfStmt):
-            return self.print_if_stmt(node)
+            ret = self.print_if_stmt(node)
         if isinstance(node, ASTInputBlock):
-            return self.print_input_block(node)
+            ret = self.print_input_block(node)
         if isinstance(node, ASTInputLine):
-            return self.print_input_line(node)
+            ret = self.print_input_line(node)
         if isinstance(node, ASTInputType):
-            return self.print_input_type(node)
+            ret = self.print_input_type(node)
         if isinstance(node, ASTLogicalOperator):
-            return self.print_logical_operator(node)
+            ret = self.print_logical_operator(node)
         if isinstance(node, ASTNestMLCompilationUnit):
-            return self.print_compilation_unit(node)
+            ret = self.print_compilation_unit(node)
         if isinstance(node, ASTNeuron):
-            return self.print_neuron(node)
+            ret = self.print_neuron(node)
         if isinstance(node, ASTOdeEquation):
-            return self.print_ode_equation(node)
+            ret = self.print_ode_equation(node)
         if isinstance(node, ASTOdeFunction):
-            return self.print_ode_function(node)
+            ret = self.print_ode_function(node)
         if isinstance(node, ASTOdeShape):
-            return self.print_ode_shape(node)
+            ret = self.print_ode_shape(node)
         if isinstance(node, ASTOutputBlock):
-            return self.print_output_block(node)
+            ret = self.print_output_block(node)
         if isinstance(node, ASTParameter):
-            return self.print_parameter(node)
+            ret = self.print_parameter(node)
         if isinstance(node, ASTReturnStmt):
-            return self.print_return_stmt(node)
+            ret = self.print_return_stmt(node)
         if isinstance(node, ASTSimpleExpression):
-            return self.print_simple_expression(node)
+            ret = self.print_simple_expression(node)
         if isinstance(node, ASTSmallStmt):
-            return self.print_small_stmt(node)
+            ret = self.print_small_stmt(node)
         if isinstance(node, ASTUnaryOperator):
-            return self.print_unary_operator(node)
+            ret = self.print_unary_operator(node)
         if isinstance(node, ASTUnitType):
-            return self.print_unit_type(node)
+            ret = self.print_unit_type(node)
         if isinstance(node, ASTUpdateBlock):
-            return self.print_update_block(node)
+            ret = self.print_update_block(node)
         if isinstance(node, ASTVariable):
-            return self.print_variable(node)
+            ret = self.print_variable(node)
         if isinstance(node, ASTWhileStmt):
-            return self.print_while_stmt(node)
+            ret = self.print_while_stmt(node)
         if isinstance(node, ASTStmt):
-            return self.print_stmt(node)
-        return ''
+            ret = self.print_stmt(node)
+        ret = filter_subsequent_whitespaces(ret)
+        return ret
 
     def print_neuron(self, node):
         # type: (ASTNeuron) -> str
@@ -188,12 +190,12 @@ class ASTNestMLPrinter(object):
 
     def print_block(self, node):
         # type: (ASTBlock) -> str
-        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret = ''  # print_ml_comments(node.pre_comments, self.indent, False)
         self.inc_indent()
         for stmt in node.stmts:
             ret += self.print_node(stmt)
         self.dec_indent()
-        ret += print_ml_comments(node.post_comments, self.indent, True)
+        # ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_block_with_variables(self, node):
@@ -378,8 +380,12 @@ class ASTNestMLPrinter(object):
 
     def print_if_clause(self, node):
         # type: (ASTIfClause) -> str
-        return (print_n_spaces(self.indent) + 'if ' + self.print_node(node.get_condition()) + ':\n'
-                + self.print_node(node.get_block()))
+        ret = print_ml_comments(node.pre_comments, self.indent)
+        ret += print_n_spaces(self.indent) + 'if ' + self.print_node(node.get_condition()) + ':'
+        ret += print_sl_comment(node.in_comment) + '\n'
+        ret += self.print_node(node.get_block())
+        ret += print_ml_comments(node.post_comments, self.indent)
+        return ret
 
     def print_if_stmt(self, node):
         # type: (ASTIfStmt) -> str
@@ -637,3 +643,25 @@ def print_sl_comment(comment):
         return ' # ' + comment.lstrip()
     else:
         return ''
+
+
+def filter_subsequent_whitespaces(string):
+    # type: (str) -> str
+    """
+    This filter reduces more then one newlines to exactly one, e.g.:
+        l1
+        \n
+        \n
+        \n
+        l2
+    is filtered to
+        l1
+        \n
+        l2
+    """
+    s_lines = string.splitlines(True)
+    for index, item in enumerate(s_lines, start=0):
+        if index < len(s_lines) - 1 and item == '\n' and s_lines[index + 1] == '\n':
+            del s_lines[index + 1]
+    ret = ''.join(s_lines)
+    return ret

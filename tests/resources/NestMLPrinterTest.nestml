@@ -88,12 +88,14 @@ neuron aeif_cond_alpha_implicit:
 
   /*update pre*/
   update: # update in
+
     /*stmt1 pre*/
     integrate_odes() # stmt1 in
     /*stmt1 post*/
 
     /*stmt2 pre*/
-    if r > 0:
+    if r > 0: # stmt2 in
+    /*stmt2 post*/
 
       /*stmt3 pre*/
       r -= 1 # stmt3 in
