@@ -76,9 +76,9 @@ class OdeTransformer(object):
                 _expr.set_variable(first_arg)
             return
 
-        ASTHigherOrderVisitor.visit(ast,
-                                    lambda x: replace_function_call_through_first_argument(x) if
-                                    isinstance(x, ASTSimpleExpression) else True)
+        func = (
+            lambda x: replace_function_call_through_first_argument(x) if isinstance(x, ASTSimpleExpression) else True)
+        ast.accept(ASTHigherOrderVisitor(func))
 
     @classmethod
     def get_sum_function_calls(cls, ast):
@@ -114,9 +114,9 @@ class OdeTransformer(object):
         res = list()
         from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-        ASTHigherOrderVisitor.visit(ast_node,
-                                    (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in
-                                                                function_list else True))
+        fun = (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in function_list else True)
+        vis = ASTHigherOrderVisitor(fun)
+        ast_node.accept(vis)
         return res
 
     @classmethod

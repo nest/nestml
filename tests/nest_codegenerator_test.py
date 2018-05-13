@@ -20,47 +20,49 @@
 import os
 import unittest
 
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+
 from pynestml.codegeneration.nest_codegeneration import generate_nest_module_code, make_functions_self_contained, \
     replace_functions_through_defining_expressions, transform_ode_and_shapes_to_json, transform_shapes_and_odes, \
     analyse_and_generate_neurons
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.PredefinedUnits import PredefinedUnits
+from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.utils.Logger import Logger, LoggingLevel
+from pynestml.utils.ModelParser import ModelParser
 
 # setups the infrastructure
-PredefinedUnits.registerUnits()
-PredefinedTypes.registerTypes()
-PredefinedFunctions.registerPredefinedFunctions()
-PredefinedVariables.registerPredefinedVariables()
-SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-Logger.initLogger(LOGGING_LEVEL.NO)
+PredefinedUnits.register_units()
+PredefinedTypes.register_types()
+PredefinedFunctions.register_functions()
+PredefinedVariables.register_variables()
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+Logger.init_logger(LoggingLevel.NO)
 
 
-class CodegeneratorTest(unittest.TestCase):
+class CodeGeneratorTest(unittest.TestCase):
     """
-    Tests codegenerator with a psc, cond, delta and abitrary model
+    Tests code generator with a psc, cond, delta and arbitrary model
     """
 
     def test_model_preparation(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             '..', 'models', 'iaf_psc_alpha.nestml'))))
-        compilation_unit = ModelParser.parseModel(path)
-        assert len(compilation_unit.getNeuronList()) == 1
-        ast_neuron = compilation_unit.getNeuronList()[0]
+        compilation_unit = ModelParser.parse_model(path)
+        assert len(compilation_unit.get_neuron_list()) == 1
+        ast_neuron = compilation_unit.get_neuron_list()[0]
         equations_block = ast_neuron.get_equations_block()
         # the idea here is to go through the rhs, print expressions, use the same mechanism as before, and reread them
         # again
         # TODO: add tests for this function
         # this function changes stuff inplace
-        make_functions_self_contained(equations_block.getOdeFunctions())
+        make_functions_self_contained(equations_block.get_ode_functions())
 
-        replace_functions_through_defining_expressions(equations_block.getOdeEquations(), equations_block.getOdeFunctions())
+        replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
+                                                       equations_block.get_ode_functions())
 
         json_representation = transform_ode_and_shapes_to_json(equations_block)
         self.assertTrue("convolve(I_shape_in, in_spikes)" in json_representation["odes"][0]["definition"])
@@ -69,9 +71,9 @@ class CodegeneratorTest(unittest.TestCase):
     def test_solve_odes_and_shapes(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             '..', 'models', 'iaf_psc_alpha.nestml'))))
-        compilation_unit = ModelParser.parseModel(path)
-        assert len(compilation_unit.getNeuronList()) == 1
-        ast_neuron = compilation_unit.getNeuronList()[0]
+        compilation_unit = ModelParser.parse_model(path)
+        assert len(compilation_unit.get_neuron_list()) == 1
+        ast_neuron = compilation_unit.get_neuron_list()[0]
         ast_neuron = transform_shapes_and_odes(ast_neuron, {})
         print(ast_neuron)
 
@@ -92,9 +94,9 @@ class CodegeneratorTest(unittest.TestCase):
 
         FrontendConfiguration.config(params)
 
-        compilation_unit = ModelParser.parseModel(path)
-        generate_nest_module_code(compilation_unit.getNeuronList())
-        analyse_and_generate_neurons(compilation_unit.getNeuronList())
+        compilation_unit = ModelParser.parse_model(path)
+        generate_nest_module_code(compilation_unit.get_neuron_list())
+        analyse_and_generate_neurons(compilation_unit.get_neuron_list())
 
     def test_iaf_psc_delta(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -113,9 +115,9 @@ class CodegeneratorTest(unittest.TestCase):
 
         FrontendConfiguration.config(params)
 
-        compilation_unit = ModelParser.parseModel(path)
-        generate_nest_module_code(compilation_unit.getNeuronList())
-        analyse_and_generate_neurons(compilation_unit.getNeuronList())
+        compilation_unit = ModelParser.parse_model(path)
+        generate_nest_module_code(compilation_unit.get_neuron_list())
+        analyse_and_generate_neurons(compilation_unit.get_neuron_list())
 
     def test_iaf_cond_alpha_implicit(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -134,10 +136,10 @@ class CodegeneratorTest(unittest.TestCase):
 
         FrontendConfiguration.config(params)
 
-        compilation_unit = ModelParser.parseModel(path)
+        compilation_unit = ModelParser.parse_model(path)
 
         iaf_cond_alpha_implicit = list()
-        iaf_cond_alpha_implicit.append(compilation_unit.getNeuronList()[1])
+        iaf_cond_alpha_implicit.append(compilation_unit.get_neuron_list()[1])
         generate_nest_module_code(iaf_cond_alpha_implicit)
         analyse_and_generate_neurons(iaf_cond_alpha_implicit)
 
@@ -158,10 +160,10 @@ class CodegeneratorTest(unittest.TestCase):
 
         FrontendConfiguration.config(params)
 
-        compilation_unit = ModelParser.parseModel(path)
+        compilation_unit = ModelParser.parse_model(path)
 
         iaf_cond_alpha_functional = list()
-        iaf_cond_alpha_functional.append(compilation_unit.getNeuronList()[0])
+        iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
         generate_nest_module_code(iaf_cond_alpha_functional)
         analyse_and_generate_neurons(iaf_cond_alpha_functional)
 

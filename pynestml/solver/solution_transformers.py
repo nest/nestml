@@ -120,12 +120,12 @@ def functional_shapes_to_odes(neuron, transformed_shapes):
 
     # delete original functions shapes. they will be replaced though ode-shapes computed through ode-toolbox.
     shapes_to_delete = []  # you should not delete elements from list during iterating the list
-    for declaration in neuron.get_equations_block().getDeclarations():
+    for declaration in neuron.get_equations_block().get_declarations():
         if isinstance(declaration, ASTOdeShape):
-            if declaration.get_variable().getName() in shape_names:
+            if declaration.get_variable().get_name() in shape_names:
                 shapes_to_delete.append(declaration)
     for declaration in shapes_to_delete:
-        neuron.get_equations_block().getDeclarations().remove(declaration)
+        neuron.get_equations_block().get_declarations().remove(declaration)
 
     state_shape_variables_declarations = {}
     for shape_name in shape_names:
