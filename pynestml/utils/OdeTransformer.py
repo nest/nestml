@@ -47,39 +47,38 @@ class OdeTransformer(object):
         return working_copy
 
     @classmethod
-    def replace_sum_calls(cls, ast):
+    def refactor_convolve_call(cls, _ast):
         """
-        Replaces all sum calls in the handed over node.
-        :param ast: a single node
-        :type ast: AST_
+        Replaces all `convolve` calls in the handed over node.
+        :param _ast: a single node
+        :type _ast: AST_
         """
-        working_copy = copy(ast)
-        function_calls = cls.get_sum_function_calls(working_copy)
+
+        function_calls = cls.get_sum_function_calls(_ast)
         for call in function_calls:
-            cls.replace_function_call_through_first_argument(working_copy, call)
-        return ast
+            cls.replace_function_call_through_first_argument(_ast, call)
 
     @classmethod
-    def replace_function_call_through_first_argument(cls, ast, to_replace):
+    def replace_function_call_through_first_argument(cls, ast, function_name_to_replace):
         """
         Replaces all occurrences of the handed over function call by the first argument.
-        :param ast: a single meta_model node
+        :param ast: a single ast node
         :type ast: AST_
-        :param to_replace: the function to replace
-        :type to_replace: ASTFunctionCall
+        :param function_name_to_replace: the function to replace
+        :type function_name_to_replace: ASTFunctionCall
         """
 
         # we define a local collection operation
-        def replace_function_call_through_first_argument(node):
-            if isinstance(node,
-                          ASTSimpleExpression) and node.is_function_call() and node.get_function_call() == to_replace:
-                first_arg = node.get_function_call().get_args()[0].get_variable()
-                node.set_function_call(None)
-                node.set_variable(first_arg)
+        def replace_function_call_through_first_argument(_expr=None):
+            if _expr.is_function_call() and _expr.get_function_call() == function_name_to_replace:
+                first_arg = _expr.get_function_call().get_args()[0].get_variable()
+                _expr.set_function_call(None)
+                _expr.set_variable(first_arg)
             return
 
-        ast.accept(ASTHigherOrderVisitor(replace_function_call_through_first_argument))
-        return
+        ASTHigherOrderVisitor.visit(ast,
+                                    lambda x: replace_function_call_through_first_argument(x) if
+                                    isinstance(x, ASTSimpleExpression) else True)
 
     @classmethod
     def get_sum_function_calls(cls, ast):
@@ -113,16 +112,15 @@ class OdeTransformer(object):
         :rtype: list(ASTFunctionCall)
         """
         res = list()
-
-        def loc_get_function(node):
-            if isinstance(node, ASTFunctionCall) and node.get_name() in function_list:
-                res.append(node)
-
-        ast_node.accept(ASTHigherOrderVisitor(loc_get_function, list()))
+        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+        ASTHigherOrderVisitor.visit(ast_node,
+                                    (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in
+                                                                function_list else True))
         return res
 
     @classmethod
-    def get_cond_sum_function_call(cls, node):
+    def get_cond_sum_function_calls(cls, node):
         """
         Collects all cond_sum function calls in the meta_model.
         :param node: a single meta_model node

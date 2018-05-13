@@ -44,6 +44,7 @@ class Logger(object):
     curr_message = None
     logging_level = None
     current_neuron = None
+    no_print = False
 
     @classmethod
     def init_logger(cls, logging_level):
@@ -65,6 +66,14 @@ class Logger(object):
         :rtype: dict(int->neuron,level,str)
         """
         return cls.log
+
+    @classmethod
+    def set_log(cls, log):
+        """
+        Restores log from the 'log' variable
+        :param log:
+        """
+        cls.log = log
 
     @classmethod
     def log_message(cls, neuron=None, code=None, message=None, error_position=None, log_level=None):
@@ -97,10 +106,12 @@ class Logger(object):
             cls.log[cls.curr_message] = (cls.current_neuron.get_artifact_name(), cls.current_neuron,
                                          log_level, code, error_position, message)
         cls.curr_message += 1
+        if cls.no_print:
+            return
         if cls.logging_level.value <= log_level.value:
             to_print = '[' + str(cls.curr_message) + ','
             to_print = (to_print + (neuron.get_name() + ', ' if neuron is not None else
-            cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
+                cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
             to_print = to_print + str(message)

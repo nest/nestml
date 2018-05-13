@@ -18,6 +18,7 @@ PyNESTML.egg-info/
 !__init__.py
 
 *.jar
+venv
 
 .DS_Store
 .project

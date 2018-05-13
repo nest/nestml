@@ -362,7 +362,7 @@ class Messages(object):
         """
         assert (func_name is not None and isinstance(func_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
-        message = 'First argument of \'%s\' not a shape or equation!' % type(func_name)
+        message = 'First argument of \'%s\' not a shape or equation!' % func_name
         return MessageCode.ARG_NOT_SHAPE_OR_EQUATION, message
 
     @classmethod

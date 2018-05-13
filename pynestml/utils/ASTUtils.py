@@ -129,7 +129,7 @@ class ASTUtils(object):
         elif data_type.is_unit_type():
             return str(data_type)
         else:
-            Logger.log_message('Type could not be derived!', LoggingLevel.ERROR)
+            Logger.log_message(message='Type could not be derived!', log_level=LoggingLevel.ERROR)
             return ''
 
     @classmethod

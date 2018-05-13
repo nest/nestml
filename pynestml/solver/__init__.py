@@ -19,17 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __all__ = [
-    'DeltaSolutionTransformer',
-    'EquationsBlockProcessor',
-    'ExactSolutionTransformer',
-    'ode_analyzer_test',
-    'OdeAnalyzer',
-    'prop_matrix',
-    'shapes',
-    'shapes_test',
-    'ShapesToOdesTransformer',
-    'SolverInput',
-    'SolverOutput',
-    'SymPySolver',
+    'solution_transformers'
     'TransformerBase'
 ]

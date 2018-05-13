@@ -28,7 +28,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
     Tests if the frontend works as intended and is able to process handed over arguments.
     """
 
-    def test(self):
+    def test_codegeneration_for_all_models(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
         params = list()
         params.append('-path')
@@ -40,10 +40,10 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('-store_log')
         params.append('-dev')
-        #try:
+        # try:
         main(params)
         self.assertTrue(True)  # the goal is to reach this point without exceptions
-        #except Exception:
+        # except Exception:
         #    self.assertTrue(False)
 
 

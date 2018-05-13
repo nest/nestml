@@ -26,7 +26,7 @@
 
 neuron CoCoVariableNotDefined:
     update:
-        test1 = test2 +1
+        test1 = test2 + 1
     end
 
     input:

@@ -22,7 +22,7 @@ import os
 import sys
 
 from pynestml.cocos.CoCosManager import CoCosManager
-from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
+from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, generate_nest_module_code
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration, InvalidPathException
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
@@ -62,11 +62,9 @@ def main(args):
                                    error_position=neuron.get_source_position(),
                                    log_level=LoggingLevel.INFO)
                 neurons.remove(neuron)
-
     if not FrontendConfiguration.is_dry_run():
-        nest_generator = NestCodeGenerator()
-        nest_generator.analyseAndGenerateNeurons(neurons)
-        nest_generator.generateNESTModuleCode(neurons)
+        analyse_and_generate_neurons(neurons)
+        generate_nest_module_code(neurons)
     else:
         code, message = Messages.get_dry_run()
         Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)

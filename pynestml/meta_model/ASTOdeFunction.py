@@ -104,7 +104,7 @@ class ASTOdeFunction(ASTNode):
             return self.get_expression().get_parent(ast)
         return None
 
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.

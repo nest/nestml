@@ -83,7 +83,7 @@ class ValidElementInSameLine(unittest.TestCase):
 
 class InvalidElementNotDefinedInScope(unittest.TestCase):
     def test(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))

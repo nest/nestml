@@ -20,249 +20,234 @@
 import re as re
 
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
+from pynestml.meta_model.ASTBlock import ASTBlock
+from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
 from pynestml.meta_model.ASTNeuron import ASTNeuron
-from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.meta_model.ASTStmt import ASTStmt
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
+from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.OdeTransformer import OdeTransformer
 
 
-class TransformerBase(object):
+def add_declarations_to_internals(neuron, declarations):
+    # type: (ASTNeuron, dict[str, str]) -> ASTNeuron
     """
-    This class contains several methods as used to adjust a given neuron instance to properties as
-    returned by the solver.
+    Adds the variables as stored in the declaration tuples to the neuron.
+    :param neuron: a single neuron instance
+    :param declarations: a list of declaration tuples
+    :return: a modified neuron
     """
+    for variable in declarations:
+        add_declaration_to_internals(neuron, variable, declarations[variable])
+    return neuron
 
-    @classmethod
-    def addVariablesToInternals(cls, _neuron=None, _declarations=None):
-        """
-        Adds the variables as stored in the declaration tuples to the neuron.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :param _declarations: a list of declaration tuples
-        :type _declarations: list((str,str))
-        :return: a modified neuron
-        :rtype: ASTNeuron
-        """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        assert (_declarations is not None and isinstance(_declarations, list)), \
-            '(PyNestML.Solver.BaseTransformer) No or wrong type of declarations provided (%s)!' % type(_declarations)
-        for declaration in _declarations:
-            cls.addVariableToInternals(_neuron, declaration)
-        return _neuron
 
-    @classmethod
-    def addVariableToInternals(cls, _neuron=None, _declaration=None):
-        """
-        Adds the variable as stored in the declaration tuple to the neuron.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :param _declaration: a single declaration
-        :type _declaration: dict
-        :return: the neuron extended by the variable
-        :rtype: ASTNeuron
-        """
-        (var, value) = ASTUtils.get_tuple_from_single_dict_entry(_declaration)
-        tmp = ModelParser.parse_expression(value)
-        vector_variable = ASTUtils.get_vectorized_variable(tmp, _neuron.get_scope())
-        declaration_string = var + ' real' + (
-            '[' + vector_variable.get_vector_parameter() + ']'
-            if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + value
-        ast_declaration = ModelParser.parse_declaration(declaration_string)
+def add_declaration_to_internals(neuron, variable_name, init_expression):
+    # type: (ASTNeuron,  str, str) -> ASTNeuron
+    """
+    Adds the variable as stored in the declaration tuple to the neuron.
+    :param neuron: a single neuron instance
+    :param variable_name: the name of the variable to add
+    :param init_expression: initialization expression
+    :return: the neuron extended by the variable
+    """
+    try:
+        tmp = ModelParser.parseExpression(init_expression)
+        vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
+
+        declaration_string = variable_name + ' real' + (
+            '[' + vector_variable.getVectorParameter() + ']'
+            if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + init_expression
+        ast_declaration = ModelParser.parseDeclaration(declaration_string)
         if vector_variable is not None:
-            ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        _neuron.addToInternalBlock(ast_declaration)
-        return _neuron
+            ast_declaration.setSizeParameter(vector_variable.getVectorParameter())
+        neuron.addToInternalBlock(ast_declaration)
+        return neuron
 
-    @classmethod
-    def replaceIntegrateCallThroughPropagation(cls, _neuron=None, _constInput=None, _propagatorSteps=None):
-        """
-        Replaces all intergrate calls to the corresponding references to propagation.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :param _constInput: an initial constant value
-        :type _constInput: tuple
-        :param _propagatorSteps: a list of propagator steps
-        :type _propagatorSteps: list(str)
-        :return: the modified neuron
-        :rtype: ASTNeuron
-        """
-        from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-        from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
-        from pynestml.meta_model.ASTBlock import ASTBlock
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        assert (_propagatorSteps is not None and isinstance(_propagatorSteps, list)), \
-            '(PyNestML.Solver.BaseTransformer) No or wrong type of propagator steps provided (%s)!' % type(
-                _propagatorSteps)
-        integrate_call = ASTUtils.get_function_call(_neuron.get_update_blocks(), PredefinedFunctions.INTEGRATE_ODES)
-        # by construction of a valid neuron, only a single integrate call should be there
-        if isinstance(integrate_call, list):
-            integrate_call = integrate_call[0]
-        if integrate_call is not None:
-            small_statement = _neuron.get_parent(integrate_call)
-            assert (small_statement is not None and isinstance(small_statement, ASTSmallStmt))
-            stmt = _neuron.get_parent(small_statement)
-            assert (stmt is not None and isinstance(stmt, ASTStmt))
-            block = _neuron.get_parent(_neuron.get_parent(small_statement))
-            assert (block is not None and isinstance(block, ASTBlock))
-            for i in range(0, len(block.get_stmts())):
-                if block.get_stmts()[i].equals(stmt):
-                    del block.get_stmts()[i]
-                    const_tuple = ASTUtils.get_tuple_from_single_dict_entry(_constInput)
-                    update_statements = list()
-                    update_statements.append(ModelParser.parse_stmt(const_tuple[0] + " real = " + const_tuple[1]))
-                    update_statements += list((ModelParser.parse_stmt(prop) for prop in _propagatorSteps))
-                    block.get_stmts()[i:i] = update_statements
-                    break
-        else:
-            code, message = Messages.get_ode_solution_not_used()
-            Logger.log_message(neuron=_neuron, code=code, message=message,
-                               error_position=_neuron.get_source_position(),
-                               log_level=LoggingLevel.INFO)
-        return _neuron
+    except:
+        raise RuntimeError('Must not fail by construction.')
 
-    @classmethod
-    def addVariablesToInitialValues(cls, _neuron=None, _declarationsFile=None):
-        """
-        Adds a list with declarations to the internals block in the neuron.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :param _declarationsFile: a single
-        :type _declarationsFile: list(tuple)
-        :return: a modified neuron
-        :rtype: ASTNeuron
-        """
-        for decl in _declarationsFile:
-            cls.addVariableToInitialValue(_neuron, decl)
-        return _neuron
 
-    @classmethod
-    def addVariableToInitialValue(cls, _neuron=None, _declaration=None):
-        """
-        Adds a single declaration to the internals block of the neuron.
-        :param _neuron: a single neuron
-        :type _neuron: ASTNeuron
-        :param _declaration: a single key,value tuple
-        :type _declaration: tuple
-        :return: a modified neuron
-        :rtype: ASTNeuron
-        """
-        try:
-            (var, value) = _declaration
-            tmp = ModelParser.parse_expression(value)
-            vector_variable = ASTUtils.get_vectorized_variable(tmp, _neuron.get_scope())
-            declaration_string = var + ' real' + (
-                '[' + vector_variable.get_vector_parameter() + ']'
-                if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + value
-            ast_declaration = ModelParser.parse_declaration(declaration_string)
-            if vector_variable is not None:
-                ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-            _neuron.addToInitialValuesBlock(ast_declaration)
-            return _neuron
-        except:
-            raise RuntimeError('Must not fail by construction.')
+def add_declarations_to_initial_values(neuron, declarations):
+    # type: (ASTNeuron, map(str, str)) -> ASTNeuron
+    """
+    Adds a single declaration to the initial values block of the neuron.
+    :param neuron: a neuron
+    :param declarations: a single
+    :return: a modified neuron
+    """
+    for variable in declarations:
+        add_declaration_to_initial_values(neuron, variable, declarations[variable])
+    return neuron
 
-    @classmethod
-    def applyIncomingSpikes(cls, _neuron=None):
-        """
-        Adds a set of update instructions to the handed over neuron.
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :return: the modified neuron
-        :rtype: ASTNeuron
-        """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        conv_calls = OdeTransformer.get_sum_function_calls(_neuron)
-        printer = ExpressionsPrettyPrinter()
-        spikes_updates = list()
-        for conv_call in conv_calls:
-            shape = conv_call.get_args()[0].get_variable().get_complete_name()
-            buffer = conv_call.get_args()[1].get_variable().get_complete_name()
-            buffer_type = conv_call.get_args()[1].type
-            initial_values = (_neuron.get_initial_blocks().get_declarations() if _neuron.get_initial_blocks()
-                                                                                 is not None else list())
-            for astDeclaration in initial_values:
-                for variable in astDeclaration.get_variables():
-                    if re.match(shape + "[\']*", variable.get_complete_name()) or re.match(shape + '__[\\d]+$',
-                                                                                           variable.get_complete_name()):
-                        spikes_updates.append(ModelParser.parse_assignment(
-                            variable.get_complete_name() + " += (" + buffer + "/" + buffer_type.print_nestml_type() + ") * "
-                            + printer.print_expression(astDeclaration.get_expression())))
-        for update in spikes_updates:
-            cls.addAssignmentToUpdateBlock(update, _neuron)
-        return _neuron
 
-    @classmethod
-    def addAssignmentToUpdateBlock(cls, _assignment=None, _neuron=None):
-        """
-        Adds a single assignment to the end of the update block of the handed over neuron.
-        :param _assignment: a single assignment
-        :type _assignment: ASTAssignment
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :return: the modified neuron
-        :rtype: ASTNeuron
-        """
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-        from pynestml.meta_model.ASTAssignment import ASTAssignment
-        from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-        assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
-            '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=_assignment,
-                                                          source_position=ASTSourceLocation.get_added_source_position())
-        stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
-                                              source_position=ASTSourceLocation.get_added_source_position())
-        _neuron.get_update_blocks().get_block().get_stmts().append(stmt)
-        return _neuron
+def add_declaration_to_initial_values(neuron, variable, initial_value):
+    # type: (ASTNeuron, str, str) -> ASTNeuron
+    """
+    Adds a single declaration to the initial values block of the neuron.
+    :param neuron: a neuron
+    :param variable: state variable to add
+    :param initial_value: corresponding initial value
+    :return: a modified neuron
+    """
+    try:
 
-    @classmethod
-    def addDeclarationToUpdateBlock(cls, _declaration=None, _neuron=None):
-        """
-        Adds a single declaration to the end of the update block of the handed over neuron.
-        :param _declaration:
-        :type _declaration: ASTDeclaration
-        :param _neuron: a single neuron instance
-        :type _neuron: ASTNeuron
-        :return: a modified neuron
-        :rtype: ASTNeuron
-        """
-        from pynestml.meta_model.ASTDeclaration import ASTDeclaration
-        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
-            '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=_declaration,
-                                                          source_position=ASTSourceLocation.get_added_source_position())
-        stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
-                                              source_position=ASTSourceLocation.get_added_source_position())
-        _neuron.get_update_blocks().get_block().get_stmts().append(stmt)
-        return _neuron
+        tmp = ModelParser.parseExpression(initial_value)
+        vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
+        declaration_string = variable + ' real' + (
+            '[' + vector_variable.getVectorParameter() + ']'
+            if vector_variable is not None and vector_variable.hasVectorParameter() else '') + ' = ' + initial_value
+        ast_declaration = ModelParser.parseDeclaration(declaration_string)
+        if vector_variable is not None:
+            ast_declaration.setSizeParameter(vector_variable.getVectorParameter())
+        neuron.addToInitialValuesBlock(ast_declaration)
+        return neuron
+    except:
+        raise RuntimeError('Must not fail by construction.')
 
-    @classmethod
-    def computeShapeStateVariablesWithInitialValues(cls, _solverOutput=None):
-        """
-        Computes a set of state variables with the corresponding set of initial values from the given solver output.
-        :param _solverOutput: a single solver output file
-        :type _solverOutput: SolverOutput
-        :return: a list of variable initial value tuple as strings
-        :rtype: tuple
-        """
-        from pynestml.solver.SolverOutput import SolverOutput
-        assert (_solverOutput is not None and isinstance(_solverOutput, SolverOutput)), \
-            '(PyNestML.Solver.TransformerBase) No or wrong type of solver output provided (%s)!' % tuple(_solverOutput)
-        state_shape_variables_with_initial_values = list()
-        for shapeStateVariable in _solverOutput.shape_state_variables:
-            for initialValueAsDict in _solverOutput.initial_values:
-                for var in initialValueAsDict.keys():
-                    if var.endswith(shapeStateVariable):
-                        state_shape_variables_with_initial_values.append((shapeStateVariable, initialValueAsDict[var]))
-        return state_shape_variables_with_initial_values
+
+def compute_state_shape_variables_declarations(solver_output):
+    # type: (...) -> map[str, str]
+    """
+    Computes a set of state variables with the corresponding set of initial values from the given solver output.
+    :param solver_output: a single solver output dictionary
+    :return: Map of variable names to corresponding initial values
+    """
+    initial_values = []
+    for initial_value_for_shape in solver_output["shape_initial_values"]:
+        initial_values += initial_value_for_shape
+
+    shape_state_variables = []
+
+    for single_shape in solver_output["shape_state_variables"]:
+        shape_state_variables += reversed(single_shape)  # cf. issue #7 on github
+
+    state_shape_declarations = {}
+    for i in range(0, len(initial_values)):
+        state_shape_declarations[shape_state_variables[i]] = initial_values[i]
+
+    return state_shape_declarations
+
+
+def compute_state_shape_variables_updates(solver_output):
+    # type: (...) -> map[str, str]
+    """
+    Computes which expression must be used to update state shape variables in update block.
+    :param solver_output: a single solver output dictionary
+    :return: Map of variable names to update ex
+    """
+    shape_state_updates = []
+    for shape_state_update in solver_output["shape_state_updates"]:
+        shape_state_updates += shape_state_update
+
+    shape_state_variables = []
+
+    for single_shape in solver_output["shape_state_variables"]:
+        shape_state_variables += (single_shape)  # cf. issue #7 on github
+
+    state_shape_updates = {}
+    for i in range(0, len(shape_state_updates)):
+        state_shape_updates[shape_state_variables[i]] = shape_state_updates[i]
+
+    return state_shape_updates
+
+
+def replace_integrate_call(neuron, update_instructions):
+    # type: (...) -> ASTNeuron
+    """
+    Replaces all integrate calls to the corresponding references to propagation.
+    :param neuron: a single neuron instance
+    :return: The neuron without an integrate calls. The function calls are replaced through an
+             incremental exact solution,
+    """
+    integrate_call = ASTUtils.get_function_call(neuron.getUpdateBlocks(), PredefinedFunctions.INTEGRATE_ODES)
+    # by construction of a valid neuron, only a single integrate call should be there
+    if isinstance(integrate_call, list):
+        integrate_call = integrate_call[0]
+    if integrate_call is not None:
+        small_statement = neuron.getParent(integrate_call)
+        assert (small_statement is not None and isinstance(small_statement, ASTSmallStmt))
+
+        block = neuron.getParent(small_statement)
+        assert (block is not None and isinstance(block, ASTBlock))
+
+        for i in range(0, len(block.getStmts())):
+            if block.getStmts()[i].equals(small_statement):
+                del block.getStmts()[i]
+                block.getStmts()[i:i] = list((ModelParser.parse_stmt(prop) for prop in update_instructions))
+                break
+    return neuron
+
+
+def applyIncomingSpikes(neuron):
+    """
+    Adds a set of update instructions to the handed over neuron.
+    :param neuron: a single neuron instance
+    :type neuron: ASTNeuron
+    :return: the modified neuron
+    :rtype: ASTNeuron
+    """
+    assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
+        '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(neuron)
+    conv_calls = OdeTransformer.get_sum_function_calls(neuron)
+    printer = ExpressionsPrettyPrinter()
+    spikes_updates = list()
+    for convCall in conv_calls:
+        shape = convCall.getArgs()[0].getVariable().getCompleteName()
+        buffer = convCall.getArgs()[1].getVariable().getCompleteName()
+        initial_values = (neuron.get_initial_values_blocks().getDeclarations()
+                         if neuron.get_initial_values_blocks() is not None else list())
+        for astDeclaration in initial_values:
+            for variable in astDeclaration.getVariables():
+                if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
+                                                                                     variable.getCompleteName()):
+                    spikes_updates.append(ModelParser.parse_assignment(
+                        variable.getCompleteName() + " += " + buffer + " * " + printer.print_expression(
+                            astDeclaration.getExpression())))
+    for update in spikes_updates:
+        add_assignment_to_update_block(update, neuron)
+    return neuron
+
+
+def add_assignment_to_update_block(assignment, neuron):
+    """
+    Adds a single assignment to the end of the update block of the handed over neuron.
+    :param assignment: a single assignment
+    :param neuron: a single neuron instance
+    :return: the modified neuron
+    """
+    small_stmt = ASTSmallStmt(assignment=assignment, source_position=ASTSourcePosition.getAddedSourcePosition())
+    neuron.getUpdateBlocks().getBlock().getStmts().append(small_stmt)
+    return neuron
+
+
+def add_declaration_to_update_block(declaration, neuron):
+    # type: (ASTDeclaration, ASTNeuron) -> ASTNeuron
+    """
+    Adds a single declaration to the end of the update block of the handed over neuron.
+    :param declaration: ASTDeclaration node to add
+    :param neuron: a single neuron instance
+    :return: a modified neuron
+    """
+    small_stmt = ASTSmallStmt(declaration=declaration, source_position=ASTSourcePosition.getAddedSourcePosition())
+    neuron.get_update_blocks().getBlock().getStmts().append(small_stmt)
+    return neuron
+
+
+def add_state_updates(state_shape_variables_updates, neuron):
+    # type: (map[str, str], ASTNeuron) -> ASTNeuron
+    """
+    Adds all update instructions as contained in the solver output to the update block of the neuron.
+    :param state_shape_variables_updates: map of variables to corresponding updates during the update step.
+    :param neuron: a single neuron
+    :return: a modified version of the neuron
+    """
+    for variable in state_shape_variables_updates:
+        declaration_statement = variable + '__tmp real = ' + state_shape_variables_updates[variable]
+        add_declaration_to_update_block(ModelParser.parse_declaration(declaration_statement), neuron)
+    for variable in state_shape_variables_updates:
+        add_assignment_to_update_block(ModelParser.parse_assignment(variable + ' = ' + variable + '__tmp'), neuron)
+    return neuron

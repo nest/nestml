@@ -70,6 +70,14 @@ class ASTVariable(ASTNode):
         """
         return self.name
 
+    def set_name(self, name):
+        # type: (str) -> None
+        """
+        Sets the name of the variable.
+        :name: the name to set.
+        """
+        self.name = name
+
     def get_differential_order(self):
         """
         Returns the differential order of the variable.

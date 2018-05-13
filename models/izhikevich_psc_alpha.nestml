@@ -136,7 +136,7 @@ neuron izhikevich_psc_alpha_implicit:
     V_m mV = -65 mV                        # Membrane potential in mV
     U_m pA = 0 pA                          # Membrane potential recovery variable
     I_syn_ex pA = 0. pA                    # inputs from the exc conductance
-    I_syn_ex' pA/ms = pA * e / tau_syn_in  # inputs from the exc conductance
+    I_syn_ex' pA/ms = pA * e / tau_syn_ex  # inputs from the exc conductance
     I_syn_in pA = 0pA                      # inputs from the inh conductance
     I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh conductance
   end
