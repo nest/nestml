@@ -105,11 +105,6 @@ class ModelParser(object):
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
         log_to_restore = copy.deepcopy(Logger.get_log())
-        Logger.no_print = True
-        symbol_table_visitor = ASTSymbolTableVisitor()
-        for neuron in ast.get_neuron_list():
-            neuron.accept(symbol_table_visitor)
-            SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
         # replace all derived variables through a computer processable names: e.g. g_in''' -> g_in__ddd
         restore_differential_order = []
         for ode in ASTUtils.get_all(ast, ASTOdeEquation):
@@ -134,9 +129,8 @@ class ModelParser(object):
         for ode_variable in restore_differential_order:
             ode_variable.differential_order = 1
         Logger.set_log(log_to_restore)
-        Logger.no_print = False
         for neuron in ast.get_neuron_list():
-            neuron.accept(symbol_table_visitor)
+            neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
         return ast
 

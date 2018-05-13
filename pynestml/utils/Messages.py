@@ -324,6 +324,20 @@ class Messages(object):
         return MessageCode.VARIABLE_USED_BEFORE_DECLARATION, message
 
     @classmethod
+    def get_variable_not_defined(cls, variable_name):
+        """
+        Returns a message indicating that a variable is not defined .
+        :param variable_name: a variable name
+        :type variable_name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (variable_name is not None and isinstance(variable_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
+        message = 'Variable \'%s\' not defined !' % variable_name
+        return MessageCode.NO_VARIABLE_FOUND, message
+
+    @classmethod
     def get_variable_defined_recursively(cls, variable_name):
         """
         Returns a message indicating that a variable is defined recursively.

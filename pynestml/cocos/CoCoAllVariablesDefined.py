@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
+from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VariableSymbol import BlockType
 from pynestml.utils.Logger import Logger, LoggingLevel
@@ -40,7 +40,7 @@ class CoCoAllVariablesDefined(CoCo):
     @classmethod
     def check_co_co(cls, node):
         """
-        Checks if this coco applies for the handed over neuron. Models which use not defined elements are not 
+        Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
         correct.
         :param node: a single neuron instance.
         :type node: ASTNeuron
@@ -57,7 +57,7 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # first test if the symbol has been defined at least
                 if symbol is None:
-                    code, message = Messages.get_no_variable_found(var.get_name())
+                    code, message = Messages.get_variable_not_defined(var.get_name())
                     Logger.log_message(neuron=node, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=var.get_source_position())
                 # first check if it is part of an invariant
@@ -83,7 +83,25 @@ class CoCoAllVariablesDefined(CoCo):
                         code, message = Messages.get_variable_defined_recursively(var.get_name())
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, neuron=node)
+
+        # now check for each assignment whether the left hand side variable is defined
+        vis = ASTAssignedVariableDefinedVisitor(node)
+        node.accept(vis)
         return
+
+
+class ASTAssignedVariableDefinedVisitor(ASTVisitor):
+    def __init__(self, neuron):
+        super(ASTAssignedVariableDefinedVisitor, self).__init__()
+        self.neuron = neuron
+
+    def visit_assignment(self, node):
+        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
+                                                    SymbolKind.VARIABLE)
+        if symbol is None:
+            code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR, neuron=self.neuron)
 
 
 class ASTExpressionCollectorVisitor(ASTVisitor):
