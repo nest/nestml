@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.symbol_table.Scope import Scope, ScopeType
 from pynestml.symbols.FunctionSymbol import FunctionSymbol
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
@@ -561,6 +561,26 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.compound_stmt.update_scope(node.get_scope())
 
 
+def make_trivial_assignment(var_name, order, equations_block, is_shape=False):
+    lhs_variable = ASTNodeFactory.create_ast_variable(name=var_name,
+                                                      differential_order=order+1,
+                                                      source_position=ASTSourceLocation.
+                                                      get_added_source_position())
+    rhs_variable = ASTNodeFactory.create_ast_variable(name=var_name,
+                                                      differential_order=order,
+                                                      source_position=ASTSourceLocation.
+                                                      get_added_source_position())
+    expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
+                                                             source_position=ASTSourceLocation.
+                                                             get_added_source_position())
+    source_loc = ASTSourceLocation.get_added_source_position()
+    if is_shape:
+        node = ASTNodeFactory.create_ast_ode_shape(lhs=lhs_variable, rhs=expression, source_position=source_loc)
+    else:
+        node = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression, source_position=source_loc)
+    equations_block.get_declarations().append(node)
+
+
 def make_implicit_odes_explicit(equations_block):
     """
     This method inspects a handed over block of equations and makes all implicit declarations of odes explicit.
@@ -581,29 +601,28 @@ def make_implicit_odes_explicit(equations_block):
             # check for each smaller order if it is defined
             for i in range(1, order):
                 found = False
-                for shape in equations_block.get_ode_shapes():
-                    if shape.get_variable().get_name() == declaration.get_variable().get_name() and \
-                            shape.get_variable().get_differential_order() == i:
+                base_found = False
+                for eq in equations_block.get_ode_shapes():
+                    if eq.get_variable().get_name() == declaration.get_variable().get_name() and \
+                            eq.get_variable().get_differential_order() == i:
                         found = True
                         break
                 # now if we did not found the corresponding declaration, we have to add it by hand
                 if not found:
-                    lhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_variable().get_name(),
-                                                                      differential_order=i,
-                                                                      source_position=ASTSourceLocation.
-                                                                      get_added_source_position())
-                    rhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_variable().get_name(),
-                                                                      differential_order=i,
-                                                                      source_position=ASTSourceLocation.
-                                                                      get_added_source_position())
-                    expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
-                                                                             source_position=ASTSourceLocation.
-                                                                             get_added_source_position())
-                    source_loc = ASTSourceLocation.get_added_source_position()
-                    equations_block.get_declarations().append(
-                        ASTNodeFactory.create_ast_ode_shape(lhs=lhs_variable,
-                                                            rhs=expression,
-                                                            source_position=source_loc))
+                    make_trivial_assignment(declaration.get_variable().get_name(), i, equations_block, True)
+            # the following code ensures that after g_in__d has been processed, we also check g_in
+            base_found = False
+            base_var = convert_to_model_notation(declaration.get_variable())
+            for eq in equations_block.get_ode_shapes():
+                if eq.get_variable().get_name() == base_var.get_name() and \
+                        eq.get_variable().get_differential_order() - 1 == base_var.get_differential_order():
+                    base_found = True
+                    break
+            if not base_found:
+                make_trivial_assignment(base_var.get_name(), 0, equations_block,True)
+                base_found = False
+                base_var = None
+
         if isinstance(declaration, ASTOdeEquation):
             # now we found a variable with order > 0, thus check if all previous orders have been defined
             order = declaration.get_lhs().get_differential_order()
@@ -617,28 +636,48 @@ def make_implicit_odes_explicit(equations_block):
                         break
                 # now if we did not found the corresponding declaration, we have to add it by hand
                 if not found:
-                    lhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_lhs().get_name(),
-                                                                      differential_order=i,
-                                                                      source_position=ASTSourceLocation.
-                                                                      get_added_source_position())
-                    rhs_variable = ASTNodeFactory.create_ast_variable(name=declaration.get_lhs().get_name(),
-                                                                      differential_order=i,
-                                                                      source_position=ASTSourceLocation.
-                                                                      get_added_source_position())
-                    expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
-                                                                             source_position=ASTSourceLocation.
-                                                                             get_added_source_position(),
-                                                                             function_call=None,
-                                                                             boolean_literal=None,
-                                                                             is_inf=False,
-                                                                             string=None,
-                                                                             numeric_literal=None)
+                    make_trivial_assignment(declaration.get_lhs().get_name(), i, equations_block, True)
+            # the following code ensures that after g_in__d has been processed, we also check g_in
+            base_found = False
+            base_var = convert_to_model_notation(declaration.get_lhs())
+            for eq in equations_block.get_ode_equations():
+                if eq.get_lhs().get_name() == base_var.get_name() and \
+                        eq.get_lhs().get_differential_order() - 1 == base_var.get_differential_order():
+                    base_found = True
+                    break
+            if not base_found:
+                make_trivial_assignment(base_var.get_name(), 0, equations_block, False)
+                base_found = False
+                base_var = None
 
-                    ode_eq_pos = ASTSourceLocation.get_added_source_position()
-                    ode_eq = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression,
-                                                                    source_position=ode_eq_pos)
-                    equations_block.get_declarations().append(ode_eq)
         checked.append(declaration)
+    # todo: now we have to perform the same step, but regard g_in_d' as g_in'', find all previous orders and
+    # finally update them with trivial solutions
+
+    return
+
+
+def convert_to_model_notation(variable):
+    from pynestml.meta_model.ASTVariable import ASTVariable
+    """
+    This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
+    It is used to find all variables which have to provided with a ode declaration.
+    """
+    # type: ASTVariable -> str
+
+    name = variable.get_name()
+    diff_order = 0
+    while True:
+        if name.endswith('__d'):
+            diff_order += 1
+            name = name[:-3]
+            break
+        elif name.endswith('d'):
+            diff_order += 1
+            name = name[:-1]
+        else:
+            break
+    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
 
 
 def mark_conductance_based_buffers(input_lines):

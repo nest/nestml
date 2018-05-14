@@ -224,9 +224,9 @@ class ASTNeuron(ASTNode):
         Deletes all equations blocks. By construction as checked through cocos there is only one there.
         """
 
-        for elem in self.getBody().getBodyElements():
+        for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTEquationsBlock):
-                self.getBody().getBodyElements().remove(elem)
+                self.get_body().get_body_elements().remove(elem)
 
     def get_initial_values_declarations(self):
         """

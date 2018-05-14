@@ -166,7 +166,7 @@ def generate_model_h_file(neuron):
     For a handed over neuron, this method generates the corresponding header file.
     :param neuron: a single neuron object.
     """
-    print("!!!", neuron)
+    #print("!!!", neuron)
     neuron_h_file = template_neuron_h_file.render(setup_generation_helpers(neuron))
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
         f.write(str(neuron_h_file))

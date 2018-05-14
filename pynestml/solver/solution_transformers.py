@@ -58,9 +58,9 @@ def integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers):
                     return False
         return True
 
-    ode_lhs = str(equations_block.getOdeEquations()[0].getLhs().getName())
-    ode_rhs = str(equations_block.getOdeEquations()[0].getRhs())
-    shape_name = shape.getVariable().getName()
+    ode_lhs = str(equations_block.get_ode_equations()[0].get_lhs().get_name())
+    ode_rhs = str(equations_block.get_ode_equations()[0].get_rhs())
+    shape_name = shape.get_variable().get_name()
     if not (ode_is_lin_const_coeff(ode_lhs, ode_rhs, [shape_name])):
         raise Exception("Cannot handle delta shape in a not linear constant coefficient ODE.")
     ode_lhs = parse_expr(ode_lhs)
@@ -73,7 +73,7 @@ def integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers):
     # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
     c2 = diff(ode_rhs, parse_expr(shape_name))
     # tau is passed as the second argument of the 'delta' function
-    tau_constant = parse_expr(str(shape.getExpression().getFunctionCall().getArgs()[1]))
+    tau_constant = parse_expr(str(shape.get_expression().get_function_call().get_args()[1]))
     ode_var_factor = exp(-Symbol('__h') / tau_constant)
     ode_var_update_instructions = [
         str(ode_lhs) + " = " + str(ode_var_factor * ode_lhs),

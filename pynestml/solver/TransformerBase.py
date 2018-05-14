@@ -19,12 +19,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import re as re
 
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.meta_model.ASTBlock import ASTBlock
 from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.meta_model.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.ModelParser import ModelParser
@@ -169,7 +170,7 @@ def replace_integrate_call(neuron, update_instructions):
         small_statement = neuron.get_parent(integrate_call)
         assert (small_statement is not None and isinstance(small_statement, ASTSmallStmt))
 
-        block = neuron.get_parent(small_statement)
+        block = neuron.get_parent(neuron.get_parent(small_statement))
         assert (block is not None and isinstance(block, ASTBlock))
 
         for i in range(0, len(block.get_stmts())):
@@ -197,7 +198,7 @@ def apply_incoming_spikes(neuron):
         shape = convCall.get_args()[0].get_variable().get_complete_name()
         buffer = convCall.get_args()[1].get_variable().get_complete_name()
         initial_values = (
-        neuron.get_initial_values_blocks().get_declarations() if neuron.get_initial_values_blocks() is not None else list())
+            neuron.get_initial_values_blocks().get_declarations() if neuron.get_initial_values_blocks() is not None else list())
         for astDeclaration in initial_values:
             for variable in astDeclaration.get_variables():
                 if re.match(shape + "[\']*", variable.get_complete_name()) or re.match(shape + '__[\\d]+$',
@@ -217,8 +218,11 @@ def add_assignment_to_update_block(assignment, neuron):
     :param neuron: a single neuron instance
     :return: the modified neuron
     """
-    small_stmt = ASTSmallStmt(assignment=assignment, source_position=ASTSourceLocation.get_added_source_position())
-    neuron.get_update_blocks().get_block().get_stmts().append(small_stmt)
+    small_stmt = ASTNodeFactory.create_ast_small_stmt(assignment=assignment,
+                                                      source_position=ASTSourceLocation.get_added_source_position())
+    stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
+                                          source_position=ASTSourceLocation.get_added_source_position())
+    neuron.get_update_blocks().get_block().get_stmts().append(stmt)
     return neuron
 
 
@@ -230,8 +234,11 @@ def add_declaration_to_update_block(declaration, neuron):
     :param neuron: a single neuron instance
     :return: a modified neuron
     """
-    small_stmt = ASTSmallStmt(declaration=declaration, source_position=ASTSourceLocation.get_added_source_position())
-    neuron.get_update_blocks().get_block().get_stmts().append(small_stmt)
+    small_stmt = ASTNodeFactory.create_ast_small_stmt(declaration=declaration,
+                                                      source_position=ASTSourceLocation.get_added_source_position())
+    stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
+                                          source_position=ASTSourceLocation.get_added_source_position())
+    neuron.get_update_blocks().get_block().get_stmts().append(stmt)
     return neuron
 
 

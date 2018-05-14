@@ -61,7 +61,7 @@ class Scope(object):
         self.declared_elements.append(symbol)
 
     def update_variable_symbol(self, _symbol):
-        for symbol in self.declared_elements:
+        for symbol in self.get_symbols_in_this_scope():
             if (symbol.get_symbol_kind() == SymbolKind.VARIABLE
                     and symbol.get_symbol_name() == _symbol.get_symbol_name()):
                 self.declared_elements.remove(symbol)
