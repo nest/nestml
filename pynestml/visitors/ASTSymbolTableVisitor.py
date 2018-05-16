@@ -561,12 +561,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.compound_stmt.update_scope(node.get_scope())
 
 
-def make_trivial_assignment(var_name, order, equations_block, is_shape=False):
-    lhs_variable = ASTNodeFactory.create_ast_variable(name=var_name,
-                                                      differential_order=order+1,
+def make_trivial_assignment(var, order, equations_block, is_shape=False):
+    from pynestml.meta_model.ASTVariable import ASTVariable
+    from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
+    from pynestml.meta_model.ASTNode import ASTNode
+    # type: (ASTVariable,int,ASTEquationsBlock,bool) -> ASTNode
+    lhs_variable = ASTNodeFactory.create_ast_variable(name=var.get_name(),
+                                                      differential_order=order + 1,
                                                       source_position=ASTSourceLocation.
                                                       get_added_source_position())
-    rhs_variable = ASTNodeFactory.create_ast_variable(name=var_name,
+    rhs_variable = ASTNodeFactory.create_ast_variable(name=convert_variable_name_to_generator_notation(var).get_name(),
                                                       differential_order=order,
                                                       source_position=ASTSourceLocation.
                                                       get_added_source_position())
@@ -579,6 +583,7 @@ def make_trivial_assignment(var_name, order, equations_block, is_shape=False):
     else:
         node = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression, source_position=source_loc)
     equations_block.get_declarations().append(node)
+    return node
 
 
 def make_implicit_odes_explicit(equations_block):
@@ -601,7 +606,6 @@ def make_implicit_odes_explicit(equations_block):
             # check for each smaller order if it is defined
             for i in range(1, order):
                 found = False
-                base_found = False
                 for eq in equations_block.get_ode_shapes():
                     if eq.get_variable().get_name() == declaration.get_variable().get_name() and \
                             eq.get_variable().get_differential_order() == i:
@@ -609,19 +613,20 @@ def make_implicit_odes_explicit(equations_block):
                         break
                 # now if we did not found the corresponding declaration, we have to add it by hand
                 if not found:
-                    make_trivial_assignment(declaration.get_variable().get_name(), i, equations_block, True)
+                    checked.append(make_trivial_assignment(declaration.get_variable(), i,
+                                                           equations_block, True))
             # the following code ensures that after g_in__d has been processed, we also check g_in
             base_found = False
-            base_var = convert_to_model_notation(declaration.get_variable())
+            base_var = convert_variable_name_to_model_notation(declaration.get_variable())
             for eq in equations_block.get_ode_shapes():
                 if eq.get_variable().get_name() == base_var.get_name() and \
                         eq.get_variable().get_differential_order() - 1 == base_var.get_differential_order():
                     base_found = True
                     break
             if not base_found:
-                make_trivial_assignment(base_var.get_name(), 0, equations_block,True)
-                base_found = False
+                checked.append(make_trivial_assignment(base_var, 0, equations_block, True))
                 base_var = None
+                base_found = False
 
         if isinstance(declaration, ASTOdeEquation):
             # now we found a variable with order > 0, thus check if all previous orders have been defined
@@ -636,48 +641,21 @@ def make_implicit_odes_explicit(equations_block):
                         break
                 # now if we did not found the corresponding declaration, we have to add it by hand
                 if not found:
-                    make_trivial_assignment(declaration.get_lhs().get_name(), i, equations_block, True)
+                    checked.append(make_trivial_assignment(declaration.get_lhs(), i, equations_block, True))
             # the following code ensures that after g_in__d has been processed, we also check g_in
             base_found = False
-            base_var = convert_to_model_notation(declaration.get_lhs())
+            base_var = convert_variable_name_to_model_notation(declaration.get_lhs())
             for eq in equations_block.get_ode_equations():
                 if eq.get_lhs().get_name() == base_var.get_name() and \
                         eq.get_lhs().get_differential_order() - 1 == base_var.get_differential_order():
                     base_found = True
                     break
             if not base_found:
-                make_trivial_assignment(base_var.get_name(), 0, equations_block, False)
-                base_found = False
+                checked.append(make_trivial_assignment(base_var, 0, equations_block, False))
                 base_var = None
+                base_found = False
 
         checked.append(declaration)
-    # todo: now we have to perform the same step, but regard g_in_d' as g_in'', find all previous orders and
-    # finally update them with trivial solutions
-
-    return
-
-
-def convert_to_model_notation(variable):
-    from pynestml.meta_model.ASTVariable import ASTVariable
-    """
-    This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
-    It is used to find all variables which have to provided with a ode declaration.
-    """
-    # type: ASTVariable -> str
-
-    name = variable.get_name()
-    diff_order = 0
-    while True:
-        if name.endswith('__d'):
-            diff_order += 1
-            name = name[:-3]
-            break
-        elif name.endswith('d'):
-            diff_order += 1
-            name = name[:-1]
-        else:
-            break
-    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
 
 
 def mark_conductance_based_buffers(input_lines):
@@ -762,3 +740,47 @@ def add_ode_shape_to_variable(ode_shape):
         Logger.log_message(code=code, message=message, error_position=ode_shape.get_source_position(),
                            log_level=LoggingLevel.ERROR)
     return
+
+
+def convert_variable_name_to_model_notation(variable):
+    """
+    This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
+    It is used to find all variables which have to provided with a ode declaration.
+    """
+    from pynestml.meta_model.ASTVariable import ASTVariable
+    # type: ASTVariable -> str
+
+    name = variable.get_name()
+    diff_order = 0
+    while True:
+        if name.endswith('__d'):
+            diff_order += 1
+            name = name[:-3]
+            break
+        elif name.endswith('d'):
+            diff_order += 1
+            name = name[:-1]
+        else:
+            break
+    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
+
+
+def convert_variable_name_to_generator_notation(variable):
+    """
+    This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
+    one (e.g., g_in_d). It decreases the unsupported order by one.
+    """
+    from pynestml.meta_model.ASTVariable import ASTVariable
+    # type: ASTVariable -> str
+
+    name = variable.get_name()
+    diff_order = variable.get_differential_order()
+    if diff_order > 0:
+        import re
+        pattern = re.compile('w*_((d)*)\b')
+        if pattern.match(name):
+            name += 'd'
+        else:
+            name += '__d'
+        diff_order -= 1
+    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)

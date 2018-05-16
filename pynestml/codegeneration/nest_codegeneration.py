@@ -421,7 +421,7 @@ def transform_functional_shapes_to_json(equations_block):
     result["parameters"] = []  # ode-framework requires this.
     return result
 
-
+# todo: not used
 class ASTContainsVisitor(ASTVisitor):
     def __init__(self, target):
         self.target = target
@@ -443,7 +443,6 @@ def make_functions_self_contained(functions):
     :param functions: A sorted list with entries ASTOdeFunction.
     :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.
     """
-    return functions  # todo fix me
     for source in functions:
         for target in functions:
             matcher = re.compile(_variable_matching_template.format(source.get_variable_name()))
@@ -463,7 +462,6 @@ def replace_functions_through_defining_expressions(definitions, functions):
     must be replaced in `definitions`.
     :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
     """
-    return definitions  # todo: fix me
     for fun in functions:
         for target in definitions:
             matcher = re.compile(_variable_matching_template.format(fun.get_variable_name()))

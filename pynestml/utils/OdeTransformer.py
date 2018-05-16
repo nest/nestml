@@ -115,7 +115,7 @@ class OdeTransformer(object):
         from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
         fun = (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in function_list else True)
-        vis = ASTHigherOrderVisitor(fun)
+        vis = ASTHigherOrderVisitor(visit_funcs=fun)
         ast_node.accept(vis)
         return res
 

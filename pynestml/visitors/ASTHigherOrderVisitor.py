@@ -24,10 +24,10 @@ class ASTHigherOrderVisitor(ASTVisitor):
     """
     This visitor is used to visit each node of the meta_model and and preform an arbitrary on it..
     """
-    visit_funcs = list()
-    endvisit_funcs = list()
 
     def __init__(self, visit_funcs=list(), endvisit_funcs=list()):
+        self.visit_funcs = list()
+        self.endvisit_funcs = list()
         super(ASTHigherOrderVisitor, self).__init__()
         # check if a list of funcs is handed over or not
         if isinstance(visit_funcs, list):

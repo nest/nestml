@@ -37,6 +37,7 @@ PredefinedUnits.register_units()
 PredefinedTypes.register_types()
 PredefinedVariables.register_variables()
 PredefinedFunctions.register_functions()
+Logger.init_logger(LoggingLevel.NO)
 printer = NestPrinter(ExpressionsPrettyPrinter(), NESTReferenceConverter())
 
 
@@ -84,6 +85,7 @@ class UnitSystemTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.NO)
 
     def test_expression_after_magnitude_conversion_in_direct_assignment(self):
+        Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DirectAssignmentWithDifferentButCompatibleUnits.nestml'))
