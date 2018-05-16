@@ -25,6 +25,7 @@ from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
+from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.utils.Logger import LoggingLevel, Logger
 
 

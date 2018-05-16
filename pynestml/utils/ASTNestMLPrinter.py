@@ -295,7 +295,7 @@ class ASTNestMLPrinter(object):
             ret += '= ' + self.print_node(node.get_expression())
         if node.has_invariant():
             ret += ' [[' + self.print_node(node.get_invariant()) + ']]'
-        ret += print_sl_comment(node.in_comment)
+        ret += print_sl_comment(node.in_comment) + '\n'
         if len(node.post_comments) > 0:
             ret += '\n'
             ret += print_ml_comments(node.post_comments, self.indent, True)

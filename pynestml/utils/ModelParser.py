@@ -17,9 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from antlr4 import *
 import copy
 
+from antlr4 import *
+
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.meta_model.ASTAssignment import ASTAssignment
 from pynestml.meta_model.ASTBlock import ASTBlock
@@ -59,12 +62,10 @@ from pynestml.meta_model.ASTUnitType import ASTUnitType
 from pynestml.meta_model.ASTUpdateBlock import ASTUpdateBlock
 from pynestml.meta_model.ASTVariable import ASTVariable
 from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
-from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
-from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
@@ -105,6 +106,7 @@ class ModelParser(object):
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
         log_to_restore = copy.deepcopy(Logger.get_log())
+        counter = Logger.curr_message
         # replace all derived variables through a computer processable names: e.g. g_in''' -> g_in__ddd
         restore_differential_order = []
         for ode in ASTUtils.get_all(ast, ASTOdeEquation):
@@ -128,7 +130,7 @@ class ModelParser(object):
         # now also equations have no ' at lhs. replace every occurrence of last d to ' to compensate
         for ode_variable in restore_differential_order:
             ode_variable.differential_order = 1
-        Logger.set_log(log_to_restore)
+        Logger.set_log(log_to_restore, counter)
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())

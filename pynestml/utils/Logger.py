@@ -68,12 +68,13 @@ class Logger(object):
         return cls.log
 
     @classmethod
-    def set_log(cls, log):
+    def set_log(cls, log, counter):
         """
         Restores log from the 'log' variable
         :param log:
         """
         cls.log = log
+        cls.curr_message = counter
 
     @classmethod
     def log_message(cls, neuron=None, code=None, message=None, error_position=None, log_level=None):

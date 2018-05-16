@@ -49,6 +49,7 @@ from pynestml.utils.Messages import Messages
 from pynestml.utils.ModelParser import ModelParser
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+from pynestml.visitors.ASTVisitor import ASTVisitor
 
 # setup the template environment
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_NEST')))
@@ -132,12 +133,10 @@ def analyse_and_generate_neuron(neuron):
         convolve_calls = OdeTransformer.get_sum_function_calls(equations_block)
         for convolve in convolve_calls:
             shape_to_buffers[str(convolve.get_args()[0])] = str(convolve.get_args()[1])
-
         OdeTransformer.refactor_convolve_call(neuron.get_equations_block())
         make_functions_self_contained(equations_block.get_ode_functions())
         replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
                                                        equations_block.get_ode_functions())
-
         # transform everything into gsl processable (e.g. no functional shapes) or exact form.
         transform_shapes_and_odes(neuron, shape_to_buffers)
         # update the symbol table
@@ -156,8 +155,10 @@ def generate_nest_code(neuron):
     """
     if not os.path.isdir(FrontendConfiguration.get_target_path()):
         os.makedirs(FrontendConfiguration.get_target_path())
+    print(neuron)
     generate_model_h_file(neuron)
     generate_neuron_cpp_file(neuron)
+    print(neuron)  # todo: added, not required
 
 
 def generate_model_h_file(neuron):
@@ -166,7 +167,7 @@ def generate_model_h_file(neuron):
     For a handed over neuron, this method generates the corresponding header file.
     :param neuron: a single neuron object.
     """
-    #print("!!!", neuron)
+    # print("!!!", neuron)
     neuron_h_file = template_neuron_h_file.render(setup_generation_helpers(neuron))
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
         f.write(str(neuron_h_file))
@@ -421,6 +422,16 @@ def transform_functional_shapes_to_json(equations_block):
     return result
 
 
+class ASTContainsVisitor(ASTVisitor):
+    def __init__(self, target):
+        self.target = target
+        self.result = False
+
+    def visit_simple_expression(self, node):
+        if node.get_name() == self.target:
+            self.result = True
+
+
 _variable_matching_template = r'(\b)({})(\b)'
 
 
@@ -432,6 +443,7 @@ def make_functions_self_contained(functions):
     :param functions: A sorted list with entries ASTOdeFunction.
     :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.
     """
+    return functions  # todo fix me
     for source in functions:
         for target in functions:
             matcher = re.compile(_variable_matching_template.format(source.get_variable_name()))
@@ -451,6 +463,7 @@ def replace_functions_through_defining_expressions(definitions, functions):
     must be replaced in `definitions`.
     :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
     """
+    return definitions  # todo: fix me
     for fun in functions:
         for target in definitions:
             matcher = re.compile(_variable_matching_template.format(fun.get_variable_name()))

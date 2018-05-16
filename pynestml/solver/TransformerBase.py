@@ -174,7 +174,7 @@ def replace_integrate_call(neuron, update_instructions):
         assert (block is not None and isinstance(block, ASTBlock))
 
         for i in range(0, len(block.get_stmts())):
-            if block.get_stmts()[i].equals(small_statement):
+            if block.get_stmts()[i].equals(neuron.get_parent(small_statement)):
                 del block.get_stmts()[i]
                 block.get_stmts()[i:i] = list((ModelParser.parse_stmt(prop) for prop in update_instructions))
                 break
