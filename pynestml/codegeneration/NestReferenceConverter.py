@@ -72,8 +72,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if isinstance(binary_operator, ASTLogicalOperator):
             return cls.convertLogicalOperator(binary_operator)
         else:
-            Logger.log_message('Cannot determine binary operator!', LoggingLevel.ERROR)
-            return '(%s) ERROR (%s)'
+            raise RuntimeError('Cannot determine binary operator!')
 
     @classmethod
     def convertFunctionCall(cls, function_call):
@@ -194,8 +193,7 @@ class NESTReferenceConverter(IReferenceConverter):
         elif unary_operator.is_unary_tilde:
             return '(' + '~' + '%s' + ')'
         else:
-            Logger.log_message('Cannot determine unary operator!', LoggingLevel.ERROR)
-            return '(' + '%s' + ')'
+            raise RuntimeError('Cannot determine unary operator!', LoggingLevel.ERROR)
 
     @classmethod
     def convertEncapsulated(cls):
@@ -229,8 +227,7 @@ class NESTReferenceConverter(IReferenceConverter):
         elif _op.is_or():
             return '%s' + '||' + '%s'
         else:
-            Logger.log_message('Cannot determine logical operator!', LoggingLevel.ERROR)
-            return '(%s) ERROR  (%s)'
+            raise RuntimeError('Cannot determine logical operator!', LoggingLevel.ERROR)
 
     @classmethod
     def convertComparisonOperator(cls, _op):
@@ -254,8 +251,7 @@ class NESTReferenceConverter(IReferenceConverter):
         elif _op.isGt():
             return '%s' + '>' + '%s'
         else:
-            Logger.log_message('Cannot determine comparison operator!', LoggingLevel.ERROR)
-            return '(%s) ERROR  (%s)'
+            raise RuntimeError('Cannot determine comparison operator!')
 
     @classmethod
     def convertBitOperator(cls, _op):
@@ -277,8 +273,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if _op.isBitXor():
             return '%s' + '^' + '%s'
         else:
-            Logger.log_message('Cannot determine bit operator!', LoggingLevel.ERROR)
-            return '(%s) ERROR (%s)'
+            raise RuntimeError('Cannot determine bit operator!')
 
     @classmethod
     def convertArithmeticOperator(cls, _op):
@@ -302,8 +297,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if _op.is_pow_op:
             return 'pow' + '(%s,%s)'
         else:
-            Logger.log_message('Cannot determine arithmetic operator!', LoggingLevel.ERROR)
-            return '(%s) ERROR (%s)'
+            raise RuntimeError('Cannot determine arithmetic operator!')
 
     @classmethod
     def convertTernaryOperator(cls):

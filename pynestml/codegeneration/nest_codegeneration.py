@@ -304,6 +304,7 @@ def transform_shapes_and_odes(neuron, shape_to_buffers):
             for shape in equations_block.get_ode_shapes():
                 if shape.get_variable().get_differential_order() == 0:
                     at_least_one_functional_shape = True
+                    break
             if at_least_one_functional_shape:
                 ode_shapes = solve_functional_shapes(equations_block)
                 functional_shapes_to_odes(result, ode_shapes)
@@ -319,9 +320,11 @@ def apply_spikes_from_buffers(neuron, shape_to_buffers):
         variable = declaration.get_variables()[0]
         for shape in shape_to_buffers:
             matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-
+            buffer_type = neuron.get_equations_block().get_scope().\
+                resolve_to_symbol(shape_to_buffers[shape],SymbolKind.VARIABLE).get_type_symbol()
             if re.match(matcher_computed_shape_odes, str(variable)):
-                assignment_string = str(variable) + " += " + shape_to_buffers[shape] + " * " + \
+                assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
+                    shape] + '/' + buffer_type.print_nestml_type() + ") * " +\
                                     _printer.print_expression(declaration.get_expression())
                 spike_updates.append(ModelParser.parse_assignment(assignment_string))
                 # the IV is applied. can be reset
@@ -420,6 +423,7 @@ def transform_functional_shapes_to_json(equations_block):
 
     result["parameters"] = []  # ode-framework requires this.
     return result
+
 
 # todo: not used
 class ASTContainsVisitor(ASTVisitor):
