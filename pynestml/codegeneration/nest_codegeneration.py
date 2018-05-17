@@ -210,8 +210,8 @@ def setup_generation_helpers(neuron):
     namespace['utils'] = ASTUtils()
     namespace['idemPrinter'] = LegacyExpressionPrinter()
     namespace['outputEvent'] = namespace['printer'].printOutputEvent(neuron.get_body())
-    namespace['isSpikeInput'] = ASTUtils.is_spike_input(neuron.get_body())
-    namespace['isCurrentInput'] = ASTUtils.is_current_input(neuron.get_body())
+    namespace['is_spike_input'] = ASTUtils.is_spike_input(neuron.get_body())
+    namespace['is_current_input'] = ASTUtils.is_current_input(neuron.get_body())
     namespace['odeTransformer'] = OdeTransformer()
     namespace['printerGSL'] = gsl_printer
 
