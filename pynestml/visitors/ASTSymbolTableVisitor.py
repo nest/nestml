@@ -618,9 +618,11 @@ def make_implicit_odes_explicit(equations_block):
             # the following code ensures that after g_in__d has been processed, we also check g_in
             base_found = False
             base_var = convert_variable_name_to_model_notation(declaration.get_variable())
+            base_var.differential_order = base_var.differential_order
+            if base_var.differential_order == 0:
+                continue
             for eq in equations_block.get_ode_shapes():
-                if eq.get_variable().get_name() == base_var.get_name() and \
-                        eq.get_variable().get_differential_order() - 1 == base_var.get_differential_order():
+                if eq.get_variable().get_complete_name() == base_var.get_complete_name():
                     base_found = True
                     break
             if not base_found:
@@ -645,9 +647,10 @@ def make_implicit_odes_explicit(equations_block):
             # the following code ensures that after g_in__d has been processed, we also check g_in
             base_found = False
             base_var = convert_variable_name_to_model_notation(declaration.get_lhs())
+            if base_var.differential_order == 0:
+                continue
             for eq in equations_block.get_ode_equations():
-                if eq.get_lhs().get_name() == base_var.get_name() and \
-                        eq.get_lhs().get_differential_order() - 1 == base_var.get_differential_order():
+                if eq.get_lhs().get_complete_name() == base_var.get_complete_name():
                     base_found = True
                     break
             if not base_found:
@@ -656,6 +659,7 @@ def make_implicit_odes_explicit(equations_block):
                 base_found = False
 
         checked.append(declaration)
+    return
 
 
 def mark_conductance_based_buffers(input_lines):

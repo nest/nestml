@@ -155,10 +155,8 @@ def generate_nest_code(neuron):
     """
     if not os.path.isdir(FrontendConfiguration.get_target_path()):
         os.makedirs(FrontendConfiguration.get_target_path())
-    print(neuron)
     generate_model_h_file(neuron)
     generate_neuron_cpp_file(neuron)
-    print(neuron)  # todo: added, not required
 
 
 def generate_model_h_file(neuron):
@@ -320,8 +318,8 @@ def apply_spikes_from_buffers(neuron, shape_to_buffers):
         variable = declaration.get_variables()[0]
         for shape in shape_to_buffers:
             matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-            buffer_type = neuron.get_equations_block().get_scope().\
-                resolve_to_symbol(shape_to_buffers[shape],SymbolKind.VARIABLE).get_type_symbol()
+            buffer_type = neuron.get_scope().\
+                resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
             if re.match(matcher_computed_shape_odes, str(variable)):
                 assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
                     shape] + '/' + buffer_type.print_nestml_type() + ") * " +\
@@ -427,6 +425,7 @@ def transform_functional_shapes_to_json(equations_block):
 
 # todo: not used
 class ASTContainsVisitor(ASTVisitor):
+    # todo
     def __init__(self, target):
         self.target = target
         self.result = False
