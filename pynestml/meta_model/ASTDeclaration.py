@@ -149,6 +149,10 @@ class ASTDeclaration(ASTNode):
         """
         return self.__expression
 
+    def set_expression(self, expr):
+        # type: (ASTExpression) -> None
+        self.__expression = expr
+
     def has_invariant(self):
         """
         Returns whether the declaration has a invariant or not.

@@ -277,7 +277,6 @@ def transform_shapes_and_odes(neuron, shape_to_buffers):
 
             integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers)
             return result
-
         elif len(equations_block.get_ode_equations()) == 1:
             code, message = Messages.get_neuron_analyzed(neuron.get_name())
             Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -326,7 +325,7 @@ def apply_spikes_from_buffers(neuron, shape_to_buffers):
                                     _printer.print_expression(declaration.get_expression())
                 spike_updates.append(ModelParser.parse_assignment(assignment_string))
                 # the IV is applied. can be reset
-                declaration.expression = ModelParser.parse_expression("0")
+                declaration.set_expression(ModelParser.parse_expression("0"))
     for assignment in spike_updates:
         add_assignment_to_update_block(assignment, neuron)
 
