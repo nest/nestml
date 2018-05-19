@@ -1,14 +1,11 @@
+import nest
+import pylab
 
-"""
-TODO: this this is currently not active
 nest.Install("models")
 nest.set_verbosity("M_WARNING")
 
 
 def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
-    import nest
-    import pylab
-
     nest.ResetKernel()
 
     neuron1 = nest.Create(referenceModel)
@@ -151,4 +148,3 @@ if __name__ == "__main__":
 
     for reference, testant, gsl_error_tol, tollerance in models:
         test(reference, testant, gsl_error_tol, tollerance)
-"""

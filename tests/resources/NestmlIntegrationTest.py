@@ -5,7 +5,6 @@ import nest
 nest.Install("models")
 nest.set_verbosity("M_WARNING")
 
-
 def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     nest.ResetKernel()
     neuron1 = nest.Create(referenceModel)
@@ -19,7 +18,6 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
 
     nest.Connect(spikegenerator, neuron1)
     nest.Connect(spikegenerator, neuron2)
-
     multimeter1 = nest.Create('multimeter')
     multimeter2 = nest.Create('multimeter')
 

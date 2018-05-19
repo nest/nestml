@@ -119,8 +119,8 @@ neuron mat2_psc_exp_neuron:
     integrate_odes()
 
     # evolve adaptive threshold
-    V_th_alpha_1 = V_th_alpha_1 * P11th
-    V_th_alpha_2 = V_th_alpha_2 * P22th
+    V_th_alpha_1 *= P11th
+    V_th_alpha_2 *= P22th
 
     if r == 0: # not refractory
       if V_abs >= omega + V_th_alpha_1 + V_th_alpha_2: # threshold crossing
