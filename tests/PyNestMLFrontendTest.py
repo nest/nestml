@@ -29,7 +29,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
     """
 
     def test_codegeneration_for_all_models(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models','iaf_psc_exp.nestml'))))
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))#'iaf_psc_exp.nestml'
         params = list()
         params.append('-path')
         params.append(path)

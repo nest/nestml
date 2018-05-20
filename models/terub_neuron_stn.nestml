@@ -45,10 +45,10 @@ neuron terub_neuron_stn:
 
   initial_values:
     V_m mV = E_L #  Membrane potential
-    gate_h real = 0 # gating variable h
-    gate_n real = 0 # gating variable n
-    gate_r real = 0 # gating variable r
-    Ca_con real = 0 # gating variable r
+    gate_h real = 0.0 # gating variable h
+    gate_n real = 0.0 # gating variable n
+    gate_r real = 0.0 # gating variable r
+    Ca_con real = 0.0 # gating variable r
   end
 
   equations:
@@ -237,10 +237,10 @@ neuron terub_neuron_stn_implicit:
     g_ex pA = 0pA # Excitatory synaptic conductance
     g_ex' pA/ms = pA * e / tau_syn_ex # Excitatory synaptic conductance
 
-    gate_h     real # gating variable h
-    gate_n     real # gating variable n
-    gate_r     real # gating variable r
-    Ca_con     real # gating variable r
+    gate_h     real = 0.0 # gating variable h
+    gate_n     real = 0.0# gating variable n
+    gate_r     real = 0.0# gating variable r
+    Ca_con     real = 0.0# gating variable r
   end
 
   equations:

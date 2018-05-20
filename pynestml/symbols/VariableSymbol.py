@@ -322,7 +322,8 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         # TODO it is a workaround. improve.
-        return self.__isConductanceBased or self.__typeSymbol.print_symbol().startswith("nS") 
+        return self.__isConductanceBased # or self.__typeSymbol.print_symbol().startswith("nS")
+
 
     def set_conductance_based(self, is_conductance_base):
         """
