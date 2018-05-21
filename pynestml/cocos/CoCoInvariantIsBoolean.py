@@ -25,7 +25,7 @@ from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger
 from pynestml.utils.Logger import LoggingLevel
 from pynestml.utils.Messages import Messages
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class CoCoInvariantIsBoolean(CoCo):

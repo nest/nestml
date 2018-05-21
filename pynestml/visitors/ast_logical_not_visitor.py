@@ -1,5 +1,5 @@
 #
-# ASTLogicalNotVisitor.py
+# ast_logical_not_visitor.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,7 @@
 """
 rhs: logicalNot='not' term=rhs
 """
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTLogicalNotVisitor(ASTVisitor):

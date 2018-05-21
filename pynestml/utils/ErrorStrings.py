@@ -37,34 +37,34 @@ class ErrorStrings(object):
         :rtype: str
         """
         assert _origin is not None
-        from pynestml.visitors.ASTUnaryVisitor import ASTUnaryVisitor
+        from pynestml.visitors.ast_unary_visitor import ASTUnaryVisitor
         if isinstance(_origin, ASTUnaryVisitor):
             return "SPL_UNARY_VISITOR"
-        from pynestml.visitors.ASTPowerVisitor import ASTPowerVisitor
+        from pynestml.visitors.ast_power_visitor import ASTPowerVisitor
         if isinstance(_origin, ASTPowerVisitor):
             return "SPL_POW_VISITOR"
-        from pynestml.visitors.ASTLogicalNotVisitor import ASTLogicalNotVisitor
+        from pynestml.visitors.ast_logical_not_visitor import ASTLogicalNotVisitor
         if isinstance(_origin, ASTLogicalNotVisitor):
             return "SPL_LOGICAL_NOT_VISITOR"
-        from pynestml.visitors.ASTDotOperatorVisitor import ASTDotOperatorVisitor
+        from pynestml.visitors.ast_dot_operator_visitor import ASTDotOperatorVisitor
         if isinstance(_origin, ASTDotOperatorVisitor):
             return "SPL_DOT_OPERATOR_VISITOR"
-        from pynestml.visitors.ASTLineOperationVisitor import ASTLineOperatorVisitor
+        from pynestml.visitors.ast_line_operation_visitor import ASTLineOperatorVisitor
         if isinstance(_origin, ASTLineOperatorVisitor):
             return "SPL_LINE_OPERATOR_VISITOR"
-        from pynestml.visitors.ASTNoSemanticsVisitor import ASTNoSemanticsVisitor
+        from pynestml.visitors.ast_no_semantics_visitor import ASTNoSemanticsVisitor
         if isinstance(_origin, ASTNoSemanticsVisitor):
             return "SPL_NO_SEMANTICS"
-        from pynestml.visitors.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
+        from pynestml.visitors.ast_comparison_operator_visitor import ASTComparisonOperatorVisitor
         if isinstance(_origin, ASTComparisonOperatorVisitor):
             return "SPL_COMPARISON_OPERATOR_VISITOR"
-        from pynestml.visitors.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
+        from pynestml.visitors.ast_binary_logic_visitor import ASTBinaryLogicVisitor
         if isinstance(_origin, ASTBinaryLogicVisitor):
             return "SPL_BINARY_LOGIC_VISITOR"
-        from pynestml.visitors.ASTConditionVisitor import ASTConditionVisitor
+        from pynestml.visitors.ast_condition_visitor import ASTConditionVisitor
         if isinstance(_origin, ASTConditionVisitor):
             return "SPL_CONDITION_VISITOR"
-        from pynestml.visitors.ASTFunctionCallVisitor import ASTFunctionCallVisitor
+        from pynestml.visitors.ast_function_call_visitor import ASTFunctionCallVisitor
         if isinstance(_origin, ASTFunctionCallVisitor):
             return "SPL_FUNCTION_CALL_VISITOR"
         return ""

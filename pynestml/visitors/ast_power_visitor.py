@@ -1,5 +1,5 @@
 #
-# ASTPowerVisitor.py
+# ast_power_visitor.py
 #
 # This file is part of NEST.
 #
@@ -26,7 +26,7 @@ from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Either import Either
 from pynestml.utils.ErrorStrings import ErrorStrings
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTPowerVisitor(ASTVisitor):

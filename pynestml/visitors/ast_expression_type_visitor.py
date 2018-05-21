@@ -1,5 +1,5 @@
 #
-# ASTExpressionTypeVisitor.py
+# ast_expression_type_visitor.py
 #
 # This file is part of NEST.
 #
@@ -22,23 +22,23 @@
 from pynestml.meta_model import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator
 from pynestml.meta_model.ASTExpression import ASTExpression
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.visitors.ASTBinaryLogicVisitor import ASTBinaryLogicVisitor
-from pynestml.visitors.ASTBooleanLiteralVisitor import ASTBooleanLiteralVisitor
-from pynestml.visitors.ASTComparisonOperatorVisitor import ASTComparisonOperatorVisitor
-from pynestml.visitors.ASTConditionVisitor import ASTConditionVisitor
-from pynestml.visitors.ASTDotOperatorVisitor import ASTDotOperatorVisitor
-from pynestml.visitors.ASTFunctionCallVisitor import ASTFunctionCallVisitor
-from pynestml.visitors.ASTInfVisitor import ASTInfVisitor
-from pynestml.visitors.ASTLineOperationVisitor import ASTLineOperatorVisitor
-from pynestml.visitors.ASTLogicalNotVisitor import ASTLogicalNotVisitor
-from pynestml.visitors.ASTNoSemanticsVisitor import ASTNoSemanticsVisitor
-from pynestml.visitors.ASTNumericLiteralVisitor import ASTNumericLiteralVisitor
-from pynestml.visitors.ASTParenthesesVisitor import ASTParenthesesVisitor
-from pynestml.visitors.ASTPowerVisitor import ASTPowerVisitor
-from pynestml.visitors.ASTStringLiteralVisitor import ASTStringLiteralVisitor
-from pynestml.visitors.ASTUnaryVisitor import ASTUnaryVisitor
-from pynestml.visitors.ASTVariableVisitor import ASTVariableVisitor
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_binary_logic_visitor import ASTBinaryLogicVisitor
+from pynestml.visitors.ast_boolean_literal_visitor import ASTBooleanLiteralVisitor
+from pynestml.visitors.ast_comparison_operator_visitor import ASTComparisonOperatorVisitor
+from pynestml.visitors.ast_condition_visitor import ASTConditionVisitor
+from pynestml.visitors.ast_dot_operator_visitor import ASTDotOperatorVisitor
+from pynestml.visitors.ast_function_call_visitor import ASTFunctionCallVisitor
+from pynestml.visitors.ast_inf_visitor import ASTInfVisitor
+from pynestml.visitors.ast_line_operation_visitor import ASTLineOperatorVisitor
+from pynestml.visitors.ast_logical_not_visitor import ASTLogicalNotVisitor
+from pynestml.visitors.ast_no_semantics_visitor import ASTNoSemanticsVisitor
+from pynestml.visitors.ast_numeric_literal_visitor import ASTNumericLiteralVisitor
+from pynestml.visitors.ast_parentheses_visitor import ASTParenthesesVisitor
+from pynestml.visitors.ast_power_visitor import ASTPowerVisitor
+from pynestml.visitors.ast_string_literal_visitor import ASTStringLiteralVisitor
+from pynestml.visitors.ast_unary_visitor import ASTUnaryVisitor
+from pynestml.visitors.ast_variable_visitor import ASTVariableVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTExpressionTypeVisitor(ASTVisitor):
@@ -47,22 +47,22 @@ class ASTExpressionTypeVisitor(ASTVisitor):
     real-self it is possible to adapt to different types of sub-expressions.
     """
 
-    __unaryVisitor = ASTUnaryVisitor()
-    __powVisitor = ASTPowerVisitor()
-    __parenthesesVisitor = ASTParenthesesVisitor()
-    __logicalNotVisitor = ASTLogicalNotVisitor()
-    __dotOperatorVisitor = ASTDotOperatorVisitor()
-    __lineOperatorVisitor = ASTLineOperatorVisitor()
-    __noSemantics = ASTNoSemanticsVisitor()
-    __comparisonOperatorVisitor = ASTComparisonOperatorVisitor()
-    __binaryLogicVisitor = ASTBinaryLogicVisitor()
-    __conditionVisitor = ASTConditionVisitor()
-    __functionCallVisitor = ASTFunctionCallVisitor()
-    __booleanLiteralVisitor = ASTBooleanLiteralVisitor()
-    __numericLiteralVisitor = ASTNumericLiteralVisitor()
-    __stringLiteralVisitor = ASTStringLiteralVisitor()
-    __variableVisitor = ASTVariableVisitor()
-    __infVisitor = ASTInfVisitor()
+    unary_visitor = ASTUnaryVisitor()
+    pow_visitor = ASTPowerVisitor()
+    parentheses_visitor = ASTParenthesesVisitor()
+    logical_not_visitor = ASTLogicalNotVisitor()
+    dot_operator_visitor = ASTDotOperatorVisitor()
+    line_operator_visitor = ASTLineOperatorVisitor()
+    no_semantics = ASTNoSemanticsVisitor()
+    comparison_operator_visitor = ASTComparisonOperatorVisitor()
+    binary_logic_visitor = ASTBinaryLogicVisitor()
+    condition_visitor = ASTConditionVisitor()
+    function_call_visitor = ASTFunctionCallVisitor()
+    boolean_literal_visitor = ASTBooleanLiteralVisitor()
+    numeric_literal_visitor = ASTNumericLiteralVisitor()
+    string_literal_visitor = ASTStringLiteralVisitor()
+    variable_visitor = ASTVariableVisitor()
+    inf_visitor = ASTInfVisitor()
 
     def handle(self, _node):
         """
@@ -86,28 +86,28 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         if isinstance(node, ASTSimpleExpression):
             # simpleExpression = functionCall
             if node.get_function_call() is not None:
-                self.set_real_self(self.__functionCallVisitor)
+                self.set_real_self(self.function_call_visitor)
                 return
             # simpleExpression =  (INTEGER|FLOAT) (variable)?
             if node.get_numeric_literal() is not None or \
                     (node.get_numeric_literal() is not None and node.get_variable() is not None):
-                self.set_real_self(self.__numericLiteralVisitor)
+                self.set_real_self(self.numeric_literal_visitor)
                 return
             # simpleExpression =  variable
             if node.get_variable() is not None:
-                self.set_real_self(self.__variableVisitor)
+                self.set_real_self(self.variable_visitor)
                 return
             # simpleExpression = BOOLEAN_LITERAL
             if node.is_boolean_true() or node.is_boolean_false():
-                self.set_real_self(self.__booleanLiteralVisitor)
+                self.set_real_self(self.boolean_literal_visitor)
                 return
             # simpleExpression = isInf='inf'
             if node.is_inf_literal():
-                self.set_real_self(self.__infVisitor)
+                self.set_real_self(self.inf_visitor)
                 return
             # simpleExpression = string=STRING_LITERAL
             if node.is_string():
-                self.set_real_self(self.__stringLiteralVisitor)
+                self.set_real_self(self.string_literal_visitor)
                 return
 
         return
@@ -123,7 +123,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         # Expr = unaryOperator term=expression
         if _node.get_expression() is not None and _node.get_unary_operator() is not None:
             _node.get_expression().accept(self)
-            self.set_real_self(self.__unaryVisitor)
+            self.set_real_self(self.unary_visitor)
             return
 
         # Parentheses and logicalNot
@@ -131,11 +131,11 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             _node.get_expression().accept(self)
             # Expr = leftParentheses='(' term=expression rightParentheses=')'
             if _node.is_encapsulated:
-                self.set_real_self(self.__parenthesesVisitor)
+                self.set_real_self(self.parentheses_visitor)
                 return
             # Expr = logicalNot='not' term=expression
             if _node.is_logical_not:
-                self.set_real_self(self.__logicalNotVisitor)
+                self.set_real_self(self.logical_not_visitor)
                 return
 
         # Rules with binary operators
@@ -150,30 +150,30 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             if isinstance(bin_op, ASTArithmeticOperator.ASTArithmeticOperator):
                 # Expr = <assoc=right> left=expression powOp='**' right=expression
                 if bin_op.is_pow_op:
-                    self.set_real_self(self.__powVisitor)
+                    self.set_real_self(self.pow_visitor)
                     return
                 # Expr = left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
                 if bin_op.is_times_op or bin_op.is_div_op or bin_op.is_modulo_op:
-                    self.set_real_self(self.__dotOperatorVisitor)
+                    self.set_real_self(self.dot_operator_visitor)
                     return
                 # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
                 if bin_op.is_plus_op or bin_op.is_minus_op:
-                    self.set_real_self(self.__lineOperatorVisitor)
+                    self.set_real_self(self.line_operator_visitor)
                     return
             # handle all bitOperators:
             if isinstance(bin_op, ASTBitOperator.ASTBitOperator):
                 # Expr = left=expression bitOperator right=expression
-                self.set_real_self(self.__noSemantics)  # TODO: implement something -> future work with more operators
+                self.set_real_self(self.no_semantics)  # TODO: implement something -> future work with more operators
                 return
             # handle all comparison Operators:
             if isinstance(bin_op, ASTComparisonOperator.ASTComparisonOperator):
                 # Expr = left=expression comparisonOperator right=expression
-                self.set_real_self(self.__comparisonOperatorVisitor)
+                self.set_real_self(self.comparison_operator_visitor)
                 return
             # handle all logical Operators
             if isinstance(bin_op, ASTLogicalOperator.ASTLogicalOperator):
                 # Expr = left=expression logicalOperator right=expression
-                self.set_real_self(self.__binaryLogicVisitor)
+                self.set_real_self(self.binary_logic_visitor)
                 return
 
         # Expr = condition=expression '?' ifTrue=expression ':' ifNot=expression
@@ -181,5 +181,5 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             _node.get_condition().accept(self)
             _node.get_if_true().accept(self)
             _node.get_if_not().accept(self)
-            self.set_real_self(self.__conditionVisitor)
+            self.set_real_self(self.condition_visitor)
             return

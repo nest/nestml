@@ -1,5 +1,5 @@
 #
-# ASTInfVisitor.py.py
+# ast_boolean_literal_visitor.py
 #
 # This file is part of NEST.
 #
@@ -19,22 +19,23 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleExpression : isInf='inf'
+simpleExpression : BOOLEAN_LITERAL // true & false ;
 """
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class ASTInfVisitor(ASTVisitor):
+class ASTBooleanLiteralVisitor(ASTVisitor):
     """
-    Visits a inf rhs and updates the type accordingly.
+    Visits a single boolean literal and updates its type.
     """
 
     def visit_simple_expression(self, node):
         """
-        Visits a single simple rhs containing an inf literal and updates its type.
-        :param node: a simple rhs
+        Visits a single simple rhs containing a boolean literal and updates its type.
+        :param node: a simple rhs.
         :type node: ASTSimpleExpression
         """
-        node.type = PredefinedTypes.get_real_type()
+        node.type = PredefinedTypes.get_boolean_type()
         node.type.referenced_object = node
+        return

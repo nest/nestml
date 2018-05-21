@@ -1,5 +1,5 @@
 #
-# ASTBooleanLiteralVisitor.py
+# ast_parentheses_visitor.py
 #
 # This file is part of NEST.
 #
@@ -19,23 +19,22 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleExpression : BOOLEAN_LITERAL // true & false ;
+rhs : leftParentheses='(' term=rhs rightParentheses=')'
 """
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class ASTBooleanLiteralVisitor(ASTVisitor):
+class ASTParenthesesVisitor(ASTVisitor):
     """
-    Visits a single boolean literal and updates its type.
+    Visits a single rhs encapsulated in brackets and updates its type.
     """
 
-    def visit_simple_expression(self, node):
+    def visit_expression(self, node):
         """
-        Visits a single simple rhs containing a boolean literal and updates its type.
-        :param node: a simple rhs.
-        :type node: ASTSimpleExpression
+        Visits a single rhs encapsulated in parenthesis and updates its type.
+        :param node: a single rhs
+        :type node: ASTExpression
         """
-        node.type = PredefinedTypes.get_boolean_type()
-        node.type.referenced_object = node
-        return
+        inner_type = node.get_expression().type
+        inner_type.referenced_object = node.get_expression()
+        node.type = inner_type

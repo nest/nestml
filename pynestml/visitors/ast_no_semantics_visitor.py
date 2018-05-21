@@ -1,5 +1,5 @@
 #
-# ASTNoSemanticsVisitor.py
+# ast_no_semantics_visitor.py
 #
 # This file is part of NEST.
 #
@@ -25,7 +25,7 @@ from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTNoSemanticsVisitor(ASTVisitor):
@@ -40,7 +40,7 @@ class ASTNoSemanticsVisitor(ASTVisitor):
         :param node: a single rhs
         :type node: ASTExpression or ASTSimpleExpression
         """
-        error_msg = ErrorStrings.message_no_semantics(self, str(node), node.getSourcePosition())
+        error_msg = ErrorStrings.message_no_semantics(self, str(node), node.get_source_position())
         node.type = ErrorTypeSymbol()
         # just warn though
         Logger.log_message(message=error_msg,

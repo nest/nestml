@@ -155,7 +155,7 @@ class ASTUtils(object):
         :return: a new direct assignment rhs.
         :rtype: ASTExpression
         """
-        from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         assert ((is_plus + is_minus + is_times + is_divide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
@@ -195,7 +195,7 @@ class ASTUtils(object):
         :rtype: list(VariableSymbol)
         """
         ret = list()
-        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
         from pynestml.meta_model.ASTVariable import ASTVariable
         res = list()
 
@@ -278,7 +278,7 @@ class ASTUtils(object):
         :return: a list of all meta_model of the specified type
         :rtype: list(AST_)
         """
-        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
         ret = list()
 
         def loc_get_all_of_type(node):
@@ -320,7 +320,7 @@ class ASTUtils(object):
         :return: a list of all function calls contained in _ast
         :rtype: list(ASTFunctionCall)
         """
-        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
         from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
         ret = list()
 

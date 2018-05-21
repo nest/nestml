@@ -131,7 +131,7 @@ class ASTAssignment(ASTNode):
         :return: the rhs for an equivalent direct assignment.
         :rtype: ASTExpression
         """
-        from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         # TODO: get rid of this through polymorphism?
         assert not self.is_direct_assignment, "Can only be invoked on a compound assignment."
 

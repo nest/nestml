@@ -22,7 +22,7 @@ from copy import copy
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 
 class OdeTransformer(object):
@@ -112,7 +112,7 @@ class OdeTransformer(object):
         :rtype: list(ASTFunctionCall)
         """
         res = list()
-        from pynestml.visitors.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
         from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
         fun = (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in function_list else True)
         vis = ASTHigherOrderVisitor(visit_funcs=fun)

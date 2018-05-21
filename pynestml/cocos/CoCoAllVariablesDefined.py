@@ -23,7 +23,7 @@ from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VariableSymbol import BlockType
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class CoCoAllVariablesDefined(CoCo):

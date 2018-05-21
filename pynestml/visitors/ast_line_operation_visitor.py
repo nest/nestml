@@ -1,5 +1,5 @@
 #
-# UnaryVisitor.py
+# ASTLineOperatorVisitor.py
 #
 # This file is part of NEST.
 #
@@ -19,35 +19,33 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Expr = unaryOperator term=rhs
-unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+rhs : left=rhs (plusOp='+'  | minusOp='-') right=rhs
 """
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class ASTUnaryVisitor(ASTVisitor):
+class ASTLineOperatorVisitor(ASTVisitor):
     """
-    Visits an rhs consisting of a unary operator, e.g., -, and a sub-rhs.
+    Visits a single binary operation consisting of + or - and updates the type accordingly.
     """
 
     def visit_expression(self, node):
         """
-        Visits a single unary operator and updates the type of the corresponding expression.
+        Visits a single expression containing a plus or minus operator and updates its type.
         :param node: a single expression
         :type node: ASTExpression
         """
-        term_type = node.get_expression().type
+        lhs_type = node.get_lhs().type
+        rhs_type = node.get_rhs().type
 
-        unary_op = node.get_unary_operator()
+        arith_op = node.get_binary_operator()
 
-        term_type.referenced_object = node.get_expression()
+        lhs_type.referenced_object = node.get_lhs()
+        rhs_type.referenced_object = node.get_rhs()
 
-        if unary_op.is_unary_minus:
-            node.type = -term_type
+        if arith_op.is_plus_op:
+            node.type = lhs_type + rhs_type
             return
-        if unary_op.is_unary_plus:
-            node.type = +term_type
-            return
-        if unary_op.is_unary_tilde:
-            node.type = ~term_type
+        elif arith_op.is_minus_op:
+            node.type = lhs_type - rhs_type
             return

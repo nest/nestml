@@ -1,5 +1,5 @@
 #
-# ASTHigherOrderVisitor.py
+# ast_higher_order_visitor.py
 #
 # This file is part of NEST.
 #
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTHigherOrderVisitor(ASTVisitor):

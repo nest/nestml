@@ -1,5 +1,5 @@
 #
-# ASTDotOperatorVisitor.py
+# ast_unary_visitor.py
 #
 # This file is part of NEST.
 #
@@ -19,35 +19,35 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs : left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
+Expr = unaryOperator term=rhs
+unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class ASTDotOperatorVisitor(ASTVisitor):
+class ASTUnaryVisitor(ASTVisitor):
     """
-    This visitor is used to derive the correct type of expressions which use a binary dot operator.
+    Visits an rhs consisting of a unary operator, e.g., -, and a sub-rhs.
     """
 
     def visit_expression(self, node):
         """
-        Visits a single rhs and updates the type.
-        :param node: a single rhs
+        Visits a single unary operator and updates the type of the corresponding expression.
+        :param node: a single expression
         :type node: ASTExpression
         """
-        lhs_type = node.get_lhs().type
-        rhs_type = node.get_rhs().type
-        arith_op = node.get_binary_operator()
+        term_type = node.get_expression().type
 
-        lhs_type.referenced_object = node.get_lhs()
-        rhs_type.referenced_object = node.get_rhs()
+        unary_op = node.get_unary_operator()
 
-        if arith_op.is_modulo_op:
-            node.type = lhs_type % rhs_type
+        term_type.referenced_object = node.get_expression()
+
+        if unary_op.is_unary_minus:
+            node.type = -term_type
             return
-        if arith_op.is_div_op:
-            node.type = lhs_type / rhs_type
+        if unary_op.is_unary_plus:
+            node.type = +term_type
             return
-        if arith_op.is_times_op:
-            node.type = lhs_type * rhs_type
+        if unary_op.is_unary_tilde:
+            node.type = ~term_type
             return

@@ -1,5 +1,5 @@
 #
-# ASTDataTypeVisitor.py
+# ast_data_type_visitor.py
 #
 # This file is part of NEST.
 #
@@ -25,7 +25,7 @@ from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.UnitType import UnitType
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTDataTypeVisitor(ASTVisitor):

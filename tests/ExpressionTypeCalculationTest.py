@@ -32,7 +32,7 @@ from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
 from pynestml.utils.ModelParser import ModelParser
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 # minor setup steps required
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))

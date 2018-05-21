@@ -22,7 +22,7 @@ from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class CoCoSumHasCorrectParameter(CoCo):

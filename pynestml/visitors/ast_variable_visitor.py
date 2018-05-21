@@ -1,5 +1,5 @@
 #
-# ASTVariableVisitor.py
+# ast_variable_visitor.py
 #
 # This file is part of NEST.
 #
@@ -26,7 +26,7 @@ from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import MessageCode
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTVariableVisitor(ASTVisitor):
@@ -40,7 +40,7 @@ class ASTVariableVisitor(ASTVisitor):
         :param node: a single simple expression
         :type node: ASTSimpleExpression
         """
-        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+        assert isinstance(node, ASTSimpleExpression), \
             '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(node)
         assert (node.get_scope() is not None), \
             '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'

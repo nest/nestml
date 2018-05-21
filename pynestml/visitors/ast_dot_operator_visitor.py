@@ -1,5 +1,5 @@
 #
-# ASTLineOperatorVisitor.py
+# ast_dot_operator_visitor.py
 #
 # This file is part of NEST.
 #
@@ -19,33 +19,35 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-rhs : left=rhs (plusOp='+'  | minusOp='-') right=rhs
+rhs : left=rhs (timesOp='*' | divOp='/' | moduloOp='%') right=rhs
 """
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class ASTLineOperatorVisitor(ASTVisitor):
+class ASTDotOperatorVisitor(ASTVisitor):
     """
-    Visits a single binary operation consisting of + or - and updates the type accordingly.
+    This visitor is used to derive the correct type of expressions which use a binary dot operator.
     """
 
     def visit_expression(self, node):
         """
-        Visits a single expression containing a plus or minus operator and updates its type.
-        :param node: a single expression
+        Visits a single rhs and updates the type.
+        :param node: a single rhs
         :type node: ASTExpression
         """
         lhs_type = node.get_lhs().type
         rhs_type = node.get_rhs().type
-
         arith_op = node.get_binary_operator()
 
         lhs_type.referenced_object = node.get_lhs()
         rhs_type.referenced_object = node.get_rhs()
 
-        if arith_op.is_plus_op:
-            node.type = lhs_type + rhs_type
+        if arith_op.is_modulo_op:
+            node.type = lhs_type % rhs_type
             return
-        elif arith_op.is_minus_op:
-            node.type = lhs_type - rhs_type
+        if arith_op.is_div_op:
+            node.type = lhs_type / rhs_type
+            return
+        if arith_op.is_times_op:
+            node.type = lhs_type * rhs_type
             return

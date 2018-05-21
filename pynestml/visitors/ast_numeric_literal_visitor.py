@@ -1,5 +1,5 @@
 #
-# ASTNumericLiteralVisitor.py
+# ast_numeric_literal_visitor.py
 #
 # This file is part of NEST.
 #
@@ -23,7 +23,7 @@ simpleExpression : (INTEGER|FLOAT) (variable)?
 """
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTNumericLiteralVisitor(ASTVisitor):

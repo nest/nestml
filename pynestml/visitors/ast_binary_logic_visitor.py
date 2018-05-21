@@ -1,5 +1,5 @@
 #
-# ASTBinaryLogicVisitor.py
+# ast_binary_logic_visitor.py
 #
 # This file is part of NEST.
 #
@@ -26,7 +26,7 @@ from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTBinaryLogicVisitor(ASTVisitor):

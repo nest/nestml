@@ -26,7 +26,7 @@ from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.LoggingHelper import LoggingHelper
 from pynestml.utils.Messages import Messages
 from pynestml.utils.TypeCaster import TypeCaster
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class CoCoIllegalExpression(CoCo):

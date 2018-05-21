@@ -1,5 +1,5 @@
 #
-# CommentCollectorVisitor.py
+# comment_collector_visitor.py
 #
 # This file is part of NEST.
 #

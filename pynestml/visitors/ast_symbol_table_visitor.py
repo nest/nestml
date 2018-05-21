@@ -1,5 +1,5 @@
 #
-# ASTSymbolTableVisitor.py
+# ast_symbol_table_visitor.py
 #
 # This file is part of NEST.
 #
@@ -31,8 +31,8 @@ from pynestml.utils.Either import Either
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages
 from pynestml.utils.Stack import Stack
-from pynestml.visitors.ASTDataTypeVisitor import ASTDataTypeVisitor
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTSymbolTableVisitor(ASTVisitor):

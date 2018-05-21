@@ -34,7 +34,7 @@ from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.visitors.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 
 # setups the infrastructure
 PredefinedUnits.register_units()

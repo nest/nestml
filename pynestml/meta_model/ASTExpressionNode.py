@@ -37,7 +37,7 @@ class ASTExpressionNode(ASTNode):
 
     @property
     def type(self):
-        from pynestml.visitors.ASTExpressionTypeVisitor import ASTExpressionTypeVisitor
+        from pynestml.visitors.ast_expression_type_visitor import ASTExpressionTypeVisitor
         if self.__type is None:
             self.accept(ASTExpressionTypeVisitor())
         return copy(self.__type)

@@ -1,5 +1,5 @@
 #
-# ASTConditionVisitor.py
+# ast_condition_visitor.py
 #
 # This file is part of NEST.
 #
@@ -27,7 +27,7 @@ from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.ErrorStrings import ErrorStrings
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import MessageCode
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTConditionVisitor(ASTVisitor):

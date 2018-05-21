@@ -1,5 +1,5 @@
 #
-# ASTBuilderVisitor.py
+# ast_builder_visitor.py
 #
 # This file is part of NEST.
 #
@@ -26,9 +26,9 @@ from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSignalType import ASTSignalType
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.visitors.ASTDataTypeVisitor import ASTDataTypeVisitor
-from pynestml.visitors.CommentCollectorVisitor import CommentCollectorVisitor
+from pynestml.utils.Logger import Logger
+from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
+from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
 
 
 class ASTBuilderVisitor(PyNestMLVisitor):
@@ -298,7 +298,6 @@ class ASTBuilderVisitor(PyNestMLVisitor):
             for stmt in ctx.stmt():
                 stmts.append(self.visit(stmt))
         block = ASTNodeFactory.create_ast_block(stmts=stmts, source_position=create_source_pos(ctx))
-        #update_node_comments(block, self.__comments.visit(ctx))
         return block
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
@@ -501,9 +500,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
         elif block_type == 'initial_values':
             ret = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, declarations, source_pos)
         else:
-            Logger.log_message('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
-                               LoggingLevel.ERROR)
-            return
+            raise RuntimeError('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

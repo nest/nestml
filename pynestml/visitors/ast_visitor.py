@@ -1,5 +1,5 @@
 #
-# ASTVisitor.py
+# ast_visitor.py
 #
 # This file is part of NEST.
 #

@@ -48,7 +48,7 @@ from pynestml.utils.Logger import LoggingLevel
 from pynestml.utils.Messages import Messages
 from pynestml.utils.ModelParser import ModelParser
 from pynestml.utils.OdeTransformer import OdeTransformer
-from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 # setup the template environment
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_NEST')))

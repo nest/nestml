@@ -1,5 +1,5 @@
 #
-# ASTFunctionCallVisitor.py
+# ast_function_call_visitor.py
 #
 # This file is part of NEST.
 #
@@ -27,7 +27,7 @@ from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
 from pynestml.utils.Logger import LoggingLevel, Logger
 from pynestml.utils.Messages import Messages
-from pynestml.visitors.ASTVisitor import ASTVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 
 
 class ASTFunctionCallVisitor(ASTVisitor):
@@ -40,7 +40,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
         Visits a single function call as stored in a simple expression and derives the correct type of all its
         parameters. :param node: a simple expression :type node: ASTSimpleExpression :rtype void
         """
-        assert (node is not None and isinstance(node, ASTSimpleExpression)), \
+        assert isinstance(node, ASTSimpleExpression), \
             '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(node)
         assert (node.get_scope() is not None), \
             "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
