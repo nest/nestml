@@ -32,7 +32,7 @@ from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHel
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
-from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
 from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation

@@ -20,7 +20,7 @@
 import os
 import unittest
 
-from pynestml.frontend.PyNestMLFrontend import main
+from pynestml.frontend.pynestml_frontend import main
 
 
 class PyNestMLFrontendTest(unittest.TestCase):
@@ -29,7 +29,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
     """
 
     def test_codegeneration_for_all_models(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models','aeif_cond_alpha.nestml'))))#'iaf_psc_exp.nestml'
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
         params = list()
         params.append('-path')
         params.append(path)

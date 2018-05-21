@@ -1,5 +1,5 @@
 #
-# PyNestMLFrontend.py
+# pynestml_frontend.py
 #
 # This file is part of NEST.
 #
@@ -23,7 +23,7 @@ import sys
 
 from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, generate_nest_module_code
-from pynestml.frontend.FrontendConfiguration import FrontendConfiguration, InvalidPathException
+from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
@@ -68,7 +68,7 @@ def main(args):
     else:
         code, message = Messages.get_dry_run()
         Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
-    if FrontendConfiguration.store_log():
+    if FrontendConfiguration.store_log:
         store_log_to_file()
     return
 

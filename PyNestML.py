@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 
-from pynestml.frontend.PyNestMLFrontend import main
+from pynestml.frontend.pynestml_frontend import main
 
 """
 This file represents the entry point to the PyNestML.
