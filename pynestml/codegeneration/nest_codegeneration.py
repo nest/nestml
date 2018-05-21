@@ -38,7 +38,7 @@ from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
 from pynestml.meta_model.ASTOdeFunction import ASTOdeFunction
 from pynestml.meta_model.ASTOdeShape import ASTOdeShape
-from pynestml.solver.TransformerBase import add_assignment_to_update_block
+from pynestml.solver.transformer_base import add_assignment_to_update_block
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
     integrate_delta_solution
 from pynestml.symbols.Symbol import SymbolKind

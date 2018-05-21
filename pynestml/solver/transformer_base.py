@@ -1,5 +1,5 @@
 #
-# TransformerBase.py
+# transformer_base.py
 #
 # This file is part of NEST.
 #

@@ -1,5 +1,5 @@
 #
-# SymbolTable.py
+# symbol_table.py
 #
 # This file is part of NEST.
 #
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.symbol_table.Scope import Scope, ScopeType
+from pynestml.symbol_table.scope import Scope, ScopeType
 
 
 class SymbolTable(object):
@@ -46,11 +46,11 @@ class SymbolTable(object):
         :return: a single scope element.
         :rtype: Scope
         """
-        assert (scope is not None and isinstance(scope, Scope)), \
+        assert isinstance(scope, Scope), \
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!' % type(scope)
         assert (scope.get_scope_type() == ScopeType.GLOBAL), \
             '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
-        assert (name is not None and isinstance(name, str)), \
+        assert isinstance(name, str), \
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(name)
         if name not in cls.name2neuron_scope.keys():
             cls.name2neuron_scope[name] = scope

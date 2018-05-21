@@ -62,7 +62,7 @@ from pynestml.meta_model.ASTUnitType import ASTUnitType
 from pynestml.meta_model.ASTUpdateBlock import ASTUpdateBlock
 from pynestml.meta_model.ASTVariable import ASTVariable
 from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
-from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LoggingLevel
 from pynestml.utils.Messages import Messages

@@ -20,7 +20,7 @@
 from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.symbol_table.Scope import Scope, ScopeType
+from pynestml.symbol_table.scope import Scope, ScopeType
 from pynestml.symbols.FunctionSymbol import FunctionSymbol
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes

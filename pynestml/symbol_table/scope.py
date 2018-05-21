@@ -1,5 +1,5 @@
 #
-# Scope.py
+# scope.py
 #
 # This file is part of NEST.
 #

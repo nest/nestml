@@ -26,7 +26,7 @@ from pynestml.codegeneration.nest_codegeneration import generate_nest_module_cod
     replace_functions_through_defining_expressions, transform_ode_and_shapes_to_json, transform_shapes_and_odes, \
     analyse_and_generate_neurons
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits

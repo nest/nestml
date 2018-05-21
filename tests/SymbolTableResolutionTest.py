@@ -21,8 +21,8 @@ import os
 import unittest
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.symbol_table.Scope import ScopeType
-from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbol_table.scope import ScopeType
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits

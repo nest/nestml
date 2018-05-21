@@ -22,7 +22,7 @@ import unittest
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits

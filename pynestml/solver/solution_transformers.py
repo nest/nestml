@@ -24,7 +24,7 @@ from sympy.parsing.sympy_parser import parse_expr
 
 from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.meta_model.ASTOdeShape import ASTOdeShape
-from pynestml.solver.TransformerBase import add_declarations_to_internals, \
+from pynestml.solver.transformer_base import add_declarations_to_internals, \
     compute_state_shape_variables_declarations, add_declarations_to_initial_values, \
     compute_state_shape_variables_updates, replace_integrate_call, add_state_updates
 from pynestml.utils.ModelParser import ModelParser

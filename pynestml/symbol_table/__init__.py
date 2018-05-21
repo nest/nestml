@@ -1,1 +1,1 @@
-__all__ = ['Scope', 'SymbolTable']
+__all__ = ['scope.py', 'symbol_table.py']

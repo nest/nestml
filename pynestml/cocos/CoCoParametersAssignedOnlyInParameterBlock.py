@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.cocos.CoCo import CoCo
-from pynestml.symbol_table.Scope import ScopeType
+from pynestml.symbol_table.scope import ScopeType
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VariableSymbol import BlockType
 from pynestml.utils.Logger import LoggingLevel, Logger
