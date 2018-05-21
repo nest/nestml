@@ -21,7 +21,6 @@ import json
 from collections import OrderedDict
 from enum import Enum
 
-
 class Logger(object):
     """
     This class represents a logger which can be used to print messages to the screen depending on the logging 
@@ -92,6 +91,7 @@ class Logger(object):
         :param log_level: the corresponding log level.
         :type log_level: LoggingLevel
         """
+        from pynestml.meta_model.ASTNeuron import ASTNeuron
         if cls.curr_message is None:
             cls.init_logger(LoggingLevel.INFO)
         from pynestml.meta_model.ASTNeuron import ASTNeuron

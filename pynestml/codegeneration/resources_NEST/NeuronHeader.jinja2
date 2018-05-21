@@ -277,7 +277,7 @@ private:
     enum StateVecElems{
     {% for variable in neuron.get_ode_defined_symbols() -%}
       {{variable.print_comment("// ")}}
-      {{names.convertToCPPName(variable.get_symbol_name())}},
+      {{names.convert_to_cpp_name(variable.get_symbol_name())}},
       {% endfor -%}
       STATE_VEC_SIZE
     };
@@ -342,23 +342,23 @@ private:
     std::vector< nest::RingBuffer > spike_inputs_;
 
     {% for inputLine in neuron.get_spike_buffers() %}
-    {{printer.printBufferArrayGetter(inputLine)}}
-    {{printer.printBufferDeclarationValue(inputLine)}};
+    {{printer.print_buffer_array_getter(inputLine)}}
+    {{printer.print_buffer_declaration_value(inputLine)}};
     {% endfor %}
     {% else -%}
     {% for inputLine in neuron.get_spike_buffers() %}
-    {{printer.printBufferGetter(inputLine, true)}}
-    {{printer.printBufferDeclarationHeader(inputLine)}}
-    {{printer.printBufferDeclaration(inputLine)}};
-    {{printer.printBufferDeclarationValue(inputLine)}};
+    {{printer.print_buffer_getter(inputLine, true)}}
+    {{printer.print_buffer_declaration_header(inputLine)}}
+    {{printer.print_buffer_declaration(inputLine)}};
+    {{printer.print_buffer_declaration_value(inputLine)}};
     {% endfor %}
     {% endif -%}
 
     {% for inputLine in neuron.get_current_buffers() -%}
-    {{printer.printBufferDeclarationHeader(inputLine)}}
-    {{printer.printBufferDeclaration(inputLine)}};
-    {{printer.printBufferGetter(inputLine, true)}}
-    {{printer.printBufferDeclarationValue(inputLine)}};
+    {{printer.print_buffer_declaration_header(inputLine)}}
+    {{printer.print_buffer_declaration(inputLine)}};
+    {{printer.print_buffer_getter(inputLine, true)}}
+    {{printer.print_buffer_declaration_value(inputLine)}};
     {% endfor %}
 
     {%- if useGSL -%}
@@ -408,12 +408,12 @@ private:
   {%- endfor %}
 
   {% for buffer in neuron.get_input_buffers() %}
-  {{printer.printBufferGetter(buffer, false)}};
+  {{printer.print_buffer_getter(buffer, false)}};
   {% endfor %}
 
   // Generate function header
   {% for function in neuron.get_functions() %}
-  {{printer.printFunctionDeclaration(function)}};
+  {{printer.print_function_declaration(function)}};
   {% endfor %}
   /**
   * @defgroup pif_members Member variables of neuron model.

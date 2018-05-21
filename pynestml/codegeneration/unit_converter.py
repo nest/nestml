@@ -1,5 +1,5 @@
 #
-# UnitConverter.py
+# unit_converter.py
 #
 # This file is part of NEST.
 #
@@ -27,45 +27,45 @@ class UnitConverter(object):
     """
 
     @classmethod
-    def getFactor(cls, _unit):
+    def get_factor(cls, unit):
         """
         Gives a factor for a given unit that transforms it to a "neuroscience" scale
         If the given unit is not listed as a neuroscience unit, the factor is 1
-        :param _unit: an astropy unit
-        :type _unit: IrreducibleUnit or Unit or CompositeUnit
+        :param unit: an astropy unit
+        :type unit: IrreducibleUnit or Unit or CompositeUnit
         :return: a factor to that unit, converting it to "neuroscience" scales.
         :rtype float
         """
-        assert isinstance(_unit, units.IrreducibleUnit) or isinstance(_unit, units.CompositeUnit) or \
-               isinstance(_unit, units.Unit) or isinstance(_unit, units.PrefixUnit), \
-            "UnitConverter: given parameter is not a unit (%s)!" % type(_unit)
+        assert (isinstance(unit, units.IrreducibleUnit) or isinstance(unit, units.CompositeUnit) or
+                isinstance(unit, units.Unit) or isinstance(unit, units.PrefixUnit)), \
+            "UnitConverter: given parameter is not a unit (%s)!" % type(unit)
 
         # check if it is dimensionless, thus only a prefix
-        if _unit.physical_type == 'dimensionless':
-            return _unit.si
+        if unit.physical_type == 'dimensionless':
+            return unit.si
         # otherwise check if it is one of the base units
-        targetUnit = None
-        if _unit.physical_type == 'electrical conductance':
-            targetUnit = units.nS
-        if _unit.physical_type == 'electrical resistance':
-            targetUnit = units.Gohm
-        if _unit.physical_type == 'time':
-            targetUnit = units.ms
-        if _unit.physical_type == 'electrical capacitance':
-            targetUnit = units.pF
-        if _unit.physical_type == 'electrical potential':
-            targetUnit = units.mV
-        if _unit.physical_type == 'electrical current':
-            targetUnit = units.pA
-        if targetUnit is not None:
-            return (_unit / targetUnit).si.scale
+        target_unit = None
+        if unit.physical_type == 'electrical conductance':
+            target_unit = units.nS
+        if unit.physical_type == 'electrical resistance':
+            target_unit = units.Gohm
+        if unit.physical_type == 'time':
+            target_unit = units.ms
+        if unit.physical_type == 'electrical capacitance':
+            target_unit = units.pF
+        if unit.physical_type == 'electrical potential':
+            target_unit = units.mV
+        if unit.physical_type == 'electrical current':
+            target_unit = units.pA
+        if target_unit is not None:
+            return (unit / target_unit).si.scale
         # this case means that we stuck in a recursive definition
-        elif _unit == _unit.bases[0] and len(_unit.bases) == 1:
+        elif unit == unit.bases[0] and len(unit.bases) == 1:
             # just return the factor 1.0
             return 1.0
 
         # now if it is not a base unit, it has to be a combined one, e.g. s**2, decompose it
         factor = 1.0
-        for i in range(0, len(_unit.bases)):
-            factor *= cls.getFactor(_unit.bases[i]) ** _unit.powers[i]
+        for i in range(0, len(unit.bases)):
+            factor *= cls.get_factor(unit.bases[i]) ** unit.powers[i]
         return factor

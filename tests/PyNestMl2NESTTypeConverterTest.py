@@ -2,7 +2,7 @@ import unittest
 
 from astropy import units
 
-from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
 from pynestml.symbols.IntegerTypeSymbol import IntegerTypeSymbol
 from pynestml.symbols.NESTTimeTypeSymbol import NESTTimeTypeSymbol
@@ -17,7 +17,7 @@ from pynestml.utils.UnitType import UnitType
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()
 
-convert = NESTML2NESTTypeConverter.convert
+convert = PyNestml2NestTypeConverter.convert
 
 
 class PyNestMl2NESTTypeConverterTest(unittest.TestCase):

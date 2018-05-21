@@ -8,5 +8,5 @@
 {% if not variable.is_function %}
   {{names.setter(variable)}}(tmp_{{names.name(variable)}});
 {%- else %}
-  // ignores '{{names.name(variable)}}' {{declarations.printVariableType(variable)}}' since it is an function and setter isn't defined
+  // ignores '{{names.name(variable)}}' {{declarations.print_variable_type(variable)}}' since it is an function and setter isn't defined
 {%- endif %}

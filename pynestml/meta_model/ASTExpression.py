@@ -20,7 +20,7 @@
 from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.meta_model.ASTBitOperator import ASTBitOperator
 from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.meta_model.ASTExpressionElement import ASTExpressionNode
+from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
 from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
 
 

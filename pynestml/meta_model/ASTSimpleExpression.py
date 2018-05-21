@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from typing import Union
 
-from pynestml.meta_model.ASTExpressionElement import ASTExpressionNode
+from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTVariable import ASTVariable
 

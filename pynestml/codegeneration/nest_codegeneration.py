@@ -1,5 +1,5 @@
 #
-# NestGenerator.py
+# nest_codegeneration.py
 #
 # This file is part of NEST.
 #
@@ -23,15 +23,15 @@ import re
 from jinja2 import Environment, FileSystemLoader
 from odetoolbox import analysis
 
-from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
-from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
-from pynestml.codegeneration.GSLReferenceConverter import GSLReferenceConverter
-from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
-from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
-from pynestml.codegeneration.NestDeclarationsHelper import NestDeclarationsHelper
-from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
-from pynestml.codegeneration.NestPrinter import NestPrinter
-from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
+from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
+from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
+from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
+from pynestml.codegeneration.legacy_expression_printer import LegacyExpressionPrinter
+from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
+from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
+from pynestml.codegeneration.nest_names_converter import NestNamesConverter
+from pynestml.codegeneration.nest_printer import NestPrinter
+from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
 from pynestml.meta_model.ASTNeuron import ASTNeuron
@@ -49,7 +49,6 @@ from pynestml.utils.Messages import Messages
 from pynestml.utils.ModelParser import ModelParser
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.visitors.ASTSymbolTableVisitor import ASTSymbolTableVisitor
-from pynestml.visitors.ASTVisitor import ASTVisitor
 
 # setup the template environment
 env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_NEST')))
@@ -207,7 +206,7 @@ def setup_generation_helpers(neuron):
     namespace['declarations'] = NestDeclarationsHelper()
     namespace['utils'] = ASTUtils()
     namespace['idemPrinter'] = LegacyExpressionPrinter()
-    namespace['outputEvent'] = namespace['printer'].printOutputEvent(neuron.get_body())
+    namespace['outputEvent'] = namespace['printer'].print_output_event(neuron.get_body())
     namespace['is_spike_input'] = ASTUtils.is_spike_input(neuron.get_body())
     namespace['is_current_input'] = ASTUtils.is_current_input(neuron.get_body())
     namespace['odeTransformer'] = OdeTransformer()
@@ -317,11 +316,11 @@ def apply_spikes_from_buffers(neuron, shape_to_buffers):
         variable = declaration.get_variables()[0]
         for shape in shape_to_buffers:
             matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-            buffer_type = neuron.get_scope().\
+            buffer_type = neuron.get_scope(). \
                 resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
             if re.match(matcher_computed_shape_odes, str(variable)):
                 assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
-                    shape] + '/' + buffer_type.print_nestml_type() + ") * " +\
+                    shape] + '/' + buffer_type.print_nestml_type() + ") * " + \
                                     _printer.print_expression(declaration.get_expression())
                 spike_updates.append(ModelParser.parse_assignment(assignment_string))
                 # the IV is applied. can be reset
@@ -422,18 +421,6 @@ def transform_functional_shapes_to_json(equations_block):
     return result
 
 
-# todo: not used
-class ASTContainsVisitor(ASTVisitor):
-    # todo
-    def __init__(self, target):
-        self.target = target
-        self.result = False
-
-    def visit_simple_expression(self, node):
-        if node.get_name() == self.target:
-            self.result = True
-
-
 _variable_matching_template = r'(\b)({})(\b)'
 
 
@@ -441,6 +428,7 @@ def make_functions_self_contained(functions):
     # type: (list(ASTOdeFunction)) -> list(ASTOdeFunction)
     """
     TODO: it should be a method inside of the ASTOdeFunction
+    TODO by KP: this should be done by means of a visitor
     Make function definition self contained, e.g. without any references to functions from `functions`.
     :param functions: A sorted list with entries ASTOdeFunction.
     :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.

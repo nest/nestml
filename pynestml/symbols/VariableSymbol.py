@@ -21,7 +21,7 @@ from copy import copy
 from enum import Enum
 
 from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTExpressionElement import ASTExpressionNode
+from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
 from pynestml.meta_model.ASTInputLine import ASTInputLine
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.symbols.Symbol import Symbol

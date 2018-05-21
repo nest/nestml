@@ -1,5 +1,5 @@
 #
-# IReferenceConverter.py
+# i_reference_converter.py
 #
 # This file is part of NEST.
 #
@@ -22,56 +22,56 @@ from abc import ABCMeta, abstractmethod
 
 class IReferenceConverter(object):
     """
-    This class represents a abstract super class for all possible reference converters, e.g. for nest, spinnacker
-    or lems.
+    This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker
+    or LEMS.
     """
 
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def convertBinaryOp(self, _binaryOperator):
+    def convert_binary_op(self, binary_operator):
         pass
 
     @abstractmethod
-    def convertFunctionCall(self, _astFunctionCall):
+    def convert_function_call(self, function_call):
         pass
 
     @abstractmethod
-    def convertNameReference(self, _astVariable):
+    def convert_name_reference(self, variable):
         pass
 
     @abstractmethod
-    def convertConstant(self, _constantName):
+    def convert_constant(self, constant_name):
         pass
 
     @abstractmethod
-    def convertUnaryOp(self, _unaryOperator):
+    def convert_unary_op(self, unary_operator):
         pass
 
     @abstractmethod
-    def convertEncapsulated(self):
+    def convert_encapsulated(self):
         pass
 
     @abstractmethod
-    def convertLogicalNot(self):
+    def convert_logical_not(self):
         pass
 
     @abstractmethod
-    def convertArithmeticOperator(self, _op):
+    def convert_arithmetic_operator(self, op):
         pass
 
     @abstractmethod
-    def convertBitOperator(self, _op):
+    def convert_bit_operator(self, op):
         pass
 
     @abstractmethod
-    def convertComparisonOperator(self, _op):
+    def convert_comparison_operator(self, op):
         pass
 
     @abstractmethod
-    def convertLogicalOperator(self, _op):
+    def convert_logical_operator(self, op):
         pass
 
     @abstractmethod
-    def convertTernaryOperator(self):
+    def convert_ternary_operator(self):
         pass

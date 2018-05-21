@@ -21,9 +21,9 @@ import os
 import unittest
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
-from pynestml.codegeneration.NestPrinter import NestPrinter
-from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
+from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
+from pynestml.codegeneration.nest_printer import NestPrinter
+from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes

@@ -1,5 +1,5 @@
 #
-# NESTReferenceConverter.py
+# nest_reference_converter.py
 #
 # This file is part of NEST.
 #
@@ -18,10 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
-from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
-from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
-from pynestml.codegeneration.UnitConverter import UnitConverter
+from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
+from pynestml.codegeneration.i_reference_converter import IReferenceConverter
+from pynestml.codegeneration.nest_names_converter import NestNamesConverter
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.meta_model.ASTBitOperator import ASTBitOperator
 from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
@@ -55,7 +55,7 @@ class NESTReferenceConverter(IReferenceConverter):
         return
 
     @classmethod
-    def convertBinaryOp(cls, binary_operator):
+    def convert_binary_op(cls, binary_operator):
         """
         Converts a single binary operator to nest processable format.
         :param binary_operator: a single binary operator string.
@@ -64,18 +64,18 @@ class NESTReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         if isinstance(binary_operator, ASTArithmeticOperator):
-            return cls.convertArithmeticOperator(binary_operator)
+            return cls.convert_arithmetic_operator(binary_operator)
         if isinstance(binary_operator, ASTBitOperator):
-            return cls.convertBitOperator(binary_operator)
+            return cls.convert_bit_operator(binary_operator)
         if isinstance(binary_operator, ASTComparisonOperator):
-            return cls.convertComparisonOperator(binary_operator)
+            return cls.convert_comparison_operator(binary_operator)
         if isinstance(binary_operator, ASTLogicalOperator):
-            return cls.convertLogicalOperator(binary_operator)
+            return cls.convert_logical_operator(binary_operator)
         else:
             raise RuntimeError('Cannot determine binary operator!')
 
     @classmethod
-    def convertFunctionCall(cls, function_call):
+    def convert_function_call(cls, function_call):
         """
         Converts a single handed over function call to nest processable format.
         :param function_call: a single function call
@@ -113,7 +113,7 @@ class NESTReferenceConverter(IReferenceConverter):
         else:
             return function_name + '()'
 
-    def convertNameReference(self, variable):
+    def convert_name_reference(self, variable):
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
@@ -121,15 +121,15 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a nest processable format.
         :rtype: str
         """
-        from pynestml.codegeneration.NestPrinter import NestPrinter
+        from pynestml.codegeneration.nest_printer import NestPrinter
         assert (variable is not None and isinstance(variable, ASTVariable)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
                 variable)
-        variable_name = NestNamesConverter.convertToCPPName(variable.get_complete_name())
+        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
         if PredefinedUnits.is_unit(variable.get_complete_name()):
             return str(
-                UnitConverter.getFactor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+                UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
@@ -144,14 +144,14 @@ class NESTReferenceConverter(IReferenceConverter):
                 if symbol.is_local():
                     return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
                 elif symbol.is_buffer():
-                    return NestPrinter.printOrigin(symbol) + NestNamesConverter.bufferValue(symbol) \
+                    return NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol) \
                            + ('[i]' if symbol.has_vector_parameter() else '')
                 else:
                     if symbol.is_function:
                         return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
                     else:
                         if symbol.is_init_values():
-                            temp = NestPrinter.printOrigin(symbol)
+                            temp = NestPrinter.print_origin(symbol)
                             if self.uses_gsl:
                                 temp += GSLNamesConverter.name(symbol)
                             else:
@@ -159,12 +159,12 @@ class NESTReferenceConverter(IReferenceConverter):
                             temp += ('[i]' if symbol.has_vector_parameter() else '')
                             return temp
                         else:
-                            return NestPrinter.printOrigin(symbol) + \
+                            return NestPrinter.print_origin(symbol) + \
                                    NestNamesConverter.name(symbol) + \
                                    ('[i]' if symbol.has_vector_parameter() else '')
 
     @classmethod
-    def convertConstant(cls, constant_name):
+    def convert_constant(cls, constant_name):
         """
         Converts a single handed over constant.
         :param constant_name: a constant as string.
@@ -178,7 +178,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return constant_name
 
     @classmethod
-    def convertUnaryOp(cls, unary_operator):
+    def convert_unary_op(cls, unary_operator):
         """
         Depending on the concretely used operator, a string is returned.
         :param unary_operator: a single operator.
@@ -196,7 +196,7 @@ class NESTReferenceConverter(IReferenceConverter):
             raise RuntimeError('Cannot determine unary operator!', LoggingLevel.ERROR)
 
     @classmethod
-    def convertEncapsulated(cls):
+    def convert_encapsulated(cls):
         """
         Converts the encapsulating parenthesis to NEST style.
         :return: a set of parenthesis
@@ -205,7 +205,7 @@ class NESTReferenceConverter(IReferenceConverter):
         return '(%s)'
 
     @classmethod
-    def convertLogicalNot(cls):
+    def convert_logical_not(cls):
         """
         Returns a representation of the logical not in NEST.
         :return: a string representation
@@ -214,93 +214,93 @@ class NESTReferenceConverter(IReferenceConverter):
         return '(' + '!' + '%s' + ')'
 
     @classmethod
-    def convertLogicalOperator(cls, _op):
+    def convert_logical_operator(cls, op):
         """
         Prints a logical operator in NEST syntax.
-        :param _op: a logical operator object
-        :type _op: ASTLogicalOperator
+        :param op: a logical operator object
+        :type op: ASTLogicalOperator
         :return: a string representation
         :rtype: str
         """
-        if _op.is_and():
+        if op.is_and():
             return '%s' + '&&' + '%s'
-        elif _op.is_or():
+        elif op.is_or():
             return '%s' + '||' + '%s'
         else:
             raise RuntimeError('Cannot determine logical operator!', LoggingLevel.ERROR)
 
     @classmethod
-    def convertComparisonOperator(cls, _op):
+    def convert_comparison_operator(cls, op):
         """
         Prints a logical operator in NEST syntax.
-        :param _op: a logical operator object
-        :type _op: ASTComparisonOperator
+        :param op: a logical operator object
+        :type op: ASTComparisonOperator
         :return: a string representation
         :rtype: str
         """
-        if _op.isLt():
+        if op.isLt():
             return '%s' + '<' + '%s'
-        elif _op.isLe():
+        elif op.isLe():
             return '%s' + '<=' + '%s'
-        elif _op.isEq():
+        elif op.isEq():
             return '%s' + '==' + '%s'
-        elif _op.isNe() or _op.isNe2():
+        elif op.isNe() or op.isNe2():
             return '%s' + '!=' + '%s'
-        elif _op.isGe():
+        elif op.isGe():
             return '%s' + '>=' + '%s'
-        elif _op.isGt():
+        elif op.isGt():
             return '%s' + '>' + '%s'
         else:
             raise RuntimeError('Cannot determine comparison operator!')
 
     @classmethod
-    def convertBitOperator(cls, _op):
+    def convert_bit_operator(cls, op):
         """
         Prints a logical operator in NEST syntax.
-        :param _op: a logical operator object
-        :type _op: ASTBitOperator
+        :param op: a logical operator object
+        :type op: ASTBitOperator
         :return: a string representation
         :rtype: str
         """
-        if _op.isBitShiftLeft():
+        if op.isBitShiftLeft():
             return '%s' + '<<' '%s'
-        if _op.isBitShiftRight():
+        if op.isBitShiftRight():
             return '%s' + '>>' + '%s'
-        if _op.isBitAnd():
+        if op.isBitAnd():
             return '%s' + '&' + '%s'
-        if _op.isBitOr():
+        if op.isBitOr():
             return '%s' + '|' + '%s'
-        if _op.isBitXor():
+        if op.isBitXor():
             return '%s' + '^' + '%s'
         else:
             raise RuntimeError('Cannot determine bit operator!')
 
     @classmethod
-    def convertArithmeticOperator(cls, _op):
+    def convert_arithmetic_operator(cls, op):
         """
         Prints a logical operator in NEST syntax.
-        :param _op: a logical operator object
-        :type _op: ASTArithmeticOperator
+        :param op: a logical operator object
+        :type op: ASTArithmeticOperator
         :return: a string representation
         :rtype: str
         """
-        if _op.is_plus_op:
+        if op.is_plus_op:
             return '%s' + '+' + '%s'
-        if _op.is_minus_op:
+        if op.is_minus_op:
             return '%s' + '-' + '%s'
-        if _op.is_times_op:
+        if op.is_times_op:
             return '%s' + '*' + '%s'
-        if _op.is_div_op:
+        if op.is_div_op:
             return '%s' + '/' + '%s'
-        if _op.is_modulo_op:
+        if op.is_modulo_op:
             return '%s' + '%' + '%s'
-        if _op.is_pow_op:
+        if op.is_pow_op:
             return 'pow' + '(%s,%s)'
         else:
             raise RuntimeError('Cannot determine arithmetic operator!')
 
     @classmethod
-    def convertTernaryOperator(cls):
+    def convert_ternary_operator(cls):
         """
         Prints a ternary operator in NEST syntax.
         :return: a string representation

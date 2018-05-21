@@ -137,7 +137,7 @@ grammar PyNestML;
             | declaration
             | returnStmt;
 
-  assignment : lhsVariable=variable
+  assignment : lhs_variable=variable
                 (directAssignment='=' |
                  compoundSum='+='     |
                  compoundMinus='-='   |

@@ -346,7 +346,7 @@ grammar PyNESTML{
              | Declaration
              | ReturnStmt;
 
-  Assignment = lhsVariable:Variable
+  Assignment = lhs_variable:Variable
     (directAssignment:"="       |
      compoundSum:"+="     |
      compoundMinus:"-="   |

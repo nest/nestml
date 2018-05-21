@@ -20,7 +20,7 @@
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.utils.Logger import LoggingLevel, Logger
-
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 
 class ASTUtils(object):
     """
@@ -79,6 +79,7 @@ class ASTUtils(object):
 
     @classmethod
     def is_spike_input(cls, body):
+        # type: (ASTBody) -> bool
         """
         Checks if the handed over neuron contains a spike input buffer.
         :param body: a single body element.
@@ -86,6 +87,7 @@ class ASTUtils(object):
         :return: True if spike buffer is contained, otherwise false.
         :rtype: bool
         """
+        from pynestml.meta_model.ASTBody import ASTBody
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.getInputLines())
         for inputL in inputs:
             if inputL.is_spike():

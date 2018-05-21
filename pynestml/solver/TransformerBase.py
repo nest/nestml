@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import re as re
 
-from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
+from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.meta_model.ASTBlock import ASTBlock
 from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.meta_model.ASTNeuron import ASTNeuron

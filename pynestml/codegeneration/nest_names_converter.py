@@ -1,5 +1,5 @@
 #
-# NestNamesConverter.py
+# nest_names_converter.py
 #
 # This file is part of NEST.
 #
@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.meta_model.ASTVariable import ASTVariable
 from pynestml.symbols.VariableSymbol import VariableSymbol
 
 
@@ -27,74 +28,74 @@ class NestNamesConverter(object):
     """
 
     @classmethod
-    def name(cls, _obj=None):
+    def name(cls, node):
         """
         Returns for the handed over element the corresponding nest processable string.
-        :param _obj: a single variable symbol or variable
-        :type _obj: VariableSymbol or ASTVariable
+        :param node: a single variable symbol or variable
+        :type node: VariableSymbol or ASTVariable
         :return: the corresponding string representation
         :rtype: str
         """
-        if isinstance(_obj, VariableSymbol):
-            return cls.convertToCPPName(_obj.get_symbol_name())
+        if isinstance(node, VariableSymbol):
+            return cls.convert_to_cpp_name(node.get_symbol_name())
         else:
-            return cls.convertToCPPName(_obj.getCompleteName())
+            return cls.convert_to_cpp_name(node.get_complete_name())
 
     @classmethod
-    def getter(cls, _variableSymbol=None):
+    def getter(cls, variable_symbol):
         """
         Converts for a handed over symbol the corresponding name of the getter to a nest processable format.
-        :param _variableSymbol: a single variable symbol.
-        :type _variableSymbol: VariableSymbol
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
         :return: the corresponding representation as a string
         :rtype: str
         """
-        assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
+        assert isinstance(variable_symbol, VariableSymbol), \
             '(PyNestML.CodeGeneration.NamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
-                _variableSymbol)
-        return 'get_' + cls.convertToCPPName(_variableSymbol.get_symbol_name())
+                variable_symbol)
+        return 'get_' + cls.convert_to_cpp_name(variable_symbol.get_symbol_name())
 
     @classmethod
-    def bufferValue(cls, _variableSymbol=None):
+    def buffer_value(cls, variable_symbol):
         """
         Converts for a handed over symbol the corresponding name of the buffer to a nest processable format.
-        :param _variableSymbol: a single variable symbol.
-        :type _variableSymbol: VariableSymbol
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
         :return: the corresponding representation as a string
         :rtype: str
         """
-        assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
+        assert isinstance(variable_symbol, VariableSymbol), \
             '(PyNestML.CodeGeneration.NamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
-                _variableSymbol)
-        return _variableSymbol.get_symbol_name() + '_grid_sum_'
+                variable_symbol)
+        return variable_symbol.get_symbol_name() + '_grid_sum_'
 
     @classmethod
-    def setter(cls, _variableSymbol=None):
+    def setter(cls, variable_symbol):
         """
         Converts for a handed over symbol the corresponding name of the setter to a nest processable format.
-        :param _variableSymbol: a single variable symbol.
-        :type _variableSymbol: VariableSymbol
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
         :return: the corresponding representation as a string
         :rtype: str
         """
-        assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
+        assert isinstance(variable_symbol, VariableSymbol), \
             '(PyNestML.CodeGeneration.NamesConverter) No or wrong type of variable symbol provided (%s)!' % type(
-                _variableSymbol)
-        return 'set_' + cls.convertToCPPName(_variableSymbol.get_symbol_name())
+                variable_symbol)
+        return 'set_' + cls.convert_to_cpp_name(variable_symbol.get_symbol_name())
 
     @classmethod
-    def convertToCPPName(cls, _variableName=None):
+    def convert_to_cpp_name(cls, variable_name):
         """
         Converts a handed over name to the corresponding nest / c++ naming guideline.
         In concrete terms:
             Converts names of the form g_in'' to a compilable C++ identifier: __DDX_g_in
-        :param _variableName: a single name.
-        :type _variableName: str
+        :param variable_name: a single name.
+        :type variable_name: str
         :return: the corresponding transformed name.
         :rtype: str
         """
-        differentialOrder = _variableName.count('\'')
-        if differentialOrder > 0:
-            return '__' + 'D' * differentialOrder + '_' + _variableName.replace('\'', '')
+        differential_order = variable_name.count('\'')
+        if differential_order > 0:
+            return '__' + 'D' * differential_order + '_' + variable_name.replace('\'', '')
         else:
-            return _variableName
+            return variable_name

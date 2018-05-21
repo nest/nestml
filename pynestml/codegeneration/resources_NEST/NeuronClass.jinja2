@@ -203,7 +203,7 @@ void {{neuronName}}::init_state_(const Node& proto){
 
 void {{neuronName}}::init_buffers_(){
   {% for buffer in neuron.get_input_buffers() -%}
-  {{ printer.printBufferInitialization(buffer) }}
+  {{ printer.print_buffer_initialization(buffer) }}
   {% endfor %}
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
@@ -271,10 +271,10 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     {% for inputLine in neuron.get_input_buffers() -%}
     {% if inputLine.has_vector_parameter() %}
     for (long i=0; i < P_.{{inputLine.get_vector_parameter()}}; i++){
-      B_.{{names.bufferValue(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value(lag);
+      B_.{{names.buffer_value(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value(lag);
     }
     {% else -%}
-    B_.{{names.bufferValue(inputLine)}} = get_{{names.name(inputLine)}}().get_value(lag);
+    B_.{{names.buffer_value(inputLine)}} = get_{{names.name(inputLine)}}().get_value(lag);
     {% endif -%}
     {%- endfor -%}
     {%- set dynamics = neuron.get_update_blocks() -%}
@@ -294,7 +294,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 }
 
 {% for function in neuron.get_functions() -%}
-{{printer.printFunctionDefinition(function, neuronName)}}
+{{printer.print_function_definition(function, neuronName)}}
 {
   {%- with ast = function.get_block() -%}
   {%- include "directives/Block.jinja2" -%}

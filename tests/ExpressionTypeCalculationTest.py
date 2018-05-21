@@ -21,7 +21,7 @@ import os
 import unittest
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.codegeneration.UnitConverter import UnitConverter
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
@@ -60,7 +60,7 @@ class ExpressionTestVisitor(ASTVisitor):
 
         if isinstance(_expr.type, UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-                       str(UnitConverter().getFactor(_expr.type.astropy_unit))
+                       str(UnitConverter().get_factor(_expr.type.astropy_unit))
 
         Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
                            message=message, log_level=LoggingLevel.INFO)

@@ -1,5 +1,5 @@
 #
-# NESTML2NESTTypeConverter.py
+# pynestml_2_nest_type_converter.py
 #
 # This file is part of NEST.
 #
@@ -20,20 +20,19 @@
 from pynestml.symbols.TypeSymbol import TypeSymbol
 
 
-class NESTML2NESTTypeConverter(object):
+class PyNestml2NestTypeConverter(object):
     """
     This class contains a single operation as used to convert nestml types to nest centerpieces.
     """
 
     @classmethod
-    def convert(cls, _typeSymbol=None):
+    def convert(cls, type_symbol):
+        # type: (TypeSymbol) -> str
         """
         Converts the name of the type symbol to a corresponding nest representation.
-        :param _typeSymbol: a single type symbol
-        :type _typeSymbol: TypeSymbol
+        :param type_symbol: a single type symbol
+        :type type_symbol: TypeSymbol
         :return: the corresponding string representation.
         :rtype: str
         """
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.CodeGeneration.TypeConverter) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        return _typeSymbol.nest_type
+        return type_symbol.nest_type

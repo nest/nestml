@@ -26,7 +26,7 @@ class ASTAssignment(ASTNode):
     """
     This class is used to store assignments.
     Grammar:
-        assignment : lhsVariable=variable
+        assignment : lhs_variable=variable
             (directAssignment='='       |
             compoundSum='+='     |
             compoundMinus='-='   |
