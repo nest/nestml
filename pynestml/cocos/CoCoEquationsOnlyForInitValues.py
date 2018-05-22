@@ -19,8 +19,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

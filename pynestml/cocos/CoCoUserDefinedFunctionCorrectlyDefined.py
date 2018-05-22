@@ -25,9 +25,9 @@ from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
-from pynestml.utils.TypeCaster import TypeCaster
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
+from pynestml.utils.type_caster import TypeCaster
 
 
 class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):

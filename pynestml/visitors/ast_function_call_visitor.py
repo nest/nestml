@@ -25,8 +25,8 @@ from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

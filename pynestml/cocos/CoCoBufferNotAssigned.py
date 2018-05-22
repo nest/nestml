@@ -20,8 +20,8 @@
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VariableSymbol import BlockType
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

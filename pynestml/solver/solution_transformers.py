@@ -27,7 +27,7 @@ from pynestml.meta_model.ASTOdeShape import ASTOdeShape
 from pynestml.solver.transformer_base import add_declarations_to_internals, \
     compute_state_shape_variables_declarations, add_declarations_to_initial_values, \
     compute_state_shape_variables_updates, replace_integrate_call, add_state_updates
-from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.model_parser import ModelParser
 
 
 def integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers):

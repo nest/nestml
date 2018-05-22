@@ -23,9 +23,9 @@ rhs : left=rhs comparisonOperator right=rhs
 """
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.ErrorStrings import ErrorStrings
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import MessageCode
+from pynestml.utils.error_strings import ErrorStrings
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import MessageCode
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol

@@ -1,5 +1,5 @@
 #
-# Archetype.py
+# unit_type.py
 #
 # This file is part of NEST.
 #

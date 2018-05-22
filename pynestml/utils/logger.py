@@ -1,5 +1,5 @@
 #
-# Logger.py
+# logger.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import json
 from collections import OrderedDict
+
 from enum import Enum
+
 
 class Logger(object):
     """
@@ -70,7 +72,8 @@ class Logger(object):
     def set_log(cls, log, counter):
         """
         Restores log from the 'log' variable
-        :param log:
+        :param log: the log
+        :param counter: the counter
         """
         cls.log = log
         cls.curr_message = counter
@@ -91,7 +94,6 @@ class Logger(object):
         :param log_level: the corresponding log level.
         :type log_level: LoggingLevel
         """
-        from pynestml.meta_model.ASTNeuron import ASTNeuron
         if cls.curr_message is None:
             cls.init_logger(LoggingLevel.INFO)
         from pynestml.meta_model.ASTNeuron import ASTNeuron
@@ -112,7 +114,7 @@ class Logger(object):
         if cls.logging_level.value <= log_level.value:
             to_print = '[' + str(cls.curr_message) + ','
             to_print = (to_print + (neuron.get_name() + ', ' if neuron is not None else
-                cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
+                    cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
             to_print = to_print + str(message)

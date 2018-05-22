@@ -24,9 +24,9 @@ from pynestml.meta_model.ASTNode import ASTNode
 from pynestml.meta_model.ASTOdeShape import ASTOdeShape
 from pynestml.symbols.VariableSymbol import BlockType
 from pynestml.symbols.VariableSymbol import VariableSymbol
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
 
 
 class ASTNeuron(ASTNode):

@@ -33,9 +33,9 @@ from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class NESTReferenceConverter(IReferenceConverter):

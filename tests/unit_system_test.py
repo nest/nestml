@@ -1,5 +1,5 @@
 #
-# UnitSystemTest.py
+# unit_system_test.py
 #
 # This file is part of NEST.
 #
@@ -29,8 +29,8 @@ from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.model_parser import ModelParser
 
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 PredefinedUnits.register_units()

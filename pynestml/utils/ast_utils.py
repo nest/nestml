@@ -1,5 +1,5 @@
 #
-# ASTUtils.py
+# ast_utils.py
 #
 # This file is part of NEST.
 #
@@ -17,10 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.utils.logger import LoggingLevel, Logger
+
 
 class ASTUtils(object):
     """
@@ -448,6 +449,7 @@ class ASTUtils(object):
         This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
         It is used to find all variables which have to provided with a ode declaration.
         """
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         from pynestml.meta_model.ASTVariable import ASTVariable
         # type: ASTVariable -> str
 
@@ -466,12 +468,13 @@ class ASTUtils(object):
         return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
 
     @classmethod
-    def convert_variable_name_to_generator_notation(cls,variable):
+    def convert_variable_name_to_generator_notation(cls, variable):
         """
         This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
         one (e.g., g_in_d). It decreases the unsupported order by one.
         """
         from pynestml.meta_model.ASTVariable import ASTVariable
+        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
         # type: ASTVariable -> str
 
         name = variable.get_name()
@@ -484,5 +487,4 @@ class ASTUtils(object):
             else:
                 name += '__d'
             diff_order -= 1
-        return ASTNodeFactory.create_ast_variable(name=name,differential_order=diff_order)
-
+        return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)

@@ -20,9 +20,9 @@
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
-from pynestml.utils.TypeCaster import TypeCaster
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
+from pynestml.utils.type_caster import TypeCaster
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

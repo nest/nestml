@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ASTAssignment import ASTAssignment
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.utils.logger import LoggingLevel, Logger
 
 
 class NestAssignmentsHelper(object):

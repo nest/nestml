@@ -1,5 +1,5 @@
 #
-# ErrorStrings.py
+# error_strings.py
 #
 # This file is part of NEST.
 #

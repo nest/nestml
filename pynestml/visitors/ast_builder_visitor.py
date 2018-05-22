@@ -26,7 +26,7 @@ from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSignalType import ASTSignalType
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.utils.Logger import Logger
+from pynestml.utils.logger import Logger
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
 
@@ -596,8 +596,10 @@ class ASTBuilderVisitor(PyNestMLVisitor):
             parameters.append(ctx.parameter())
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         return_type = self.visit(ctx.returnType) if ctx.returnType is not None else None
-        return ASTNodeFactory.create_ast_function(name=name, parameters=parameters, block=block,
+        node = ASTNodeFactory.create_ast_function(name=name, parameters=parameters, block=block,
                                                   return_type=return_type, source_position=create_source_pos(ctx))
+        update_node_comments(node, self.__comments.visit(ctx))
+        return node
 
     # Visit a parse tree produced by PyNESTMLParser#parameter.
     def visitParameter(self, ctx):

@@ -20,7 +20,7 @@
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTVariable import ASTVariable
-from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class IdempotentReferenceConverter(IReferenceConverter):

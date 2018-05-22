@@ -20,7 +20,7 @@
 import argparse  # used for parsing of input arguments
 import os
 
-from pynestml.utils.Logger import Logger
+from pynestml.utils.logger import Logger
 
 help_path = 'Path to a single file or a directory containing the source models.'
 help_target = 'Path to a target directory where models should be generated to. Standard is "target".'

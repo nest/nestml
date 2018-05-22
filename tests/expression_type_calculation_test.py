@@ -1,5 +1,5 @@
 #
-# ExpressionTypeCalculationTest.py
+# expression_type_calculation_test.py
 #
 # This file is part of NEST.
 #
@@ -20,8 +20,8 @@
 import os
 import unittest
 
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.codegeneration.unit_converter import UnitConverter
+from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
@@ -29,9 +29,9 @@ from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import MessageCode
-from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import MessageCode
+from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 # minor setup steps required
@@ -90,7 +90,6 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         Logger.set_current_neuron(None)
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 2)
-
 
 
 if __name__ == '__main__':

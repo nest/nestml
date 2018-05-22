@@ -27,10 +27,10 @@ from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.symbols.Symbol import SymbolKind
 from pynestml.symbols.VariableSymbol import VariableSymbol, BlockType, VariableType
-from pynestml.utils.Either import Either
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
-from pynestml.utils.Stack import Stack
+from pynestml.utils.either import Either
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
+from pynestml.utils.stack import Stack
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 

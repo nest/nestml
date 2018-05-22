@@ -1,5 +1,5 @@
 #
-# ASTBuilderTest.py
+# ast_builder_test.py
 #
 # This file is part of NEST.
 #
@@ -31,7 +31,7 @@ from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.utils.Logger import LoggingLevel, Logger
+from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 
 # setups the infrastructure

@@ -1,4 +1,23 @@
-import os
+#
+# nestml_printer_test.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import unittest
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
@@ -7,9 +26,9 @@ from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.utils.ASTNestMLPrinter import ASTNestMLPrinter
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.ast_nestml_printer import ASTNestMLPrinter
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.model_parser import ModelParser
 
 # setups the infrastructure
 PredefinedUnits.register_units()
@@ -23,19 +42,7 @@ Logger.init_logger(LoggingLevel.NO)
 class NestMLPrinterTest(unittest.TestCase):
     """
     Tests if the NestML printer works as intended.
-    TODO: work in progress
     """
-
-    def test_complete_print(self):
-        # model = ModelParser.parse_neuron(neuron)
-        model = ModelParser.parse_model(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                         'NestMLPrinterTest.nestml'))
-        # now create a new visitor and use it
-        model_printer = ASTNestMLPrinter()
-        #print(model_printer.print_node(model))
-        # get the results and compare against constants
-        return
 
     def test_block_with_variables_with_comments(self):
         block = '\n' \
@@ -73,6 +80,30 @@ class NestMLPrinterTest(unittest.TestCase):
         model = ModelParser.parse_assignment(assignment)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(assignment, model_printer.print_node(model))
+
+    def test_function_with_comments(self):
+        t_function = '\n' \
+                     '/*pre func*/\n' \
+                     'function test(Tau_1 ms) real: # in func\n\n' \
+                     '  /* decl pre */\n' \
+                     '  exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms # decl in\n' \
+                     '  /* decl post */\n' \
+                     '\n' \
+                     '  return normalisation_factor\n' \
+                     'end\n' \
+                     '/*post func*/\n\n'
+        model = ModelParser.parse_function(t_function)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(t_function, model_printer.print_node(model))
+
+    def test_function_without_comments(self):
+        t_function = 'function test(Tau_1 ms) real:\n' \
+                     '  exact_integration_adjustment real = ((1 / Tau_2) - (1 / Tau_1)) * ms\n' \
+                     '  return normalisation_factor\n' \
+                     'end\n'
+        model = ModelParser.parse_function(t_function)
+        model_printer = ASTNestMLPrinter()
+        self.assertEqual(t_function, model_printer.print_node(model))
 
     def test_function_call_with_comments(self):
         function_call = '\n/* pre */\n' \
@@ -114,7 +145,7 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(declaration, model_printer.print_node(model))
 
     def test_declaration_without_comments(self):
-        declaration = 'test mV = 10mV'
+        declaration = 'test mV = 10mV\n'
         model = ModelParser.parse_declaration(declaration)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(declaration, model_printer.print_node(model))

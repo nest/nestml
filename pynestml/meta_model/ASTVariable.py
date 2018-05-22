@@ -20,7 +20,7 @@
 from copy import copy
 
 from pynestml.meta_model.ASTNode import ASTNode
-from pynestml.utils.Either import Either
+from pynestml.utils.either import Either
 
 
 class ASTVariable(ASTNode):

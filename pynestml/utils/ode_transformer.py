@@ -1,5 +1,5 @@
 #
-# OdeTransformer.py
+# ode_transformer.py
 #
 # This file is part of NEST.
 #

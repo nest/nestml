@@ -1,5 +1,5 @@
 #
-# LoggingHelper.py
+# logging_helper.py
 #
 # This file is part of NEST.
 #
@@ -21,8 +21,8 @@
 """
 expression : left=expression (plusOp='+'  | minusOp='-') right=expression
 """
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class LoggingHelper(object):

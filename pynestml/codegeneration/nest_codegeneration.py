@@ -42,12 +42,12 @@ from pynestml.solver.transformer_base import add_assignment_to_update_block
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
     integrate_delta_solution
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Logger import Logger
-from pynestml.utils.Logger import LoggingLevel
-from pynestml.utils.Messages import Messages
-from pynestml.utils.ModelParser import ModelParser
-from pynestml.utils.OdeTransformer import OdeTransformer
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
+from pynestml.utils.messages import Messages
+from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 # setup the template environment

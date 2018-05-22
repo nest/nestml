@@ -1,3 +1,23 @@
+#
+# ast_nestml_printer.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.meta_model.ASTAssignment import ASTAssignment
 from pynestml.meta_model.ASTBitOperator import ASTBitOperator
@@ -40,7 +60,12 @@ from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
 
 
 class ASTNestMLPrinter(object):
-    tab_size = 2
+    """
+    This class can be used to print any ast node to a human readable and NestML conform syntax. The entry point is
+    the print_node() operation.
+    """
+
+    tab_size = 2  # type: int # the indentation level, change if required
 
     def __init__(self):
         self.indent = 0
@@ -138,7 +163,8 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_arithmetic_operator(self, node):
+    @classmethod
+    def print_arithmetic_operator(cls, node):
         # type: (ASTArithmeticOperator) -> str
         if node.is_times_op:
             return ' * '
@@ -173,7 +199,8 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_bit_operator(self, node):
+    @classmethod
+    def print_bit_operator(cls, node):
         # type: (ASTBitOperator) -> str
         if node.isBitAnd():
             return ' & '
@@ -229,7 +256,8 @@ class ASTNestMLPrinter(object):
             ret += '\n'
         return ret
 
-    def print_comparison_operator(self, node):
+    @classmethod
+    def print_comparison_operator(cls, node):
         # type: (ASTComparisonOperator) -> str
         if node.isLt():
             return ' < '
@@ -296,9 +324,7 @@ class ASTNestMLPrinter(object):
         if node.has_invariant():
             ret += ' [[' + self.print_node(node.get_invariant()) + ']]'
         ret += print_sl_comment(node.in_comment) + '\n'
-        if len(node.post_comments) > 0:
-            ret += '\n'
-            ret += print_ml_comments(node.post_comments, self.indent, True)
+        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_elif_clause(self, node):
@@ -358,14 +384,18 @@ class ASTNestMLPrinter(object):
 
     def print_function(self, node):
         # type: (ASTFunction) -> str
-        ret = 'function ' + node.get_name() + '('
+        # todo by KP: this is still somehow not nice
+        ret = print_ml_comments(node.pre_comments, self.indent)
+        ret += 'function ' + node.get_name() + '('
         if node.has_parameters():
             for par in node.get_parameters():
                 ret += self.print_node(par)
         ret += ')'
         if node.has_return_type():
-            ret += self.print_node(node.get_return_type())
-        ret += ':\n' + self.print_node(node.get_block()) + '\nend'
+            ret += ' ' + self.print_node(node.get_return_type())
+        ret += ':' + print_sl_comment(node.in_comment) + '\n'
+        ret += self.print_node(node.get_block()) + '\nend\n'
+        ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
     def print_function_call(self, node):
@@ -432,14 +462,16 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_input_type(self, node):
+    @classmethod
+    def print_input_type(cls, node):
         # type: (ASTInputType) -> str
         if node.is_inhibitory:
             return 'inhibitory'
         else:
             return 'excitatory'
 
-    def print_logical_operator(self, node):
+    @classmethod
+    def print_logical_operator(cls, node):
         # type: (ASTLogicalOperator) -> str
         if node.is_and():
             return ' and '
@@ -498,7 +530,9 @@ class ASTNestMLPrinter(object):
 
     def print_return_stmt(self, node):
         # type: (ASTReturnStmt) -> str
-        return 'return ' + (self.print_node(node.get_expression()) if node.has_expression() else '')
+        ret = print_n_spaces(self.indent)
+        ret += 'return ' + (self.print_node(node.get_expression()) if node.has_expression() else '')
+        return ret
 
     def print_simple_expression(self, node):
         # type: (ASTSimpleExpression) -> str
@@ -546,7 +580,8 @@ class ASTNestMLPrinter(object):
         else:
             return self.print_node(node.compound_stmt)
 
-    def print_unary_operator(self, node):
+    @classmethod
+    def print_unary_operator(cls, node):
         # type: (ASTUnaryOperator) -> str
         if node.is_unary_plus:
             return '+'
@@ -581,7 +616,8 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_variable(self, node):
+    @classmethod
+    def print_variable(cls, node):
         # type: (ASTVariable) -> str
         ret = node.name
         for i in range(1, node.differential_order + 1):
@@ -612,7 +648,7 @@ def print_n_spaces(n):
 
 
 def print_ml_comments(comments, indent=0, is_post=False):
-    if len(list(comments)) == 0:
+    if comments is None or len(list(comments)) == 0:
         return ''
     ret = ''
     if len(comments) > 0 and not is_post:

@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.CoCo import CoCo
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
 
 
 class CoCoNoNestNameSpaceCollision(CoCo):

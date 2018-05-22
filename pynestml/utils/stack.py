@@ -1,5 +1,5 @@
 #
-# Stack.py
+# stack.py
 #
 # This file is part of NEST.
 #
@@ -88,7 +88,6 @@ class Stack(object):
         for i in range(0, n):
             ret.append(self.pop_first())
         return ret
-
 
     def pop_first(self):
         """

@@ -1,5 +1,5 @@
 #
-# Either.py
+# either.py
 #
 # This file is part of NEST.
 #

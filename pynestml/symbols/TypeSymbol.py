@@ -20,8 +20,8 @@
 from abc import ABCMeta, abstractmethod
 
 from pynestml.symbols.Symbol import Symbol
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class TypeSymbol(Symbol):

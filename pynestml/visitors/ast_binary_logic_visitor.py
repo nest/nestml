@@ -24,8 +24,8 @@ rhs: left=rhs logicalOperator right=rhs
 from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

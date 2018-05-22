@@ -27,9 +27,9 @@ from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.ModelParser import ModelParser
-from pynestml.utils.OdeTransformer import OdeTransformer
+from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.ode_transformer import OdeTransformer
 
 
 def add_declarations_to_internals(neuron, declarations):

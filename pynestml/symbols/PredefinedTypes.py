@@ -24,10 +24,10 @@ from astropy.units.quantity import Quantity
 
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
-from pynestml.utils.TypeDictionary import TypeDictionary
-from pynestml.utils.UnitType import UnitType
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
+from pynestml.utils.type_dictionary import TypeDictionary
+from pynestml.utils.unit_type import UnitType
 
 
 class PredefinedTypes(object):

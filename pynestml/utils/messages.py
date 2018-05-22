@@ -1,5 +1,5 @@
 #
-# Messages.py.py
+# messages.py.py
 #
 # This file is part of NEST.
 #
@@ -101,11 +101,11 @@ class Messages(object):
         """
         if not castable:
             message = str(arg_nr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (function_call.getName(), got_type.print_symbol(),
+                                    ' found \'%s\'.' % (function_call.get_name(), got_type.print_symbol(),
                                                         expected_type.print_symbol())
         else:
             message = str(arg_nr) + '. argument of function-call \'%s\' is wrongly typed! ' \
-                                    'Implicit cast from \'%s\' to \'%s\'.' % (function_call.getName(),
+                                    'Implicit cast from \'%s\' to \'%s\'.' % (function_call.get_name(),
                                                                               got_type.print_symbol(),
                                                                               expected_type.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message

@@ -19,9 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from astropy import units as u
 
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.Messages import Messages
-from pynestml.utils.UnitType import UnitType
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
+from pynestml.utils.unit_type import UnitType
 
 
 class PredefinedUnits(object):

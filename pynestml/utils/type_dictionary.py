@@ -1,5 +1,5 @@
 #
-# TypeDictionary.py
+# type_dictionary.py
 #
 # This file is part of NEST.
 #

@@ -1,5 +1,5 @@
 #
-# UnitCaster.py
+# type_caster.py
 #
 # This file is part of NEST.
 #
@@ -19,9 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.LoggingHelper import LoggingHelper
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.logging_helper import LoggingHelper
+from pynestml.utils.messages import Messages
 
 
 class TypeCaster(object):

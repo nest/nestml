@@ -23,7 +23,7 @@ from pynestml.meta_model.ASTExpression import ASTExpression
 from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class ExpressionsPrettyPrinter(object):

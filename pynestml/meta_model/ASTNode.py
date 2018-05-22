@@ -178,7 +178,7 @@ class ASTNode(object):
         visitor.handle(self)
 
     def __str__(self):
-        from pynestml.utils.ASTNestMLPrinter import ASTNestMLPrinter
+        from pynestml.utils.ast_nestml_printer import ASTNestMLPrinter
         return ASTNestMLPrinter().print_node(self)
 
     @abstractmethod

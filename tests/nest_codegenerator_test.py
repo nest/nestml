@@ -31,8 +31,8 @@ from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.model_parser import ModelParser
 
 # setups the infrastructure
 PredefinedUnits.register_units()

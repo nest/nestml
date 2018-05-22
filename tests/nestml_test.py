@@ -1,5 +1,5 @@
 #
-# ExpressionTypeCalculationTest.py
+# nestml_test.py
 #
 # This file is part of NEST.
 #
@@ -17,50 +17,46 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function
+
 import os
 import unittest
 
+from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.ModelParser import ModelParser
-from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.model_parser import ModelParser
 
-# minor setup steps required
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+# setups the infrastructure
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()
-PredefinedVariables.register_variables()
 PredefinedFunctions.register_functions()
+PredefinedVariables.register_variables()
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+Logger.init_logger(LoggingLevel.NO)
 
 
-class ExpressionTestVisitor(ASTVisitor):
-    def end_visit_assignment(self, node):
-        return
-
-    def end_visit_expression(self, node):
-        return
-
-
-class MagnitudeCompatibilityTest(unittest.TestCase):
+# TODO: this is not a unit test. Don't run it with unittests or use mocks to hide filesystem, solver etc
+class NESTMLTest(unittest.TestCase):
     """
-    A simple test that prints all top-level expression types in a file.
+    Tests if the overall model processing frontend works as intended.
     """
 
     def test(self):
-        # Todo: this test is not yet complete, @ptraeder complete it
-        Logger.init_logger(LoggingLevel.NO)
-        model = ModelParser.parse_model(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       'resources', 'MagnitudeCompatibilityTest.nestml'))))
-        # Logger.setCurrentNeuron(model.getNeuronList()[0])
-        ExpressionTestVisitor().handle(model)
-        # Logger.setCurrentNeuron(None)
-        # assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                 os.path.join('..', 'models')))):
+            if filename.endswith(".nestml"):
+                # print('Start creating AST for ' + filename + ' ...'),
+                model = ModelParser.parse_model(os.path.join(os.path.dirname(__file__),
+                                                             os.path.join(os.path.join('..', 'models'), filename)))
+                self.assertTrue(isinstance(model, ASTNestMLCompilationUnit))
+        return
 
 
 if __name__ == '__main__':

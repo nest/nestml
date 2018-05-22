@@ -22,9 +22,9 @@ from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.utils.Logger import Logger
-from pynestml.utils.Logger import LoggingLevel
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
+from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

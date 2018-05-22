@@ -1,5 +1,5 @@
 #
-# PyNestMLFrontendTest.py
+# pynestml_frontend_test.py
 #
 # This file is part of NEST.
 #

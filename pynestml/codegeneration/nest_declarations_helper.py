@@ -20,8 +20,8 @@
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import LoggingLevel, Logger
-from pynestml.utils.Messages import Messages
+from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.utils.messages import Messages
 
 
 class NestDeclarationsHelper(object):

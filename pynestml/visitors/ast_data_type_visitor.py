@@ -24,7 +24,7 @@ from pynestml.meta_model.ASTUnitType import ASTUnitType
 from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.UnitType import UnitType
+from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

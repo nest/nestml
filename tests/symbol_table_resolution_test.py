@@ -1,5 +1,5 @@
 #
-# SymbolTableResolutionTest.py
+# symbol_table_resolution_test.py
 #
 # This file is part of NEST.
 #
@@ -28,8 +28,8 @@ from pynestml.symbols.PredefinedTypes import PredefinedTypes
 from pynestml.symbols.PredefinedUnits import PredefinedUnits
 from pynestml.symbols.PredefinedVariables import PredefinedVariables
 from pynestml.symbols.Symbol import SymbolKind
-from pynestml.utils.Logger import Logger, LoggingLevel
-from pynestml.utils.ModelParser import ModelParser
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.model_parser import ModelParser
 
 # minor setup steps required
 Logger.init_logger(LoggingLevel.NO)
