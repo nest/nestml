@@ -1,5 +1,5 @@
 #
-# SymbolTableBuilderTest.py
+# symbol_table_builder_test.py
 #
 # This file is part of NEST.
 #
