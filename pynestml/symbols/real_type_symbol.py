@@ -1,5 +1,5 @@
 #
-# IntegerTypeSymbol.py
+# real_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,10 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.symbols.TypeSymbol import TypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class IntegerTypeSymbol(TypeSymbol):
+class RealTypeSymbol(TypeSymbol):
     def is_numeric(self):
         return True
 
@@ -29,43 +29,36 @@ class IntegerTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super(IntegerTypeSymbol, self).__init__(name='integer')
+        super(RealTypeSymbol, self).__init__(name='real')
 
     def print_nestml_type(self):
-        return 'integer'
-
+        return 'real'
 
     def print_nest_type(self):
-        return 'long'
+        return 'double'
 
     def __mul__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        if other.is_numeric():
+        if other.is_instance_of(UnitTypeSymbol):
             return other
+        if other.is_numeric_primitive():
+            return self
         return self.binary_operation_not_defined_error('*', other)
 
-    def __mod__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-
-        if other.is_instance_of(ErrorTypeSymbol):
-            return other
-        if other.is_instance_of(IntegerTypeSymbol):
-            return other
-        return self.binary_operation_not_defined_error('%', other)
-
     def __truediv__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(UnitTypeSymbol):
             return self.inverse_of_unit(other)
         if other.is_numeric_primitive():
-            return other
+            return self
         return self.binary_operation_not_defined_error('/', other)
 
     def __div__(self, other):
@@ -78,54 +71,48 @@ class IntegerTypeSymbol(TypeSymbol):
         return self
 
     def __invert__(self):
-        return self
+        return self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
         if power.is_instance_of(ErrorTypeSymbol):
             return power
-        if power.is_instance_of(IntegerTypeSymbol):
+        if power.is_numeric_primitive():
             return self
-        if power.is_instance_of(RealTypeSymbol):
-            return power
         return self.binary_operation_not_defined_error('**', power)
 
     def __add__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
-        from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.symbols.string_type_symbol import StringTypeSymbol
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(StringTypeSymbol):
             return other
-        if other.is_instance_of(IntegerTypeSymbol):
-            return other
-        if other.is_instance_of(RealTypeSymbol):
-            return other
+        if other.is_numeric_primitive():
+            return self
         if other.is_instance_of(UnitTypeSymbol):
-            return self.warn_implicit_cast_from_to(other, self)
+            return self.warn_implicit_cast_from_to(self, other)
         return self.binary_operation_not_defined_error('+', other)
 
     def __sub__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
-        from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
-        if other.is_instance_of(IntegerTypeSymbol):
-            return other
-        if other.is_instance_of(RealTypeSymbol):
-            return other
+        if other.is_numeric_primitive():
+            return self
         if other.is_instance_of(UnitTypeSymbol):
             return self.warn_implicit_cast_from_to(self, other)
         return self.binary_operation_not_defined_error('-', other)
 
     def is_castable_to(self, _other_type):
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
-        if _other_type.is_instance_of(RealTypeSymbol):
+        from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
+        from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+        if _other_type.is_instance_of(BooleanTypeSymbol):
+            return True
+        elif _other_type.is_instance_of(IntegerTypeSymbol):
             return True
         else:
             return False

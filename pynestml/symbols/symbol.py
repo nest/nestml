@@ -1,5 +1,5 @@
 #
-# Symbol.py
+# symbol.py
 #
 # This file is part of NEST.
 #

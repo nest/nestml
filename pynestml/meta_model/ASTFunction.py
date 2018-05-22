@@ -119,7 +119,7 @@ class ASTFunction(ASTNode):
         """
         Returns the type symbol of this rhs.
         :return: a single type symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return copy(self.__typeSymbol)
 
@@ -127,7 +127,7 @@ class ASTFunction(ASTNode):
         """
         Updates the current type symbol to the handed over one.
         :param type_symbol: a single type symbol object.
-        :type type_symbol: TypeSymbol
+        :type type_symbol: type_symbol
         """
         self.__typeSymbol = type_symbol
 

@@ -132,7 +132,7 @@ class ASTDataType(ASTNode):
         """
         Returns the corresponding type symbol.
         :return: a single type symbol element.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return self.__typeSymbol
 
@@ -142,7 +142,7 @@ class ASTDataType(ASTNode):
         :param type_symbol: a new type symbol element.
         :type type_symbol: TypeSymbol.
         """
-        from pynestml.symbols.TypeSymbol import TypeSymbol
+        from pynestml.symbols.type_symbol import TypeSymbol
         assert (type_symbol is not None and isinstance(type_symbol, TypeSymbol)), \
             '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(type_symbol))
         self.__typeSymbol = type_symbol

@@ -1,5 +1,5 @@
 #
-# PredefinedVariables.py
+# predefined_variables.py
 #
 # This file is part of NEST.
 #
@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.VariableSymbol import VariableSymbol, BlockType, VariableType
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
 
 
 class PredefinedVariables(object):

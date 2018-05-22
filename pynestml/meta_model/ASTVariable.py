@@ -58,7 +58,7 @@ class ASTVariable(ASTNode):
         self.differential_order = differential_order
 
     def resolve_in_own_scope(self):
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         assert self.get_scope() is not None
         return self.get_scope().resolve_to_symbol(self.get_complete_name(), SymbolKind.VARIABLE)
 
@@ -109,7 +109,7 @@ class ASTVariable(ASTNode):
         """
         Returns the type symbol of this rhs.
         :return: a single type symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return copy(self.type_symbol)
 
@@ -117,7 +117,7 @@ class ASTVariable(ASTNode):
         """
         Updates the current type symbol to the handed over one.
         :param type_symbol: a single type symbol object.
-        :type type_symbol: TypeSymbol
+        :type type_symbol: type_symbol
         """
         assert (type_symbol is not None and isinstance(type_symbol, Either)), \
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
@@ -141,7 +141,7 @@ class ASTVariable(ASTNode):
         :return: True if unit-variable, otherwise False.
         :rtype: bool
         """
-        from pynestml.symbols.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.predefined_types import PredefinedTypes
         if self.get_name() in PredefinedTypes.get_types():
             return True
         else:

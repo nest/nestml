@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from enum import Enum
 
-from pynestml.symbols.Symbol import Symbol, SymbolKind
+from pynestml.symbols.symbol import Symbol, SymbolKind
 
 
 class Scope(object):
@@ -253,7 +253,7 @@ class Scope(object):
         :param kind: the type of the symbol, i.e., Variable,function or type.
         :type kind: SymbolType
         :return: the first matching symbol.
-        :rtype: VariableSymbol or FunctionSymbol
+        :rtype: variable_symbol or function_symbol
         """
         for sim in self.get_symbols_in_this_scope():
             if sim.get_symbol_name() == name and sim.get_symbol_kind() == kind:

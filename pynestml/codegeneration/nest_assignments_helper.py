@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ASTAssignment import ASTAssignment
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
@@ -34,7 +34,7 @@ class NestAssignmentsHelper(object):
         :param assignment: a single assignment.
         :type assignment: ASTAssignment.
         :return: a single variable symbol
-        :rtype: VariableSymbol
+        :rtype: variable_symbol
         """
         assert isinstance(assignment, ASTAssignment), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
@@ -77,7 +77,7 @@ class NestAssignmentsHelper(object):
         :return: True if vectorized, otherwise False.
         :rtype: bool
         """
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         assert isinstance(assignment, ASTAssignment), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
         symbol = assignment.get_scope().resolve_to_symbol(assignment.get_variable().get_complete_name(),
@@ -105,7 +105,7 @@ class NestAssignmentsHelper(object):
         :return: the corresponding size parameter
         :rtype: str
         """
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         assert (assignment is not None and isinstance(assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(assignment)
         vector_variable = None

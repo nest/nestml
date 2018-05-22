@@ -24,10 +24,10 @@ import sys
 from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, generate_nest_module_code
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser

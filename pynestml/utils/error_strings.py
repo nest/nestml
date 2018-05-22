@@ -113,7 +113,7 @@ class ErrorStrings(object):
         from pynestml.meta_model.ASTExpression import ASTExpression
         from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
         from pynestml.meta_model.ASTAssignment import ASTAssignment
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         assert parent_node is not None and (
                 isinstance(parent_node, ASTExpression) or isinstance(parent_node, ASTAssignment))
 

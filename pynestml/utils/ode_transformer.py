@@ -21,7 +21,7 @@ from copy import copy
 
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 

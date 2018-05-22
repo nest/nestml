@@ -1,5 +1,5 @@
 #
-# FunctionSymbol.py
+# function_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.#
 
-from pynestml.symbols.Symbol import Symbol, SymbolKind
+from pynestml.symbols.symbol import Symbol, SymbolKind
 
 
 class FunctionSymbol(Symbol):
@@ -26,7 +26,7 @@ class FunctionSymbol(Symbol):
     This class is used to store a single function symbol, e.g. the definition of the function max.
     Attributes:
         param_types (list(TypeSymbol)): A list of the types of parameters.
-        return_type (TypeSymbol): The type of the returned value.
+        return_type (type_symbol): The type of the returned value.
         is_predefined (bool): Indicates whether this function predefined or not.
     """
     param_types = None
@@ -43,7 +43,7 @@ class FunctionSymbol(Symbol):
         :param return_type: the return type of the function.
         :type return_type: Union(TypeSymbol,None)
         :param element_reference: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
-        :type element_reference: ASTFunction
+        :type element_reference: ASTFunction or None
         :param scope: a reference to the scope in which this symbol is defined in
         :type scope: Scope
         :param is_predefined: True, if this element is a predefined one, otherwise False.
@@ -78,7 +78,7 @@ class FunctionSymbol(Symbol):
         """
         Returns the return type of this function symbol
         :return: a single type symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return self.return_type
 
@@ -86,7 +86,7 @@ class FunctionSymbol(Symbol):
         """
         Sets the return type to the handed over one.
         :param new_type: a single type symbol
-        :type new_type: TypeSymbol
+        :type new_type: type_symbol
         """
         self.return_type = new_type
 
@@ -102,7 +102,7 @@ class FunctionSymbol(Symbol):
         """
         Adds the handed over type to the list of argument types.
         :param new_type: a single type symbol
-        :type new_type: TypeSymbol
+        :type new_type: type_symbol
         """
         self.param_types.append(new_type)
 

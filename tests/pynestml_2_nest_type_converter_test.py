@@ -22,15 +22,15 @@ import unittest
 from astropy import units
 
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
-from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
-from pynestml.symbols.IntegerTypeSymbol import IntegerTypeSymbol
-from pynestml.symbols.NESTTimeTypeSymbol import NESTTimeTypeSymbol
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
-from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
-from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
+from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
+from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.real_type_symbol import RealTypeSymbol
+from pynestml.symbols.string_type_symbol import StringTypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.utils.unit_type import UnitType
 
 PredefinedUnits.register_units()

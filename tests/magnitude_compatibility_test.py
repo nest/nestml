@@ -22,10 +22,10 @@ import unittest
 
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_visitor import ASTVisitor

@@ -1,5 +1,5 @@
 #
-# UnitTypeSymbol.py
+# unit_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.symbols.TypeSymbol import TypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -58,7 +58,7 @@ class UnitTypeSymbol(TypeSymbol):
         return False
 
     def __mul__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(UnitTypeSymbol):
@@ -68,11 +68,11 @@ class UnitTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('*', other)
 
     def multiply_by(self, other):
-        from pynestml.symbols.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.predefined_types import PredefinedTypes
         return PredefinedTypes.get_type(self.astropy_unit * other.astropy_unit)
 
     def __truediv__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(UnitTypeSymbol):
@@ -85,7 +85,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self.__truediv__(other)
 
     def divide_by(self, other):
-        from pynestml.symbols.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.predefined_types import PredefinedTypes
         return PredefinedTypes.get_type(self.astropy_unit / other.astropy_unit)
 
     def __neg__(self):
@@ -98,7 +98,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
         if isinstance(power, int):
@@ -106,12 +106,12 @@ class UnitTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('**', power)
 
     def to_the_power_of(self, power):
-        from pynestml.symbols.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.predefined_types import PredefinedTypes
         return PredefinedTypes.get_type(self.astropy_unit ** power)
 
     def __add__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.symbols.string_type_symbol import StringTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_instance_of(StringTypeSymbol):
@@ -123,7 +123,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('+', other)
 
     def __sub__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         if other.is_numeric_primitive():
@@ -162,7 +162,7 @@ class UnitTypeSymbol(TypeSymbol):
         return factor
 
     def is_castable_to(self, _other_type):
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.real_type_symbol import RealTypeSymbol
         if _other_type.is_instance_of(RealTypeSymbol):
             return True
         else:

@@ -1,5 +1,5 @@
 #
-# TypeSymbol.py
+# type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
 
-from pynestml.symbols.Symbol import Symbol
+from pynestml.symbols.symbol import Symbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
@@ -47,7 +47,7 @@ class TypeSymbol(Symbol):
 
     @abstractmethod
     def __init__(self, name):
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         super(TypeSymbol, self).__init__(element_reference=None, scope=None,
                                          name=name, symbol_kind=SymbolKind.TYPE)
         return
@@ -98,19 +98,19 @@ class TypeSymbol(Symbol):
         pass
 
     def __mul__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('*', other)
 
     def __mod__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('%', other)
 
     def __truediv__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('/', other)
@@ -128,7 +128,7 @@ class TypeSymbol(Symbol):
         self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
         self.binary_operation_not_defined_error('**', power)
@@ -137,13 +137,13 @@ class TypeSymbol(Symbol):
         self.unary_operation_not_defined_error('not ')
 
     def __add__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('+', other)
 
     def __sub__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
             return other
         self.binary_operation_not_defined_error('-', other)
@@ -180,7 +180,7 @@ class TypeSymbol(Symbol):
         if self.equals(other_type):
             return True
         # in the case that we don't deal with units, there are no magnitudes
-        from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         if not (isinstance(self, UnitTypeSymbol) and isinstance(other_type, UnitTypeSymbol)):
             return False
         # if it represents the same unit, if we disregard the prefix and simplify it
@@ -207,7 +207,7 @@ class TypeSymbol(Symbol):
         pass
 
     def binary_operation_not_defined_error(self, _operator, _other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
         code, message = Messages.get_binary_operation_not_defined(lhs=self, operator=_operator, rhs=_other)
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
@@ -215,7 +215,7 @@ class TypeSymbol(Symbol):
         return result
 
     def unary_operation_not_defined_error(self, _operator):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
         code, message = Messages.get_unary_operation_not_defined(_operator,
                                                                  self.print_symbol())
@@ -227,10 +227,10 @@ class TypeSymbol(Symbol):
     def inverse_of_unit(cls, other):
         """
         :param other: the unit to invert
-        :type other: UnitTypeSymbol
+        :type other: unit_type_symbol
         :return: UnitTypeSymbol
         """
-        from pynestml.symbols.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.predefined_types import PredefinedTypes
         result = PredefinedTypes.get_type(1 / other.astropy_unit)
         return result
 

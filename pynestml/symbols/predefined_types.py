@@ -1,5 +1,5 @@
 #
-# PredefinedTypes.py
+# predefined_types.py
 #
 # This file is part of NEST.
 #
@@ -22,8 +22,8 @@ from copy import copy
 from astropy.units.core import CompositeUnit
 from astropy.units.quantity import Quantity
 
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.type_dictionary import TypeDictionary
@@ -69,8 +69,8 @@ class PredefinedTypes(object):
         """
         Adds all units as predefined type symbols to the list of available types.
         """
-        from pynestml.symbols.PredefinedUnits import PredefinedUnits
-        from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+        from pynestml.symbols.predefined_units import PredefinedUnits
+        from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         units = PredefinedUnits.get_units()
         for unitName in units.keys():
             t_symbol = UnitTypeSymbol(_unit=units[unitName])
@@ -82,7 +82,7 @@ class PredefinedTypes(object):
         """
         Adds the real type symbol to the dict of predefined types.
         """
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
+        from pynestml.symbols.real_type_symbol import RealTypeSymbol
         symbol = RealTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -92,7 +92,7 @@ class PredefinedTypes(object):
         """
         Adds the void type to the dict of predefined types.
         """
-        from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
+        from pynestml.symbols.void_type_symbol import VoidTypeSymbol
         symbol = VoidTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -102,7 +102,7 @@ class PredefinedTypes(object):
         """
         Adds the boolean type to the dict of predefined types.
         """
-        from pynestml.symbols.BooleanTypeSymbol import BooleanTypeSymbol
+        from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
         symbol = BooleanTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -112,7 +112,7 @@ class PredefinedTypes(object):
         """
         Adds the string type to the dict of predefined types.
         """
-        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.string_type_symbol import StringTypeSymbol
         symbol = StringTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -122,7 +122,7 @@ class PredefinedTypes(object):
         """
         Adds the integer type to the dict of predefined types.
         """
-        from pynestml.symbols.IntegerTypeSymbol import IntegerTypeSymbol
+        from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
         symbol = IntegerTypeSymbol()
         cls.name2type[symbol.get_symbol_name()] = symbol
         return
@@ -146,7 +146,7 @@ class PredefinedTypes(object):
         :rtype: copy(TypeSymbol)
         """
         # todo by kp: we now have two times getType? (cf. get_types)
-        raise RuntimeError('No longer used, remove me!!!')
+        raise RuntimeError('No longer used: This should not happen!')
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
         typ_e = cls.get_type(_name)
@@ -173,7 +173,7 @@ class PredefinedTypes(object):
         :param name: the name of the symbol. 
         :type name: str or unit
         :return: a single symbol copy or none
-        :rtype: TypeSymbol or None
+        :rtype: type_symbol or None
         """
         # this case deals with something like 1.0 if we have (1/ms) * ms
         if isinstance(name, Quantity) and name.unit == '':
@@ -204,7 +204,7 @@ class PredefinedTypes(object):
         """
         Returns a copy of the type symbol of type real.
         :return: a real symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return cls.name2type[cls.REAL_TYPE]
 
@@ -213,7 +213,7 @@ class PredefinedTypes(object):
         """
         Returns a copy of the type symbol of type void.
         :return: a void symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return cls.name2type[cls.VOID_TYPE]
 
@@ -222,7 +222,7 @@ class PredefinedTypes(object):
         """
         Returns a copy of the type symbol of type boolean.
         :return: a boolean symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return cls.name2type[cls.BOOLEAN_TYPE]
 
@@ -231,7 +231,7 @@ class PredefinedTypes(object):
         """
         Returns a copy of the type symbol of type string.
         :return: a new string symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return cls.name2type[cls.STRING_TYPE]
 
@@ -240,7 +240,7 @@ class PredefinedTypes(object):
         """
         Returns a new type symbol of type integer.
         :return: a new integer symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return cls.name2type[cls.INTEGER_TYPE]
 

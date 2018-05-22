@@ -23,7 +23,7 @@ rhs : <assoc=right> left=rhs powOp='**' right=rhs
 """
 from pynestml.meta_model.ASTExpression import ASTExpression
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.either import Either
 from pynestml.utils.error_strings import ErrorStrings
 from pynestml.visitors.ast_visitor import ASTVisitor

@@ -21,10 +21,10 @@
 simpleExpression : functionCall
 """
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.Symbol import SymbolKind
-from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.void_type_symbol import VoidTypeSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor

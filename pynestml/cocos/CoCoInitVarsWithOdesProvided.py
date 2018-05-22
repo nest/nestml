@@ -20,7 +20,7 @@
 
 from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.cocos.CoCo import CoCo
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor

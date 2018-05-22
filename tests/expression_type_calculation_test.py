@@ -23,12 +23,12 @@ import unittest
 from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.symbols.Symbol import SymbolKind
-from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser

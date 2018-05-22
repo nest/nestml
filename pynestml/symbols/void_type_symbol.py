@@ -1,5 +1,5 @@
 #
-# VoidTypeSymbol.py
+# void_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.symbols.TypeSymbol import TypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
 
 
 class VoidTypeSymbol(TypeSymbol):

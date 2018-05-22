@@ -21,7 +21,7 @@
 """
 Placeholder for rhs productions that are not implemented
 """
-from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.utils.error_strings import ErrorStrings
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode

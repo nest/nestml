@@ -1,5 +1,5 @@
 #
-# BooleanTypeSymbol.py
+# string_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,10 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.symbols.TypeSymbol import TypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class BooleanTypeSymbol(TypeSymbol):
+class StringTypeSymbol(TypeSymbol):
     def is_numeric(self):
         return False
 
@@ -29,28 +29,22 @@ class BooleanTypeSymbol(TypeSymbol):
         return True
 
     def __init__(self):
-        super(BooleanTypeSymbol, self).__init__(name='boolean')
+        super(StringTypeSymbol, self).__init__(name='string')
 
     def print_nestml_type(self):
-        return 'boolean'
-
+        return 'string'
 
     def print_nest_type(self):
-        return 'bool'
-
-    def negate(self):
-        return self
+        return 'std::string'
 
     def __add__(self, other):
-        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
-        if other.is_instance_of(StringTypeSymbol):
+        from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+        from pynestml.symbols.void_type_symbol import VoidTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
             return other
+        if not other.is_instance_of(VoidTypeSymbol):
+            return self
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
-        from pynestml.symbols.RealTypeSymbol import RealTypeSymbol
-
-        if _other_type.is_instance_of(RealTypeSymbol):
-            return True
-        else:
-            return False
+        return False

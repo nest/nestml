@@ -21,7 +21,7 @@
 """
 simpleExpression : BOOLEAN_LITERAL // true & false ;
 """
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

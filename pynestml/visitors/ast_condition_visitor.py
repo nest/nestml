@@ -21,9 +21,9 @@
 """
 rhs : condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
 """
-from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.error_strings import ErrorStrings
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import MessageCode

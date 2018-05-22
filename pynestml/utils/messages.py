@@ -91,7 +91,7 @@ class Messages(object):
         :param function_call: a single function call
         :type function_call: ASTFunctionCall
         :param expected_type: the expected type
-        :type expected_type: TypeSymbol
+        :type expected_type: type_symbol
         :param got_type: the got-type
         :type got_type: TypeSymbol
         :param castable: is the type castable
@@ -148,7 +148,7 @@ class Messages(object):
         :param lhs_expression: the lhs rhs
         :type lhs_expression: ASTExpression or ASTSimpleExpression
         :param rhs_type: the type of the rhs
-        :type rhs_type: TypeSymbol
+        :type rhs_type: type_symbol
         :param lhs_type: the type of the lhs
         :type lhs_type: TypeSymbol
         :return: a message
@@ -168,11 +168,11 @@ class Messages(object):
         :param expected_type: the expected type
         :type expected_type: TypeSymbol
         :param got_type: the actual type
-        :type got_type: TypeSymbol
+        :type got_type: type_symbol
         :return: a message
         :rtype: (MessageCode,str)
         """
-        from pynestml.symbols.TypeSymbol import TypeSymbol
+        from pynestml.symbols.type_symbol import TypeSymbol
         assert (expected_type is not None and isinstance(expected_type, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(expected_type)
         assert (got_type is not None and isinstance(got_type, TypeSymbol)), \
@@ -234,7 +234,7 @@ class Messages(object):
         """
         assert (buffer_name is not None and isinstance(buffer_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
-        from pynestml.symbols.PredefinedTypes import PredefinedTypes
+        from pynestml.symbols.predefined_types import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
                   % (buffer_name, PredefinedTypes.get_type('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message

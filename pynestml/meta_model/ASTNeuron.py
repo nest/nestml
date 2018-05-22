@@ -22,8 +22,8 @@ from pynestml.meta_model.ASTBody import ASTBody
 from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
 from pynestml.meta_model.ASTNode import ASTNode
 from pynestml.meta_model.ASTOdeShape import ASTOdeShape
-from pynestml.symbols.VariableSymbol import BlockType
-from pynestml.symbols.VariableSymbol import VariableSymbol
+from pynestml.symbols.variable_symbol import BlockType
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -283,7 +283,7 @@ class ASTNeuron(ASTNode):
         :return: a list of all input buffers.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.VariableSymbol import BlockType
+        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -350,7 +350,7 @@ class ASTNeuron(ASTNode):
         :return: a list of internals symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.VariableSymbol import BlockType
+        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -365,7 +365,7 @@ class ASTNeuron(ASTNode):
         :return: a list of equation function  symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.VariableSymbol import BlockType
+        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -480,7 +480,7 @@ class ASTNeuron(ASTNode):
         :return: a list of initial values symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.VariableSymbol import BlockType
+        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -547,7 +547,7 @@ class ASTNeuron(ASTNode):
         :return: a list of initial value variables with odes
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.VariableSymbol import BlockType
+        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -563,7 +563,7 @@ class ASTNeuron(ASTNode):
         :return: a list of of state variable symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.VariableSymbol import BlockType
+        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:

@@ -1,5 +1,5 @@
 #
-# PredefinedUnits.py
+# predefined_units.py
 #
 # This file is part of NEST.
 #

@@ -1,5 +1,5 @@
 #
-# StringTypeSymbol.py
+# nest_time_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,32 +18,30 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.symbols.TypeSymbol import TypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class StringTypeSymbol(TypeSymbol):
+class NESTTimeTypeSymbol(TypeSymbol):
     def is_numeric(self):
         return False
 
     def is_primitive(self):
-        return True
+        return False
 
     def __init__(self):
-        super(StringTypeSymbol, self).__init__(name='string')
+        super(NESTTimeTypeSymbol, self).__init__(name='time')
 
     def print_nestml_type(self):
-        return 'string'
+        return 'time'
+
 
     def print_nest_type(self):
-        return 'std::string'
+        return 'nest::Time'
 
     def __add__(self, other):
-        from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-        from pynestml.symbols.VoidTypeSymbol import VoidTypeSymbol
-        if other.is_instance_of(ErrorTypeSymbol):
+        from pynestml.symbols.string_type_symbol import StringTypeSymbol
+        if other.is_instance_of(StringTypeSymbol):
             return other
-        if not other.is_instance_of(VoidTypeSymbol):
-            return self
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):

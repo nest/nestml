@@ -41,7 +41,7 @@ from pynestml.meta_model.ASTOdeShape import ASTOdeShape
 from pynestml.solver.transformer_base import add_assignment_to_update_block
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
     integrate_delta_solution
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel

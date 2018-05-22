@@ -29,10 +29,10 @@ from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 

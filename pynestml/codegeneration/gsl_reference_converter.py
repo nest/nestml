@@ -24,10 +24,10 @@ from pynestml.codegeneration.nest_reference_converter import NESTReferenceConver
 from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTVariable import ASTVariable
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.symbols.symbol import SymbolKind
 
 
 class GSLReferenceConverter(IReferenceConverter):

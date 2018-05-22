@@ -21,9 +21,9 @@
 from astropy import units
 
 from pynestml.meta_model.ASTUnitType import ASTUnitType
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
 
@@ -78,7 +78,7 @@ class ASTDataTypeVisitor(ASTVisitor):
         :param node: a single unit type meta_model.
         :type node: ASTUnitType
         :return: a new type symbol representing this unit type.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         if node.is_simple_unit():
             type_s = PredefinedTypes.get_type(node.unit)
@@ -128,7 +128,7 @@ def handle_unit(unit_type):
     :param unit_type: a single sympy unit symbol
     :type unit_type: Symbol (sympy)
     :return: a new type symbol
-    :rtype: TypeSymbol
+    :rtype: type_symbol
     """
     # first ensure that it does not already exists, if not create it and register it in the set of predefined units
     # first clean up the unit of not required components, here it is the 1.0 in front of the unit

@@ -21,8 +21,8 @@
 """
 simpleExpression : (INTEGER|FLOAT) (variable)?
 """
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 

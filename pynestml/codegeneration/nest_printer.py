@@ -26,8 +26,8 @@ from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
 from pynestml.meta_model.ASTForStmt import ASTForStmt
 from pynestml.meta_model.ASTFunction import ASTFunction
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.symbols.Symbol import SymbolKind
-from pynestml.symbols.VariableSymbol import VariableSymbol, BlockType
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 
 
 class NestPrinter(object):
@@ -173,7 +173,7 @@ class NestPrinter(object):
         :rtype: str
         """
         from pynestml.meta_model.ASTFunction import ASTFunction
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         assert (ast_function is not None and isinstance(ast_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)
         function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)

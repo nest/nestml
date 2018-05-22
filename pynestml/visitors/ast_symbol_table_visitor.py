@@ -21,12 +21,12 @@ from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
 from pynestml.symbol_table.scope import Scope, ScopeType
-from pynestml.symbols.FunctionSymbol import FunctionSymbol
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.symbols.Symbol import SymbolKind
-from pynestml.symbols.VariableSymbol import VariableSymbol, BlockType, VariableType
+from pynestml.symbols.function_symbol import FunctionSymbol
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
 from pynestml.utils.either import Either
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages

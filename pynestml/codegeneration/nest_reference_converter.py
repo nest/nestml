@@ -29,10 +29,10 @@ from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
 from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
 from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
 from pynestml.meta_model.ASTVariable import ASTVariable
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.PredefinedUnits import PredefinedUnits
-from pynestml.symbols.PredefinedVariables import PredefinedVariables
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.predefined_units import PredefinedUnits
+from pynestml.symbols.predefined_variables import PredefinedVariables
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages

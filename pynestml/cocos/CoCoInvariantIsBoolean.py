@@ -20,8 +20,8 @@
 
 from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
-from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages

@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.predefined_functions import PredefinedFunctions
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
@@ -219,7 +219,7 @@ class ASTUtils(object):
         Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
         a unit where unit is expected is allowed.
         :param type_a: a single TypeSymbol
-        :type type_a: TypeSymbol
+        :type type_a: type_symbol
         :param type_b: a single TypeSymbol
         :type type_b: TypeSymbol
         :return: True if castable, otherwise False
@@ -247,7 +247,7 @@ class ASTUtils(object):
         :param type_a: a type
         :type type_a:  TypeSymbol
         :param type_b: a type
-        :type type_b: TypeSymbol
+        :type type_b: type_symbol
         :return: True if both elements equal or differ in magnitude, otherwise False.
         :rtype: bool
         """
@@ -298,10 +298,10 @@ class ASTUtils(object):
         :param scope: a scope object
         :type scope: Scope
         :return: the first element with the size parameter
-        :rtype: VariableSymbol
+        :rtype: variable_symbol
         """
         from pynestml.meta_model.ASTVariable import ASTVariable
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         variables = (var for var in cls.get_all(ast, ASTVariable) if
                      scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE))
         for var in variables:

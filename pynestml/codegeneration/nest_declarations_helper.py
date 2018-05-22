@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.meta_model.ASTDeclaration import ASTDeclaration
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
@@ -65,7 +65,7 @@ class NestDeclarationsHelper(object):
         """
         Prints the type of the variable symbol to a corresponding nest representation.
         :param variable_symbol: a single variable symbol
-        :type variable_symbol: VariableSymbol
+        :type variable_symbol: variable_symbol
         :return: a string presentation of the variable symbol's type
         :rtype: str
         """
@@ -90,7 +90,7 @@ class NestDeclarationsHelper(object):
         """
         Returns the domain for the handed over type symbol
         :param type_symbol: a single type symbol
-        :type type_symbol: TypeSymbol
+        :type type_symbol: type_symbol
         :return: the corresponding domain
         :rtype: str
         """

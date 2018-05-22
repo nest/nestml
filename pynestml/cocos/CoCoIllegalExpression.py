@@ -20,8 +20,8 @@
 
 from pynestml.meta_model.ASTDeclaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
-from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
@@ -99,7 +99,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         return not lhs_type_symbol.equals(rhs_type_symbol)
 
     def handle_simple_assignment(self, node):
-        from pynestml.symbols.Symbol import SymbolKind
+        from pynestml.symbols.symbol import SymbolKind
         lhs_variable_symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
                                                                  SymbolKind.VARIABLE)
 

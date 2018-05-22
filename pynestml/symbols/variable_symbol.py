@@ -1,5 +1,5 @@
 #
-# VariableSymbol.py
+# variable_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,14 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from copy import copy
+
 from enum import Enum
 
 from pynestml.meta_model.ASTExpression import ASTExpression
 from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
 from pynestml.meta_model.ASTInputLine import ASTInputLine
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.symbols.Symbol import Symbol
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.symbol import Symbol
+from pynestml.symbols.symbol import SymbolKind
 
 
 class VariableSymbol(Symbol):
@@ -81,7 +82,7 @@ class VariableSymbol(Symbol):
         :param is_recordable: indicates whether this elements is recordable or not.
         :type is_recordable: bool
         :param type_symbol: a type symbol representing the concrete type of this variable
-        :type type_symbol: TypeSymbol
+        :type type_symbol: type_symbol
         :param initial_value: the initial value if such an exists
         :type initial_value: ASTExpression
         :param variable_type: the type of the variable
@@ -278,7 +279,7 @@ class VariableSymbol(Symbol):
         """
         Returns the corresponding type symbol.
         :return: the current type symbol.
-        :rtype: TypeSymbol
+        :rtype: type_symbol
         """
         return copy(self.__typeSymbol)
 
@@ -286,7 +287,7 @@ class VariableSymbol(Symbol):
         """
         Updates the current type symbol to a new one.
         :param type_symbol: a new type symbol.
-        :type type_symbol: TypeSymbol
+        :type type_symbol: type_symbol
         """
         self.__typeSymbol = type_symbol
 
@@ -322,8 +323,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         # TODO it is a workaround. improve.
-        return self.__isConductanceBased # or self.__typeSymbol.print_symbol().startswith("nS")
-
+        return self.__isConductanceBased  # or self.__typeSymbol.print_symbol().startswith("nS")
 
     def set_conductance_based(self, is_conductance_base):
         """

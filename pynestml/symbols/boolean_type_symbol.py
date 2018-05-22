@@ -1,5 +1,5 @@
 #
-# NESTTimeTypeSymbol.py
+# boolean_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -18,31 +18,38 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.symbols.TypeSymbol import TypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class NESTTimeTypeSymbol(TypeSymbol):
+class BooleanTypeSymbol(TypeSymbol):
     def is_numeric(self):
         return False
 
     def is_primitive(self):
-        return False
+        return True
 
     def __init__(self):
-        super(NESTTimeTypeSymbol, self).__init__(name='time')
+        super(BooleanTypeSymbol, self).__init__(name='boolean')
 
     def print_nestml_type(self):
-        return 'time'
-
+        return 'boolean'
 
     def print_nest_type(self):
-        return 'nest::Time'
+        return 'bool'
+
+    def negate(self):
+        return self
 
     def __add__(self, other):
-        from pynestml.symbols.StringTypeSymbol import StringTypeSymbol
+        from pynestml.symbols.string_type_symbol import StringTypeSymbol
         if other.is_instance_of(StringTypeSymbol):
             return other
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
-        return False
+        from pynestml.symbols.real_type_symbol import RealTypeSymbol
+
+        if _other_type.is_instance_of(RealTypeSymbol):
+            return True
+        else:
+            return False

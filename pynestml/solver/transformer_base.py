@@ -26,7 +26,7 @@ from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
 from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
 from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer

@@ -22,9 +22,9 @@ from pynestml.meta_model.ASTNeuron import ASTNeuron
 from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
 from pynestml.meta_model.ASTStmt import ASTStmt
 from pynestml.cocos.CoCo import CoCo
-from pynestml.symbols.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
-from pynestml.symbols.Symbol import SymbolKind
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.type_caster import TypeCaster
@@ -81,7 +81,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         For a handed over statement, it checks if the statement is a return statement and if it is typed according
         to the handed over type symbol.
         :param type_symbol: a single type symbol
-        :type type_symbol: TypeSymbol
+        :type type_symbol: type_symbol
         :param stmts: a list of statements, either simple or compound
         :type stmts: list(ASTSmallStmt,ASTCompoundStmt)
         :param ret_defined: indicates whether a ret has already beef defined after this block of stmt, thus is not

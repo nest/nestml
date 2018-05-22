@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.cocos.CoCo import CoCo
-from pynestml.symbols.PredefinedFunctions import PredefinedFunctions
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor

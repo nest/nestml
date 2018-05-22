@@ -1,5 +1,5 @@
 #
-# PredefinedFunctions.py
+# predefined_functions.py
 #
 # This file is part of NEST.
 #
@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.symbols.FunctionSymbol import FunctionSymbol
-from pynestml.symbols.PredefinedTypes import PredefinedTypes
+from pynestml.symbols.function_symbol import FunctionSymbol
+from pynestml.symbols.predefined_types import PredefinedTypes
 
 
 class PredefinedFunctions(object):
