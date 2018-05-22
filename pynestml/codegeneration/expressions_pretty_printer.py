@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.idempotent_reference_converter import IdempotentReferenceConverter
-from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_utils import ASTUtils
 
 

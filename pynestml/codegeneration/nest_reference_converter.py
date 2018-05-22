@@ -22,13 +22,13 @@ from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.unit_converter import UnitConverter
-from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.meta_model.ASTBitOperator import ASTBitOperator
-from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.meta_model.ASTVariable import ASTVariable
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+from pynestml.meta_model.ast_bit_operator import ASTBitOperator
+from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -238,17 +238,17 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        if op.isLt():
+        if op.is_lt():
             return '%s' + '<' + '%s'
-        elif op.isLe():
+        elif op.is_le():
             return '%s' + '<=' + '%s'
-        elif op.isEq():
+        elif op.is_eq():
             return '%s' + '==' + '%s'
-        elif op.isNe() or op.isNe2():
+        elif op.is_ne() or op.is_ne2():
             return '%s' + '!=' + '%s'
-        elif op.isGe():
+        elif op.is_ge():
             return '%s' + '>=' + '%s'
-        elif op.isGt():
+        elif op.is_gt():
             return '%s' + '>' + '%s'
         else:
             raise RuntimeError('Cannot determine comparison operator!')
@@ -262,15 +262,15 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        if op.isBitShiftLeft():
+        if op.is_bit_shift_left:
             return '%s' + '<<' '%s'
-        if op.isBitShiftRight():
+        if op.is_bit_shift_right:
             return '%s' + '>>' + '%s'
-        if op.isBitAnd():
+        if op.is_bit_and:
             return '%s' + '&' + '%s'
-        if op.isBitOr():
+        if op.is_bit_or:
             return '%s' + '|' + '%s'
-        if op.isBitXor():
+        if op.is_bit_xor:
             return '%s' + '^' + '%s'
         else:
             raise RuntimeError('Cannot determine bit operator!')

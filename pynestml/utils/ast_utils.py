@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -52,7 +52,7 @@ class ASTUtils(object):
         :return: True if small stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
+        from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
         return isinstance(ast, ASTSmallStmt)
 
     @classmethod
@@ -64,7 +64,7 @@ class ASTUtils(object):
         :return: True if compound stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
+        from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
         return isinstance(ast, ASTCompoundStmt)
 
     @classmethod
@@ -84,12 +84,12 @@ class ASTUtils(object):
         """
         Checks if the handed over neuron contains a spike input buffer.
         :param body: a single body element.
-        :type body: ASTBody
+        :type body: ast_body
         :return: True if spike buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.meta_model.ASTBody import ASTBody
-        inputs = (inputL for block in body.get_input_blocks() for inputL in block.getInputLines())
+        from pynestml.meta_model.ast_body import ASTBody
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_lines())
         for inputL in inputs:
             if inputL.is_spike():
                 return True
@@ -100,11 +100,11 @@ class ASTUtils(object):
         """
         Checks if the handed over neuron contains a current input buffer.
         :param body: a single body element.
-        :type body: ASTBody
+        :type body: ast_body
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """
-        inputs = (inputL for block in body.get_input_blocks() for inputL in block.getInputLines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_lines())
         for inputL in inputs:
             if inputL.is_current():
                 return True
@@ -115,7 +115,7 @@ class ASTUtils(object):
         """
         Computes the representation of the data type.
         :param data_type: a single data type.
-        :type data_type: ASTDataType
+        :type data_type: ast_data_type
         :return: the corresponding representation.
         :rtype: str
         """
@@ -142,7 +142,7 @@ class ASTUtils(object):
         From lhs and rhs it constructs a new rhs which corresponds to direct assignment.
         E.g.: a += b*c -> a = a + b*c
         :param lhs: a lhs rhs
-        :type lhs: ASTExpression or ASTSimpleExpression
+        :type lhs: ast_expression or ast_simple_expression
         :param is_plus: is plus assignment
         :type is_plus: bool
         :param is_minus: is minus assignment
@@ -157,7 +157,7 @@ class ASTUtils(object):
         :rtype: ASTExpression
         """
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         assert ((is_plus + is_minus + is_times + is_divide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
         if is_plus:
@@ -197,7 +197,7 @@ class ASTUtils(object):
         """
         ret = list()
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ASTVariable import ASTVariable
+        from pynestml.meta_model.ast_variable import ASTVariable
         res = list()
 
         def loc_get_vars(node):
@@ -300,7 +300,7 @@ class ASTUtils(object):
         :return: the first element with the size parameter
         :rtype: variable_symbol
         """
-        from pynestml.meta_model.ASTVariable import ASTVariable
+        from pynestml.meta_model.ast_variable import ASTVariable
         from pynestml.symbols.symbol import SymbolKind
         variables = (var for var in cls.get_all(ast, ASTVariable) if
                      scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE))
@@ -315,14 +315,14 @@ class ASTUtils(object):
         """
         Collects for a given name all function calls in a given meta_model node.
         :param ast: a single node
-        :type ast: ASTNode
+        :type ast: ast_node
         :param function_name: the name of the function
         :type function_name: str
         :return: a list of all function calls contained in _ast
         :rtype: list(ASTFunctionCall)
         """
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+        from pynestml.meta_model.ast_function_call import ASTFunctionCall
         ret = list()
 
         def loc_get_function(node):
@@ -366,11 +366,11 @@ class ASTUtils(object):
         """
         Creates a single internal block in the handed over neuron.
         :param neuron: a single neuron
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :return: the modified neuron
-        :rtype: ASTNeuron
+        :rtype: ast_neuron
         """
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
                                                                       ASTSourcePosition.get_added_source_position())
@@ -382,12 +382,12 @@ class ASTUtils(object):
         """
         Creates a single internal block in the handed over neuron.
         :param neuron: a single neuron
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :return: the modified neuron
-        :rtype: ASTNeuron
+        :rtype: ast_neuron
         """
         # local import since otherwise circular dependency
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
                                                                    ASTSourcePosition.get_added_source_position())
@@ -399,12 +399,12 @@ class ASTUtils(object):
         """
         Creates a single initial values block in the handed over neuron.
         :param neuron: a single neuron
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :return: the modified neuron
-        :rtype: ASTNeuron
+        :rtype: ast_neuron
         """
         # local import since otherwise circular dependency
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_initial_blocks() is None:
             initial_values = ASTNodeFactory. \
                 create_ast_block_with_variables(False, False, False, True, list(),
@@ -434,9 +434,9 @@ class ASTUtils(object):
         """
         Adds the handed over declaration the state block
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :param declaration: a single declaration
-        :type declaration: ASTDeclaration
+        :type declaration: ast_declaration
         """
         if neuron.get_state_blocks() is None:
             ASTUtils.create_state_block(neuron)
@@ -449,8 +449,8 @@ class ASTUtils(object):
         This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
         It is used to find all variables which have to provided with a ode declaration.
         """
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-        from pynestml.meta_model.ASTVariable import ASTVariable
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        from pynestml.meta_model.ast_variable import ASTVariable
         # type: ASTVariable -> str
 
         name = variable.get_name()
@@ -473,8 +473,8 @@ class ASTUtils(object):
         This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
         one (e.g., g_in_d). It decreases the unsupported order by one.
         """
-        from pynestml.meta_model.ASTVariable import ASTVariable
-        from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
+        from pynestml.meta_model.ast_variable import ASTVariable
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         # type: ASTVariable -> str
 
         name = variable.get_name()

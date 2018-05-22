@@ -38,7 +38,7 @@ class ASTNoSemanticsVisitor(ASTVisitor):
         Visits a single rhs but does not execute any steps besides printing a message. This
         visitor indicates that no functionality has been implemented for this type of nodes.
         :param node: a single rhs
-        :type node: ASTExpression or ASTSimpleExpression
+        :type node: ast_expression or ast_simple_expression
         """
         error_msg = ErrorStrings.message_no_semantics(self, str(node), node.get_source_position())
         node.type = ErrorTypeSymbol()

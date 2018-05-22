@@ -33,7 +33,7 @@ class ASTParenthesesVisitor(ASTVisitor):
         """
         Visits a single rhs encapsulated in parenthesis and updates its type.
         :param node: a single rhs
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         inner_type = node.get_expression().type
         inner_type.referenced_object = node.get_expression()

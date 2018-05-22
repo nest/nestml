@@ -89,7 +89,7 @@ class Messages(object):
         :param arg_nr: the number of the argument which is cast
         :type arg_nr: int
         :param function_call: a single function call
-        :type function_call: ASTFunctionCall
+        :type function_call: ast_function_call
         :param expected_type: the expected type
         :type expected_type: type_symbol
         :param got_type: the got-type
@@ -115,7 +115,7 @@ class Messages(object):
         """
         Returns a message indicating that the type of the rhs rhs could not be derived.
         :param rhs: an rhs
-        :type rhs: ASTExpression or ASTSimpleExpression
+        :type rhs: ast_expression or ast_simple_expression
         :return: a message
         :rtype: (MessageCode,str)
 
@@ -146,7 +146,7 @@ class Messages(object):
         :param rhs_expression: the rhs rhs
         :type rhs_expression: ASTExpression or ASTSimpleExpression
         :param lhs_expression: the lhs rhs
-        :type lhs_expression: ASTExpression or ASTSimpleExpression
+        :type lhs_expression: ast_expression or ast_simple_expression
         :param rhs_type: the type of the rhs
         :type rhs_type: type_symbol
         :param lhs_type: the type of the lhs

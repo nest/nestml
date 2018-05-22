@@ -20,8 +20,8 @@
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.idempotent_reference_converter import IdempotentReferenceConverter
-from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 
 
 class LegacyExpressionPrinter(ExpressionsPrettyPrinter):

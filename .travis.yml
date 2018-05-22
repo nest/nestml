@@ -30,14 +30,14 @@ sudo: true
 script:
   - python tests/lexer_parser_test.py
   - python tests/special_block_parser_builder_test.py
-  - python tests/ExpressionParserTest.py
+  - python tests/expression_parser_test.py
   - python tests/ast_builder_test.py
-  - python tests/SymbolTableBuilderTest.py
-  - python tests/SymbolTableResolutionTest.py
+  - python tests/symbol_table_builder_test.py
+  - python tests/symbol_table_resolution_test.py
   - python tests/cocos_test.py
   - python tests/nest_codegenerator_test.py
-  - python tests/PyNestMLFrontendTest.py
-  - python tests/PyNestMLFrontendTest.py
+  - python tests/pynestml_frontend_test.py
+  - python tests/pynestml_frontend_test.py
   - python tests/nestml_test.py
   - python tests/expression_type_calculation_test.py
  # - python tests/resources/NestmlIntegrationTest.py

@@ -42,7 +42,7 @@ class CoCoCorrectOrderInEquation(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         node.accept(OrderOfEquationVisitor())
 
@@ -56,7 +56,7 @@ class OrderOfEquationVisitor(ASTVisitor):
         """
         Checks the coco.
         :param node: A single ode equation.
-        :type node: ASTOdeEquation
+        :type node: ast_ode_equation
         """
         if node.get_lhs().get_differential_order() == 0:
             code, message = Messages.get_order_not_declared(node.get_lhs().get_name())

@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import datetime
 import os
 import re
 
@@ -33,14 +34,14 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.meta_model.ASTNeuron import ASTNeuron
-from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
-from pynestml.meta_model.ASTOdeFunction import ASTOdeFunction
-from pynestml.meta_model.ASTOdeShape import ASTOdeShape
-from pynestml.solver.transformer_base import add_assignment_to_update_block
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
     integrate_delta_solution
+from pynestml.solver.transformer_base import add_assignment_to_update_block
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -76,7 +77,8 @@ def generate_nest_module_code(neurons):
     :param neurons: a list of neurons
     :type neurons: list(ASTNeuron)
     """
-    namespace = {'neurons': neurons, 'moduleName': FrontendConfiguration.get_module_name()}
+    namespace = {'neurons': neurons, 'moduleName': FrontendConfiguration.get_module_name(),
+                 'now': datetime.datetime.utcnow()}
     if not os.path.exists(FrontendConfiguration.get_target_path()):
         os.makedirs(FrontendConfiguration.get_target_path())
 
@@ -211,6 +213,7 @@ def setup_generation_helpers(neuron):
     namespace['is_current_input'] = ASTUtils.is_current_input(neuron.get_body())
     namespace['odeTransformer'] = OdeTransformer()
     namespace['printerGSL'] = gsl_printer
+    namespace['now'] = datetime.datetime.utcnow()
 
     define_solver_type(neuron, namespace)
     return namespace

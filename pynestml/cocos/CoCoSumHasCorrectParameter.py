@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -37,7 +37,7 @@ class CoCoSumHasCorrectParameter(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         cls.neuronName = neuron.get_name()
         visitor = SumIsCorrectVisitor()
@@ -54,7 +54,7 @@ class SumIsCorrectVisitor(ASTVisitor):
         """
         Checks the coco on the current function call.
         :param node: a single function call.
-        :type node: ASTFunctionCall
+        :type node: ast_function_call
         """
         f_name = node.get_name()
         if f_name == PredefinedFunctions.CURR_SUM or \

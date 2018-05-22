@@ -18,45 +18,45 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.meta_model.ASTAssignment import ASTAssignment
-from pynestml.meta_model.ASTBitOperator import ASTBitOperator
-from pynestml.meta_model.ASTBlock import ASTBlock
-from pynestml.meta_model.ASTBlockWithVariables import ASTBlockWithVariables
-from pynestml.meta_model.ASTBody import ASTBody
-from pynestml.meta_model.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
-from pynestml.meta_model.ASTDataType import ASTDataType
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
-from pynestml.meta_model.ASTElifClause import ASTElifClause
-from pynestml.meta_model.ASTElseClause import ASTElseClause
-from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
-from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTForStmt import ASTForStmt
-from pynestml.meta_model.ASTFunction import ASTFunction
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.meta_model.ASTIfClause import ASTIfClause
-from pynestml.meta_model.ASTIfStmt import ASTIfStmt
-from pynestml.meta_model.ASTInputBlock import ASTInputBlock
-from pynestml.meta_model.ASTInputLine import ASTInputLine
-from pynestml.meta_model.ASTInputType import ASTInputType
-from pynestml.meta_model.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ASTNeuron import ASTNeuron
-from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
-from pynestml.meta_model.ASTOdeFunction import ASTOdeFunction
-from pynestml.meta_model.ASTOdeShape import ASTOdeShape
-from pynestml.meta_model.ASTOutputBlock import ASTOutputBlock
-from pynestml.meta_model.ASTParameter import ASTParameter
-from pynestml.meta_model.ASTReturnStmt import ASTReturnStmt
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
-from pynestml.meta_model.ASTStmt import ASTStmt
-from pynestml.meta_model.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.meta_model.ASTUnitType import ASTUnitType
-from pynestml.meta_model.ASTUpdateBlock import ASTUpdateBlock
-from pynestml.meta_model.ASTVariable import ASTVariable
-from pynestml.meta_model.ASTWhileStmt import ASTWhileStmt
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_bit_operator import ASTBitOperator
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
+from pynestml.meta_model.ast_data_type import ASTDataType
+from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_elif_clause import ASTElifClause
+from pynestml.meta_model.ast_else_clause import ASTElseClause
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_for_stmt import ASTForStmt
+from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_if_clause import ASTIfClause
+from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_input_block import ASTInputBlock
+from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_output_block import ASTOutputBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
+from pynestml.meta_model.ast_unit_type import ASTUnitType
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 
 class ASTNestMLPrinter(object):
@@ -202,15 +202,15 @@ class ASTNestMLPrinter(object):
     @classmethod
     def print_bit_operator(cls, node):
         # type: (ASTBitOperator) -> str
-        if node.isBitAnd():
+        if node.is_bit_and:
             return ' & '
-        elif node.isBitOr():
+        elif node.is_bit_or:
             return ' ^ '
-        elif node.isBitOr():
+        elif node.is_bit_or:
             return ' | '
-        elif node.isBitShiftLeft():
+        elif node.is_bit_shift_left:
             return ' << '
-        elif node.isBitShiftRight():
+        elif node.is_bit_shift_right:
             return ' >> '
         else:
             raise RuntimeError('(PyNestML.BitOperator.Print) Type of bit operator not specified!')
@@ -259,19 +259,19 @@ class ASTNestMLPrinter(object):
     @classmethod
     def print_comparison_operator(cls, node):
         # type: (ASTComparisonOperator) -> str
-        if node.isLt():
+        if node.is_lt():
             return ' < '
-        elif node.isLe():
+        elif node.is_le():
             return ' <= '
-        elif node.isEq():
+        elif node.is_eq():
             return ' == '
-        elif node.isNe():
+        elif node.is_ne():
             return ' != '
-        elif node.isNe2():
+        elif node.is_ne2():
             return ' <> '
-        elif node.isGe():
+        elif node.is_ge():
             return ' >= '
-        elif node.isGt():
+        elif node.is_gt():
             return ' > '
         else:
             raise RuntimeError('(PyNestML.ComparisonOperator.Print) Type of comparison operator not specified!')
@@ -434,8 +434,8 @@ class ASTNestMLPrinter(object):
         self.inc_indent()
         ret = print_ml_comments(node.pre_comments, temp_indent, False)
         ret += print_n_spaces(temp_indent) + 'input:\n'
-        if node.getInputLines() is not None:
-            for inputDef in node.getInputLines():
+        if node.get_input_lines() is not None:
+            for inputDef in node.get_input_lines():
                 ret += self.print_node(inputDef)
         ret += print_n_spaces(temp_indent) + 'end\n'
         ret += print_ml_comments(node.post_comments, temp_indent, True)

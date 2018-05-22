@@ -38,7 +38,7 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         node.accept(NumericNumeratorVisitor())
 
@@ -52,7 +52,7 @@ class NumericNumeratorVisitor(ASTVisitor):
         """
         Check if the coco applies,
         :param node: a single unit type object.
-        :type node: ASTUnitType
+        :type node: ast_unit_type
         """
         if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
             code, message = Messages.get_wrong_numerator(str(node))

@@ -42,7 +42,7 @@ class CoCoOnlySpikeBufferDataTypes(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         node.accept(BufferDatatypeVisitor())
 
@@ -56,7 +56,7 @@ class BufferDatatypeVisitor(ASTVisitor):
         """
         Checks the coco on the current node.
         :param node: a single input line node.
-        :type node: ASTInputLine
+        :type node: ast_input_line
         """
         if node.is_spike() and not node.has_datatype():
             code, message = Messages.get_data_type_not_specified(node.get_name())

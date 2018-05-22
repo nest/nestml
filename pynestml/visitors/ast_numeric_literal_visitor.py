@@ -35,7 +35,7 @@ class ASTNumericLiteralVisitor(ASTVisitor):
         """
         Visit a simple rhs and update the type of a numeric literal.
         :param node: a single meta_model node
-        :type node: ASTNode
+        :type node: ast_node
         :return: no value returned, the type is updated in-place
         :rtype: void
         """

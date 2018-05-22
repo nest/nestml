@@ -63,7 +63,7 @@ class CoCosManager(object):
         """
         Checks if in the handed over neuron each block ist defined at most once and mandatory blocks are defined.
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoEachBlockUniqueAndDefined.check_co_co(neuron)
 
@@ -73,7 +73,7 @@ class CoCosManager(object):
         Checks if in the handed over neuron all function calls use existing functions and the arguments are
         correctly typed.
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoFunctionCallsConsistent.check_co_co(neuron)
 
@@ -82,7 +82,7 @@ class CoCosManager(object):
         """
         Checks that all variables have been declared at most once per scope.
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoVariableOncePerScope.check_co_co(neuron)
 
@@ -91,7 +91,7 @@ class CoCosManager(object):
         """
         Checks that all variables are defined before being used.
         :param neuron: a single neuron.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoAllVariablesDefined.check_co_co(neuron)
 
@@ -100,7 +100,7 @@ class CoCosManager(object):
         """
         Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV 
         :param neuron: a single neuron object
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoFunctionHaveRhs.check_co_co(neuron)
 
@@ -109,7 +109,7 @@ class CoCosManager(object):
         """
         Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV 
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoFunctionMaxOneLhs.check_co_co(neuron)
 
@@ -118,7 +118,7 @@ class CoCosManager(object):
         """
         Checks that no values are assigned to buffers.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoBufferNotAssigned.check_co_co(neuron)
 
@@ -127,7 +127,7 @@ class CoCosManager(object):
         """
         Checks that all equations specify the order of the variable.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoCorrectOrderInEquation.check_co_co(neuron)
 
@@ -136,7 +136,7 @@ class CoCosManager(object):
         """
         Checks that all units which have a numeric numerator use 1.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoCorrectNumeratorOfUnit.check_co_co(neuron)
 
@@ -154,7 +154,7 @@ class CoCosManager(object):
         """
         Checks that all units which have a numeric numerator use 1.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoNoNestNameSpaceCollision.check_co_co(neuron)
 
@@ -163,7 +163,7 @@ class CoCosManager(object):
         """
         Checks that all spike buffers have a unique type, i.e., no buffer is defined with redundant keywords.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoTypeOfBufferUnique.check_co_co(neuron)
 
@@ -172,7 +172,7 @@ class CoCosManager(object):
         """
         Checks that parameters are not assigned outside the parameters block.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(neuron)
 
@@ -181,7 +181,7 @@ class CoCosManager(object):
         """
         Checks that input current buffers have not been specified with keywords, e.g., inhibitory.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoCurrentBuffersNotSpecified.check_co_co(neuron)
 
@@ -190,7 +190,7 @@ class CoCosManager(object):
         """
         Checks that input buffers have specified the data type if required an no data type if not allowed.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoOnlySpikeBufferDataTypes.check_co_co(neuron)
 
@@ -199,7 +199,7 @@ class CoCosManager(object):
         """
         Checks that all initial variables have a rhs and are provided with the corresponding ode declaration.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoInitVarsWithOdesProvided.check_co_co(neuron)
 
@@ -209,7 +209,7 @@ class CoCosManager(object):
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
         and that the type corresponds to the declared one.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoUserDefinedFunctionCorrectlyDefined.check_co_co(neuron)
 
@@ -218,7 +218,7 @@ class CoCosManager(object):
         """
         Checks if variables of odes are declared in the initial_values block.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoEquationsOnlyForInitValues.check_co_co(neuron)
 
@@ -227,7 +227,7 @@ class CoCosManager(object):
         """
         Checks if all convolve/curr_sum/cond_sum rhs are correctly provided with arguments.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoConvolveCondCorrectlyBuilt.check_co_co(neuron)
 
@@ -236,7 +236,7 @@ class CoCosManager(object):
         """
         Checks if all shapes are only used in cond_sum, cur_sum, convolve.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoNoShapesExceptInConvolve.check_co_co(neuron)
 
@@ -254,7 +254,7 @@ class CoCosManager(object):
         """
         Checks if all invariants are of type boolean.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoInvariantIsBoolean.check_co_co(neuron)
 
@@ -263,7 +263,7 @@ class CoCosManager(object):
         """
         Checks if no declaration a vector value is added to a non vector one.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoVectorVariableInNonVectorDeclaration.check_co_co(neuron)
 
@@ -272,7 +272,7 @@ class CoCosManager(object):
         """
         Checks that all cond_sum,cur_sum and convolve have variables as arguments.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoSumHasCorrectParameter.check_co_co(neuron)
 
@@ -281,7 +281,7 @@ class CoCosManager(object):
         """
         Checks that all rhs in the model are correctly constructed, e.g. type(lhs)==type(rhs).
         :param neuron: a single neuron
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         CoCoIllegalExpression.check_co_co(neuron)
 
@@ -310,7 +310,7 @@ class CoCosManager(object):
             cls.check_sum_has_correct_parameter(_neuron)
             cls.check_expression_correct(_neuron)
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         cls.check_function_defined(neuron)
         cls.check_function_declared_and_correctly_typed(neuron)
@@ -342,6 +342,6 @@ class CoCosManager(object):
         Checks the following constraints:
             cls.check_init_vars_with_odes_provided
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         cls.check_init_vars_with_odes_provided(neuron)

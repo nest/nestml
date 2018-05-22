@@ -84,7 +84,7 @@ class Logger(object):
         Logs the handed over message on the handed over. If the current logging is appropriate, the 
         message is also printed.
         :param neuron: the neuron in which the error occurred
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :param code: a single error code
         :type code: ErrorCode
         :param error_position: the position on which the error occurred.
@@ -96,8 +96,8 @@ class Logger(object):
         """
         if cls.curr_message is None:
             cls.init_logger(LoggingLevel.INFO)
-        from pynestml.meta_model.ASTNeuron import ASTNeuron
-        from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+        from pynestml.meta_model.ast_neuron import ASTNeuron
+        from pynestml.meta_model.ast_source_location import ASTSourceLocation
         assert (neuron is None or isinstance(neuron, ASTNeuron)), \
             '(PyNestML.Logger) Wrong type of neuron provided (%s)!' % type(neuron)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
@@ -158,7 +158,7 @@ class Logger(object):
         Sets the handed over neuron as the currently processed one. This enables a retrieval of messages for a
         specific neuron.
         :param neuron:  a single neuron instance
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         cls.current_neuron = neuron
 
@@ -224,7 +224,7 @@ class Logger(object):
         """
         Indicates whether the handed over neuron, thus the corresponding model, has errors.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :return: True if errors detected, otherwise False
         :rtype: bool
         """

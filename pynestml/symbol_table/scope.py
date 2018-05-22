@@ -45,7 +45,7 @@ class Scope(object):
         :param enclosing_scope: the parent scope of this scope, as used for resolution of symbols.
         :type enclosing_scope: Scope
         :param source_position: the start and end of the scope in the source file
-        :type source_position: ASTSourceLocation
+        :type source_position: ast_source_location
         """
         self.declared_elements = list()
         self.scope_type = scope_type

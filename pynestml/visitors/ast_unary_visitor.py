@@ -34,7 +34,7 @@ class ASTUnaryVisitor(ASTVisitor):
         """
         Visits a single unary operator and updates the type of the corresponding expression.
         :param node: a single expression
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         term_type = node.get_expression().type
 

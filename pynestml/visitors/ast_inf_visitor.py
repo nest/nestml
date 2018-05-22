@@ -34,7 +34,7 @@ class ASTInfVisitor(ASTVisitor):
         """
         Visits a single simple rhs containing an inf literal and updates its type.
         :param node: a simple rhs
-        :type node: ASTSimpleExpression
+        :type node: ast_simple_expression
         """
         node.type = PredefinedTypes.get_real_type()
         node.type.referenced_object = node

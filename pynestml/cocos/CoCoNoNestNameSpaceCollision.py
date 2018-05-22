@@ -47,7 +47,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         for func in node.get_functions():
             if func.get_name() in cls.__nestNameSpace:

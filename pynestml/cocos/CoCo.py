@@ -36,7 +36,7 @@ class CoCo:
         """
         This is an abstract method which should be implemented by all concrete cocos.
         :param node: a single neuron instance on which the coco will be checked.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         :return: True, if CoCo holds, otherwise False.
         :rtype: bool
         """

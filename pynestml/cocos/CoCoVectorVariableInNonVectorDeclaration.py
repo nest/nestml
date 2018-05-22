@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTNeuron import ASTNeuron
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -55,7 +55,7 @@ class VectorInDeclarationVisitor(ASTVisitor):
         """
         Checks the coco.
         :param node: a single declaration.
-        :type node: ASTDeclaration
+        :type node: ast_declaration
         """
         if node.has_expression():
             variables = node.get_expression().get_variables()

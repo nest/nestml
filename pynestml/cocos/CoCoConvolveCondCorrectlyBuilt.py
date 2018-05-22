@@ -40,7 +40,7 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         node.accept(ConvolveCheckerVisitor())
 

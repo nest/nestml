@@ -34,7 +34,7 @@ class ASTStringLiteralVisitor(ASTVisitor):
         """
         Visits a singe simple rhs which consists of a string literal and updates the type.
         :param node: a simple rhs containing a string literal
-        :type node: ASTSimpleExpression
+        :type node: ast_simple_expression
         """
         node.type = PredefinedTypes.get_string_type()
         node.type.referenced_object = node

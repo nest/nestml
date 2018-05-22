@@ -39,7 +39,7 @@ class ASTConditionVisitor(ASTVisitor):
         """
         Visits an rhs consisting of the ternary operator and updates its type.
         :param node: a single rhs
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         condition = node.get_condition().type
         if_true = node.get_if_true().type

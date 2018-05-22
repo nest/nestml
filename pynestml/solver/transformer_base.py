@@ -20,12 +20,12 @@
 import re as re
 
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
-from pynestml.meta_model.ASTBlock import ASTBlock
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
-from pynestml.meta_model.ASTNeuron import ASTNeuron
-from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
@@ -64,7 +64,7 @@ def add_declaration_to_internals(neuron, variable_name, init_expression):
         ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        neuron.addToInternalBlock(ast_declaration)
+        neuron.add_to_internal_block(ast_declaration)
         return neuron
     except:
         raise RuntimeError('Must not fail by construction.')
@@ -102,7 +102,7 @@ def add_declaration_to_initial_values(neuron, variable, initial_value):
         ast_declaration = ModelParser.parse_declaration(declaration_string)
         if vector_variable is not None:
             ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        neuron.addToInitialValuesBlock(ast_declaration)
+        neuron.add_to_initial_values_block(ast_declaration)
         return neuron
     except:
         raise RuntimeError('Must not fail by construction.')

@@ -37,7 +37,7 @@ class CoCoTypeOfBufferUnique(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         cls.neuronName = node.get_name()
         node.accept(TypeOfBufferUniqueVisitor())
@@ -52,7 +52,7 @@ class TypeOfBufferUniqueVisitor(ASTVisitor):
         """
         Checks the coco on the current node.
         :param node: a single input line.
-        :type node: ASTInputLine
+        :type node: ast_input_line
         """
         if node.is_spike():
             if node.has_input_types() and len(node.get_input_types()) > 1:

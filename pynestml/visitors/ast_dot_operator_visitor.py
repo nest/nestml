@@ -33,7 +33,7 @@ class ASTDotOperatorVisitor(ASTVisitor):
         """
         Visits a single rhs and updates the type.
         :param node: a single rhs
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         lhs_type = node.get_lhs().type
         rhs_type = node.get_rhs().type

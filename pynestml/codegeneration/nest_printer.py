@@ -21,11 +21,11 @@ from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPretty
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ASTBody import ASTBody
-from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
-from pynestml.meta_model.ASTForStmt import ASTForStmt
-from pynestml.meta_model.ASTFunction import ASTFunction
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_for_stmt import ASTForStmt
+from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 
@@ -172,7 +172,7 @@ class NestPrinter(object):
         :return: the corresponding string representation.
         :rtype: str
         """
-        from pynestml.meta_model.ASTFunction import ASTFunction
+        from pynestml.meta_model.ast_function import ASTFunction
         from pynestml.symbols.symbol import SymbolKind
         assert (ast_function is not None and isinstance(ast_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)

@@ -21,10 +21,10 @@ from copy import copy
 
 from enum import Enum
 
-from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTExpressionNode import ASTExpressionNode
-from pynestml.meta_model.ASTInputLine import ASTInputLine
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
 
@@ -323,7 +323,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         # TODO it is a workaround. improve.
-        return self.__isConductanceBased  # or self.__typeSymbol.print_symbol().startswith("nS")
+        return self.__isConductanceBased  # or self.type_symbol.print_symbol().startswith("nS")
 
     def set_conductance_based(self, is_conductance_base):
         """

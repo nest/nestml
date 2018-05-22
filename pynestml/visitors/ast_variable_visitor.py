@@ -21,7 +21,7 @@
 """
 simpleExpression : variable
 """
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger

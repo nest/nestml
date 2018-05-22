@@ -23,7 +23,7 @@ from __future__ import print_function
 import os
 import unittest
 
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes

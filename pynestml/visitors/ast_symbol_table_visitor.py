@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.CoCosManager import CoCosManager
-from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.scope import Scope, ScopeType
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -50,7 +50,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single neuron and create the corresponding global as well as local scopes.
         :return: a single neuron.
-        :rtype: ASTNeuron
+        :rtype: ast_neuron
         """
         # set current processed neuron
         Logger.set_current_neuron(node)
@@ -81,10 +81,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 len(node.get_equations_blocks().get_declarations()) > 0:
             # this case should be prevented, since several input blocks result in  a incorrect model
             if isinstance(node.get_input_blocks(), list):
-                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.getInputLines())
+                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_lines())
             else:
-                buffers = (buffer for buffer in node.get_input_blocks().getInputLines())
-            from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+                buffers = (buffer for buffer in node.get_input_blocks().get_input_lines())
+            from pynestml.meta_model.ast_ode_shape import ASTOdeShape
             # todo by KP: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
             #                    not isinstance(decl, ASTOdeShape))
@@ -101,7 +101,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single neuron body and create the corresponding scope.
         :param node: a single body element.
-        :type node: ASTBody
+        :type node: ast_body
         """
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
@@ -111,7 +111,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single function block and create the corresponding scope.
         :param node: a function block object.
-        :type node: ASTFunction
+        :type node: ast_function
         """
         self.block_type_stack.push(BlockType.LOCAL)  # before entering, update the current node type
         symbol = FunctionSymbol(scope=node.get_scope(), element_reference=node, param_types=list(),
@@ -185,7 +185,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single block of statements, create and update the corresponding scope.
         :param node: a block object.
-        :type node: ASTBlock
+        :type node: ast_block
         """
         for stmt in node.get_stmts():
             stmt.update_scope(node.get_scope())
@@ -225,7 +225,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single node and update the its corresponding scope.
         :param node: an node object.
-        :type node: ASTAssignment
+        :type node: ast_assignment
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
@@ -238,7 +238,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single function call and update its corresponding scope.
         :param node: a function call object.
-        :type node: ASTFunctionCall
+        :type node: ast_function_call
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
@@ -251,7 +251,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Private method: Used to visit a single declaration, update its scope and return the corresponding set of
         symbols
         :param node: a declaration object.
-        :type node: ASTDeclaration
+        :type node: ast_declaration
         :return: the scope is update without a return value.
         :rtype: void
         """
@@ -298,7 +298,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single return statement and update its scope.
         :param node: a return statement object.
-        :type node: ASTReturnStmt
+        :type node: ast_return_stmt
         """
         if node.has_expression():
             node.get_expression().update_scope(node.get_scope())
@@ -308,7 +308,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single if-statement, update its scope and create the corresponding sub-scope.
         :param node: an if-statement object.
-        :type node: ASTIfStmt
+        :type node: ast_if_stmt
         """
         node.get_if_clause().update_scope(node.get_scope())
         for elIf in node.get_elif_clauses():
@@ -321,7 +321,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single if-clause, update its scope and create the corresponding sub-scope.
         :param node: an if clause.
-        :type node: ASTIfClause
+        :type node: ast_if_clause
         """
         node.get_condition().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
@@ -330,7 +330,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single elif-clause, update its scope and create the corresponding sub-scope.
         :param node: an elif clause.
-        :type node: ASTElifClause
+        :type node: ast_elif_clause
         """
         node.get_condition().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
@@ -339,7 +339,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single else-clause, update its scope and create the corresponding sub-scope.
         :param node: an else clause.
-        :type node: ASTElseClause
+        :type node: ast_else_clause
         """
         node.get_block().update_scope(node.get_scope())
 
@@ -347,7 +347,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single for-stmt, update its scope and create the corresponding sub-scope.
         :param node: a for-statement.
-        :type node: ASTForStmt
+        :type node: ast_for_stmt
         """
         node.get_start_from().update_scope(node.get_scope())
         node.get_end_at().update_scope(node.get_scope())
@@ -357,7 +357,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single while-stmt, update its scope and create the corresponding sub-scope.
         :param node: a while-statement.
-        :type node: ASTWhileStmt
+        :type node: ast_while_stmt
         """
         node.get_condition().update_scope(node.get_scope())
         node.get_block().update_scope(node.get_scope())
@@ -366,7 +366,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single data-type and update its scope.
         :param node: a data-type.
-        :type node: ASTDataType
+        :type node: ast_data_type
         """
         if node.is_unit_type():
             node.get_unit_type().update_scope(node.get_scope())
@@ -376,9 +376,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single unit-type and update its scope.
         :param node: a unit type.
-        :type node: ASTUnitType
+        :type node: ast_unit_type
         """
-        from pynestml.meta_model.ASTUnitType import ASTUnitType
+        from pynestml.meta_model.ast_unit_type import ASTUnitType
         if node.is_pow:
             node.base.update_scope(node.get_scope())
         elif node.is_encapsulated:
@@ -393,9 +393,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single rhs and update its scope.
         :param node: an rhs.
-        :type node: ASTExpression
+        :type node: ast_expression
         """
-        from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
         if isinstance(node, ASTSimpleExpression):
             return self.visit_simple_expression(node)
         if node.is_logical_not:
@@ -419,7 +419,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single simple rhs and update its scope.
         :param node: a simple rhs.
-        :type node: ASTSimpleExpression
+        :type node: ast_simple_expression
         """
         if node.is_function_call():
             node.get_function_call().update_scope(node.get_scope())
@@ -431,7 +431,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
         :param node: a single ode-function.
-        :type node: ASTOdeFunction
+        :type node: ast_ode_function
         """
         data_type_visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(data_type_visitor)
@@ -455,7 +455,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single ode-shape, create the corresponding symbol and update the scope.
         :param node: a single ode-shape.
-        :type node: ASTOdeShape
+        :type node: ast_ode_shape
         """
         if node.get_variable().get_differential_order() == 0 and \
                 node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
@@ -476,7 +476,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single ode-equation and update the corresponding scope.
         :param node: a single ode-equation.
-        :type node: ASTOdeEquation
+        :type node: ast_ode_equation
         """
         node.get_lhs().update_scope(node.get_scope())
         node.get_rhs().update_scope(node.get_scope())
@@ -485,7 +485,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single block of variables and update its scope.
         :param node: a block with declared variables.
-        :type node: ASTBlockWithVariables
+        :type node: ast_block_with_variables
         """
         self.block_type_stack.push(
             BlockType.STATE if node.is_state() else
@@ -504,7 +504,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single equations block and update its scope.
         :param node: a single equations block.
-        :type node: ASTEquationsBlock
+        :type node: ast_equations_block
         """
         for decl in node.get_declarations():
             decl.update_scope(node.get_scope())
@@ -513,16 +513,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single input block and update its scope.
         :param node: a single input block.
-        :type node: ASTInputBlock
+        :type node: ast_input_block
         """
-        for line in node.getInputLines():
+        for line in node.get_input_lines():
             line.update_scope(node.get_scope())
 
     def visit_input_line(self, node):
         """
         Private method: Used to visit a single input line, create the corresponding symbol and update the scope.
         :param node: a single input line.
-        :type node: ASTInputLine
+        :type node: ast_input_line
         """
         if node.is_spike() and node.has_datatype():
             node.get_datatype().update_scope(node.get_scope())
@@ -553,7 +553,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         Private method: Used to visit a single stmt and update its scope.
         :param node: a single statement
-        :type node: ASTStmt
+        :type node: ast_stmt
         """
         if node.is_small_stmt():
             node.small_stmt.update_scope(node.get_scope())
@@ -562,9 +562,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
 
 def make_trivial_assignment(var, order, equations_block, is_shape=False):
-    from pynestml.meta_model.ASTVariable import ASTVariable
-    from pynestml.meta_model.ASTEquationsBlock import ASTEquationsBlock
-    from pynestml.meta_model.ASTNode import ASTNode
+    from pynestml.meta_model.ast_variable import ASTVariable
+    from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+    from pynestml.meta_model.ast_node import ASTNode
     # type: (ASTVariable,int,ASTEquationsBlock,bool) -> ASTNode
     lhs_variable = ASTNodeFactory.create_ast_variable(name=var.get_name(),
                                                       differential_order=order + 1,
@@ -592,10 +592,10 @@ def make_implicit_odes_explicit(equations_block):
     E.g. the declaration g_in'' implies that there have to be, either implicit or explicit, g_in' and g_in
     stated somewhere. This method collects all non explicitly defined elements and adds them to the model.
     :param equations_block: a single equations block
-    :type equations_block: ASTEquationsBlock
+    :type equations_block: ast_equations_block
     """
-    from pynestml.meta_model.ASTOdeShape import ASTOdeShape
-    from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
+    from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+    from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
     checked = list()  # used to avoid redundant checking
     for declaration in equations_block.get_declarations():
         if declaration in checked:
@@ -667,7 +667,7 @@ def mark_conductance_based_buffers(input_lines):
     Inspects all handed over buffer definitions and updates them to conductance based if they occur as part of
     a cond_sum rhs.
     :param input_lines: a set of input buffers.
-    :type input_lines: ASTInputLine
+    :type input_lines: ast_input_line
     """
     # this is the updated version, where nS buffers are marked as conductance based
     for bufferDeclaration in input_lines:
@@ -685,8 +685,8 @@ def assign_ode_to_variables(ode_block):
     :param ode_block: a single block of ode declarations.
     :type ode_block: ASTEquations
     """
-    from pynestml.meta_model.ASTOdeEquation import ASTOdeEquation
-    from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+    from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+    from pynestml.meta_model.ast_ode_shape import ASTOdeShape
     for decl in ode_block.get_declarations():
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)
@@ -699,7 +699,7 @@ def add_ode_to_variable(ode_equation):
     """
     Resolves to the corresponding symbol and updates the corresponding ode-declaration. In the case that
     :param ode_equation: a single ode-equation
-    :type ode_equation: ASTOdeEquation
+    :type ode_equation: ast_ode_equation
     """
     # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
     diff_order = ode_equation.get_lhs().get_differential_order() - 1
@@ -724,7 +724,7 @@ def add_ode_shape_to_variable(ode_shape):
     """
     Adds the shape as the defining equation.
     :param ode_shape: a single shape object.
-    :type ode_shape: ASTOdeShape
+    :type ode_shape: ast_ode_shape
     """
     if ode_shape.get_variable().get_differential_order() == 0:
         # we only update those which define an ode
@@ -751,7 +751,7 @@ def convert_variable_name_to_model_notation(variable):
     This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
     It is used to find all variables which have to provided with a ode declaration.
     """
-    from pynestml.meta_model.ASTVariable import ASTVariable
+    from pynestml.meta_model.ast_variable import ASTVariable
     # type: ASTVariable -> str
 
     name = variable.get_name()
@@ -774,7 +774,7 @@ def convert_variable_name_to_generator_notation(variable):
     This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
     one (e.g., g_in_d). It decreases the unsupported order by one.
     """
-    from pynestml.meta_model.ASTVariable import ASTVariable
+    from pynestml.meta_model.ast_variable import ASTVariable
     # type: ASTVariable -> str
 
     name = variable.get_name()

@@ -19,8 +19,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from copy import copy
 
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
@@ -113,7 +113,7 @@ class OdeTransformer(object):
         """
         res = list()
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
+        from pynestml.meta_model.ast_function_call import ASTFunctionCall
         fun = (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in function_list else True)
         vis = ASTHigherOrderVisitor(visit_funcs=fun)
         ast_node.accept(vis)

@@ -34,7 +34,7 @@ class CoCoVariableOncePerScope(CoCo):
         Checks if each variable is defined at most once per scope. Obviously, this test does not check if a declaration
         is shadowed by an embedded scope.
         :param node: a single neuron
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         cls.__check_scope(node, node.get_scope())
 
@@ -43,7 +43,7 @@ class CoCoVariableOncePerScope(CoCo):
         """
         Checks a single scope and proceeds recursively.
         :param neuron: a single neuron object, required for correct printing of messages.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :param scope: a single scope to check.
         :type scope: Scope
         """

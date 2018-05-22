@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 
 
 class ErrorStrings(object):
@@ -110,9 +110,9 @@ class ErrorStrings(object):
         :return: the warning message
         """
 
-        from pynestml.meta_model.ASTExpression import ASTExpression
-        from pynestml.meta_model.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.meta_model.ASTAssignment import ASTAssignment
+        from pynestml.meta_model.ast_expression import ASTExpression
+        from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+        from pynestml.meta_model.ast_assignment import ASTAssignment
         from pynestml.symbols.symbol import SymbolKind
         assert parent_node is not None and (
                 isinstance(parent_node, ASTExpression) or isinstance(parent_node, ASTAssignment))

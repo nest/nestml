@@ -22,8 +22,8 @@ import re
 from sympy import simplify, diff, Symbol, exp
 from sympy.parsing.sympy_parser import parse_expr
 
-from pynestml.meta_model.ASTNeuron import ASTNeuron
-from pynestml.meta_model.ASTOdeShape import ASTOdeShape
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.solver.transformer_base import add_declarations_to_internals, \
     compute_state_shape_variables_declarations, add_declarations_to_initial_values, \
     compute_state_shape_variables_updates, replace_integrate_call, add_state_updates
@@ -80,7 +80,7 @@ def integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers):
         str(ode_lhs) + " += " + str(simplify(c2 / c1 * (exp(Symbol('__h') * c1) - 1)) * const_input)]
     for k in shape_to_buffers:
         ode_var_update_instructions.append(str(ode_lhs) + " += " + shape_to_buffers[k])
-    neuron.addToInternalBlock(ModelParser.parse_declaration('__h ms = resolution()'))
+    neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
     replace_integrate_call(neuron, ode_var_update_instructions)
     return neuron
 
@@ -93,7 +93,7 @@ def integrate_exact_solution(neuron, exact_solution):
     :param exact_solution: exact solution
     :return: a modified neuron with integrated exact solution and without equations block
     """
-    neuron.addToInternalBlock(ModelParser.parse_declaration('__h ms = resolution()'))
+    neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
     neuron = add_declarations_to_internals(neuron, exact_solution["propagator"])
 
     state_shape_variables_declarations = compute_state_shape_variables_declarations(exact_solution)

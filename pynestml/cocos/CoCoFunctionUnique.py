@@ -33,7 +33,7 @@ class CoCoFunctionUnique(CoCo):
         """
         Checks if each function is defined uniquely.
         :param node: a single neuron
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         checked_funcs_names = list()
         for func in node.get_functions():

@@ -23,9 +23,9 @@ import re
 from pynestml.cocos.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
 from pynestml.cocos.CoCosManager import CoCosManager
 from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
-from pynestml.meta_model.ASTNodeFactory import ASTNodeFactory
-from pynestml.meta_model.ASTSignalType import ASTSignalType
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_signal_type import ASTSignalType
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor

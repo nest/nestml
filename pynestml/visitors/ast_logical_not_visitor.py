@@ -33,7 +33,7 @@ class ASTLogicalNotVisitor(ASTVisitor):
         """
         Visits a single rhs with a logical operator and updates the type.
         :param node: a single rhs
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         expr_type = node.get_expression().type
         expr_type.referenced_object = node.get_expression()

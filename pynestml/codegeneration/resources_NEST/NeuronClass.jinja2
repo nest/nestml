@@ -42,6 +42,7 @@
 *  You should have received a copy of the GNU General Public License
 *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 *
+*  {{now}}
 */
 
 // C++ includes:
@@ -260,7 +261,7 @@ void {{neuronName}}::calibrate(){
 * ---------------------------------------------------------------- */
 
 /*
- {{neuron.printDynamicsComment('*')}}
+ {{neuron.print_dynamics_comment('*')}}
  */
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to){
   {% if useGSL -%}

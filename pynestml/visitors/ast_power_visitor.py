@@ -21,8 +21,8 @@
 """
 rhs : <assoc=right> left=rhs powOp='**' right=rhs
 """
-from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.either import Either
 from pynestml.utils.error_strings import ErrorStrings

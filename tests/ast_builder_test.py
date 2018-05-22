@@ -22,8 +22,8 @@ import unittest
 
 from antlr4 import *
 
-from pynestml.meta_model.ASTNestMLCompilationUnit import ASTNestMLCompilationUnit
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
 from pynestml.symbol_table.symbol_table import SymbolTable

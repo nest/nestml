@@ -17,10 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ASTCompoundStmt import ASTCompoundStmt
-from pynestml.meta_model.ASTNeuron import ASTNeuron
-from pynestml.meta_model.ASTSmallStmt import ASTSmallStmt
-from pynestml.meta_model.ASTStmt import ASTStmt
+from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -43,7 +43,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             return
         end
     Attributes:
-        __processedFunction (ASTFunction): A reference to the currently processed function.
+        __processedFunction (ast_function): A reference to the currently processed function.
     """
     __processedFunction = None
 

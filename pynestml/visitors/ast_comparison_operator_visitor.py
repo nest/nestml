@@ -40,7 +40,7 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
         """
         Visits a single comparison operator expression and updates the type.
         :param _expr: an expression
-        :type _expr: ASTExpression
+        :type _expr: ast_expression
         """
         lhs_type = _expr.get_lhs().type
         rhs_type = _expr.get_rhs().type

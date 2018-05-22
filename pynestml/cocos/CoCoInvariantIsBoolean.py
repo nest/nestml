@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -39,7 +39,7 @@ class CoCoInvariantIsBoolean(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         visitor = InvariantTypeVisitor()
         neuron.accept(visitor)

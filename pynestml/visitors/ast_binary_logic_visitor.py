@@ -38,7 +38,7 @@ class ASTBinaryLogicVisitor(ASTVisitor):
         """
         Visits an expression which uses a binary logic operator and updates the type.
         :param node: a single expression.
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         lhs_type = node.get_lhs().type
         rhs_type = node.get_rhs().type

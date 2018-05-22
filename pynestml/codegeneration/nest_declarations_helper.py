@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages

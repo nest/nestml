@@ -34,7 +34,7 @@ class ASTBooleanLiteralVisitor(ASTVisitor):
         """
         Visits a single simple rhs containing a boolean literal and updates its type.
         :param node: a simple rhs.
-        :type node: ASTSimpleExpression
+        :type node: ast_simple_expression
         """
         node.type = PredefinedTypes.get_boolean_type()
         node.type.referenced_object = node

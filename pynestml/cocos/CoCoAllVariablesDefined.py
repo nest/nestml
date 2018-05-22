@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.CoCo import CoCo
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -43,7 +43,7 @@ class CoCoAllVariablesDefined(CoCo):
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
         correct.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()

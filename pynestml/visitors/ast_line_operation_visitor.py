@@ -33,7 +33,7 @@ class ASTLineOperatorVisitor(ASTVisitor):
         """
         Visits a single expression containing a plus or minus operator and updates its type.
         :param node: a single expression
-        :type node: ASTExpression
+        :type node: ast_expression
         """
         lhs_type = node.get_lhs().type
         rhs_type = node.get_rhs().type

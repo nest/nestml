@@ -39,7 +39,7 @@ class CoCoFunctionCallsConsistent(CoCo):
         """
         Checks the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         node.accept(FunctionCallConsistencyVisitor())
 
@@ -53,7 +53,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         """
         Checks the coco.
         :param node: a single function call.
-        :type node: ASTFunctionCall
+        :type node: ast_function_call
         """
         func_name = node.get_name()
         if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':

@@ -43,7 +43,7 @@ class FunctionSymbol(Symbol):
         :param return_type: the return type of the function.
         :type return_type: Union(TypeSymbol,None)
         :param element_reference: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
-        :type element_reference: ASTFunction or None
+        :type element_reference: ast_function or None
         :param scope: a reference to the scope in which this symbol is defined in
         :type scope: Scope
         :param is_predefined: True, if this element is a predefined one, otherwise False.

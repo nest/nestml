@@ -49,7 +49,7 @@ class CoCoEquationsOnlyForInitValues(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :type node: ast_neuron
         """
         node.accept(EquationsOnlyForInitValues())
 
@@ -63,7 +63,7 @@ class EquationsOnlyForInitValues(ASTVisitor):
         """
         Ensures the coco.
         :param node: a single equation object.
-        :type node: ASTOdeEquation
+        :type node: ast_ode_equation
         """
         symbol = node.get_scope().resolve_to_symbol(node.get_lhs().get_name_of_lhs(), SymbolKind.VARIABLE)
         if symbol is not None and not symbol.is_init_values():

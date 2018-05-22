@@ -20,7 +20,7 @@
 import os
 import unittest
 
-from pynestml.meta_model.ASTSourceLocation import ASTSourceLocation
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 
 from pynestml.codegeneration.nest_codegeneration import generate_nest_module_code, make_functions_self_contained, \
     replace_functions_through_defining_expressions, transform_ode_and_shapes_to_json, transform_shapes_and_odes, \

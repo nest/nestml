@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ASTFunctionCall import ASTFunctionCall
-from pynestml.meta_model.ASTVariable import ASTVariable
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
@@ -33,7 +33,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         """
         Returns the same string.
         :param ast_unary_operator: a single unary operator string.
-        :type ast_unary_operator: ASTUnaryOperator
+        :type ast_unary_operator: ast_unary_operator
         :return: the same string
         :rtype: str
         """

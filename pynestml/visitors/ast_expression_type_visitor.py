@@ -19,9 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.meta_model import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator
-from pynestml.meta_model.ASTExpression import ASTExpression
-from pynestml.meta_model.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.meta_model import ast_arithmetic_operator, ast_bit_operator, ast_comparison_operator, ast_logical_operator
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.visitors.ast_binary_logic_visitor import ASTBinaryLogicVisitor
 from pynestml.visitors.ast_boolean_literal_visitor import ASTBooleanLiteralVisitor
 from pynestml.visitors.ast_comparison_operator_visitor import ASTComparisonOperatorVisitor
@@ -147,7 +147,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             if _node.get_rhs() is not None:
                 _node.get_rhs().accept(self)
             # Handle all Arithmetic Operators:
-            if isinstance(bin_op, ASTArithmeticOperator.ASTArithmeticOperator):
+            if isinstance(bin_op, ast_arithmetic_operator.ASTArithmeticOperator):
                 # Expr = <assoc=right> left=expression powOp='**' right=expression
                 if bin_op.is_pow_op:
                     self.set_real_self(self.pow_visitor)
@@ -161,17 +161,17 @@ class ASTExpressionTypeVisitor(ASTVisitor):
                     self.set_real_self(self.line_operator_visitor)
                     return
             # handle all bitOperators:
-            if isinstance(bin_op, ASTBitOperator.ASTBitOperator):
+            if isinstance(bin_op, ast_bit_operator.ASTBitOperator):
                 # Expr = left=expression bitOperator right=expression
                 self.set_real_self(self.no_semantics)  # TODO: implement something -> future work with more operators
                 return
             # handle all comparison Operators:
-            if isinstance(bin_op, ASTComparisonOperator.ASTComparisonOperator):
+            if isinstance(bin_op, ast_comparison_operator.ASTComparisonOperator):
                 # Expr = left=expression comparisonOperator right=expression
                 self.set_real_self(self.comparison_operator_visitor)
                 return
             # handle all logical Operators
-            if isinstance(bin_op, ASTLogicalOperator.ASTLogicalOperator):
+            if isinstance(bin_op, ast_logical_operator.ASTLogicalOperator):
                 # Expr = left=expression logicalOperator right=expression
                 self.set_real_self(self.binary_logic_visitor)
                 return

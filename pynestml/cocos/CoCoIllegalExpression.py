@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ASTDeclaration import ASTDeclaration
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -39,7 +39,7 @@ class CoCoIllegalExpression(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         """
         neuron.accept(CorrectExpressionVisitor())
 
@@ -70,9 +70,9 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single expression and assures that type(lhs) == type(rhs).
         :param node: a single assignment.
-        :type node: ASTAssignment
+        :type node: ast_assignment
         """
-        from pynestml.meta_model.ASTAssignment import ASTAssignment
+        from pynestml.meta_model.ast_assignment import ASTAssignment
         assert isinstance(node, ASTAssignment)
         if node.is_direct_assignment:  # case a = b is simple
             self.handle_simple_assignment(node)
@@ -82,7 +82,7 @@ class CorrectExpressionVisitor(ASTVisitor):
 
     def handle_complex_assignment(self, node):
         rhs_expr = node.get_expression()
-        lhs_variable_symbol = node.resolveLhsVariableSymbol()
+        lhs_variable_symbol = node.resolve_lhs_variable_symbol()
         rhs_type_symbol = rhs_expr.type
 
         if isinstance(rhs_type_symbol, ErrorTypeSymbol):
@@ -118,7 +118,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single if clause and checks that its condition is boolean.
         :param node: a single elif clause.
-        :type node: ASTIfClause
+        :type node: ast_if_clause
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
@@ -138,7 +138,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single elif clause and checks that its condition is boolean.
         :param node: a single elif clause.
-        :type node: ASTElifClause
+        :type node: ast_elif_clause
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
@@ -158,7 +158,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single while stmt and checks that its condition is of boolean type.
         :param node: a single while stmt
-        :type node: ASTWhileStmt
+        :type node: ast_while_stmt
         """
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
@@ -178,7 +178,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single for stmt and checks that all it parts are correctly defined.
         :param node: a single for stmt
-        :type node: ASTForStmt
+        :type node: ast_for_stmt
         """
         # check that the from stmt is an integer or real
         from_type = node.get_start_from().type
