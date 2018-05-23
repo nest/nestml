@@ -21,6 +21,7 @@ import argparse  # used for parsing of input arguments
 import os
 
 from pynestml.utils.logger import Logger
+from pynestml.exceptions.invalid_path_exception import InvalidPathException
 
 help_path = 'Path to a single file or a directory containing the source models.'
 help_target = 'Path to a target directory where models should be generated to. Standard is "target".'
@@ -82,10 +83,10 @@ class FrontendConfiguration(object):
         cls.provided_path = parsed_args.path
         if cls.provided_path is None:
             # check if the mandatory path arg has been handed over, just terminate
-            raise RuntimeError('Invalid source path!')
+            raise InvalidPathException('Invalid source path!')
         cls.paths_to_compilation_units = list()
         if parsed_args.path is None:
-            raise RuntimeError('Invalid source path!')
+            raise InvalidPathException('Invalid source path!')
         elif os.path.isfile(parsed_args.path[0]):
             cls.paths_to_compilation_units.append(parsed_args.path[0])
         elif os.path.isdir(parsed_args.path[0]):
@@ -94,7 +95,7 @@ class FrontendConfiguration(object):
                     cls.paths_to_compilation_units.append(os.path.join(parsed_args.path[0], filename))
         else:
             cls.paths_to_compilation_units = parsed_args.path[0]
-            raise RuntimeError('Incorrect path provided' + parsed_args.path[0])
+            raise InvalidPathException('Incorrect path provided' + parsed_args.path[0])
         # initialize the logger
 
         if parsed_args.logging_level is not None:
@@ -187,10 +188,3 @@ class FrontendConfiguration(object):
         :rtype: bool
         """
         return cls.is_debug
-
-
-class InvalidPathException(Exception):
-    """
-    This exception is thrown whenever neither a file nor a dir has been handed over. This should not happen.
-    """
-    pass
