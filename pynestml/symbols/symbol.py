@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
+
 from enum import Enum
 
 
@@ -33,11 +34,6 @@ class Symbol(object):
         comment (str): A text associated with this symbol, possibly originates from the source model.
     """
     __metaclass__ = ABCMeta
-    referenced_object = None
-    scope = None
-    name = None
-    symbol_kind = None
-    comment = None
 
     def __init__(self, element_reference, scope, name, symbol_kind):
         """
@@ -54,6 +50,7 @@ class Symbol(object):
         self.scope = scope
         self.name = name
         self.symbol_kind = symbol_kind
+        self.comment = None
 
     def get_referenced_object(self):
         """

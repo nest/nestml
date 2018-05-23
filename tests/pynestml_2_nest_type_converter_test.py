@@ -68,7 +68,7 @@ class PyNestMl2NESTTypeConverterTest(unittest.TestCase):
 
     def test_unit_type(self):
         ms_unit = UnitType(_name=str(units.ms), _unit=units.ms)
-        uts = UnitTypeSymbol(_unit=ms_unit)
+        uts = UnitTypeSymbol(unit=ms_unit)
         result = convert(uts)
         self.assertEqual(result, 'double')
 

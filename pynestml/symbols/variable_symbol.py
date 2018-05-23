@@ -22,7 +22,6 @@ from copy import copy
 from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_input_line import ASTInputLine
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import Symbol
@@ -41,22 +40,11 @@ class VariableSymbol(Symbol):
         is_function          Indicates whether this symbol belongs to a function. Type: bool
         is_recordable        Indicates whether this symbol belongs to a recordable element. Type: bool
         type_symbol          The concrete type of this variable.
-        __odeDeclaration      Used to store the corresponding ode declaration. 
-        __isConductanceBased  Indicates whether this buffer is used in a cond_sum rhs.
-        __initialValue        Indicates the initial value if such is declared.
-        __variableType        The type of the variable, either a shape, or buffer or function. Type: VariableType
+        ode_declaration      Used to store the corresponding ode declaration.
+        is_conductance_based  Indicates whether this buffer is used in a cond_sum rhs.
+        initial_value        Indicates the initial value if such is declared.
+        variable_type        The type of the variable, either a shape, or buffer or function. Type: VariableType
     """
-    block_type = None  # type: BlockType
-    vector_parameter = None  # type: str
-    declaring_expression = None  # type: ASTExpressionNode
-    is_predefined = False  # type: bool
-    is_function = False  # type: bool
-    __isRecordable = False
-    __typeSymbol = None
-    __odeDeclaration = None
-    __isConductanceBased = False
-    __initialValue = None
-    __variableType = None
 
     def __init__(self, element_reference=None, scope=None, name=None, block_type=None, vector_parameter=None,
                  declaring_expression=None, is_predefined=False, is_function=False, is_recordable=False,
@@ -95,10 +83,12 @@ class VariableSymbol(Symbol):
         self.declaring_expression = declaring_expression
         self.is_predefined = is_predefined
         self.is_function = is_function
-        self.__isRecordable = is_recordable
-        self.__typeSymbol = type_symbol
-        self.__initialValue = initial_value
-        self.__variableType = variable_type
+        self.is_recordable = is_recordable
+        self.type_symbol = type_symbol
+        self.initial_value = initial_value
+        self.variable_type = variable_type
+        self.ode_declaration = None
+        self.is_conductance_based = False
 
     def has_vector_parameter(self):
         """
@@ -139,7 +129,7 @@ class VariableSymbol(Symbol):
         :return: True if recordable, False otherwise.
         :rtype: bool
         """
-        return self.__isRecordable
+        return self.is_recordable
 
     def is_spike_buffer(self):
         """
@@ -235,7 +225,7 @@ class VariableSymbol(Symbol):
         :return: True if buffer, otherwise False.
         :rtype: bool
         """
-        return self.__variableType == VariableType.BUFFER
+        return self.variable_type == VariableType.BUFFER
 
     def is_output(self):
         """
@@ -251,7 +241,7 @@ class VariableSymbol(Symbol):
         :return: True if part of a shape definition, otherwise False.
         :rtype: bool
         """
-        return self.__variableType == VariableType.SHAPE
+        return self.variable_type == VariableType.SHAPE
 
     def is_init_values(self):
         """
@@ -281,7 +271,7 @@ class VariableSymbol(Symbol):
         :return: the current type symbol.
         :rtype: type_symbol
         """
-        return copy(self.__typeSymbol)
+        return copy(self.type_symbol)
 
     def set_type_symbol(self, type_symbol):
         """
@@ -289,7 +279,7 @@ class VariableSymbol(Symbol):
         :param type_symbol: a new type symbol.
         :type type_symbol: type_symbol
         """
-        self.__typeSymbol = type_symbol
+        self.type_symbol = type_symbol
 
     def is_ode_defined(self):
         """
@@ -297,8 +287,8 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.__odeDeclaration is not None and (isinstance(self.__odeDeclaration, ASTExpression) or
-                                                      isinstance(self.__odeDeclaration, ASTSimpleExpression))
+        return self.ode_declaration is not None and (isinstance(self.ode_declaration, ASTExpression) or
+                                                     isinstance(self.ode_declaration, ASTSimpleExpression))
 
     def get_ode_definition(self):
         """
@@ -306,7 +296,7 @@ class VariableSymbol(Symbol):
         :return: the rhs defining the value.
         :rtype: ASTExpression
         """
-        return self.__odeDeclaration
+        return self.ode_declaration
 
     def set_ode_definition(self, expression):
         """
@@ -314,7 +304,7 @@ class VariableSymbol(Symbol):
         :param expression: a single rhs object.
         :type expression: ASTExpression
         """
-        self.__odeDeclaration = expression
+        self.ode_declaration = expression
 
     def is_conductance_based(self):
         """
@@ -323,7 +313,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         # TODO it is a workaround. improve.
-        return self.__isConductanceBased  # or self.type_symbol.print_symbol().startswith("nS")
+        return self.is_conductance_based  # or self.type_symbol.print_symbol().startswith("nS")
 
     def set_conductance_based(self, is_conductance_base):
         """
@@ -331,7 +321,7 @@ class VariableSymbol(Symbol):
         :param is_conductance_base: the new status.
         :type is_conductance_base: bool
         """
-        self.__isConductanceBased = is_conductance_base
+        self.is_conductance_based = is_conductance_base
 
     def get_variable_type(self):
         """
@@ -339,7 +329,7 @@ class VariableSymbol(Symbol):
         :return:  the type of the variable
         :rtype: VariableType
         """
-        return self.__variableType
+        return self.variable_type
 
     def set_variable_type(self, v_type):
         """
@@ -347,7 +337,7 @@ class VariableSymbol(Symbol):
         :return: a single variable v_type
         :rtype: VariableType
         """
-        self.__variableType = v_type
+        self.variable_type = v_type
 
     def has_initial_value(self):
         """
@@ -355,8 +345,8 @@ class VariableSymbol(Symbol):
         :return: True if has initial value, otherwise False.
         :rtype: bool
         """
-        return self.__initialValue is not None and (isinstance(self.__initialValue, ASTSimpleExpression) or
-                                                    isinstance(self.__initialValue, ASTExpression))
+        return self.initial_value is not None and (isinstance(self.initial_value, ASTSimpleExpression) or
+                                                   isinstance(self.initial_value, ASTExpression))
 
     def get_initial_value(self):
         """
@@ -364,7 +354,7 @@ class VariableSymbol(Symbol):
         :return: the initial value rhs.
         :rtype: ASTSimpleExpression or ASTExpression
         """
-        return self.__initialValue
+        return self.initial_value
 
     def set_initial_value(self, value):
         """
@@ -372,7 +362,7 @@ class VariableSymbol(Symbol):
         :param value: a new initial value.
         :type value: ASTExpression or ASTSimpleExpression
         """
-        self.__initialValue = value
+        self.initial_value = value
 
     def equals(self, other):
         """

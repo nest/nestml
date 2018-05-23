@@ -29,9 +29,6 @@ class FunctionSymbol(Symbol):
         return_type (type_symbol): The type of the returned value.
         is_predefined (bool): Indicates whether this function predefined or not.
     """
-    param_types = None
-    return_type = None
-    is_predefined = False
 
     def __init__(self, name, param_types, return_type, element_reference, scope=None, is_predefined=False):
         """

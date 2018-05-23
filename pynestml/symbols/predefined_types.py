@@ -73,7 +73,7 @@ class PredefinedTypes(object):
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         units = PredefinedUnits.get_units()
         for unitName in units.keys():
-            t_symbol = UnitTypeSymbol(_unit=units[unitName])
+            t_symbol = UnitTypeSymbol(unit=units[unitName])
             cls.name2type[unitName] = t_symbol
         return
 
@@ -266,6 +266,6 @@ class PredefinedTypes(object):
         """
         unit_type = UnitType(str(unit), unit)
         PredefinedUnits.register_unit(unit_type)
-        type_symbol = UnitTypeSymbol(_unit=unit_type)
+        type_symbol = UnitTypeSymbol(unit=unit_type)
         cls.register_type(type_symbol)
         return

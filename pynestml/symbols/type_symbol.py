@@ -27,13 +27,10 @@ from pynestml.utils.messages import Messages
 class TypeSymbol(Symbol):
     """
     This class is used to represent a single type symbol which represents the type of a element, e.g., a variable.
-
-        Attributes:
+    Attributes:
         is_buffer          Indicates whether it is a buffer symbol.
-
     """
     __metaclass__ = ABCMeta
-    is_buffer = False
 
     def is_instance_of(self, _other):
         """
@@ -50,6 +47,7 @@ class TypeSymbol(Symbol):
         from pynestml.symbols.symbol import SymbolKind
         super(TypeSymbol, self).__init__(element_reference=None, scope=None,
                                          name=name, symbol_kind=SymbolKind.TYPE)
+        self.is_buffer = False
         return
 
     @property

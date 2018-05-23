@@ -32,10 +32,6 @@ class Scope(object):
         scope_type The type of this scope. Type: ScopeType
         source_position The position in the source file this scope spans over.
     """
-    enclosing_scope = None
-    declared_elements = None
-    scope_type = None
-    source_position = None
 
     def __init__(self, scope_type, enclosing_scope=None, source_position=None):
         """

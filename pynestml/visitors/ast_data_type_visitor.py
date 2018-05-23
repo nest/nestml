@@ -142,6 +142,6 @@ def handle_unit(unit_type):
         PredefinedUnits.register_unit(unit_type_t)
     # now create the corresponding type symbol if it does not exists
     if PredefinedTypes.get_type(str(to_process)) is None:
-        type_symbol = UnitTypeSymbol(_unit=PredefinedUnits.get_unit(str(to_process)))
+        type_symbol = UnitTypeSymbol(unit=PredefinedUnits.get_unit(str(to_process)))
         PredefinedTypes.register_type(type_symbol)
     return PredefinedTypes.get_type(name=str(to_process))

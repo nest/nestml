@@ -42,7 +42,7 @@ class ASTDataType(ASTNode):
         is_boolean = False
         is_void = False
         is_unit_type = None  # a unit type is not a boolean, but a concrete object
-        __typeSymbol = None  # the corresponding type symbol
+        type_symbol = None  # the corresponding type symbol
     """
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,

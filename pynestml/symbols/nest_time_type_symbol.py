@@ -34,7 +34,6 @@ class NESTTimeTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'time'
 
-
     def print_nest_type(self):
         return 'nest::Time'
 

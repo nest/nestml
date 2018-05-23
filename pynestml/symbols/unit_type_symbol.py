@@ -24,7 +24,6 @@ from pynestml.utils.messages import Messages
 
 
 class UnitTypeSymbol(TypeSymbol):
-    unit = None
 
     @property
     def astropy_unit(self):
@@ -36,9 +35,9 @@ class UnitTypeSymbol(TypeSymbol):
     def is_primitive(self):
         return False
 
-    def __init__(self, _unit):
-        self.unit = _unit
-        super(UnitTypeSymbol, self).__init__(name=str(_unit.get_unit()))
+    def __init__(self, unit):
+        self.unit = unit
+        super(UnitTypeSymbol, self).__init__(name=str(unit.get_unit()))
 
     def print_nestml_type(self):
         return self.unit.print_unit()
@@ -138,17 +137,17 @@ class UnitTypeSymbol(TypeSymbol):
         else:
             return self.attempt_magnitude_cast(other)
 
-    def attempt_magnitude_cast(self, _other):
-        if self.differs_only_in_magnitude_or_is_equal_to(_other):
-            factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, _other.astropy_unit)
-            _other.referenced_object.set_implicit_conversion_factor(factor)
-            code, message = Messages.get_implicit_magnitude_conversion(self, _other, factor)
+    def attempt_magnitude_cast(self, other):
+        if self.differs_only_in_magnitude_or_is_equal_to(other):
+            factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, other.astropy_unit)
+            other.referenced_object.set_implicit_conversion_factor(factor)
+            code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
             Logger.log_message(code=code, message=message,
                                error_position=self.referenced_object.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return self
         else:
-            return self.binary_operation_not_defined_error('+/-', _other)
+            return self.binary_operation_not_defined_error('+/-', other)
 
     # TODO: change order of parameters to conform with the from_to scheme.
     # TODO: Also rename to reflect that, i.e. get_conversion_factor_from_to
@@ -161,9 +160,9 @@ class UnitTypeSymbol(TypeSymbol):
         factor = (_from / to).si.scale
         return factor
 
-    def is_castable_to(self, _other_type):
+    def is_castable_to(self, other_type):
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
-        if _other_type.is_instance_of(RealTypeSymbol):
+        if other_type.is_instance_of(RealTypeSymbol):
             return True
         else:
             return False
