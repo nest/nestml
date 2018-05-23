@@ -27,7 +27,6 @@ class CommentCollectorVisitor(PyNestMLVisitor):
     Attributes:
         __tokens (list): A list of all tokens representing the model.
     """
-    __tokens = None
 
     def __init__(self, tokens):
         self.__tokens = tokens

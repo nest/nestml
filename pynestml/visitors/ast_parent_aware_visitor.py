@@ -28,7 +28,10 @@ class ASTParentAwareVisitor(ASTVisitor):
     Attributes:
         parents type(Stack): A stack containing the predecessor of this node.
     """
-    parents = Stack()
+
+    def __init__(self):
+        super(ASTParentAwareVisitor, self).__init__()
+        self.parents = Stack()
 
     def handle(self, _node):
         self.visit(_node)

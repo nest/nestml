@@ -47,7 +47,7 @@ class ASTDataTypeVisitor(ASTVisitor):
         :param node: a single datatype node.
         :type node: ast_data_type
         """
-        if node.is_integer():
+        if node.is_integer:
             self.symbol = PredefinedTypes.get_integer_type()
             node.set_type_symbol(self.symbol)
         elif node.is_real():
@@ -138,7 +138,7 @@ def handle_unit(unit_type):
     else:
         to_process = unit_type
     if str(to_process) not in PredefinedUnits.get_units().keys():
-        unit_type_t = UnitType(_name=str(to_process), _unit=to_process)
+        unit_type_t = UnitType(name=str(to_process), unit=to_process)
         PredefinedUnits.register_unit(unit_type_t)
     # now create the corresponding type symbol if it does not exists
     if PredefinedTypes.get_type(str(to_process)) is None:

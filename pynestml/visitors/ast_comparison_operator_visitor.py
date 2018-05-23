@@ -36,39 +36,39 @@ class ASTComparisonOperatorVisitor(ASTVisitor):
     Visits a single rhs consisting of a binary comparison operator.
     """
 
-    def visit_expression(self, _expr=None):
+    def visit_expression(self, expr):
         """
         Visits a single comparison operator expression and updates the type.
-        :param _expr: an expression
-        :type _expr: ast_expression
+        :param expr: an expression
+        :type expr: ast_expression
         """
-        lhs_type = _expr.get_lhs().type
-        rhs_type = _expr.get_rhs().type
+        lhs_type = expr.get_lhs().type
+        rhs_type = expr.get_rhs().type
 
-        lhs_type.referenced_object = _expr.get_lhs()
-        rhs_type.referenced_object = _expr.get_rhs()
+        lhs_type.referenced_object = expr.get_lhs()
+        rhs_type.referenced_object = expr.get_rhs()
 
         if (lhs_type.is_numeric_primitive() and rhs_type.is_numeric_primitive()) \
                 or (lhs_type.equals(rhs_type) and lhs_type.is_numeric()) or (
                 isinstance(lhs_type, BooleanTypeSymbol) and isinstance(rhs_type, BooleanTypeSymbol)):
-            _expr.type = PredefinedTypes.get_boolean_type()
+            expr.type = PredefinedTypes.get_boolean_type()
             return
 
         # Error message for any other operation
         if (isinstance(lhs_type, UnitTypeSymbol) and rhs_type.is_numeric()) or (
                 isinstance(rhs_type, UnitTypeSymbol) and lhs_type.is_numeric()):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
-            error_msg = ErrorStrings.message_comparison(self, _expr.get_source_position())
-            _expr.type = PredefinedTypes.get_boolean_type()
+            error_msg = ErrorStrings.message_comparison(self, expr.get_source_position())
+            expr.type = PredefinedTypes.get_boolean_type()
             Logger.log_message(message=error_msg, code=MessageCode.SOFT_INCOMPATIBILITY,
-                               error_position=_expr.get_source_position(),
+                               error_position=expr.get_source_position(),
                                log_level=LoggingLevel.WARNING)
             return
         else:
             # hard incompatibility, cannot recover in c++, ERROR
-            error_msg = ErrorStrings.message_comparison(self, _expr.get_source_position())
-            _expr.type = ErrorTypeSymbol()
+            error_msg = ErrorStrings.message_comparison(self, expr.get_source_position())
+            expr.type = ErrorTypeSymbol()
             Logger.log_message(code=MessageCode.HARD_INCOMPATIBILITY,
-                               error_position=_expr.get_source_position(),
+                               error_position=expr.get_source_position(),
                                message=error_msg, log_level=LoggingLevel.ERROR)
             return

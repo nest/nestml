@@ -30,28 +30,24 @@ class UnitType(object):
         name  The name of this unit. type: str
         unit  The corresponding sympy unit. type: sympy.physics.unit.quantities.Quantity
     """
-    name = None
-    unit = None
 
-    def __init__(self, _name=None, _unit=None):
+    def __init__(self, name, unit):
         """
         Standard constructor.
-        :param _name: the name of this unit.
-        :type _name: str
-        :param _unit: a single unit object from astropy.unit
-        :type _unit: Unit
+        :param name: the name of this unit.
+        :type name: str
+        :param unit: a single unit object from astropy.unit
+        :type unit: Unit
         """
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(_name)
-        assert ((_unit is not None and (isinstance(_unit, Unit)
-                                        or isinstance(_unit, PrefixUnit))
-                 or isinstance(_unit, IrreducibleUnit)
-                 or isinstance(_unit, CompositeUnit)
-                 or isinstance(_unit,
-                               Quantity))), \
-            '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(_unit)
-        self.name = _name
-        self.unit = _unit
+        assert isinstance(name, str), \
+            '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(name)
+        assert (isinstance(unit, Unit) or isinstance(unit, PrefixUnit)
+                or isinstance(unit, IrreducibleUnit)
+                or isinstance(unit, CompositeUnit)
+                or isinstance(unit, Quantity)), \
+            '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(unit)
+        self.name = name
+        self.unit = unit
         return
 
     def get_name(self):

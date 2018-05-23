@@ -65,7 +65,6 @@ class ASTVisitor(object):
     Attributes:
         real_self (ASTVisitor): The visitor which will be used during the visiting of a node.
     """
-    real_self = None
 
     def __init__(self):
         """

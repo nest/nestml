@@ -26,8 +26,6 @@ class Either(object):
         __value (object): The value.
         __error (str): An error message.
     """
-    __value = None
-    __error = None
 
     def __init__(self, value=None, error=None):
         """

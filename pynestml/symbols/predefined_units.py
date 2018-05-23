@@ -77,10 +77,10 @@ class PredefinedUnits(object):
         for unit in cls.prefixless_units:
             for prefix in cls.prefixes:
                 temp = eval(str('u.' + prefix[1] + unit[1]))
-                temp_unit = UnitType(_name=str(prefix[0] + unit[0]), _unit=temp)
+                temp_unit = UnitType(name=str(prefix[0] + unit[0]), unit=temp)
                 cls.name2unit[str(prefix[0] + unit[0])] = temp_unit
             # add also without the prefix, e.g., s for seconds
-            temp_unit = UnitType(_name=str(unit[0]), _unit=eval(str('u.' + unit[1])))
+            temp_unit = UnitType(name=str(unit[0]), unit=eval(str('u.' + unit[1])))
             cls.name2unit[str(unit[0])] = temp_unit
         # additionally four units are not directly defined, we define them by hand, Bq,Gy,Sv,kat
         bq = u.def_unit(['Bq', 'Becquerel'], 1 / u.s)
@@ -88,10 +88,10 @@ class PredefinedUnits(object):
         sv = u.def_unit(['Sv', 'Sievert'], (u.meter ** 2) / (u.s ** 2))
         kat = u.def_unit(['kat', 'Katal'], u.mol / u.s)
         for prefix in cls.prefixes:
-            cls.name2unit[str(prefix[0] + str(bq.name))] = UnitType(_name=str(prefix[0] + str(bq.name)), _unit=bq)
-            cls.name2unit[str(prefix[0] + str(gy.name))] = UnitType(_name=str(prefix[0] + str(gy.name)), _unit=gy)
-            cls.name2unit[str(prefix[0] + str(sv.name))] = UnitType(_name=str(prefix[0] + str(sv.name)), _unit=sv)
-            cls.name2unit[str(prefix[0] + str(kat.name))] = UnitType(_name=str(prefix[0] + str(kat.name)), _unit=kat)
+            cls.name2unit[str(prefix[0] + str(bq.name))] = UnitType(name=str(prefix[0] + str(bq.name)), unit=bq)
+            cls.name2unit[str(prefix[0] + str(gy.name))] = UnitType(name=str(prefix[0] + str(gy.name)), unit=gy)
+            cls.name2unit[str(prefix[0] + str(sv.name))] = UnitType(name=str(prefix[0] + str(sv.name)), unit=sv)
+            cls.name2unit[str(prefix[0] + str(kat.name))] = UnitType(name=str(prefix[0] + str(kat.name)), unit=kat)
         return
 
     @classmethod

@@ -35,8 +35,6 @@ class ASTBuilderVisitor(PyNestMLVisitor):
     """
     This class is used to create an internal representation of the model by means of an abstract syntax tree.
     """
-    __comments = None
-    data_type_visitor = None
 
     def __init__(self, tokens):
         self.__comments = CommentCollectorVisitor(tokens)
