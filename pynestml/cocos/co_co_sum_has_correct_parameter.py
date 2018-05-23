@@ -1,5 +1,5 @@
 #
-# CoCoSumHasCorrectParameter.py
+# co_co_sum_has_correct_parameter.py
 #
 # This file is part of NEST.
 #
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages

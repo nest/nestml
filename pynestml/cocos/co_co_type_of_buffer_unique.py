@@ -1,5 +1,5 @@
 #
-# CoCoTypeOfBufferUnique.py
+# co_co_type_of_buffer_unique.py
 #
 # This file is part of NEST.
 #
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor

@@ -1,5 +1,5 @@
 #
-# CoCoFunctionHaveRhs.py
+# co_co_correct_order_in_equation.py
 #
 # This file is part of NEST.
 #
@@ -17,15 +17,24 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoFunctionHaveRhs(CoCo):
+class CoCoCorrectOrderInEquation(CoCo):
     """
-    This coco ensures that all function declarations, e.g., function V_rest mV = V_m - 55mV, have a rhs.
+    This coco ensures that whenever a ode-equation is assigned to a variable, it have a differential order 
+    of at leas one.
+    Allowed:
+        equations:
+            V_m' = ...
+        end
+    Not allowed:
+        equations:
+            V_m = ...
+        end  
     """
 
     @classmethod
@@ -35,22 +44,21 @@ class CoCoFunctionHaveRhs(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(FunctionRhsVisitor())
+        node.accept(OrderOfEquationVisitor())
 
 
-class FunctionRhsVisitor(ASTVisitor):
+class OrderOfEquationVisitor(ASTVisitor):
     """
-    This visitor ensures that everything declared as function has a rhs.
+    This visitor checks that all differential equations have a differential order.
     """
 
-    def visit_declaration(self, node):
+    def visit_ode_equation(self, node):
         """
-        Checks if the coco applies.
-        :param node: a single declaration.
-        :type node: ASTDeclaration.
+        Checks the coco.
+        :param node: A single ode equation.
+        :type node: ast_ode_equation
         """
-        if node.is_function and not node.has_expression():
-            code, message = Messages.get_no_rhs(node.get_variables()[0].get_name())
-            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
-                               code=code, message=message)
-        return
+        if node.get_lhs().get_differential_order() == 0:
+            code, message = Messages.get_order_not_declared(node.get_lhs().get_name())
+            Logger.log_message(error_position=node.get_source_position(), code=code,
+                               message=message, log_level=LoggingLevel.ERROR)

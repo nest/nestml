@@ -1,5 +1,5 @@
 #
-# CoCoInvariantIsBoolean.py
+# co_co_invariant_is_boolean.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.utils.logger import Logger

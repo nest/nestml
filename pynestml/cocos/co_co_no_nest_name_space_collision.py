@@ -1,5 +1,5 @@
 #
-# CoCoNoNestNameSpaceCollision.py
+# co_co_no_nest_name_space_collision.py
 #
 # This file is part of NEST.
 #
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
@@ -39,7 +39,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
     Not allowed:    
         function handle(...) <- collision
     """
-    __nestNameSpace = ['update', 'calibrate', 'handle', 'connect_sender', 'check_connection', 'get_status',
+    nest_name_space = ['update', 'calibrate', 'handle', 'connect_sender', 'check_connection', 'get_status',
                        'set_status', 'init_state_', 'init_buffers_']
 
     @classmethod
@@ -50,7 +50,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
         :type node: ast_neuron
         """
         for func in node.get_functions():
-            if func.get_name() in cls.__nestNameSpace:
+            if func.get_name() in cls.nest_name_space:
                 code, message = Messages.get_nest_collision(func.get_name())
                 Logger.log_message(error_position=func.get_source_position(),
                                    code=code, message=message,

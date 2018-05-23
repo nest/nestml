@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 

@@ -21,7 +21,7 @@
 import os
 import sys
 
-from pynestml.cocos.CoCosManager import CoCosManager
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, generate_nest_module_code
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException
 from pynestml.symbols.predefined_functions import PredefinedFunctions

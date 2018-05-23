@@ -1,5 +1,5 @@
 #
-# CoCoUserDefinedFunctionCorrectlyDefined.py
+# co_co_user_defined_function_correctly_defined.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,7 @@ from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind
@@ -45,7 +45,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
     Attributes:
         __processedFunction (ast_function): A reference to the currently processed function.
     """
-    __processedFunction = None
+    processed_function = None
 
     @classmethod
     def check_co_co(cls, _neuron=None):
@@ -58,7 +58,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__neuronName = _neuron.get_name()
         for userDefinedFunction in _neuron.get_functions():
-            cls.__processedFunction = userDefinedFunction
+            cls.processed_function = userDefinedFunction
             symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
                                                                        SymbolKind.FUNCTION)
             # first ensure that the block contains at least one statement
@@ -126,7 +126,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 if stmt.get_return_stmt().has_expression():
                     type_of_return = stmt.get_return_stmt().get_expression().type
                     if isinstance(type_of_return, ErrorTypeSymbol):
-                        code, message = Messages.get_type_could_not_be_derived(cls.__processedFunction.get_name())
+                        code, message = Messages.get_type_could_not_be_derived(cls.processed_function.get_name())
                         Logger.log_message(error_position=stmt.get_source_position(),
                                            code=code, message=message, log_level=LoggingLevel.ERROR)
                     elif not type_of_return.equals(type_symbol):

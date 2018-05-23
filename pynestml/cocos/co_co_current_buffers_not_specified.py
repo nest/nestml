@@ -1,5 +1,5 @@
 #
-# CoCoCorrectOrderInEquation.py
+# co_co_current_buffers_not_specified.py
 #
 # This file is part of NEST.
 #
@@ -17,24 +17,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoCorrectOrderInEquation(CoCo):
+class CoCoCurrentBuffersNotSpecified(CoCo):
     """
-    This coco ensures that whenever a ode-equation is assigned to a variable, it have a differential order 
-    of at leas one.
+    This coco ensures that current buffers are not specified with a keyword.
     Allowed:
-        equations:
-            V_m' = ...
+        input:
+            current <- current
         end
     Not allowed:
-        equations:
-            V_m = ...
-        end  
+        input:
+            current <- inhibitory current
+        end     
     """
 
     @classmethod
@@ -44,21 +43,17 @@ class CoCoCorrectOrderInEquation(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(OrderOfEquationVisitor())
+        node.accept(CurrentTypeSpecifiedVisitor())
 
 
-class OrderOfEquationVisitor(ASTVisitor):
+class CurrentTypeSpecifiedVisitor(ASTVisitor):
     """
-    This visitor checks that all differential equations have a differential order.
+    This visitor ensures that all current buffers are not specified with keywords.
     """
 
-    def visit_ode_equation(self, node):
-        """
-        Checks the coco.
-        :param node: A single ode equation.
-        :type node: ast_ode_equation
-        """
-        if node.get_lhs().get_differential_order() == 0:
-            code, message = Messages.get_order_not_declared(node.get_lhs().get_name())
-            Logger.log_message(error_position=node.get_source_position(), code=code,
-                               message=message, log_level=LoggingLevel.ERROR)
+    def visit_input_line(self, node):
+        if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
+            code, message = Messages.get_current_buffer_specified(node.get_name(),
+                                                                  list((str(buf) for buf in node.get_input_types())))
+            Logger.log_message(error_position=node.get_source_position(),
+                               code=code, message=message, log_level=LoggingLevel.ERROR)

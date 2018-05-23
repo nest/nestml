@@ -1,5 +1,5 @@
 #
-# CoCoBufferNotAssigned.py
+# co_co_correct_numerator_of_unit.py
 #
 # This file is part of NEST.
 #
@@ -17,22 +17,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoBufferNotAssigned(CoCo):
+class CoCoCorrectNumeratorOfUnit(CoCo):
     """
-    This coco ensures that no values are assigned to buffers.
+    This coco ensures that all units which consist of a dividend and divisor, where the numerator is a numeric
+    value, have 1 as the numerator. 
     Allowed:
-        currentSum = current + 10mV # current being a buffer
+        V_m 1/mV = ...
     Not allowed:
-        current = currentSum + 10mV
-    
+        V_m 2/mV = ...
     """
 
     @classmethod
@@ -42,16 +40,21 @@ class CoCoBufferNotAssigned(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(NoBufferAssignedVisitor())
+        node.accept(NumericNumeratorVisitor())
 
 
-class NoBufferAssignedVisitor(ASTVisitor):
-    def visit_assignment(self, node):
-        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-        if symbol is not None and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
-                                   symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
-            code, message = Messages.get_value_assigned_to_buffer(node.get_variable().get_complete_name())
-            Logger.log_message(code=code, message=message,
-                               error_position=node.get_source_position(),
+class NumericNumeratorVisitor(ASTVisitor):
+    """
+    Visits a numeric numerator and checks if the value is 1.
+    """
+
+    def visit_unit_type(self, node):
+        """
+        Check if the coco applies,
+        :param node: a single unit type object.
+        :type node: ast_unit_type
+        """
+        if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
+            code, message = Messages.get_wrong_numerator(str(node))
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        return

@@ -1,5 +1,5 @@
 #
-# CoCoCurrentBuffersNotSpecified.py
+# co_co_function_have_rhs.py
 #
 # This file is part of NEST.
 #
@@ -17,23 +17,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoCurrentBuffersNotSpecified(CoCo):
+class CoCoFunctionHaveRhs(CoCo):
     """
-    This coco ensures that current buffers are not specified with a keyword.
-    Allowed:
-        input:
-            current <- current
-        end
-    Not allowed:
-        input:
-            current <- inhibitory current
-        end     
+    This coco ensures that all function declarations, e.g., function V_rest mV = V_m - 55mV, have a rhs.
     """
 
     @classmethod
@@ -43,17 +35,22 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(CurrentTypeSpecifiedVisitor())
+        node.accept(FunctionRhsVisitor())
 
 
-class CurrentTypeSpecifiedVisitor(ASTVisitor):
+class FunctionRhsVisitor(ASTVisitor):
     """
-    This visitor ensures that all current buffers are not specified with keywords.
+    This visitor ensures that everything declared as function has a rhs.
     """
 
-    def visit_input_line(self, node):
-        if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
-            code, message = Messages.get_current_buffer_specified(node.get_name(),
-                                                                  list((str(buf) for buf in node.get_input_types())))
-            Logger.log_message(error_position=node.get_source_position(),
-                               code=code, message=message, log_level=LoggingLevel.ERROR)
+    def visit_declaration(self, node):
+        """
+        Checks if the coco applies.
+        :param node: a single declaration.
+        :type node: ASTDeclaration.
+        """
+        if node.is_function and not node.has_expression():
+            code, message = Messages.get_no_rhs(node.get_variables()[0].get_name())
+            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                               code=code, message=message)
+        return

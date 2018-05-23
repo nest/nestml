@@ -1,5 +1,5 @@
 #
-# CoCoFunctionMaxOneLhs.py
+# co_co_buffer_not_assigned.py
 #
 # This file is part of NEST.
 #
@@ -17,19 +17,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoFunctionMaxOneLhs(CoCo):
+class CoCoBufferNotAssigned(CoCo):
     """
-    This coco ensures that whenever a function (aka alias) is declared, only one left-hand side is present.
+    This coco ensures that no values are assigned to buffers.
     Allowed:
-        function V_rest mV = V_m - 55mV
+        currentSum = current + 10mV # current being a buffer
     Not allowed:
-        function V_reset,V_rest mV = V_m - 55mV
+        current = currentSum + 10mV
+    
     """
 
     @classmethod
@@ -39,23 +42,16 @@ class CoCoFunctionMaxOneLhs(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(FunctionMaxOneLhs())
+        node.accept(NoBufferAssignedVisitor())
 
 
-class FunctionMaxOneLhs(ASTVisitor):
-    """
-    This visitor ensures that every function has exactly one lhs.
-    """
-
-    def visit_declaration(self, node):
-        """
-        Checks the coco.
-        :param node: a single declaration.
-        :type node: ast_declaration
-        """
-        if node.is_function and len(node.get_variables()) > 1:
-            code, message = Messages.get_several_lhs(list((var.get_name() for var in node.get_variables())))
-            Logger.log_message(error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR,
-                               code=code, message=message)
+class NoBufferAssignedVisitor(ASTVisitor):
+    def visit_assignment(self, node):
+        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+        if symbol is not None and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
+                                   symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+            code, message = Messages.get_value_assigned_to_buffer(node.get_variable().get_complete_name())
+            Logger.log_message(code=code, message=message,
+                               error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
         return

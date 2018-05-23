@@ -1,5 +1,5 @@
 #
-# CoCoCorrectNumeratorOfUnit.py
+# co_co_function_max_one_lhs.py
 #
 # This file is part of NEST.
 #
@@ -17,20 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoCorrectNumeratorOfUnit(CoCo):
+class CoCoFunctionMaxOneLhs(CoCo):
     """
-    This coco ensures that all units which consist of a dividend and divisor, where the numerator is a numeric
-    value, have 1 as the numerator. 
+    This coco ensures that whenever a function (aka alias) is declared, only one left-hand side is present.
     Allowed:
-        V_m 1/mV = ...
+        function V_rest mV = V_m - 55mV
     Not allowed:
-        V_m 2/mV = ...
+        function V_reset,V_rest mV = V_m - 55mV
     """
 
     @classmethod
@@ -40,21 +39,23 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(NumericNumeratorVisitor())
+        node.accept(FunctionMaxOneLhs())
 
 
-class NumericNumeratorVisitor(ASTVisitor):
+class FunctionMaxOneLhs(ASTVisitor):
     """
-    Visits a numeric numerator and checks if the value is 1.
+    This visitor ensures that every function has exactly one lhs.
     """
 
-    def visit_unit_type(self, node):
+    def visit_declaration(self, node):
         """
-        Check if the coco applies,
-        :param node: a single unit type object.
-        :type node: ast_unit_type
+        Checks the coco.
+        :param node: a single declaration.
+        :type node: ast_declaration
         """
-        if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
-            code, message = Messages.get_wrong_numerator(str(node))
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+        if node.is_function and len(node.get_variables()) > 1:
+            code, message = Messages.get_several_lhs(list((var.get_name() for var in node.get_variables())))
+            Logger.log_message(error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR,
+                               code=code, message=message)
+        return

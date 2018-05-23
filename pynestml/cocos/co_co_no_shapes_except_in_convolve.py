@@ -1,5 +1,5 @@
 #
-# CoCoNoShapesExceptInConvolve.py
+# co_co_no_shapes_except_in_convolve.py
 #
 # This file is part of NEST.
 #
@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
-from pynestml.cocos.CoCo import CoCo
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -54,8 +54,6 @@ class CoCoNoShapesExceptInConvolve(CoCo):
 
 
 class ShapeUsageVisitor(ASTVisitor):
-    __shapes = None
-    __neuronNode = None
 
     def __init__(self, _shapes=None):
         """
@@ -65,10 +63,11 @@ class ShapeUsageVisitor(ASTVisitor):
         """
         super(ShapeUsageVisitor, self).__init__()
         self.__shapes = _shapes
+        self.__neuron_node = None
         return
 
     def work_on(self, neuron):
-        self.__neuronNode = neuron
+        self.__neuron_node = neuron
         neuron.accept(self)
         return
 
@@ -84,16 +83,16 @@ class ShapeUsageVisitor(ASTVisitor):
             # if it is not a shape just continue
             if symbol is None:
                 code, message = Messages.get_no_variable_found(shapeName)
-                Logger.log_message(neuron=self.__neuronNode, code=code, message=message, log_level=LoggingLevel.ERROR)
+                Logger.log_message(neuron=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
                 continue
             if not symbol.is_shape():
                 continue
             if node.get_complete_name() == shapeName:
-                parent = self.__neuronNode.get_parent(node)
+                parent = self.__neuron_node.get_parent(node)
                 if parent is not None:
                     if isinstance(parent, ASTOdeShape):
                         continue
-                    grandparent = self.__neuronNode.get_parent(parent)
+                    grandparent = self.__neuron_node.get_parent(parent)
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
                         grandparent_func_name = grandparent.get_name()
                         if grandparent_func_name == 'curr_sum' or grandparent_func_name == 'cond_sum' or \
@@ -107,7 +106,10 @@ class ShapeUsageVisitor(ASTVisitor):
 
 
 class ShapeCollectingVisitor(ASTVisitor):
-    shape_names = None
+
+    def __init__(self):
+        super(ShapeCollectingVisitor, self).__init__()
+        self.shape_names = None
 
     def collect_shapes(self, neuron):
         """

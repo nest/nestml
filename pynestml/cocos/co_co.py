@@ -1,5 +1,5 @@
 #
-# CoCo.py
+# co_co.py
 #
 # This file is part of NEST.
 #

@@ -1,5 +1,5 @@
 #
-# CoCoInitVarsWithOdesProvided.py
+# co_co_init_vars_with_odes_provided.py
 #
 # This file is part of NEST.
 #
@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.cocos.CoCo import CoCo
+from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages

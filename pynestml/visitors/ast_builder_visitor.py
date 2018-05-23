@@ -20,8 +20,8 @@
 import ntpath
 import re
 
-from pynestml.cocos.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
-from pynestml.cocos.CoCosManager import CoCosManager
+from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
+from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_signal_type import ASTSignalType
