@@ -28,23 +28,23 @@ class ASTExpressionNode(ASTNode):
     This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.
     """
+    __type = None
+    __typeEither = None
     __metaclass__ = ABCMeta
 
     def __init__(self, source_position, scope=None):
         super(ASTExpressionNode, self).__init__(source_position, scope)
-        self.type = None
-        self.type_either = None
 
     @property
     def type(self):
         from pynestml.visitors.ast_expression_type_visitor import ASTExpressionTypeVisitor
-        if self.type is None:
+        if self.__type is None:
             self.accept(ASTExpressionTypeVisitor())
-        return copy(self.type)
+        return copy(self.__type)
 
     @type.setter
     def type(self, _value):
-        self.type = _value
+        self.__type = _value
         return
 
     def get_parent(self, ast):
