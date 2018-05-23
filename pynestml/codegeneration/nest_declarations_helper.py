@@ -28,8 +28,7 @@ class NestDeclarationsHelper(object):
     """
     This class contains several methods as used during generation of code.
     """
-    nestml_2_nest_type_converter = None
-
+    
     def __init__(self):
         """
         Initialized the declaration helper.

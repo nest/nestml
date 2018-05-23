@@ -34,8 +34,7 @@ class NestPrinter(object):
     """
     This class contains all methods as required to transform
     """
-    expression_pretty_printer = None
-
+    
     def __init__(self, expression_pretty_printer, reference_convert=None):
         """
         The standard constructor.

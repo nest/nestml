@@ -43,8 +43,6 @@ class NESTReferenceConverter(IReferenceConverter):
     This concrete reference converter is used to transfer internal names to counter-pieces in NEST.
     """
 
-    uses_gsl = False
-
     def __init__(self, uses_gsl=False):
         """
         Standard constructor.

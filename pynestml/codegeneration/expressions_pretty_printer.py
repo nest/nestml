@@ -33,8 +33,6 @@ class ExpressionsPrettyPrinter(object):
     implement own IReferenceConverter specialisation.
     This class is used to transform only parts of the procedural language and not nestml in whole.
     """
-    reference_converter = None
-    types_printer = None
 
     def __init__(self, reference_converter=None, types_printer=None):
         # type: (IReferenceConverter,TypesPrinter) -> None

@@ -1,5 +1,5 @@
 #
-# DeferredLoggingException.py
+# deferred_logging_exception.py
 #
 # This file is part of NEST.
 #
@@ -21,12 +21,10 @@
 
 class DeferredLoggingException(Exception):
     """
-    Exception holding code and mesage of a logging operation.
+    Exception holding code and message of a logging operation.
     Used to defer logging until source position (or other data) can be determined
     """
-    code = None
-    message = None
 
-    def __init__(self, _code, _message):
-        self.code = _code
-        self.message = _message
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message

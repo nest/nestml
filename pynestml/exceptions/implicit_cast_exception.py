@@ -1,5 +1,5 @@
 #
-# ImplicitMagnitudeCastException.py
+# implicit_cast_exception.py
 #
 # This file is part of NEST.
 #
@@ -19,12 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class ImplicitMagnitudeCastException(Exception):
-    code = None
-    message = None
-    conversion_factor = None
+class ImplicitCastException(Exception):
 
-    def __init__(self, _code, _message, _conversion_factor):
-        self.code = _code
-        self.message = _message
-        self.conversion_factor = _conversion_factor
+    def __init__(self, code, message, resulting_type):
+        self.code = code
+        self.message = message
+        self.resulting_type = resulting_type

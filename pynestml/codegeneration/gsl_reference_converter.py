@@ -34,8 +34,6 @@ class GSLReferenceConverter(IReferenceConverter):
     """
     This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
     """
-
-    is_upper_bound = None
     maximal_exponent = 10.0
 
     def __init__(self, is_upper_bound=False):
