@@ -25,9 +25,10 @@ class ASTElifClause(ASTNode):
     This class is used to store elif-clauses.
     Grammar:
         elifClause : 'elif' rhs BLOCK_OPEN block;
+    Attribute:
+        condition = None
+        block = None
     """
-    condition = None
-    block = None
 
     def __init__(self, condition, block, source_position):
         """

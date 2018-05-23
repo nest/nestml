@@ -31,10 +31,11 @@ class ASTCompoundStmt(ASTNode):
         compoundStmt : ifStmt
                 | forStmt
                 | whileStmt;
+    Attributes:
+        if_stmt = None
+        while_stmt = None
+        for_stmt = None
     """
-    __ifStmt = None
-    __whileStmt = None
-    __forStmt = None
 
     def __init__(self, if_stmt=None, while_stmt=None, for_stmt=None, source_position=None):
         """
@@ -55,9 +56,9 @@ class ASTCompoundStmt(ASTNode):
         assert (for_stmt is None or isinstance(for_stmt, ASTForStmt)), \
             '(PyNestML.AST.CompoundStmt) Wrong type of for-statement provided (%s)!' % type(for_stmt)
         super(ASTCompoundStmt, self).__init__(source_position)
-        self.__ifStmt = if_stmt
-        self.__whileStmt = while_stmt
-        self.__forStmt = for_stmt
+        self.if_stmt = if_stmt
+        self.while_stmt = while_stmt
+        self.for_stmt = for_stmt
         return
 
     def is_if_stmt(self):
@@ -66,7 +67,7 @@ class ASTCompoundStmt(ASTNode):
         :return: True if if stmt, False else.
         :rtype: bool
         """
-        return self.__ifStmt is not None and isinstance(self.__ifStmt, ASTIfStmt)
+        return self.if_stmt is not None and isinstance(self.if_stmt, ASTIfStmt)
 
     def get_if_stmt(self):
         """
@@ -74,7 +75,7 @@ class ASTCompoundStmt(ASTNode):
         :return: the "if" statement.
         :rtype: ASTIfStmt
         """
-        return self.__ifStmt
+        return self.if_stmt
 
     def is_while_stmt(self):
         """
@@ -82,7 +83,7 @@ class ASTCompoundStmt(ASTNode):
         :return: True if "while" stmt, False else.
         :rtype: bool
         """
-        return self.__whileStmt is not None and isinstance(self.__whileStmt, ASTWhileStmt)
+        return self.while_stmt is not None and isinstance(self.while_stmt, ASTWhileStmt)
 
     def get_while_stmt(self):
         """
@@ -90,7 +91,7 @@ class ASTCompoundStmt(ASTNode):
         :return: the while statement.
         :rtype: ASTWhileStmt
         """
-        return self.__whileStmt
+        return self.while_stmt
 
     def is_for_stmt(self):
         """
@@ -98,7 +99,7 @@ class ASTCompoundStmt(ASTNode):
         :return: True if "for" stmt, False else.
         :rtype: bool
         """
-        return self.__forStmt is not None and isinstance(self.__forStmt, ASTForStmt)
+        return self.for_stmt is not None and isinstance(self.for_stmt, ASTForStmt)
 
     def get_for_stmt(self):
         """
@@ -106,7 +107,7 @@ class ASTCompoundStmt(ASTNode):
         :return: the for statement.
         :rtype: ASTForStmt
         """
-        return self.__forStmt
+        return self.for_stmt
 
     def get_parent(self, ast):
         """

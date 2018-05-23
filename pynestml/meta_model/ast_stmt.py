@@ -25,9 +25,12 @@ from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 class ASTStmt(ASTNode):
     """
     Stores a reference to either small or compound statement.
+    Grammar:
+        stmt : smallStmt | compoundStmt;
+    Attributes:
+        small_stmt = None
+        compound_stmt = None
     """
-    small_stmt = None
-    compound_stmt = None
 
     def __init__(self, small_stmt, compound_stmt, source_position):
         # type: (ASTSmallStmt,ASTCompoundStmt) -> None

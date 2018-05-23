@@ -40,12 +40,13 @@ class ASTBlockWithVariables(ASTNode):
             BLOCK_OPEN
               (declaration | NEWLINE)*
             BLOCK_CLOSE;
+    Attributes:
+        is_state = False
+        is_parameters = False
+        is_internals = False
+        is_init_values = False
+        declarations = None
     """
-    __isState = False
-    __isParameters = False
-    __isInternals = False
-    __isInitValues = False
-    __declarations = None
 
     def __init__(self, is_state=False, is_parameters=False, is_internals=False, is_initial_values=False,
                  declarations=list(), source_position=None):
@@ -71,11 +72,11 @@ class ASTBlockWithVariables(ASTNode):
         assert (declarations is None or isinstance(declarations, list)), \
             '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(declarations)
         super(ASTBlockWithVariables, self).__init__(source_position)
-        self.__declarations = declarations
-        self.__isInternals = is_internals
-        self.__isParameters = is_parameters
-        self.__isInitValues = is_initial_values
-        self.__isState = is_state
+        self.declarations = declarations
+        self.is_internals = is_internals
+        self.is_parameters = is_parameters
+        self.is_init_values = is_initial_values
+        self.is_state = is_state
         return
 
     def is_state(self):
@@ -84,7 +85,7 @@ class ASTBlockWithVariables(ASTNode):
         :return: True if state block, otherwise False.
         :rtype: bool
         """
-        return self.__isState
+        return self.is_state
 
     def is_parameters(self):
         """
@@ -92,7 +93,7 @@ class ASTBlockWithVariables(ASTNode):
         :return: True if parameters block, otherwise False.
         :rtype: bool
         """
-        return self.__isParameters
+        return self.is_parameters
 
     def is_internals(self):
         """
@@ -100,7 +101,7 @@ class ASTBlockWithVariables(ASTNode):
         :return: True if internals block, otherwise False.
         :rtype: bool
         """
-        return self.__isInternals
+        return self.is_internals
 
     def is_initial_values(self):
         """
@@ -108,7 +109,7 @@ class ASTBlockWithVariables(ASTNode):
         :return: True if initial values block, otherwise False.
         :rtype: bool
         """
-        return self.__isInitValues
+        return self.is_init_values
 
     def get_declarations(self):
         """
@@ -116,14 +117,14 @@ class ASTBlockWithVariables(ASTNode):
         :return: set of declarations
         :rtype: set(ASTDeclaration)
         """
-        return self.__declarations
+        return self.declarations
 
     def clear(self):
         """
         Clears the list of declarations in this block.
         """
-        del self.__declarations
-        self.__declarations = list()
+        del self.declarations
+        self.declarations = list()
         return
 
     def get_parent(self, ast=None):

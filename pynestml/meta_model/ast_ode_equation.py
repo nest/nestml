@@ -31,9 +31,10 @@ class ASTOdeEquation(ASTNode):
     @attribute rhs      Expression defining the right hand side.
     Grammar:
         odeEquation : lhs=variable '=' rhs=rhs;
+    Attributes:
+        lhs = None
+        rhs = None
     """
-    lhs = None
-    rhs = None
 
     def __init__(self, lhs, rhs, source_position=None):
         """

@@ -26,10 +26,11 @@ class ASTUnaryOperator(ASTNode):
     This class is used to store a single unary operator, e.g., ~.
     Grammar:
         unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+    Attributes:
+        is_unary_plus = False
+        is_unary_minus = False
+        is_unary_tilde = False
     """
-    is_unary_plus = False
-    is_unary_minus = False
-    is_unary_tilde = False
 
     def __init__(self, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False, source_position=None):
         """

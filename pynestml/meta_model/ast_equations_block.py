@@ -38,8 +38,9 @@ class ASTEquationsBlock(ASTNode):
             BLOCK_OPEN
               (odeFunction|odeEquation|odeShape|NEWLINE)+
             BLOCK_CLOSE;
+    Attributes:
+        declarations = None
     """
-    declarations = None
 
     def __init__(self, declarations, source_position):
         """

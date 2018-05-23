@@ -26,9 +26,10 @@ class ASTIfClause(ASTNode):
     This class is used to store a single if-clause.
     Grammar:
         ifClause : 'if' expr BLOCK_OPEN block;
+    Attributes:
+        condition = None
+        block = None
     """
-    condition = None
-    block = None
 
     def __init__(self, condition, block, source_position):
         """

@@ -30,9 +30,10 @@ class ASTInputType(ASTNode):
     @attribute excitatory true iff. the neuron is a excitatory.
     Grammar:
         inputType : ('inhibitory' | 'excitatory');
+    Attributes:
+        is_inhibitory = False
+        is_excitatory = False
     """
-    is_inhibitory = False
-    is_excitatory = False
 
     def __init__(self, is_inhibitory=False, is_excitatory=False, source_position=None):
         """

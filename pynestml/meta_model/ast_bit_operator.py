@@ -26,16 +26,16 @@ class ASTBitOperator(ASTNode):
     This class is used to store a single bit operator.
     Grammar:
         bitOperator : (bitAnd='&'| bitXor='^' | bitOr='|' | bitShiftLeft='<<' | bitShiftRight='>>');
+    Attributes:
+        is_bit_and = False
+        is_bit_xor = False
+        is_bit_or = False
+        is_bit_shift_left = False
+        is_bit_shift_right = False
     """
-    is_bit_and = False
-    is_bit_xor = False
-    is_bit_or = False
-    is_bit_shift_left = False
-    is_bit_shift_right = False
 
     def __init__(self, is_bit_and=False, is_bit_xor=False, is_bit_or=False, is_bit_shift_left=False,
-                 is_bit_shift_right=False,
-                 source_position=None):
+                 is_bit_shift_right=False, source_position=None):
         """
         Standard constructor.
         :param source_position: the position of the element in the source
@@ -59,7 +59,7 @@ class ASTBitOperator(ASTNode):
         self.is_bit_and = is_bit_and
         return
 
-    def get_parent(self, ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
@@ -69,7 +69,7 @@ class ASTBitOperator(ASTNode):
         """
         return None
 
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.

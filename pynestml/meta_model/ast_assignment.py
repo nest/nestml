@@ -32,14 +32,16 @@ class ASTAssignment(ASTNode):
             compoundMinus='-='   |
             compoundProduct='*=' |
             compoundQuotient='/=') rhs;
+
+    Attributes:
+        lhs = None
+        is_direct_assignment = False
+        is_compound_sum = False
+        is_compound_minus = False
+        is_compound_product = False
+        is_compound_quotient = False
+        rhs = None
     """
-    lhs = None
-    is_direct_assignment = False
-    is_compound_sum = False
-    is_compound_minus = False
-    is_compound_product = False
-    is_compound_quotient = False
-    rhs = None
 
     def __init__(self, lhs=None, is_direct_assignment=False, is_compound_sum=False, is_compound_minus=False,
                  is_compound_product=False, is_compound_quotient=False, rhs=None, source_position=None):

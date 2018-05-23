@@ -36,10 +36,6 @@ class ASTSmallStmt(ASTNode):
         declaration (ast_declaration): A declaration reference.
         return_stmt (ast_return_stmt): A reference to the returns statement.
     """
-    assignment = None
-    function_call = None
-    declaration = None
-    return_stmt = None
 
     def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, source_position=None):
         """

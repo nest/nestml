@@ -39,13 +39,14 @@ class ASTFunction(ASTNode):
            BLOCK_OPEN
              block
            BLOCK_CLOSE;
+    Attributes:
+        name = None
+        parameters = None
+        return_type = None
+        block = None
+        # the corresponding type symbol
+        type_symbol = None
     """
-    name = None
-    parameters = None
-    return_type = None
-    block = None
-    # the corresponding type symbol
-    type_symbol = None
 
     def __init__(self, name, parameters, return_type, block, source_position):
         """

@@ -26,17 +26,18 @@ class ASTNode(object):
     """
     This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.
+    Attributes:
+        sourcePosition = None
+        scope = None
+        comment = None
+        #
+        pre_comments = list()
+        in_comment = None
+        post_comments = list()
+        #
+        implicit_conversion_factor = None
     """
     __metaclass__ = ABCMeta
-    sourcePosition = None
-    scope = None
-    comment = None
-    #
-    pre_comments = list()
-    in_comment = None
-    post_comments = list()
-    #
-    implicit_conversion_factor = None
 
     def __init__(self, source_position, scope=None):
         """
@@ -48,6 +49,11 @@ class ASTNode(object):
         """
         self.sourcePosition = source_position
         self.scope = scope
+        self.comment = None
+        self.pre_comments = list()
+        self.in_comment = None
+        self.post_comments = list()
+        self.implicit_conversion_factor = None
 
     def set_implicit_conversion_factor(self, implicit_factor):
         """

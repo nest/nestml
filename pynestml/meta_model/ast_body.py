@@ -28,8 +28,9 @@ class ASTBody(ASTNode):
         body : BLOCK_OPEN
                (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
                BLOCK_CLOSE;        
+    Attributes:
+        bodyElements = None
     """
-    bodyElements = None
 
     def __init__(self, body_elements, source_position):
         """

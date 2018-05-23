@@ -26,9 +26,10 @@ class ASTOdeShape(ASTNode):
     This class is used to store shapes. 
     Grammar:
         odeShape : 'shape' lhs=variable '=' rhs=expr;
+    Attributes:
+        lhs = None
+        rhs = None
     """
-    lhs = None
-    rhs = None
 
     def __init__(self, lhs, rhs, source_position):
         """

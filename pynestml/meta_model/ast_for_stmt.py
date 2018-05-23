@@ -27,12 +27,13 @@ class ASTForStmt(ASTNode):
     Grammar:
         forStmt : 'for' var=NAME 'in' vrom=rhs
                     '...' to=rhs 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+    Attributes:
+        variable = None
+        start_from = None
+        end_at = None
+        step = None
+        block = None
     """
-    variable = None
-    start_from = None
-    end_at = None
-    step = None
-    block = None
 
     def __init__(self, variable, start_from, end_at, step, block, source_position):
         """

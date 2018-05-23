@@ -35,8 +35,6 @@ class ASTParameter(ASTNode):
         name (str): The name of the parameter.
         data_type (ASTDataType): The data type of the parameter.
     """
-    name = None
-    data_type = None
 
     def __init__(self, name=None, data_type=None, source_position=None):
         """

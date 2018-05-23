@@ -26,10 +26,12 @@ from pynestml.meta_model.ast_node import ASTNode
 class ASTNestMLCompilationUnit(ASTNode):
     """
     The ASTNestMLCompilationUnit class as used to store a collection of processed ASTNeurons.
+    Grammar:
+        nestMLCompilationUnit: (neuron | NEWLINE )* EOF;
+    Attributes:
+        neuron_list = None # a list of all processed neurons
+        artifact_name = None
     """
-    # a list of all processed neurons
-    neuron_list = None
-    artifact_name = None
 
     def __init__(self, source_position=None, artifact_name=None):
         """

@@ -23,11 +23,12 @@ import sys
 class ASTSourceLocation(object):
     """
     This class is used to store information regarding the source position of an element.
+    Attributes:
+        start_line = 0
+        start_column = 0
+        end_line = 0
+        end_column = 0
     """
-    start_line = 0
-    start_column = 0
-    end_line = 0
-    end_column = 0
 
     def __init__(self, start_line, start_column, end_line, end_column):
         """

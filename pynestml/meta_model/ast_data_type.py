@@ -35,14 +35,15 @@ class ASTDataType(ASTNode):
                | 'boolean'
                | 'void'
                | unitType;
+    Attributes:
+        is_integer = False
+        is_real = False
+        is_string = False
+        is_boolean = False
+        is_void = False
+        is_unit_type = None  # a unit type is not a boolean, but a concrete object
+        __typeSymbol = None  # the corresponding type symbol
     """
-    __isInteger = False
-    __isReal = False
-    __isString = False
-    __isBoolean = False
-    __isVoid = False
-    __isUnitType = None  # a unit type is not a boolean, but a concrete object
-    __typeSymbol = None  # the corresponding type symbol
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,
                  is_unit_type=None, source_position=None):
@@ -63,12 +64,12 @@ class ASTDataType(ASTNode):
         :type source_position: ASTSourceLocation
         """
         super(ASTDataType, self).__init__(source_position)
-        self.__isUnitType = is_unit_type
-        self.__isVoid = is_void
-        self.__isBoolean = is_boolean
-        self.__isString = is_string
-        self.__isReal = is_real
-        self.__isInteger = is_integer
+        self.is_unit_type = is_unit_type
+        self.is_void = is_void
+        self.is_boolean = is_boolean
+        self.is_string = is_string
+        self.is_real = is_real
+        self.is_integer = is_integer
         return
 
     def is_integer(self):
@@ -77,7 +78,7 @@ class ASTDataType(ASTNode):
         :return: True if integer typed, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.__isInteger, bool) and self.__isInteger
+        return isinstance(self.is_integer, bool) and self.is_integer
 
     def is_real(self):
         """
@@ -87,7 +88,7 @@ class ASTDataType(ASTNode):
         :return: 
         :rtype: 
         """
-        return isinstance(self.__isReal, bool) and self.__isReal
+        return isinstance(self.is_real, bool) and self.is_real
 
     def is_string(self):
         """
@@ -95,7 +96,7 @@ class ASTDataType(ASTNode):
         :return: True if string typed, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.__isString, bool) and self.__isString
+        return isinstance(self.is_string, bool) and self.is_string
 
     def is_boolean(self):
         """
@@ -103,7 +104,7 @@ class ASTDataType(ASTNode):
         :return: True if boolean typed, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.__isBoolean, bool) and self.__isBoolean
+        return isinstance(self.is_boolean, bool) and self.is_boolean
 
     def is_void(self):
         """
@@ -111,7 +112,7 @@ class ASTDataType(ASTNode):
         :return: True if void typed, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.__isVoid, bool) and self.__isVoid
+        return isinstance(self.is_void, bool) and self.is_void
 
     def is_unit_type(self):
         """
@@ -119,7 +120,7 @@ class ASTDataType(ASTNode):
         :return: True if unit type typed, otherwise False.
         :rtype: bool
         """
-        return self.__isUnitType is not None
+        return self.is_unit_type is not None
 
     def get_unit_type(self):
         """
@@ -127,7 +128,7 @@ class ASTDataType(ASTNode):
         :return: the unit type object.
         :rtype: ASTUnitType
         """
-        return self.__isUnitType
+        return self.is_unit_type
 
     def get_type_symbol(self):
         """

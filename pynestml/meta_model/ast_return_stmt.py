@@ -34,7 +34,6 @@ class ASTReturnStmt(ASTNode):
     Attributes:
           expression (ASTSimpleExpression or ASTExpression): An rhs representing the returned value.
     """
-    expression = None
 
     def __init__(self, expression=None, source_position=None):
         """

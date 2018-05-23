@@ -28,16 +28,16 @@ class ASTVariable(ASTNode):
     This class is used to store a single variable.
     
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
-    @attribute name
     Grammar:
         variable : NAME (differentialOrder='\'')*;
+    Attributes:
+        name = None
+        differential_order = None
+        # the corresponding type symbol
+        type_symbol = None
     """
-    name = None
-    differential_order = None
-    # the corresponding type symbol
-    type_symbol = None
 
-    def __init__(self, name=None, differential_order=0, source_position=None):
+    def __init__(self, name, differential_order=0, source_position=None):
         """
         Standard constructor.
         :param name: the name of the variable
@@ -47,15 +47,16 @@ class ASTVariable(ASTNode):
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        assert (differential_order is not None and isinstance(differential_order, int)), \
+        assert isinstance(differential_order, int), \
             '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(differential_order)
         assert (differential_order >= 0), \
             '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % differential_order
-        assert (name is not None and isinstance(name, str)), \
+        assert isinstance(name, str), \
             '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(name)
         super(ASTVariable, self).__init__(source_position=source_position)
         self.name = name
         self.differential_order = differential_order
+        self.type_symbol = None
 
     def resolve_in_own_scope(self):
         from pynestml.symbols.symbol import SymbolKind

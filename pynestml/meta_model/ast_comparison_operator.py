@@ -26,14 +26,15 @@ class ASTComparisonOperator(ASTNode):
     This class is used to store a single comparison operator.
     Grammar:
         comparisonOperator : (lt='<' | le='<=' | eq='==' | ne='!=' | ne2='<>' | ge='>=' | gt='>');
+    Attributes:
+        is_lt = False
+        is_le = False
+        is_eq = False
+        is_ne = False
+        is_ne2 = False
+        is_ge = False
+        is_gt = False
     """
-    __isLt = False
-    __isLe = False
-    __isEq = False
-    __isNe = False
-    __isNe2 = False
-    __isGe = False
-    __isGt = False
 
     def __init__(self, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False, is_ge=False,
                  is_gt=False, source_position=None):
@@ -59,13 +60,13 @@ class ASTComparisonOperator(ASTNode):
         assert ((is_lt + is_le + is_eq + is_ne + is_ne2 + is_ge + is_gt) == 1), \
             '(PyNestML.AST.ComparisonOperator) Comparison operator not correctly specified!'
         super(ASTComparisonOperator, self).__init__(source_position)
-        self.__isGt = is_gt
-        self.__isGe = is_ge
-        self.__isNe2 = is_ne2
-        self.__isNe = is_ne
-        self.__isEq = is_eq
-        self.__isLe = is_le
-        self.__isLt = is_lt
+        self.is_gt = is_gt
+        self.is_ge = is_ge
+        self.is_ne2 = is_ne2
+        self.is_ne = is_ne
+        self.is_eq = is_eq
+        self.is_le = is_le
+        self.is_lt = is_lt
         return
 
     def is_lt(self):
@@ -74,7 +75,7 @@ class ASTComparisonOperator(ASTNode):
         :return: True if less than operator, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isLt, bool) and self.__isLt
+        return isinstance(self.is_lt, bool) and self.is_lt
 
     def is_le(self):
         """
@@ -82,7 +83,7 @@ class ASTComparisonOperator(ASTNode):
         :return: True if less equal operator, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isLe, bool) and self.__isLe
+        return isinstance(self.is_le, bool) and self.is_le
 
     def is_eq(self):
         """
@@ -90,7 +91,7 @@ class ASTComparisonOperator(ASTNode):
         :return: True if less equality operator, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isEq, bool) and self.__isEq
+        return isinstance(self.is_eq, bool) and self.is_eq
 
     def is_ne(self):
         """
@@ -98,7 +99,7 @@ class ASTComparisonOperator(ASTNode):
         :return: True if not equal operator, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isNe, bool) and self.__isNe
+        return isinstance(self.is_ne, bool) and self.is_ne
 
     def is_ne2(self):
         """
@@ -106,7 +107,7 @@ class ASTComparisonOperator(ASTNode):
         :return: True if not equal operator, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isNe2, bool) and self.__isNe2
+        return isinstance(self.is_ne2, bool) and self.is_ne2
 
     def is_ge(self):
         """
@@ -114,7 +115,7 @@ class ASTComparisonOperator(ASTNode):
         :return: True if less greater operator, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isGe, bool) and self.__isGe
+        return isinstance(self.is_ge, bool) and self.is_ge
 
     def is_gt(self):
         """
@@ -122,9 +123,9 @@ class ASTComparisonOperator(ASTNode):
         :return: True if less greater than, otherwise False
         :rtype: bool
         """
-        return isinstance(self.__isGt, bool) and self.__isGt
+        return isinstance(self.is_gt, bool) and self.is_gt
 
-    def get_parent(self, ast=None):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
@@ -134,7 +135,7 @@ class ASTComparisonOperator(ASTNode):
         """
         return None
 
-    def equals(self, other=None):
+    def equals(self, other):
         """
         The equals method.
         :param other: a different object.

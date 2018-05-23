@@ -26,9 +26,10 @@ class ASTWhileStmt(ASTNode):
     This class is used to store a new while-block.
     Grammar:
         whileStmt : 'while' expr BLOCK_OPEN block BLOCK_CLOSE;
+    Attributes:
+        condition = None
+        block = None
     """
-    condition = None
-    block = None
 
     def __init__(self, condition, block, source_position):
         """

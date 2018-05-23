@@ -39,20 +39,12 @@ class ASTSimpleExpression(ASTExpressionNode):
         function_call: A function call reference.
         numeric_literal: A numeric literal.
         variable: A variable reference.
-        __isBooleanTrue (bool): True if this is a boolean true literal.
-        __isBooleanFalse (bool): True if this is a boolean false literal.
-        __isInf (bool): True if this is a infinity literal.
-        __string (str): A string literal.
+        is_boolean_true (bool): True if this is a boolean true literal.
+        is_boolean_false (bool): True if this is a boolean false literal.
+        is_inf (bool): True if this is a infinity literal.
+        string (str): A string literal.
 
     """
-    # todo by kp: change attributes
-    function_call = None  # type:ASTFunctionCall
-    numeric_literal = None  # type: Union(float,int)
-    variable = None  # type: ASTVariable
-    __isBooleanTrue = False  # type: bool
-    __isBooleanFalse = False  # type: bool
-    __isInf = False  # type: bool
-    __string = None  # type: str
 
     def __init__(self, function_call=None, boolean_literal=None, numeric_literal=None, is_inf=False,
                  variable=None, string=None, source_position=None):
@@ -89,13 +81,13 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.function_call = function_call
         if boolean_literal is not None:
             if boolean_literal:
-                self.__isBooleanTrue = True
+                self.is_boolean_true = True
             else:
-                self.__isBooleanFalse = True
+                self.is_boolean_false = True
         self.numeric_literal = numeric_literal
-        self.__isInf = is_inf
+        self.is_inf = is_inf
         self.variable = variable
-        self.__string = string
+        self.string = string
         return
 
     def is_function_call(self):
@@ -131,7 +123,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if true literal, otherwise False.
         :rtype: bool 
         """
-        return self.__isBooleanTrue
+        return self.is_boolean_true
 
     def is_boolean_false(self):
         """
@@ -139,7 +131,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if false literal, otherwise False.
         :rtype: bool
         """
-        return self.__isBooleanFalse
+        return self.is_boolean_false
 
     def is_numeric_literal(self):
         """
@@ -163,7 +155,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if infinity literal, otherwise False.
         :rtype: bool
         """
-        return self.__isInf
+        return self.is_inf
 
     def is_variable(self):
         """
@@ -217,7 +209,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: True if string, False otherwise.
         :rtype: bool
         """
-        return self.__string is not None and isinstance(self.__string, str)
+        return self.string is not None and isinstance(self.string, str)
 
     def get_string(self):
         """
@@ -225,7 +217,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         :return: a string as stored in this rhs.
         :rtype: str
         """
-        return self.__string
+        return self.string
 
     def get_parent(self, ast):
         """

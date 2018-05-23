@@ -31,8 +31,9 @@ class ASTOutputBlock(ASTNode):
       @attribute current true iff. the neuron is a current output.
     Grammar:
         outputBlock: 'output' BLOCK_OPEN ('spike' | 'current') ;
+    Attributes:
+        type = None
     """
-    type = None
 
     def __init__(self, o_type, source_position):
         # type: (ASTSignalType,ASTSourceLocation) -> None

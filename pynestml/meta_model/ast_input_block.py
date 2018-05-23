@@ -37,8 +37,9 @@ class ASTInputBlock(ASTNode):
             BLOCK_OPEN
               (inputLine | NEWLINE)*
             BLOCK_CLOSE;
+    Attributes:
+        input_definitions = None
     """
-    __inputDefinitions = None
 
     def __init__(self, input_definitions=list(), source_position=None):
         """
@@ -54,7 +55,7 @@ class ASTInputBlock(ASTNode):
             assert (definition is not None and isinstance(definition, ASTInputLine)), \
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
         super(ASTInputBlock, self).__init__(source_position)
-        self.__inputDefinitions = input_definitions
+        self.input_definitions = input_definitions
         return
 
     def get_input_lines(self):
@@ -63,7 +64,7 @@ class ASTInputBlock(ASTNode):
         :return: a list of input lines
         :rtype: list(ASTInputLine)
         """
-        return self.__inputDefinitions
+        return self.input_definitions
 
     def get_parent(self, ast):
         """

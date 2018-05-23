@@ -27,13 +27,14 @@ class ASTArithmeticOperator(ASTNode):
     This class is used to store a single arithmetic operator, e.g. +.
     No grammar. This part is defined outside the grammar to make processing and storing of models easier and 
     comprehensible.
+    Attributes:
+        is_times_op = False  # type: bool
+        is_div_op = False  # type:bool
+        is_modulo_op = False  # type:bool
+        is_plus_op = False  # type:bool
+        is_minus_op = False  # type: bool
+        is_pow_op = False  # type:bool
     """
-    is_times_op = False  # type: bool
-    is_div_op = False  # type:bool
-    is_modulo_op = False  # type:bool
-    is_plus_op = False  # type:bool
-    is_minus_op = False  # type: bool
-    is_pow_op = False  # type:bool
 
     def __init__(self, is_times_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op, source_position):
         # type:(bool,bool,bool,bool,bool,bool,ASTSourcePosition) -> None
@@ -68,10 +69,3 @@ class ASTArithmeticOperator(ASTNode):
         return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op and
                 self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op and
                 self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)
-
-
-class InvalidArithmeticOperator(Exception):
-    """
-    This exception is thrown whenever the arithmetic operator has not been specified.
-    """
-    pass

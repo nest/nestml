@@ -37,12 +37,13 @@ class ASTNeuron(ASTNode):
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...
     Grammar:
         neuron : 'neuron' NAME body;
+    Attributes:
+        name = None
+        body = None
+        artifact_name = None
     """
-    name = None
-    body = None
-    artifact_name = None
 
-    def __init__(self, name=None, body=None, source_position=None, artifact_name=None):
+    def __init__(self, name, body, source_position=None, artifact_name=None):
         """
         Standard constructor.
         :param name: the name of the neuron.
@@ -54,9 +55,9 @@ class ASTNeuron(ASTNode):
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
-        assert (name is not None and isinstance(name, str)), \
+        assert isinstance(name, str), \
             '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(name)
-        assert (body is not None and isinstance(body, ASTBody)), \
+        assert isinstance(body, ASTBody), \
             '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)

@@ -25,8 +25,9 @@ class ASTElseClause(ASTNode):
     This class is used to store a single else-clause.
     Grammar:
         elseClause : 'else' BLOCK_OPEN block;
+    Attributes:
+        block = None
     """
-    block = None
 
     def __init__(self, block, source_position):
         """

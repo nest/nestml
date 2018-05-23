@@ -28,9 +28,10 @@ class ASTFunctionCall(ASTNode):
     @attribute args Comma separated list of expressions representing parameters.
     Grammar:
         functionCall : calleeName=NAME '(' (rhs (',' rhs)*)? ')';
+    Attributes:
+        callee_name = None
+        args = None
     """
-    callee_name = None
-    args = None
 
     def __init__(self, callee_name, args, source_position):
         """

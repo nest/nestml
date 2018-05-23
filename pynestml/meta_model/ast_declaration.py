@@ -41,14 +41,15 @@ class ASTDeclaration(ASTNode):
             ('[' sizeParameter=NAME ']')?
             ( '=' rhs)?
             ('[[' invariant=rhs ']]')?;
+    Attributes:
+        is_recordable = False
+        is_function = False
+        variables = None
+        data_type = None
+        size_parameter = None
+        expression = None
+        invariant = None
     """
-    __isRecordable = False
-    is_function = False
-    __variables = None
-    __dataType = None
-    __sizeParameter = None
-    __expression = None
-    __invariant = None
 
     def __init__(self, is_recordable=False, is_function=False, _variables=list(), data_type=None, size_parameter=None,
                  expression=None, invariant=None, source_position=None):
@@ -72,13 +73,13 @@ class ASTDeclaration(ASTNode):
         :type source_position: ASTSourceLocation.
         """
         super(ASTDeclaration, self).__init__(source_position)
-        self.__isRecordable = is_recordable
+        self.is_recordable = is_recordable
         self.is_function = is_function
-        self.__variables = _variables
-        self.__dataType = data_type
-        self.__sizeParameter = size_parameter
-        self.__expression = expression
-        self.__invariant = invariant
+        self.variables = _variables
+        self.data_type = data_type
+        self.size_parameter = size_parameter
+        self.expression = expression
+        self.invariant = invariant
         return
 
     def is_recordable(self):
@@ -87,7 +88,7 @@ class ASTDeclaration(ASTNode):
         :return: True if recordable, else False.
         :rtype: bool
         """
-        return isinstance(self.__isRecordable, bool) and self.__isRecordable
+        return isinstance(self.is_recordable, bool) and self.is_recordable
 
     def get_variables(self):
         """
@@ -95,7 +96,7 @@ class ASTDeclaration(ASTNode):
         :return: a list of variables.
         :rtype: list(ASTVariables)
         """
-        return self.__variables
+        return self.variables
 
     def get_data_type(self):
         """
@@ -103,7 +104,7 @@ class ASTDeclaration(ASTNode):
         :return: a data type object.
         :rtype: ast_data_type
         """
-        return self.__dataType
+        return self.data_type
 
     def has_size_parameter(self):
         """
@@ -111,7 +112,7 @@ class ASTDeclaration(ASTNode):
         :return: True if has size parameter, else False.
         :rtype: bool
         """
-        return self.__sizeParameter is not None
+        return self.size_parameter is not None
 
     def get_size_parameter(self):
         """
@@ -119,7 +120,7 @@ class ASTDeclaration(ASTNode):
         :return: the size parameter.
         :rtype: str
         """
-        return self.__sizeParameter
+        return self.size_parameter
 
     def set_size_parameter(self, _parameter):
         """
@@ -129,7 +130,7 @@ class ASTDeclaration(ASTNode):
         """
         assert (_parameter is not None and isinstance(_parameter, str)), \
             '(PyNestML.AST.Declaration) No or wrong type of size parameter provided (%s)!' % type(_parameter)
-        self.__sizeParameter = _parameter
+        self.size_parameter = _parameter
         return
 
     def has_expression(self):
@@ -138,7 +139,7 @@ class ASTDeclaration(ASTNode):
         :return: True if right-hand side rhs declared, else False.
         :rtype: bool
         """
-        return self.__expression is not None
+        return self.expression is not None
 
     def get_expression(self):
         """
@@ -146,11 +147,11 @@ class ASTDeclaration(ASTNode):
         :return: the right-hand side rhs.
         :rtype: ASTExpression
         """
-        return self.__expression
+        return self.expression
 
     def set_expression(self, expr):
         # type: (ASTExpression) -> None
-        self.__expression = expr
+        self.expression = expr
 
     def has_invariant(self):
         """
@@ -158,7 +159,7 @@ class ASTDeclaration(ASTNode):
         :return: True if has invariant, otherwise False.
         :rtype: bool
         """
-        return self.__invariant is not None
+        return self.invariant is not None
 
     def get_invariant(self):
         """
@@ -166,7 +167,7 @@ class ASTDeclaration(ASTNode):
         :return: the invariant
         :rtype: ASTExpression
         """
-        return self.__invariant
+        return self.invariant
 
     def get_parent(self, ast):
         """

@@ -40,12 +40,13 @@ class ASTInputLine(ASTNode):
             (datatype)?
             '<-' inputType*
             (is_current = 'current' | is_spike = 'spike');
+    Attributes:
+        name = None
+        size_parameter = None
+        data_type = None
+        input_types = None
+        signal_type = None
     """
-    name = None
-    size_parameter = None
-    data_type = None
-    input_types = None
-    signal_type = None
 
     def __init__(self, name=None, size_parameter=None, data_type=None, input_types=list(), signal_type=None,
                  source_position=None):

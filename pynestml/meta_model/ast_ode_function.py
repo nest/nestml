@@ -28,11 +28,12 @@ class ASTOdeFunction(ASTNode):
         function v_init mV = V_m - 50mV.
     Grammar:    
         odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' rhs;
+    Attributes:
+        is_recordable = False
+        variable_name = None
+        data_type = None
+        expression = None
     """
-    is_recordable = False
-    variable_name = None
-    data_type = None
-    expression = None
 
     def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, source_position=None):
         """

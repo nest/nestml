@@ -29,10 +29,11 @@ class ASTIfStmt(ASTNode):
                     elifClause*
                     (elseClause)?
                     BLOCK_CLOSE;
+    Attributes:
+        if_clause = None
+        elif_clauses = None
+        else_clause = None
     """
-    if_clause = None
-    elif_clauses = None
-    else_clause = None
 
     def __init__(self, if_clause, elif_clauses=list(), else_clause=None, source_position=None):
         """

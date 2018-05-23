@@ -41,24 +41,23 @@ class ASTExpression(ASTExpressionNode):
              | condition=rhs '?' ifTrue=rhs ':' ifNot=rhs
              | simpleExpression
              ;
+    Attributes:
+        # encapsulated or with unary operator or with a logical not or just a simple rhs.
+        is_encapsulated = False
+        is_logical_not = False
+        unary_operator = None
+        expression = None
+        # lhs and rhs combined by an operator
+        lhs = None
+        binary_operator = None
+        rhs = None
+        # ternary operator
+        condition = None
+        if_true = None
+        if_not = None
+        # simple rhs
+        simple_expression = None
     """
-    # encapsulated or with unary operator or with a logical not or just a simple rhs.
-    is_encapsulated = False
-    is_logical_not = False
-    unary_operator = None
-    expression = None
-    # lhs and rhs combined by an operator
-    lhs = None
-    binary_operator = None
-    rhs = None
-    # ternary operator
-    condition = None
-    if_true = None
-    if_not = None
-    # simple rhs
-    simple_expression = None
-
-    # the corresponding type symbol.
 
     def __init__(self, is_encapsulated=False, unary_operator=None, is_logical_not=False,
                  expression=None, lhs=None, binary_operator=None, rhs=None, condition=None, if_true=None,

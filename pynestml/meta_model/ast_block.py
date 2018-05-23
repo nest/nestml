@@ -26,8 +26,9 @@ class ASTBlock(ASTNode):
     This class is used to store a single block of declarations, i.e., statements.
     Grammar:
         block : ( smallStmt | compoundStmt | NEWLINE )*;
+    Attribute:
+        stmts = None
     """
-    stmts = None
 
     def __init__(self, _stmts=list(), source_position=None):
         """

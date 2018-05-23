@@ -33,23 +33,24 @@ class ASTUnitType(ASTNode):
                | left=unitType (timesOp='*' | divOp='/') right=unitType
                | unitlessLiteral=INTEGER divOp='/' right=unitType
                | unit=NAME;
+    Attributes:
+        # encapsulated or not
+        is_encapsulated = False
+        compound_unit = None
+        # pow rhs
+        base = None
+        is_pow = False
+        exponent = None
+        # arithmetic combination case
+        lhs = None
+        is_times = False
+        is_div = False
+        rhs = None
+        # simple case, just a name
+        unit = None
+        # the corresponding symbol
+        type_symbol = None
     """
-    # encapsulated or not
-    is_encapsulated = False
-    compound_unit = None
-    # pow rhs
-    base = None
-    is_pow = False
-    exponent = None
-    # arithmetic combination case
-    lhs = None
-    is_times = False
-    is_div = False
-    rhs = None
-    # simple case, just a name
-    unit = None
-    # the corresponding symbol
-    type_symbol = None
 
     def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
                  exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, source_position=None):
@@ -85,6 +86,7 @@ class ASTUnitType(ASTNode):
         self.is_div = is_div
         self.rhs = rhs
         self.unit = _unit
+        self.type_symbol = None
         return
 
     def is_simple_unit(self):
