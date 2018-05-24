@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from typing import Union
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -41,7 +40,7 @@ class ASTSimpleExpression(ASTExpressionNode):
         variable: A variable reference.
         is_boolean_true (bool): True if this is a boolean true literal.
         is_boolean_false (bool): True if this is a boolean false literal.
-        is_inf (bool): True if this is a infinity literal.
+        is_inf_literal (bool): True if this is a infinity literal.
         string (str): A string literal.
 
     """
@@ -85,7 +84,7 @@ class ASTSimpleExpression(ASTExpressionNode):
             else:
                 self.is_boolean_false = True
         self.numeric_literal = numeric_literal
-        self.is_inf = is_inf
+        self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
         return
@@ -117,22 +116,6 @@ class ASTSimpleExpression(ASTExpressionNode):
             ret.append(self.get_function_call())
         return ret
 
-    def is_boolean_true(self):
-        """
-        Returns whether it is a boolean true literal.
-        :return: True if true literal, otherwise False.
-        :rtype: bool 
-        """
-        return self.is_boolean_true
-
-    def is_boolean_false(self):
-        """
-        Returns whether it is a boolean false literal.
-        :return: True if false literal, otherwise False.
-        :rtype: bool
-        """
-        return self.is_boolean_false
-
     def is_numeric_literal(self):
         """
         Returns whether it is a numeric literal or not.
@@ -148,14 +131,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         :rtype: int/float
         """
         return self.numeric_literal
-
-    def is_inf_literal(self):
-        """
-        Returns whether it is a infinity literal or not.
-        :return: True if infinity literal, otherwise False.
-        :rtype: bool
-        """
-        return self.is_inf
 
     def is_variable(self):
         """
@@ -278,13 +253,13 @@ class ASTSimpleExpression(ASTExpressionNode):
             return False
         if self.get_numeric_literal() != other.get_numeric_literal():
             return False
-        if self.is_boolean_false() != other.is_boolean_false() or self.is_boolean_true() != other.is_boolean_true():
+        if self.is_boolean_false != other.is_boolean_false or self.is_boolean_true != other.is_boolean_true:
             return False
         if self.is_variable() + other.is_variable() == 1:
             return False
         if self.is_variable() and other.is_variable() and not self.get_variable().equals(other.get_variable()):
             return False
-        if self.is_inf_literal() != other.is_inf_literal():
+        if self.is_inf_literal != other.is_inf_literal:
             return False
         if self.is_string() + other.is_string() == 1:
             return False

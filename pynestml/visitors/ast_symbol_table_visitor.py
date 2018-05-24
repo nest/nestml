@@ -260,7 +260,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().accept(visitor)
         type_name = visitor.result
         # all declarations in the state block are recordable
-        is_recordable = (node.is_recordable() or
+        is_recordable = (node.is_recordable or
                          self.block_type_stack.top() == BlockType.STATE or
                          self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
@@ -442,7 +442,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                 block_type=BlockType.EQUATION,
                                 declaring_expression=node.get_expression(),
                                 is_predefined=False, is_function=True,
-                                is_recordable=node.isRecordable(),
+                                is_recordable=node.is_recordable,
                                 type_symbol=type_symbol,
                                 variable_type=VariableType.VARIABLE)
         symbol.set_comment(node.get_comment())
@@ -488,9 +488,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ast_block_with_variables
         """
         self.block_type_stack.push(
-            BlockType.STATE if node.is_state() else
-            BlockType.INTERNALS if node.is_internals() else
-            BlockType.PARAMETERS if node.is_parameters() else
+            BlockType.STATE if node.is_state else
+            BlockType.INTERNALS if node.is_internals else
+            BlockType.PARAMETERS if node.is_parameters else
             BlockType.INITIAL_VALUES)
         for decl in node.get_declarations():
             decl.update_scope(node.get_scope())

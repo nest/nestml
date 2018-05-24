@@ -220,9 +220,9 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        if op.is_and():
+        if op.is_logical_and:
             return '%s' + '&&' + '%s'
-        elif op.is_or():
+        elif op.is_logical_or:
             return '%s' + '||' + '%s'
         else:
             raise RuntimeError('Cannot determine logical operator!', LoggingLevel.ERROR)
@@ -236,17 +236,17 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        if op.is_lt():
+        if op.is_lt:
             return '%s' + '<' + '%s'
-        elif op.is_le():
+        elif op.is_le:
             return '%s' + '<=' + '%s'
-        elif op.is_eq():
+        elif op.is_eq:
             return '%s' + '==' + '%s'
-        elif op.is_ne() or op.is_ne2():
+        elif op.is_ne or op.is_ne2:
             return '%s' + '!=' + '%s'
-        elif op.is_ge():
+        elif op.is_ge:
             return '%s' + '>=' + '%s'
-        elif op.is_gt():
+        elif op.is_gt:
             return '%s' + '>' + '%s'
         else:
             raise RuntimeError('Cannot determine comparison operator!')

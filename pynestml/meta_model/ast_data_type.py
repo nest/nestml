@@ -41,12 +41,12 @@ class ASTDataType(ASTNode):
         is_string = False
         is_boolean = False
         is_void = False
-        is_unit_type = None  # a unit type is not a boolean, but a concrete object
+        unit_type = None  # a unit type is not a boolean, but a concrete object
         type_symbol = None  # the corresponding type symbol
     """
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,
-                 is_unit_type=None, source_position=None):
+                 unit_type=None, source_position=None):
         """
         :param is_integer: is an integer data type
         :type is_integer: boolean
@@ -58,61 +58,20 @@ class ASTDataType(ASTNode):
         :type is_boolean: boolean
         :param is_void: is a void data type
         :type is_void: boolean
-        :param is_unit_type: an object of type ASTUnitType
-        :type is_unit_type: ASTUnitType
+        :param unit_type: an object of type ASTUnitType
+        :type unit_type: ASTUnitType
         :param source_position: The source position of the assignment
         :type source_position: ASTSourceLocation
         """
         super(ASTDataType, self).__init__(source_position)
-        self.is_unit_type = is_unit_type
+        self.unit_type = unit_type
         self.is_void = is_void
         self.is_boolean = is_boolean
         self.is_string = is_string
         self.is_real = is_real
         self.is_integer = is_integer
+        self.type_symbol = None
         return
-
-    def is_integer(self):
-        """
-        Returns whether this is a integer type or not.
-        :return: True if integer typed, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.is_integer, bool) and self.is_integer
-
-    def is_real(self):
-        """
-        Returns whether this is a real type or not.
-        :return: True if real typed, otherwise False.
-        :rtype: bool
-        :return: 
-        :rtype: 
-        """
-        return isinstance(self.is_real, bool) and self.is_real
-
-    def is_string(self):
-        """
-        Returns whether this is a string type or not.
-        :return: True if string typed, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.is_string, bool) and self.is_string
-
-    def is_boolean(self):
-        """
-        Returns whether this is a boolean type or not.
-        :return: True if boolean typed, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.is_boolean, bool) and self.is_boolean
-
-    def is_void(self):
-        """
-        Returns whether this is a void type or not.
-        :return: True if void typed, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.is_void, bool) and self.is_void
 
     def is_unit_type(self):
         """
@@ -120,7 +79,7 @@ class ASTDataType(ASTNode):
         :return: True if unit type typed, otherwise False.
         :rtype: bool
         """
-        return self.is_unit_type is not None
+        return self.unit_type is not None
 
     def get_unit_type(self):
         """
@@ -128,7 +87,7 @@ class ASTDataType(ASTNode):
         :return: the unit type object.
         :rtype: ASTUnitType
         """
-        return self.is_unit_type
+        return self.unit_type
 
     def get_type_symbol(self):
         """
@@ -136,7 +95,7 @@ class ASTDataType(ASTNode):
         :return: a single type symbol element.
         :rtype: type_symbol
         """
-        return self.__typeSymbol
+        return self.type_symbol
 
     def set_type_symbol(self, type_symbol):
         """
@@ -147,7 +106,7 @@ class ASTDataType(ASTNode):
         from pynestml.symbols.type_symbol import TypeSymbol
         assert (type_symbol is not None and isinstance(type_symbol, TypeSymbol)), \
             '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(type_symbol))
-        self.__typeSymbol = type_symbol
+        self.type_symbol = type_symbol
         return
 
     def get_parent(self, ast):
@@ -175,9 +134,9 @@ class ASTDataType(ASTNode):
         """
         if not isinstance(other, ASTDataType):
             return False
-        if not (self.is_integer() == other.is_integer() and self.is_real() == other.is_real() and
-                self.is_string() == other.is_string() and self.is_boolean() == other.is_boolean() and
-                self.is_void() == other.is_void()):
+        if not (self.is_integer == other.is_integer and self.is_real == other.is_real and
+                self.is_string == other.is_string and self.is_boolean == other.is_boolean and
+                self.is_void == other.is_void):
             return False
         # only one of them uses a unit, thus false
         if self.is_unit_type() + other.is_unit_type() == 1:

@@ -55,14 +55,6 @@ class ASTOdeFunction(ASTNode):
         self.data_type = data_type
         self.expression = expression
 
-    def isRecordable(self):
-        """
-        Returns whether this ode function is recordable or not.
-        :return: True if recordable, else False.
-        :rtype: bool
-        """
-        return self.is_recordable
-
     def get_variable_name(self):
         """
         Returns the variable name.
@@ -115,7 +107,7 @@ class ASTOdeFunction(ASTNode):
         """
         if not isinstance(other, ASTOdeFunction):
             return False
-        if self.isRecordable() != other.isRecordable():
+        if self.is_recordable != other.is_recordable:
             return False
         if self.get_variable_name() != other.get_variable_name():
             return False

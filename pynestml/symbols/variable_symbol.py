@@ -123,14 +123,6 @@ class VariableSymbol(Symbol):
         return self.declaring_expression is not None and (isinstance(self.declaring_expression, ASTSimpleExpression)
                                                           or isinstance(self.declaring_expression, ASTExpression))
 
-    def is_recordable(self):
-        """
-        Returns whether this symbol represents a recordable element.
-        :return: True if recordable, False otherwise.
-        :rtype: bool
-        """
-        return self.is_recordable
-
     def is_spike_buffer(self):
         """
         Returns whether this symbol represents a spike buffer.
@@ -258,9 +250,9 @@ class VariableSymbol(Symbol):
             source_position = 'predefined'
         vector_value = self.get_vector_parameter() if self.has_vector_parameter() else 'none'
         typ_e = self.get_type_symbol().print_symbol()
-        recordable = 'recordable, ' if self.is_recordable() else ''
+        recordable = 'recordable, ' if self.is_recordable else ''
         func = 'function, ' if self.is_function else ''
-        conductance_based = 'conductance based, ' if self.is_conductance_based() else ''
+        conductance_based = 'conductance based, ' if self.is_conductance_based else ''
         return ('VariableSymbol[' + self.get_symbol_name() + ', type=' +
                 typ_e + ', ' + str(self.block_type) + ', ' + recordable + func + conductance_based +
                 'array parameter=' + vector_value + ', @' + source_position + ')')
@@ -381,8 +373,8 @@ class VariableSymbol(Symbol):
                 self.declaring_expression == other.declaring_expression and
                 self.is_predefined == other.is_predefined and
                 self.is_function == other.is_function and
-                self.is_conductance_based() == other.is_conductance_based() and
-                self.is_recordable() == other.isRecordable())
+                self.is_conductance_based == other.is_conductance_based and
+                self.is_recordable == other.is_recordable)
 
     def print_comment(self, prefix=None):
         """

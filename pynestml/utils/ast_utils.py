@@ -119,15 +119,15 @@ class ASTUtils(object):
         :return: the corresponding representation.
         :rtype: str
         """
-        if data_type.is_boolean():
+        if data_type.is_boolean:
             return 'boolean'
-        elif data_type.is_integer():
+        elif data_type.is_integer:
             return 'integer'
-        elif data_type.is_real():
+        elif data_type.is_real:
             return 'real'
-        elif data_type.is_string():
+        elif data_type.is_string:
             return 'string'
-        elif data_type.is_void():
+        elif data_type.is_void:
             return 'void'
         elif data_type.is_unit_type():
             return str(data_type)
@@ -226,15 +226,15 @@ class ASTUtils(object):
         :rtype: bool
         """
         # we can always cast from unit to real
-        if type_a.is_unit() and type_b.is_real():
+        if type_a.is_unit and type_b.is_real:
             return True
-        elif type_a.is_boolean() and type_b.is_real():
+        elif type_a.is_boolean and type_b.is_real:
             return True
-        elif type_a.is_real() and type_b.is_boolean():
+        elif type_a.is_real and type_b.is_boolean:
             return True
-        elif type_a.is_integer() and type_b.is_real():
+        elif type_a.is_integer and type_b.is_real:
             return True
-        elif type_a.is_real() and type_b.is_integer():
+        elif type_a.is_real and type_b.is_integer:
             return True
         else:
             return False

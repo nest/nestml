@@ -98,11 +98,11 @@ class ASTExpressionTypeVisitor(ASTVisitor):
                 self.set_real_self(self.variable_visitor)
                 return
             # simpleExpression = BOOLEAN_LITERAL
-            if node.is_boolean_true() or node.is_boolean_false():
+            if node.is_boolean_true or node.is_boolean_false:
                 self.set_real_self(self.boolean_literal_visitor)
                 return
             # simpleExpression = isInf='inf'
-            if node.is_inf_literal():
+            if node.is_inf_literal:
                 self.set_real_self(self.inf_visitor)
                 return
             # simpleExpression = string=STRING_LITERAL

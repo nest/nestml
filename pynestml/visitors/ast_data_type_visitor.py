@@ -50,16 +50,16 @@ class ASTDataTypeVisitor(ASTVisitor):
         if node.is_integer:
             self.symbol = PredefinedTypes.get_integer_type()
             node.set_type_symbol(self.symbol)
-        elif node.is_real():
+        elif node.is_real:
             self.symbol = PredefinedTypes.get_real_type()
             node.set_type_symbol(self.symbol)
-        elif node.is_string():
+        elif node.is_string:
             self.symbol = PredefinedTypes.get_string_type()
             node.set_type_symbol(self.symbol)
-        elif node.is_boolean():
+        elif node.is_boolean:
             self.symbol = PredefinedTypes.get_boolean_type()
             node.set_type_symbol(self.symbol)
-        elif node.is_void():
+        elif node.is_void:
             self.symbol = PredefinedTypes.get_void_type()
             node.set_type_symbol(self.symbol)
 

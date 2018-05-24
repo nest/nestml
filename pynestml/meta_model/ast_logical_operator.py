@@ -47,22 +47,6 @@ class ASTLogicalOperator(ASTNode):
         self.is_logical_or = is_logical_or
         return
 
-    def is_and(self):
-        """
-        Returns whether it is an AND operator.
-        :return: True if AND, otherwise False.
-        :rtype: bool
-        """
-        return self.is_logical_and
-
-    def is_or(self):
-        """
-        Returns whether it is an OR operator.
-        :return: True if OR, otherwise False.
-        :rtype: bool
-        """
-        return self.is_logical_or
-
     def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
@@ -83,4 +67,4 @@ class ASTLogicalOperator(ASTNode):
         """
         if not isinstance(other, ASTLogicalOperator):
             return False
-        return self.is_and() == other.is_and() and self.is_or() == other.is_or()
+        return self.is_logical_and == other.is_logical_and and self.is_logical_or == other.is_logical_or

@@ -82,14 +82,6 @@ class ASTDeclaration(ASTNode):
         self.invariant = invariant
         return
 
-    def is_recordable(self):
-        """
-        Returns whether the declaration is recordable or not.
-        :return: True if recordable, else False.
-        :rtype: bool
-        """
-        return isinstance(self.is_recordable, bool) and self.is_recordable
-
     def get_variables(self):
         """
         Returns the set of left-hand side variables.
@@ -208,7 +200,7 @@ class ASTDeclaration(ASTNode):
         """
         if not isinstance(other, ASTDeclaration):
             return False
-        if not (self.is_function == other.is_function and self.is_recordable() == other.is_recordable()):
+        if not (self.is_function == other.is_function and self.is_recordable == other.is_recordable):
             return False
         if self.get_size_parameter() != other.get_size_parameter():
             return False

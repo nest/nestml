@@ -69,62 +69,6 @@ class ASTComparisonOperator(ASTNode):
         self.is_lt = is_lt
         return
 
-    def is_lt(self):
-        """
-        Returns whether it is the less than operator.
-        :return: True if less than operator, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_lt, bool) and self.is_lt
-
-    def is_le(self):
-        """
-        Returns whether it is the less equal operator.
-        :return: True if less equal operator, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_le, bool) and self.is_le
-
-    def is_eq(self):
-        """
-        Returns whether it is the equality operator.
-        :return: True if less equality operator, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_eq, bool) and self.is_eq
-
-    def is_ne(self):
-        """
-        Returns whether it is the not equal operator.
-        :return: True if not equal operator, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_ne, bool) and self.is_ne
-
-    def is_ne2(self):
-        """
-        Returns whether it is the not equal operator.
-        :return: True if not equal operator, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_ne2, bool) and self.is_ne2
-
-    def is_ge(self):
-        """
-        Returns whether it is the greater equal operator.
-        :return: True if less greater operator, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_ge, bool) and self.is_ge
-
-    def is_gt(self):
-        """
-        Returns whether it is the greater than operator.
-        :return: True if less greater than, otherwise False
-        :rtype: bool
-        """
-        return isinstance(self.is_gt, bool) and self.is_gt
-
     def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
@@ -145,6 +89,6 @@ class ASTComparisonOperator(ASTNode):
         """
         if not isinstance(other, ASTComparisonOperator):
             return False
-        return (self.is_lt() == other.is_lt() and self.is_le() == other.is_le() and
-                self.is_eq() == other.is_eq() and self.is_ne() == other.is_ne() and
-                self.is_ne2() == other.is_ne2() and self.is_ge() == other.is_ge() and self.is_gt() == other.is_gt())
+        return (self.is_lt == other.is_lt and self.is_le == other.is_le and
+                self.is_eq == other.is_eq and self.is_ne == other.is_ne and
+                self.is_ne2 == other.is_ne2 and self.is_ge == other.is_ge and self.is_gt == other.is_gt)

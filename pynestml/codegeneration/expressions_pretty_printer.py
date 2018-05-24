@@ -62,13 +62,13 @@ class ExpressionsPrettyPrinter(object):
                        self.reference_converter.convert_name_reference(node.get_variable())
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
-            elif node.is_inf_literal():
+            elif node.is_inf_literal:
                 return self.reference_converter.convert_constant('inf')
             elif node.is_string():
                 return self.types_printer.pretty_print(node.get_string())
-            elif node.is_boolean_true():
+            elif node.is_boolean_true:
                 return self.types_printer.pretty_print(True)
-            elif node.is_boolean_false():
+            elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
                 return self.reference_converter.convert_name_reference(node.get_variable())

@@ -231,11 +231,11 @@ class ASTNestMLPrinter(object):
         self.inc_indent()
         ret = print_ml_comments(node.pre_comments, temp_indent, False)
         ret += print_n_spaces(temp_indent)
-        if node.is_state():
+        if node.is_state:
             ret += 'state'
-        elif node.is_parameters():
+        elif node.is_parameters:
             ret += 'parameters'
-        elif node.is_internals():
+        elif node.is_internals:
             ret += 'internals'
         else:
             ret += 'initial_values'
@@ -259,19 +259,19 @@ class ASTNestMLPrinter(object):
     @classmethod
     def print_comparison_operator(cls, node):
         # type: (ASTComparisonOperator) -> str
-        if node.is_lt():
+        if node.is_lt:
             return ' < '
-        elif node.is_le():
+        elif node.is_le:
             return ' <= '
-        elif node.is_eq():
+        elif node.is_eq:
             return ' == '
-        elif node.is_ne():
+        elif node.is_ne:
             return ' != '
-        elif node.is_ne2():
+        elif node.is_ne2:
             return ' <> '
-        elif node.is_ge():
+        elif node.is_ge:
             return ' >= '
-        elif node.is_gt():
+        elif node.is_gt:
             return ' > '
         else:
             raise RuntimeError('(PyNestML.ComparisonOperator.Print) Type of comparison operator not specified!')
@@ -289,17 +289,17 @@ class ASTNestMLPrinter(object):
 
     def print_data_type(self, node):
         # type: (ASTDataType) -> str
-        if node.is_void():
+        if node.is_void:
             return 'void'
-        elif node.is_string():
+        elif node.is_string:
             return 'string'
-        elif node.is_boolean():
+        elif node.is_boolean:
             return 'boolean'
-        elif node.is_integer():
+        elif node.is_integer:
             return 'integer'
-        elif node.is_real():
+        elif node.is_real:
             return 'real'
-        elif node.is_unit_type():
+        elif node.unit_type():
             return self.print_node(node.get_unit_type())
         else:
             raise RuntimeError('Type of datatype not specified!')
@@ -308,7 +308,7 @@ class ASTNestMLPrinter(object):
         # type: (ASTDeclaration) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent)
-        if node.is_recordable():
+        if node.is_recordable:
             ret += 'recordable '
         if node.is_function:
             ret += 'function '
@@ -473,7 +473,7 @@ class ASTNestMLPrinter(object):
     @classmethod
     def print_logical_operator(cls, node):
         # type: (ASTLogicalOperator) -> str
-        if node.is_and():
+        if node.is_logical_and:
             return ' and '
         else:
             return ' or '
@@ -498,7 +498,7 @@ class ASTNestMLPrinter(object):
     def print_ode_function(self, node):
         # type: (ASTOdeFunction) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
-        if node.isRecordable():
+        if node.is_recordable:
             ret += 'recordable'
         ret += (print_n_spaces(self.indent) + 'function ' +
                 str(node.get_variable_name()) + ' ' + self.print_node(node.get_data_type()) +
@@ -538,11 +538,11 @@ class ASTNestMLPrinter(object):
         # type: (ASTSimpleExpression) -> str
         if node.is_function_call():
             return self.print_node(node.function_call)
-        elif node.is_boolean_true():
+        elif node.is_boolean_true:
             return 'true'
-        elif node.is_boolean_false():
+        elif node.is_boolean_false:
             return 'false'
-        elif node.is_inf_literal():
+        elif node.is_inf_literal:
             return 'inf'
         elif node.is_numeric_literal():
             if node.variable is not None:

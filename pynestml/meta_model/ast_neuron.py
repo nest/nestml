@@ -130,7 +130,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_state():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_state:
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
@@ -148,7 +148,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values:
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
@@ -166,7 +166,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
@@ -184,7 +184,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
@@ -499,7 +499,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values:
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
@@ -514,7 +514,7 @@ class ASTNeuron(ASTNode):
         """
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values:
                 self.get_body().get_body_elements().remove(elem)
 
     def get_function_initial_values_symbols(self):

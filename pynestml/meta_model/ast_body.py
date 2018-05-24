@@ -86,7 +86,7 @@ class ASTBody(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_state():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_state:
                 ret.append(elem)
         return ret
 
@@ -99,7 +99,7 @@ class ASTBody(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
                 ret.append(elem)
         return ret
 
@@ -112,7 +112,7 @@ class ASTBody(ASTNode):
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
         for elem in self.get_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
                 ret.append(elem)
         return ret
 

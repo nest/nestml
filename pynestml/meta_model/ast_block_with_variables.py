@@ -44,7 +44,7 @@ class ASTBlockWithVariables(ASTNode):
         is_state = False
         is_parameters = False
         is_internals = False
-        is_init_values = False
+        is_initial_values = False
         declarations = None
     """
 
@@ -75,41 +75,9 @@ class ASTBlockWithVariables(ASTNode):
         self.declarations = declarations
         self.is_internals = is_internals
         self.is_parameters = is_parameters
-        self.is_init_values = is_initial_values
+        self.is_initial_values = is_initial_values
         self.is_state = is_state
         return
-
-    def is_state(self):
-        """
-        Returns whether it is a state block or not.
-        :return: True if state block, otherwise False.
-        :rtype: bool
-        """
-        return self.is_state
-
-    def is_parameters(self):
-        """
-        Returns whether it is a parameters block or not.
-        :return: True if parameters block, otherwise False.
-        :rtype: bool
-        """
-        return self.is_parameters
-
-    def is_internals(self):
-        """
-        Returns whether it is an internals block or not.
-        :return: True if internals block, otherwise False.
-        :rtype: bool
-        """
-        return self.is_internals
-
-    def is_initial_values(self):
-        """
-        Returns whether it is a initial-values block.
-        :return: True if initial values block, otherwise False.
-        :rtype: bool
-        """
-        return self.is_init_values
 
     def get_declarations(self):
         """
@@ -152,9 +120,9 @@ class ASTBlockWithVariables(ASTNode):
         """
         if not isinstance(other, ASTBlockWithVariables):
             return False
-        if not (self.is_initial_values() == other.is_initial_values()
-                and self.is_internals() == other.is_internals() and
-                self.is_parameters() == other.is_parameters() and self.is_state() == other.is_state()):
+        if not (self.is_initial_values == other.is_initial_values
+                and self.is_internals == other.is_internals and
+                self.is_parameters == other.is_parameters and self.is_state == other.is_state):
             return False
         if len(self.get_declarations()) != len(other.get_declarations()):
             return False
