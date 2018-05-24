@@ -78,6 +78,8 @@ class ASTSimpleExpression(ASTExpressionNode):
             '(PyNestML.AST.SimpleExpression) Not a string provided (%s)!' % type(string)
         super(ASTSimpleExpression, self).__init__(source_position)
         self.function_call = function_call
+        self.is_boolean_true = False
+        self.is_boolean_false = False
         if boolean_literal is not None:
             if boolean_literal:
                 self.is_boolean_true = True

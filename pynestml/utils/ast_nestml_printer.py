@@ -299,7 +299,7 @@ class ASTNestMLPrinter(object):
             return 'integer'
         elif node.is_real:
             return 'real'
-        elif node.unit_type():
+        elif node.is_unit_type():
             return self.print_node(node.get_unit_type())
         else:
             raise RuntimeError('Type of datatype not specified!')

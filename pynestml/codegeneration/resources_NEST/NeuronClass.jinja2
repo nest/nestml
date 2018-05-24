@@ -332,8 +332,8 @@ void {{neuronName}}::handle(nest::SpikeEvent &e){
   if ( weight < 0.0 ){ // inhibitory
     get_{{buffer.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                      {% if buffer.is_conductance_based() %} // ensure conductance is positive {% endif %}
-                      {% if buffer.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
+                      {% if buffer.is_conductance_based %} // ensure conductance is positive {% endif %}
+                      {% if buffer.is_conductance_based %} -1 * {% endif %} weight * multiplicity );
   }
   {%- endif -%}
   {%- endfor %}
