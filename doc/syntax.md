@@ -1,31 +1,31 @@
-# NESTML language documentation (work in progress)
+# NestML language documentation
 
-NESTML is a domain specific language for the specification of models for the neuronal simulator [NEST](http://www.nest-simulator.org). It has a concise syntax based on that of Python which avoids clutter in the form of semicolons, curly braces or tags as known from other programming and description languages. Instead it concentrates on domain concepts that help to efficiently write neuron models and their equations.
+NestML is a domain specific language for the specification of models for the neuronal simulator [NEST](http://www.nest-simulator.org). It has a concise syntax based on that of Python which avoids clutter in the form of semicolons, curly braces or tags as known from other programming and description languages. Instead, it concentrates on domain concepts that help to efficiently write neuron models and their equations.
 
-NESTML files are expected to have the filename extension `.nestml`. Each file may contain one or more neuron models. This means that there is no forced direct correspondence between model and file name. Models that shall be compiled into one extension module for NEST have to reside in the same directory. The name of the directory will be used as the name of the corresponding module.
+NestML files are expected to have the filename extension `.nestml`. Each file may contain one or more neuron models. This means that there is no forced direct correspondence between model and file name. Models that shall be compiled into one extension module for NEST have to reside in the same directory. The name of the directory will be used as the name of the corresponding module.
 
-In order to give users complete freedom in implementing neuron model dynamics, NESTML has a full procedural programming language built in. This programming language is used to define the model's time update and functions.
+In order to give users complete freedom in implementing neuron model dynamics, NestML has a full procedural programming language built in. This programming language is used to define the model's time update and functions.
 
 ### Data types and physical units
 
-Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
+Data types define types of variables as well as parameters and return values of functions. NestML provides the following primitive types and physical data types:
 
 #### Primitive data types
 * `real` corresponds to the `double` data type in C++. Example literals are: `42.0`, `-0.42`, `.44`
 * `integer` corresponds to the `long` data type in C++. Example literals are: `42`, `-7`
 * `boolean` corresponds to the `bool` data type in C++. Its only literals are `true` and `false`
 * `string` corresponds to the `std::string` data type in C++. Example literals are: `"Bob"`, `""`, `"Hello World!"`
-* `void` corresponds to the `void` data type in C++. No literals are possible and this can only be used in the declaration of a function without return value.
+* `void` corresponds to the `void` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
 
 #### Physical units
 
-A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
+A physical unit in NestML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
 
 The following table lists seven base units, which can be used to specify any physical unit. This idea is based on [the SI units](https://en.wikipedia.org/wiki/International_System_of_Units).
 
 |Quantity | Unit Name | NESTML/SI unit |
 |---|---|---|
-| length              | metre    | m |
+| length              | meter | m |
 | mass                | kilogram | kg |
 | time                | second   | s |
 | electric current    | ampere   | A |
@@ -33,53 +33,29 @@ The following table lists seven base units, which can be used to specify any phy
 | amount of substance | mole     | mol |
 | luminous intensity  | candela  | cd |
 
-Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides the following derived units as built-in data types:
-
-|Quantity | Unit name | Definition | NESTML/SI unit |
-|---|---|---|---|
-| capacitance            | farad   | A<sup>2</sup> s<sup>4</sup> kg<sup>−1</sup> m<sup>−2</sup> | F |
-| electrical conductance | siemens | A<sup>2</sup> s<sup>3</sup> kg<sup>−1</sup> m<sup>−2</sup> | S |
-| electric charge        | coulomb | A s                                                        | C |
-| electric potential     | volt    | kg m<sup>2</sup> A<sup>−1</sup> s<sup>−3</sup>             | V |
-| electric resistance    | ohm     | kg m<sup>2</sup> A<sup>−2</sup> s<sup>−3</sup>             | ohm/&Omega; |
-| frequency              | hertz   | s<sup>−1</sup>                                             | Hz |
-
-| | | | |
-|---|---|---|---|
-|||| Bq |
-|||| Gy |
-|||| Sv |
-|||| J |
-|||| W  |
-|||| Wb |
-|||| N |
-|||| Pa |
-|||| kat |
+Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NestML provides a concept for the derivation of new physical units, i.e., by combining simple units (consisting of a prefix and an SI unit), the user is able to create arbitrary physical units. 
 
 Units can have at most one of the following magnitude prefixes:
 
-|Factor | SI Name | NESTML prefix | Factor | SI Name | NESTML prefix
+|Factor | SI Name | NestML prefix | Factor | SI Name | NestML prefix
 |---|---|---|---|---|---|
-|10<sup>-1</sup>  | deci  | d  | 10<sup>1</sup>  | deca  | da |
-|10<sup>-2</sup>  | centi | c  | 10<sup>2</sup>  | hecto | h |
-|10<sup>-3</sup>  | milli | m  | 10<sup>3</sup>  | kilo  | k |
-|10<sup>-6</sup>  | micro | mu | 10<sup>6</sup>  | mega  | M |
-|10<sup>-9</sup>  | nano  | n  | 10<sup>9</sup>  | giga  | G |
-|10<sup>-12</sup> | pico  | p  | 10<sup>12</sup> | tera  | T |
-|10<sup>-15</sup> | femto | f  | 10<sup>15</sup> | peta  | P |
+|10^-1  | deci  | d  | 10^1  | deca  | da |
+|10^-2  | centi | c  | 10^2  | hecto | h |
+|10^-3  | milli | m  | 10^3  | kilo  | k |
+|10^-6  | micro | mu | 10^6  | mega  | M |
+|10^-9  | nano  | n  | 10^9  | giga  | G |
+|10^-12 | pico  | p  | 10^12 | tera  | T |
+|10^-15 | femto | f  | 10^15 | peta  | P |
+|10^-18 | atto  | a  | 10^18 | exa   | E |
+|10^-21 | zepto | z  | 10^21 | zetta | Z |
+|10^-24 | yocto | y  | 10^24 | yotta | Y |
 
-| | | | | | |
-|---|---|---|---|---|---|
-|10<sup>-18</sup> | atto  | a  | 10<sup>18</sup> | exa   | E |
-|10<sup>-21</sup> | zepto | z  | 10<sup>21</sup> | zetta | Z |
-|10<sup>-24</sup> | yocto | y  | 10<sup>24</sup> | yotta | Y |
-
-Finally, simple physical units can be combined to complex units. For this, the operators , `*` (multiplication), `/` (division), `**` (power) and `()` (parenthesis) can be used. An example could be
+Simple physical units can be combined to complex units. For this, the operators , `*` (multiplication), `/` (division), `**` (power) and `()` (parenthesis) can be used. An example could be
 ```
 mV*mV*nS**2/(mS*pA)
 ```
 
-Units of the form `<unit> ** -1` can also be expressed as `1\<unit>`. For example
+Units of the form `<unit> ** -1` can also be expressed as `1/<unit>`. For example
 ```
 (ms*mV)**-1
 ```
@@ -88,21 +64,52 @@ is equivalent to
 1/(ms*mV)
 ```
 
+NestML also supports the usage of named derived-units such as newton, henry or lux:
+
+|Name | Symbol | Quantity | In other SI units | In base SI units | 
+|---|---|---|---|---|
+|radian|rad|angle|| (m*m^-1)|
+|steradian | sr|solid angle||(m^2 *m^−2)|
+|hertz|Hz|frequency||s^−1|
+|newton|N|force, weight||kg\*m\* s^−2|
+|pascal|Pa|pressure, stress|N/m2|kg⋅m−1⋅s−2|
+|joule|    J|energy, work, heat|N\*m=Pa\*m^3|kg\*m^2 \*s^−2|
+|watt|W|power, radiant flux|J/s|kg\*m^2 \*s^−3|
+|coulomb|C|    electric charge or quantity of electricity||s⋅A|
+|volt|V|voltage (electrical potential), emf|W/A|kg\*m^2 \*s^−3 \* A^−1
+|farad|F|capacitance|C/V|kg^−1 \* m^−2 \* s^4 \*A^2
+|ohm|Ω|resistance, impedance, reactance|V/A|kg\*(m^2) \* (s^−3) \*(A^−2)|
+|siemens|S|electrical conductance|Ω^−1|(kg^−1) \*(m^−2) \*(s^3) \* A^2|
+|weber|Wb    |magnetic flux|    V⋅s|kg\*(m^2) \*(s^−2) \*(A^−1)|
+|tesla|T|magnetic flux density    |Wb/m^2|kg\*(s^−2) \*(A^−1)|
+|henry|H|inductance|Wb/A|kg\*(m^2) \*(s^−2) \*(A^−2)
+|lumen|lm|luminous flux|cd*sr|cd|
+|lux|lx|illuminance|lm/m2|(m^−2)*cd|
+|becquerel|Bq|radioactivity (decays per unit time)||s^−1|
+|gray|Gy|absorbed dose (of ionizing radiation)|J/kg|(m^2 )\*(s^−2)|
+|sievert|Sv|equivalent dose (of ionizing radiation)|J/kg|(m^2)\* (s^−2)|
+|katal|kat|catalytic activity||mol\*(s^−1)|
+
+Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
+
+```
+x = 10N * 22Ohm / 0.5V
+```
+
 #### Physical unit literals
 
-Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two). Complex unit literals are composed of a number and a type inside of square brackets. Simple units can also be put inside square brackets.
+Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two): 
 ```
 <number> <unit_type>
-<number> [<unit_type>]
-
-a mV = 1mV
-aa mV = 1[mV]
-b mV/ms = 1[mV/ms]
+e.g.: V_m mV = 1mV
 ```
-
+Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
+```
+V_rest = -55 mV/s**2
+```
 #### Type and unit checks
 
-NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of `integer`s to `real`s. A conversion between `unit`-typed and `real`-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean types.
+NestML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NestML supports conversion of `integer`s to `real`s. A conversion between `unit`-typed and `real`-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
 
 ### Basic elements of the embedded programming language
 
@@ -115,30 +122,55 @@ Declarations are composed of a non-empty list of comma separated names. A valid 
 ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*
 ```
 
-Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
+Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NestML types. The type of the initialization expression must be compatible with the type of the declaration.
 ```
 <list_of_comma_separated_names> <type> (= initialization_expression)?
 
 a, b, c real = -0.42
 d integer = 1
 n integer # default value is 0
-e string = "Bob"
+e string = "foo"
 f mV = -2e12mV
 ```
 
 ##### Documentation strings
-Declarations can be enriched with special comments which than are taken into generated NEST documentation. To do so, `##` is used to introduce a doc string. A doc string can be spread over multiple lines around the declaration as long as there are no other statement or non doc string. 
+Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, `#` is used to introduce a single line comment. For multi-line comments, Python style comments ( """ ...""") or Java-style comments (/* ... */) can be used. 
 
 ```
-var1 real # simple comment, not a docstring
+var1 real # single line comment
 
-## starts docstring
-var2 real ## continuation of the doc string
-          ## continuation of the doc string
+/* This is 
+*  a comment
+*  over several lines.
+*/
+var2 real
+"""
+  This is a multiline comment in Python syntax.
+"""
+```
+To enable NestML to recognize the commented element uniquely, the following approach has to be used:
+The comment and its target do not have to be separated by a white line, i.e., a white line between a model element and a comment indicates, that the comment does not belong to this element, e.g.:
+```
+V_m mV = -55mV # I am a comment of the membrane potential
+
+/* I am not a comment of the membrane potential. A white line separates us. */ 
+```
+If a comment shall be attached to an element, no white lines are allowed.
+```
+V_m mV = -55mV # I am a comment of the membrane potential
+/* I am a comment of the membrane potential.*/ 
+```
+Whitelines are therefore used to separate comment targets:
+```
+V_m mV = -55mV
+/* I am a comment of the membrane potential.*/ 
+
+/* I am a comment of the resting potential.*/
+V_rest mV = -60mV
 ```
 #### Assignments
 
-NESTML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
+NestML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
 
 Examples for valid assignments for a numeric variable `n` are
   * simple assignment: `n = 10`
@@ -169,11 +201,16 @@ x = max(a*2, b/2)
 
 ##### Predefined functions
 
-| | | |
+The following set of functions is predefined in NestML and can be used out of the box:
+||||
 |---|---|---|
-| exp | expm1 | log |
-| max | pow | random |
-| randomInt | warning | info |
+| resolution | steps | emit_spike |
+| print | println | pow |
+| exp | log | info |
+|warning|random|randomInt|
+|expm1|delta|max|min|
+|bounded\_max|bounded\_min|integrate_odes|
+|curr\_sum|cond\_sum|convolve|
 
 #### Return statement
 
@@ -190,7 +227,7 @@ end
 
 ### Control structures
 
-To control the flow of executioon, NESTML supports loops and conditionals.
+To control the flow of execution, NestML supports loops and conditionals.
 
 #### Loops
 
@@ -236,7 +273,7 @@ end
 
 #### Conditionals
 
-NESTML supports different variants of the if-else conditional. The first example shows the `if` conditional composed of a single `if` block:
+NestML supports different variants of the if-else conditional. The first example shows the `if` conditional composed of a single `if` block:
 
 ```
 if <boolean_expression>:
@@ -263,7 +300,7 @@ else:
 end
 ```
 
-In order to allow grouping a sequence of related `if` conditions, NESTML also supports the `elif`-conditionals. An `if` condition can be followed by an arbitrary number of `elif` conditions. Optionally, this variant also supports the `else` keyword for a catch-all statement. The whole conditional always concludes with an `end` keyword.
+In order to allow grouping a sequence of related `if` conditions, NestML also supports the `elif`-conditionals. An `if` condition can be followed by an arbitrary number of `elif` conditions. Optionally, this variant also supports the `else` keyword for a catch-all statement. The whole conditional always concludes with an `end` keyword.
 ```
 if <boolean_expression>:
   <if_statements>
@@ -300,15 +337,15 @@ end
 
 ### Expressions and operators
 
-Expressions in NESTML can be specified in a recursive fashion.
+Expressions in NestML can be specified in a recursive fashion.
 
 #### Terms:
 
-All variables, literals, and function calls are valid terms. Variables are names of user defined or predefined variables (`t`, `e`)
+All variables, literals, and function calls are valid terms. Variables are names of user-defined or predefined variables (`t`, `e`)
 
 #### List of operators
 
-For any two valid numeric expressions `a`, `b`, a boolean expressions `c`,`c1`,`c2`, and an integer expression `n` the following operators produce valid expressions.
+For any two valid numeric expressions `a`, `b`, boolean expressions `c`,`c1`,`c2`, and an integer expression `n` the following operators produce valid expressions.
 
 | Operator | Description | Examples |
 |---|---|---|
@@ -318,14 +355,14 @@ For any two valid numeric expressions `a`, `b`, a boolean expressions `c`,`c1`,`
 |`\*`, `/`, `%`| Multiplication, Division and Modulo-Operator | `a \* b`, `a % b` |
 |`+`, `-`      | Addition and Subtraction | `a + b`, `a - b` |
 |`<<`, `>>`    | Left and right bit shifts | `a << n`, `a >> n` |
-|`&`, <code>&#124;</code>, `^`| Bitwise `and`, `or` and `xor` | `a&b`, <code>a&#124;b</code>, `a~b` |
+|`&`, `|`, `^`| Bitwise `and`, `or` and `xor` | `a&b`, `|`, `a~b` |
 |`<`, `<=`, `==`, `!=`, `>=`, `>`|  Comparison operators | `a <= b`, `a != b` |
 |`not`, `and`, `or`| Logical conjunction, disjunction and negation | `not c`, `c1 or c2` |
 | `?:`         | Ternary operator (return `a` if `c` is `true`, `b` else) | `c ? a : b` |
 
 ## Blocks
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. They are closed with the keyword `end`. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NestML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. They are closed with the keyword `end`. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
 ```
 <block_type> [<args>]:
   ...
@@ -336,18 +373,22 @@ end
 
 * `neuron` *`<name>`* - The top-level block of a neuron model called `<name>`. The content will be translated into a single neuron model that can be instantiated in PyNEST using `nest.Create(<name>)`. All following blocks are contained in this block.
 * `parameters` - This block is composed of a list of variable declarations that are supposed to contain all variables which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using `nest.SetStatus(<gid>, <variable>, <value>)` and  `nest.GetStatus(<gid>, <variable>)`.
-* `state` - This block is composed of a list of variable declarations that are supposed to describe the time dependent state of the neuron. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a `multimeter`.
-* `internals` - This block is composed of a list of implementation dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
+* `state` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
+* `initial_values` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a `multimeter`.
+* `internals` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
 * `equations` - This block contains shape definitions and differential equations. It will be explained in further detail [later on in the manual](#equations).
 * `input` - This block is composed of one or more input ports. It will be explained in further detail [later on in the manual](#input).
 * `output` *`<event_type>`* - Defines which type of event the neuron can send. Currently, only `spike` is supported. No `end` is necessary at the end of this block.
-* `update` - Inside this block arbitrary code can be implemented using the internal programming language. The `update` block defines the runtime behaviour of the neuron. It contains the logic for state and equation [updates](#equations) and [refractoriness](#concepts-for-refractoriness). This block is translated into the `update` method in NEST.
+* `update` - Inside this block arbitrary code can be implemented using the internal programming language. The `update` block defines the runtime behavior of the neuron. It contains the logic for state and equation [updates](#equations) and [refractoriness](#concepts-for-refractoriness). This block is translated into the `update` method in NEST.
+
+The following blocks are mandataroy: **input**, **output** and **update**
+
 
 ## Neuronal interactions
 
 ### Synaptic input
 
-A neuron model written in NESTML can be configured to receive two distinct types of input, spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into different named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
+A neuron model written in NestML can be configured to receive two distinct types of input, spikes, and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 ```
 port_name <- inhibitory? excitatory? (spike | current)
 ```
@@ -372,29 +413,31 @@ Each neuron model can only send a single type of event. The type of the event ha
 output: spike
 ```
 
-Please note that this block is *not* terminated with the `end` keyword.
+Please note that this block is **not** terminated with the `end` keyword.
 
 ## Synaptic input
 
-NESTML has two dedicated functions to ease the summation of synaptic input.
+NestML has two dedicated functions to ease the summation of synaptic input.
 
-`curr_sum` is a function that has two arguments. The first is a function *I* of *t* which is either a `shape` function (see [Synaptic response](#synaptic-response)) or a function that is defined by an ODE plus initial values (see [Systems of ODEs](#systems-of-odes)). The second is a `spike` input buffer (see [Synaptic input](#synaptic-input)). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t<sub>i</sub>*. In mathematical terms, it thus performs the following operation:
+`curr_sum` is a function that has two arguments. The first is a function *I* of *t* which is either a `shape` function (see [Synaptic response](#synaptic-response)) or a function that is defined by an ODE plus initial values (see [Systems of ODEs](#systems-of-odes)). The second is a `spike` input buffer (see [Synaptic input](#synaptic-input)). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t\_i*. In mathematical terms, it thus performs the following operation:
 
-<!--- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ --->
+<!-- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ -->
 ![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w).
 
 When the sum above is used to describe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit that the neural dynamics are based on synaptic conductances rather than currents.
 
-For modeling post synaptic responses with delta functions, `curr_sum` and `cond_sum` can be called with the keyword `delta` as first argument instead of a `shape` function.
+For modeling postsynaptic responses with delta functions, `curr_sum` and `cond_sum` can be called with the keyword `delta` as first argument instead of a `shape` function.
+
+For convenience reason, `curr_sum` and `cond_sum` are not required to be called (although possible). Instead, the `convolve` function can be used to perform the correct steps.
 
 ## Handling of time
 
-To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
+To retrieve some fundamental simulation parameters, two special functions are built into NestML:
 
 * `resolution` returns the current resolution of the simulation in ms. This can be set by the user using the PyNEST function `nest.SetKernelStatus({"resolution": ...})`.
 * `steps` takes one parameter of type `ms` and returns the number of simulation steps in the current simulation resolution.
 
-These functions can be used to implement custom buffer lookup logic, but should be used with care.
+These functions can be used to implement custom buffer lookup logic but should be used with care.
 
 ## Equations
 
@@ -407,7 +450,7 @@ A `shape` is a function of *t* (which represents the current time of the system)
 
 ### Systems of ODEs
 
-In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on. If an equation contains a derivative of order *n*, for example *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must be defined in the `state` block. For example, if stating
+In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on. If an equation contains a derivative of order *n*, for example, *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must be defined in the `state` block. For example, if stating
 ```
 V' = a * V
 ```
@@ -415,23 +458,21 @@ in the `equations` block,
 ```
 V mV = 0mV
 ```
-has to be stated in the `state` block. If the initial values are not defined in `state` it is assumed that they are zero and unit checks are no longer possible.
+has to be stated in the `initial_values` block. If the initial values are not defined in `initial_values` it is assumed that they are zero and unit checks are no longer possible, thus an error message is generated.
 
-The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
+The content of spike and current buffers can be used by just using their plain names. NestML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
 ## Dynamics and time evolution
 
-`update:` inside this block the current time can be accessed via the variable `t`
+`update:` inside this block, the current time can be accessed via the variable `t`
 
-> `integrate_odes`: Explain the current behavior
-
-> `process_spikes()`: Do we still have this function?
+`integrate_odes`: this function can be used to integrate all stated differential equations of the `equations` block.
 
 `emit_spike()`: calling this function in the `update`-block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 ### Solver selection
 
-Currently there is support for GSL and exact integration.
+Currently, there is support for GSL and exact integration.
 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `SetStatus` call. The default value of the `gsl_error_tol` is `1e-3`.
 
@@ -461,9 +502,9 @@ end
 
 ## Setting and retrieving model properties
 
-* All variables in the `state` and `parameters` blocks are added to the status dictionary of the neuron.
-* Values can be set using `nest.SetStatus(<gid>, <variable>, <value>)` where `<variable>` is the name of the corresponding NESTML variable.
-* Values can be read using `nest.GetStatus(<gid>, <variable>)`. This call will return the value of the corresponding NESTML variable.
+* All variables in the `state`, `parameters` and `initial_values` blocks are added to the status dictionary of the neuron.
+* Values can be set using `nest.SetStatus(<gid>, <variable>, <value>)` where `<variable>` is the name of the corresponding NestML variable.
+* Values can be read using `nest.GetStatus(<gid>, <variable>)`. This call will return the value of the corresponding NestML variable.
 
 ## Recording values with devices
 

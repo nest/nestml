@@ -74,5 +74,6 @@ where arguments are:
 | -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Standard is ERROR, available are [INFO,WARNING,ERROR,NO] |
 | -module_name  | (Optional) Sets the name of the module which shall be generated. Standard is name of the directory containing the models. |
 | -store_log    | (Optional) Stores a log.txt containing all messages in Json notation. |
-| -dev          | (Optional) Executes the toolchain with in the development mode where erros in models are ignored.|
+| -dev          | (Optional) Executes the toolchain with in the development mode where errors in models are ignored.|
 
+For an in-dept introduction to the underlying modeling language NestML, we refer to the following [documentation](doc/syntax.md).
