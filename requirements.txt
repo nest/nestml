@@ -4,5 +4,7 @@ antlr4-python3-runtime >= 4.7; python_version >= '3.0'
 antlr4-python2-runtime >= 4.7; python_version < '3.0'
 setuptools
 Jinja2
-astropy==2.0.3
-
+typing
+astropy == 2.0.3
+enum34
+git+https://github.com/DimitriPlotnikov/ode-toolbox.git

@@ -1,9 +1,0 @@
-{#
-  Generates C++ declaration for a variable
-
-  @param variable VariableSymbol
-  @result C++ declaration
-#}
-{% if variable.hasComment() %}
-{{variable.printComment("//! ")}}{% endif %}
-{{declarations.printVariableType(variable)}} {{names.name(variable)}};

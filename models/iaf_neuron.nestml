@@ -66,7 +66,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author:  September 1999, Diesmann, Gewaltig
 SeeAlso: iaf_psc_alpha, testsuite::test_iaf
 */
-neuron iaf_neuron:
+neuron iaf_neuron_nestml:
 
   # Captures the dynamic state of the neuron
   state:

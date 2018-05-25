@@ -1,2 +1,1 @@
-
-__all__ = ['FrontendConfiguration','PyNestMLFrontend']
+__all__ = ['frontend_configuration.py', 'pynestml_frontend.py']

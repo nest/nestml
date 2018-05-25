@@ -17,11 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.frontend.PyNestMLFrontend import main
 import sys
 
+from pynestml.frontend.pynestml_frontend import main
+
 """
-This file represents the entry point to the PyNestML toolchain.
+This file represents the entry point to the PyNestML.
 """
 
 if __name__ == '__main__':

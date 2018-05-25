@@ -27,7 +27,7 @@
 
 neuron CoCoNestNamespaceCollision:
 
-    function handle(Tau_1 mV):# <- function handle already in nest namespace
+    function handle(Tau_1 mV):# <- function 'handle' already in nest namespace
         return
     end
 

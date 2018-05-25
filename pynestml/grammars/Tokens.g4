@@ -72,6 +72,8 @@ lexer grammar Tokens;
   INTEGER : NON_ZERO_INTEGER
           | '0';
 
+  DIFFERENTIAL_ORDER : '\'';
+
   fragment NON_ZERO_INTEGER : [1-9][0-9]*;
 
   /**

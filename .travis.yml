@@ -15,6 +15,7 @@ before_install:
   #- cd nest_source && mkdir build && cd build
   #- cmake -DCMAKE_INSTALL_PREFIX=~/nest_install .. && make && make install
   #- cd $TRAVIS_BUILD_DIR
+  - pip install git+https://github.com/DimitriPlotnikov/ode-toolbox.git
 
 install:
   - python setup.py install
@@ -27,16 +28,17 @@ install:
 sudo: true
 
 script:
-  - python tests/LexerParserTest.py
-  - python tests/SpecialBlockParserBuilderTest.py
-  - python tests/ExpressionParserTest.py
-  - python tests/ASTBuilderTest.py
-  - python tests/SymbolTableBuilderTest.py
-  - python tests/SymbolTableResolutionTest.py
-  - python tests/CoCosTest.py
-  - python tests/PyNestMLFrontendTest.py
-  - python tests/PyNestMLFrontendTest.py
-  - python tests/NESTMLTest.py
-  - python tests/ExpressionTypeCalculationTest.py
+  - python tests/lexer_parser_test.py
+  - python tests/special_block_parser_builder_test.py
+  - python tests/expression_parser_test.py
+  - python tests/ast_builder_test.py
+  - python tests/symbol_table_builder_test.py
+  - python tests/symbol_table_resolution_test.py
+  - python tests/cocos_test.py
+  - python tests/nest_codegenerator_test.py
+  - python tests/pynestml_frontend_test.py
+  - python tests/pynestml_frontend_test.py
+  - python tests/nestml_test.py
+  - python tests/expression_type_calculation_test.py
  # - python tests/resources/NestmlIntegrationTest.py
 
