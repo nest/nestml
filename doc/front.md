@@ -1,30 +1,56 @@
-The model-processing Frontend {#chap:main:front:intro}
-=============================
+### Section 1.0: The model-processing Frontend
 
-The previous chapter introduced the overall architecture of a DSL, all required model-processing steps as well as a set of reusable components. These fundamentals will now be used to reengineer the existing NestML framework and perform a platform migration to Python. In this chapter we will demonstrate how the model-processing frontend has been reeingeered. To this end, it is first necessary to parse a textual model to an internal representation by means of a *lexer* and *parser*. Section \[main:front:parserAndAst\] introduces this subsystem together with a collection of AST classes and the *ASTBuilderVisitor*, a component which extracts an AST representation from a given *parse tree*. Subsequently, the *CommentCollectorVisitor* and its underlying process responsible for the extraction of comments from the source model and their correct storing in the AST is demonstrated, making the generation of self-documenting models possible. Having a model’s AST, it remains to check its semantical correctness. For this purpose, will first introduce a data structure for storing of context-related details, namely the *Symbol* classes. Here, we also show how modeled data types can be represented and stored. In order to provide a basic set of constants and functions predefined in NestML, the *predefined* subsystem is implemented. With a parsed model stored in an AST and a structure for storing context information, the frontend proceeds to collect context details of the model. Demonstrated in together with the *SymbolTable* and a set of *context conditions*, the *ASTSymbolTableVisitor* ensures semantical correctness. After all context conditions have been checked, the frontend’s model processing is complete. All steps outlined above are orchestrated by the *ModelParser* class which represents the interface to the model-processing frontend. The chapter is concluded in by an introduction to the set of assisting components. subsumes the concepts demonstrated in this chapter. In order to avoid ambiguity, we
-refer to the reengineered framework as *PyNestML*.
+In this section we will demonstrate how the model-processing frontend of PyNestML is structred. To this end, it is first necessary to parse a textual model to an internal representation by means of a *lexer* and *parser*. [Section 1.1](#chap:main:front:ast)  introduces this subsystem together with a collection of AST classes and the *ASTBuilderVisitor*, a component which extracts an AST representation from a given *parse tree*. Subsequently, the *CommentCollectorVisitor* and its underlying process responsible for the extraction of comments from the source model and their correct storing in the AST is demonstrated, making the generation of self-documenting models possible. Having a model’s AST, it remains to check its semantical correctness. For this purpose, [Section 1.2](#chap:main:front:typing) will first introduce a data structure for storing of context-related details, namely the *Symbol* classes. Here, we also show how modeled data types can be represented and stored. In order to provide a basic set of constants and functions predefined in NestML, the *predefined* subsystem is implemented. With a parsed model stored in an AST and a structure for storing context information, the frontend proceeds to collect context details of the model. Demonstrated [Section 1.3](#chap:main:front:semantics) in together with the *SymbolTable* and a set of *context conditions*, the *ASTSymbolTableVisitor* ensures semantical correctness. After all context conditions have been checked, the frontend’s model processing is complete. All steps outlined above are orchestrated by the *ModelParser* class which represents the interface to the model-processing frontend. [Section 1.4](#) concludes the introduction of the frontend by an introduction to the set of assisting components. [Figure 1.0](#fig1.0) subsumes the concepts demonstrated in this chapter. In order to avoid ambiguity, we refer to the reengineered framework as *PyNestML*.
 
-![Overview of the model-processing Frontend: The *lexer* and *parser* process a textual model to the corresponding *parse tree* and can be completely generated from a grammar artifact. The *ASTBuilderVisitor* is responsible for the initialization of a model’s AST, employing classes which conform to the DSL’s grammar. After the AST has been constructed, the *CommentCollectorVisitor* collects and stores all comments stated in the source model. The *ASTSymbolTableVisitor* subsequently collects context information of the model by utilizing *Symbols* and the *predefined* subsystem. *Semantic Checks* conclude the processing by checking the model for semantical correctness. All steps are orchestrated by the *ModelParser*. <span data-label="fig:front:mainOverview"></span>](pic/front_overview_cropped.jpg){width="100.00000%"}
+<p align="center">
+  <img src="pic/front_overview_cropped.jpg" alt="Overview: Model-Processing"/>
+</p>
+<a name="fig1.0"> </a>
+<p>
+<b>Figure 1.0</b>: Overview of the model-processing Frontend: The <i>lexer</i> and <i>parser</i> process a textual model to the corresponding <i>parse tree</i> and can be completely generated from a grammar artifact. The <i>ASTBuilderVisitor</i> is responsible for the initialization of a model’s AST, employing classes which conform to the DSL’s grammar. After the AST has been constructed, the <i>CommentCollectorVisitor</i> collects and stores all comments stated in the source model. The <i>ASTSymbolTableVisitor</i> subsequently collects context information of the model by utilizing <i>Symbols</i> and the <i>predefined</i> subsystem. <i>Semantic Checks</i> conclude the processing by checking the model for semantical correctness. All steps are orchestrated by the <i>ModelParser</i>.
+</p>
 
+### Section 1.1: Lexer, Parser and AST classes {#chap:main:front:ast}
 
-Lexer, Parser and AST classes {#main:front:parserAndAst}
-=============================
+The first step during the processing of a textual model is the creation of an internal representation by means of an AST. For this purpose, it is first necessary to implement a *lexer* and *parser* which read in a textual model and create a respective *parse tree*. However, the parse tree represents an immutable data structure where no data retrieval and modification operations are provided, making required transformations and interactions difficult. Consequently, a refined representation in the from of an AST has to be derived. It is therefore necessary to implement a collection of AST classes used to store individual elements of the AST. In order to retrieve all required information from the parse tree and instantiate a respective AST, the *ASTBuilderVisitor* is implemented. The result is a model’s AST which can be used for further checks and modifications. All these steps are encapsulated in the orchestrating *ModelParser* class. [Figure 1.1](#fig1.1) provides an overview of the components as introduced in this section.
 
-The first step during the processing of a textual model is the creation of an internal representation by means of an AST. For this purpose, it is first necessary to implement a *lexer* and *parser* which read in a textual model and create a respective *parse tree*. However, the parse tree represents an immutable data structure where no data retrieval and modification operations are provided, making required transformations and interactions difficult. Consequently, a refined representation in the from of an AST has to be derived. It is therefore necessary to implement a collection of AST classes used to store individual elements of the AST. In order to retrieve all required information from the parse tree and instantiate a respective AST, the *ASTBuilderVisitor* is implemented. The result is a model’s AST which can be used for further checks and modifications. All these steps are encapsulated in the orchestrating *ModelParser* class. provides an overview of the components as introduced in this section.
+<p align="center">
+<img src="pic/front_parser_overview_cropped.jpg" alt="Overview of the lexer, parser and the AST classes">
+</p>
+<a name="fig1.1"></a>
+<p>
+<b>Figure 1.1</b>: Overview of the lexer, parser and the AST classes: The grammar represents the artifact from which the lexer and parser are generated. Moreover, the <i>ASTBuilderVisitor</i> class extends the generated <i>ParseTreeVisitor</i> class and transforms the handed over parse tree to the respective AST. The <i>ASTNodeFactory</i> features a set of operations for node initialization. The <i>ModelParser</i> encapsulates all processes and can be used to parse complete models or single statements.
+</p>
 
-![ Overview of the lexer, parser and the AST classes: The grammar represents the artifact from which the lexer and parser are generated. Moreover, the *ASTBuilderVisitor* class extends the generated *ParseTreeVisitor* class and transforms the handed over parse tree to the respective AST. The *ASTNodeFactory* features a set of operations for node initialization. The *ModelParser* encapsulates all processes and can be used to parse complete models or single statements. <span data-label="fig:front:overviewParser"></span>](pic/front_parser_overview_cropped.jpg){width="100.00000%"}
+Although possible, *lexer* and *parser* are usually not implemented by hand but rather generated from their respective grammar. In the case of PyNestML, *Antlr* was selected to define the grammar and generate the lexer and parser. For this purpose, it is first necessary to create the grammar of the language. Fortunately, the grammar artifact as found in NestML can be completely reused and has only to be adapted. demonstrates the reworked grammar as used in PyNestML. Although modular and easy to understand, PyNestML’s grammar is still an artifact of several hundreds lines of code. In the following we will therefore use a simplified working example as depicted in [Figure 1.2](#fig1.2). The grammar is hereby an artifact structured according to Antlr’s syntax and defines which rules and tokens the language accepts. All concepts as introduced for the working example are implemented analogously for the complete grammar.
 
-Although possible, *lexer* and *parser* are usually not implemented by hand but rather generated from their respective grammar. Section \[chap:dsl\] demonstrated several existing tools and approaches for component generation. In the case of PyNestML, *Antlr* was selected to define the grammar and generate the lexer and parser. For this purpose, it is first necessary to create the grammar of the language. Fortunately, the grammar artifact as found in NestML can be completely reused and has only to be adapted. demonstrates the reworked grammar as used in PyNestML. Although modular and easy to understand, PyNestML’s grammar is still an artifact of several hundreds lines of code. In the following we will therefore use a simplified working example as depicted in . The grammar is hereby an artifact structured according to Antlr’s syntax and defines which rules and tokens the language accepts, cf. . All concepts as introduced for the working example are implemented analogously for the complete grammar.
+<p align="center">
+<img src="pic/front_grammar_cropped.jpg" alt="A simplified grammar." height=450 width=800>
+</p>
+<a name="fig1.2"></a>
+<p>
+<b>Figure 1.2</b>: A simplified grammar: Each neuron model is introduced by the keyword *neuron* and the neuron’s name. A model is composed of an arbitrary number of *blocks* consisting of a name and a set of *declarations* and *assignments*. Declarations consist of a name, the data type and a value defining expression, while assignments only utilize a left-hand side name and a value providing expression. *Expressions* are either simple, i.e., a string, boolean or integer literal, or arithmetic combinations of other expressions.
+</p>
 
-![ A simplified grammar: Each neuron model is introduced by the keyword *neuron* and the neuron’s name. A model is composed of an arbitrary number of *blocks* consisting of a name and a set of *declarations* and *assignments*. Declarations consist of a name, the data type and a value defining expression, while assignments only utilize a left-hand side name and a value providing expression. *Expressions* are either simple, i.e., a string, boolean or integer literal, or arithmetic combinations of other expressions. <span data-label="fig:front:smallGrammar"></span>](pic/front_grammar_cropped.jpg){width="90.00000%"}
+Starting from the grammar, Antlr is used to generate the respective lexer and parser, making an error-prone implementation by hand unnecessary. Consequently, these components can be used in a black-box manner, where only the interface is of interest. The generated lexer expects a file or string to parse, and returns the respective token stream. As illustrates, storing and interacting with the stream of tokens can be beneficial whenever a derivation of additional details in the initial model is required, e.g., the model comments. The token stream is handed over to the parser which creates a parse tree representation of the model according to the grammar rules. Both steps as well as the derivation of an AST are encapsulated in the *ModelParser* class whose *parse_model* behavior is illustrated in [Figure 1.3](#fig1.3).
 
-Starting from the grammar, Antlr is used to generate the respective lexer and parser, making an error-prone implementation by hand unnecessary. Consequently, these components can be used in a black-box manner, where only the interface is of interest. The generated lexer expects a file or string to parse, and returns the respective token stream. As illustrates, storing and interacting with the stream of tokens can be beneficial whenever a derivation of additional details in the initial model is required, e.g., the model comments. The token stream is handed over to the parser which creates a parse tree representation of the model according to the grammar rules. Both steps as well as the derivation of an AST are encapsulated in the *ModelParser* class whose *parseModel* behavior is illustrated in .
-
-![ The model-parsing process: First, a model is decomposed into a stream of token objects. If a literal in the model is not constructed according to the token definitions, the process is terminated and the problem reported. Otherwise, the token stream is handed over to the parser which constructs a parse tree by taking the grammar rules into account. For sequences of tokens which are not constructed according to a grammar rule, an error is reported and the process terminated. A constructed parse tree is handed over to the *ASTBuilderVisitor* which constructs the respective AST. Finally, all comments are retrieved and stored. <span data-label="fig:front:parseModel"></span>](pic/front_processing_cropped.jpg){width="100.00000%"}
+<p align="center">
+<img src="pic/front_processing_cropped.jpg" alt="The model-parsing process" width=800 height=200>
+</p>
+<a name="fig1.3"></a>
+<p>
+<b>Figure 1.3</b>: The model-parsing process: First, a model is decomposed into a stream of token objects. If a literal in the model is not constructed according to the token definitions, the process is terminated and the problem reported. Otherwise, the token stream is handed over to the parser which constructs a parse tree by taking the grammar rules into account. For sequences of tokens which are not constructed according to a grammar rule, an error is reported and the process terminated. A constructed parse tree is handed over to the *ASTBuilderVisitor* which constructs the respective AST. Finally, all comments are retrieved and stored.
+</p>
 
 Besides complete models, it is also often of interest to parse single instructions or expressions from a given string, e.g., for AST-to-AST transformations. The *ModelParser* class therefore provides parsing methods for each production in the grammar artifact, which can then be used to parse the respective element directly from a given string. In all cases, first, the parse tree is created by means of the generated lexer and parser. Subsequently, the further on introduced *ASTBuilderVisitor* is used to derive a respective AST representation.
 
-![ Overview of the AST classes: The *ASTNode* represents a base class for all concrete AST classes. Each AST node stores a reference to a *SourceLocation* object, representing the position in the textual model where the element has been defined. The *ASTNodeFactory* is used to create new instances of AST nodes. <span data-label="fig:front:astClasses"></span>](pic/front_astclasses_cropped.jpg){width="100.00000%"}
+<p align="center">
+<img src="pic/front_astclasses_cropped.jpg" alt="Overview of the AST classes">
+</p>
+<a name="fig1.4"></a>
+<p>
+<b>Figure 1.4</b>: Overview of the AST classes: The *ASTNode* represents a base class for all concrete AST classes. Each AST node stores a reference to a *SourceLocation* object, representing the position in the textual model where the element has been defined. The *ASTNodeFactory* is used to create new instances of AST nodes.
+</p>
 
 AST classes couple fields for all required values with data retrieval and modification operations, cf. . The abstract *ASTNode* class represents the base class which is extended by all concrete node classes. It implements features which are common for all concrete nodes, namely the *source location* of the element, a *comment* field as well as a reference to the respective *scope* of the element, cf. . Moreover, it prescribes abstract methods which have to be implemented by all subclasses: The *equals* method can be used to check whether two objects are equal in terms of their properties, while an overwritten *\_\_str\_\_* method returns a human-readable form of the element. The concrete *accept* method is used by the further on introduced visitors in order to interact with the object.
 
@@ -34,19 +60,46 @@ Concrete AST classes are implemented according to the DSL’s grammar. Explicit 
 
 Due to Python’s missing concept of method overloading, it is not possible to define several standard constructors for a single AST class. This problem is tackled by means of the *factory* pattern @gamma1995design. For each instantiable node, the *ASTNodeFactory* class defines one or more operations which can be invoked to return a new object of the respective class, cf. . By providing all functions with a distinct name, method overloading is avoided.
 
-![ From Grammar to AST Classes: Each production in the grammar is used to construct a new AST class. For each terminal and referenced sub-rule, an attribute is created. A set of operations provides functionality for the visualization of nodes, data retrieval, and manipulation. <span data-label="fig:front:astClassesConstruction"></span>](pic/front_gram2ast_cropped.jpg){width="100.00000%"}
+<p align="center">
+<img src="pic/front_gram2ast_cropped.jpg" alt=" From Grammar to AST Classes">
+</p>
+<a name="fig1.5"></a>
+<p>
+<b>Figure 1.5</b>: From Grammar to AST Classes: Each production in the grammar is used to construct a new AST class. For each terminal and referenced sub-rule, an attribute is created. A set of operations provides functionality for the visualization of nodes, data retrieval, and manipulation.
+</p>
 
 The *ASTBuilderVisitor* class implements a parse tree visiting process which initializes the respective AST representation, cf. . As demonstrated in , the processing encapsulated in this class visits all nodes in a model’s parse tree and creates AST nodes with the retrieved information. The parse tree stores all terminals, e.g., numeric values, as strings. For token classes which model value classes, e.g., strings or numeric values, their values are stored in correctly typed attributes of the AST. For each field of a parse tree node, the *ASTBuilderVisitor* therefore checks whether a value is available, e.g., a stated numeric literal. In cases where a value has been provided, it is retrieved, correctly casted and stored in the AST node. For non-terminals, the procedure is executed recursively by calling the *visit* method. The result is an initialized AST.
 
-![The *ASTSimpleExpression* node creating method: With the overall  structure of the DSL in mind, this method is constructed to directly store correctly typed values. The position of the element in the model is retrieved and stored in a new *SourceLocation* object. Finally, a new AST node is created by the respective factory method.<span data-label="fig:front:buildercode"></span>](pic/front_builder_code_cropped.jpg){width=".9\textwidth"}
+<p align="center">
+<img src="pic/front_builder_code_cropped.jpg" alt="The *ASTSimpleExpression* node creating method"
+	width =800>
+</p>
+<a name="fig1.6"></a>
+<p>
+<b>Figure 1.6</b>: The *ASTSimpleExpression* node creating method: With the overall  structure of the DSL in mind, this method is constructed to directly store correctly typed values. The position of the element in the model is retrieved and stored in a new *SourceLocation* object. Finally, a new AST node is created by the respective factory method.
+</p>
 
 \[chap:main:front:comments\] Although not crucial for the correct generation of a model implementation, comments as contained in the source model can be beneficial whenever an inspection of generated code is necessary. Here, it is often intended to retain source comments. As declared in , the lexer hands all elements embedded in comment tags over to a different token channel. Each comment is delegated to the comment channel, where all comment tokens are stored and retrieved whenever required. In order to extract and transfer comments from tokens to their respective AST nodes, the *CommentCollectorVisitor* has been implemented, cf. .
 
-![ The *CommentCollectorVisitor*: The visitor implements a process for the collection of comments in arbitrary nodes of the parse tree. In order to simplify the processing, merely the *visit* method has to be called. This method delegates the work to the *getComments* function and finally returns all collected comments. The comment collector extends the *ParseTreeVisitor* and is called within the *ASTBuilderVisitor* whenever an AST is constructed. <span data-label="fig:front:commentCD"></span>](pic/front_commentCD_cropped.jpg){width="60.00000%"}
+<p align="center">
+<img src="pic/front_commentCD_cropped.jpg" alt="The *CommentCollectorVisitor*"
+	width =450>
+</p>
+<a name="fig1.7"></a>
+<p>
+<b>Figure 1.7</b>: The *CommentCollectorVisitor*: The visitor implements a process for the collection of comments in arbitrary nodes of the parse tree. In order to simplify the processing, merely the *visit* method has to be called. This method delegates the work to the *getComments* function and finally returns all collected comments. The comment collector extends the *ParseTreeVisitor* and is called within the *ASTBuilderVisitor* whenever an AST is constructed.
+</p>
 
 It inspects the token stream and retrieves all comments which belong to the corresponding node. For this purpose, the *CommentCollectorVisitor* stores a reference to the initial token stream. Moreover, four methods are provided: The *getComment* function represents the orchestrating method and is used to invoke the collection of all pre-comments (stated before a statement or block), the in-comments (single line comments in the same line) and finally the post-comments stated after a statement or block in the textual model. In the following we exemplify the processing of pre-comments, the same procedure is applied analogously for the collecting of in- and post-comments. It should be noted that detection of a comment’s target is ambiguous. For instance, in a situation where two statements with a single comment in between are given without any white-line separating one or the other, it is not possible to determine whether it represents a post-comment of the first statement or the pre-comment of the second one. The following simple yet sufficient concept has been developed: In order to highlight a comment as belonging to a certain element, it is necessary to separate the comment by means of a white-line as demonstrated in . In the case that no white-line is injected, the comment is handed over to the previous and subsequent element. The user is therefore able to denote which comments belong to which element by inserting additional newlines.
 
-![Illustration of the comment-processing routine: The target of a comment is recognized unambiguously if a separating white-line is inserted, otherwise the comment is added to both enclosing nodes.<span data-label="fig:front:comment"></span>](pic/front_comment_cropped.jpg){width="100.00000%"}
+<p align="center">
+<img src="pic/front_comment_cropped.jpg" alt="Illustration of the comment-processing routine" >
+</p>
+<a name="fig1.8"></a>
+<p>
+<b>Figure 1.8</b>: Illustration of the comment-processing routine: The target of a comment is recognized unambiguously if a separating white-line is inserted, otherwise the comment is added to both enclosing nodes.
+</p>
+
 
 The processing of pre-comments is implemented in the following manner: First, the *CommentCollectorVisitor* checks whether the processed node represents the first element in the artifact (e.g., the first definition of a neuron). In this case, the number of white-lines before the element is not relevant and all preceding comments are stored together with the node. Otherwise, starting from the position of the current context, the token stream is inspected in a reversed order. In the case that a normal element token (e.g., the declaration of a variable) is detected, the loop is terminated since the next element has been reached. If a comment token is detected, then it is put on a stack. Such a handling is required in order to detect whether the comment belongs to the currently handled node, or represents an in-comment of the previous node. If an empty line is detected, then all tokens on the stack are stored in the list of returned comments. Whenever two subsequent white-line tokens have been detected (thus a separating white-line), the overall process is terminated. The visitor returns the collected list of comments in a reversed order to preserve the initial ordering. This process is executed analogously for post-comments. However, here it is not necessary to reverse the list or the token stream. A inverse traversal of the token stream is only necessary to detect where a pre-comment has been terminated. In the case of in-comments, no special handling is implemented. Instead it is simply checked whether before the next end-of-line marker a comment token is contained. To make comments more readable, the *replaceDelimeters* function removes all comment delimiters from the comment string.
 
@@ -54,12 +107,17 @@ Separating the model-parsing and comment-collecting subprocesses leads to an eve
 
 This section introduced the model-parsing process which constructs the AST from a textual model. Here, we first introduced the starting point of each DSL, namely the grammar artifact, and subsequently outlined how the implementation of a lexer and parser by hand can be avoided by means of Antlr. Instead, these components were generated and embedded into PyNestML. Due to the missing typing and assisting methods in the parse tree as returned by the parser, a set of AST classes was implemented and introduced in detail. Each class represents a data structure which is used to store details as retrieved from the parse tree. To this end, the *ASTBuilderVisitor* class and its AST initializing approach were demonstrated. The result of steps introduced above is a parsed model represented through an AST. Finally, the *CommentCollectorVisitor* demonstated how comments in source models can be collected and stored. Although not crucial for creation of correct target artifacts, comments can still be beneficial troubleshooting the generated code.
 
-Symbol and Typing System {#chap:main:front:typing}
-========================
+### Section 1.2: Symbol and Typing System {#chap:main:front:typing}
 
 Continuing with an initialized AST, PyNestML proceeds to start collect information regarding the context. For this purpose, we first establish a data structure for the storage of context related details by means of symbol. Subsequently we demonstrate how predefined properties of PyNestML are integrated by means of the *predefined* subsystem. Finally, we show how types of expressions and declarations can be derived.
 
-![The *Symbol* subsystem: The abstract *Symbol* class prescribes common properties. This class is implemented by the *TypeSymbol* to represent concrete types. *FunctionSymbol* and *VariableSymbol* store declared functions and variables. For more modularity, the *UnitType* class is used as a wrapper around the *AstroPy* unit system @astro2013. *VariableType* and *BlockType* represent enumerations of possible types of variables and blocks.<span data-label="fig:front:symbols"></span>](pic/front_symbols_cropped.jpg){width="100.00000%"}
+<p align="center">
+<img src="pic/front_symbols_cropped.jpg" alt="The *Symbol* subsystem." >
+</p>
+<a name="fig1.9"></a>
+<p>
+<b>Figure 1.9</b>: The *Symbol* subsystem: The abstract *Symbol* class prescribes common properties. This class is implemented by the *TypeSymbol* to represent concrete types. *FunctionSymbol* and *VariableSymbol* store declared functions and variables. For more modularity, the *UnitType* class is used as a wrapper around the *AstroPy* unit system @astro2013. *VariableType* and *BlockType* represent enumerations of possible types of variables and blocks.
+</p>
 
 Chapter \[chap:dsl\] demonstrated how *symbols* can be used to store details of pre- and user-defined functions and variables. The abstract *Symbol* class represents a base class for arbitrary symbols. It features attributes which are common for all concrete symbol types, amongst others a *reference* to the AST node used to create the symbol, the *scope* in which the element is located, the *name* of the symbol and a *comment*. Besides common data encapsulation methods, only the *isDefinedBefore* method is provided. This method checks whether a symbol has been defined before a certain *source location* and is used during semantical checks, cf. . provides an overview of classes as implemented in PyNestML to enable a storage of semantics and types.
 
@@ -69,7 +127,13 @@ The *VariableSymbol* class represents the second type of symbols. Each *Variable
 
 The *FunctionSymbol* is the last type of symbol and stores references to pre- and user-defined functions. Consequently, each symbol consists of a *name* of the function, the return type represented by a type symbol and a list of parameter type symbols. A boolean field indicates whether the corresponding function is predefined or not. In contrast to the variable symbol, function symbols do not feature further specifications or characteristics, e.g., the type of block in which they have been defined. Consequently, only a basic set of data access operations is provided.
 
-![The *predefined* subsystem: By utilizing the *Symbol* classes, a collection of *UnitType* objects is created representing physical units. Together with primitive data types, these units are encapsulated in *type symbols* and stored in the *PredefinedTypes* collection, before being used in *PredefinedVariables* and *PredefinedFunctions*.<span data-label="fig:front:predef"></span>](pic/front_predefined_cropped.jpg){width="100.00000%"}
+<p align="center">
+<img src="pic/front_predefined_cropped.jpg" alt="The *predefined* subsystem." >
+</p>
+<a name="fig1.10"></a>
+<p>
+<b>Figure 1.10</b>: The *predefined* subsystem: By utilizing the *Symbol* classes, a collection of *UnitType* objects is created representing physical units. Together with primitive data types, these units are encapsulated in *type symbols* and stored in the *PredefinedTypes* collection, before being used in *PredefinedVariables* and *PredefinedFunctions*.
+</p>
 
 In order to initialize a basic collection of types, variables and symbols, the *predefined* modules as illustrated in are used. All four types of the further on introduced symbol collections ensure that a basic set of components is always available in processed models. In the case of physical units, the units as provided by PyNestML represent a functionally complete set, i.e., it is possible to derive arbitrary units by combining the provided ones.
 
@@ -101,8 +165,7 @@ The use case demonstrated in exemplifies the overall process: Given the expressi
 
 This section introduced the type system and showed how PyNestML stores and processes declarations and their respective types. Here, we first implemented data structures to store details of defined elements in the model. Subsequently, we demonstrated how a set of predefined elements is initialized by the *predefined* subsystem. Finally, these elements were used to derive the type of all expressions located in the model by means of the *ASTDataTypeVisitor* and *ASTExpressionTypeVisitor* classes. We will come back to types in the next section where correct typing of expressions as well as other semantical properties are introduced.
 
-Semantical Checks {#chap:main:front:semantics}
-=================
+###Section 1.3: Semantical Checks {#chap:main:front:semantics}
 
 ![ Overview of semantical checks: The orchestrating *ModelParser* class utilizes the *ASTSymbolTableVisitor* to construct a model’s hierarchy of *Scope* objects. Each scope is populated by *Symbol* objects corresponding to elements defined in the respective model. In order to manage all processed neurons in a central unit, the *SymbolTable* class is used. Finally, the *ModelParser* calls all model-analyzing routines of the *CoCosManager* class and checks the model for semantical correctness. The *CoCosManager* class utilizes different *CoCos* to check several properties of the given model. <span data-label="fig:front:semantics"></span>](pic/front_semantics_cropped.jpg){width="95.00000%"}
 
@@ -114,307 +177,84 @@ Besides data retrieval and manipulation operations, the *Scope* class features s
 
 ![ The symbol resolution process: The request to return a *Symbol* object corresponding to a given name is received by the nested scope. The scope is checked, and if no symbol with the corresponding name and type is found, a recursive call to the resolution process on the nesting scope is performed. If a symbol has been found, it is returned, otherwise an error is indicated by returning *none*. <span  data-label="fig:front:resolve"></span>](pic/front_resolve_cropped.jpg){width="70.00000%"}
 
-![ AST context-collecting and updating process: Starting at the root,
-i.e., the *ASTNeuron* object, the *ASTSymbolTableVisitor* creates a
-neuron-specific scope and descends into the AST. For each node, the
-routine checks if a child node is stored, and updates its scope
-according to the current one. Found declarations are used to create new
-symbols which are consequently stored in the parent’s scope. <span
-data-label="fig:front:symbolSetup"></span>](pic/front_symbolsetup_cropped.jpg){width="90.00000%"}
+![ AST context-collecting and updating process: Starting at the root, i.e., the *ASTNeuron* object, the *ASTSymbolTableVisitor* creates a neuron-specific scope and descends into the AST. For each node, the routine checks if a child node is stored, and updates its scope according to the current one. Found declarations are used to create new symbols which are consequently stored in the parent’s scope. <span data-label="fig:front:symbolSetup"></span>](pic/front_symbolsetup_cropped.jpg){width="90.00000%"}
 
-The *SymbolTable* class represents a data structure which has to be
-instantiated and filled with the context information of concrete models.
-PyNestML delegates this task to the *ASTSymbolTableVisitor* class, a
-component which implements all required steps to fill the symbol table
-with life. The overall interface of this class consists of the static
-*updateSymbolTable* method which expects the concrete AST whose context
-shall be analyzed and updated accordingly. Based on the visited node,
-this operation invokes one of the following processings: In the case
-that an *ASTNeuron* node is visited, a new neuron wide scope is created.
-Moreover, in order to fill the scope with predefined properties which
-are always available in the context, references to elements of the
-*predefined* subsystem are stored. This step ensures that the resolution
-process of predefined and model-specific variables becomes transparent
-and accessible over the neuron’s scope. It is therefore not required to
-access individual collections of the *predefiend* subsystem to get the
-respective elements. Instead, all symbols required by a model are stored
-in its respective top-level scope and the *PredefinedTypes* collection.
-Moreover, given the structure of the visitor, it is not directly
-possible to indicate certain details to processed child nodes, e.g., the
-top level scope of the currently handled neuron or which type of
-block[^3] is processed. While the former is solved by a top-down update
-process as illustrated in , i.e., before a node is visited, its scope is
-updated to the parent’s scope, the latter requires storage of additional
-details. Consequently, the type of the currently processed block is
-stored and represented as a value of the *BlockType* enumeration, cf. .
-Whenever a block of statements is entered, the type of the block is
-simply stored and removed after the block has been left. Newly created
-symbols inside the block check this value and derive the information in
-which type of block they were created. Such a processing is required in
-order to determine the *ScopeType* of each created (sub-)scope as well
-as the *BlockType* of created symbols[^4].
+The *SymbolTable* class represents a data structure which has to be instantiated and filled with the context information of concrete models. PyNestML delegates this task to the *ASTSymbolTableVisitor* class, a component which implements all required steps to fill the symbol table with life. The overall interface of this class consists of the static *updateSymbolTable* method which expects the concrete AST whose context shall be analyzed and updated accordingly. Based on the visited node, this operation invokes one of the following processings: In the case that an *ASTNeuron* node is visited, a new neuron wide scope is created. Moreover, in order to fill the scope with predefined properties which are always available in the context, references to elements of the *predefined* subsystem are stored. This step ensures that the resolution process of predefined and model-specific variables becomes transparent and accessible over the neuron’s scope. It is therefore not required to access individual collections of the *predefiend* subsystem to get the respective elements. Instead, all symbols required by a model are stored in its respective top-level scope and the *PredefinedTypes* collection. Moreover, given the structure of the visitor, it is not directly possible to indicate certain details to processed child nodes, e.g., the top level scope of the currently handled neuron or which type of block[^3] is processed. While the former is solved by a top-down update process as illustrated in , i.e., before a node is visited, its scope is updated to the parent’s scope, the latter requires storage of additional details. Consequently, the type of the currently processed block is stored and represented as a value of the *BlockType* enumeration, cf. . Whenever a block of statements is entered, the type of the block is simply stored and removed after the block has been left. Newly created symbols inside the block check this value and derive the information in which type of block they were created. Such a processing is required in order to determine the *ScopeType* of each created (sub-)scope as well as the *BlockType* of created symbols[^4].
 
-The creation of new symbols and scopes is only required in a limited set
-of cases. Most often, only the scope reference of a handled element has
-to be updated. As shown in , this step is done in a reversed order: The
-neuron’s root AST node stores a reference to its scope, and subsequently
-sets the scope of its child nodes to the parent scope. In the case that
-a block is detected which has to span its own local scope, i.e., an
-*update* or *function* block, a new *Scope* object is created and stored
-in the parent scope. This new object is then set as the scope of the
-nested block and the process is continued recursively. Thus, whenever a
-scope-spanning block is detected, a new scope is stored in the parent
-scope, and used in the following as the current scope. The individual
-*visit* methods of the *ASTSymbolTableVisitor* therefore first update
-the scopes of their child nodes before a further traversal is invoked.
-Constants and variables declared in the model require an additional
-step. Here it is necessary to create a new *Symbol* object representing
-the declared element. Concrete information regarding the specifications
-of the symbol is stored in the current AST object, while the
-*TypeSymbol* can be easily retrieved by inspecting the *ASTDataType*
-child node. Here we see exactly why a preprocessing by the
-*ASTDataTypeVisitor*, cf. , is required. Having an AST where all nodes
-have been provided with their respective *TypeSymbols*, the
-*ASTSymbolTableVisitor* can now easily retrieve this information and use
-it in *VariableSymbols*. All required details are therefore simply
-retrieved from the corresponding element, and a new *VariableSymbol* is
-created and stored in the current scope. In the case of user-defined
-functions, this process is performed analogously, although here a
-*FunctionSymbol* is created. The *ASTSymbolTableVisitor* executes this
-process for the whole AST and populates the symbol table with scope
-details. As a side effect, the scopes of all AST objects are updated
-correctly and can now be used for further checks.
+The creation of new symbols and scopes is only required in a limited set of cases. Most often, only the scope reference of a handled element has to be updated. As shown in , this step is done in a reversed order: The neuron’s root AST node stores a reference to its scope, and subsequently sets the scope of its child nodes to the parent scope. In the case that a block is detected which has to span its own local scope, i.e., an *update* or *function* block, a new *Scope* object is created and stored in the parent scope. This new object is then set as the scope of the nested block and the process is continued recursively. Thus, whenever a scope-spanning block is detected, a new scope is stored in the parent scope, and used in the following as the current scope. The individual *visit* methods of the *ASTSymbolTableVisitor* therefore first update the scopes of their child nodes before a further traversal is invoked. Constants and variables declared in the model require an additional step. Here it is necessary to create a new *Symbol* object representing the declared element. Concrete information regarding the specifications of the symbol is stored in the current AST object, while the *TypeSymbol* can be easily retrieved by inspecting the *ASTDataType* child node. Here we see exactly why a preprocessing by the *ASTDataTypeVisitor*, cf. , is required. Having an AST where all nodes have been provided with their respective *TypeSymbols*, the *ASTSymbolTableVisitor* can now easily retrieve this information and use it in *VariableSymbols*. All required details are therefore simply retrieved from the corresponding element, and a new *VariableSymbol* is created and stored in the current scope. In the case of user-defined functions, this process is performed analogously, although here a *FunctionSymbol* is created. The *ASTSymbolTableVisitor* executes this process for the whole AST and populates the symbol table with scope details. As a side effect, the scopes of all AST objects are updated correctly and can now be used for further checks.
 
-![ The *CoCosManager* and context conditions: The *CoCosManager* class
-represents a central unit which executes all required checks on the
-handed over model. Each checked feature of the model is encapsulated by
-a single class which inherits the abstract *CoCo* class. <span
-data-label="fig:front:cocos"></span>](pic/front_cocos_cropped.jpg){width="70.00000%"}
+![ The *CoCosManager* and context conditions: The *CoCosManager* class represents a central unit which executes all required checks on the handed over model. Each checked feature of the model is encapsulated by a single class which inherits the abstract *CoCo* class. <span data-label="fig:front:cocos"></span>](pic/front_cocos_cropped.jpg){width="70.00000%"}
 
-After a neuron’s scopes have been adjusted, the final step of the
-model-processing frontend is invoked, namely the checking of semantical
-correctness. As demonstrated in , this steps is performed by means of
-so-called *context conditions*. Here a modular structure has been
-employed. PyNestML implements each context condition as an individual
-class with the prefix *CoCo* and a meaningful name, e.g.,
-*CocoVariableOncePerScope*. In order to subsume the overall checking
-routine in a single component, the *CoCosManger* class has been
-implemented, cf. . Its *postSymbolTableBuilderChecks* method can be used
-to check all context conditions after the symbol table has been
-constructed, while the *postOdeSpecificationChecks* method checks if all
-ODE declarations have been correctly stated in the raw AST.
+After a neuron’s scopes have been adjusted, the final step of the model-processing frontend is invoked, namely the checking of semantical correctness. As demonstrated in , this steps is performed by means of so-called *context conditions*. Here a modular structure has been employed. PyNestML implements each context condition as an individual class with the prefix *CoCo* and a meaningful name, e.g., *CocoVariableOncePerScope*. In order to subsume the overall checking routine in a single component, the *CoCosManger* class has been implemented, cf. . Its *postSymbolTableBuilderChecks* method can be used to check all context conditions after the symbol table has been constructed, while the *postOdeSpecificationChecks* method checks if all ODE declarations have been correctly stated in the raw AST.
 
-Given the fact that context conditions have the commonality of checking
-the context of a neuron model, PyNestML implements the abstract *CoCo*
-super class. All concrete context conditions therefore have to implement
-the *checkCoCo* operation which expects a single AST for checking.
-Concrete context condition classes describe in a self-contained manner
-which definitions lead to an erroneous model. Consequently, here a
-*black list* concept is applied: For models which feature certain
-characteristics it is not possible to generate correct results. These
-characteristics should be reported. In its current state, PyNestML
-features 25 different context conditions which ensure the overall
-correct structure of a given model. The following composition outlines
-the implemented conditions.
+Given the fact that context conditions have the commonality of checking the context of a neuron model, PyNestML implements the abstract *CoCo* super class. All concrete context conditions therefore have to implement the *checkCoCo* operation which expects a single AST for checking. Concrete context condition classes describe in a self-contained manner which definitions lead to an erroneous model. Consequently, here a *black list* concept is applied: For models which feature certain characteristics it is not possible to generate correct results. These characteristics should be reported. In its current state, PyNestML features 25 different context conditions which ensure the overall correct structure of a given model. The following composition outlines the implemented conditions.
 
--   *CoCoAllVariablesDefined*: Checks whether all used variables are
-    previously defined and no recursive declaration is stated.
+-   *CoCoAllVariablesDefined*: Checks whether all used variables are previously defined and no recursive declaration is stated.
 
--   *CoCoBufferNotAssigned*: Checks that no values are assigned
-    to (read-only) buffers.
+-   *CoCoBufferNotAssigned*: Checks that no values are assigned to (read-only) buffers.
 
--   *CoCoConvolveCondCorrectlyBuilt*: Checks that each *convolve*
-    function-call is provided with correct arguments, namely a *shape*
-    and a *buffer*.
+-   *CoCoConvolveCondCorrectlyBuilt*: Checks that each *convolve* function-call is provided with correct arguments, namely a *shape* and a *buffer*.
 
--   *CoCoCorrectNumeratorOfUnit*: Checks that the numerator of a unit
-    type is equal to one, e.g., $\nicefrac{1}{mV}$.
+-   *CoCoCorrectNumeratorOfUnit*: Checks that the numerator of a unit type is equal to one, e.g., $\nicefrac{1}{mV}$.
 
--   *CoCoCorrectOrderInEquation*: Checks whether a differential equation
-    has been stated for a non-derivative, e.g., $V_m = V_m'$ instead of
-    $V_m' = V_m'$.
+-   *CoCoCorrectOrderInEquation*: Checks whether a differential equation has been stated for a non-derivative, e.g., $V_m = V_m'$ instead of $V_m' = V_m'$.
 
--   *CoCoCurrentBuffersNotSpecified*: Checks that *current* buffers are
-    not specified with the keyword *inhibitory* or *excitatory*. Only
-    *spike* buffers can be further specified.
+-   *CoCoCurrentBuffersNotSpecified*: Checks that *current* buffers are not specified with the keyword *inhibitory* or *excitatory*. Only *spike* buffers can be further specified.
 
--   *CoCoEachBlockUniqueAndDefined*: Checks that mandatory *update*,
-    *input* and *output* blocks are defined exactly once, and all
-    remaining types of blocks are defined at most once.
+-   *CoCoEachBlockUniqueAndDefined*: Checks that mandatory *update*, *input* and *output* blocks are defined exactly once, and all remaining types of blocks are defined at most once.
 
--   *CoCoEquationsOnlyForInitValues*: Checks that equations are only
-    defined for variables stated in the *initial values* block.
+-   *CoCoEquationsOnlyForInitValues*: Checks that equations are only defined for variables stated in the *initial values* block.
 
--   *CoCoFunctionCallsConsistent*: Checks that all function calls are
-    consistent, i.e., that the called function exists and the arguments
-    are of the correct type and amount.
+-   *CoCoFunctionCallsConsistent*: Checks that all function calls are consistent, i.e., that the called function exists and the arguments are of the correct type and amount.
 
--   *CoCoFunctionHasRhs*: Checks that all attributes marked by the
-    *function* keyword have a right-hand side expression.
+-   *CoCoFunctionHasRhs*: Checks that all attributes marked by the *function* keyword have a right-hand side expression.
 
--   *CoCoFunctionMaxOneLhs*: Checks that multi-declarations marked as
-    *functions* do not occur, e.g.,
-    $\textit{function } V_m,V_n \textit{ mV} = V_{init} + 42mV$. Several
-    aliases to the same value are redundant.
+-   *CoCoFunctionMaxOneLhs*: Checks that multi-declarations marked as *functions* do not occur, e.g., $\textit{function } V_m,V_n \textit{ mV} = V_{init} + 42mV$. Several aliases to the same value are redundant.
 
--   *CoCoFunctionUnique*: Checks that all functions are unique, thus
-    user-defined functions do not redeclare predefined ones.
+-   *CoCoFunctionUnique*: Checks that all functions are unique, thus user-defined functions do not redeclare predefined ones.
 
--   *CoCoIllegalExpression*: Checks that all expressions are typed
-    according to the left-hand side variable, or are at least castable
-    to each other.
+-   *CoCoIllegalExpression*: Checks that all expressions are typed according to the left-hand side variable, or are at least castable to each other.
 
--   *CoCoInitVarsWithOdesProvided*: Checks that all variables declared
-    in the *initial values* block are provided with the
-    corresponding ODEs.
+-   *CoCoInitVarsWithOdesProvided*: Checks that all variables declared in the *initial values* block are provided with the corresponding ODEs.
 
--   *CoCoInvariantIsBoolean*: Checks that the type of all given
-    invariants is *boolean*.
+-   *CoCoInvariantIsBoolean*: Checks that the type of all given invariants is *boolean*.
 
--   *CoCoNeuronNameUnique*: Checks that no name collisions of
-    neurons occur. Here, only the names in the same artifact
-    are checked.
+-   *CoCoNeuronNameUnique*: Checks that no name collisions of neurons occur. Here, only the names in the same artifact are checked.
 
--   *CoCoNoNestNameSpaceCollision*: Checks that user-defined functions
-    and attributes do not collide with the namespace of the target
-    simulator platform NEST.
+-   *CoCoNoNestNameSpaceCollision*: Checks that user-defined functions and attributes do not collide with the namespace of the target simulator platform NEST.
 
--   *CoCoNoShapesExceptInConvolve*: Checks that variables marked as
-    *shapes* are only used in the *convolve* function call.
+-   *CoCoNoShapesExceptInConvolve*: Checks that variables marked as *shapes* are only used in the *convolve* function call.
 
--   *CoCoNoTwoNeuronsInSetOfCompilationUnits*: Checks across several
-    compilation units (and therefore artifacts) whether neurons
-    are redeclared. Only invoked when several artifacts are given.
+-   *CoCoNoTwoNeuronsInSetOfCompilationUnits*: Checks across several compilation units (and therefore artifacts) whether neurons are redeclared. Only invoked when several artifacts are given.
 
--   *CoCoOnlySpikeBufferWithDatatypes*: Checks that only *spike* buffers
-    have been provided with a data type. *Current* buffers are always of
-    type *pA*.
+-   *CoCoOnlySpikeBufferWithDatatypes*: Checks that only *spike* buffers have been provided with a data type. *Current* buffers are always of type *pA*.
 
--   *CoCoParametersAssignedOnlyInParameterBlock*: Checks that values are
-    assigned to parameters only in the *parameter* block.
+-   *CoCoParametersAssignedOnlyInParameterBlock*: Checks that values are assigned to parameters only in the *parameter* block.
 
--   *CoCoSumHasCorrectParameter*: Checks that *convolve* calls are not
-    provided with complex expressions, but only variables.
+-   *CoCoSumHasCorrectParameter*: Checks that *convolve* calls are not provided with complex expressions, but only variables.
 
--   *CoCoTypeOfBufferUnique*: Checks that no keyword is stated twice in
-    an input buffer declaration, e.g., *inhibitory inhibitory spike*.
+-   *CoCoTypeOfBufferUnique*: Checks that no keyword is stated twice in an input buffer declaration, e.g., *inhibitory inhibitory spike*.
 
--   *CoCoUserDeclaredFunctionCorrectlyDefined*: Checks that user-defined
-    functions are correctly defined, i.e., only parameters of the
-    function are used, and the return type is correctly stated.
+-   *CoCoUserDeclaredFunctionCorrectlyDefined*: Checks that user-defined functions are correctly defined, i.e., only parameters of the function are used, and the return type is correctly stated.
 
--   *CoCoVariableOncePerScope*: Checks that each variable is defined at
-    most once per scope, i.e., no variable is redefined.
+-   *CoCoVariableOncePerScope*: Checks that each variable is defined at most once per scope, i.e., no variable is redefined.
 
--   *CoCoVectorVariableInNonVectorDeclaration*: Checks that vector and
-    scalar variables are not combined, e.g. $V + V\_vec$ where $V$ is
-    scalar and $V\_vec$ a vector.
+-   *CoCoVectorVariableInNonVectorDeclaration*: Checks that vector and scalar variables are not combined, e.g. $V + V\_vec$ where $V$ is scalar and $V\_vec$ a vector.
 
-In the following we exemplify the underlying process on two concrete
-*context conditions*, namely *CoCoFunctionUnique* and
-*CoCoIllegalExpression*. The former is used to check whether an existing
-function has been redefined in a given model. With the previously done
-work, this property can be easily implemented: Given the fact that in
-the basic context of the language no functions are defined twice, the
-*checkCoco* method of the *CoCoFunctionUnique* class simply retrieves
-all user-defined functions, resolves them to the corresponding
-*FunctionSymbols* as constructed by the *ASTSymbolTableVisitor* and
-checks pairwise whether two functions with the same name exist. In order
-to preserve a simple structure of PyNestML, function overloading is not
-included as an applicable concept. Thus, only collisions of function
-names have to be detected. If a collision has been detected, an error
-message is printed and stored by means of the further on introduced
-*Logger* class, cf. . With the names of all defined *FunctionSymbols*
-(and analogously *VariableSymbols*) it is easily possible to check
-whether a redeclaration occurred. Moreover, the stored reference to the
-corresponding AST node can be used to print the position at which the
-model is not correct, making troubleshooting possible. illustrates the
-*CoCoFunctionUnique* class.
+In the following we exemplify the underlying process on two concrete *context conditions*, namely *CoCoFunctionUnique* and *CoCoIllegalExpression*. The former is used to check whether an existing function has been redefined in a given model. With the previously done work, this property can be easily implemented: Given the fact that in the basic context of the language no functions are defined twice, the *checkCoco* method of the *CoCoFunctionUnique* class simply retrieves all user-defined functions, resolves them to the corresponding *FunctionSymbols* as constructed by the *ASTSymbolTableVisitor* and checks pairwise whether two functions with the same name exist. In order to preserve a simple structure of PyNestML, function overloading is not included as an applicable concept. Thus, only collisions of function names have to be detected. If a collision has been detected, an error message is printed and stored by means of the further on introduced *Logger* class, cf. . With the names of all defined *FunctionSymbols* (and analogously *VariableSymbols*) it is easily possible to check whether a redeclaration occurred. Moreover, the stored reference to the corresponding AST node can be used to print the position at which the model is not correct, making troubleshooting possible. illustrates the *CoCoFunctionUnique* class.
 
-![ Simple and complex context conditions: Simple context conditions such
-as *CoCoFunctionUnique* can be implemented in a single function, while
-more complex conditions such as *CoCoIllegalExpression* also utilize
-additional classes and visitors. Both types of context conditions work
-on the handed over AST. <span
-data-label="fig:front:cocosExample"></span>](pic/front_cocos_example_cropped.jpg){width="100.00000%"}
+![ Simple and complex context conditions: Simple context conditions such as *CoCoFunctionUnique* can be implemented in a single function, while more complex conditions such as *CoCoIllegalExpression* also utilize additional classes and visitors. Both types of context conditions work on the handed over AST. <span data-label="fig:front:cocosExample"></span>](pic/front_cocos_example_cropped.jpg){width="100.00000%"}
 
-The second exemplified context condition *CoCoIllegalExpression* checks
-whether the expected data type of elements and their corresponding
-expressions have the same value. With the previously derived
-*TypeSymbols* of all AST nodes and the instantiated symbol table, here a
-simple process becomes sufficient for an in-depth checking of correctly
-typed models. To check correct typing of all required components, the
-assisting *CorrectExpressionVisitor* is implemented, cf. . This visitor
-implements the basic *ASTVisitor* and overrides the *visit* method for
-nodes whose types have to be checked. In the case of *declarations* and
-*assignments*, it resolves the variable symbol of the left-hand side
-variable and retrieves the corresponding type symbol. For the right-hand
-side expression, the *getTypeEither* of the (simple) expression object
-is called. Finally, the *equal* method is used to check whether both
-types are equivalent. Here, an additional check has been implemented:
-Given the fact that most simulators disregard physical units, but work
-in terms of integers and doubles, it can be beneficial to allow certain
-implicit castings. For this purpose the *isCastableTo* method of the
-further on introduced *ASTUtils* class is used. This function can be
-invoked to check whether one given type can be converted to a different
-one. For instance, this method returns *true* whenever a physical unit
-*TypeSymbol* and a *real TypeSymbol* are handed over, since each unit
-typed value is implicitly regard as being of type real. Analogously,
-*real* and *integer* can be casted to each other, although here the
-fraction of a value might be lost. An implicit cast is always reported
-with a warning to inform the user of potential errors in the simulation.
-If an implicit cast is not possible, e.g., casting of a *string* to an
-*integer*, an error message is printed informing the user of a broken
-context. Warnings, therefore, state that a given model could possibly
-contain unintended behavior, while errors indicate semantical
-incorrectness.
+The second exemplified context condition *CoCoIllegalExpression* checks whether the expected data type of elements and their corresponding expressions have the same value. With the previously derived *TypeSymbols* of all AST nodes and the instantiated symbol table, here a simple process becomes sufficient for an in-depth checking of correctly typed models. To check correct typing of all required components, the assisting *CorrectExpressionVisitor* is implemented, cf. . This visitor implements the basic *ASTVisitor* and overrides the *visit* method for nodes whose types have to be checked. In the case of *declarations* and *assignments*, it resolves the variable symbol of the left-hand side variable and retrieves the corresponding type symbol. For the right-hand side expression, the *getTypeEither* of the (simple) expression object is called. Finally, the *equal* method is used to check whether both types are equivalent. Here, an additional check has been implemented: Given the fact that most simulators disregard physical units, but work in terms of integers and doubles, it can be beneficial to allow certain implicit castings. For this purpose the *isCastableTo* method of the further on introduced *ASTUtils* class is used. This function can be invoked to check whether one given type can be converted to a different one. For instance, this method returns *true* whenever a physical unit *TypeSymbol* and a *real TypeSymbol* are handed over, since each unit typed value is implicitly regard as being of type real. Analogously, *real* and *integer* can be casted to each other, although here the fraction of a value might be lost. An implicit cast is always reported with a warning to inform the user of potential errors in the simulation. If an implicit cast is not possible, e.g., casting of a *string* to an *integer*, an error message is printed informing the user of a broken context. Warnings, therefore, state that a given model could possibly contain unintended behavior, while errors indicate semantical incorrectness.
 
-The second type of checks as implemented in the *CoCoIllegalExpression*
-is a comparison of magnitudes: Values which utilize the same physical
-unit but differ in magnitude have to be regarded as being combinable. It
-should, therefore, be possible to add up $1mV$ and $1V$, although the
-underlying combination of a prefix and unit is not equal. This task is
-handed over to the *differsInMagnitude* method of the *ASTUtils* class,
-cf. . This method simply checks whether the physical units without the
-prefixes are equal and returns the corresponding truth value. The
-remaining *context conditions* are implemented in an analogous manner:
-If complex checks on all nodes of the AST are required, a new visitor is
-implemented. In more simple cases a single function is sufficient.
-Errors and warnings are reported by means of the *Logger* class, cf. .
+The second type of checks as implemented in the *CoCoIllegalExpression* is a comparison of magnitudes: Values which utilize the same physical unit but differ in magnitude have to be regarded as being combinable. It should, therefore, be possible to add up $1mV$ and $1V$, although the underlying combination of a prefix and unit is not equal. This task is handed over to the *differsInMagnitude* method of the *ASTUtils* class, cf. . This method simply checks whether the physical units without the prefixes are equal and returns the corresponding truth value. The remaining *context conditions* are implemented in an analogous manner: If complex checks on all nodes of the AST are required, a new visitor is implemented. In more simple cases a single function is sufficient. Errors and warnings are reported by means of the *Logger* class, cf. .
 
-In this section, we introduced how context related details of a model
-can be stored and checked. For this purpose, we first implemented the
-*SymbolTable* class which stores references to all processed neuron
-scopes. The *Scope* class has hereby been used to represent scope
-spanning blocks which are then populated by sub-scopes and symbols. In
-order to instantiate a model’s scope hierarchy, the
-*ASTSymbolTableVisitor* was introduced. Finally, the constructed symbol
-table was used to check the context of the handed over model for
-correctness. Here, the orchestrating *CoCosManager* class delegated all
-required checks to individual *context condition* classes, with the
-result being an AST which has been tested for semantical correctness.
+In this section, we introduced how context related details of a model can be stored and checked. For this purpose, we first implemented the *SymbolTable* class which stores references to all processed neuron scopes. The *Scope* class has hereby been used to represent scope spanning blocks which are then populated by sub-scopes and symbols. In order to instantiate a model’s scope hierarchy, the *ASTSymbolTableVisitor* was introduced. Finally, the constructed symbol table was used to check the context of the handed over model for correctness. Here, the orchestrating *CoCosManager* class delegated all required checks to individual *context condition* classes, with the result being an AST which has been tested for semantical correctness.
 
 Summary: Model-processing Frontend {#chap:main:front:summary}
 ----------------------------------
 
-In this section we demonstrated how the model-processing frontend of
-NestML was reengineered and migrated to a new platform. We demonstrated
-how individual components were implemented and which intentions directed
-individual concepts. Here, especially the *separation of concerns* and
-*single responsible* of components had priority: Each subsystem is
-implemented with the smallest possible interface. Changes on components
-are focused and *continuity* is given. All introduced components have
-been developed based on the *Continuous Integration* (CI,
-@fowler2006continuous) and *Test Driven Development* (TDD,
-@beck2003test) approaches, thus all subsystems, from the
-<span>lexer</span> and <span>parser</span> to the
-*ASTSymbolTableVisitor*, are provided with a rich set of tests,
-automatically executed with each released update. The result of the
-processes as involved in the frontend is hereby the representation of a
-textual model by means of an AST, where the semantical correctness of
-the represented model has been ensured by the *SymbolTable* and a set of
-*context conditions*. This AST will be used in to create a transformed,
-target simulator-specific model.
+In this section we demonstrated how the model-processing frontend of NestML was reengineered and migrated to a new platform. We demonstrated how individual components were implemented and which intentions directed individual concepts. Here, especially the *separation of concerns* and *single responsible* of components had priority: Each subsystem is implemented with the smallest possible interface. Changes on components are focused and *continuity* is given. All introduced components have been developed based on the *Continuous Integration* (CI, @fowler2006continuous) and *Test Driven Development* (TDD, @beck2003test) approaches, thus all subsystems, from the <span>lexer</span> and <span>parser</span> to the *ASTSymbolTableVisitor*, are provided with a rich set of tests, automatically executed with each released update. The result of the processes as involved in the frontend is hereby the representation of a textual model by means of an AST, where the semantical correctness of the represented model has been ensured by the *SymbolTable* and a set of *context conditions*. This AST will be used in to create a transformed, target simulator-specific model.
 
 [^1]: conductance-based buffers are processed differently during code
     generation in NEST
