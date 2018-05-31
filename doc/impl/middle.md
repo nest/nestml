@@ -1,5 +1,4 @@
-Assisting Classes {#chap:main:function}
-=================
+## Section 2: Assisting Classes {#chap:main:function}
 
 As opposed to the introduction of a typical DSL architecture in , where
 semantical checks, as well as model transformations, were seen as a part

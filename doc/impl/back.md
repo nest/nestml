@@ -1,5 +1,4 @@
-The Generating Backend {#chap:main:backend}
-======================
+## Section 3: The Generating Backend {#chap:main:backend}
 
 The generation of executable code is one of the most important aspects
 of a DSL-processing framework and enables the validation of the modeled
@@ -25,8 +24,7 @@ generate the respective C++ code. The instructions how the AST has to be
 adapted are computed by an external ODE-toolbox. <span
 data-label="fig:back:mainOverview"></span>](src/pic/back_overview_cropped.pdf){width="90.00000%"}
 
-AST Transformations and Code Generation {#chap:main:backend:codegeneration}
----------------------------------------
+### Section 3.1: AST Transformations and Code Generation {#chap:main:backend:codegeneration}
 
 ![Overview of the NEST code generator.<span
 data-label="fig:back:print"></span>](src/pic/back_trans_cropped.pdf){width="100.00000%"}
@@ -496,7 +494,7 @@ an easy to maintain set of components, where complexity is distributed
 across several subsystems and no *god* classes or templates
 @riel1996object are used.
 
-Summary: The code-generating Backend {#chap:main:backend:summery}
+### Section 3.2: Summary of the code-generating Backend {#chap:main:backend:summery}
 ------------------------------------
 
 We conclude this chapter by a brief overview of the implemented routines
