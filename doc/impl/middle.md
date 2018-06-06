@@ -1,10 +1,10 @@
 ## Section 2: Assisting Classes <a name="chap:main:function"></a> 
 
-As opposed to the introduction of a typical DSL architecture in , where semantical checks, as well as model transformations, were seen as a part of the *function library*, we decided to follow a different approach during the reengineering of NestML. In the previous section, checks for semantical correctness of a given model were already included in the model-processing frontend instead of characterizing this component as an element of the subsystem sitting between the frontend and the code generator. However, the architecture as introduced in represents a recommendation and can be adjusted to individual use cases. We, therefore, decided to factor out the functionality normally contained in the function library and instead delegate these components to the model-processing frontend and the generating backend. The result of the frontend should, therefore, be an AST representation of the model which has been checked for semantical and syntactical correctness. Moreover, model transformations are most often of target-platform specific nature, i.e., whenever several target platforms are implemented, it may be necessary to implement several model transformations. As illustrated in, it is beneficial to regard model transformations as a part of the target-format generating backend and encapsulate all components required for a specific target in a single subsystem. Following these principles, the overall PyNestML architecture has been implemented slightly different as presented in : A rich and powerful frontend is followed by a small collection of workflow governing and assisting components, which are in turn concluded by several, independent code generators. In this section we will introduce components sitting in between and governing the overall model-processing control flow and providing assisting functionality. Although not crucial, these elements are often required to provide a straightforward tooling as well as certain quality standards.
+As opposed to a typical DSL architecture, where semantical checks as well as model transformations are seen as a part of the *function library*, PyNestML implements a slightly different  structering of the components. In the previous section, checks for semantical correctness of a given model were already included in the model-processing frontend instead of characterizing this component as an element of the subsystem sitting between the frontend and the code generator. We, therefore, decided to factor out the functionality normally contained in the function library and instead delegate these components to the model-processing frontend and the generating backend. The result of the frontend should, therefore, be an AST representation of the model which has been checked for semantical and syntactical correctness. Moreover, model transformations are most often of target-platform specific nature, i.e., whenever several target platforms are implemented, it may be necessary to implement several model transformations. As illustrated in [Figure 2.1](#fig2.1), it may be beneficial to regard model transformations as a part of the target-format generating backend and encapsulate all components required for a specific target in a single subsystem. Following these principles, the overall PyNestML architecture has been implemented in the following way: A rich and powerful frontend is followed by a small collection of workflow governing and assisting components, which are in turn concluded by several, independent code generators. In this section we will introduce components sitting in between and governing the overall model-processing control flow and providing assisting functionality. Although not crucial, these elements are often required to provide a straightforward tooling as well as certain quality standards.
 
 <p align="center">
-<img src="pic/mid_overview_cropped.jpg" alt="Overview of assisting components"
-	width ="50%">
+<img src="pic/mid_overview_cropped.png" alt="Overview of assisting components"
+	width ="80%">
 </p>
 <a name="fig2.1"></a>
 <p>
@@ -16,8 +16,8 @@ As introduced in the previous section, the *ModelParser* class reads in and chec
 Before the actual processing of the model can be started, it is necessary to handle all parameters as handed over by the user, e.g., the path to the models. These parameters tend to change frequently whenever new concepts and specifications are added. PyNestML therefore delegates the task of arguments handling to the *FrontendConfiguration* class. By utilizing the standard functionality of Python’s *argparse*[^1] module, the frontend configuration is able to declare which arguments the overall system accepts, cf. . The handed over parameters are stored in respective attributes and can be retrieved by the corresponding data access operations. All attributes and operations are hereby static (class properties) and can be accessed from the overall framework by simply interacting with the class. Whenever new parameters have to be implemented, it is only necessary to extend the existing *FrontendConfiguration* class with a new attribute and access operation, while the remaining framework remains untouched.
 
 <p align="center">
-<img src="pic/mid_processing_cropped.jpg" alt="The model-processing routine as orchestrated by the *PyNestMLFrontend*."
-	width ="50%">
+<img src="pic/mid_processing_cropped.png" alt="The model-processing routine as orchestrated by the *PyNestMLFrontend*."
+	width ="90%">
 </p>
 <a name="fig2.2"></a>
 <p>
@@ -33,7 +33,7 @@ The *Message* class makes reporting of errors easy to achieve and maintain. The 
 The corresponding set of operations on the logger represents a complete interface for the storing, printing and filtering of messages. The *logMessage* method inserts a new message into the log and expects the above-mentioned tuple. The *getAllMessagesOfLevel* method returns all messages of a specified logging level, while *getAllMessagesOfNeuron* returns all issues reported for a specific neuron model. The *hasErrors* method checks whether a neuron does or does not contain errors. The final operation of this class is the *printToJSON* method. As introduced in the *PyNestMLFrontend* class, it is possible to store the overall log in a single file. For this purpose, first, it is necessary to create a sufficient representation of the log in JSON format. This task is handed over to the aforementioned method, which inspects the log and returns a corresponding JSON string representation. In conclusion, all methods of this class represent an ideal interface for a troubleshooting and monitoring of textual models.
 
 <p align="center">
-<img src="pic/mid_logger_cropped.jpg" alt="The logger and messages components." width ="50%">
+<img src="pic/mid_logger_cropped.png" alt="The logger and messages components." width ="70%">
 </p>
 <a name="fig2.3"></a>
 <p>
@@ -44,54 +44,52 @@ The *ASTNodeFactory* class implements the *factory* pattern @gamma1995design and
 
 Transformations which are especially focused on the *equations* block and its definition of differential equations are contained in the *ASTOdeTransformer* class. Although solely used by transformations contained in the code-generating backend, this class has been decoupled and represents a self-contained unit. Independently of the concrete target platform for code generation, it is often necessary to modify all ODEs in a given model. This class provides a collection of operations for the data retrieval from and manipulation of ODEs. The *getter* functions collect function calls contained in all declared ODEs. The corresponding manipulation operations are marked by the prefix *replace* and can be used to replace certain parts of an ODE by other specifications. Although these operations could also be included in the *ASTUtils* class given their nature of manipulating an AST, for a clearer separation of concerns all operations on the ODE block have been delegated to a single unit. As presented in , it is often necessary to adjust a given *equations* block and transform a set of expressions. By encapsulating all operations in a unit, a clear single responsibility and therefore maintainability is achieved. summarizes the provided functionality of the *ASTOdeTransformer*.
 
-![AST-manipulating modules: The *ASTOdeTransformer* implements a set of
-operations focused on the retrieval of information from and
-modifications of the ODE block. The *ASTNodeFactory* offers operations
-for the creation of AST nodes, while *ASTUtils* contains a vast
-collection of operations on the AST.<span
-data-label="fig:mid:trans"></span>](src/pic/mid_trans_cropped.pdf){width="90.00000%"}
+<p align="center">
+<img src="pic/mid_trans_cropped.png" alt="AST-manipulating modules" width ="70%">
+</p>
+<a name="fig2.4"></a>
+<p>
+<b>Figure 2.4</b>: AST-manipulating modules: The *ASTOdeTransformer* implements a set of operations focused on the retrieval of information from and modifications of the ODE block. The *ASTNodeFactory* offers operations for the creation of AST nodes, while *ASTUtils* contains a vast collection of operations on the AST.
+</p>
 
 We conclude this section by an introduction of the *higher-order visitor*, a concept which has been implemented to reduce the amount of code and effort required to interact and modify a given AST. Although highly applicable, this approach can only be employed in programming languages where functions and operations are regarded as objects and can therefore be handed over as parameters to other functions. Luckily, this applies to Python and its concept of duck-typing.
 
 Section \[chap:dsl\] illustrated that it is often necessary to perform a set of operations on certain types of nodes in a given AST, e.g., whenever all function calls with a specific name and arguments have to be collected. The *visitor* pattern @montiReport2016 provides a possible approach for an implementation of such procedures, where concrete operations and the visiting order are decoupled, cf. . If one or the other routine has to be modified, the user can simply override the corresponding operation. However, visitors which implement simple operations still require an extension of the base class, making the hierarchy of classes less comprehensible and cluttered. Moreover, in the case that two visitors have to be combined to a single one, it is not directly possible to mix them, but required to implement a new visitor containing both. All this leads to a situation, where maintenance of components is not focused, but distributed over a hierarchy of visitors and their assisting operations, blowing up the code base with unnecessary code and repetitive definitions of new classes.
 
-![ The *visitor* pattern in practice @Krahn:2010:MFC:1842982.1842986:
-Even small operations, e.g., the collection of certain types of
-variables, require the usage of sub-classing, where only a single
-operation is redefined. <span
-data-label="fig:mid:oldvis"></span>](src/pic/mid_oldvis_cropped.pdf){width="80.00000%"}
+<p align="center">
+<img src="pic/mid_oldvis_cropped.png" alt="The *visitor* pattern in practice" width ="70%">
+</p>
+<a name="fig2.5"></a>
+<p>
+<b>Figure 2.5</b>: The *visitor* pattern in practice: Even small operations, e.g., the collection of certain types of variables, require the usage of sub-classing, where only a single operation is redefined.
+</p>
 
 Especially in the case of PyNestML and its semantics-checking subsystem many visitors had to be written. In order to avoid the above-mentioned problems, the concept of the *higher-order visitor* was developed. Analogously to the (generated) base visitor, this class implements a traversal routine on the AST. However, instead of overriding the base visitor and providing all operations on the AST in a new class, it is only required to hand over a reference to the operation which should be performed on the AST. Coming back to the introductory example: Here, it is only necessary to check whether a node represents a function call, and which arguments it has. Both operations can be stored in a single function definition. The *higher-order visitor* therefore expects such a function reference, traverses the AST and invokes the operation on each node. Other modifications, e.g., which visit a node twice or simply skipit, are directly encapsulated in the corresponding function. Utilizing this concept, many obstacles can be eliminated. Simple visitors, e.g., those collecting all variables in a certain block, can be implemented with a single line of code as illustrated in . The overall code base becomes smaller, while visitors are defined in-place together with their caller, making maintenance easy to achieve and data encapsulation a built-in property.
 
-![The *Higher-Order Visitor*: The *visit* operation is provided by the
-AST whose subtree shall be visited and the actual operation. This
-operation can be either declared in-place by *lambda expressions* or as
-a reference to a different function. The higher-order visitor traverses
-the tree and invokes the function on each node.<span
-data-label="fig:mid:higher"></span>](src/pic/mid_higher_cropped.pdf){width="100.00000%"}
+<p align="center">
+<img src="pic/mid_higher_cropped.png" alt="The *Higher-Order Visitor*" width ="80%">
+</p>
+<a name="fig2.6"></a>
+<p>
+<b>Figure 2.6</b>: The *Higher-Order Visitor*: The *visit* operation is provided by the AST whose subtree shall be visited and the actual operation. This operation can be either declared in-place by *lambda expressions* or as a reference to a different function. The higher-order visitor traverses the tree and invokes the function on each node.
+</p>
 
-In this section, we presented all assisting classes as contained in the
-framework:
+In this section, we presented all assisting classes as contained in the framework:
 
--   *FrontendConfiguration*: A configuration class used to store handed
-    over parameters.
+-   *FrontendConfiguration*: A configuration class used to store handed over parameters.
 
--   *PyNestMLFrontend*: A class providing a simple interface
-    to PyNestML.
+-   *PyNestMLFrontend*: A class providing a simple interface to PyNestML.
 
--   *Logger* and *Messages*: A logger with a set of corresponding
-    messages for precise and easy to filter logs.
+-   *Logger* and *Messages*: A logger with a set of corresponding messages for precise and easy to filter logs.
 
--   *ASTNodeFactory* and *ASTUtils*: Collections of assisting operations
-    as used to create and modify ASTs.
+-   *ASTNodeFactory* and *ASTUtils*: Collections of assisting operations as used to create and modify ASTs.
 
--   *ASTOdeTransformer*: A component specialized on manipulating
-    ODE blocks.
+-   *ASTOdeTransformer*: A component specialized on manipulating ODE blocks.
 
--   *ASTHigherOrderVisitor*: A visitor which expects a function, which
-    is then executed on each node in the AST. Makes inheritance for
-    simple visitors no longer necessary.
+-   *ASTHigherOrderVisitor*: A visitor which expects a function, which is then executed on each node in the AST. Makes inheritance for simple visitors no longer necessary.
 
 All these components make PyNestML easier to maintain and ensure basic qualities of a software, namely data abstraction, separation of concerns and single responsibility. As we will see in , all these characteristics are highly anticipated and make integration of extensions an easy to achieve goal.
+
+Go to [Section 3](back.md).
 
 [^1]: https://docs.python.org/3/library/argparse.html
