@@ -76,4 +76,4 @@ where arguments are:
 | -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. |
 | -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored.|
 
-For an in-depth introduction to the underlying modeling language NestML, we refer to the following [documentation](doc/lan/doc.md). For those who are interested in the implementation of PyNestML or the general constructions of a DSL-processing toolchain, a [summuray](doc/impl/doc.md) of all implemented components might be of interest. 
+For an in-depth introduction to the underlying modeling language NestML, we refer to the following [documentation](doc/lan/doc.md). For those who are interested in the implementation of PyNestML or the general constructions of a DSL-processing toolchain, a [summary](doc/impl/doc.md) of all implemented components might be of interest. 
