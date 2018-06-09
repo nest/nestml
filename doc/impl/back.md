@@ -1,6 +1,6 @@
 ## Section 3: The Generating Backend <a name="chap:main:backend"></a>
 
-The generation of executable code is one of the most important aspects of a DSL-processing framework and enables the validation of the modeled concepts. The transformation of a textual model to an executable representation by means of a DSL framework prevents a manual, error-prone mapping of models to target platforms. In the case of PyNestML, the NEST simulator @Gewaltig:NEST was selected as the first major platform for code generation. NEST represents a powerful simulation environment for biological neural networks and is implemented in C++. In this chapter, we will demonstrate how the code-generating backend was reengineered to generate NEST specific C++ code. For this purpose, will first introduce the orchestrating *NestCodeGenerator* class and subsequently demonstrate how models are adjusted to be more NEST affine. An overview of the components used to generate NEST-specific code concludes this chapter. illustrates the subsystems introduced in this chapter and their relations.
+The generation of executable code is one of the most important aspects of a DSL-processing framework and enables the validation of the modeled concepts. The transformation of a textual model to an executable representation by means of a DSL framework prevents a manual, error-prone mapping of models to target platforms. In the case of PyNestML, the NEST simulator[^1] was selected as the first major platform for code generation. NEST represents a powerful simulation environment for biological neural networks and is implemented in C++. In this section, we will demonstrate how the code-generating backend was implemented to generate NEST-specific C++ code. For this purpose, [Section 3.1](#chap:main:backend:codegeneration) will first introduce the orchestrating *NestCodeGenerator* class and subsequently demonstrate how models are adjusted to be more NEST affine. An overview of the components used to generate NEST-specific code subsequently concludes this section. [Figure 3.1](#fig3.1) illustrates the subsystems as introduced in the following and their relations.
 
 <p align="center">
 <img src="pic/back_overview_cropped.png" alt="Overview of the code-generating backend."
@@ -16,7 +16,7 @@ The generation of executable code is one of the most important aspects of a DSL-
 
 <p align="center">
 <img src="pic/back_trans_cropped.png" alt="Overview of the NEST code generator."
-    width ="80%">
+    width ="90%">
 </p>
 <a name="fig3.2"></a>
 <p>
@@ -29,7 +29,7 @@ The *NestCodeGenerator* class orchestrates all steps required to generate NEST-s
 
 <p align="center">
 <img src="pic/back_AnGen_cropped.png" alt="Processing of a model in the NEST backend."
-    width ="80%">
+    width ="70%">
 </p>
 <a name="fig3.3"></a>
 <p>
@@ -45,7 +45,7 @@ In order to compute these optimizations, the ODE-toolbox as introduced by Blunde
 
 <p align="center">
 <img src="pic/back_proc_cropped.png" alt="The model transformation subsystem"
-    width ="80%">
+    width ="90%">
 </p>
 <a name="fig3.4"></a>
 <p>
@@ -65,7 +65,7 @@ The task of creating a JSON representation of a given *equations* block is handl
 
 <p align="center">
 <img src="pic/back_solver_cropped.png" alt="Interaction with the ODE-toolbox."
-    width ="80%">
+    width ="90%">
 </p>
 <a name="fig3.6"></a>
 <p>
@@ -80,7 +80,7 @@ Having an optimized structure of the *equations* block, PyNestML starts to trans
 
 <p align="center">
 <img src="pic/back_processor_cropped.png" alt="The model-transforming process."
-    width ="80%">
+    width ="90%">
 </p>
 <a name="fig3.7"></a>
 <p>
@@ -106,7 +106,7 @@ Having a set up context, the *NestCodeGenerator* initiates the actual code gener
 
 <p align="center">
 <img src="pic/back_genFiles_cropped.png" alt="Generated artifacts of the *Izhikevich* neuron model."
-    width ="80%">
+    width ="90%">
 </p>
 <a name="fig3.9"></a>
 <p>
@@ -115,7 +115,7 @@ Having a set up context, the *NestCodeGenerator* initiates the actual code gener
 
 <p align="center">
 <img src="pic/back_template_cropped.png" alt="Templates and the generated code of the *Izhikevich* neuron model."
-    width ="80%">
+    width ="90%">
 </p>
 <a name="fig3.10"></a>
 <p>
@@ -126,7 +126,7 @@ As demonstrated in , often target implementations can be described in a schemati
 
 <p align="center">
 <img src="pic/back_different_cropped.png" alt="Context sensitive target syntax."
-    width ="80%">
+    width ="60%">
 </p>
 <a name="fig3.11"></a>
 <p>
@@ -163,7 +163,7 @@ C++ as well as many other languages do not support the apostrophe as a valid par
 
 <p align="center">
 <img src="pic/back_primTypes_cropped.png" alt="Mapping of NestML types to NEST."
-    width ="80%">
+    width ="30%">
 </p>
 <a name="fig3.14"></a>
 <p>
@@ -176,7 +176,7 @@ The *NESTML2NestTypeConverter* class provides a mapping from NestML types to app
 
 <p align="center">
 <img src="pic/back_phy_cropped.png" alt="Common neuroscientific physical units."
-    width ="80%">
+    width ="30%">
 </p>
 <a name="fig3.15"></a>
 <p>
@@ -204,3 +204,5 @@ Together with the above-presented set of assisting classes, the functionality as
 We conclude this chapter by a brief overview of the implemented routines as well as the performed refactoring steps. Section \[chap:main:backend:codegeneration\] demonstrated how NEST-specific C++ code can be generated from an optimized AST. Here, we first introduced the coordinating *NestCodeGenerator* class and showed how code generation is prepared. To this end, we outlined how declarations of models can be optimized by restructuring the *equations* block to a more efficient form. The computation of the optimizations is hereby delegated to the ODE-toolbox by Blundell et al. In order to integrate the results as returned by the toolbox, we implemented the *EquationsBlockProcessor* and its assisting classes. Together, these two components yield a more efficient definition of a model. Subsequently, we highlighted a set of templates used to depict the general structure of generated C++ code. In order to reduce the complexity in the used templates, PyNestML delegated the task of generating expressions to the *ExpressionPrettyPrinter* class. Together, these components implement a process which achieves a *model to text* transformation on textual models.
 
 PyNestML has been developed with the intent to provide a base for future development and extensions. As we demonstrated in , the transformation used to construct NEST-affine and efficient code has been called from within the NEST code generator as a preprocessing step. Future backends for target platform-specific code generation can, therefore, implement their individual and self-contained transformations, while all backends receive the same, unmodified input from the frontend. Individual modifications of the AST can be easily implemented as composable filters in the AST processing pipeline. Nonetheless, some of the model optimization steps are of target platform-agnostic nature, e.g., simplification of physical units, and are therefore implemented as a target-unspecific component in the workflow. Moreover, the key principle of the *ExpressionPrettyPrinter*, namely its composability by means of reference converters, represents a reusable component which can be used for code generation to arbitrary target platforms. All this leads to a situation where extensions can be implemented by composing existing components.
+
+[^1]: @Gewaltig:NEST
