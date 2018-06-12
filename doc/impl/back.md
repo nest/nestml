@@ -204,6 +204,8 @@ We conclude this chapter by a brief overview of the implemented routines. [Secti
 
 PyNestML has been developed with the intent to provide a base for future development and extensions. As we demonstrated in [Section 3.1](#chap:main:backend:codegeneration), the transformation used to construct NEST-affine and efficient code has been called from within the NEST code generator as a preprocessing step. Future backends for target platform-specific code generation can, therefore, implement their individual and self-contained transformations, while all backends receive the same, unmodified input from the frontend. Individual modifications of the AST can be easily implemented as composable filters in the AST processing pipeline. Nonetheless, some of the model optimization steps are of target platform-agnostic nature, e.g., simplification of physical units, and are therefore implemented as a target-unspecific component in the workflow. Moreover, the key principle of the *ExpressionPrettyPrinter*, namely its composability by means of reference converters, represents a reusable component which can be used for code generation to arbitrary target platforms. All this leads to a situation where extensions can be implemented by simply composing existing components.
 
+Go to [Section 4](extensions.md).
+
 ----
 
 <a name="1">[1]</a>: Marc-Oliver Gewaltig and Markus Diesmann, NEST (NEural Simulation Tool), 2007. </a>

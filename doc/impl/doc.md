@@ -12,12 +12,12 @@ Engineering of domain-specific languages (DSL) such as NestML represents a proce
 </p>
 <a name="fig0.1"></a>
 <p>
-<b>Figure 0.1</b>: The architecture of a DSL[^1]: The model-processing toolchain consists of three major subsystems and several assisting components. A given model is handed over to the *model-processing frontend* which parses it and creates an internal representation, the *Abstract Syntax Tree* (AST). This representation is then further analyzed and refined by the *transformation and function library*, a collection of components which ensure the overall correctness of the given model and employ subroutines for further modifications and transformations, generating an *output AST*. The processed AST is finally handed over to the *backend* subsystem which generates code in a format as specified in a set of *templates*. The overall process is orchestrated by a *workflow execution* unit whose behavior and individual steps can be customized by a *control script*. The result of the overall process is a set of generated *code*, *reports* and other artifacts.
+<b>Figure 0.1</b>: The architecture of a DSL<sup>[1](#1)</sup>: The model-processing toolchain consists of three major subsystems and several assisting components. A given model is handed over to the *model-processing frontend* which parses it and creates an internal representation, the *Abstract Syntax Tree* (AST). This representation is then further analyzed and refined by the *transformation and function library*, a collection of components which ensure the overall correctness of the given model and employ subroutines for further modifications and transformations, generating an *output AST*. The processed AST is finally handed over to the *backend* subsystem which generates code in a format as specified in a set of *templates*. The overall process is orchestrated by a *workflow execution* unit whose behavior and individual steps can be customized by a *control script*. The result of the overall process is a set of generated *code*, *reports* and other artifacts.
 </p>
 
 
-For more DSL-related details, we refer to Fow10[^2] and Ben16[^3].
+For more DSL-related details, we refer to Fow10<sup>[2](#2)</sup> and  Ben16<sup>[3](#3)</sup>.
 
-[^1]: Katrin Hoelldobler, Bernhard Rumpe. MontiCore 5 Language Workbench Edition 2017.
-[^2]: Martin Fowler. Domain-specific languages. Pearson Education, 2010.
-[^3]: Benoit Combemale, Robert France and Jean-Marc Jezequel,  Bernhard Rumpe, James Steel and Didier Vojtisek. Engineering modeling languages: Turning domain knowledge into tools, 2016, CRC Press
+<a name="1">[1]</a>: Katrin Hoelldobler, Bernhard Rumpe. MontiCore 5 Language Workbench Edition 2017. </a>
+<a name="2">[2]</a>: Martin Fowler. Domain-specific languages. Pearson Education, 2010. </a>
+<a name="3">[3]</a>: Benoit Combemale, Robert France and Jean-Marc Jezequel,  Bernhard Rumpe, James Steel and Didier Vojtisek. Engineering modeling languages: Turning domain knowledge into tools, 2016, CRC Press. </a>
