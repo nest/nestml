@@ -18,6 +18,10 @@ Engineering of domain-specific languages (DSL) such as NestML represents a proce
 
 For more DSL-related details, we refer to Fow10<sup>[2](#2)</sup> and  Ben16<sup>[3](#3)</sup>.
 
+---
+
 <a name="1">[1]</a>: Katrin Hoelldobler, Bernhard Rumpe. MontiCore 5 Language Workbench Edition 2017. </a>
+
 <a name="2">[2]</a>: Martin Fowler. Domain-specific languages. Pearson Education, 2010. </a>
+
 <a name="3">[3]</a>: Benoit Combemale, Robert France and Jean-Marc Jezequel,  Bernhard Rumpe, James Steel and Didier Vojtisek. Engineering modeling languages: Turning domain knowledge into tools, 2016, CRC Press. </a>
