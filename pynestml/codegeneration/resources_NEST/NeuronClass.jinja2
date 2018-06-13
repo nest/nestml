@@ -174,6 +174,9 @@ namespace nest
   {% for state in neuron.get_state_non_alias_symbols() -%}
     S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
   {% endfor %}
+  {% for init in neuron.get_initial_values_non_alias_symbols() -%}
+    S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
+  {% endfor %}
   {% for internal in neuron.get_internal_non_alias_symbols() -%}
     V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
   {% endfor %}
