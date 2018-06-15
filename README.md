@@ -37,7 +37,7 @@ python2 setup.py test
 \# respectively python3 setup.py test 
 ```
 
-In order to ensure correct installation and resolving of dependencies, Python's package manager [_pip_](https://pip.pypa.io/en/stable/installing/), the distribution tool [_setuptools_](https://packaging.python.org/tutorials/installing-packages/) as well as the python-dev package are required and should be installed in advance. The setup file additionally installs the following components:
+In order to ensure correct installation and resolving of dependencies, Python's package manager [pip](https://pip.pypa.io/en/stable/installing/), the distribution tool [setuptools](https://packaging.python.org/tutorials/installing-packages/) as well as the python-dev package are required and should be installed in advance. The setup file additionally installs the following components:
 
 * [SymPy in the version >= 1.1.1](http://www.sympy.org/en/index.html)
 
@@ -76,4 +76,4 @@ where arguments are:
 | -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. |
 | -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored.|
 
-For an in-depth introduction to the underlying modeling language NestML, we refer to the following [documentation](doc/lan/doc.md). For those who are interested in the implementation of PyNestML or the general constructions of a DSL-processing toolchain, a [summary](doc/impl/doc.md) of all implemented components might be of interest. 
+For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md). For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 

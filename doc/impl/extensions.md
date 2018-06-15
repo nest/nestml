@@ -111,3 +111,5 @@ As illustrated in [Figure 4.7](#fig4.7), the existing *NeuronClass* template is 
 </p>
 
 In conclusion, it is sufficient to implement all extensions in individual templates and include them by the above-demonstrated mechanism.
+
+Back to [overview](doc.md).
