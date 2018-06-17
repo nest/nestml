@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
@@ -39,7 +40,7 @@ class CoCoIllegalExpression(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :type neuron: ASTNeuron
         """
         neuron.accept(CorrectExpressionVisitor())
 
@@ -57,6 +58,9 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         assert isinstance(node, ASTDeclaration)
         if node.has_expression():
+            if node.get_expression().get_source_position().equals(ASTSourceLocation.get_added_source_position()):
+                # no type checks are executed for added nodes, since we assume correctness
+                return
             lhs_type = node.get_data_type().get_type_symbol()
             rhs_type = node.get_expression().type
             if isinstance(rhs_type, ErrorTypeSymbol):
@@ -70,10 +74,14 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single expression and assures that type(lhs) == type(rhs).
         :param node: a single assignment.
-        :type node: ast_assignment
+        :type node: ASTAssignment
         """
         from pynestml.meta_model.ast_assignment import ASTAssignment
         assert isinstance(node, ASTAssignment)
+
+        if node.get_source_position().equals(ASTSourceLocation.get_added_source_position()):
+            # no type checks are executed for added nodes, since we assume correctness
+            return
         if node.is_direct_assignment:  # case a = b is simple
             self.handle_simple_assignment(node)
         else:
@@ -118,8 +126,11 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single if clause and checks that its condition is boolean.
         :param node: a single elif clause.
-        :type node: ast_if_clause
+        :type node: ASTIfClause
         """
+        if node.get_source_position().equals(ASTSourceLocation.get_added_source_position()):
+            # no type checks are executed for added nodes, since we assume correctness
+            return
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
             code, message = Messages.get_type_could_not_be_derived(node.get_condition())
@@ -138,8 +149,11 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single elif clause and checks that its condition is boolean.
         :param node: a single elif clause.
-        :type node: ast_elif_clause
+        :type node: ASTElifClause
         """
+        if node.get_source_position().equals(ASTSourceLocation.get_added_source_position()):
+            # no type checks are executed for added nodes, since we assume correctness
+            return
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
             code, message = Messages.get_type_could_not_be_derived(node.get_condition())
@@ -158,8 +172,11 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single while stmt and checks that its condition is of boolean type.
         :param node: a single while stmt
-        :type node: ast_while_stmt
+        :type node: ASTWhileStmt
         """
+        if node.get_source_position().equals(ASTSourceLocation.get_added_source_position()):
+            # no type checks are executed for added nodes, since we assume correctness
+            return
         cond_type = node.get_condition().type
         if isinstance(cond_type, ErrorTypeSymbol):
             code, message = Messages.get_type_could_not_be_derived(node.get_condition())
@@ -178,8 +195,11 @@ class CorrectExpressionVisitor(ASTVisitor):
         """
         Visits a single for stmt and checks that all it parts are correctly defined.
         :param node: a single for stmt
-        :type node: ast_for_stmt
+        :type node: ASTForStmt
         """
+        if node.get_source_position().equals(ASTSourceLocation.get_added_source_position()):
+            # no type checks are executed for added nodes, since we assume correctness
+            return
         # check that the from stmt is an integer or real
         from_type = node.get_start_from().type
         if isinstance(from_type, ErrorTypeSymbol):
