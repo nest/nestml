@@ -188,10 +188,15 @@ class FrontendConfiguration(object):
     def handle_target_path(cls, path):
         # check if a target has been selected, otherwise set the buildNest as target
         if path is not None:
-            cls.target_path = str(os.path.realpath(path))
+            if os.path.isabs(path):
+                cls.target_path = path
+            # a relative path, reconstruct it. get the parent dir where models, pynestml etc. is located
+            else:
+                pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+                cls.target_path = os.path.join(pynestml_dir, path)
         else:
-            # check if the real already exists
-            if not os.path.isdir(os.path.realpath('target')):
-                os.makedirs(os.path.realpath('target'))
-            cls.target_path = str(os.path.realpath('target'))
-        cls.target_path = os.path.abspath(cls.target_path)
+            pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+            cls.target_path = os.path.join(pynestml_dir, 'target')
+        # check if the target path dir already exists
+        if not os.path.isdir(cls.target_path):
+            os.makedirs(cls.target_path)
