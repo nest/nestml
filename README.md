@@ -1,6 +1,6 @@
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) [![Build Status](https://travis-ci.org/kperun/nestml.svg?branch=PyNestML)](https://travis-ci.org/kperun/nestml)
 
-# PyNestTML - The NEST Modelling Language @Python
+# PyNestML - The NEST Modelling Language @Python
 
 NestML is a domain specific language that supports the specification of neuron models
 in a precise and concise syntax, based on the syntax of Python. Model equations
@@ -76,4 +76,4 @@ where arguments are:
 | -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. |
 | -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored.|
 
-For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md). For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 
+For an in-dept introduction to the underlying modeling language NestML, we refer to the following [documentation](doc/syntax.md).
