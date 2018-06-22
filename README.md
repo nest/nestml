@@ -37,7 +37,7 @@ python2 setup.py test
 \# respectively python3 setup.py test 
 ```
 
-In order to ensure correct installation and resolving of dependencies, Python's package manager [_pip_](https://pip.pypa.io/en/stable/installing/), the distribution tool [_setuptools_](https://packaging.python.org/tutorials/installing-packages/) as well as the python-dev package are required and should be installed in advance. The setup file additionally installs the following components:
+In order to ensure correct installation and resolving of dependencies, Python's package manager [pip](https://pip.pypa.io/en/stable/installing/), the distribution tool [setuptools](https://packaging.python.org/tutorials/installing-packages/) as well as the python-dev package are required and should be installed in advance. The setup file additionally installs the following components:
 
 * [SymPy in the version >= 1.1.1](http://www.sympy.org/en/index.html)
 
@@ -71,9 +71,9 @@ where arguments are:
 | -path         | Path to the source file or directory containing the model.|
 | -target       | (Optional) Path to target directory where models will be generated to. | 
 | -dry          | (Optional) Executes the analysis of the model without generating target code. |
-| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Standard is ERROR, available are [INFO,WARNING,ERROR,NO] |
-| -module_name  | (Optional) Sets the name of the module which shall be generated. Standard is name of the directory containing the models. |
-| -store_log    | (Optional) Stores a log.txt containing all messages in Json notation. |
-| -dev          | (Optional) Executes the toolchain with in the development mode where errors in models are ignored.|
+| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. The standard is ERROR, available are [INFO, WARNING, ERROR, NO] |
+| -module_name  | (Optional) Sets the name of the module which shall be generated. Standard is the name of the directory containing the models. |
+| -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. |
+| -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored.|
 
 For an in-dept introduction to the underlying modeling language NestML, we refer to the following [documentation](doc/syntax.md).

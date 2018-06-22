@@ -20,8 +20,8 @@
 import argparse  # used for parsing of input arguments
 import os
 
-from pynestml.utils.logger import Logger
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
+from pynestml.utils.logger import Logger
 
 help_path = 'Path to a single file or a directory containing the source models.'
 help_target = 'Path to a target directory where models should be generated to. Standard is "target".'
@@ -106,13 +106,8 @@ class FrontendConfiguration(object):
             Logger.init_logger(Logger.string_to_level("ERROR"))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.dry_run = parsed_args.dry
-        # check if a target has been selected, otherwise set the buildNest as target
-        if parsed_args.target is not None:
-            cls.target_path = str(os.path.realpath(os.path.join('..', parsed_args.target)))
-        else:
-            if not os.path.isdir(os.path.realpath(os.path.join('..', 'target'))):
-                os.makedirs(os.path.realpath(os.path.join('..', 'target')))
-            cls.target_path = str(os.path.realpath(os.path.join('..', 'target')))
+        # now update the target path
+        cls.handle_target_path(parsed_args.target)
         # now adjust the name of the module, if it is a single file, then it is called just module
         if parsed_args.module_name is not None:
             cls.module_name = parsed_args.module_name[0]
@@ -188,3 +183,20 @@ class FrontendConfiguration(object):
         :rtype: bool
         """
         return cls.is_debug
+
+    @classmethod
+    def handle_target_path(cls, path):
+        # check if a target has been selected, otherwise set the buildNest as target
+        if path is not None:
+            if os.path.isabs(path):
+                cls.target_path = path
+            # a relative path, reconstruct it. get the parent dir where models, pynestml etc. is located
+            else:
+                pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+                cls.target_path = os.path.join(pynestml_dir, path)
+        else:
+            pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+            cls.target_path = os.path.join(pynestml_dir, 'target')
+        # check if the target path dir already exists
+        if not os.path.isdir(cls.target_path):
+            os.makedirs(cls.target_path)

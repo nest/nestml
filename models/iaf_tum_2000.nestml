@@ -92,12 +92,12 @@
 neuron iaf_tum_2000_neuron:
 
   state:
-    r_tot  integer
-    r_abs  integer
+    r_tot  integer = 0
+    r_abs  integer = 0
   end
 
   initial_values:
-    V_m mV = 0 # Membrane potential
+    V_m mV = 0.0mV # Membrane potential
   end
 
   equations:

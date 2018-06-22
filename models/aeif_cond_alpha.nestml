@@ -163,9 +163,9 @@ neuron aeif_cond_alpha_implicit:
     V_m mV = E_L           # Membrane potential
     w pA = 0 pA            # Spike-adaptation current
     g_in nS = 0 nS         # Excitatory synaptic conductance
-    g_in' nS/mS = nS * e / tau_syn_in  # Excitatory synaptic conductance
+    g_in' nS/ms = nS * e / tau_syn_in  # Excitatory synaptic conductance
     g_ex nS = 0 nS         # Inhibitory synaptic conductance in nS
-    g_ex' nS/mS = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
+    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
   end
 
   equations:

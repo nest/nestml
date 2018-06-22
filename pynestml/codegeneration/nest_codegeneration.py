@@ -112,7 +112,8 @@ def analyse_and_generate_neurons(neurons):
     :param neurons: a list of neurons.
     """
     for neuron in neurons:
-        print("Generates code for the neuron {}.".format(neuron.get_name()))
+        if Logger.logging_level == LoggingLevel.INFO:
+            print("Generates code for the neuron {}.".format(neuron.get_name()))
         analyse_and_generate_neuron(neuron)
 
 

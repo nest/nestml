@@ -75,7 +75,7 @@ class CodeGeneratorTest(unittest.TestCase):
         assert len(compilation_unit.get_neuron_list()) == 1
         ast_neuron = compilation_unit.get_neuron_list()[0]
         ast_neuron = transform_shapes_and_odes(ast_neuron, {})
-        print(ast_neuron)
+        #print(ast_neuron)
 
     def test_iaf_psc_alpha(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(

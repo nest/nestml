@@ -577,7 +577,14 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
   {%- endwith %}
   {%- endfor %}
-  {%- for invariant in neuron.get_parameter_invariants() %}
+
+  {%- for init in neuron.get_initial_values_symbols() -%}
+  {%- with variable = init %}
+  {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
+  {%- endwith %}
+  {%- endfor %}
+
+  {% for invariant in neuron.get_parameter_invariants() %}
   if ( !({{printer.print_expression(invariant)}}) ) {
     throw nest::BadProperty("The constraint '{{idemPrinter.print_expression(invariant)}}' is violated!");
   }

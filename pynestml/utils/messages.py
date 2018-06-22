@@ -35,7 +35,7 @@ class Messages(object):
         :return: message code tuple
         :rtype: (MessageCode,str)
         """
-        message = 'Start processing \'' + file_path + '\''
+        message = 'Start processing \'' + file_path + '\'!'
         return MessageCode.START_PROCESSING_FILE, message
 
     @classmethod
@@ -52,23 +52,23 @@ class Messages(object):
 
     @classmethod
     def get_binary_operation_not_defined(cls, lhs, operator, rhs):
-        message = 'Operation %s %s %s is not defined' % (lhs, operator, rhs)
+        message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message
 
     @classmethod
     def get_unary_operation_not_defined(cls, operator, term):
-        message = 'Operation %s%s is not defined' % (operator, term)
+        message = 'Operation %s%s is not defined!' % (operator, term)
         return MessageCode.OPERATION_NOT_DEFINED, message
 
     @classmethod
     def get_convolve_needs_buffer_parameter(cls):
-        message = 'Convolve needs a buffer as its second parameter'
+        message = 'Convolve requires a buffer variable as second parameter!'
         return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
 
     @classmethod
     def get_implicit_magnitude_conversion(cls, lhs, rhs, conversion_factor):
         message = 'Non-matching unit types at %s +/- %s! ' \
-                  'Implicitly replaced by %s +/- %s * %s' % (
+                  'Implicitly replaced by %s +/- %s * %s.' % (
                       lhs.print_symbol(), rhs.print_symbol(), lhs.print_symbol(), conversion_factor,
                       rhs.print_symbol())
         return MessageCode.IMPLICIT_CAST, message
@@ -101,7 +101,7 @@ class Messages(object):
         """
         if not castable:
             message = str(arg_nr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (function_call.get_name(), got_type.print_symbol(),
+                                    ' found \'%s\'!' % (function_call.get_name(), got_type.print_symbol(),
                                                         expected_type.print_symbol())
         else:
             message = str(arg_nr) + '. argument of function-call \'%s\' is wrongly typed! ' \
@@ -135,7 +135,7 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Implicit casting %s to %s' % (rhs_type, lhs_type)
+        message = 'Implicit casting %s to %s!' % (rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -154,7 +154,7 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'.' % (
+        message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'!' % (
             lhs_expression,
             rhs_expression,
             lhs_type.print_symbol(),
@@ -282,7 +282,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
-        message = 'Successfully generated NEST code for the neuron: \'' + neuron_name + '\' in: \'' + path + '\''
+        message = 'Successfully generated NEST code for the neuron: \'' + neuron_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -296,7 +296,7 @@ class Messages(object):
         """
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
-        message = 'Successfully generated NEST module code in \'' + path + '\''
+        message = 'Successfully generated NEST module code in \'' + path + '\' !'
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -334,7 +334,7 @@ class Messages(object):
         """
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
-        message = 'Variable \'%s\' not defined !' % variable_name
+        message = 'Variable \'%s\' not defined!' % variable_name
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
@@ -434,7 +434,7 @@ class Messages(object):
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Current buffer \'%s\' specified with type keywords (%s)' % (name, keyword)
+        message = 'Current buffer \'%s\' specified with type keywords (%s)!' % (name, keyword)
         return MessageCode.CURRENT_BUFFER_SPECIFIED, message
 
     @classmethod

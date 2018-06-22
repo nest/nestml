@@ -462,6 +462,13 @@ class ASTNeuron(ASTNode):
                 ret.append(param)
         return ret
 
+    def get_initial_values_non_alias_symbols(self):
+        ret = list()
+        for init in self.get_initial_values_symbols():
+            if not init.is_function and not init.is_predefined:
+                ret.append(init)
+        return ret
+
     def get_internal_non_alias_symbols(self):
         """
         Returns a list of all variable symbols representing non-function internal variables.
