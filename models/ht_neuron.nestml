@@ -52,8 +52,8 @@ neuron ht_neuron_nestml:
   initial_values:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
     Theta mV = Theta_eq # Threshold
-    g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS
-    g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms
+    g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS = 0.0nS
+    g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms = 0.0 nS/ms
   end
 
   equations:
