@@ -39,6 +39,8 @@ def main(args):
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return
+    # init log dir
+    create_report_dir()
     # The handed over parameters seem to be correct, proceed with the main routine
     init_predefined()
     # now proceed to parse all models
@@ -81,11 +83,15 @@ def init_predefined():
     PredefinedVariables.register_variables()
 
 
+def create_report_dir():
+    if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report')):
+        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report'))
+
+
 def store_log_to_file():
-    with open(str(os.path.join(FrontendConfiguration.get_target_path(),
+    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
-    return
 
 
 if __name__ == '__main__':
