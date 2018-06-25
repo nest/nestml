@@ -144,6 +144,8 @@ def analyse_and_generate_neuron(neuron):
         # update the symbol table
         neuron.accept(ASTSymbolTableVisitor())
     generate_nest_code(neuron)
+    # now store the transformed model
+    store_transformed_model(neuron)
     # at that point all shapes are transformed into the ODE form and spikes can be applied
     code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
     Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -480,3 +482,10 @@ def transform_functions_json(equations_block):
                        "definition": _printer.print_expression(fun.get_expression())})
 
     return result
+
+
+def store_transformed_model(ast):
+    if FrontendConfiguration.store_log:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
+                                   ast.get_name())) + '.txt', 'w+') as f:
+            f.write(str(ast))

@@ -69,11 +69,21 @@ where arguments are:
 |---            |---          |
 | -h or --help  | Print help message.|
 | -path         | Path to the source file or directory containing the model.|
-| -target       | (Optional) Path to target directory where models will be generated to. | 
-| -dry          | (Optional) Executes the analysis of the model without generating target code. |
-| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. The standard is ERROR, available are [INFO, WARNING, ERROR, NO] |
-| -module_name  | (Optional) Sets the name of the module which shall be generated. Standard is the name of the directory containing the models. |
-| -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. |
-| -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored.|
+| -target       | (Optional) Path to target directory where models will be generated to. Default is /target .| 
+| -dry          | (Optional) Executes the analysis of the model without generating target code. Default is OFF.|
+| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
+| -module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. |
+| -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
+| -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
 
-For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md). For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 
+Generated artifacts are copied to the selected target directory (default is /target). In order to install 
+the models into NEST, the following commands have to be executed:
+```
+cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
+make all
+make install
+```
+where _nest\_install\_dir_ points to the installation directory of NEST (e.g. work/nest-install). Subsequently, PyNEST can be used to set up and execute a simulation.
+
+For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md).
+For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 
