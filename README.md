@@ -83,7 +83,7 @@ cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-Subsequently, PyNEST can be used to setup and execute a simulation.
+where _nest\_install\_dir_ points to the installation directory of NEST (e.g. work/nest-install). Subsequently, PyNEST can be used to setup and execute a simulation.
 
 For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md).
 For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 
