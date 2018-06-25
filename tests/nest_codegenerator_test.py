@@ -89,7 +89,6 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('NO')
         params.append('-target')
         params.append('target')
-        params.append('-store_log')
         params.append('-dev')
 
         FrontendConfiguration.config(params)
@@ -110,7 +109,6 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('NO')
         params.append('-target')
         params.append('target')
-        params.append('-store_log')
         params.append('-dev')
 
         FrontendConfiguration.config(params)
@@ -131,7 +129,6 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('NO')
         params.append('-target')
         params.append('target')
-        params.append('-store_log')
         params.append('-dev')
 
         FrontendConfiguration.config(params)
@@ -155,7 +152,6 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('NO')
         params.append('-target')
         params.append('target')
-        params.append('-store_log')
         params.append('-dev')
 
         FrontendConfiguration.config(params)

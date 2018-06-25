@@ -485,6 +485,7 @@ def transform_functions_json(equations_block):
 
 
 def store_transformed_model(ast):
-    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
-                               ast.get_name())) + '.txt', 'w+') as f:
-        f.write(str(ast))
+    if FrontendConfiguration.store_log:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
+                                   ast.get_name())) + '.txt', 'w+') as f:
+            f.write(str(ast))
