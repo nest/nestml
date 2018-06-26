@@ -91,7 +91,7 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
+        FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(path)
         generate_nest_module_code(compilation_unit.get_neuron_list())
@@ -111,7 +111,7 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
+        FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(path)
         generate_nest_module_code(compilation_unit.get_neuron_list())
@@ -131,7 +131,7 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
+        FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(path)
 
@@ -154,14 +154,19 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
-
+        FrontendConfiguration.parse_config(params)
+        print(FrontendConfiguration.target_path)
         compilation_unit = ModelParser.parse_model(path)
 
         iaf_cond_alpha_functional = list()
         iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
         generate_nest_module_code(iaf_cond_alpha_functional)
         analyse_and_generate_neurons(iaf_cond_alpha_functional)
+
+    def tearDown(self):
+        # clean up
+        import shutil
+        shutil.rmtree(FrontendConfiguration.target_path)
 
 
 if __name__ == '__main__':

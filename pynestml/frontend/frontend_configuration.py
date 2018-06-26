@@ -35,6 +35,14 @@ help_dev = 'Indicates whether the dev mode should be active, i.e., ' \
            'the whole toolchain executed even though errors in models are present.' \
            ' This option is designed for debug purpose only!'
 
+qualifier_path_arg = '-path'
+qualifier_target_arg = '-target'
+qualifier_dry_arg = '-dry'
+qualifier_logging_level_arg = '-logging_level'
+qualifier_module_name_arg = '-module_name'
+qualifier_store_log_arg = '-store_log'
+qualifier_dev_arg = '-dev'
+
 
 class FrontendConfiguration(object):
     """
@@ -51,11 +59,11 @@ class FrontendConfiguration(object):
     is_debug = False
 
     @classmethod
-    def config(cls, _args=None):
+    def parse_config(cls, args):
         """
-        Standard constructor.
-        :param _args: a set of arguments as handed over to the frontend
-        :type _args: list(str)
+        Standard constructor. This method parses the
+        :param args: a set of arguments as handed over to the frontend
+        :type args: list(str)
         """
         cls.argument_parser = argparse.ArgumentParser(
             description='NESTML is a domain specific language that supports the specification of neuron models in a'
@@ -65,21 +73,21 @@ class FrontendConfiguration(object):
                         ' if possible or use an appropriate numeric solver otherwise.'
                         ' Version 0.0.6, beta.')
 
-        cls.argument_parser.add_argument('-path', type=str, nargs='+',
+        cls.argument_parser.add_argument(qualifier_path_arg, type=str, nargs='+',
                                          help=help_path)
-        cls.argument_parser.add_argument('-target', metavar='Target', type=str, nargs='?',
+        cls.argument_parser.add_argument(qualifier_target_arg, metavar='Target', type=str, nargs='?',
                                          help=help_target)
-        cls.argument_parser.add_argument('-dry', action='store_true',
+        cls.argument_parser.add_argument(qualifier_dry_arg, action='store_true',
                                          help=help_dry)
-        cls.argument_parser.add_argument('-logging_level', type=str, nargs='+',
+        cls.argument_parser.add_argument(qualifier_logging_level_arg, type=str, nargs='+',
                                          help=help_logging)
-        cls.argument_parser.add_argument('-module_name', type=str, nargs='+',
+        cls.argument_parser.add_argument(qualifier_module_name_arg, type=str, nargs='+',
                                          help=help_module)
-        cls.argument_parser.add_argument('-store_log', action='store_true',
+        cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true',
                                          help=help_log)
-        cls.argument_parser.add_argument('-dev', action='store_true',
+        cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true',
                                          help=help_dev)
-        parsed_args = cls.argument_parser.parse_args(_args)
+        parsed_args = cls.argument_parser.parse_args(args)
         cls.provided_path = parsed_args.path
         if cls.provided_path is None:
             # check if the mandatory path arg has been handed over, just terminate
@@ -192,7 +200,7 @@ class FrontendConfiguration(object):
                 cls.target_path = path
             # a relative path, reconstruct it. get the parent dir where models, pynestml etc. is located
             else:
-                pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+                pynestml_dir = os.getcwd()
                 cls.target_path = os.path.join(pynestml_dir, path)
         else:
             pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))

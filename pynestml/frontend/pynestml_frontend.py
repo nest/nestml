@@ -23,7 +23,9 @@ import sys
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, generate_nest_module_code
-from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException
+from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
+    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, qualifier_dry_arg, \
+    qualifier_target_arg, qualifier_path_arg, qualifier_dev_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -33,12 +35,42 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 
 
+def to_nest(path, target=None, dry=False, logging_level='ERROR', module_name=None, store_log=False, dev=False):
+    #if target is not None and not os.path.isabs(target):
+    #    print('PyNestML: Please provide absolute target path!')
+    #    return
+    args = list()
+    args.append(qualifier_path_arg)
+    args.append(str(path))
+    if target is not None:
+        args.append(qualifier_target_arg)
+        args.append(str(target))
+    if dry:
+        args.append(qualifier_dry_arg)
+    args.append(qualifier_logging_level_arg)
+    args.append(str(logging_level))
+    if module_name is not None:
+        args.append(qualifier_module_name_arg)
+        args.append(str(module_name))
+    if store_log:
+        args.append(qualifier_store_log_arg)
+    if dev:
+        args.append(qualifier_dev_arg)
+    FrontendConfiguration.parse_config(args)
+    process()
+
+
 def main(args):
     try:
-        FrontendConfiguration.config(args)
+        FrontendConfiguration.parse_config(args)
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return
+    # after all argument have been collected, start the actual processing
+    process()
+
+
+def process():
     # init log dir
     create_report_dir()
     # The handed over parameters seem to be correct, proceed with the main routine

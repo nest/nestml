@@ -21,7 +21,7 @@ import os
 import unittest
 
 from pynestml.frontend.pynestml_frontend import main
-
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 class PyNestMLFrontendTest(unittest.TestCase):
     """
@@ -43,6 +43,9 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-dev')
         # try:
         main(params)
+        # clean up
+        import shutil
+        shutil.rmtree(FrontendConfiguration.target_path)
         self.assertTrue(True)  # the goal is to reach this point without exceptions
         # except Exception:
         #    self.assertTrue(False)
