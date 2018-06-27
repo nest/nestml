@@ -33,10 +33,11 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
+from pynestml.utils.model_installer import install_nest
 
 
 def to_nest(path, target=None, dry=False, logging_level='ERROR', module_name=None, store_log=False, dev=False):
-    #if target is not None and not os.path.isabs(target):
+    # if target is not None and not os.path.isabs(target):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
     args = list()
@@ -58,6 +59,18 @@ def to_nest(path, target=None, dry=False, logging_level='ERROR', module_name=Non
         args.append(qualifier_dev_arg)
     FrontendConfiguration.parse_config(args)
     process()
+
+
+def install_models(models_path, nest_path):
+    # type: (str,str) -> None
+    """
+    This procedure can be used to install generate models into the NEST simulator.
+    :param models_path: the path to the generated models, should contain the cmake file (automatically generated).
+    :param nest_path: the path to the NEST installation, should point to the dir where nest is installed, a.k.a.
+            the -Dwith-nest argument of the make command. The postfix /bin/nest-config is automatically attached.
+    :return:
+    """
+    install_nest(models_path, nest_path)
 
 
 def main(args):
