@@ -31,10 +31,7 @@ setup(
     license='GNU General Public License v2.0',
     url='https://github.com/nest/nestml/tree/PyNestML',
     packages=find_packages(),
-    package_dir={'codegeneration': 'pynestml/codegeneration'},
-    package_data={'codegeneration': ['resources_NEST/*.jinja2',
-                                     'resources_NEST/directives/*jinja2,'
-                                     'resources_NEST/setup/*.jinja2']},
+    package_data={'': ['*.jinja2']},
     install_requires=['numpy >= 1.8.2',
                       'sympy >= 1.1.1',
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
