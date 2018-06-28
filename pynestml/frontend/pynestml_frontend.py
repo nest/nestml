@@ -33,7 +33,7 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
-from pynestml.utils.model_installer import install_nest
+from pynestml.utils.model_installer import install_nest as nest_installer
 
 
 def to_nest(path, target=None, dry=False, logging_level='ERROR', module_name=None, store_log=False, dev=False):
@@ -70,7 +70,7 @@ def install_nest(models_path, nest_path):
             the -Dwith-nest argument of the make command. The postfix /bin/nest-config is automatically attached.
     :return:
     """
-    install_nest(models_path, nest_path)
+    nest_installer(models_path, nest_path)
 
 
 def main(args):
