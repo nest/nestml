@@ -21,6 +21,7 @@ import os
 import unittest
 
 from pynestml.frontend.pynestml_frontend import main
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
 
 class PyNestMLFrontendTest(unittest.TestCase):
@@ -29,7 +30,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
     """
 
     def test_codegeneration_for_all_models(self):
-        # path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models','non_functional'))))
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
         params = list()
         params.append('-path')
@@ -46,6 +46,11 @@ class PyNestMLFrontendTest(unittest.TestCase):
         self.assertTrue(True)  # the goal is to reach this point without exceptions
         # except Exception:
         #    self.assertTrue(False)
+
+    def tearDown(self):
+        # clean up
+        import shutil
+        shutil.rmtree(FrontendConfiguration.target_path)
 
 
 if __name__ == '__main__':

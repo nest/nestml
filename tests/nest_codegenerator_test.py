@@ -75,7 +75,7 @@ class CodeGeneratorTest(unittest.TestCase):
         assert len(compilation_unit.get_neuron_list()) == 1
         ast_neuron = compilation_unit.get_neuron_list()[0]
         ast_neuron = transform_shapes_and_odes(ast_neuron, {})
-        #print(ast_neuron)
+        # print(ast_neuron)
 
     def test_iaf_psc_alpha(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -91,11 +91,12 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
+        FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(path)
         generate_nest_module_code(compilation_unit.get_neuron_list())
         analyse_and_generate_neurons(compilation_unit.get_neuron_list())
+        tear_down()
 
     def test_iaf_psc_delta(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -111,11 +112,12 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
+        FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(path)
         generate_nest_module_code(compilation_unit.get_neuron_list())
         analyse_and_generate_neurons(compilation_unit.get_neuron_list())
+        tear_down()
 
     def test_iaf_cond_alpha_implicit(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -131,7 +133,7 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
+        FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(path)
 
@@ -139,6 +141,7 @@ class CodeGeneratorTest(unittest.TestCase):
         iaf_cond_alpha_implicit.append(compilation_unit.get_neuron_list()[1])
         generate_nest_module_code(iaf_cond_alpha_implicit)
         analyse_and_generate_neurons(iaf_cond_alpha_implicit)
+        tear_down()
 
     def test_iaf_cond_alpha_functional(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -154,14 +157,20 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('target')
         params.append('-dev')
 
-        FrontendConfiguration.config(params)
-
+        FrontendConfiguration.parse_config(params)
         compilation_unit = ModelParser.parse_model(path)
 
         iaf_cond_alpha_functional = list()
         iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
         generate_nest_module_code(iaf_cond_alpha_functional)
         analyse_and_generate_neurons(iaf_cond_alpha_functional)
+        tear_down()
+
+
+def tear_down():
+    # clean up
+    import shutil
+    shutil.rmtree(FrontendConfiguration.target_path)
 
 
 if __name__ == '__main__':
