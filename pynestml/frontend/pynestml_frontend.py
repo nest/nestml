@@ -61,7 +61,7 @@ def to_nest(path, target=None, dry=False, logging_level='ERROR', module_name=Non
     process()
 
 
-def install_models(models_path, nest_path):
+def install_nest(models_path, nest_path):
     # type: (str,str) -> None
     """
     This procedure can be used to install generate models into the NEST simulator.

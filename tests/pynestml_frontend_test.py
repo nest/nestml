@@ -23,6 +23,7 @@ import unittest
 from pynestml.frontend.pynestml_frontend import main
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
+
 class PyNestMLFrontendTest(unittest.TestCase):
     """
     Tests if the frontend works as intended and is able to process handed over arguments.
