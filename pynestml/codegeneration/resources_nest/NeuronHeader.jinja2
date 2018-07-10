@@ -291,12 +291,11 @@ private:
       {% include "directives/MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% endif -%}
-
-    {% for odeAlias in neuron.get_ode_aliases() -%}{% filter indent(4,True) -%}
-      {% with variable = odeAlias -%}
+    {% filter indent(4,True) -%}
+    {% for variable in neuron.get_ode_aliases() -%}
       {% include 'directives/MemberDeclaration.jinja2' -%}
-      {% endwith -%}{% endfilter -%}
     {% endfor %}
+    {% endfilter -%}
 
     State_();
   };
