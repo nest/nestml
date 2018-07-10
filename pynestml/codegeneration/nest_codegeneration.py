@@ -52,8 +52,8 @@ from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 # setup the template environment
-env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_NEST')))
-setup_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_NEST', 'setup')))
+env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
+setup_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest', 'setup')))
 # setup the cmake template
 template_cmakelists = setup_env.get_template('CMakeLists.jinja2')
 # setup the module class template
