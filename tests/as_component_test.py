@@ -24,6 +24,7 @@ import shutil
 from pynestml.frontend.pynestml_frontend import to_nest
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
+
 class AsComponentTest(unittest.TestCase):
     """"
     This test checks whether PyNestML can be executed correctly as a component from a different component.
@@ -43,8 +44,6 @@ class AsComponentTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.h')))
-        # clean up
-        shutil.rmtree(FrontendConfiguration.target_path)
 
     def test_from_objects(self):
         path = os.path.join('resources', 'CommentTest.nestml')
@@ -60,5 +59,9 @@ class AsComponentTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.h')))
+
+
+
+    def tearDown(self):
         # clean up
         shutil.rmtree(FrontendConfiguration.target_path)
