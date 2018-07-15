@@ -31,7 +31,7 @@ class AsComponentTest(unittest.TestCase):
     """
 
     def test_from_string(self):
-        path = 'resources/CommentTest.nestml'
+        path = str(os.path.join(os.path.dirname(__file__), 'resources', 'CommentTest.nestml'))
         target = 'target'
         dry = False
         logging_level = 'NO'
@@ -46,7 +46,7 @@ class AsComponentTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.h')))
 
     def test_from_objects(self):
-        path = os.path.join('resources', 'CommentTest.nestml')
+        path = os.path.join(os.path.dirname(__file__), 'resources', 'CommentTest.nestml')
         target = os.path.join('target')
         dry = False
         logging_level = 'NO'
