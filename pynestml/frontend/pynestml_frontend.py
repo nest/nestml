@@ -36,7 +36,8 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(path, target=None, dry=False, logging_level='ERROR', module_name=None, store_log=False, dev=False):
+def to_nest(path, target = None, dry = False, logging_level = 'ERROR', module_name = None, store_log = False,
+            dev = False):
     # if target is not None and not os.path.isabs(target):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
@@ -90,8 +91,8 @@ def process():
     init_predefined()
     # now proceed to parse all models
     compilation_units = list()
-    for file in FrontendConfiguration.get_files():
-        parsed_unit = ModelParser.parse_model(file)
+    for m_file in FrontendConfiguration.get_files():
+        parsed_unit = ModelParser.parse_model(m_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
     # generate a list of all neurons

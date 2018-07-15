@@ -32,7 +32,7 @@ class AsComponentTest(unittest.TestCase):
 
     def test_from_string(self):
         path = 'resources/CommentTest.nestml'
-        target = '../target'
+        target = 'target'
         dry = False
         logging_level = 'NO'
         module_name = 'module'
@@ -47,7 +47,7 @@ class AsComponentTest(unittest.TestCase):
 
     def test_from_objects(self):
         path = os.path.join('resources', 'CommentTest.nestml')
-        target = os.path.join('..', 'target')
+        target = os.path.join('target')
         dry = False
         logging_level = 'NO'
         module_name = 'module'
@@ -59,8 +59,6 @@ class AsComponentTest(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'module.h')))
-
-
 
     def tearDown(self):
         # clean up

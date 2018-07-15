@@ -66,12 +66,13 @@ class FrontendConfiguration(object):
         :type args: list(str)
         """
         cls.argument_parser = argparse.ArgumentParser(
-            description='NESTML is a domain specific language that supports the specification of neuron models in a'
-                        ' precise and concise syntax, based on the syntax of Python. Model equations can either be '
-                        ' given as a simple string of mathematical notation or as an algorithm written in the built-in '
-                        ' procedural language. The equations are analyzed by NESTML to compute an exact solution'
-                        ' if possible or use an appropriate numeric solver otherwise.'
-                        ' Version 0.0.6, beta.')
+                description='NESTML is a domain specific language that supports the specification of neuron models in a'
+                            ' precise and concise syntax, based on the syntax of Python. Model equations can either be '
+                            ' given as a simple string of mathematical notation or as an algorithm written in the '
+                            'built-in '
+                            ' procedural language. The equations are analyzed by NESTML to compute an exact solution'
+                            ' if possible or use an appropriate numeric solver otherwise.'
+                            ' Version 0.0.6, beta.')
 
         cls.argument_parser.add_argument(qualifier_path_arg, type=str, nargs='+',
                                          help=help_path)
@@ -88,24 +89,10 @@ class FrontendConfiguration(object):
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true',
                                          help=help_dev)
         parsed_args = cls.argument_parser.parse_args(args)
-        cls.provided_path = parsed_args.path
-        if cls.provided_path is None:
-            # check if the mandatory path arg has been handed over, just terminate
-            raise InvalidPathException('Invalid source path!')
-        cls.paths_to_compilation_units = list()
-        if parsed_args.path is None:
-            raise InvalidPathException('Invalid source path!')
-        elif os.path.isfile(parsed_args.path[0]):
-            cls.paths_to_compilation_units.append(parsed_args.path[0])
-        elif os.path.isdir(parsed_args.path[0]):
-            for filename in os.listdir(parsed_args.path[0]):
-                if filename.endswith(".nestml"):
-                    cls.paths_to_compilation_units.append(os.path.join(parsed_args.path[0], filename))
-        else:
-            cls.paths_to_compilation_units = parsed_args.path[0]
-            raise InvalidPathException('Incorrect path provided' + parsed_args.path[0])
-        # initialize the logger
+        # get the source path
+        cls.handle_source_path(parsed_args.path[0])
 
+        # initialize the logger
         if parsed_args.logging_level is not None:
             cls.logging_level = parsed_args.logging_level
             Logger.init_logger(Logger.string_to_level(parsed_args.logging_level[0]))
@@ -208,3 +195,26 @@ class FrontendConfiguration(object):
         # check if the target path dir already exists
         if not os.path.isdir(cls.target_path):
             os.makedirs(cls.target_path)
+
+    @classmethod
+    def handle_source_path(cls, path):
+        # check if a target has been selected, otherwise set the buildNest as target
+        if path is None:
+            # check if the mandatory path arg has been handed over, just terminate
+            raise InvalidPathException('Invalid source path!')
+        else:
+            cls.paths_to_compilation_units = list()
+            if os.path.isabs(path):
+                cls.provided_path = path
+            # a relative path, reconstruct it. get the parent dir where models, pynestml etc. is located
+            else:
+                pynestml_dir = os.getcwd()
+                cls.provided_path = os.path.join(pynestml_dir, path)
+            if os.path.isfile(cls.provided_path):
+                cls.paths_to_compilation_units.append(cls.provided_path)
+            elif os.path.isdir(cls.provided_path):
+                for filename in os.listdir(cls.provided_path):
+                    if filename.endswith(".nestml"):
+                        cls.paths_to_compilation_units.append(os.path.join(cls.provided_path, filename))
+            else:
+                cls.paths_to_compilation_units = cls.provided_path
