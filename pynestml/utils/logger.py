@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import json
 from collections import OrderedDict
-from pynestml.meta_model.ast_neuron import ASTNeuron
 
 from enum import Enum
 
@@ -85,7 +84,7 @@ class Logger(object):
         Logs the handed over message on the handed over. If the current logging is appropriate, the 
         message is also printed.
         :param neuron: the neuron in which the error occurred
-        :type neuron: ASTNeuron
+        :type neuron: ast_neuron
         :param code: a single error code
         :type code: ErrorCode
         :param error_position: the position on which the error occurred.
