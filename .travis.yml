@@ -37,8 +37,13 @@ script:
   - python tests/cocos_test.py
   - python tests/nest_codegenerator_test.py
   - python tests/pynestml_frontend_test.py
-  - python tests/pynestml_frontend_test.py
   - python tests/nestml_test.py
   - python tests/expression_type_calculation_test.py
- # - python tests/resources/NestmlIntegrationTest.py
+  - python tests/comment_test.py
+  - python tests/as_component_test.py
+  - python tests/magnitude_compatibility_test.py
+  - python tests/nestml_printer_test.py
+  - python tests/pynestml_2_nest_type_converter_test.py 
+  - python tests/unit_system_test.py
+# - python tests/resources/NestmlIntegrationTest.py
 
