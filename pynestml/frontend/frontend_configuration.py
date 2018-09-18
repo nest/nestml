@@ -105,13 +105,14 @@ class FrontendConfiguration(object):
         cls.handle_target_path(parsed_args.target)
         # now adjust the name of the module, if it is a single file, then it is called just module
         if parsed_args.module_name is not None:
+            assert parsed_args.module_name.endswith('module')
             cls.module_name = parsed_args.module_name[0]
         elif os.path.isfile(parsed_args.path[0]):
-            cls.module_name = 'module'
+            cls.module_name = 'nestmlmodule'
         elif os.path.isdir(parsed_args.path[0]):
             cls.module_name = os.path.basename(os.path.normpath(parsed_args.path[0]))
         else:
-            cls.module_name = 'module'
+            cls.module_name = 'nestmlmodule'
         cls.store_log = parsed_args.store_log
         cls.is_debug = parsed_args.dev
         return
