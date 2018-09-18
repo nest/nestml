@@ -7,8 +7,11 @@ NestML is a domain specific language that supports the specification of neuron m
 ## Directory structure
 
 `models` - Example neuron models in NestML format.
+
 `pynestml` - The source code of PyNestML.
+
 `tests` - A collection of tests for testing of the toolchains behavior.
+
 `doc` - The documentation of the modeling language NestML as well as processing toolchain PyNestML.
 
 ## Installing NESTML
@@ -66,11 +69,9 @@ cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, dynamic loading in PyNEST of a module with `module_name=mymodelsmodule`:
+where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamic load a module with `module_name` = `mymodelsmodule` in PyNEST:
 ```py
 nest.Install("mymodels")    
-...
-nest.Simulate(400.0)
 ```
 
 PyNestML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNestML has been installed, the following modules have to be imported:
@@ -81,7 +82,7 @@ Subsequently, it is possible to call PyNestML from other Python tools and script
 ```py
 to_nest(path, target, dry, logging_level, module_name, store_log, dev)    
 ```
-This operation expects the same set of arguments as in the case of the shell/CMD call, with the following default values being used, where only the `path` is mandatory:
+This operation expects the same set of arguments as in the case of command line invocation. The following default values being used; note that only the `path` is mandatory:
 
 | Argument | Type | Default |
 |---       |---   | --- |
