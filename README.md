@@ -82,22 +82,22 @@ Subsequently, it is possible to call PyNestML from other Python tools and script
 ```py
 to_nest(path, target, dry, logging_level, module_name, store_log, dev)    
 ```
-This operation expects the same set of arguments as in the case of command line invocation. The following default values being used; note that only the `path` is mandatory:
+This operation expects the same set of arguments as in the case of command line invocation. The following default values are used corresponding to the command-line defaults; note that only `path` is mandatory:
 
 | Argument | Type | Default |
 |---       |---   | --- |
-| path     | string | -no default- |  
+| path     | string | _no default_ |
 | target   | string | None |
 | dry      | boolean | False |
 | logging_level | string | 'ERROR' |
-| module_name | string | None |
+| module_name | string | `nestmlmodule` |
 | store_log | boolean | False |
 | dev | boolean | False |
 
-No values provided indicates the same behavior as listed for default values in the [command-line arguments table](#table_args). If no errors occur, the output will be generated to the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNestML features a function for an installation of NEST models directly into NEST:
+If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNestML features a function for an installation of NEST models directly into NEST:
 ```py
 install_nest(models_path, nest_path)
-```  
+```
 where `models_path` is equal to the `target` argument in the call to `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
 
 A typical script, therefore, could look like the following. The name of the generated module is here _mymodelsmodule_.
