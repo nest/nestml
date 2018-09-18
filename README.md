@@ -60,13 +60,13 @@ where arguments are:<a name="table_args"></a>
 | -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
 | -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
 
-Generated artifacts are copied to the selected target directory (default is _target_). In order to install the models into NEST, the following commands have to be executed from within the target directory:
+Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 ```
 cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-where _nest\_install\_dir_ points to the installation directory of NEST (e.g. _/home/nest/work/nest-install_). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the _Install_ API function. For example, dynamic loading in PyNEST of a module with _module\_name=mymodelsmodule_:
+where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, dynamic loading in PyNEST of a module with `module_name=mymodelsmodule`:
 ```py
 nest.Install("mymodels")    
 ...
@@ -81,7 +81,7 @@ Subsequently, it is possible to call PyNestML from other Python tools and script
 ```py
 to_nest(path, target, dry, logging_level, module_name, store_log, dev)    
 ```
-This operation expects the same set of arguments as in the case of the shell/CMD call, with the following default values being used, where only the _path_ is mandatory:
+This operation expects the same set of arguments as in the case of the shell/CMD call, with the following default values being used, where only the `path` is mandatory:
 
 | Argument | Type | Default |
 |---       |---   | --- |
@@ -97,7 +97,7 @@ No values provided indicates the same behavior as listed for default values in t
 ```py
 install_nest(models_path, nest_path)
 ```  
-where the _models\_path_ has to point as previously selected for the _target_ argument, while _nest\_path_ has to point to the directory where NEST is installed (e.g., "/home/nest/work/nest-install"). The second argument is hereby equivalent to the _nest\_install\_dir_ argument from the manual installation of models (see above).
+where `models_path` is equal to the `target` argument in the call to `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
 
 A typical script, therefore, could look like the following. The name of the generated module is here _mymodelsmodule_.
 ```py
