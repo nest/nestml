@@ -71,7 +71,7 @@ make install
 ```
 where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamic load a module with `module_name` = `mymodelsmodule` in PyNEST:
 ```py
-nest.Install("mymodels")    
+nest.Install("mymodelsmodule")
 ```
 
 PyNestML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNestML has been installed, the following modules have to be imported:
@@ -100,7 +100,7 @@ install_nest(models_path, nest_path)
 ```
 Here, `models_path` should be set to the `target` directory of `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
 
-A typical script, therefore, could look like the following. The name of the generated module is here _mymodelsmodule_.
+A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is _mymodelsmodule_.
 ```py
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
@@ -108,7 +108,7 @@ to_nest(path="/home/nest/work/pynestml/models", target="/home/nest/work/pynestml
 
 install_nest("/home/nest/work/pynestml/target", "/home/nest/work/nest-install")
 
-nest.Install("mymodels")
+nest.Install("mymodelsmodule")
 ...
 nest.Simulate(400.0)
 ```
