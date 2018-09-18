@@ -66,7 +66,7 @@ cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-where _nest\_install\_dir_ points to the installation directory of NEST. Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the _Install_ API function. For example, dynamic loading in PyNEST of a module with _module\_name=mymodelsmodule_:
+where _nest\_install\_dir_ points to the installation directory of NEST (e.g. _/home/nest/work/nest-install_). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the _Install_ API function. For example, dynamic loading in PyNEST of a module with _module\_name=mymodelsmodule_:
 ```py
 nest.Install("mymodels")    
 ...
@@ -81,7 +81,7 @@ Subsequently, it is possible to call PyNestML from other Python tools and script
 ```py
 to_nest(path, target, dry, logging_level, module_name, store_log, dev)    
 ```
-This operation expects the same set of arguments as in the case of the shell/CMD call, with the following default values being used, where only the __path__ is mandatory:
+This operation expects the same set of arguments as in the case of the shell/CMD call, with the following default values being used, where only the _path_ is mandatory:
 
 | Argument | Type | Default |
 |---       |---   | --- |
@@ -93,7 +93,7 @@ This operation expects the same set of arguments as in the case of the shell/CMD
 | store_log | boolean | False |
 | dev | boolean | False |
 
-where no values provided indicates the same behavior as listed for default values in arguments [table](#table_args). If no errors occur, the output will be generated to the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNestML features a function for an installation of NEST models directly into NEST:
+No values provided indicates the same behavior as listed for default values in the [command-line arguments table](#table_args). If no errors occur, the output will be generated to the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNestML features a function for an installation of NEST models directly into NEST:
 ```py
 install_nest(models_path, nest_path)
 ```  
