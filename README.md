@@ -98,7 +98,7 @@ If no errors occur, the output will be generated into the specified target direc
 ```py
 install_nest(models_path, nest_path)
 ```
-where `models_path` is equal to the `target` argument in the call to `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
+Here, `models_path` should be set to the `target` directory of `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
 
 A typical script, therefore, could look like the following. The name of the generated module is here _mymodelsmodule_.
 ```py
