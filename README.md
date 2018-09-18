@@ -60,13 +60,13 @@ where arguments are:<a name="table_args"></a>
 | -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
 | -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
 
-Generated artifacts are copied to the selected target directory (default is _target_). In order to install the models into NEST, the following commands have to be executed:
+Generated artifacts are copied to the selected target directory (default is _target_). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 ```
 cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-where _nest\_install\_dir_ points to the installation directory of NEST (e.g. work/nest-install). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules), or loaded dynamically using the _Install_ API function. For example, dynamic loading in PyNEST of a module with _module\_name=mymodelsmodule_:
+where _nest\_install\_dir_ points to the installation directory of NEST. Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the _Install_ API function. For example, dynamic loading in PyNEST of a module with _module\_name=mymodelsmodule_:
 ```py
 nest.Install("mymodels")    
 ...
