@@ -69,7 +69,7 @@ cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamic load a module with `module_name` = `mymodelsmodule` in PyNEST:
+where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamically load a module with `module_name` = `mymodelsmodule` in PyNEST:
 ```py
 nest.Install("mymodelsmodule")
 ```
@@ -82,7 +82,7 @@ Subsequently, it is possible to call PyNestML from other Python tools and script
 ```py
 to_nest(path, target, dry, logging_level, module_name, store_log, dev)    
 ```
-This operation expects the same set of arguments as in the case of command line invocation. The following default values are used corresponding to the command-line defaults; note that only `path` is mandatory:
+This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for `logging_level` are the same as before ('INFO', 'WARNING', 'ERROR', 'NO'). Note that only the `path` argument is mandatory:
 
 | Argument | Type | Default |
 |---       |---   | --- |
@@ -100,7 +100,7 @@ install_nest(models_path, nest_path)
 ```
 Here, `models_path` should be set to the `target` directory of `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
 
-A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is _mymodelsmodule_.
+A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is _nestmlmodule_.
 ```py
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
@@ -108,7 +108,7 @@ to_nest(path="/home/nest/work/pynestml/models", target="/home/nest/work/pynestml
 
 install_nest("/home/nest/work/pynestml/target", "/home/nest/work/nest-install")
 
-nest.Install("mymodelsmodule")
+nest.Install("nestmlmodule")
 ...
 nest.Simulate(400.0)
 ```
