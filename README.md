@@ -69,9 +69,9 @@ cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
-where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamically load a module with `module_name` = `mymodelsmodule` in PyNEST:
+where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamically load a module with `module_name` = `nestmlmodule` in PyNEST:
 ```py
-nest.Install("mymodelsmodule")
+nest.Install("nestmlmodule")
 ```
 
 PyNestML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNestML has been installed, the following modules have to be imported:
