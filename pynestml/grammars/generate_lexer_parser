@@ -21,7 +21,6 @@
  *  
  *
  */
-Do not change the position of this file! In order to generate the corresponding code into pynestml/generated, this script has to be
-executed from `pynestml/grammars`.
+Do not change the position of this file! In order to generate the corresponding code into `pynestml/generated`, this script has to be executed from `pynestml/grammars`.
  '
 antlr4 -Dlanguage=Python2 *.g4 -visitor -no-listener -o ../generated 
