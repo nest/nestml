@@ -322,7 +322,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):
-        lhs = self.visit(ctx.lhsVariable) if ctx.lhsVariable is not None else None
+        lhs = self.visit(ctx.lhs_variable) if ctx.lhs_variable is not None else None
         is_direct_assignment = True if ctx.directAssignment is not None else False
         is_compound_sum = True if ctx.compoundSum is not None else False
         is_compound_minus = True if ctx.compoundMinus is not None else False
