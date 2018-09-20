@@ -1,4 +1,4 @@
-# Generated from PyNestML.g4 by ANTLR 4.5.3
+# Generated from PyNestML.g4 by ANTLR 4.7.1
 from antlr4 import *
 
 # This class defines a complete generic visitor for a parse tree produced by PyNestMLParser.
