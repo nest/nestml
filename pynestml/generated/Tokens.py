@@ -1,14 +1,13 @@
-# Generated from Tokens.g4 by ANTLR 4.7
+# Generated from Tokens.g4 by ANTLR 4.5.3
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
-import sys
 
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write(u"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2")
+        buf.write(u"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\2")
         buf.write(u"\17\u00bf\b\1\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6")
         buf.write(u"\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4")
         buf.write(u"\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t")
@@ -30,11 +29,11 @@ def serializedATN():
         buf.write(u"\16\23\u00bd\4\66B\2\24\3\3\5\4\7\5\t\6\13\7\r\b\17\t")
         buf.write(u"\21\n\23\13\25\f\27\r\31\16\33\2\35\17\37\2!\2#\2%\2")
         buf.write(u"\3\2\n\4\2\f\f\17\17\4\2\13\13\"\"\6\2&&C\\aac|\7\2&")
-        buf.write(u"&\62;C\\aac|\3\2\63;\3\2\62;\4\2GGgg\4\2--//\2\u00cf")
-        buf.write(u"\2\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2\t\3\2\2\2\2\13")
-        buf.write(u"\3\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2\2\23\3")
-        buf.write(u"\2\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31\3\2\2\2\2\35\3")
-        buf.write(u"\2\2\2\3\'\3\2\2\2\5H\3\2\2\2\7O\3\2\2\2\tS\3\2\2\2\13")
+        buf.write(u"&\62;C\\aac|\3\2\63;\3\2\62;\4\2GGgg\4\2--//\u00cf\2")
+        buf.write(u"\3\3\2\2\2\2\5\3\2\2\2\2\7\3\2\2\2\2\t\3\2\2\2\2\13\3")
+        buf.write(u"\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2\2\23\3\2")
+        buf.write(u"\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31\3\2\2\2\2\35\3\2")
+        buf.write(u"\2\2\3\'\3\2\2\2\5H\3\2\2\2\7O\3\2\2\2\tS\3\2\2\2\13")
         buf.write(u"W\3\2\2\2\r_\3\2\2\2\17a\3\2\2\2\21w\3\2\2\2\23y\3\2")
         buf.write(u"\2\2\25\u0086\3\2\2\2\27\u0090\3\2\2\2\31\u0092\3\2\2")
         buf.write(u"\2\33\u0094\3\2\2\2\35\u009d\3\2\2\2\37\u00a9\3\2\2\2")
@@ -98,7 +97,6 @@ class Tokens(Lexer):
 
     decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
 
-    COMMENT = 2
 
     SL_COMMENT = 1
     ML_COMMENT = 2
@@ -113,8 +111,6 @@ class Tokens(Lexer):
     INTEGER = 11
     DIFFERENTIAL_ORDER = 12
     FLOAT = 13
-
-    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN", u"COMMENT" ]
 
     modeNames = [ u"DEFAULT_MODE" ]
 
@@ -134,9 +130,9 @@ class Tokens(Lexer):
 
     grammarFileName = u"Tokens.g4"
 
-    def __init__(self, input=None, output=sys.stdout):
-        super(Tokens, self).__init__(input, output=output)
-        self.checkVersion("4.7")
+    def __init__(self, input=None):
+        super(Tokens, self).__init__(input)
+        self.checkVersion("4.5.3")
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None
