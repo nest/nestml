@@ -22,7 +22,7 @@
 
 grammar PyNestML;
 
-  import Tokens;
+  options { tokenVocab = Tokens; }
 
   /*********************************************************************************************************************
   * Units-Language
@@ -315,3 +315,4 @@ grammar PyNestML;
     @attribute dataType: The corresponding data type.
   */
   parameter : NAME dataType;
+
