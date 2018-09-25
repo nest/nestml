@@ -20,9 +20,9 @@
  *
  */
 
-parser grammar PyNestML;
+parser grammar PyNestMLParser;
 
-  options { tokenVocab = Tokens; }
+  options { tokenVocab = PyNestMLLexer; }
 
 
   /*********************************************************************************************************************

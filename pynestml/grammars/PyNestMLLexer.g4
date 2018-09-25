@@ -20,16 +20,30 @@
  *
  */
 
-lexer grammar Tokens;
-
-  @lexer::members {
-    HIDDEN = 1
-    COMMENT = 2
-    NEW_LINE = 3
-  }
+lexer grammar PyNestMLLexer;
 
 
-  channels {COMMENT}
+/*  @lexer::members {
+        public static final int
+    HIDDEN = 101;
+        public static final int
+    COMMENT = 102;
+        public static final int
+    NEW_LINE = 103;
+  }*/
+
+
+  channels {COMMENT, NEW_LINE}
+
+
+
+
+
+
+
+
+
+
 
   SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
 
@@ -44,58 +58,6 @@ lexer grammar Tokens;
 
   END_KEYWORD : 'end';
 
-  /**
-  * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
-  * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
-  * the concept as currently used in NESTML with the lower case.
-  */
-  BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
-
-  /**
-  * String literals are always enclosed in "...".
-  */
-
-  STRING_LITERAL : '"' ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )* '"';
-
-  NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
-
-  /**
-  * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
-  * do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
-  * Examples:
-  *  (1) 1 -> integer
-  *  (2) 3.14 -> float
-  *  (3) 10E10 -> float with exponent
-  */
-  INTEGER : NON_ZERO_INTEGER
-          | '0';
-
-  DIFFERENTIAL_ORDER : '\'';
-
-  fragment NON_ZERO_INTEGER : [1-9][0-9]*;
-
-  /**
-  * The following declaration originates from Antrl4 Python Grammar definition as distributed under the MIT license.
-  * link: https://github.com/antlr/grammars-v4/blob/master/python3/Python3.g4
-  */
-
-  /*
-  * A float can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
-  */
-  FLOAT : POINT_FLOAT | EXPONENT_FLOAT;
-
-  fragment POINT_FLOAT : (NON_ZERO_INTEGER |'0')? FRACTION
-                       | (NON_ZERO_INTEGER |'0') '.'
-                       ;
-
-  fragment EXPONENT_FLOAT: ( NON_ZERO_INTEGER | POINT_FLOAT ) EXPONENT ;
-
-  /**
-  * The exponent is introduced by e or E, the signum and an integer.
-  */
-  fragment EXPONENT: [eE] [+-]? (NON_ZERO_INTEGER |'0');
-
-  fragment FRACTION: '.' [0-9]+;
 
 
 
@@ -176,3 +138,71 @@ lexer grammar Tokens;
   QUESTION : '?';
   COLON : ':';
   SEMICOLON : ';';
+
+
+
+
+
+
+
+
+
+
+
+  /**
+  * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
+  * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
+  * the concept as currently used in NESTML with the lower case.
+  */
+  BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
+
+  /**
+  * String literals are always enclosed in "...".
+  */
+
+  STRING_LITERAL : '"' ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )* '"';
+
+  NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
+
+  /**
+  * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
+  * do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
+  * Examples:
+  *  (1) 1 -> integer
+  *  (2) 3.14 -> float
+  *  (3) 10E10 -> float with exponent
+  */
+  INTEGER : NON_ZERO_INTEGER
+          | '0';
+
+  DIFFERENTIAL_ORDER : '\'';
+
+  fragment NON_ZERO_INTEGER : [1-9][0-9]*;
+
+  /**
+  * The following declaration originates from Antrl4 Python Grammar definition as distributed under the MIT license.
+  * link: https://github.com/antlr/grammars-v4/blob/master/python3/Python3.g4
+  */
+
+  /*
+  * A float can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
+  */
+  FLOAT : POINT_FLOAT | EXPONENT_FLOAT;
+
+  fragment POINT_FLOAT : (NON_ZERO_INTEGER |'0')? FRACTION
+                       | (NON_ZERO_INTEGER |'0') '.'
+                       ;
+
+  fragment EXPONENT_FLOAT: ( NON_ZERO_INTEGER | POINT_FLOAT ) EXPONENT ;
+
+  /**
+  * The exponent is introduced by e or E, the signum and an integer.
+  */
+  fragment EXPONENT: [eE] [+-]? (NON_ZERO_INTEGER |'0');
+
+  fragment FRACTION: '.' [0-9]+;
+
+
+
+
+
