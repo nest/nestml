@@ -22,6 +22,7 @@
 
 lexer grammar PyNestMLLexer;
 
+  // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2 and NEW_LINE=3
   channels {COMMENT, NEW_LINE}
 
 
