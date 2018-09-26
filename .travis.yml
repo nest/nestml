@@ -13,7 +13,6 @@ before_install:
   - echo >> antlr4
   - chmod +x antlr4
   - export PATH=$PATH:`pwd`
-  - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
   #- pip install matplotlib
@@ -29,6 +28,8 @@ install:
   - cd pynestml/grammars
   - ./generate_lexer_parser
   - cd ../..
+  - export PYTHONPATH=$PYTHONPATH:`pwd`
+  - echo $PYTHONPATH
   - python setup.py install
   #- python PyNestML.py -path models -target target
   #- cd ../target && mkdir build && cd build
@@ -39,6 +40,7 @@ install:
 sudo: true
 
 script:
+  - echo $PYTHONPATH
   - python tests/lexer_parser_test.py
   - python tests/special_block_parser_builder_test.py
   - python tests/expression_parser_test.py
