@@ -22,27 +22,7 @@
 
 lexer grammar PyNestMLLexer;
 
-
-/*  @lexer::members {
-        public static final int
-    HIDDEN = 101;
-        public static final int
-    COMMENT = 102;
-        public static final int
-    NEW_LINE = 103;
-  }*/
-
-
   channels {COMMENT, NEW_LINE}
-
-
-
-
-
-
-
-
-
 
 
   SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
@@ -56,19 +36,13 @@ lexer grammar PyNestMLLexer;
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
 
+
   END_KEYWORD : 'end';
-
-
-
-
-
-
   INTEGER_KEYWORD : 'integer';
   REAL_KEYWORD : 'real';
   STRING_KEYWORD : 'string';
   BOOLEAN_KEYWORD : 'boolean';
-  VOID_KEYWORD : 'void';
-  
+  VOID_KEYWORD : 'void';  
   FUNCTION_KEYWORD : 'function';
   RETURN_KEYWORD : 'return';
   IF_KEYWORD : 'if';
@@ -78,8 +52,9 @@ lexer grammar PyNestMLLexer;
   WHILE_KEYWORD : 'while';
   IN_KEYWORD : 'in';
   STEP_KEYWORD : 'step';
-  
-  ELLIPSIS : '...';
+  INF_KEYWORD : 'inf';
+  AND_KEYWORD : 'and';
+  OR_KEYWORD : 'or';
   
   RECORDABLE_KEYWORD : 'recordable';
   SHAPE_KEYWORD : 'shape';
@@ -96,13 +71,8 @@ lexer grammar PyNestMLLexer;
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';
-  
-  
-  INF_KEYWORD : 'inf';
-  AND_KEYWORD : 'and';
-  OR_KEYWORD : 'or';
 
-
+  ELLIPSIS : '...';
   LEFT_PAREN : '(';
   RIGHT_PAREN : ')';
   PLUS : '+';
@@ -138,15 +108,6 @@ lexer grammar PyNestMLLexer;
   QUESTION : '?';
   COLON : ':';
   SEMICOLON : ';';
-
-
-
-
-
-
-
-
-
 
 
   /**
@@ -201,8 +162,3 @@ lexer grammar PyNestMLLexer;
   fragment EXPONENT: [eE] [+-]? (NON_ZERO_INTEGER |'0');
 
   fragment FRACTION: '.' [0-9]+;
-
-
-
-
-
