@@ -24,7 +24,7 @@ before_install:
   - pip install git+https://github.com/DimitriPlotnikov/ode-toolbox.git
 
 install:
-  - rm -rf pynestml/generated
+  - find pynestml/generated -not -name __init__.py -delete
   - cd pynestml/grammars
   - ./generate_lexer_parser
   - cd ../..
