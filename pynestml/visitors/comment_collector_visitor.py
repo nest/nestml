@@ -17,10 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
+from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 
 
-class CommentCollectorVisitor(PyNestMLVisitor):
+class CommentCollectorVisitor(PyNestMLParserVisitor):
     """
     This visitor iterates over a given parse tree and inspects the corresponding stream of tokens in order
     to update all nodes by their corresponding tokens.

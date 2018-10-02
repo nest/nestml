@@ -1,0 +1,352 @@
+2018-09-20 10:38:37:957 grammar LogManager.java:49 load Tokens from PyNestML.g4
+2018-09-20 10:38:37:962 grammar LogManager.java:49 before: (COMBINED_GRAMMAR PyNestML (import Tokens) (RULES (RULE dataType (BLOCK (ALT (= isInt 'integer')) (ALT (= isReal 'real')) (ALT (= isString 'string')) (ALT (= isBool 'boolean')) (ALT (= isVoid 'void')) (ALT (= unit unitType)))) (RULE unitType (BLOCK (ALT (= leftParentheses '(') (= compoundUnit unitType) (= rightParentheses ')')) (ALT (= base unitType) (= powOp '**') (= exponent INTEGER)) (ALT (= left unitType) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/'))) (= right unitType)) (ALT (= unitlessLiteral INTEGER) (= divOp '/') (= right unitType)) (ALT (= unit NAME)))) (RULE expression (BLOCK (ALT (= leftParentheses '(') (= term expression) (= rightParentheses ')')) (ALT (ELEMENT_OPTIONS (= assoc right)) (= left expression) (= powOp '**') (= right expression)) (ALT unaryOperator (= term expression)) (ALT (= left expression) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/')) (ALT (= moduloOp '%'))) (= right expression)) (ALT (= left expression) (BLOCK (ALT (= plusOp '+')) (ALT (= minusOp '-'))) (= right expression)) (ALT (= left expression) bitOperator (= right expression)) (ALT (= left expression) comparisonOperator (= right expression)) (ALT (= logicalNot 'not') (= term expression)) (ALT (= left expression) logicalOperator (= right expression)) (ALT (= condition expression) '?' (= ifTrue expression) ':' (= ifNot expression)) (ALT simpleExpression))) (RULE simpleExpression (BLOCK (ALT functionCall) (ALT BOOLEAN_LITERAL) (ALT (BLOCK (ALT INTEGER) (ALT FLOAT)) (? (BLOCK (ALT variable)))) (ALT (= string STRING_LITERAL)) (ALT (= isInf 'inf')) (ALT variable))) (RULE unaryOperator (BLOCK (ALT (BLOCK (ALT (= unaryPlus '+')) (ALT (= unaryMinus '-')) (ALT (= unaryTilde '~')))))) (RULE bitOperator (BLOCK (ALT (BLOCK (ALT (= bitAnd '&')) (ALT (= bitXor '^')) (ALT (= bitOr '|')) (ALT (= bitShiftLeft '<<')) (ALT (= bitShiftRight '>>')))))) (RULE comparisonOperator (BLOCK (ALT (BLOCK (ALT (= lt '<')) (ALT (= le '<=')) (ALT (= eq '==')) (ALT (= ne '!=')) (ALT (= ne2 '<>')) (ALT (= ge '>=')) (ALT (= gt '>')))))) (RULE logicalOperator (BLOCK (ALT (BLOCK (ALT (= logicalAnd 'and')) (ALT (= logicalOr 'or')))))) (RULE variable (BLOCK (ALT (= name NAME) (* (BLOCK (ALT DIFFERENTIAL_ORDER)))))) (RULE functionCall (BLOCK (ALT (= calleeName NAME) '(' (? (BLOCK (ALT expression (* (BLOCK (ALT ',' expression)))))) ')'))) (RULE odeFunction (BLOCK (ALT (? (BLOCK (ALT (= recordable 'recordable')))) 'function' (= variableName NAME) dataType '=' expression (? (BLOCK (ALT ';')))))) (RULE odeEquation (BLOCK (ALT (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE odeShape (BLOCK (ALT 'shape' (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE block (BLOCK (ALT (* (BLOCK (ALT stmt) (ALT NEWLINE)))))) (RULE stmt (BLOCK (ALT smallStmt) (ALT compoundStmt))) (RULE compoundStmt (BLOCK (ALT ifStmt) (ALT forStmt) (ALT whileStmt))) (RULE smallStmt (BLOCK (ALT assignment) (ALT functionCall) (ALT declaration) (ALT returnStmt))) (RULE assignment (BLOCK (ALT (= lhs_variable variable) (BLOCK (ALT (= directAssignment '=')) (ALT (= compoundSum '+=')) (ALT (= compoundMinus '-=')) (ALT (= compoundProduct '*=')) (ALT (= compoundQuotient '/='))) expression))) (RULE declaration (BLOCK (ALT (? (BLOCK (ALT (= isRecordable 'recordable')))) (? (BLOCK (ALT (= isFunction 'function')))) variable (* (BLOCK (ALT ',' variable))) dataType (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT '=' (= rhs expression)))) (? (BLOCK (ALT '[[' (= invariant expression) ']]')))))) (RULE returnStmt (BLOCK (ALT 'return' (? (BLOCK (ALT expression)))))) (RULE ifStmt (BLOCK (ALT ifClause (* (BLOCK (ALT elifClause))) (? (BLOCK (ALT elseClause))) BLOCK_CLOSE))) (RULE ifClause (BLOCK (ALT 'if' expression BLOCK_OPEN block))) (RULE elifClause (BLOCK (ALT 'elif' expression BLOCK_OPEN block))) (RULE elseClause (BLOCK (ALT 'else' BLOCK_OPEN block))) (RULE forStmt (BLOCK (ALT 'for' (= var NAME) 'in' (= start_from expression) '...' (= end_at expression) 'step' (BLOCK (ALT (? (BLOCK (ALT (= negative '-')))))) (BLOCK (ALT INTEGER) (ALT FLOAT)) BLOCK_OPEN block BLOCK_CLOSE))) (RULE whileStmt (BLOCK (ALT 'while' expression BLOCK_OPEN block BLOCK_CLOSE))) (RULE nestMLCompilationUnit (BLOCK (ALT (* (BLOCK (ALT neuron) (ALT synapse) (ALT NEWLINE))) EOF))) (RULE neuron (BLOCK (ALT 'neuron' NAME neuronBody))) (RULE synapse (BLOCK (ALT 'synapse' NAME synapseBody))) (RULE neuronBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT equationsBlock) (ALT inputBlock) (ALT outputBlock) (ALT updateBlock) (ALT function))) BLOCK_CLOSE))) (RULE synapseBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT inputBlock) (ALT outputBlock))) BLOCK_CLOSE))) (RULE blockWithVariables (BLOCK (ALT (= blockType (BLOCK (ALT 'state') (ALT 'parameters') (ALT 'internals') (ALT 'initial_values'))) BLOCK_OPEN (* (BLOCK (ALT declaration) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE updateBlock (BLOCK (ALT 'update' BLOCK_OPEN block BLOCK_CLOSE))) (RULE equationsBlock (BLOCK (ALT 'equations' BLOCK_OPEN (* (BLOCK (ALT odeFunction) (ALT odeEquation) (ALT odeShape) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputBlock (BLOCK (ALT 'input' BLOCK_OPEN (* (BLOCK (ALT inputLine) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputLine (BLOCK (ALT (= name NAME) (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT dataType))) '<-' (* (BLOCK (ALT inputType))) (BLOCK (ALT (= isCurrent 'current')) (ALT (= isSpike 'spike')))))) (RULE inputType (BLOCK (ALT (BLOCK (ALT (= isInhibitory 'inhibitory')) (ALT (= isExcitatory 'excitatory')))))) (RULE outputBlock (BLOCK (ALT 'output' BLOCK_OPEN (BLOCK (ALT (= isSpike 'spike')) (ALT (= isCurrent 'current')))))) (RULE function (BLOCK (ALT 'function' NAME '(' (? (BLOCK (ALT parameter (* (BLOCK (ALT ',' parameter)))))) ')' (? (BLOCK (ALT (= returnType dataType)))) BLOCK_OPEN block BLOCK_CLOSE))) (RULE parameter (BLOCK (ALT NAME dataType)))))
+2018-09-20 10:38:37:967 grammar LogManager.java:49 imported actions: [@]
+2018-09-20 10:38:37:967 grammar LogManager.java:49 Tokens lexer:members={
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE SL_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '#' (* (BLOCK (ALT (~ (SET '\n' '\r')))))))) (LEXER_ACTION_CALL channel 2))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE ML_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '/*' (* (BLOCK (ALT .))) '*/') (ALT '"""' (* (BLOCK (ALT .))) '"""'))) (LEXER_ACTION_CALL channel 2))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE NEWLINE (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '\r' '\n') (ALT '\r') (ALT '\n'))) (LEXER_ACTION_CALL channel 3))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE WS (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT ' ') (ALT '\t'))) (LEXER_ACTION_CALL channel 1))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE LINE_ESCAPE (BLOCK (LEXER_ALT_ACTION (ALT '\\' (? (BLOCK (ALT '\r'))) '\n') (LEXER_ACTION_CALL channel 1))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE BLOCK_OPEN (BLOCK (ALT ':')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE BLOCK_CLOSE (BLOCK (ALT 'end')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE BOOLEAN_LITERAL (BLOCK (ALT 'true') (ALT 'True') (ALT 'false') (ALT 'False')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE STRING_LITERAL (BLOCK (ALT '"' (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))) '"')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE NAME (BLOCK (ALT (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE INTEGER (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE DIFFERENTIAL_ORDER (BLOCK (ALT '\'')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE NON_ZERO_INTEGER (RULEMODIFIERS fragment) (BLOCK (ALT [1-9] (* (BLOCK (ALT [0-9]))))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE FLOAT (BLOCK (ALT POINT_FLOAT) (ALT EXPONENT_FLOAT)))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE POINT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (? (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) FRACTION) (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')) '.')))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE EXPONENT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT POINT_FLOAT)) EXPONENT)))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE EXPONENT (RULEMODIFIERS fragment) (BLOCK (ALT [eE] (? (BLOCK (ALT [+-]))) (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')))))
+2018-09-20 10:38:37:968 grammar LogManager.java:49 imported rule: (RULE FRACTION (RULEMODIFIERS fragment) (BLOCK (ALT '.' (+ (BLOCK (ALT [0-9]))))))
+2018-09-20 10:38:37:969 grammar LogManager.java:49 Grammar: (COMBINED_GRAMMAR PyNestML (@ lexer members {
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }) (import Tokens) (RULES (RULE dataType (BLOCK (ALT (= isInt 'integer')) (ALT (= isReal 'real')) (ALT (= isString 'string')) (ALT (= isBool 'boolean')) (ALT (= isVoid 'void')) (ALT (= unit unitType)))) (RULE unitType (BLOCK (ALT (= leftParentheses '(') (= compoundUnit unitType) (= rightParentheses ')')) (ALT (= base unitType) (= powOp '**') (= exponent INTEGER)) (ALT (= left unitType) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/'))) (= right unitType)) (ALT (= unitlessLiteral INTEGER) (= divOp '/') (= right unitType)) (ALT (= unit NAME)))) (RULE expression (BLOCK (ALT (= leftParentheses '(') (= term expression) (= rightParentheses ')')) (ALT (ELEMENT_OPTIONS (= assoc right)) (= left expression) (= powOp '**') (= right expression)) (ALT unaryOperator (= term expression)) (ALT (= left expression) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/')) (ALT (= moduloOp '%'))) (= right expression)) (ALT (= left expression) (BLOCK (ALT (= plusOp '+')) (ALT (= minusOp '-'))) (= right expression)) (ALT (= left expression) bitOperator (= right expression)) (ALT (= left expression) comparisonOperator (= right expression)) (ALT (= logicalNot 'not') (= term expression)) (ALT (= left expression) logicalOperator (= right expression)) (ALT (= condition expression) '?' (= ifTrue expression) ':' (= ifNot expression)) (ALT simpleExpression))) (RULE simpleExpression (BLOCK (ALT functionCall) (ALT BOOLEAN_LITERAL) (ALT (BLOCK (ALT INTEGER) (ALT FLOAT)) (? (BLOCK (ALT variable)))) (ALT (= string STRING_LITERAL)) (ALT (= isInf 'inf')) (ALT variable))) (RULE unaryOperator (BLOCK (ALT (BLOCK (ALT (= unaryPlus '+')) (ALT (= unaryMinus '-')) (ALT (= unaryTilde '~')))))) (RULE bitOperator (BLOCK (ALT (BLOCK (ALT (= bitAnd '&')) (ALT (= bitXor '^')) (ALT (= bitOr '|')) (ALT (= bitShiftLeft '<<')) (ALT (= bitShiftRight '>>')))))) (RULE comparisonOperator (BLOCK (ALT (BLOCK (ALT (= lt '<')) (ALT (= le '<=')) (ALT (= eq '==')) (ALT (= ne '!=')) (ALT (= ne2 '<>')) (ALT (= ge '>=')) (ALT (= gt '>')))))) (RULE logicalOperator (BLOCK (ALT (BLOCK (ALT (= logicalAnd 'and')) (ALT (= logicalOr 'or')))))) (RULE variable (BLOCK (ALT (= name NAME) (* (BLOCK (ALT DIFFERENTIAL_ORDER)))))) (RULE functionCall (BLOCK (ALT (= calleeName NAME) '(' (? (BLOCK (ALT expression (* (BLOCK (ALT ',' expression)))))) ')'))) (RULE odeFunction (BLOCK (ALT (? (BLOCK (ALT (= recordable 'recordable')))) 'function' (= variableName NAME) dataType '=' expression (? (BLOCK (ALT ';')))))) (RULE odeEquation (BLOCK (ALT (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE odeShape (BLOCK (ALT 'shape' (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE block (BLOCK (ALT (* (BLOCK (ALT stmt) (ALT NEWLINE)))))) (RULE stmt (BLOCK (ALT smallStmt) (ALT compoundStmt))) (RULE compoundStmt (BLOCK (ALT ifStmt) (ALT forStmt) (ALT whileStmt))) (RULE smallStmt (BLOCK (ALT assignment) (ALT functionCall) (ALT declaration) (ALT returnStmt))) (RULE assignment (BLOCK (ALT (= lhs_variable variable) (BLOCK (ALT (= directAssignment '=')) (ALT (= compoundSum '+=')) (ALT (= compoundMinus '-=')) (ALT (= compoundProduct '*=')) (ALT (= compoundQuotient '/='))) expression))) (RULE declaration (BLOCK (ALT (? (BLOCK (ALT (= isRecordable 'recordable')))) (? (BLOCK (ALT (= isFunction 'function')))) variable (* (BLOCK (ALT ',' variable))) dataType (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT '=' (= rhs expression)))) (? (BLOCK (ALT '[[' (= invariant expression) ']]')))))) (RULE returnStmt (BLOCK (ALT 'return' (? (BLOCK (ALT expression)))))) (RULE ifStmt (BLOCK (ALT ifClause (* (BLOCK (ALT elifClause))) (? (BLOCK (ALT elseClause))) BLOCK_CLOSE))) (RULE ifClause (BLOCK (ALT 'if' expression BLOCK_OPEN block))) (RULE elifClause (BLOCK (ALT 'elif' expression BLOCK_OPEN block))) (RULE elseClause (BLOCK (ALT 'else' BLOCK_OPEN block))) (RULE forStmt (BLOCK (ALT 'for' (= var NAME) 'in' (= start_from expression) '...' (= end_at expression) 'step' (BLOCK (ALT (? (BLOCK (ALT (= negative '-')))))) (BLOCK (ALT INTEGER) (ALT FLOAT)) BLOCK_OPEN block BLOCK_CLOSE))) (RULE whileStmt (BLOCK (ALT 'while' expression BLOCK_OPEN block BLOCK_CLOSE))) (RULE nestMLCompilationUnit (BLOCK (ALT (* (BLOCK (ALT neuron) (ALT synapse) (ALT NEWLINE))) EOF))) (RULE neuron (BLOCK (ALT 'neuron' NAME neuronBody))) (RULE synapse (BLOCK (ALT 'synapse' NAME synapseBody))) (RULE neuronBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT equationsBlock) (ALT inputBlock) (ALT outputBlock) (ALT updateBlock) (ALT function))) BLOCK_CLOSE))) (RULE synapseBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT inputBlock) (ALT outputBlock))) BLOCK_CLOSE))) (RULE blockWithVariables (BLOCK (ALT (= blockType (BLOCK (ALT 'state') (ALT 'parameters') (ALT 'internals') (ALT 'initial_values'))) BLOCK_OPEN (* (BLOCK (ALT declaration) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE updateBlock (BLOCK (ALT 'update' BLOCK_OPEN block BLOCK_CLOSE))) (RULE equationsBlock (BLOCK (ALT 'equations' BLOCK_OPEN (* (BLOCK (ALT odeFunction) (ALT odeEquation) (ALT odeShape) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputBlock (BLOCK (ALT 'input' BLOCK_OPEN (* (BLOCK (ALT inputLine) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputLine (BLOCK (ALT (= name NAME) (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT dataType))) '<-' (* (BLOCK (ALT inputType))) (BLOCK (ALT (= isCurrent 'current')) (ALT (= isSpike 'spike')))))) (RULE inputType (BLOCK (ALT (BLOCK (ALT (= isInhibitory 'inhibitory')) (ALT (= isExcitatory 'excitatory')))))) (RULE outputBlock (BLOCK (ALT 'output' BLOCK_OPEN (BLOCK (ALT (= isSpike 'spike')) (ALT (= isCurrent 'current')))))) (RULE function (BLOCK (ALT 'function' NAME '(' (? (BLOCK (ALT parameter (* (BLOCK (ALT ',' parameter)))))) ')' (? (BLOCK (ALT (= returnType dataType)))) BLOCK_OPEN block BLOCK_CLOSE))) (RULE parameter (BLOCK (ALT NAME dataType))) (RULE SL_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '#' (* (BLOCK (ALT (~ (SET '\n' '\r')))))))) (LEXER_ACTION_CALL channel 2)))) (RULE ML_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '/*' (* (BLOCK (ALT .))) '*/') (ALT '"""' (* (BLOCK (ALT .))) '"""'))) (LEXER_ACTION_CALL channel 2)))) (RULE NEWLINE (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '\r' '\n') (ALT '\r') (ALT '\n'))) (LEXER_ACTION_CALL channel 3)))) (RULE WS (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT ' ') (ALT '\t'))) (LEXER_ACTION_CALL channel 1)))) (RULE LINE_ESCAPE (BLOCK (LEXER_ALT_ACTION (ALT '\\' (? (BLOCK (ALT '\r'))) '\n') (LEXER_ACTION_CALL channel 1)))) (RULE BLOCK_OPEN (BLOCK (ALT ':'))) (RULE BLOCK_CLOSE (BLOCK (ALT 'end'))) (RULE BOOLEAN_LITERAL (BLOCK (ALT 'true') (ALT 'True') (ALT 'false') (ALT 'False'))) (RULE STRING_LITERAL (BLOCK (ALT '"' (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))) '"'))) (RULE NAME (BLOCK (ALT (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$')))))) (RULE INTEGER (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) (RULE DIFFERENTIAL_ORDER (BLOCK (ALT '\''))) (RULE NON_ZERO_INTEGER (RULEMODIFIERS fragment) (BLOCK (ALT [1-9] (* (BLOCK (ALT [0-9])))))) (RULE FLOAT (BLOCK (ALT POINT_FLOAT) (ALT EXPONENT_FLOAT))) (RULE POINT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (? (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) FRACTION) (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')) '.'))) (RULE EXPONENT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT POINT_FLOAT)) EXPONENT))) (RULE EXPONENT (RULEMODIFIERS fragment) (BLOCK (ALT [eE] (? (BLOCK (ALT [+-]))) (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))))) (RULE FRACTION (RULEMODIFIERS fragment) (BLOCK (ALT '.' (+ (BLOCK (ALT [0-9]))))))))
+2018-09-20 10:38:38:024 grammar LogManager.java:49 after: (COMBINED_GRAMMAR PyNestML (@ lexer members {
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }) (import Tokens) (RULES (RULE dataType (BLOCK (ALT (= isInt 'integer')) (ALT (= isReal 'real')) (ALT (= isString 'string')) (ALT (= isBool 'boolean')) (ALT (= isVoid 'void')) (ALT (= unit unitType)))) (RULE unitType (BLOCK (ALT (= leftParentheses '(') (= compoundUnit unitType) (= rightParentheses ')')) (ALT (= base unitType) (= powOp '**') (= exponent INTEGER)) (ALT (= left unitType) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/'))) (= right unitType)) (ALT (= unitlessLiteral INTEGER) (= divOp '/') (= right unitType)) (ALT (= unit NAME)))) (RULE expression (BLOCK (ALT (= leftParentheses '(') (= term expression) (= rightParentheses ')')) (ALT (ELEMENT_OPTIONS (= assoc right)) (= left expression) (= powOp '**') (= right expression)) (ALT unaryOperator (= term expression)) (ALT (= left expression) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/')) (ALT (= moduloOp '%'))) (= right expression)) (ALT (= left expression) (BLOCK (ALT (= plusOp '+')) (ALT (= minusOp '-'))) (= right expression)) (ALT (= left expression) bitOperator (= right expression)) (ALT (= left expression) comparisonOperator (= right expression)) (ALT (= logicalNot 'not') (= term expression)) (ALT (= left expression) logicalOperator (= right expression)) (ALT (= condition expression) '?' (= ifTrue expression) ':' (= ifNot expression)) (ALT simpleExpression))) (RULE simpleExpression (BLOCK (ALT functionCall) (ALT BOOLEAN_LITERAL) (ALT (SET INTEGER FLOAT) (? (BLOCK (ALT variable)))) (ALT (= string STRING_LITERAL)) (ALT (= isInf 'inf')) (ALT variable))) (RULE unaryOperator (BLOCK (ALT (BLOCK (ALT (= unaryPlus '+')) (ALT (= unaryMinus '-')) (ALT (= unaryTilde '~')))))) (RULE bitOperator (BLOCK (ALT (BLOCK (ALT (= bitAnd '&')) (ALT (= bitXor '^')) (ALT (= bitOr '|')) (ALT (= bitShiftLeft '<<')) (ALT (= bitShiftRight '>>')))))) (RULE comparisonOperator (BLOCK (ALT (BLOCK (ALT (= lt '<')) (ALT (= le '<=')) (ALT (= eq '==')) (ALT (= ne '!=')) (ALT (= ne2 '<>')) (ALT (= ge '>=')) (ALT (= gt '>')))))) (RULE logicalOperator (BLOCK (ALT (BLOCK (ALT (= logicalAnd 'and')) (ALT (= logicalOr 'or')))))) (RULE variable (BLOCK (ALT (= name NAME) (* (BLOCK (ALT DIFFERENTIAL_ORDER)))))) (RULE functionCall (BLOCK (ALT (= calleeName NAME) '(' (? (BLOCK (ALT expression (* (BLOCK (ALT ',' expression)))))) ')'))) (RULE odeFunction (BLOCK (ALT (? (BLOCK (ALT (= recordable 'recordable')))) 'function' (= variableName NAME) dataType '=' expression (? (BLOCK (ALT ';')))))) (RULE odeEquation (BLOCK (ALT (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE odeShape (BLOCK (ALT 'shape' (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE block (BLOCK (ALT (* (BLOCK (ALT stmt) (ALT NEWLINE)))))) (RULE stmt (BLOCK (ALT smallStmt) (ALT compoundStmt))) (RULE compoundStmt (BLOCK (ALT ifStmt) (ALT forStmt) (ALT whileStmt))) (RULE smallStmt (BLOCK (ALT assignment) (ALT functionCall) (ALT declaration) (ALT returnStmt))) (RULE assignment (BLOCK (ALT (= lhs_variable variable) (BLOCK (ALT (= directAssignment '=')) (ALT (= compoundSum '+=')) (ALT (= compoundMinus '-=')) (ALT (= compoundProduct '*=')) (ALT (= compoundQuotient '/='))) expression))) (RULE declaration (BLOCK (ALT (? (BLOCK (ALT (= isRecordable 'recordable')))) (? (BLOCK (ALT (= isFunction 'function')))) variable (* (BLOCK (ALT ',' variable))) dataType (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT '=' (= rhs expression)))) (? (BLOCK (ALT '[[' (= invariant expression) ']]')))))) (RULE returnStmt (BLOCK (ALT 'return' (? (BLOCK (ALT expression)))))) (RULE ifStmt (BLOCK (ALT ifClause (* (BLOCK (ALT elifClause))) (? (BLOCK (ALT elseClause))) BLOCK_CLOSE))) (RULE ifClause (BLOCK (ALT 'if' expression BLOCK_OPEN block))) (RULE elifClause (BLOCK (ALT 'elif' expression BLOCK_OPEN block))) (RULE elseClause (BLOCK (ALT 'else' BLOCK_OPEN block))) (RULE forStmt (BLOCK (ALT 'for' (= var NAME) 'in' (= start_from expression) '...' (= end_at expression) 'step' (BLOCK (ALT (? (BLOCK (ALT (= negative '-')))))) (SET INTEGER FLOAT) BLOCK_OPEN block BLOCK_CLOSE))) (RULE whileStmt (BLOCK (ALT 'while' expression BLOCK_OPEN block BLOCK_CLOSE))) (RULE nestMLCompilationUnit (BLOCK (ALT (* (BLOCK (ALT neuron) (ALT synapse) (ALT NEWLINE))) EOF))) (RULE neuron (BLOCK (ALT 'neuron' NAME neuronBody))) (RULE synapse (BLOCK (ALT 'synapse' NAME synapseBody))) (RULE neuronBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT equationsBlock) (ALT inputBlock) (ALT outputBlock) (ALT updateBlock) (ALT function))) BLOCK_CLOSE))) (RULE synapseBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT inputBlock) (ALT outputBlock))) BLOCK_CLOSE))) (RULE blockWithVariables (BLOCK (ALT (= blockType (SET 'state' 'parameters' 'internals' 'initial_values')) BLOCK_OPEN (* (BLOCK (ALT declaration) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE updateBlock (BLOCK (ALT 'update' BLOCK_OPEN block BLOCK_CLOSE))) (RULE equationsBlock (BLOCK (ALT 'equations' BLOCK_OPEN (* (BLOCK (ALT odeFunction) (ALT odeEquation) (ALT odeShape) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputBlock (BLOCK (ALT 'input' BLOCK_OPEN (* (BLOCK (ALT inputLine) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputLine (BLOCK (ALT (= name NAME) (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT dataType))) '<-' (* (BLOCK (ALT inputType))) (BLOCK (ALT (= isCurrent 'current')) (ALT (= isSpike 'spike')))))) (RULE inputType (BLOCK (ALT (BLOCK (ALT (= isInhibitory 'inhibitory')) (ALT (= isExcitatory 'excitatory')))))) (RULE outputBlock (BLOCK (ALT 'output' BLOCK_OPEN (BLOCK (ALT (= isSpike 'spike')) (ALT (= isCurrent 'current')))))) (RULE function (BLOCK (ALT 'function' NAME '(' (? (BLOCK (ALT parameter (* (BLOCK (ALT ',' parameter)))))) ')' (? (BLOCK (ALT (= returnType dataType)))) BLOCK_OPEN block BLOCK_CLOSE))) (RULE parameter (BLOCK (ALT NAME dataType))) (RULE SL_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '#' (* (BLOCK (ALT (~ (SET '\n' '\r')))))))) (LEXER_ACTION_CALL channel 2)))) (RULE ML_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '/*' (* (BLOCK (ALT .))) '*/') (ALT '"""' (* (BLOCK (ALT .))) '"""'))) (LEXER_ACTION_CALL channel 2)))) (RULE NEWLINE (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '\r' '\n') (ALT '\r') (ALT '\n'))) (LEXER_ACTION_CALL channel 3)))) (RULE WS (BLOCK (LEXER_ALT_ACTION (ALT (SET ' ' '\t')) (LEXER_ACTION_CALL channel 1)))) (RULE LINE_ESCAPE (BLOCK (LEXER_ALT_ACTION (ALT '\\' (? (BLOCK (ALT '\r'))) '\n') (LEXER_ACTION_CALL channel 1)))) (RULE BLOCK_OPEN (BLOCK (ALT ':'))) (RULE BLOCK_CLOSE (BLOCK (ALT 'end'))) (RULE BOOLEAN_LITERAL (BLOCK (ALT 'true') (ALT 'True') (ALT 'false') (ALT 'False'))) (RULE STRING_LITERAL (BLOCK (ALT '"' (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))) '"'))) (RULE NAME (BLOCK (ALT (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$')))))) (RULE INTEGER (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) (RULE DIFFERENTIAL_ORDER (BLOCK (ALT '\''))) (RULE NON_ZERO_INTEGER (RULEMODIFIERS fragment) (BLOCK (ALT [1-9] (* (BLOCK (ALT [0-9])))))) (RULE FLOAT (BLOCK (ALT POINT_FLOAT) (ALT EXPONENT_FLOAT))) (RULE POINT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (? (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) FRACTION) (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')) '.'))) (RULE EXPONENT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT POINT_FLOAT)) EXPONENT))) (RULE EXPONENT (RULEMODIFIERS fragment) (BLOCK (ALT [eE] (? (BLOCK (ALT [+-]))) (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))))) (RULE FRACTION (RULEMODIFIERS fragment) (BLOCK (ALT '.' (+ (BLOCK (ALT [0-9]))))))))
+2018-09-20 10:38:38:068 grammar LogManager.java:49 after extract implicit lexer =(COMBINED_GRAMMAR PyNestML (import Tokens) (RULES (RULE dataType (BLOCK (ALT (= isInt 'integer')) (ALT (= isReal 'real')) (ALT (= isString 'string')) (ALT (= isBool 'boolean')) (ALT (= isVoid 'void')) (ALT (= unit unitType)))) (RULE unitType (BLOCK (ALT (= leftParentheses '(') (= compoundUnit unitType) (= rightParentheses ')')) (ALT (= base unitType) (= powOp '**') (= exponent INTEGER)) (ALT (= left unitType) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/'))) (= right unitType)) (ALT (= unitlessLiteral INTEGER) (= divOp '/') (= right unitType)) (ALT (= unit NAME)))) (RULE expression (BLOCK (ALT (= leftParentheses '(') (= term expression) (= rightParentheses ')')) (ALT (ELEMENT_OPTIONS (= assoc right)) (= left expression) (= powOp '**') (= right expression)) (ALT unaryOperator (= term expression)) (ALT (= left expression) (BLOCK (ALT (= timesOp '*')) (ALT (= divOp '/')) (ALT (= moduloOp '%'))) (= right expression)) (ALT (= left expression) (BLOCK (ALT (= plusOp '+')) (ALT (= minusOp '-'))) (= right expression)) (ALT (= left expression) bitOperator (= right expression)) (ALT (= left expression) comparisonOperator (= right expression)) (ALT (= logicalNot 'not') (= term expression)) (ALT (= left expression) logicalOperator (= right expression)) (ALT (= condition expression) '?' (= ifTrue expression) ':' (= ifNot expression)) (ALT simpleExpression))) (RULE simpleExpression (BLOCK (ALT functionCall) (ALT BOOLEAN_LITERAL) (ALT (SET INTEGER FLOAT) (? (BLOCK (ALT variable)))) (ALT (= string STRING_LITERAL)) (ALT (= isInf 'inf')) (ALT variable))) (RULE unaryOperator (BLOCK (ALT (BLOCK (ALT (= unaryPlus '+')) (ALT (= unaryMinus '-')) (ALT (= unaryTilde '~')))))) (RULE bitOperator (BLOCK (ALT (BLOCK (ALT (= bitAnd '&')) (ALT (= bitXor '^')) (ALT (= bitOr '|')) (ALT (= bitShiftLeft '<<')) (ALT (= bitShiftRight '>>')))))) (RULE comparisonOperator (BLOCK (ALT (BLOCK (ALT (= lt '<')) (ALT (= le '<=')) (ALT (= eq '==')) (ALT (= ne '!=')) (ALT (= ne2 '<>')) (ALT (= ge '>=')) (ALT (= gt '>')))))) (RULE logicalOperator (BLOCK (ALT (BLOCK (ALT (= logicalAnd 'and')) (ALT (= logicalOr 'or')))))) (RULE variable (BLOCK (ALT (= name NAME) (* (BLOCK (ALT DIFFERENTIAL_ORDER)))))) (RULE functionCall (BLOCK (ALT (= calleeName NAME) '(' (? (BLOCK (ALT expression (* (BLOCK (ALT ',' expression)))))) ')'))) (RULE odeFunction (BLOCK (ALT (? (BLOCK (ALT (= recordable 'recordable')))) 'function' (= variableName NAME) dataType '=' expression (? (BLOCK (ALT ';')))))) (RULE odeEquation (BLOCK (ALT (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE odeShape (BLOCK (ALT 'shape' (= lhs variable) '=' (= rhs expression) (? (BLOCK (ALT ';')))))) (RULE block (BLOCK (ALT (* (BLOCK (ALT stmt) (ALT NEWLINE)))))) (RULE stmt (BLOCK (ALT smallStmt) (ALT compoundStmt))) (RULE compoundStmt (BLOCK (ALT ifStmt) (ALT forStmt) (ALT whileStmt))) (RULE smallStmt (BLOCK (ALT assignment) (ALT functionCall) (ALT declaration) (ALT returnStmt))) (RULE assignment (BLOCK (ALT (= lhs_variable variable) (BLOCK (ALT (= directAssignment '=')) (ALT (= compoundSum '+=')) (ALT (= compoundMinus '-=')) (ALT (= compoundProduct '*=')) (ALT (= compoundQuotient '/='))) expression))) (RULE declaration (BLOCK (ALT (? (BLOCK (ALT (= isRecordable 'recordable')))) (? (BLOCK (ALT (= isFunction 'function')))) variable (* (BLOCK (ALT ',' variable))) dataType (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT '=' (= rhs expression)))) (? (BLOCK (ALT '[[' (= invariant expression) ']]')))))) (RULE returnStmt (BLOCK (ALT 'return' (? (BLOCK (ALT expression)))))) (RULE ifStmt (BLOCK (ALT ifClause (* (BLOCK (ALT elifClause))) (? (BLOCK (ALT elseClause))) BLOCK_CLOSE))) (RULE ifClause (BLOCK (ALT 'if' expression BLOCK_OPEN block))) (RULE elifClause (BLOCK (ALT 'elif' expression BLOCK_OPEN block))) (RULE elseClause (BLOCK (ALT 'else' BLOCK_OPEN block))) (RULE forStmt (BLOCK (ALT 'for' (= var NAME) 'in' (= start_from expression) '...' (= end_at expression) 'step' (BLOCK (ALT (? (BLOCK (ALT (= negative '-')))))) (SET INTEGER FLOAT) BLOCK_OPEN block BLOCK_CLOSE))) (RULE whileStmt (BLOCK (ALT 'while' expression BLOCK_OPEN block BLOCK_CLOSE))) (RULE nestMLCompilationUnit (BLOCK (ALT (* (BLOCK (ALT neuron) (ALT synapse) (ALT NEWLINE))) EOF))) (RULE neuron (BLOCK (ALT 'neuron' NAME neuronBody))) (RULE synapse (BLOCK (ALT 'synapse' NAME synapseBody))) (RULE neuronBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT equationsBlock) (ALT inputBlock) (ALT outputBlock) (ALT updateBlock) (ALT function))) BLOCK_CLOSE))) (RULE synapseBody (BLOCK (ALT BLOCK_OPEN (* (BLOCK (ALT NEWLINE) (ALT blockWithVariables) (ALT inputBlock) (ALT outputBlock))) BLOCK_CLOSE))) (RULE blockWithVariables (BLOCK (ALT (= blockType (SET 'state' 'parameters' 'internals' 'initial_values')) BLOCK_OPEN (* (BLOCK (ALT declaration) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE updateBlock (BLOCK (ALT 'update' BLOCK_OPEN block BLOCK_CLOSE))) (RULE equationsBlock (BLOCK (ALT 'equations' BLOCK_OPEN (* (BLOCK (ALT odeFunction) (ALT odeEquation) (ALT odeShape) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputBlock (BLOCK (ALT 'input' BLOCK_OPEN (* (BLOCK (ALT inputLine) (ALT NEWLINE))) BLOCK_CLOSE))) (RULE inputLine (BLOCK (ALT (= name NAME) (? (BLOCK (ALT '[' (= sizeParameter NAME) ']'))) (? (BLOCK (ALT dataType))) '<-' (* (BLOCK (ALT inputType))) (BLOCK (ALT (= isCurrent 'current')) (ALT (= isSpike 'spike')))))) (RULE inputType (BLOCK (ALT (BLOCK (ALT (= isInhibitory 'inhibitory')) (ALT (= isExcitatory 'excitatory')))))) (RULE outputBlock (BLOCK (ALT 'output' BLOCK_OPEN (BLOCK (ALT (= isSpike 'spike')) (ALT (= isCurrent 'current')))))) (RULE function (BLOCK (ALT 'function' NAME '(' (? (BLOCK (ALT parameter (* (BLOCK (ALT ',' parameter)))))) ')' (? (BLOCK (ALT (= returnType dataType)))) BLOCK_OPEN block BLOCK_CLOSE))) (RULE parameter (BLOCK (ALT NAME dataType)))))
+2018-09-20 10:38:38:068 grammar LogManager.java:49 lexer =(LEXER_GRAMMAR PyNestMLLexer (@ lexer members {
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }) (RULES (RULE T__0 (BLOCK (ALT 'integer'))) (RULE T__1 (BLOCK (ALT 'real'))) (RULE T__2 (BLOCK (ALT 'string'))) (RULE T__3 (BLOCK (ALT 'boolean'))) (RULE T__4 (BLOCK (ALT 'void'))) (RULE T__5 (BLOCK (ALT '('))) (RULE T__6 (BLOCK (ALT ')'))) (RULE T__7 (BLOCK (ALT '**'))) (RULE T__8 (BLOCK (ALT '*'))) (RULE T__9 (BLOCK (ALT '/'))) (RULE T__10 (BLOCK (ALT '%'))) (RULE T__11 (BLOCK (ALT '+'))) (RULE T__12 (BLOCK (ALT '-'))) (RULE T__13 (BLOCK (ALT 'not'))) (RULE T__14 (BLOCK (ALT '?'))) (RULE T__15 (BLOCK (ALT 'inf'))) (RULE T__16 (BLOCK (ALT '~'))) (RULE T__17 (BLOCK (ALT '&'))) (RULE T__18 (BLOCK (ALT '^'))) (RULE T__19 (BLOCK (ALT '|'))) (RULE T__20 (BLOCK (ALT '<<'))) (RULE T__21 (BLOCK (ALT '>>'))) (RULE T__22 (BLOCK (ALT '<'))) (RULE T__23 (BLOCK (ALT '<='))) (RULE T__24 (BLOCK (ALT '=='))) (RULE T__25 (BLOCK (ALT '!='))) (RULE T__26 (BLOCK (ALT '<>'))) (RULE T__27 (BLOCK (ALT '>='))) (RULE T__28 (BLOCK (ALT '>'))) (RULE T__29 (BLOCK (ALT 'and'))) (RULE T__30 (BLOCK (ALT 'or'))) (RULE T__31 (BLOCK (ALT ','))) (RULE T__32 (BLOCK (ALT 'recordable'))) (RULE T__33 (BLOCK (ALT 'function'))) (RULE T__34 (BLOCK (ALT '='))) (RULE T__35 (BLOCK (ALT ';'))) (RULE T__36 (BLOCK (ALT 'shape'))) (RULE T__37 (BLOCK (ALT '+='))) (RULE T__38 (BLOCK (ALT '-='))) (RULE T__39 (BLOCK (ALT '*='))) (RULE T__40 (BLOCK (ALT '/='))) (RULE T__41 (BLOCK (ALT '['))) (RULE T__42 (BLOCK (ALT ']'))) (RULE T__43 (BLOCK (ALT '[['))) (RULE T__44 (BLOCK (ALT ']]'))) (RULE T__45 (BLOCK (ALT 'return'))) (RULE T__46 (BLOCK (ALT 'if'))) (RULE T__47 (BLOCK (ALT 'elif'))) (RULE T__48 (BLOCK (ALT 'else'))) (RULE T__49 (BLOCK (ALT 'for'))) (RULE T__50 (BLOCK (ALT 'in'))) (RULE T__51 (BLOCK (ALT '...'))) (RULE T__52 (BLOCK (ALT 'step'))) (RULE T__53 (BLOCK (ALT 'while'))) (RULE T__54 (BLOCK (ALT 'neuron'))) (RULE T__55 (BLOCK (ALT 'synapse'))) (RULE T__56 (BLOCK (ALT 'state'))) (RULE T__57 (BLOCK (ALT 'parameters'))) (RULE T__58 (BLOCK (ALT 'internals'))) (RULE T__59 (BLOCK (ALT 'initial_values'))) (RULE T__60 (BLOCK (ALT 'update'))) (RULE T__61 (BLOCK (ALT 'equations'))) (RULE T__62 (BLOCK (ALT 'input'))) (RULE T__63 (BLOCK (ALT '<-'))) (RULE T__64 (BLOCK (ALT 'current'))) (RULE T__65 (BLOCK (ALT 'spike'))) (RULE T__66 (BLOCK (ALT 'inhibitory'))) (RULE T__67 (BLOCK (ALT 'excitatory'))) (RULE T__68 (BLOCK (ALT 'output'))) (RULE SL_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '#' (* (BLOCK (ALT (~ (SET '\n' '\r')))))))) (LEXER_ACTION_CALL channel 2)))) (RULE ML_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '/*' (* (BLOCK (ALT .))) '*/') (ALT '"""' (* (BLOCK (ALT .))) '"""'))) (LEXER_ACTION_CALL channel 2)))) (RULE NEWLINE (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '\r' '\n') (ALT '\r') (ALT '\n'))) (LEXER_ACTION_CALL channel 3)))) (RULE WS (BLOCK (LEXER_ALT_ACTION (ALT (SET ' ' '\t')) (LEXER_ACTION_CALL channel 1)))) (RULE LINE_ESCAPE (BLOCK (LEXER_ALT_ACTION (ALT '\\' (? (BLOCK (ALT '\r'))) '\n') (LEXER_ACTION_CALL channel 1)))) (RULE BLOCK_OPEN (BLOCK (ALT ':'))) (RULE BLOCK_CLOSE (BLOCK (ALT 'end'))) (RULE BOOLEAN_LITERAL (BLOCK (ALT 'true') (ALT 'True') (ALT 'false') (ALT 'False'))) (RULE STRING_LITERAL (BLOCK (ALT '"' (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))) '"'))) (RULE NAME (BLOCK (ALT (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$')))))) (RULE INTEGER (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) (RULE DIFFERENTIAL_ORDER (BLOCK (ALT '\''))) (RULE NON_ZERO_INTEGER (RULEMODIFIERS fragment) (BLOCK (ALT [1-9] (* (BLOCK (ALT [0-9])))))) (RULE FLOAT (BLOCK (ALT POINT_FLOAT) (ALT EXPONENT_FLOAT))) (RULE POINT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (? (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) FRACTION) (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')) '.'))) (RULE EXPONENT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT POINT_FLOAT)) EXPONENT))) (RULE EXPONENT (RULEMODIFIERS fragment) (BLOCK (ALT [eE] (? (BLOCK (ALT [+-]))) (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))))) (RULE FRACTION (RULEMODIFIERS fragment) (BLOCK (ALT '.' (+ (BLOCK (ALT [0-9]))))))))
+2018-09-20 10:38:38:356 action-translator LogManager.java:49 translate 
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  
+2018-09-20 10:38:38:484 left-recursion LogManager.java:49 unitType
+    :   ( {} leftParentheses='('<tokenIndex=63> compoundUnit=unitType<tokenIndex=67> rightParentheses=')'<tokenIndex=71> 
+        | unitlessLiteral=INTEGER<tokenIndex=113> divOp='/'<tokenIndex=117> right=unitType<tokenIndex=121,p=2> 
+        | unit=NAME<tokenIndex=127> 
+        )
+        (
+          {self.precpred(self._ctx, 3)}?<p=3> (timesOp='*'<tokenIndex=96> | divOp='/'<tokenIndex=102>) right=unitType<tokenIndex=107,p=4>
+                  | {self.precpred(self._ctx, 4)}?<p=4> powOp='**'<tokenIndex=81> exponent=INTEGER<tokenIndex=85>
+        )*
+    ;
+2018-09-20 10:38:38:492 grammar LogManager.java:49 added: (RULE unitType (BLOCK (ALT (BLOCK (ALT {} (= leftParentheses ('(' (ELEMENT_OPTIONS (= tokenIndex 63)))) (= compoundUnit (unitType (ELEMENT_OPTIONS (= tokenIndex 67)))) (= rightParentheses (')' (ELEMENT_OPTIONS (= tokenIndex 71))))) (ALT (= unitlessLiteral (INTEGER (ELEMENT_OPTIONS (= tokenIndex 113)))) (= divOp ('/' (ELEMENT_OPTIONS (= tokenIndex 117)))) (= right (unitType (ELEMENT_OPTIONS (= tokenIndex 121) (= p 2))))) (ALT (= unit (NAME (ELEMENT_OPTIONS (= tokenIndex 127)))))) (* (BLOCK (ALT ({self.precpred(self._ctx, 3)}? (ELEMENT_OPTIONS (= p 3))) (BLOCK (ALT (= timesOp ('*' (ELEMENT_OPTIONS (= tokenIndex 96))))) (ALT (= divOp ('/' (ELEMENT_OPTIONS (= tokenIndex 102)))))) (= right (unitType (ELEMENT_OPTIONS (= tokenIndex 107) (= p 4))))) (ALT ({self.precpred(self._ctx, 4)}? (ELEMENT_OPTIONS (= p 4))) (= powOp ('**' (ELEMENT_OPTIONS (= tokenIndex 81)))) (= exponent (INTEGER (ELEMENT_OPTIONS (= tokenIndex 85))))))))))
+2018-09-20 10:38:38:531 left-recursion LogManager.java:49 expression
+    :   ( {} leftParentheses='('<tokenIndex=140> term=expression<tokenIndex=144> rightParentheses=')'<tokenIndex=148> 
+        | unaryOperator<tokenIndex=172> term=expression<tokenIndex=176,p=9> 
+        | logicalNot='not'<tokenIndex=256> term=expression<tokenIndex=260,p=4> 
+        | simpleExpression<tokenIndex=294> 
+        )
+        (
+          {self.precpred(self._ctx, 10)}?<p=10> powOp='**'<tokenIndex=164> right=expression<tokenIndex=168,p=10>
+                  | {self.precpred(self._ctx, 8)}?<p=8> (timesOp='*'<tokenIndex=187> | divOp='/'<tokenIndex=193> | moduloOp='%'<tokenIndex=199>) right=expression<tokenIndex=204,p=9>
+                  | {self.precpred(self._ctx, 7)}?<p=7> (plusOp='+'<tokenIndex=215>  | minusOp='-'<tokenIndex=221>) right=expression<tokenIndex=226,p=8>
+                  | {self.precpred(self._ctx, 6)}?<p=6> bitOperator<tokenIndex=234> right=expression<tokenIndex=238,p=7>
+                  | {self.precpred(self._ctx, 5)}?<p=5> comparisonOperator<tokenIndex=246> right=expression<tokenIndex=250,p=6>
+                  | {self.precpred(self._ctx, 3)}?<p=3> logicalOperator<tokenIndex=268> right=expression<tokenIndex=272,p=4>
+                  | {self.precpred(self._ctx, 2)}?<p=2> '?'<tokenIndex=280> ifTrue=expression<tokenIndex=284> ':'<tokenIndex=286> ifNot=expression<tokenIndex=290,p=3>
+        )*
+    ;
+2018-09-20 10:38:38:538 grammar LogManager.java:49 added: (RULE expression (BLOCK (ALT (BLOCK (ALT {} (= leftParentheses ('(' (ELEMENT_OPTIONS (= tokenIndex 140)))) (= term (expression (ELEMENT_OPTIONS (= tokenIndex 144)))) (= rightParentheses (')' (ELEMENT_OPTIONS (= tokenIndex 148))))) (ALT (unaryOperator (ELEMENT_OPTIONS (= tokenIndex 172))) (= term (expression (ELEMENT_OPTIONS (= tokenIndex 176) (= p 9))))) (ALT (= logicalNot ('not' (ELEMENT_OPTIONS (= tokenIndex 256)))) (= term (expression (ELEMENT_OPTIONS (= tokenIndex 260) (= p 4))))) (ALT (simpleExpression (ELEMENT_OPTIONS (= tokenIndex 294))))) (* (BLOCK (ALT ({self.precpred(self._ctx, 10)}? (ELEMENT_OPTIONS (= p 10))) (= powOp ('**' (ELEMENT_OPTIONS (= tokenIndex 164)))) (= right (expression (ELEMENT_OPTIONS (= tokenIndex 168) (= p 10))))) (ALT ({self.precpred(self._ctx, 8)}? (ELEMENT_OPTIONS (= p 8))) (BLOCK (ALT (= timesOp ('*' (ELEMENT_OPTIONS (= tokenIndex 187))))) (ALT (= divOp ('/' (ELEMENT_OPTIONS (= tokenIndex 193))))) (ALT (= moduloOp ('%' (ELEMENT_OPTIONS (= tokenIndex 199)))))) (= right (expression (ELEMENT_OPTIONS (= tokenIndex 204) (= p 9))))) (ALT ({self.precpred(self._ctx, 7)}? (ELEMENT_OPTIONS (= p 7))) (BLOCK (ALT (= plusOp ('+' (ELEMENT_OPTIONS (= tokenIndex 215))))) (ALT (= minusOp ('-' (ELEMENT_OPTIONS (= tokenIndex 221)))))) (= right (expression (ELEMENT_OPTIONS (= tokenIndex 226) (= p 8))))) (ALT ({self.precpred(self._ctx, 6)}? (ELEMENT_OPTIONS (= p 6))) (bitOperator (ELEMENT_OPTIONS (= tokenIndex 234))) (= right (expression (ELEMENT_OPTIONS (= tokenIndex 238) (= p 7))))) (ALT ({self.precpred(self._ctx, 5)}? (ELEMENT_OPTIONS (= p 5))) (comparisonOperator (ELEMENT_OPTIONS (= tokenIndex 246))) (= right (expression (ELEMENT_OPTIONS (= tokenIndex 250) (= p 6))))) (ALT ({self.precpred(self._ctx, 3)}? (ELEMENT_OPTIONS (= p 3))) (logicalOperator (ELEMENT_OPTIONS (= tokenIndex 268))) (= right (expression (ELEMENT_OPTIONS (= tokenIndex 272) (= p 4))))) (ALT ({self.precpred(self._ctx, 2)}? (ELEMENT_OPTIONS (= p 2))) ('?' (ELEMENT_OPTIONS (= tokenIndex 280))) (= ifTrue (expression (ELEMENT_OPTIONS (= tokenIndex 284)))) (':' (ELEMENT_OPTIONS (= tokenIndex 286))) (= ifNot (expression (ELEMENT_OPTIONS (= tokenIndex 290) (= p 3))))))))))
+2018-09-20 10:38:38:543 semantics LogManager.java:49 tokens={EOF=-1, T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, T__22=23, T__23=24, T__24=25, T__25=26, T__26=27, T__27=28, T__28=29, T__29=30, T__30=31, T__31=32, T__32=33, T__33=34, T__34=35, T__35=36, T__36=37, T__37=38, T__38=39, T__39=40, T__40=41, T__41=42, T__42=43, T__43=44, T__44=45, T__45=46, T__46=47, T__47=48, T__48=49, T__49=50, T__50=51, T__51=52, T__52=53, T__53=54, T__54=55, T__55=56, T__56=57, T__57=58, T__58=59, T__59=60, T__60=61, T__61=62, T__62=63, T__63=64, T__64=65, T__65=66, T__66=67, T__67=68, T__68=69, SL_COMMENT=70, ML_COMMENT=71, NEWLINE=72, WS=73, LINE_ESCAPE=74, BLOCK_OPEN=75, BLOCK_CLOSE=76, BOOLEAN_LITERAL=77, STRING_LITERAL=78, NAME=79, INTEGER=80, DIFFERENTIAL_ORDER=81, FLOAT=82}
+2018-09-20 10:38:38:543 semantics LogManager.java:49 strings={'integer'=1, 'real'=2, 'string'=3, 'boolean'=4, 'void'=5, '('=6, ')'=7, '**'=8, '*'=9, '/'=10, '%'=11, '+'=12, '-'=13, 'not'=14, '?'=15, 'inf'=16, '~'=17, '&'=18, '^'=19, '|'=20, '<<'=21, '>>'=22, '<'=23, '<='=24, '=='=25, '!='=26, '<>'=27, '>='=28, '>'=29, 'and'=30, 'or'=31, ','=32, 'recordable'=33, 'function'=34, '='=35, ';'=36, 'shape'=37, '+='=38, '-='=39, '*='=40, '/='=41, '['=42, ']'=43, '[['=44, ']]'=45, 'return'=46, 'if'=47, 'elif'=48, 'else'=49, 'for'=50, 'in'=51, '...'=52, 'step'=53, 'while'=54, 'neuron'=55, 'synapse'=56, 'state'=57, 'parameters'=58, 'internals'=59, 'initial_values'=60, 'update'=61, 'equations'=62, 'input'=63, '<-'=64, 'current'=65, 'spike'=66, 'inhibitory'=67, 'excitatory'=68, 'output'=69, ':'=75, 'end'=76, '\''=81}
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 
+DECISION 0 in rule dataType
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 look=[1, 2, 3, 4, 5, {6, 79..80}]
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 
+DECISION 1 in rule unitType
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 look=[6, 80, 79]
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 
+DECISION 2 in rule unitType
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 look=[9, 10]
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 
+DECISION 3 in rule unitType
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 look=[null, null]
+2018-09-20 10:38:38:558 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 
+DECISION 4 in rule unitType
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 look=[null, null]
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 
+DECISION 5 in rule expression
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 look=[6, {12..13, 17}, 14, {16, 77..80, 82}]
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 
+DECISION 6 in rule expression
+2018-09-20 10:38:38:559 LL1 LogManager.java:49 look=[9, 10, 11]
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 
+DECISION 7 in rule expression
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 look=[12, 13]
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 
+DECISION 8 in rule expression
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 look=[null, null, null, null, null, null, null]
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 
+DECISION 9 in rule expression
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 look=[null, null]
+2018-09-20 10:38:38:560 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 
+DECISION 10 in rule simpleExpression
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 look=[79, null]
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 
+DECISION 11 in rule simpleExpression
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 look=[79, 77, {80, 82}, 78, 16, 79]
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 
+DECISION 12 in rule unaryOperator
+2018-09-20 10:38:38:561 LL1 LogManager.java:49 look=[12, 13, 17]
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 
+DECISION 13 in rule bitOperator
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 look=[18, 19, 20, 21, 22]
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 
+DECISION 14 in rule comparisonOperator
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 look=[23, 24, 25, 26, 27, 28, 29]
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 
+DECISION 15 in rule logicalOperator
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 look=[30, 31]
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:562 LL1 LogManager.java:49 
+DECISION 16 in rule variable
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 look=[81, null]
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 
+DECISION 17 in rule functionCall
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 look=[32, 7]
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 
+DECISION 18 in rule functionCall
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 look=[{6, 12..14, 16..17, 77..80, 82}, 7]
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 
+DECISION 19 in rule odeFunction
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 look=[33, 34]
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 
+DECISION 20 in rule odeFunction
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 look=[36, {33..34, 37, 72, 76, 79}]
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 
+DECISION 21 in rule odeEquation
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 look=[36, {33..34, 37, 72, 76, 79}]
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:563 LL1 LogManager.java:49 
+DECISION 22 in rule odeShape
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 look=[36, {33..34, 37, 72, 76, 79}]
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 
+DECISION 23 in rule block
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 look=[{33..34, 46..47, 50, 54, 79}, 72]
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 
+DECISION 24 in rule block
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 look=[{33..34, 46..47, 50, 54, 72, 79}, {48..49, 76}]
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 
+DECISION 25 in rule stmt
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 look=[{33..34, 46, 79}, {47, 50, 54}]
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:564 LL1 LogManager.java:49 
+DECISION 26 in rule compoundStmt
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[47, 50, 54]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 27 in rule smallStmt
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[79, 79, {33..34, 79}, 46]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 28 in rule assignment
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[35, 38, 39, 40, 41]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 29 in rule declaration
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[33, {34, 79}]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 30 in rule declaration
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[34, 79]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 31 in rule declaration
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[32, {1..6, 79..80}]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 32 in rule declaration
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 look=[42, {33..35, 44, 46..50, 54, 72, 76, 79}]
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:565 LL1 LogManager.java:49 
+DECISION 33 in rule declaration
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 look=[35, {33..34, 44, 46..50, 54, 72, 76, 79}]
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 
+DECISION 34 in rule declaration
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 look=[44, {33..34, 46..50, 54, 72, 76, 79}]
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 
+DECISION 35 in rule returnStmt
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 look=[{6, 12..14, 16..17, 77..80, 82}, {33..34, 46..50, 54, 72, 76, 79}]
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 LL(1)? false
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 
+DECISION 36 in rule ifStmt
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 look=[48, {49, 76}]
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 
+DECISION 37 in rule ifStmt
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 look=[49, 76]
+2018-09-20 10:38:38:566 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 38 in rule forStmt
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[13, {80, 82}]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 39 in rule nestMLCompilationUnit
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[55, 56, 72]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 40 in rule nestMLCompilationUnit
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[{55..56, 72}, <EOF>]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 41 in rule neuronBody
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[72, {57..60}, 62, 63, 69, 61, 34]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 42 in rule neuronBody
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[{34, 57..63, 69, 72}, 76]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 43 in rule synapseBody
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[72, {57..60}, 63, 69]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 44 in rule synapseBody
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[{57..60, 63, 69, 72}, 76]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 45 in rule blockWithVariables
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[{33..34, 79}, 72]
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 
+DECISION 46 in rule blockWithVariables
+2018-09-20 10:38:38:567 LL1 LogManager.java:49 look=[{33..34, 72, 79}, 76]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 47 in rule equationsBlock
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[{33..34}, 79, 37, 72]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 48 in rule equationsBlock
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[{33..34, 37, 72, 79}, 76]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 49 in rule inputBlock
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[79, 72]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 50 in rule inputBlock
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[{72, 79}, 76]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 51 in rule inputLine
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[42, {1..6, 64, 79..80}]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 52 in rule inputLine
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[{1..6, 79..80}, 64]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 53 in rule inputLine
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[{67..68}, {65..66}]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 54 in rule inputLine
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[65, 66]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 55 in rule inputType
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[67, 68]
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 
+DECISION 56 in rule outputBlock
+2018-09-20 10:38:38:568 LL1 LogManager.java:49 look=[66, 65]
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 
+DECISION 57 in rule function
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 look=[32, 7]
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 
+DECISION 58 in rule function
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 look=[79, 7]
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 
+DECISION 59 in rule function
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 look=[{1..6, 79..80}, 75]
+2018-09-20 10:38:38:569 LL1 LogManager.java:49 LL(1)? true
+2018-09-20 10:38:38:614 action-translator LogManager.java:49 translate 
+2018-09-20 10:38:38:615 action-translator LogManager.java:49 translate self.precpred(self._ctx, 3)
+2018-09-20 10:38:38:616 action-translator LogManager.java:49 translate self.precpred(self._ctx, 4)
+2018-09-20 10:38:38:617 action-translator LogManager.java:49 translate self.precpred(self._ctx, 3)
+2018-09-20 10:38:38:617 action-translator LogManager.java:49 translate self.precpred(self._ctx, 4)
+2018-09-20 10:38:38:619 action-translator LogManager.java:49 translate 
+2018-09-20 10:38:38:620 action-translator LogManager.java:49 translate self.precpred(self._ctx, 10)
+2018-09-20 10:38:38:620 action-translator LogManager.java:49 translate self.precpred(self._ctx, 8)
+2018-09-20 10:38:38:620 action-translator LogManager.java:49 translate self.precpred(self._ctx, 7)
+2018-09-20 10:38:38:621 action-translator LogManager.java:49 translate self.precpred(self._ctx, 6)
+2018-09-20 10:38:38:621 action-translator LogManager.java:49 translate self.precpred(self._ctx, 5)
+2018-09-20 10:38:38:621 action-translator LogManager.java:49 translate self.precpred(self._ctx, 3)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 2)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 10)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 8)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 7)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 6)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 5)
+2018-09-20 10:38:38:622 action-translator LogManager.java:49 translate self.precpred(self._ctx, 3)
+2018-09-20 10:38:38:623 action-translator LogManager.java:49 translate self.precpred(self._ctx, 2)
+2018-09-20 10:38:38:758 grammar LogManager.java:49 before: (LEXER_GRAMMAR Tokens (@ lexer members {
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }) (channels { COMMENT) (RULES (RULE SL_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '#' (* (BLOCK (ALT (~ (SET '\n' '\r')))))))) (LEXER_ACTION_CALL channel 2)))) (RULE ML_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '/*' (* (BLOCK (ALT .))) '*/') (ALT '"""' (* (BLOCK (ALT .))) '"""'))) (LEXER_ACTION_CALL channel 2)))) (RULE NEWLINE (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '\r' '\n') (ALT '\r') (ALT '\n'))) (LEXER_ACTION_CALL channel 3)))) (RULE WS (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT ' ') (ALT '\t'))) (LEXER_ACTION_CALL channel 1)))) (RULE LINE_ESCAPE (BLOCK (LEXER_ALT_ACTION (ALT '\\' (? (BLOCK (ALT '\r'))) '\n') (LEXER_ACTION_CALL channel 1)))) (RULE BLOCK_OPEN (BLOCK (ALT ':'))) (RULE BLOCK_CLOSE (BLOCK (ALT 'end'))) (RULE BOOLEAN_LITERAL (BLOCK (ALT 'true') (ALT 'True') (ALT 'false') (ALT 'False'))) (RULE STRING_LITERAL (BLOCK (ALT '"' (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))) '"'))) (RULE NAME (BLOCK (ALT (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$')))))) (RULE INTEGER (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) (RULE DIFFERENTIAL_ORDER (BLOCK (ALT '\''))) (RULE NON_ZERO_INTEGER (RULEMODIFIERS fragment) (BLOCK (ALT [1-9] (* (BLOCK (ALT [0-9])))))) (RULE FLOAT (BLOCK (ALT POINT_FLOAT) (ALT EXPONENT_FLOAT))) (RULE POINT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (? (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) FRACTION) (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')) '.'))) (RULE EXPONENT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT POINT_FLOAT)) EXPONENT))) (RULE EXPONENT (RULEMODIFIERS fragment) (BLOCK (ALT [eE] (? (BLOCK (ALT [+-]))) (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))))) (RULE FRACTION (RULEMODIFIERS fragment) (BLOCK (ALT '.' (+ (BLOCK (ALT [0-9]))))))))
+2018-09-20 10:38:38:761 grammar LogManager.java:49 after: (LEXER_GRAMMAR Tokens (@ lexer members {
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }) (channels { COMMENT) (RULES (RULE SL_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '#' (* (BLOCK (ALT (~ (SET '\n' '\r')))))))) (LEXER_ACTION_CALL channel 2)))) (RULE ML_COMMENT (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '/*' (* (BLOCK (ALT .))) '*/') (ALT '"""' (* (BLOCK (ALT .))) '"""'))) (LEXER_ACTION_CALL channel 2)))) (RULE NEWLINE (BLOCK (LEXER_ALT_ACTION (ALT (BLOCK (ALT '\r' '\n') (ALT '\r') (ALT '\n'))) (LEXER_ACTION_CALL channel 3)))) (RULE WS (BLOCK (LEXER_ALT_ACTION (ALT (SET ' ' '\t')) (LEXER_ACTION_CALL channel 1)))) (RULE LINE_ESCAPE (BLOCK (LEXER_ALT_ACTION (ALT '\\' (? (BLOCK (ALT '\r'))) '\n') (LEXER_ACTION_CALL channel 1)))) (RULE BLOCK_OPEN (BLOCK (ALT ':'))) (RULE BLOCK_CLOSE (BLOCK (ALT 'end'))) (RULE BOOLEAN_LITERAL (BLOCK (ALT 'true') (ALT 'True') (ALT 'false') (ALT 'False'))) (RULE STRING_LITERAL (BLOCK (ALT '"' (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$'))) '"'))) (RULE NAME (BLOCK (ALT (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT '$')) (* (BLOCK (ALT [a-zA-Z]) (ALT '_') (ALT [0-9]) (ALT '$')))))) (RULE INTEGER (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) (RULE DIFFERENTIAL_ORDER (BLOCK (ALT '\''))) (RULE NON_ZERO_INTEGER (RULEMODIFIERS fragment) (BLOCK (ALT [1-9] (* (BLOCK (ALT [0-9])))))) (RULE FLOAT (BLOCK (ALT POINT_FLOAT) (ALT EXPONENT_FLOAT))) (RULE POINT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (? (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))) FRACTION) (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0')) '.'))) (RULE EXPONENT_FLOAT (RULEMODIFIERS fragment) (BLOCK (ALT (BLOCK (ALT NON_ZERO_INTEGER) (ALT POINT_FLOAT)) EXPONENT))) (RULE EXPONENT (RULEMODIFIERS fragment) (BLOCK (ALT [eE] (? (BLOCK (ALT [+-]))) (BLOCK (ALT NON_ZERO_INTEGER) (ALT '0'))))) (RULE FRACTION (RULEMODIFIERS fragment) (BLOCK (ALT '.' (+ (BLOCK (ALT [0-9]))))))))
+2018-09-20 10:38:38:829 action-translator LogManager.java:49 translate 
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  

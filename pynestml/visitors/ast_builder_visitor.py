@@ -22,7 +22,7 @@ import re
 
 from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.generated.PyNestMLVisitor import PyNestMLVisitor
+from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_source_location import ASTSourceLocation
@@ -31,7 +31,7 @@ from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
 
 
-class ASTBuilderVisitor(PyNestMLVisitor):
+class ASTBuilderVisitor(PyNestMLParserVisitor):
     """
     This class is used to create an internal representation of the model by means of an abstract syntax tree.
     """
@@ -322,7 +322,7 @@ class ASTBuilderVisitor(PyNestMLVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):
-        lhs = self.visit(ctx.lhsVariable) if ctx.lhsVariable is not None else None
+        lhs = self.visit(ctx.lhs_variable) if ctx.lhs_variable is not None else None
         is_direct_assignment = True if ctx.directAssignment is not None else False
         is_compound_sum = True if ctx.compoundSum is not None else False
         is_compound_minus = True if ctx.compoundMinus is not None else False

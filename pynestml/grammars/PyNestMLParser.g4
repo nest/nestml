@@ -20,9 +20,10 @@
  *
  */
 
-grammar PyNestML;
+parser grammar PyNestMLParser;
 
-  import Tokens;
+  options { tokenVocab = PyNestMLLexer; }
+
 
   /*********************************************************************************************************************
   * Units-Language
@@ -34,20 +35,20 @@ grammar PyNestML;
     @attribute boolean getters for integer, real, ...
     @attribute unitType a SI data type
   */
-  dataType : isInt='integer'
-           | isReal='real'
-           | isString='string'
-           | isBool='boolean'
-           | isVoid='void'
+  dataType : isInt=INTEGER_KEYWORD
+           | isReal=REAL_KEYWORD
+           | isString=STRING_KEYWORD
+           | isBool=BOOLEAN_KEYWORD
+           | isVoid=VOID_KEYWORD
            | unit=unitType;
   /**
     ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a
     complex data type as 'mV/s'
   */
-  unitType : leftParentheses='(' compoundUnit=unitType rightParentheses=')'
-           | base=unitType powOp='**' exponent=INTEGER
-           | left=unitType (timesOp='*' | divOp='/') right=unitType
-           | unitlessLiteral=INTEGER divOp='/' right=unitType
+  unitType : leftParentheses=LEFT_PAREN compoundUnit=unitType rightParentheses=RIGHT_PAREN
+           | base=unitType powOp=STAR_STAR exponent=INTEGER
+           | left=unitType (timesOp=STAR | divOp=FORWARD_SLASH) right=unitType
+           | unitlessLiteral=INTEGER divOp=FORWARD_SLASH right=unitType
            | unit=NAME;
 
   /*********************************************************************************************************************
@@ -58,16 +59,16 @@ grammar PyNestML;
    ASTExpression, i.e., several subexpressions combined by one or more operators,
    e.g., 10mV + V_m - (V_reset * 2)/ms, or a simple expression, e.g. 10mV.
   */
-  expression : leftParentheses='(' term=expression rightParentheses=')'
-         | <assoc=right> left=expression powOp='**' right=expression
+  expression : leftParentheses=LEFT_PAREN term=expression rightParentheses=RIGHT_PAREN
+         | <assoc=right> left=expression powOp=STAR_STAR right=expression
          | unaryOperator term=expression
-         | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
-         | left=expression (plusOp='+'  | minusOp='-') right=expression
+         | left=expression (timesOp=STAR | divOp=FORWARD_SLASH | moduloOp=PERCENT) right=expression
+         | left=expression (plusOp=PLUS | minusOp=MINUS) right=expression
          | left=expression bitOperator right=expression
          | left=expression comparisonOperator right=expression
-         | logicalNot='not' term=expression
+         | logicalNot=PERCENT term=expression
          | left=expression logicalOperator right=expression
-         | condition=expression '?' ifTrue=expression ':' ifNot=expression
+         | condition=expression QUESTION ifTrue=expression COLON ifNot=expression
          | simpleExpression
          ;
 
@@ -85,16 +86,16 @@ grammar PyNestML;
                    | BOOLEAN_LITERAL // true & false;
                    | (INTEGER|FLOAT) (variable)?
                    | string=STRING_LITERAL
-                   | isInf='inf'
+                   | isInf=INF_KEYWORD
                    | variable;
 
-  unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+  unaryOperator : (unaryPlus=PLUS | unaryMinus=MINUS | unaryTilde=TILDE);
 
-  bitOperator : (bitAnd='&'| bitXor='^' | bitOr='|' | bitShiftLeft='<<' | bitShiftRight='>>');
+  bitOperator : (bitAnd=AMPERSAND | bitXor=CARET | bitOr=PIPE | bitShiftLeft=LEFT_LEFT_ANGLE | bitShiftRight=RIGHT_RIGHT_ANGLE);
 
-  comparisonOperator : (lt='<' | le='<=' | eq='==' | ne='!=' | ne2='<>' | ge='>=' | gt='>');
+  comparisonOperator : (lt=LEFT_ANGLE | le=LEFT_ANGLE_EQUALS | eq=EQUALS_EQUALS | ne=EXCLAMATION_EQUALS | ne2=LEFT_ANGLE_RIGHT_ANGLE | ge=RIGHT_ANGLE_EQUALS | gt=RIGHT_ANGLE);
 
-  logicalOperator : (logicalAnd='and' | logicalOr='or' );
+  logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
@@ -108,17 +109,17 @@ grammar PyNestML;
     @attribute calleeName: The (qualified) name of the functions
     @attribute args: Comma separated list of expressions representing parameters.
   */
-  functionCall : calleeName=NAME '(' (expression (',' expression)*)? ')';
+  functionCall : calleeName=NAME LEFT_PAREN (expression (COMMA expression)*)? RIGHT_PAREN;
 
   /*********************************************************************************************************************
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME dataType '=' expression (';')?;
+  odeFunction : (recordable=RECORDABLE_KEYWORD)? FUNCTION_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
 
-  odeEquation : lhs=variable '=' rhs=expression (';')?;
+  odeEquation : lhs=variable EQUALS rhs=expression (';')?;
 
-  odeShape : 'shape' lhs=variable '=' rhs=expression (';')?;
+  odeShape : 'shape' lhs=variable EQUALS rhs=expression (';')?;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -138,11 +139,11 @@ grammar PyNestML;
             | returnStmt;
 
   assignment : lhs_variable=variable
-                (directAssignment='=' |
-                 compoundSum='+='     |
-                 compoundMinus='-='   |
-                 compoundProduct='*=' |
-                 compoundQuotient='/=')
+                (directAssignment=EQUALS |
+                 compoundSum=PLUS_EQUALS |
+                 compoundMinus=MINUS_EQUALS |
+                 compoundProduct=STAR_EQUALS |
+                 compoundQuotient=FORWARD_SLASH_EQUALS)
                expression;
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
@@ -156,36 +157,36 @@ grammar PyNestML;
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
   declaration :
-    (isRecordable='recordable')? (isFunction='function')?
-    variable (',' variable)*
+    (isRecordable=RECORDABLE_KEYWORD)? (isFunction=FUNCTION_KEYWORD)?
+    variable (COMMA variable)*
     dataType
-    ('[' sizeParameter=NAME ']')?
-    ( '=' rhs = expression)?
-    ('[[' invariant=expression ']]')?;
+    (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
+    ( EQUALS rhs = expression)?
+    (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?;
 
   /** ATReturnStmt Models the return statement in a function.
     @expression An optional return expression, e.g., return tempVar
    */
-  returnStmt : 'return' expression?;
+  returnStmt : RETURN_KEYWORD expression?;
 
   ifStmt : ifClause
             elifClause*
             (elseClause)?
-            BLOCK_CLOSE;
+            END_KEYWORD;
 
-  ifClause : 'if' expression BLOCK_OPEN block;
+  ifClause : IF_KEYWORD expression COLON block;
 
-  elifClause : 'elif' expression BLOCK_OPEN block;
+  elifClause : ELIF_KEYWORD expression COLON block;
 
-  elseClause : 'else' BLOCK_OPEN block;
+  elseClause : ELSE_KEYWORD COLON block;
 
-  forStmt : 'for' var=NAME 'in' start_from=expression '...' end_at=expression 'step'
-            (negative='-'?) (INTEGER|FLOAT)
-            BLOCK_OPEN
+  forStmt : FOR_KEYWORD var=NAME IN_KEYWORD start_from=expression ELLIPSIS end_at=expression STEP_KEYWORD
+            (negative=MINUS?) (INTEGER|FLOAT)
+            COLON
              block
-            BLOCK_CLOSE;
+            END_KEYWORD;
 
-  whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
+  whileStmt : WHILE_KEYWORD expression COLON block END_KEYWORD;
 
   /*********************************************************************************************************************
   * NestML-Language
@@ -200,7 +201,7 @@ grammar PyNestML;
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
     @attribute body:    The body of the neuron consisting of several sub-blocks.
   */
-  neuron : 'neuron' NAME body;
+  neuron : NEURON_KEYWORD NAME body;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -210,9 +211,9 @@ grammar PyNestML;
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
   */
-  body: BLOCK_OPEN
+  body: COLON
          (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
-         BLOCK_CLOSE;
+         END_KEYWORD;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
     state:
@@ -225,10 +226,10 @@ grammar PyNestML;
     @attribute declaration: A list of corresponding declarations.
   */
   blockWithVariables:
-    blockType=('state'|'parameters'|'internals'|'initial_values')
-    BLOCK_OPEN
+    blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD | INITIAL_VALUES_KEYWORD)
+    COLON
       (declaration | NEWLINE)*
-    BLOCK_CLOSE;
+    END_KEYWORD;
 
   /** ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated:
       update:
@@ -238,9 +239,9 @@ grammar PyNestML;
       end
      @attribute block Implementation of the dynamics.
    */
-  updateBlock: 'update' BLOCK_OPEN
+  updateBlock: UPDATE_KEYWORD COLON
                 block
-                BLOCK_CLOSE;
+                END_KEYWORD;
 
   /** ASTEquationsBlock A block declaring special functions:
        equations:
@@ -251,9 +252,9 @@ grammar PyNestML;
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
      @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
    */
-  equationsBlock: 'equations' BLOCK_OPEN
+  equationsBlock: EQUATIONS_KEYWORD COLON
                    (odeFunction|odeEquation|odeShape|NEWLINE)*
-                   BLOCK_CLOSE;
+                   END_KEYWORD;
 
   /** ASTInputBlock represents a single input block:
     input:
@@ -262,9 +263,9 @@ grammar PyNestML;
     end
     @attribute inputLine: A list of input lines.
   */
-  inputBlock: 'input' BLOCK_OPEN
+  inputBlock: INPUT_KEYWORD COLON
               (inputLine | NEWLINE)*
-              BLOCK_CLOSE;
+              END_KEYWORD;
 
   /** ASTInputLine represents a single line form the input, e.g.:
       spikeBuffer   <- inhibitory excitatory spike
@@ -277,23 +278,23 @@ grammar PyNestML;
   */
   inputLine:
     name=NAME
-    ('[' sizeParameter=NAME ']')?
+    (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     (dataType)?
-    '<-' inputType*
-    (isCurrent = 'current' | isSpike = 'spike');
+    LEFT_ANGLE_MINUS inputType*
+    (isCurrent = CURRENT_KEYWORD | isSpike = SPIKE_KEYWORD);
 
   /** ASTInputType represents the type of the inputLine e.g.: inhibitory or excitatory:
     @attribute isInhibitory: true iff the neuron is a inhibitory.
     @attribute isExcitatory: true iff. the neuron is a excitatory.
   */
-  inputType : (isInhibitory='inhibitory' | isExcitatory='excitatory');
+  inputType : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
   /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
         output: spike
       @attribute isSpike: true iff the neuron has a spike output.
       @attribute isCurrent: true iff. the neuron is a current output.
     */
-  outputBlock: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
+  outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isCurrent=CURRENT_KEYWORD) ;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):
@@ -304,10 +305,10 @@ grammar PyNestML;
     @attribute returnType: An arbitrary return type, e.g. String or mV.
     @attribute block: Implementation of the function.
   */
-  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=dataType)?
-           BLOCK_OPEN
+  function: FUNCTION_KEYWORD NAME LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN (returnType=dataType)?
+           COLON
              block
-           BLOCK_CLOSE;
+           END_KEYWORD;
 
   /** ASTParameter represents a single parameter consisting of a name and the corresponding
       data type, e.g. T_in ms
@@ -315,3 +316,4 @@ grammar PyNestML;
     @attribute dataType: The corresponding data type.
   */
   parameter : NAME dataType;
+

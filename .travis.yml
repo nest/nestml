@@ -6,7 +6,13 @@ python:
   - "3.6"
 
 before_install:
-  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  - sudo apt install openjdk-8-jre
+  - wget http://www.antlr.org/download/antlr-4.7.1-complete.jar
+  - echo \#\!/bin/bash > antlr4
+  - echo java -cp \"`pwd`/antlr-4.7.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+  - echo >> antlr4
+  - chmod +x antlr4
+  - export PATH=$PATH:`pwd`
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
   #- pip install matplotlib
@@ -18,6 +24,12 @@ before_install:
   - pip install git+https://github.com/DimitriPlotnikov/ode-toolbox.git
 
 install:
+  - find pynestml/generated -not -name __init__.py -a -not -name generated -delete
+  - cd pynestml/grammars
+  - ./generate_lexer_parser
+  - cd ../..
+  - export PYTHONPATH=$PYTHONPATH:`pwd`
+  - echo $PYTHONPATH
   - python setup.py install
   #- python PyNestML.py -path models -target target
   #- cd ../target && mkdir build && cd build
@@ -28,6 +40,7 @@ install:
 sudo: true
 
 script:
+  - echo $PYTHONPATH
   - python tests/lexer_parser_test.py
   - python tests/special_block_parser_builder_test.py
   - python tests/expression_parser_test.py

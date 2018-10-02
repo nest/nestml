@@ -20,16 +20,11 @@
  *
  */
 
-lexer grammar Tokens;
+lexer grammar PyNestMLLexer;
 
-  @lexer::members {
-    HIDDEN = 1
-    COMMENT = 2
-    NEW_LINE = 3
-  }
+  // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2 and NEW_LINE=3
+  channels {COMMENT, NEW_LINE}
 
-
-  channels {COMMENT}
 
   SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
 
@@ -42,9 +37,79 @@ lexer grammar Tokens;
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
 
-  BLOCK_OPEN : ':';
 
-  BLOCK_CLOSE : 'end';
+  END_KEYWORD : 'end';
+  INTEGER_KEYWORD : 'integer';
+  REAL_KEYWORD : 'real';
+  STRING_KEYWORD : 'string';
+  BOOLEAN_KEYWORD : 'boolean';
+  VOID_KEYWORD : 'void';  
+  FUNCTION_KEYWORD : 'function';
+  RETURN_KEYWORD : 'return';
+  IF_KEYWORD : 'if';
+  ELIF_KEYWORD : 'elif';
+  ELSE_KEYWORD : 'else';
+  FOR_KEYWORD : 'for';
+  WHILE_KEYWORD : 'while';
+  IN_KEYWORD : 'in';
+  STEP_KEYWORD : 'step';
+  INF_KEYWORD : 'inf';
+  AND_KEYWORD : 'and';
+  OR_KEYWORD : 'or';
+  
+  RECORDABLE_KEYWORD : 'recordable';
+  SHAPE_KEYWORD : 'shape';
+  NEURON_KEYWORD : 'neuron';
+  STATE_KEYWORD : 'state';
+  PARAMETERS_KEYWORD : 'parameters';
+  INTERNALS_KEYWORD : 'internals';
+  INITIAL_VALUES_KEYWORD : 'initial_values';
+  UPDATE_KEYWORD : 'update';
+  EQUATIONS_KEYWORD : 'equations';
+  INPUT_KEYWORD : 'input';
+  OUTPUT_KEYWORD : 'output';
+  CURRENT_KEYWORD : 'current';
+  SPIKE_KEYWORD : 'spike';
+  INHIBITORY_KEYWORD : 'inhibitory';
+  EXCITATORY_KEYWORD : 'excitatory';
+
+  ELLIPSIS : '...';
+  LEFT_PAREN : '(';
+  RIGHT_PAREN : ')';
+  PLUS : '+';
+  TILDE : '~';
+  PIPE : '|';
+  CARET : '^';
+  AMPERSAND : '&';
+  LEFT_SQUARE_BRACKET : '[';
+  LEFT_ANGLE_MINUS : '<-';
+  RIGHT_SQUARE_BRACKET : ']';
+  LEFT_LEFT_SQUARE : '[[';
+  RIGHT_RIGHT_SQUARE : ']]';
+  LEFT_LEFT_ANGLE : '<<';
+  RIGHT_RIGHT_ANGLE : '>>';
+  LEFT_ANGLE : '<';
+  RIGHT_ANGLE : '>';
+  LEFT_ANGLE_EQUALS : '<=';
+  PLUS_EQUALS : '+=';
+  MINUS_EQUALS : '-=';
+  STAR_EQUALS : '*=';
+  FORWARD_SLASH_EQUALS : '/=';
+  EQUALS_EQUALS : '==';
+  EXCLAMATION_EQUALS : '!=';
+  LEFT_ANGLE_RIGHT_ANGLE : '<>';
+  RIGHT_ANGLE_EQUALS : '>=';
+  COMMA : ',';
+  MINUS : '-';
+  EQUALS : '=';
+  STAR : '*';
+  STAR_STAR : '**';
+  FORWARD_SLASH : '/';
+  PERCENT : '%';
+  QUESTION : '?';
+  COLON : ':';
+  SEMICOLON : ';';
+
 
   /**
   * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
