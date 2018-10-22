@@ -56,7 +56,7 @@ def serializedATN():
         buf.write(u"\13&\5&\u01d3\n&\3&\3&\5&\u01d7\n&\3&\3&\3&\3&\3\'\3")
         buf.write(u"\'\3\'\3\'\2\4\4\6(\2\4\6\b\n\f\16\20\22\24\26\30\32")
         buf.write(u"\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJL\2\4\4\2PPRR\3")
-        buf.write(u"\2\33\36\2\u021a\2T\3\2\2\2\4_\3\2\2\2\6z\3\2\2\2\b\u00ac")
+        buf.write(u"\2\35 \2\u021a\2T\3\2\2\2\4_\3\2\2\2\6z\3\2\2\2\b\u00ac")
         buf.write(u"\3\2\2\2\n\u00b1\3\2\2\2\f\u00b8\3\2\2\2\16\u00c1\3\2")
         buf.write(u"\2\2\20\u00c5\3\2\2\2\22\u00c7\3\2\2\2\24\u00ce\3\2\2")
         buf.write(u"\2\26\u00dd\3\2\2\2\30\u00e7\3\2\2\2\32\u00ed\3\2\2\2")
@@ -99,7 +99,7 @@ def serializedATN():
         buf.write(u"\2\2\2\u00a3\u00ad\5\24\13\2\u00a4\u00ad\7M\2\2\u00a5")
         buf.write(u"\u00a7\t\2\2\2\u00a6\u00a8\5\22\n\2\u00a7\u00a6\3\2\2")
         buf.write(u"\2\u00a7\u00a8\3\2\2\2\u00a8\u00ad\3\2\2\2\u00a9\u00ad")
-        buf.write(u"\7N\2\2\u00aa\u00ad\7\'\2\2\u00ab\u00ad\5\22\n\2\u00ac")
+        buf.write(u"\7N\2\2\u00aa\u00ad\7\27\2\2\u00ab\u00ad\5\22\n\2\u00ac")
         buf.write(u"\u00a3\3\2\2\2\u00ac\u00a4\3\2\2\2\u00ac\u00a5\3\2\2")
         buf.write(u"\2\u00ac\u00a9\3\2\2\2\u00ac\u00aa\3\2\2\2\u00ac\u00ab")
         buf.write(u"\3\2\2\2\u00ad\t\3\2\2\2\u00ae\u00b2\7,\2\2\u00af\u00b2")
@@ -114,25 +114,25 @@ def serializedATN():
         buf.write(u"\u00c2\79\2\2\u00c1\u00ba\3\2\2\2\u00c1\u00bb\3\2\2\2")
         buf.write(u"\u00c1\u00bc\3\2\2\2\u00c1\u00bd\3\2\2\2\u00c1\u00be")
         buf.write(u"\3\2\2\2\u00c1\u00bf\3\2\2\2\u00c1\u00c0\3\2\2\2\u00c2")
-        buf.write(u"\17\3\2\2\2\u00c3\u00c6\7(\2\2\u00c4\u00c6\7)\2\2\u00c5")
-        buf.write(u"\u00c3\3\2\2\2\u00c5\u00c4\3\2\2\2\u00c6\21\3\2\2\2\u00c7")
-        buf.write(u"\u00cb\7O\2\2\u00c8\u00ca\7Q\2\2\u00c9\u00c8\3\2\2\2")
-        buf.write(u"\u00ca\u00cd\3\2\2\2\u00cb\u00c9\3\2\2\2\u00cb\u00cc")
-        buf.write(u"\3\2\2\2\u00cc\23\3\2\2\2\u00cd\u00cb\3\2\2\2\u00ce\u00cf")
-        buf.write(u"\7O\2\2\u00cf\u00d8\7*\2\2\u00d0\u00d5\5\6\4\2\u00d1")
-        buf.write(u"\u00d2\7C\2\2\u00d2\u00d4\5\6\4\2\u00d3\u00d1\3\2\2\2")
-        buf.write(u"\u00d4\u00d7\3\2\2\2\u00d5\u00d3\3\2\2\2\u00d5\u00d6")
-        buf.write(u"\3\2\2\2\u00d6\u00d9\3\2\2\2\u00d7\u00d5\3\2\2\2\u00d8")
-        buf.write(u"\u00d0\3\2\2\2\u00d8\u00d9\3\2\2\2\u00d9\u00da\3\2\2")
-        buf.write(u"\2\u00da\u00db\7+\2\2\u00db\25\3\2\2\2\u00dc\u00de\7")
-        buf.write(u"\30\2\2\u00dd\u00dc\3\2\2\2\u00dd\u00de\3\2\2\2\u00de")
+        buf.write(u"\17\3\2\2\2\u00c3\u00c6\7\30\2\2\u00c4\u00c6\7\31\2\2")
+        buf.write(u"\u00c5\u00c3\3\2\2\2\u00c5\u00c4\3\2\2\2\u00c6\21\3\2")
+        buf.write(u"\2\2\u00c7\u00cb\7O\2\2\u00c8\u00ca\7Q\2\2\u00c9\u00c8")
+        buf.write(u"\3\2\2\2\u00ca\u00cd\3\2\2\2\u00cb\u00c9\3\2\2\2\u00cb")
+        buf.write(u"\u00cc\3\2\2\2\u00cc\23\3\2\2\2\u00cd\u00cb\3\2\2\2\u00ce")
+        buf.write(u"\u00cf\7O\2\2\u00cf\u00d8\7*\2\2\u00d0\u00d5\5\6\4\2")
+        buf.write(u"\u00d1\u00d2\7C\2\2\u00d2\u00d4\5\6\4\2\u00d3\u00d1\3")
+        buf.write(u"\2\2\2\u00d4\u00d7\3\2\2\2\u00d5\u00d3\3\2\2\2\u00d5")
+        buf.write(u"\u00d6\3\2\2\2\u00d6\u00d9\3\2\2\2\u00d7\u00d5\3\2\2")
+        buf.write(u"\2\u00d8\u00d0\3\2\2\2\u00d8\u00d9\3\2\2\2\u00d9\u00da")
+        buf.write(u"\3\2\2\2\u00da\u00db\7+\2\2\u00db\25\3\2\2\2\u00dc\u00de")
+        buf.write(u"\7\32\2\2\u00dd\u00dc\3\2\2\2\u00dd\u00de\3\2\2\2\u00de")
         buf.write(u"\u00df\3\2\2\2\u00df\u00e0\7\16\2\2\u00e0\u00e1\7O\2")
         buf.write(u"\2\u00e1\u00e2\5\2\2\2\u00e2\u00e3\7E\2\2\u00e3\u00e5")
         buf.write(u"\5\6\4\2\u00e4\u00e6\7L\2\2\u00e5\u00e4\3\2\2\2\u00e5")
         buf.write(u"\u00e6\3\2\2\2\u00e6\27\3\2\2\2\u00e7\u00e8\5\22\n\2")
         buf.write(u"\u00e8\u00e9\7E\2\2\u00e9\u00eb\5\6\4\2\u00ea\u00ec\7")
         buf.write(u"L\2\2\u00eb\u00ea\3\2\2\2\u00eb\u00ec\3\2\2\2\u00ec\31")
-        buf.write(u"\3\2\2\2\u00ed\u00ee\7\31\2\2\u00ee\u00ef\5\22\n\2\u00ef")
+        buf.write(u"\3\2\2\2\u00ed\u00ee\7\33\2\2\u00ee\u00ef\5\22\n\2\u00ef")
         buf.write(u"\u00f0\7E\2\2\u00f0\u00f2\5\6\4\2\u00f1\u00f3\7L\2\2")
         buf.write(u"\u00f2\u00f1\3\2\2\2\u00f2\u00f3\3\2\2\2\u00f3\33\3\2")
         buf.write(u"\2\2\u00f4\u00f7\5\36\20\2\u00f5\u00f7\7\5\2\2\u00f6")
@@ -151,7 +151,7 @@ def serializedATN():
         buf.write(u"\u0111\7>\2\2\u0110\u010b\3\2\2\2\u0110\u010c\3\2\2\2")
         buf.write(u"\u0110\u010d\3\2\2\2\u0110\u010e\3\2\2\2\u0110\u010f")
         buf.write(u"\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0113\5\6\4\2\u0113")
-        buf.write(u"%\3\2\2\2\u0114\u0116\7\30\2\2\u0115\u0114\3\2\2\2\u0115")
+        buf.write(u"%\3\2\2\2\u0114\u0116\7\32\2\2\u0115\u0114\3\2\2\2\u0115")
         buf.write(u"\u0116\3\2\2\2\u0116\u0118\3\2\2\2\u0117\u0119\7\16\2")
         buf.write(u"\2\u0118\u0117\3\2\2\2\u0118\u0119\3\2\2\2\u0119\u011a")
         buf.write(u"\3\2\2\2\u011a\u011f\5\22\n\2\u011b\u011c\7C\2\2\u011c")
@@ -178,8 +178,8 @@ def serializedATN():
         buf.write(u"\u014d\7\22\2\2\u014d\u014e\7K\2\2\u014e\u014f\5\34\17")
         buf.write(u"\2\u014f\61\3\2\2\2\u0150\u0151\7\23\2\2\u0151\u0152")
         buf.write(u"\7O\2\2\u0152\u0153\7\25\2\2\u0153\u0154\5\6\4\2\u0154")
-        buf.write(u"\u0155\7\27\2\2\u0155\u0156\5\6\4\2\u0156\u0158\7\26")
-        buf.write(u"\2\2\u0157\u0159\7D\2\2\u0158\u0157\3\2\2\2\u0158\u0159")
+        buf.write(u"\u0155\7)\2\2\u0155\u0156\5\6\4\2\u0156\u0158\7\26\2")
+        buf.write(u"\2\u0157\u0159\7D\2\2\u0158\u0157\3\2\2\2\u0158\u0159")
         buf.write(u"\3\2\2\2\u0159\u015a\3\2\2\2\u015a\u015b\t\2\2\2\u015b")
         buf.write(u"\u015c\7K\2\2\u015c\u015d\5\34\17\2\u015d\u015e\7\b\2")
         buf.write(u"\2\u015e\63\3\2\2\2\u015f\u0160\7\24\2\2\u0160\u0161")
@@ -188,7 +188,7 @@ def serializedATN():
         buf.write(u"\u0168\7\5\2\2\u0167\u0165\3\2\2\2\u0167\u0166\3\2\2")
         buf.write(u"\2\u0168\u016b\3\2\2\2\u0169\u0167\3\2\2\2\u0169\u016a")
         buf.write(u"\3\2\2\2\u016a\u016c\3\2\2\2\u016b\u0169\3\2\2\2\u016c")
-        buf.write(u"\u016d\7\2\2\3\u016d\67\3\2\2\2\u016e\u016f\7\32\2\2")
+        buf.write(u"\u016d\7\2\2\3\u016d\67\3\2\2\2\u016e\u016f\7\34\2\2")
         buf.write(u"\u016f\u0170\7O\2\2\u0170\u0171\5:\36\2\u01719\3\2\2")
         buf.write(u"\2\u0172\u017c\7K\2\2\u0173\u017b\7\5\2\2\u0174\u017b")
         buf.write(u"\5<\37\2\u0175\u017b\5@!\2\u0176\u017b\5B\"\2\u0177\u017b")
@@ -202,15 +202,15 @@ def serializedATN():
         buf.write(u"\u0184\u0186\7\5\2\2\u0185\u0183\3\2\2\2\u0185\u0184")
         buf.write(u"\3\2\2\2\u0186\u0189\3\2\2\2\u0187\u0185\3\2\2\2\u0187")
         buf.write(u"\u0188\3\2\2\2\u0188\u018a\3\2\2\2\u0189\u0187\3\2\2")
-        buf.write(u"\2\u018a\u018b\7\b\2\2\u018b=\3\2\2\2\u018c\u018d\7\37")
+        buf.write(u"\2\u018a\u018b\7\b\2\2\u018b=\3\2\2\2\u018c\u018d\7!")
         buf.write(u"\2\2\u018d\u018e\7K\2\2\u018e\u018f\5\34\17\2\u018f\u0190")
-        buf.write(u"\7\b\2\2\u0190?\3\2\2\2\u0191\u0192\7 \2\2\u0192\u0199")
+        buf.write(u"\7\b\2\2\u0190?\3\2\2\2\u0191\u0192\7\"\2\2\u0192\u0199")
         buf.write(u"\7K\2\2\u0193\u0198\5\26\f\2\u0194\u0198\5\30\r\2\u0195")
         buf.write(u"\u0198\5\32\16\2\u0196\u0198\7\5\2\2\u0197\u0193\3\2")
         buf.write(u"\2\2\u0197\u0194\3\2\2\2\u0197\u0195\3\2\2\2\u0197\u0196")
         buf.write(u"\3\2\2\2\u0198\u019b\3\2\2\2\u0199\u0197\3\2\2\2\u0199")
         buf.write(u"\u019a\3\2\2\2\u019a\u019c\3\2\2\2\u019b\u0199\3\2\2")
-        buf.write(u"\2\u019c\u019d\7\b\2\2\u019dA\3\2\2\2\u019e\u019f\7!")
+        buf.write(u"\2\u019c\u019d\7\b\2\2\u019dA\3\2\2\2\u019e\u019f\7#")
         buf.write(u"\2\2\u019f\u01a4\7K\2\2\u01a0\u01a3\5D#\2\u01a1\u01a3")
         buf.write(u"\7\5\2\2\u01a2\u01a0\3\2\2\2\u01a2\u01a1\3\2\2\2\u01a3")
         buf.write(u"\u01a6\3\2\2\2\u01a4\u01a2\3\2\2\2\u01a4\u01a5\3\2\2")
@@ -222,12 +222,12 @@ def serializedATN():
         buf.write(u"\3\2\2\2\u01b1\u01b2\3\2\2\2\u01b2\u01b6\7\62\2\2\u01b3")
         buf.write(u"\u01b5\5F$\2\u01b4\u01b3\3\2\2\2\u01b5\u01b8\3\2\2\2")
         buf.write(u"\u01b6\u01b4\3\2\2\2\u01b6\u01b7\3\2\2\2\u01b7\u01bb")
-        buf.write(u"\3\2\2\2\u01b8\u01b6\3\2\2\2\u01b9\u01bc\7#\2\2\u01ba")
-        buf.write(u"\u01bc\7$\2\2\u01bb\u01b9\3\2\2\2\u01bb\u01ba\3\2\2\2")
-        buf.write(u"\u01bcE\3\2\2\2\u01bd\u01c0\7%\2\2\u01be\u01c0\7&\2\2")
-        buf.write(u"\u01bf\u01bd\3\2\2\2\u01bf\u01be\3\2\2\2\u01c0G\3\2\2")
-        buf.write(u"\2\u01c1\u01c2\7\"\2\2\u01c2\u01c5\7K\2\2\u01c3\u01c6")
-        buf.write(u"\7$\2\2\u01c4\u01c6\7#\2\2\u01c5\u01c3\3\2\2\2\u01c5")
+        buf.write(u"\3\2\2\2\u01b8\u01b6\3\2\2\2\u01b9\u01bc\7%\2\2\u01ba")
+        buf.write(u"\u01bc\7&\2\2\u01bb\u01b9\3\2\2\2\u01bb\u01ba\3\2\2\2")
+        buf.write(u"\u01bcE\3\2\2\2\u01bd\u01c0\7\'\2\2\u01be\u01c0\7(\2")
+        buf.write(u"\2\u01bf\u01bd\3\2\2\2\u01bf\u01be\3\2\2\2\u01c0G\3\2")
+        buf.write(u"\2\2\u01c1\u01c2\7$\2\2\u01c2\u01c5\7K\2\2\u01c3\u01c6")
+        buf.write(u"\7&\2\2\u01c4\u01c6\7%\2\2\u01c5\u01c3\3\2\2\2\u01c5")
         buf.write(u"\u01c4\3\2\2\2\u01c6I\3\2\2\2\u01c7\u01c8\7\16\2\2\u01c8")
         buf.write(u"\u01c9\7O\2\2\u01c9\u01d2\7*\2\2\u01ca\u01cf\5L\'\2\u01cb")
         buf.write(u"\u01cc\7C\2\2\u01cc\u01ce\5L\'\2\u01cd\u01cb\3\2\2\2")
@@ -262,12 +262,12 @@ class PyNestMLParser ( Parser ):
                      u"<INVALID>", u"<INVALID>", u"'end'", u"'integer'", 
                      u"'real'", u"'string'", u"'boolean'", u"'void'", u"'function'", 
                      u"'return'", u"'if'", u"'elif'", u"'else'", u"'for'", 
-                     u"'while'", u"'in'", u"'step'", u"'...'", u"'recordable'", 
-                     u"'shape'", u"'neuron'", u"'state'", u"'parameters'", 
-                     u"'internals'", u"'initial_values'", u"'update'", u"'equations'", 
-                     u"'input'", u"'output'", u"'current'", u"'spike'", 
-                     u"'inhibitory'", u"'excitatory'", u"'inf'", u"'and'", 
-                     u"'or'", u"'('", u"')'", u"'+'", u"'~'", u"'|'", u"'^'", 
+                     u"'while'", u"'in'", u"'step'", u"'inf'", u"'and'", 
+                     u"'or'", u"'recordable'", u"'shape'", u"'neuron'", 
+                     u"'state'", u"'parameters'", u"'internals'", u"'initial_values'", 
+                     u"'update'", u"'equations'", u"'input'", u"'output'", 
+                     u"'current'", u"'spike'", u"'inhibitory'", u"'excitatory'", 
+                     u"'...'", u"'('", u"')'", u"'+'", u"'~'", u"'|'", u"'^'", 
                      u"'&'", u"'['", u"'<-'", u"']'", u"'[['", u"']]'", 
                      u"'<<'", u"'>>'", u"'<'", u"'>'", u"'<='", u"'+='", 
                      u"'-='", u"'*='", u"'/='", u"'=='", u"'!='", u"'<>'", 
@@ -281,14 +281,14 @@ class PyNestMLParser ( Parser ):
                       u"VOID_KEYWORD", u"FUNCTION_KEYWORD", u"RETURN_KEYWORD", 
                       u"IF_KEYWORD", u"ELIF_KEYWORD", u"ELSE_KEYWORD", u"FOR_KEYWORD", 
                       u"WHILE_KEYWORD", u"IN_KEYWORD", u"STEP_KEYWORD", 
-                      u"ELLIPSIS", u"RECORDABLE_KEYWORD", u"SHAPE_KEYWORD", 
-                      u"NEURON_KEYWORD", u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", 
-                      u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", u"UPDATE_KEYWORD", 
-                      u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", u"OUTPUT_KEYWORD", 
-                      u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", u"INHIBITORY_KEYWORD", 
-                      u"EXCITATORY_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", 
-                      u"OR_KEYWORD", u"LEFT_PAREN", u"RIGHT_PAREN", u"PLUS", 
-                      u"TILDE", u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET", 
+                      u"INF_KEYWORD", u"AND_KEYWORD", u"OR_KEYWORD", u"RECORDABLE_KEYWORD", 
+                      u"SHAPE_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD", 
+                      u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", 
+                      u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", 
+                      u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
+                      u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", 
+                      u"LEFT_PAREN", u"RIGHT_PAREN", u"PLUS", u"TILDE", 
+                      u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET", 
                       u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", u"LEFT_LEFT_SQUARE", 
                       u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", u"RIGHT_RIGHT_ANGLE", 
                       u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS", 
@@ -371,25 +371,25 @@ class PyNestMLParser ( Parser ):
     WHILE_KEYWORD=18
     IN_KEYWORD=19
     STEP_KEYWORD=20
-    ELLIPSIS=21
-    RECORDABLE_KEYWORD=22
-    SHAPE_KEYWORD=23
-    NEURON_KEYWORD=24
-    STATE_KEYWORD=25
-    PARAMETERS_KEYWORD=26
-    INTERNALS_KEYWORD=27
-    INITIAL_VALUES_KEYWORD=28
-    UPDATE_KEYWORD=29
-    EQUATIONS_KEYWORD=30
-    INPUT_KEYWORD=31
-    OUTPUT_KEYWORD=32
-    CURRENT_KEYWORD=33
-    SPIKE_KEYWORD=34
-    INHIBITORY_KEYWORD=35
-    EXCITATORY_KEYWORD=36
-    INF_KEYWORD=37
-    AND_KEYWORD=38
-    OR_KEYWORD=39
+    INF_KEYWORD=21
+    AND_KEYWORD=22
+    OR_KEYWORD=23
+    RECORDABLE_KEYWORD=24
+    SHAPE_KEYWORD=25
+    NEURON_KEYWORD=26
+    STATE_KEYWORD=27
+    PARAMETERS_KEYWORD=28
+    INTERNALS_KEYWORD=29
+    INITIAL_VALUES_KEYWORD=30
+    UPDATE_KEYWORD=31
+    EQUATIONS_KEYWORD=32
+    INPUT_KEYWORD=33
+    OUTPUT_KEYWORD=34
+    CURRENT_KEYWORD=35
+    SPIKE_KEYWORD=36
+    INHIBITORY_KEYWORD=37
+    EXCITATORY_KEYWORD=38
+    ELLIPSIS=39
     LEFT_PAREN=40
     RIGHT_PAREN=41
     PLUS=42
@@ -1480,7 +1480,7 @@ class PyNestMLParser ( Parser ):
             self.state = 214
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 37)) & ~0x3f) == 0 and ((1 << (_la - 37)) & ((1 << (PyNestMLParser.INF_KEYWORD - 37)) | (1 << (PyNestMLParser.LEFT_PAREN - 37)) | (1 << (PyNestMLParser.PLUS - 37)) | (1 << (PyNestMLParser.TILDE - 37)) | (1 << (PyNestMLParser.MINUS - 37)) | (1 << (PyNestMLParser.PERCENT - 37)) | (1 << (PyNestMLParser.BOOLEAN_LITERAL - 37)) | (1 << (PyNestMLParser.STRING_LITERAL - 37)) | (1 << (PyNestMLParser.NAME - 37)) | (1 << (PyNestMLParser.INTEGER - 37)) | (1 << (PyNestMLParser.FLOAT - 37)))) != 0):
+            if ((((_la - 21)) & ~0x3f) == 0 and ((1 << (_la - 21)) & ((1 << (PyNestMLParser.INF_KEYWORD - 21)) | (1 << (PyNestMLParser.LEFT_PAREN - 21)) | (1 << (PyNestMLParser.PLUS - 21)) | (1 << (PyNestMLParser.TILDE - 21)) | (1 << (PyNestMLParser.MINUS - 21)) | (1 << (PyNestMLParser.PERCENT - 21)) | (1 << (PyNestMLParser.BOOLEAN_LITERAL - 21)) | (1 << (PyNestMLParser.STRING_LITERAL - 21)) | (1 << (PyNestMLParser.NAME - 21)) | (1 << (PyNestMLParser.INTEGER - 21)) | (1 << (PyNestMLParser.FLOAT - 21)))) != 0):
                 self.state = 206
                 self.expression(0)
                 self.state = 211
@@ -1610,6 +1610,9 @@ class PyNestMLParser ( Parser ):
             return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
 
 
+        def SEMICOLON(self):
+            return self.getToken(PyNestMLParser.SEMICOLON, 0)
+
         def getRuleIndex(self):
             return PyNestMLParser.RULE_odeEquation
 
@@ -1659,6 +1662,9 @@ class PyNestMLParser ( Parser ):
             self.lhs = None # VariableContext
             self.rhs = None # ExpressionContext
 
+        def SHAPE_KEYWORD(self):
+            return self.getToken(PyNestMLParser.SHAPE_KEYWORD, 0)
+
         def EQUALS(self):
             return self.getToken(PyNestMLParser.EQUALS, 0)
 
@@ -1669,6 +1675,9 @@ class PyNestMLParser ( Parser ):
         def expression(self):
             return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
 
+
+        def SEMICOLON(self):
+            return self.getToken(PyNestMLParser.SEMICOLON, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_odeShape

@@ -117,9 +117,9 @@ parser grammar PyNestMLParser;
 
   odeFunction : (recordable=RECORDABLE_KEYWORD)? FUNCTION_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
 
-  odeEquation : lhs=variable EQUALS rhs=expression (';')?;
+  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  odeShape : 'shape' lhs=variable EQUALS rhs=expression (';')?;
+  odeShape : SHAPE_KEYWORD lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
