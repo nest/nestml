@@ -20,6 +20,7 @@
 import argparse  # used for parsing of input arguments
 import os
 
+import pynestml
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.utils.logger import Logger
 
@@ -72,7 +73,7 @@ class FrontendConfiguration(object):
                             'built-in '
                             ' procedural language. The equations are analyzed by NESTML to compute an exact solution'
                             ' if possible or use an appropriate numeric solver otherwise.'
-                            ' Version 0.0.6, beta.')
+                            ' Version '  + str(pynestml.__version__))
 
         cls.argument_parser.add_argument(qualifier_path_arg, type=str, nargs='+',
                                          help=help_path)
