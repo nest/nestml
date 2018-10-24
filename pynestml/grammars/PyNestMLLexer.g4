@@ -56,6 +56,7 @@ lexer grammar PyNestMLLexer;
   INF_KEYWORD : 'inf';
   AND_KEYWORD : 'and';
   OR_KEYWORD : 'or';
+  NOT_KEYWORD : 'not';
   
   RECORDABLE_KEYWORD : 'recordable';
   SHAPE_KEYWORD : 'shape';

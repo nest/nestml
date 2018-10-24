@@ -66,7 +66,7 @@ parser grammar PyNestMLParser;
          | left=expression (plusOp=PLUS | minusOp=MINUS) right=expression
          | left=expression bitOperator right=expression
          | left=expression comparisonOperator right=expression
-         | logicalNot=PERCENT term=expression
+         | logicalNot=NOT_KEYWORD term=expression
          | left=expression logicalOperator right=expression
          | condition=expression QUESTION ifTrue=expression COLON ifNot=expression
          | simpleExpression
@@ -117,9 +117,9 @@ parser grammar PyNestMLParser;
 
   odeFunction : (recordable=RECORDABLE_KEYWORD)? FUNCTION_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
 
-  odeEquation : lhs=variable EQUALS rhs=expression (';')?;
+  odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  odeShape : 'shape' lhs=variable EQUALS rhs=expression (';')?;
+  odeShape : SHAPE_KEYWORD lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
