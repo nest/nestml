@@ -20,6 +20,8 @@
 import copy
 
 from antlr4 import *
+from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
+from antlr4.error.ErrorListener import ConsoleErrorListener, ErrorListener
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -93,13 +95,40 @@ class ModelParser(object):
         code, message = Messages.get_start_processing_file(file_path)
         Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
         # create a lexer and hand over the input
-        lexer = PyNestMLLexer(input_file)
+        lexer = PyNestMLLexer()
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(ConsoleErrorListener())
+        lexer.inputStream = input_file
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
-        parser = PyNestMLParser(stream)
+
+        """helper class to listen for parser errors and record whether an error has occurred"""
+        class MyErrorListener(ErrorListener):
+
+            def __init__(self):
+                super(MyErrorListener, self).__init__()
+                self._error_occurred = False
+
+            @property
+            def error_occurred(self):
+                return self._error_occurred
+
+            def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+                self._error_occurred = True
+
+        parser = PyNestMLParser(None)
+        parser.removeErrorListeners()
+        parser.addErrorListener(ConsoleErrorListener())
+        myErrorListener = MyErrorListener()
+        parser.addErrorListener(myErrorListener)
+        # parser._errHandler = BailErrorStrategy()	# N.B. uncomment this line and the next to halt immediately on parse errors
+        # parser._errHandler.reset(parser)
+        parser.setTokenStream(stream)
         compilation_unit = parser.nestMLCompilationUnit()
+        if myErrorListener._error_occurred:
+            raise Exception("Error occurred during parsing: abort")
         # create a new visitor and return the new AST
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
