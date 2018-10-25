@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbol_table.scope import ScopeType
 from pynestml.symbols.symbol import SymbolKind
@@ -51,7 +52,7 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
+        assert (node is not None and (isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse))), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
         node.accept(ParametersAssignmentVisitor())
         return

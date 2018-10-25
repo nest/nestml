@@ -19,8 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import json
 from collections import OrderedDict
-
 from enum import Enum
+
+# from pynestml.meta_model.ast_neuron import ASTNeuron
+# from pynestml.meta_model.ast_synapse import ASTSynapse
 
 
 class Logger(object):
@@ -44,7 +46,7 @@ class Logger(object):
     log = {}
     curr_message = None
     logging_level = None
-    current_neuron = None
+    current_astnode = None
     no_print = False
 
     @classmethod
@@ -79,12 +81,12 @@ class Logger(object):
         cls.curr_message = counter
 
     @classmethod
-    def log_message(cls, neuron=None, code=None, message=None, error_position=None, log_level=None):
+    def log_message(cls, astnode=None, code=None, message=None, error_position=None, log_level=None):
         """
         Logs the handed over message on the handed over. If the current logging is appropriate, the 
         message is also printed.
-        :param neuron: the neuron in which the error occurred
-        :type neuron: ast_neuron
+        :param astnode: the node in which the error occurred
+        :type astnode: ASTNeuron or ASTSynapse
         :param code: a single error code
         :type code: ErrorCode
         :param error_position: the position on which the error occurred.
@@ -97,24 +99,25 @@ class Logger(object):
         if cls.curr_message is None:
             cls.init_logger(LoggingLevel.INFO)
         from pynestml.meta_model.ast_neuron import ASTNeuron
+        from pynestml.meta_model.ast_synapse import ASTSynapse
         from pynestml.meta_model.ast_source_location import ASTSourceLocation
-        assert (neuron is None or isinstance(neuron, ASTNeuron)), \
-            '(PyNestML.Logger) Wrong type of neuron provided (%s)!' % type(neuron)
+        assert astnode is None or (isinstance(astnode, ASTNeuron) or isinstance(astnode, ASTSynapse)), \
+            '(PyNestML.Logger) Wrong type of neuron or synapse provided (%s)!' % type(astnode)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
             '(PyNestML.Logger) Wrong type of error position provided (%s)!' % type(error_position)
-        if isinstance(neuron, ASTNeuron):
+        if isinstance(astnode, ASTNeuron) or isinstance(astnode, ASTSynapse):
             cls.log[cls.curr_message] = (
-                neuron.get_artifact_name(), neuron, log_level, code, error_position, message)
-        elif cls.current_neuron is not None:
-            cls.log[cls.curr_message] = (cls.current_neuron.get_artifact_name(), cls.current_neuron,
+                astnode.get_artifact_name(), astnode, log_level, code, error_position, message)
+        elif isinstance(cls.current_astnode, ASTNeuron) or isinstance(cls.current_astnode, ASTSynapse):
+            cls.log[cls.curr_message] = (cls.current_astnode.get_artifact_name(), cls.current_astnode,
                                          log_level, code, error_position, message)
         cls.curr_message += 1
         if cls.no_print:
             return
         if cls.logging_level.value <= log_level.value:
             to_print = '[' + str(cls.curr_message) + ','
-            to_print = (to_print + (neuron.get_name() + ', ' if neuron is not None else
-                    cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
+            to_print = (to_print + (astnode.get_name() + ', ' if astnode is not None else
+                    cls.current_astnode.get_name() + ', ' if cls.current_astnode is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
             to_print = to_print + str(message)
@@ -153,14 +156,17 @@ class Logger(object):
         cls.logging_level = level
 
     @classmethod
-    def set_current_neuron(cls, neuron):
+    def set_current_astnode(cls, node):
         """
         Sets the handed over neuron as the currently processed one. This enables a retrieval of messages for a
         specific neuron.
         :param neuron:  a single neuron instance
         :type neuron: ast_neuron
         """
-        cls.current_neuron = neuron
+        from pynestml.meta_model.ast_neuron import ASTNeuron
+        from pynestml.meta_model.ast_synapse import ASTSynapse
+        assert isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse)
+        cls.current_astnode = node
 
     @classmethod
     def get_all_messages_of_level_and_or_neuron(cls, neuron, level):

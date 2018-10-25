@@ -150,6 +150,16 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#synapse.
+    def visitSynapse(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#synapseBody.
+    def visitSynapseBody(self, ctx):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#blockWithVariables.
     def visitBlockWithVariables(self, ctx):
         return self.visitChildren(ctx)

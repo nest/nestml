@@ -189,13 +189,17 @@ parser grammar PyNestMLParser;
   whileStmt : WHILE_KEYWORD expression COLON block END_KEYWORD;
 
   /*********************************************************************************************************************
-  * NestML-Language
+  * NestML: language root element
   *********************************************************************************************************************/
 
   /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestMLCompilationUnit: (neuron | NEWLINE )* EOF;
+  nestMLCompilationUnit: (neuron | synapse | NEWLINE )* EOF;
+
+/*********************************************************************************************************************
+  * NestML neuron
+  *********************************************************************************************************************/
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
@@ -213,6 +217,28 @@ parser grammar PyNestMLParser;
   */
   body: COLON
          (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
+         END_KEYWORD;
+
+/*********************************************************************************************************************
+  * NestML synapse
+  *********************************************************************************************************************/
+
+  /** ASTSynapse Represents a single synapse.
+    @attribute Name:    The name of the synapse, e.g., ht_synapse.
+    @attribute body:    The body of the synapse consisting of several sub-blocks.
+  */
+  synapse : SYNAPSE_KEYWORD NAME synapseBody;
+
+  /** ASTBody The body of the synapse, e.g. internal, state, parameter...
+    @attribute blockWithVariables: A single block of variables, e.g. the state block.
+    @attribute updateBlock: A single update block containing the dynamic behavior.
+    @attribute equationsBlock: A block of ode declarations.
+    @attribute inputBlock: A block of input buffer declarations.
+    @attribute outputBlock: A block of output declarations.
+    @attribute function: A block declaring a used-defined function.
+  */
+  synapseBody: COLON
+         ( NEWLINE | blockWithVariables )*
          END_KEYWORD;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:

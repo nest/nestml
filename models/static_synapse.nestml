@@ -1,0 +1,8 @@
+synapse static:
+
+  parameters:
+    w nS = .9 nS
+    delay ms = .9 ms
+  end
+
+end

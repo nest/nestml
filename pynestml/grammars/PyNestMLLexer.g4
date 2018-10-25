@@ -61,6 +61,7 @@ lexer grammar PyNestMLLexer;
   RECORDABLE_KEYWORD : 'recordable';
   SHAPE_KEYWORD : 'shape';
   NEURON_KEYWORD : 'neuron';
+  SYNAPSE_KEYWORD : 'synapse';
   STATE_KEYWORD : 'state';
   PARAMETERS_KEYWORD : 'parameters';
   INTERNALS_KEYWORD : 'internals';

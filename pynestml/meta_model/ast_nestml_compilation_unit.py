@@ -20,16 +20,18 @@
 
 
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_node import ASTNode
 
 
 class ASTNestMLCompilationUnit(ASTNode):
     """
-    The ASTNestMLCompilationUnit class as used to store a collection of processed ASTNeurons.
+    The ASTNestMLCompilationUnit class as used to store a collection of processed ASTNeurons and ASTSynapses.
     Grammar:
-        nestMLCompilationUnit: (neuron | NEWLINE )* EOF;
+        nestMLCompilationUnit: (neuron | synapse | NEWLINE )* EOF;
     Attributes:
         neuron_list = None # a list of all processed neurons
+        synapse_list = None # a list of all processed synapses
         artifact_name = None
     """
 
@@ -46,6 +48,7 @@ class ASTNestMLCompilationUnit(ASTNode):
                 artifact_name)
         super(ASTNestMLCompilationUnit, self).__init__(source_position)
         self.neuron_list = list()
+        self.synapse_list = list()
         self.artifact_name = artifact_name
         return
 
@@ -83,6 +86,40 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         return self.neuron_list
 
+    def add_synapse(self, synapse):
+        """
+        Expects an instance of synapse element which is added to the collection.
+        :param synapse: an instance of a synapse 
+        :type synapse: ASTsynapse
+        :return: no returned value
+        :rtype: void
+        """
+        assert (synapse is not None and isinstance(synapse, ASTSynapse)), \
+            '(PyNestML.AST.CompilationUnit) No or wrong type of synapse provided (%s)!' % type(synapse)
+        self.synapse_list.append(synapse)
+        return
+
+    def delete_synapse(self, synapse):
+        """
+        Expects an instance of synapse element which is deleted from the collection.
+        :param synapse: an instance of a ASTsynapse
+        :type synapse:ASTsynapse
+        :return: True if element deleted from list, False else.
+        :rtype: bool
+        """
+        if self.synapse_list.__contains__(synapse):
+            self.synapse_list.remove(synapse)
+            return True
+        else:
+            return False
+
+    def get_synapse_list(self):
+        """
+        :return: a list of synapse elements as stored in the unit
+        :rtype: list(ASTsynapse)
+        """
+        return self.synapse_list
+
     def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
@@ -96,6 +133,11 @@ class ASTNestMLCompilationUnit(ASTNode):
                 return self
             elif neuron.get_parent(ast) is not None:
                 return neuron.get_parent(ast)
+        for synapse in self.get_synapse_list():
+            if synapse is ast:
+                return self
+            elif synapse.get_parent(ast) is not None:
+                return synapse.get_parent(ast)
         return None
 
     def equals(self, other):
@@ -110,9 +152,16 @@ class ASTNestMLCompilationUnit(ASTNode):
             return False
         if len(self.get_neuron_list()) != len(other.get_neuron_list()):
             return False
+        if len(self.get_synapse_list()) != len(other.get_synapse_list()):
+            return False
         my_neurons = self.get_neuron_list()
         your_neurons = other.get_neuron_list()
         for i in range(0, len(my_neurons)):
             if not my_neurons[i].equals(your_neurons[i]):
+                return False
+        my_synapses = self.get_synapse_list()
+        your_synapses = other.get_synapse_list()
+        for i in range(0, len(my_synapses)):
+            if not my_synapses[i].equals(your_synapses[i]):
                 return False
         return True

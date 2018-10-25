@@ -254,6 +254,20 @@ class Messages(object):
         return MessageCode.NEURON_CONTAINS_ERRORS, message
 
     @classmethod
+    def get_synapse_contains_errors(cls, synapse_name):
+        """
+        Returns a message indicating that a synapse contains errors thus no code is generated.
+        :param synapse_name: the name of the synapse
+        :type synapse_name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (synapse_name is not None and isinstance(synapse_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(synapse_name)
+        message = 'Synapse \'' + synapse_name + '\' contains errors. No code generated!'
+        return MessageCode.SYNAPSE_CONTAINS_ERRORS, message
+
+    @classmethod
     def get_start_processing_neuron(cls, neuron_name):
         """
         Returns a message indicating that the processing of a neuron is started.
@@ -266,6 +280,20 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
         message = 'Starts processing of the neuron \'' + neuron_name + '\''
         return MessageCode.START_PROCESSING_NEURON, message
+
+    @classmethod
+    def get_start_processing_synapse(cls, synapse_name):
+        """
+        Returns a message indicating that the processing of a synapse is started.
+        :param synapse_name: the name of the synapse
+        :type synapse_name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (synapse_name is not None and isinstance(synapse_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(synapse_name)
+        message = 'Starts processing of the synapse \'' + synapse_name + '\''
+        return MessageCode.START_PROCESSING_SYNAPSE, message
 
     @classmethod
     def get_code_generated(cls, neuron_name, path):
@@ -283,6 +311,24 @@ class Messages(object):
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
         message = 'Successfully generated NEST code for the neuron: \'' + neuron_name + '\' in: \'' + path + '\' !'
+        return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
+
+    @classmethod
+    def get_code_generated(cls, synapse_name, path):
+        """
+        Returns a message indicating that code has been successfully generated for a synapse in a certain path.
+        :param synapse_name: the name of the synapse.
+        :type synapse_name: str
+        :param path: the path to the file
+        :type path: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (synapse_name is not None and isinstance(synapse_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(synapse_name)
+        assert (path is not None and isinstance(path, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
+        message = 'Successfully generated NEST code for the synapse: \'' + synapse_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -587,6 +633,22 @@ class Messages(object):
         return MessageCode.NEURON_REDECLARED, message
 
     @classmethod
+    def get_synapse_redeclared(cls, name):
+        """
+        Indicates that a synapse has been redeclared.
+        :param name: the name of the synapse which has been redeclared.
+        :type name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Synapse \'%s\' redeclared!' % name
+        return MessageCode.SYNAPSE_REDECLARED, message
+
+    @classmethod
     def get_nest_collision(cls, name):
         """
         Indicates that a collision between a user defined function and a nest function occurred.
@@ -815,6 +877,21 @@ class Messages(object):
         return MessageCode.NEURON_SOLVED_BY_GSL, message
 
     @classmethod
+    def get_synapse_solved_by_solver(cls, name):
+        """
+        Indicates that a synapse will be solved by the GSL solver inside the model printing process without any
+        modifications to the initial model.
+        :param name: the name of the synapse
+        :type name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'The synapse \'%s\' will be solved numerically with GSL solver without modification!' % name
+        return MessageCode.SYNAPSE_SOLVED_BY_GSL, message
+
+    @classmethod
     def get_neuron_analyzed(cls, name):
         """
         Indicates that the analysis of a neuron will start.
@@ -827,6 +904,20 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'The neuron \'%s\' will be analysed!' % name
         return MessageCode.NEURON_ANALYZED, message
+
+    @classmethod
+    def get_synapse_analyzed(cls, name):
+        """
+        Indicates that the analysis of a synapse will start.
+        :param name: the name of the synapse which will be analyzed.
+        :type name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'The synapse \'%s\' will be analysed!' % name
+        return MessageCode.SYNAPSE_ANALYZED, message
 
     @classmethod
     def get_could_not_be_solved(cls):
@@ -916,7 +1007,9 @@ class MessageCode(Enum):
     NO_VARIABLE_FOUND = 11
     SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
     NEURON_CONTAINS_ERRORS = 13
+    SYNAPSE_CONTAINS_ERRORS = 130
     START_PROCESSING_NEURON = 14
+    START_PROCESSING_SYNAPSE = 114
     CODE_SUCCESSFULLY_GENERATED = 15
     MODULE_SUCCESSFULLY_GENERATED = 16
     DRY_RUN = 17
@@ -938,6 +1031,7 @@ class MessageCode(Enum):
     NO_ODE = 32
     NO_INIT_VALUE = 33
     NEURON_REDECLARED = 34
+    SYNAPSE_REDECLARED = 340
     NEST_COLLISION = 35
     SHAPE_OUTSIDE_CONVOLVE = 36
     NAME_COLLISION = 37
@@ -956,7 +1050,9 @@ class MessageCode(Enum):
     TYPE_MISMATCH = 50
     NO_SEMANTICS = 51
     NEURON_SOLVED_BY_GSL = 52
+    SYNAPSE_SOLVED_BY_GSL = 520
     NEURON_ANALYZED = 53
+    SYNAPSE_ANALYZED = 530
     NO_UNIT = 54
     NOT_NEUROSCIENCE_UNIT = 55
     INTERNAL_WARNING = 56

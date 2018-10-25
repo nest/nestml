@@ -44,6 +44,41 @@ class ASTUtils(object):
         return ret
 
     @classmethod
+    def get_all_synapses(cls, list_of_compilation_units):
+        """
+        For a list of compilation units, it returns a list containing all synapses defined in all compilation
+        units.
+        :param list_of_compilation_units: a list of compilation units.
+        :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
+        :return: a list of synapses
+        :rtype: list(ASTSynapse)
+        """
+        ret = list()
+        for compilationUnit in list_of_compilation_units:
+            ret.extend(compilationUnit.get_synapse_list())
+        return ret
+
+    @classmethod
+    def get_all_nodes(cls, list_of_compilation_units):
+        """
+        For a list of compilation units, it returns a list containing all nodes defined in all compilation
+        units.
+        :param list_of_compilation_units: a list of compilation units.
+        :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
+        :return: a list of nodes
+        :rtype: list(ASTNode)
+        """
+        from pynestml.meta_model.ast_neuron import ASTNeuron
+        from pynestml.meta_model.ast_synapse import ASTSynapse
+        ret = list()
+        for compilationUnit in list_of_compilation_units:
+            if isinstance(compilationUnit, ASTNeuron):
+                ret.extend(compilationUnit.get_neuron_list())
+            elif isinstance(compilationUnit, ASTSynapse):
+                ret.extend(compilationUnit.get_synapse_list())
+        return ret
+
+    @classmethod
     def is_small_stmt(cls, ast):
         """
         Indicates whether the handed over meta_model is a small statement. Used in the template.

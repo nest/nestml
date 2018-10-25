@@ -49,6 +49,7 @@ from pynestml.meta_model.ast_input_type import ASTInputType
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_ode_function import ASTOdeFunction
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
@@ -93,7 +94,7 @@ class ModelParser(object):
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
         code, message = Messages.get_start_processing_file(file_path)
-        Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
+        Logger.log_message(astnode=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
         # create a lexer and hand over the input
         lexer = PyNestMLLexer()
         lexer.removeErrorListeners()
@@ -163,6 +164,9 @@ class ModelParser(object):
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+        for synapse in ast.get_synapse_list():
+            synapse.accept(ASTSymbolTableVisitor())
+            SymbolTable.add_synapse_scope(synapse.get_name(), synapse.get_scope())
         return ast
 
     @classmethod
@@ -226,6 +230,14 @@ class ModelParser(object):
         # type: (str) -> ASTBody
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.body())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
+    def parse_synapse_body(cls, string):
+        # type: (str) -> ASTBody
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.synapse_body())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
@@ -362,6 +374,14 @@ class ModelParser(object):
         # type: (str) -> ASTNeuron
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.neuron())
+        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
+        return ret
+
+    @classmethod
+    def parse_synapse(cls, string):
+        # type: (str) -> ASTSynapse
+        (builder, parser) = tokenize(string)
+        ret = builder.visit(parser.synapse())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

@@ -53,7 +53,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :rtype: ast_neuron
         """
         # set current processed neuron
-        Logger.set_current_neuron(node)
+        Logger.set_current_astnode(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
@@ -94,7 +94,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             equation_block = node.get_equations_blocks()
             assign_ode_to_variables(equation_block)
         CoCosManager.post_ode_specification_checks(node)
-        Logger.set_current_neuron(None)
+        Logger.set_current_astnode(None)
         return
 
     def visit_body(self, node):
@@ -106,6 +106,62 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
         return
+
+
+
+
+
+
+
+    def visit_synapse(self, node):
+        """
+        Private method: Used to visit a single synapse and create the corresponding global as well as local scopes.
+        :return: a single synapse.
+        :rtype: ast_synapse
+        """
+        # set current processed synapse
+        # Logger.set_current_synapse(node)
+        print("In ASTSymbolTableVisitor::visit_synapse()")
+        import pdb;pdb.set_trace()
+        code, message = Messages.get_start_building_symbol_table()
+        Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
+                           message=message, log_level=LoggingLevel.INFO)
+        # before starting the work on the synapse, make everything which was implicit explicit
+        # but if we have a model without an equations block, just skip this step
+        scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
+        import pdb;pdb.set_trace()
+
+        node.update_scope(scope)
+        node.get_body().update_scope(scope)
+        import pdb;pdb.set_trace()
+        # now first, we add all predefined elements to the scope
+        variables = PredefinedVariables.get_variables()
+        functions = PredefinedFunctions.get_function_symbols()
+        for symbol in variables.keys():
+            node.get_scope().add_symbol(variables[symbol])
+        for symbol in functions.keys():
+            node.get_scope().add_symbol(functions[symbol])
+        return
+
+    def endvisit_synapse(self, node):
+        # before following checks occur, we need to ensure several simple properties
+        CoCosManager.post_symbol_table_builder_checks(node)
+        # the following part is done in order to mark conductance based buffers as such.
+        # Logger.set_current_synapse(None)
+        return
+
+    def visit_synapse_body(self, node):
+        """
+        Private method: Used to visit a single synapse body and create the corresponding scope.
+        :param node: a single body element.
+        :type node: ast_body
+        """
+        import pdb;pdb.set_trace()
+        for synapseBodyElement in node.get_synapse_body_elements():
+            synapseBodyElement.update_scope(node.get_scope())
+        return
+
+
 
     def visit_function(self, node):
         """
