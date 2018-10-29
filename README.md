@@ -115,7 +115,7 @@ nest.Simulate(400.0)
 
 ## Further reading
 
-For an in-depth introduction to the underlying modeling language NestML, please refer to the [NestML language reference](doc/nestml_language_reference.md).
+For an in-depth introduction to the underlying modeling language NestML, please refer to the [NestML language documentation](doc/nestml_language.md).
 
 For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, please refer to the [PyNestML documentation](doc/pynestml/index.md).
 
