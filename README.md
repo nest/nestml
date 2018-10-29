@@ -113,8 +113,11 @@ nest.Install("nestmlmodule")
 nest.Simulate(400.0)
 ```
 
-For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md).
-For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 
+## Further reading
+
+For an in-depth introduction to the underlying modeling language NestML, please refer to the [NestML language reference](doc/nestml_language_reference.md).
+
+For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, please refer to the [PyNestML documentation](doc/pynestml/index.md).
 
 ## Publications
 
