@@ -77,7 +77,7 @@ appropriate numeric solver otherwise.
  Version ''' + str(pynestml.__version__), formatter_class=argparse.RawDescriptionHelpFormatter)
 
         cls.argument_parser.add_argument(qualifier_path_arg, type=str, nargs='+',
-                                         help=help_path)
+                                         help=help_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_arg, metavar='Target', type=str, nargs='?',
                                          help=help_target)
         cls.argument_parser.add_argument(qualifier_dry_arg, action='store_true',
