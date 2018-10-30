@@ -165,7 +165,7 @@ class Logger(object):
         """
         from pynestml.meta_model.ast_neuron import ASTNeuron
         from pynestml.meta_model.ast_synapse import ASTSynapse
-        assert isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse)
+        assert isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse) or node is None
         cls.current_astnode = node
 
     @classmethod

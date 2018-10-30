@@ -2,7 +2,7 @@ synapse static:
 
   parameters:
     w nS = .9 nS
-    delay ms = .9 ms
+    delay ms = .9 ms @heterffogwrewqd
   end
 
 end

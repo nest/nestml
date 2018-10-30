@@ -96,16 +96,6 @@ class ModelParser(object):
         code, message = Messages.get_start_processing_file(file_path)
         Logger.log_message(astnode=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
         # create a lexer and hand over the input
-        lexer = PyNestMLLexer()
-        lexer.removeErrorListeners()
-        lexer.addErrorListener(ConsoleErrorListener())
-        lexer.inputStream = input_file
-        # create a token stream
-        stream = CommonTokenStream(lexer)
-        stream.fill()
-        # parse the file
-
-        """helper class to listen for parser errors and record whether an error has occurred"""
         class MyErrorListener(ErrorListener):
 
             def __init__(self):
@@ -114,11 +104,28 @@ class ModelParser(object):
 
             @property
             def error_occurred(self):
+                print("qwefqwefqwef")
                 return self._error_occurred
 
             def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+                print("qwefqwefqwef2")
                 self._error_occurred = True
 
+        print("lexer..")
+        lexer = PyNestMLLexer()
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(ConsoleErrorListener())
+        lexer.inputStream = input_file
+        myErrorListener = MyErrorListener()
+        lexer.addErrorListener(myErrorListener)
+        # create a token stream
+        stream = CommonTokenStream(lexer)
+        stream.fill()
+        if myErrorListener._error_occurred:
+            raise Exception("Error occurred during lexing: abort")
+        # parse the file
+        print("parser..")
+        """helper class to listen for parser errors and record whether an error has occurred"""
         parser = PyNestMLParser(None)
         parser.removeErrorListeners()
         parser.addErrorListener(ConsoleErrorListener())

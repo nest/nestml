@@ -119,17 +119,18 @@ public:
    */
   {{synapseName}}()
     : ConnectionBase()
-    , weight_( 1.0 )
+    , weight_( {{ synapse.get_default_weight() }} )
+  {
 
+    set_delay( {{ synapse.get_default_delay() }} )
 
-
-
-
+  {#
   {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
+  #}
 
 
 
@@ -137,7 +138,6 @@ public:
 
 
 
-  {
   }
 
   /**

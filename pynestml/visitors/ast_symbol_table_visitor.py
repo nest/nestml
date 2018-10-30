@@ -55,7 +55,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # set current processed neuron
         Logger.set_current_astnode(node)
         code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
+        Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
         # before starting the work on the neuron, make everything which was implicit explicit
         # but if we have a model without an equations block, just skip this step
@@ -150,13 +150,17 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # Logger.set_current_synapse(None)
         return
 
+
+    def endvisit_synapse_body(self, node):
+        
+        return
+
     def visit_synapse_body(self, node):
         """
         Private method: Used to visit a single synapse body and create the corresponding scope.
         :param node: a single body element.
         :type node: ast_body
         """
-        import pdb;pdb.set_trace()
         for synapseBodyElement in node.get_synapse_body_elements():
             synapseBodyElement.update_scope(node.get_scope())
         return

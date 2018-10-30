@@ -37,6 +37,11 @@ lexer grammar PyNestMLLexer;
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
 
+  /**
+  * Symbols and literals are parsed first
+  *
+  * Magic (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables named "delay". (Rules are matched in the order in which they appear, and NAME appears below MAGIC_KEYWORD_DELAY).
+  */
 
   END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';
@@ -74,6 +79,11 @@ lexer grammar PyNestMLLexer;
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';
+
+  MAGIC_KEYWORD_HOMOGENEOUS : '@homogeneous';
+  MAGIC_KEYWORD_HETEROGENEOUS : '@heterogeneous';
+  MAGIC_KEYWORD_WEIGHT : '@weight';
+  MAGIC_KEYWORD_DELAY : '@delay';
 
   ELLIPSIS : '...';
   LEFT_PAREN : '(';

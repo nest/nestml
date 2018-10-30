@@ -76,6 +76,12 @@ class ASTSynapse(ASTNode):
         """
         return self.name
 
+    def get_default_weight(self):
+        return 42.
+
+    def get_default_delay(self):
+        return 56.2
+
     def get_body(self):
         """
         Return the body of the synapse.

@@ -164,6 +164,12 @@ parser grammar PyNestMLParser;
     ( EQUALS rhs = expression)?
     (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?;
 
+  /** ...
+  */
+  /*anyMagicKeyword : MAGIC_KEYWORD_HOMOGENEOUS | MAGIC_KEYWORD_HETEROGENEOUS | MAGIC_KEYWORD_WEIGHT | MAGIC_KEYWORD_DELAY;*/
+
+
+
   /** ATReturnStmt Models the return statement in a function.
     @expression An optional return expression, e.g., return tempVar
    */
@@ -342,4 +348,5 @@ parser grammar PyNestMLParser;
     @attribute dataType: The corresponding data type.
   */
   parameter : NAME dataType;
+
 
