@@ -144,10 +144,11 @@ class ASTNodeFactory(object):
                                size_parameter=None,  # type: str
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
-                               source_position=None  # type: ASTSourceLocation
+                               source_position=None,  # type: ASTSourceLocation
+                               magicKeywords=[]  # type: list
                                ):  # type: (...) -> ASTDeclaration
         return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
-                              source_position)
+                              source_position, magicKeywords)
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):

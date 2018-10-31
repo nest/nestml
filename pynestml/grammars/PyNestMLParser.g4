@@ -162,11 +162,12 @@ parser grammar PyNestMLParser;
     dataType
     (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     ( EQUALS rhs = expression)?
-    (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?;
+    (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?
+    magicKeyword=anyMagicKeyword*;
 
   /** ...
   */
-  /*anyMagicKeyword : MAGIC_KEYWORD_HOMOGENEOUS | MAGIC_KEYWORD_HETEROGENEOUS | MAGIC_KEYWORD_WEIGHT | MAGIC_KEYWORD_DELAY;*/
+  anyMagicKeyword : MAGIC_KEYWORD_HOMOGENEOUS | MAGIC_KEYWORD_HETEROGENEOUS | MAGIC_KEYWORD_WEIGHT | MAGIC_KEYWORD_DELAY;
 
 
 

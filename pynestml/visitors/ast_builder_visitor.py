@@ -346,6 +346,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitDeclaration(self, ctx):
         is_recordable = (True if ctx.isRecordable is not None else False)
         is_function = (True if ctx.isFunction is not None else False)
+        print("XXX: gathering magic keywords...")
+
+        magicKeywords = []
+        for kw in ctx.anyMagicKeyword():
+            magicKeywords.append(self.visit(kw))
+        import pdb;pdb.set_trace()
+
         variables = list()
         for var in ctx.variable():
             variables.append(self.visit(var))
@@ -357,7 +364,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                                                             variables=variables, data_type=data_type,
                                                             size_parameter=size_param,
                                                             expression=expression,
-                                                            invariant=invariant, source_position=create_source_pos(ctx))
+                                                            invariant=invariant, source_position=create_source_pos(ctx),
+                                                            magicKeywords=magicKeywords)
         update_node_comments(declaration, self.__comments.visit(ctx))
         return declaration
 
@@ -451,10 +459,26 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # now the meta_model seems to be correct, return it
         return neuron
 
+    def visitAnyMagicKeyword(self, ctx):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+        if ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS, 0) is not None:
+            return PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS
+        elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS, 0) is not None:
+            return PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS
+        elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_WEIGHT, 0) is not None:
+            return PyNestMLLexer.MAGIC_KEYWORD_WEIGHT
+        elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_DELAY, 0) is not None:
+            return PyNestMLLexer.MAGIC_KEYWORD_DELAY
+        else:
+            return None
+
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitSynapse(self, ctx):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.synapseBody()) if ctx.synapseBody() is not None else None
+
         # after we have constructed the meta_model of the neuron,
         # we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
@@ -463,15 +487,32 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
+        print("Creating the synapse body now")
         synapse = ASTNodeFactory.create_ast_synapse(name=name, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
+
+        # find the @weight magic keyword
+        for parameter_block in body.get_parameter_blocks():
+            for i, astDeclaration in enumerate(parameter_block.declarations):
+                if PyNestMLLexer.MAGIC_KEYWORD_WEIGHT in astDeclaration.get_magic_keywords():
+                    assert len(astDeclaration.get_variables()) == 1, "@weight keyword can only apply to a single variable"
+                    synapse.set_default_weight(astDeclaration.get_variables()[0])
+                elif PyNestMLLexer.MAGIC_KEYWORD_DELAY in astDeclaration.get_magic_keywords():
+                    import pdb;pdb.set_trace()
+                    assert len(astDeclaration.get_variables()) == 1, "@delay keyword can only apply to a single variable"
+                    synapse.set_default_delay(var=astDeclaration.get_variables()[0],
+                                              expr=astDeclaration.expression,
+                                              dtype=astDeclaration.get_data_type())
+
         # update the comments
         update_node_comments(synapse, self.__comments.visit(ctx))
+
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_astnode(synapse)
         # CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=synapse) # XXX: TODO
         # Logger.set_current_astnode(synapse)
         # now the meta_model seems to be correct, return it
+
         return synapse
 
     # Visit a parse tree produced by PyNESTMLParser#body.

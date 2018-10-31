@@ -100,6 +100,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#anyMagicKeyword.
+    def visitAnyMagicKeyword(self, ctx):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#returnStmt.
     def visitReturnStmt(self, ctx):
         return self.visitChildren(ctx)

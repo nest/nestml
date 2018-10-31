@@ -67,6 +67,7 @@ class ASTSynapse(ASTNode):
         self.name = name
         self.body = body
         self.artifact_name = artifact_name
+        self._default_weight = None
 
     def get_name(self):
         """
@@ -76,11 +77,29 @@ class ASTSynapse(ASTNode):
         """
         return self.name
 
-    def get_default_weight(self):
-        return 42.
+    def set_default_weight(self, w):
+        self._default_weight = w
 
-    def get_default_delay(self):
-        return 56.2
+    def set_default_delay(self, var, expr, dtype):
+        self._default_delay_variable = var
+        self._default_delay_expression = expr
+        self._default_delay_dtype = dtype
+
+    def get_default_delay_expression(self):
+        return self._default_delay_expression
+
+    def get_default_delay_variable(self):
+        return self._default_delay_variable
+
+    def get_default_delay_dtype(self):
+        return self._default_delay_dtype
+
+    def get_weight_variable(self):
+        return self._default_weight
+
+    def get_default_weight(self):
+        return self._default_weight
+
 
     def get_body(self):
         """

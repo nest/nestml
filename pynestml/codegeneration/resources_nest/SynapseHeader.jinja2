@@ -119,18 +119,19 @@ public:
    */
   {{synapseName}}()
     : ConnectionBase()
-    , weight_( {{ synapse.get_default_weight() }} )
+    // , weight_( {{ synapse.get_default_weight() }} )
   {
 
-    set_delay( {{ synapse.get_default_delay() }} )
+    set_delay( {{ printer.print_expression(synapse.get_default_delay_expression()) }} ); // as {{synapse.get_default_delay_dtype().get_type_symbol().print_symbol()}}
 
-  {#
+
+
+
   {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
-  #}
 
 
 
@@ -220,7 +221,7 @@ public:
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {
-    e.set_weight( weight_ );
+    e.set_weight( {{ names.name(synapse.get_weight_variable()) }} );
     e.set_delay( get_delay_steps() );
     e.set_receiver( *get_target( tid ) );
     e.set_rport( get_rport() );

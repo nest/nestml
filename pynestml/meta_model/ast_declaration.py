@@ -53,7 +53,7 @@ class ASTDeclaration(ASTNode):
     """
 
     def __init__(self, is_recordable=False, is_function=False, _variables=list(), data_type=None, size_parameter=None,
-                 expression=None, invariant=None, source_position=None):
+                 expression=None, invariant=None, source_position=None, magicKeywords=[]):
         """
         Standard constructor.
         :param is_recordable: is a recordable declaration.
@@ -81,6 +81,7 @@ class ASTDeclaration(ASTNode):
         self.size_parameter = size_parameter
         self.expression = expression
         self.invariant = invariant
+        self.magicKeywords = magicKeywords
         return
 
     def get_variables(self):
@@ -90,6 +91,11 @@ class ASTDeclaration(ASTNode):
         :rtype: list(ASTVariables)
         """
         return self.variables
+
+    def get_magic_keywords(self):
+        """
+        """
+        return self.magicKeywords
 
     def get_data_type(self):
         """
