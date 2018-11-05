@@ -52,16 +52,16 @@ python PyNestML.py ARGUMENTS
 ```
 where arguments are:<a name="table_args"></a>
 
-| Command       | Description |
-|---            |---          |
-| -h or --help  | Print help message.|
-| -path         | Path to the source file or directory containing the model.|
-| -target       | (Optional) Path to target directory where models will be generated to. Default is `target`.| 
-| -dry          | (Optional) Executes the analysis of the model without generating target code. Default is OFF.|
-| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
-| -module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
-| -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
-| -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
+| Command        | Description |
+|---             |---          |
+| -h or --help   | Print help message.|
+| --path         | Path to the source file or directory containing the model.|
+| --target       | (Optional) Path to target directory where models will be generated to. Default is `target`.| 
+| --dry          | (Optional) Executes the analysis of the model without generating target code. Default is OFF.|
+| --logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
+| --module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
+| --store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
+| --dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 ```
