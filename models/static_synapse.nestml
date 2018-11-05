@@ -1,7 +1,7 @@
 synapse static:
 
   parameters:
-    w nS = .9 nS @homogeneous @weight
+    w nS = 900 pS @homogeneous @weight
     delay ms = .9 ms @heterogeneous @delay
   end
 
