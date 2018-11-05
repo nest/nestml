@@ -92,7 +92,7 @@ appropriate numeric solver otherwise.
                                          help=help_dev)
         parsed_args = cls.argument_parser.parse_args(args)
         # get the source path
-        cls.handle_source_path(parsed_args.path[0])
+        cls.handle_source_path(parsed_args.input_path[0])
 
         # initialize the logger
         if parsed_args.logging_level is not None:
@@ -104,15 +104,15 @@ appropriate numeric solver otherwise.
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.dry_run = parsed_args.dry
         # now update the target path
-        cls.handle_target_path(parsed_args.target)
+        cls.handle_target_path(parsed_args.target_path)
         # now adjust the name of the module, if it is a single file, then it is called just module
         if parsed_args.module_name is not None:
             assert parsed_args.module_name[0].endswith('module'), "Module name (\"" + parsed_args.module_name[0] + "\") should end with \"module\""
             cls.module_name = parsed_args.module_name[0]
-        elif os.path.isfile(parsed_args.path[0]):
+        elif os.path.isfile(parsed_args.input_path[0]):
             cls.module_name = 'nestmlmodule'
-        elif os.path.isdir(parsed_args.path[0]):
-            cls.module_name = os.path.basename(os.path.normpath(parsed_args.path[0]))
+        elif os.path.isdir(parsed_args.input_path[0]):
+            cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path[0]))
         else:
             cls.module_name = 'nestmlmodule'
         cls.store_log = parsed_args.store_log
