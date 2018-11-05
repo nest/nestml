@@ -36,8 +36,8 @@ help_dev = 'Indicates whether the dev mode should be active, i.e., ' \
            'the whole toolchain executed even though errors in models are present.' \
            ' This option is designed for debug purpose only!'
 
-qualifier_path_arg = '--path'
-qualifier_target_arg = '--target'
+qualifier_path_arg = '--input_path'
+qualifier_target_arg = '--target_path'
 qualifier_dry_arg = '--dry'
 qualifier_logging_level_arg = '--logging_level'
 qualifier_module_name_arg = '--module_name'
