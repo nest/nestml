@@ -80,7 +80,7 @@ from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 ```
 Subsequently, it is possible to call PyNestML from other Python tools and scripts via:
 ```py
-to_nest(input_path, target_path, target, logging_level, module_name, store_log, dev)    
+to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
 ```
 This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for `logging_level` are the same as before ('INFO', 'WARNING', 'ERROR', 'NO'). Note that only the `path` argument is mandatory:
 
