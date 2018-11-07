@@ -58,7 +58,17 @@ class Messages(object):
     @classmethod
     def get_unknown_target(cls, target):
         message = 'Unknown target ("%s")' % (target)
-        return MessageCode.INPUT_PATH_NOT_FOUND, message
+        return MessageCode.UNKNOWN_TARGET, message
+
+    @classmethod
+    def get_dry_run(cls):
+        """
+        Returns a message indicating that a dry run is performed.
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        message = 'No target specified: no code generated'
+        return MessageCode.DRY_RUN, message
 
     @classmethod
     def get_lexer_error(cls):
@@ -318,16 +328,6 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
         message = 'Successfully generated NEST module code in \'' + path + '\' !'
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
-
-    @classmethod
-    def get_dry_run(cls):
-        """
-        Returns a message indicating that a dry run is performed.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'Dry mode selected with -dry parameter, no models generated!'
-        return MessageCode.DRY_RUN, message
 
     @classmethod
     def get_variable_used_before_declaration(cls, variable_name):
@@ -985,3 +985,4 @@ class MessageCode(Enum):
     INPUT_PATH_NOT_FOUND = 59
     LEXER_ERROR = 60
     PARSER_ERROR = 61
+    UNKNOWN_TARGET = 62

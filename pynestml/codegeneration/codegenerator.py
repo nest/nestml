@@ -49,7 +49,7 @@ class CodeGenerator(object):
 
     @staticmethod
     def get_known_targets():
-        return ["NEST", ""]
+        return ["NEST", ""]     # include the empty string here to represent "dry run/no code generated"
 
 
     def generate_code(self, neurons):
@@ -57,3 +57,8 @@ class CodeGenerator(object):
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
             _codeGenerator = NESTCodeGenerator()
             _codeGenerator.generate_code(neurons)
+        elif self._target == "":
+            # dummy/null target: user requested to not generate any code
+            code, message = Messages.get_dry_run()
+            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+
