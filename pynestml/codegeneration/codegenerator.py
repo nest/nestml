@@ -37,8 +37,6 @@ class CodeGenerator(object):
         :param neurons: a list of neurons.
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
-        code, message = Messages.get_dry_run()
-        Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
 
         for neuron in neurons:
             if Logger.logging_level == LoggingLevel.INFO:

@@ -74,6 +74,7 @@ class NESTCodeGenerator(CodeGenerator):
 
 
     def generate_code(self, neurons):
+        self.analyse_transform_neurons(neurons)
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
 
