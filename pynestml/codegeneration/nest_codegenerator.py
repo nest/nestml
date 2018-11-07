@@ -313,7 +313,7 @@ class NESTCodeGenerator(CodeGenerator):
                         break
                 if at_least_one_functional_shape:
                     ode_shapes = self.solve_functional_shapes(equations_block)
-                    self.functional_shapes_to_odes(result, ode_shapes)
+                    functional_shapes_to_odes(result, ode_shapes)
 
             self.apply_spikes_from_buffers(result, shape_to_buffers)
         return result
