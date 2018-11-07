@@ -56,6 +56,11 @@ class Messages(object):
         return MessageCode.INPUT_PATH_NOT_FOUND, message
 
     @classmethod
+    def get_unknown_target(cls, target):
+        message = 'Unknown target ("%s")' % (target)
+        return MessageCode.INPUT_PATH_NOT_FOUND, message
+
+    @classmethod
     def get_lexer_error(cls):
         message = 'Error occurred during lexing: abort'
         return MessageCode.LEXER_ERROR, message

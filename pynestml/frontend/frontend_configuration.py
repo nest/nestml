@@ -21,14 +21,18 @@ import argparse  # used for parsing of input arguments
 import os
 
 import pynestml
+from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
+from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
+from pynestml.utils.messages import Messages
 
-help_path = 'Path to a single file or a directory containing the source models.'
-help_target = 'Path to a target directory where models should be generated to. Standard is "target".'
+help_input_path = 'Path to a single file or a directory containing the source models.'
+help_target_path = 'Path to a target directory where models should be generated to. Standard is "target".'
+help_target = 'Name of the target platform to build code for. Default is NEST.'
 help_logging = 'Indicates which messages shall be logged and printed to the screen. ' \
-               'Available ={INFO,WARNING/S,ERROR/S,NO}, Standard is ERRORS.'
-help_dry = 'Indicates that a dry run shall be performed, i.e., without generating a target model.'
+               'Standard is ERRORS.'
 help_module = 'Indicates the name of the module. Optional. If not indicated, ' \
               'the name of the directory containing the models is used!'
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
@@ -36,9 +40,9 @@ help_dev = 'Indicates whether the dev mode should be active, i.e., ' \
            'the whole toolchain executed even though errors in models are present.' \
            ' This option is designed for debug purpose only!'
 
-qualifier_path_arg = '--input_path'
-qualifier_target_arg = '--target_path'
-qualifier_dry_arg = '--dry'
+qualifier_input_path_arg = '--input_path'
+qualifier_target_path_arg = '--target_path'
+qualifier_target_arg = '--target'
 qualifier_logging_level_arg = '--logging_level'
 qualifier_module_name_arg = '--module_name'
 qualifier_store_log_arg = '--store_log'
@@ -53,7 +57,7 @@ class FrontendConfiguration(object):
     paths_to_compilation_units = None
     provided_path = None
     logging_level = None
-    dry_run = None
+    target = None
     target_path = None
     module_name = None
     store_log = False
@@ -76,20 +80,13 @@ appropriate numeric solver otherwise.
 
  Version ''' + str(pynestml.__version__), formatter_class=argparse.RawDescriptionHelpFormatter)
 
-        cls.argument_parser.add_argument(qualifier_path_arg, type=str, nargs='+',
-                                         help=help_path, required=True)
-        cls.argument_parser.add_argument(qualifier_target_arg, metavar='Target', type=str, nargs='?',
-                                         help=help_target)
-        cls.argument_parser.add_argument(qualifier_dry_arg, action='store_true',
-                                         help=help_dry)
-        cls.argument_parser.add_argument(qualifier_logging_level_arg, type=str, nargs='+',
-                                         help=help_logging)
-        cls.argument_parser.add_argument(qualifier_module_name_arg, type=str, nargs='+',
-                                         help=help_module)
-        cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true',
-                                         help=help_log)
-        cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true',
-                                         help=help_dev)
+        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', type=str, nargs='+', help=help_input_path, required=True)
+        cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, nargs='?', help=help_target_path)
+        cls.argument_parser.add_argument(qualifier_target_arg, metavar='NEST, none', type=str, nargs='?', help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='[INFO, WARNING/S, ERROR/S, NO]', type=str,help=help_logging)
+        cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
+        cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
+        cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
         parsed_args = cls.argument_parser.parse_args(args)
         # get the source path
         cls.handle_source_path(parsed_args.input_path[0])
@@ -97,12 +94,12 @@ appropriate numeric solver otherwise.
         # initialize the logger
         if parsed_args.logging_level is not None:
             cls.logging_level = parsed_args.logging_level
-            Logger.init_logger(Logger.string_to_level(parsed_args.logging_level[0]))
+            Logger.init_logger(Logger.string_to_level(parsed_args.logging_level))
         else:
             cls.logging_level = "ERROR"
             Logger.init_logger(Logger.string_to_level("ERROR"))
-        # check if a dry run shall be preformed, i.e. without generating a target model
-        cls.dry_run = parsed_args.dry
+        # now update the target
+        cls.handle_target(parsed_args.target)
         # now update the target path
         cls.handle_target_path(parsed_args.target_path)
         # now adjust the name of the module, if it is a single file, then it is called just module
@@ -138,13 +135,13 @@ appropriate numeric solver otherwise.
         return cls.paths_to_compilation_units
 
     @classmethod
-    def is_dry_run(cls):
+    def get_target(cls):
         """
-        Indicates whether it is a dry run, i.e., no model shall be generated
-        :return: True if dry run, otherwise false.
-        :rtype: bool
+        Get the name of the target platform.
+        :return: None or "" in case no code needs to be generated
+        :rtype: str
         """
-        return cls.dry_run
+        return cls.target
 
     @classmethod
     def get_logging_level(cls):
@@ -183,8 +180,17 @@ appropriate numeric solver otherwise.
         return cls.is_debug
 
     @classmethod
+    def handle_target(cls, target):
+        if not target in CodeGenerator.get_known_targets():
+            code, message = Messages.get_unknown_target(target)
+            Logger.log_message(None, code, message, None, LoggingLevel.ERROR)
+            raise InvalidTargetException()
+
+        cls.target = target
+
+    @classmethod
     def handle_target_path(cls, path):
-        # check if a target has been selected, otherwise set the buildNest as target
+        # check if a target has been selected, otherwise set to `[pynestml directory]/target`
         if path is not None:
             if os.path.isabs(path):
                 cls.target_path = path
