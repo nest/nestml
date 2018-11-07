@@ -61,14 +61,14 @@ class Messages(object):
         return MessageCode.UNKNOWN_TARGET, message
 
     @classmethod
-    def get_dry_run(cls):
+    def get_no_code_generated(cls):
         """
-        Returns a message indicating that a dry run is performed.
+        Returns a message indicating that no code will be generated on this run.
         :return: a message
         :rtype: (MessageCode,str)
         """
-        message = 'No target specified: no code generated'
-        return MessageCode.DRY_RUN, message
+        message = 'No target specified: no code will be generated'
+        return MessageCode.NO_CODE_GENERATED, message
 
     @classmethod
     def get_lexer_error(cls):
@@ -939,7 +939,7 @@ class MessageCode(Enum):
     START_PROCESSING_NEURON = 14
     CODE_SUCCESSFULLY_GENERATED = 15
     MODULE_SUCCESSFULLY_GENERATED = 16
-    DRY_RUN = 17
+    NO_CODE_GENERATED = 17
     VARIABLE_USED_BEFORE_DECLARATION = 18
     VARIABLE_DEFINED_RECURSIVELY = 19
     VALUE_ASSIGNED_TO_BUFFER = 20

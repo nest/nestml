@@ -88,7 +88,6 @@ This operation expects the same set of arguments as in the case of command line 
 |---            |---      | ---     |
 | input_path    | string  | _no default_ |
 | target_path   | string  | None |
-| target        | string  | 'NEST' |
 | logging_level | string  | 'ERROR' |
 | module_name   | string  | `nestmlmodule` |
 | store_log     | boolean | False |

@@ -24,8 +24,8 @@ import sys
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
-    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, qualifier_target_arg, \
-    qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
+    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits

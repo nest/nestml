@@ -47,7 +47,7 @@ class CodeGenerator(object):
 
     @staticmethod
     def get_known_targets():
-        return ["NEST", ""]     # include the empty string here to represent "dry run/no code generated"
+        return ["NEST", ""]     # include the empty string here to represent "no code generated"
 
 
     def generate_code(self, neurons):
@@ -57,6 +57,5 @@ class CodeGenerator(object):
             _codeGenerator.generate_code(neurons)
         elif self._target == "":
             # dummy/null target: user requested to not generate any code
-            code, message = Messages.get_dry_run()
+            code, message = Messages.get_no_code_generated()
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-

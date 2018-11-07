@@ -72,12 +72,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._printer = ExpressionsPrettyPrinter()
 
-
     def generate_code(self, neurons):
         self.analyse_transform_neurons(neurons)
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
-
 
     def generate_module_code(self, neurons):
         # type: (list(ASTNeuron)) -> None
