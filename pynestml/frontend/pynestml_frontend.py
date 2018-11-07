@@ -36,14 +36,14 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(path, target_path = None, target = None, logging_level = 'ERROR', module_name = None, store_log = False,
+def to_nest(input_path, target_path = None, target = None, logging_level = 'ERROR', module_name = None, store_log = False,
             dev = False):
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
     args = list()
     args.append(qualifier_input_path_arg)
-    args.append(str(path))
+    args.append(str(input_path))
     if target_path is not None:
         args.append(qualifier_target_path_arg)
         args.append(str(target_path))
