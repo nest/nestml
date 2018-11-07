@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 # This file needs to be added to to the VERA++ profiles.
-# sudo cp ./tools/codeanalysis/vera++.profile /usr/lib/vera++/profiles/nestml
+# sudo cp ./extras/codeanalysis/vera++.profile /usr/lib/vera++/profiles/nestml
 #
 # This profile includes all the rules for checking PyNestML
 #
