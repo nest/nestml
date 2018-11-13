@@ -22,10 +22,10 @@ import os
 import sys
 
 from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, analyse_and_generate_synapses, generate_nest_module_code
+from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
-    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, qualifier_dry_arg, \
-    qualifier_target_arg, qualifier_path_arg, qualifier_dev_arg
+    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -36,19 +36,19 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(path, target = None, dry = False, logging_level = 'ERROR', module_name = None, store_log = False,
+def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name = None, store_log = False,
             dev = False):
-    # if target is not None and not os.path.isabs(target):
+    # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
     args = list()
-    args.append(qualifier_path_arg)
-    args.append(str(path))
-    if target is not None:
-        args.append(qualifier_target_arg)
-        args.append(str(target))
-    if dry:
-        args.append(qualifier_dry_arg)
+    args.append(qualifier_input_path_arg)
+    args.append(str(input_path))
+    if target_path is not None:
+        args.append(qualifier_target_path_arg)
+        args.append(str(target_path))
+    args.append(qualifier_target_arg)
+    args.append(str("NEST"))
     args.append(qualifier_logging_level_arg)
     args.append(str(logging_level))
     if module_name is not None:
@@ -94,50 +94,33 @@ def process():
     
     # now proceed to parse all models
     compilation_units = list()
-    for m_file in FrontendConfiguration.get_files():
-        parsed_unit = ModelParser.parse_model(m_file)
+    nestml_files = FrontendConfiguration.get_files()
+    if not type(nestml_files) is list:
+        nestml_files = [nestml_files]
+    for nestml_file in nestml_files:
+        parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
-    
-    # generate a list of all compilation units (neurons + synapses)
-    neurons = list()
-    synapses = list()
-    for compilationUnit in compilation_units:
-        neurons.extend(compilationUnit.get_neuron_list())
-        synapses.extend(compilationUnit.get_synapse_list())
 
-    # check if across two files neurons with duplicate names have been defined
-    CoCosManager.check_no_duplicate_compilation_unit_names(neurons)
-
-    # check if across two files synapses with duplicate names have been defined
-    CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
-
-    # now exclude those which are broken, i.e. have errors.
-    if not FrontendConfiguration.is_dev():
-        for neuron in neurons:
-            if Logger.has_errors(neuron):
-                code, message = Messages.get_neuron_contains_errors(neuron.get_name())
-                Logger.log_message(astnode=neuron, code=code, message=message,
-                                   error_position=neuron.get_source_position(),
-                                   log_level=LoggingLevel.INFO)
-                neurons.remove(neuron)
- 
-        for synapse in synapses:
-            if Logger.has_errors(synapse):
-                code, message = Messages.get_synapse_contains_errors(synapse.get_name())
-                Logger.log_message(astnode=synapse, code=code, message=message,
-                                   error_position=synapse.get_source_position(),
-                                   log_level=LoggingLevel.INFO)
-                synapses.remove(synapse)
-    
-    if not FrontendConfiguration.is_dry_run():
-        analyse_and_generate_neurons(neurons)
-        analyse_and_generate_synapses(synapses)
-        generate_nest_module_code(neurons)  # XXX: TODO
-    else:
-        code, message = Messages.get_dry_run()
-        Logger.log_message(astnode=None, code=code, message=message, log_level=LoggingLevel.INFO)
-
+    if len(compilation_units) > 0:
+        # generate a list of all neurons
+        neurons = list()
+        for compilationUnit in compilation_units:
+            neurons.extend(compilationUnit.get_neuron_list())
+        # check if across two files two neurons with same name have been defined
+        CoCosManager.check_not_two_neurons_across_units(compilation_units)
+        # now exclude those which are broken, i.e. have errors.
+        if not FrontendConfiguration.is_dev():
+            for neuron in neurons:
+                if Logger.has_errors(neuron):
+                    code, message = Messages.get_neuron_contains_errors(neuron.get_name())
+                    Logger.log_message(neuron=neuron, code=code, message=message,
+                                       error_position=neuron.get_source_position(),
+                                       log_level=LoggingLevel.INFO)
+                    neurons.remove(neuron)
+        # perform code generation
+        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
+        _codeGenerator.generate_code(neurons)
     if FrontendConfiguration.store_log:
         store_log_to_file()
 

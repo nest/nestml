@@ -1,5 +1,5 @@
 #
-# __init__.py
+# invalid_target_exception.py
 #
 # This file is part of NEST.
 #
@@ -18,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ast_utils', 'logger', 'stack', 'either', 'error_listener',
-           'error_strings', 'logging_helper', 'messages', 'model_parser',
-           'ode_transformer', 'type_caster', 'type_dictionary', 'unit_type',
-           'ast_nestml_printer']
+
+class InvalidTargetException(Exception):
+    """
+    This exception is thrown whenever an unknown target is requested.
+    """
+    pass

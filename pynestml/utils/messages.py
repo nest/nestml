@@ -51,6 +51,36 @@ class Messages(object):
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
+    def get_input_path_not_found(cls, path):
+        message = 'Input path ("%s") not found!' % (path)
+        return MessageCode.INPUT_PATH_NOT_FOUND, message
+
+    @classmethod
+    def get_unknown_target(cls, target):
+        message = 'Unknown target ("%s")' % (target)
+        return MessageCode.UNKNOWN_TARGET, message
+
+    @classmethod
+    def get_no_code_generated(cls):
+        """
+        Returns a message indicating that no code will be generated on this run.
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        message = 'No target specified: no code will be generated'
+        return MessageCode.NO_CODE_GENERATED, message
+
+    @classmethod
+    def get_lexer_error(cls):
+        message = 'Error occurred during lexing: abort'
+        return MessageCode.LEXER_ERROR, message
+
+    @classmethod
+    def get_parser_error(cls):
+        message = 'Error occurred during parsing: abort'
+        return MessageCode.PARSER_ERROR, message
+
+    @classmethod
     def get_binary_operation_not_defined(cls, lhs, operator, rhs):
         message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message
@@ -344,16 +374,6 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
         message = 'Successfully generated NEST module code in \'' + path + '\' !'
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
-
-    @classmethod
-    def get_dry_run(cls):
-        """
-        Returns a message indicating that a dry run is performed.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'Dry mode selected with -dry parameter, no models generated!'
-        return MessageCode.DRY_RUN, message
 
     @classmethod
     def get_variable_used_before_declaration(cls, variable_name):
@@ -1012,7 +1032,7 @@ class MessageCode(Enum):
     START_PROCESSING_SYNAPSE = 114
     CODE_SUCCESSFULLY_GENERATED = 15
     MODULE_SUCCESSFULLY_GENERATED = 16
-    DRY_RUN = 17
+    NO_CODE_GENERATED = 17
     VARIABLE_USED_BEFORE_DECLARATION = 18
     VARIABLE_DEFINED_RECURSIVELY = 19
     VALUE_ASSIGNED_TO_BUFFER = 20
@@ -1058,3 +1078,7 @@ class MessageCode(Enum):
     INTERNAL_WARNING = 56
     OPERATION_NOT_DEFINED = 57
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 58
+    INPUT_PATH_NOT_FOUND = 59
+    LEXER_ERROR = 60
+    PARSER_ERROR = 61
+    UNKNOWN_TARGET = 62

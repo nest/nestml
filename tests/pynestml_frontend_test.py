@@ -32,15 +32,14 @@ class PyNestMLFrontendTest(unittest.TestCase):
     def test_codegeneration_for_all_models(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
         params = list()
-        params.append('-path')
+        params.append('--input_path')
         params.append(path)
-        # params.append('-dry')
-        params.append('-logging_level')
+        params.append('--logging_level')
         params.append('NO')
-        params.append('-target')
+        params.append('--target_path')
         params.append('target/models')
-        params.append('-store_log')
-        params.append('-dev')
+        params.append('--store_log')
+        params.append('--dev')
         # try:
         main(params)
         self.assertTrue(True)  # the goal is to reach this point without exceptions
