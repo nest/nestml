@@ -706,7 +706,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
-
 def update_node_comments(node, comments):
     node.comment = comments[0]
     node.pre_comments = comments[1]

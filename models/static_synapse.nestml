@@ -6,7 +6,7 @@ synapse static:
   end
 
   preReceive:
-    transmit_spike(w, d)
+    deliver_spike(w, d)
   end
 
 end

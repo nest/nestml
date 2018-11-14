@@ -103,12 +103,19 @@ def process():
             compilation_units.append(parsed_unit)
 
     if len(compilation_units) > 0:
-        # generate a list of all neurons
+        # generate a list of all compilation units (neurons + synapses)
         neurons = list()
+        synapses = list()
         for compilationUnit in compilation_units:
             neurons.extend(compilationUnit.get_neuron_list())
-        # check if across two files two neurons with same name have been defined
-        CoCosManager.check_not_two_neurons_across_units(compilation_units)
+            synapses.extend(compilationUnit.get_synapse_list())
+
+            # check if across two files neurons with duplicate names have been defined
+            CoCosManager.check_no_duplicate_compilation_unit_names(neurons)
+
+            # check if across two files synapses with duplicate names have been defined
+            CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
+
         # now exclude those which are broken, i.e. have errors.
         if not FrontendConfiguration.is_dev():
             for neuron in neurons:
@@ -118,9 +125,20 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
+
+
+            for synapse in synapses:
+                if Logger.has_errors(synapse):
+                    code, message = Messages.get_synapse_contains_errors(synapse.get_name())
+                    Logger.log_message(astnode=synapse, code=code, message=message,
+                                       error_position=synapse.get_source_position(),
+                                       log_level=LoggingLevel.INFO)
+                    synapses.remove(synapse)
+
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
         _codeGenerator.generate_code(neurons)
+
     if FrontendConfiguration.store_log:
         store_log_to_file()
 

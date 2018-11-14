@@ -122,7 +122,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # set current processed synapse
         # Logger.set_current_synapse(node)
         print("In ASTSymbolTableVisitor::visit_synapse()")
-        import pdb;pdb.set_trace()
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
@@ -164,8 +163,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for synapseBodyElement in node.get_synapse_body_elements():
             synapseBodyElement.update_scope(node.get_scope())
         return
-
-
 
     def visit_function(self, node):
         """
@@ -238,6 +235,23 @@ class ASTSymbolTableVisitor(ASTVisitor):
         return
 
     def endvisit_update_block(self, node=None):
+        self.block_type_stack.pop()
+        return
+
+    def visit_pre_receive(self, node):
+        """
+        Private method: Used to visit a single preReceive block and create the corresponding scope.
+        :param node: an preReceive block object.
+        :type node: ASTDynamics
+        """
+        self.block_type_stack.push(BlockType.LOCAL)
+        scope = Scope(scope_type=ScopeType.UPDATE, enclosing_scope=node.get_scope(),
+                      source_position=node.get_source_position())
+        node.get_scope().add_scope(scope)
+        node.get_block().update_scope(scope)
+        return
+
+    def endvisit_pre_receive(self, node=None):
         self.block_type_stack.pop()
         return
 
