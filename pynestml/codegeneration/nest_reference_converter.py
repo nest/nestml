@@ -106,6 +106,8 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
+        elif function_name == PredefinedFunctions.DELIVER_SPIKE:
+            return 'XXX DELIVER_SPIKE CODE'
         elif ASTUtils.needs_arguments(function_call):
             return function_name + '(%s)'
         else:

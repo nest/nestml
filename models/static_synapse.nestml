@@ -1,8 +1,12 @@
 synapse static:
 
   parameters:
-    w nS = 900 pS @homogeneous @weight
-    delay ms = .9 ms @heterogeneous @delay
+    w nS = 900 pS @homogeneous
+    d ms = .9 ms @heterogeneous
+  end
+
+  preReceive:
+    transmit_spike(w, d)
   end
 
 end

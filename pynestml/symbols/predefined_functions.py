@@ -72,6 +72,7 @@ class PredefinedFunctions(object):
     CURR_SUM = 'curr_sum'
     COND_SUM = 'cond_sum'
     CONVOLVE = 'convolve'
+    DELIVER_SPIKE = 'deliver_spike'
     name2function = {}  # a map dict from function-names to symbols
 
     @classmethod
@@ -102,6 +103,7 @@ class PredefinedFunctions(object):
         cls.__register_curr_sum_function()
         cls.__register_cond_sum_function()
         cls.__register_convolve()
+        cls.__register_deliver_spike()
         return
 
     @classmethod
@@ -366,6 +368,19 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.CONVOLVE] = symbol
+
+    @classmethod
+    def __register_deliver_spike(cls):
+        """
+        Registers the deliver-spike function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_type('nS'))
+        params.append(PredefinedTypes.get_type('ms'))
+        symbol = FunctionSymbol(name=cls.DELIVER_SPIKE, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.DELIVER_SPIKE] = symbol
 
     @classmethod
     def get_function_symbols(cls):

@@ -167,11 +167,10 @@ parser grammar PyNestMLParser;
 
   /** ...
   */
-  anyMagicKeyword : MAGIC_KEYWORD_HOMOGENEOUS | MAGIC_KEYWORD_HETEROGENEOUS | MAGIC_KEYWORD_WEIGHT | MAGIC_KEYWORD_DELAY;
+  anyMagicKeyword : MAGIC_KEYWORD_HOMOGENEOUS | MAGIC_KEYWORD_HETEROGENEOUS;
 
 
-
-  /** ATReturnStmt Models the return statement in a function.
+  /** ASTReturnStmt Models the return statement in a function.
     @expression An optional return expression, e.g., return tempVar
    */
   returnStmt : RETURN_KEYWORD expression?;
@@ -234,7 +233,7 @@ parser grammar PyNestMLParser;
     @attribute Name:    The name of the synapse, e.g., ht_synapse.
     @attribute body:    The body of the synapse consisting of several sub-blocks.
   */
-  synapse : SYNAPSE_KEYWORD NAME synapseBody;
+  synapse : SYNAPSE_KEYWORD NAME COLON synapseBody;
 
   /** ASTBody The body of the synapse, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -244,9 +243,16 @@ parser grammar PyNestMLParser;
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
   */
-  synapseBody: COLON
-         ( NEWLINE | blockWithVariables )*
+  synapseBody:
+         ( NEWLINE | blockWithVariables | preReceiveBlock )*
          END_KEYWORD;
+
+  /** ASTPreReceiveBlock 
+     @attribute block Implementation of the dynamics.
+   */
+  preReceiveBlock: PRE_RECEIVE_KEYWORD COLON
+                block
+                END_KEYWORD;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
     state:

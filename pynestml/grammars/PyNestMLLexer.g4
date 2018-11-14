@@ -40,7 +40,7 @@ lexer grammar PyNestMLLexer;
   /**
   * Symbols and literals are parsed first
   *
-  * Magic (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables named "delay". (Rules are matched in the order in which they appear, and NAME appears below MAGIC_KEYWORD_DELAY).
+  * Magic (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a magic keyword. (Rules are matched in the order in which they appear.)
   */
 
   END_KEYWORD : 'end';
@@ -75,6 +75,7 @@ lexer grammar PyNestMLLexer;
   EQUATIONS_KEYWORD : 'equations';
   INPUT_KEYWORD : 'input';
   OUTPUT_KEYWORD : 'output';
+  PRE_RECEIVE_KEYWORD : 'preReceive';
   CURRENT_KEYWORD : 'current';
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
@@ -82,8 +83,6 @@ lexer grammar PyNestMLLexer;
 
   MAGIC_KEYWORD_HOMOGENEOUS : '@homogeneous';
   MAGIC_KEYWORD_HETEROGENEOUS : '@heterogeneous';
-  MAGIC_KEYWORD_WEIGHT : '@weight';
-  MAGIC_KEYWORD_DELAY : '@delay';
 
   ELLIPSIS : '...';
   LEFT_PAREN : '(';

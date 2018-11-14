@@ -68,6 +68,12 @@ class ASTSynapse(ASTNode):
         self.body = body
         self.artifact_name = artifact_name
         self._default_weight = None
+        self.find_default_weight_and_delay()
+
+
+    def find_default_weight_and_delay(self):
+        import pdb;pdb.set_trace() #nb. look at self.body
+
 
     def get_name(self):
         """
