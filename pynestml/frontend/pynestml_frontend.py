@@ -91,31 +91,35 @@ def process():
     init_predefined()
     # now proceed to parse all models
     compilation_units = list()
-    for m_file in FrontendConfiguration.get_files():
-        parsed_unit = ModelParser.parse_model(m_file)
+    nestml_files = FrontendConfiguration.get_files()
+    if not type(nestml_files) is list:
+        nestml_files = [nestml_files]
+    for nestml_file in nestml_files:
+        parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
-    # generate a list of all neurons
-    neurons = list()
-    for compilationUnit in compilation_units:
-        neurons.extend(compilationUnit.get_neuron_list())
-    # check if across two files two neurons with same name have been defined
-    CoCosManager.check_not_two_neurons_across_units(compilation_units)
-    # now exclude those which are broken, i.e. have errors.
-    if not FrontendConfiguration.is_dev():
-        for neuron in neurons:
-            if Logger.has_errors(neuron):
-                code, message = Messages.get_neuron_contains_errors(neuron.get_name())
-                Logger.log_message(neuron=neuron, code=code, message=message,
-                                   error_position=neuron.get_source_position(),
-                                   log_level=LoggingLevel.INFO)
-                neurons.remove(neuron)
-    if not FrontendConfiguration.is_dry_run():
-        analyse_and_generate_neurons(neurons)
-        generate_nest_module_code(neurons)
-    else:
-        code, message = Messages.get_dry_run()
-        Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
+    if len(compilation_units) > 0:
+        # generate a list of all neurons
+        neurons = list()
+        for compilationUnit in compilation_units:
+            neurons.extend(compilationUnit.get_neuron_list())
+        # check if across two files two neurons with same name have been defined
+        CoCosManager.check_not_two_neurons_across_units(compilation_units)
+        # now exclude those which are broken, i.e. have errors.
+        if not FrontendConfiguration.is_dev():
+            for neuron in neurons:
+                if Logger.has_errors(neuron):
+                    code, message = Messages.get_neuron_contains_errors(neuron.get_name())
+                    Logger.log_message(neuron=neuron, code=code, message=message,
+                                       error_position=neuron.get_source_position(),
+                                       log_level=LoggingLevel.INFO)
+                    neurons.remove(neuron)
+        if not FrontendConfiguration.is_dry_run():
+            analyse_and_generate_neurons(neurons)
+            generate_nest_module_code(neurons)
+        else:
+            code, message = Messages.get_dry_run()
+            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
     if FrontendConfiguration.store_log:
         store_log_to_file()
     return

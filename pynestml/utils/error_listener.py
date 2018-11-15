@@ -1,5 +1,5 @@
 #
-# __init__.py
+# error_listener.py
 #
 # This file is part of NEST.
 #
@@ -18,7 +18,21 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['ast_utils', 'logger', 'stack', 'either', 'error_listener',
-           'error_strings', 'logging_helper', 'messages', 'model_parser',
-           'ode_transformer', 'type_caster', 'type_dictionary', 'unit_type',
-           'ast_nestml_printer']
+"""
+This class contains several method used to parse handed over models and returns them as one or more AST trees.
+"""
+from antlr4.error.ErrorListener import ConsoleErrorListener, ErrorListener
+
+class NestMLErrorListener(ErrorListener):
+    """helper class to listen for parser errors and record whether an error has occurred"""
+
+    def __init__(self):
+        super(NestMLErrorListener, self).__init__()
+        self._error_occurred = False
+
+    @property
+    def error_occurred(self):
+        return self._error_occurred
+
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        self._error_occurred = True

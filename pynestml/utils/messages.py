@@ -51,6 +51,21 @@ class Messages(object):
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
+    def get_input_path_not_found(cls, path):
+        message = 'Input path ("%s") not found!' % (path)
+        return MessageCode.INPUT_PATH_NOT_FOUND, message
+
+    @classmethod
+    def get_lexer_error(cls):
+        message = 'Error occurred during lexing: abort'
+        return MessageCode.LEXER_ERROR, message
+
+    @classmethod
+    def get_parser_error(cls):
+        message = 'Error occurred during parsing: abort'
+        return MessageCode.PARSER_ERROR, message
+
+    @classmethod
     def get_binary_operation_not_defined(cls, lhs, operator, rhs):
         message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message
@@ -962,3 +977,6 @@ class MessageCode(Enum):
     INTERNAL_WARNING = 56
     OPERATION_NOT_DEFINED = 57
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 58
+    INPUT_PATH_NOT_FOUND = 59
+    LEXER_ERROR = 60
+    PARSER_ERROR = 61
