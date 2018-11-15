@@ -22,10 +22,10 @@ import os
 import sys
 
 from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.codegeneration.nest_codegeneration import analyse_and_generate_neurons, generate_nest_module_code
+from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
-    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, qualifier_dry_arg, \
-    qualifier_target_arg, qualifier_path_arg, qualifier_dev_arg
+    qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -36,19 +36,19 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(path, target = None, dry = False, logging_level = 'ERROR', module_name = None, store_log = False,
+def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name = None, store_log = False,
             dev = False):
-    # if target is not None and not os.path.isabs(target):
+    # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
     args = list()
-    args.append(qualifier_path_arg)
-    args.append(str(path))
-    if target is not None:
-        args.append(qualifier_target_arg)
-        args.append(str(target))
-    if dry:
-        args.append(qualifier_dry_arg)
+    args.append(qualifier_input_path_arg)
+    args.append(str(input_path))
+    if target_path is not None:
+        args.append(qualifier_target_path_arg)
+        args.append(str(target_path))
+    args.append(qualifier_target_arg)
+    args.append(str("NEST"))
     args.append(qualifier_logging_level_arg)
     args.append(str(logging_level))
     if module_name is not None:
@@ -114,12 +114,9 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
-        if not FrontendConfiguration.is_dry_run():
-            analyse_and_generate_neurons(neurons)
-            generate_nest_module_code(neurons)
-        else:
-            code, message = Messages.get_dry_run()
-            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.INFO)
+        # perform code generation
+        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
+        _codeGenerator.generate_code(neurons)
     if FrontendConfiguration.store_log:
         store_log_to_file()
     return

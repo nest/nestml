@@ -52,16 +52,16 @@ python PyNestML.py ARGUMENTS
 ```
 where arguments are:<a name="table_args"></a>
 
-| Command       | Description |
-|---            |---          |
-| -h or --help  | Print help message.|
-| -path         | Path to the source file or directory containing the model.|
-| -target       | (Optional) Path to target directory where models will be generated to. Default is `target`.| 
-| -dry          | (Optional) Executes the analysis of the model without generating target code. Default is OFF.|
-| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
-| -module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
-| -store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
-| -dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
+| Command        | Description |
+|---             |---          |
+| -h or --help   | Print help message.|
+| --input_path   | Path to the source file or directory containing the model.|
+| --target_path  | (Optional) Path to target directory where models will be generated to. Default is `target`.| 
+| --target       | (Optional) The name of the target platform to generate code for. Default is NEST.|
+| --logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
+| --module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
+| --store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
+| --dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 ```
@@ -80,19 +80,18 @@ from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 ```
 Subsequently, it is possible to call PyNestML from other Python tools and scripts via:
 ```py
-to_nest(path, target, dry, logging_level, module_name, store_log, dev)    
+to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
 ```
 This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for `logging_level` are the same as before ('INFO', 'WARNING', 'ERROR', 'NO'). Note that only the `path` argument is mandatory:
 
-| Argument | Type | Default |
-|---       |---   | --- |
-| path     | string | _no default_ |
-| target   | string | None |
-| dry      | boolean | False |
-| logging_level | string | 'ERROR' |
-| module_name | string | `nestmlmodule` |
-| store_log | boolean | False |
-| dev | boolean | False |
+| Argument      | Type    | Default |
+|---            |---      | ---     |
+| input_path    | string  | _no default_ |
+| target_path   | string  | None |
+| logging_level | string  | 'ERROR' |
+| module_name   | string  | `nestmlmodule` |
+| store_log     | boolean | False |
+| dev           | boolean | False |
 
 If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNestML features a function for an installation of NEST models directly into NEST:
 ```py
@@ -104,7 +103,7 @@ A typical script, therefore, could look like the following. For this example, we
 ```py
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-to_nest(path="/home/nest/work/pynestml/models", target="/home/nest/work/pynestml/target", dev=True)
+to_nest(input_path="/home/nest/work/pynestml/models", target_path="/home/nest/work/pynestml/target", dev=True)
 
 install_nest("/home/nest/work/pynestml/target", "/home/nest/work/nest-install")
 
