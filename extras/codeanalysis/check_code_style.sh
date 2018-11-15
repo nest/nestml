@@ -19,9 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-# This script performs a static code analysis and can be used to verify 
+# This script performs a static code analysis and can be used to verify
 # if a source file fulfills the PyNestML coding style guidelines.
-# Run ./tools/codeanalysis/check_code_style.sh --help for more detailed information.
+# Run ./extras/codeanalysis/check_code_style.sh --help for more detailed information.
 
 # Set default parameters.
 unset FILE_TO_BE_CHECKED
@@ -33,7 +33,7 @@ CPPCHECK=cppcheck                #    CPPCHECK version 1.69 or later is required
 CLANG_FORMAT=clang-format-3.6    #    CLANG-FORMAT version 3.6 and only this version is required !
 PEP8=pep8
 
-PERFORM_VERA=true                # Perform VERA++ analysis. 
+PERFORM_VERA=true                # Perform VERA++ analysis.
 PERFORM_CPPCHECK=true            # Perform CPPCHECK analysis.
 PERFORM_CLANG_FORMAT=true        # Perform CLANG-FORMAT analysis.
 PERFORM_PEP8=true                # Perform PEP8 analysis.
@@ -251,15 +251,15 @@ EXTENDED_REGEX_PARAM=r
 
 # Verify the VERA++ installation.
 if $PERFORM_VERA; then
-  $VERA ./tools/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit "Failed to verify the VERA++ installation. Executable: $VERA"
-  $VERA --profile nestml ./tools/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit \
+  $VERA ./extras/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit "Failed to verify the VERA++ installation. Executable: $VERA"
+  $VERA --profile nestml ./extras/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit \
   "Failed to verify the VERA++ installation. The profile 'nest' could not be found. See https://nest.github.io/nest-simulator/coding_guidelines_c++#vera-profile-nest"
 fi
 
 # Verify the CPPCHECK installation. CPPCHECK version 1.69 or later is required.
 # Previous versions of CPPCHECK halted on sli/tokenutils.cc (see https://github.com/nest/nest-simulator/pull/79)
 if $PERFORM_CPPCHECK; then
-  $CPPCHECK --enable=all --inconclusive --std=c++03 ./tools/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit "Failed to verify the CPPCHECK installation. Executable: $CPPCHECK"
+  $CPPCHECK --enable=all --inconclusive --std=c++03 ./extras/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit "Failed to verify the CPPCHECK installation. Executable: $CPPCHECK"
   cppcheck_version=`$CPPCHECK --version | sed 's/^Cppcheck //'`
   IFS=\. read -a cppcheck_version_a <<< "$cppcheck_version"
   if [[ ${cppcheck_version_a[0]} -lt 1 ]]; then
@@ -273,7 +273,7 @@ fi
 # The CLANG-FORMAT versions up to and including 3.5 do not support all configuration options required for NEST. 
 # Version 3.7 introduced a different formatting. NEST relies on the formatting of version 3.6.
 if $PERFORM_CLANG_FORMAT; then
-  $CLANG_FORMAT -style=./.clang-format ./tools/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit "Failed to verify the CLANG-FORMAT installation. Executable: $CLANG_FORMAT"
+  $CLANG_FORMAT -style=./.clang-format ./extras/codeanalysis/verify.cpp >/dev/null 2>&1 || error_exit "Failed to verify the CLANG-FORMAT installation. Executable: $CLANG_FORMAT"
   clang_format_version=`$CLANG_FORMAT --version | sed -${EXTENDED_REGEX_PARAM} 's/^.*([0-9]\.[0-9])\..*/\1/'`
   if [[ "x$clang_format_version" != "x3.6" ]]; then
     error_exit "Failed to verify the CLANG-FORMAT installation. Version 3.6 is requires. The executable '$CLANG_FORMAT' is of version $clang_format_version."
@@ -282,7 +282,7 @@ fi
 
 # Verify the PEP8 installation.
 if $PERFORM_PEP8; then
-  $PEP8 --ignore="E121,E123,E126,E226,E24,E704,E501" ./tools/codeanalysis/verify.py || error_exit "Failed to verify the PEP8 installation. Executable: $PEP8"
+  $PEP8 --ignore="E121,E123,E126,E226,E24,E704,E501" ./extras/codeanalysis/verify.py || error_exit "Failed to verify the PEP8 installation. Executable: $PEP8"
 fi
 
 # Extracting changed files between two commits.
@@ -298,8 +298,8 @@ if [ -z "$file_names" ]; then
   exit 0
 fi
 
-if [ ! -x ./tools/codeanalysis/static_code_analysis.sh ]; then
-  sudo chmod +x ./tools/codeanalysis/static_code_analysis.sh
+if [ ! -x ./extras/codeanalysis/static_code_analysis.sh ]; then
+  sudo chmod +x ./extras/codeanalysis/static_code_analysis.sh
 fi
 
 IGNORE_MSG_VERA=false          # They are needed when running the static code analysis script within
@@ -307,7 +307,7 @@ IGNORE_MSG_CPPCHECK=false      # the Travis CI build environment.
 IGNORE_MSG_CLANG_FORMAT=false
 IGNORE_MSG_PEP8=false
 
-./tools/codeanalysis/static_code_analysis.sh  "$INCREMENTAL" "$file_names" \
+./extras/codeanalysis/static_code_analysis.sh  "$INCREMENTAL" "$file_names" \
 "$VERA" "$CPPCHECK" "$CLANG_FORMAT" "$PEP8" \
 "$PERFORM_VERA" "$PERFORM_CPPCHECK" "$PERFORM_CLANG_FORMAT" "$PERFORM_PEP8" \
 "$IGNORE_MSG_VERA" "$IGNORE_MSG_CPPCHECK" "$IGNORE_MSG_CLANG_FORMAT" "$IGNORE_MSG_PEP8"
