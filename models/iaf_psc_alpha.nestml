@@ -95,11 +95,11 @@ neuron iaf_psc_alpha_neuron:
     Tau     ms = 10ms    # Membrane time constant.
     tau_syn_in ms = 2ms  # Time constant of synaptic current.
     tau_syn_ex ms = 2ms  # Time constant of synaptic current.
-    t_ref   ms = 2ms     # Duration of refractory period in ms.
+    t_ref   ms = 2ms     # Duration of refractory period.
     E_L     mV = -70mV   # Resting potential.
-    function V_reset mV = -70mV - E_L # Reset potential of the membrane in mV.
-    function Theta   mV = -55mV - E_L # Spike threshold in mV.
-    I_e     pA = 0pA     # Constant external input current in pA.
+    function V_reset mV = -70mV - E_L # Reset potential of the membrane.
+    function Theta   mV = -55mV - E_L # Spike threshold.
+    I_e     pA = 0pA     # Constant external input current.
   end
 
   internals:
