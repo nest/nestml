@@ -104,8 +104,8 @@ appropriate numeric solver otherwise.
         cls.handle_target_path(parsed_args.target_path)
         # now adjust the name of the module, if it is a single file, then it is called just module
         if parsed_args.module_name is not None:
-            assert parsed_args.module_name[0].endswith('module'), "Module name (\"" + parsed_args.module_name[0] + "\") should end with \"module\""
-            cls.module_name = parsed_args.module_name[0]
+            assert parsed_args.module_name.endswith('module'), "Module name (\"" + parsed_args.module_name + "\") should end with \"module\""
+            cls.module_name = parsed_args.module_name
         elif os.path.isfile(parsed_args.input_path[0]):
             cls.module_name = 'nestmlmodule'
         elif os.path.isdir(parsed_args.input_path[0]):
