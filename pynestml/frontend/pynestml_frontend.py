@@ -121,7 +121,7 @@ def process():
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())
-                    Logger.log_message(neuron=neuron, code=code, message=message,
+                    Logger.log_message(astnode=neuron, code=code, message=message,
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
@@ -137,7 +137,7 @@ def process():
 
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
-        _codeGenerator.generate_code(neurons)
+        _codeGenerator.generate_code(neurons, synapses)
 
     if FrontendConfiguration.store_log:
         store_log_to_file()

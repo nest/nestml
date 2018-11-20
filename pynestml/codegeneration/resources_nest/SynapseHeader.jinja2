@@ -122,7 +122,8 @@ public:
     // , weight_( {{ synapse.get_default_weight() }} )
   {
 
-    set_delay( {{ printer.print_expression(synapse.get_default_delay_expression()) }} ); // as {{synapse.get_default_delay_dtype().get_type_symbol().print_symbol()}}
+    //set_delay( XXX TODO ); // as {# synapse.get_default_delay_dtype().get_type_symbol().print_symbol() #}
+    // set_delay( {# printer.print_expression(synapse.get_default_delay_expression()) #} ); // as {# synapse.get_default_delay_dtype().get_type_symbol().print_symbol() #}
 
 
 
@@ -221,11 +222,12 @@ public:
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {
-    e.set_weight( {{ names.name(synapse.get_weight_variable()) }} );
-    e.set_delay( get_delay_steps() );
-    e.set_receiver( *get_target( tid ) );
-    e.set_rport( get_rport() );
-    e();
+
+    {%- set dynamics = synapse.get_pre_receive() -%}
+    {%- with ast = dynamics.get_block() -%}{%- filter indent(2,True) -%}
+    {%- include "directives/Block.jinja2" -%}{%- endfilter -%}
+    {%- endwith %}
+
   }
 
   void get_status( DictionaryDatum& d ) const;

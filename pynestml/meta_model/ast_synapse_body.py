@@ -109,6 +109,14 @@ class ASTSynapseBody(ASTNode):
                 ret.append(elem)
         return ret
 
+    def get_pre_receive(self):
+        from pynestml.meta_model.ast_pre_receive import ASTPreReceive
+        for elem in self.get_synapse_body_elements():
+            if isinstance(elem, ASTPreReceive):
+                return elem
+
+
+
     # def get_equations_blocks(self):
     #     """
     #     Returns a list of all equations blocks defined in this body.

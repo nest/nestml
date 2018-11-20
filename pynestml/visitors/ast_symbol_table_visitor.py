@@ -128,11 +128,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # before starting the work on the synapse, make everything which was implicit explicit
         # but if we have a model without an equations block, just skip this step
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
-        import pdb;pdb.set_trace()
 
         node.update_scope(scope)
         node.get_body().update_scope(scope)
-        import pdb;pdb.set_trace()
         # now first, we add all predefined elements to the scope
         variables = PredefinedVariables.get_variables()
         functions = PredefinedFunctions.get_function_symbols()

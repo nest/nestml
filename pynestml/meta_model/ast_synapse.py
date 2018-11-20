@@ -100,6 +100,19 @@ class ASTSynapse(ASTNode):
     def get_default_weight(self):
         return self._default_weight
 
+    def get_parameter_symbols(self):
+        """
+        Returns a list of all parameter symbol defined in the model.
+        :return: a list of parameter symbols.
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.PARAMETERS and \
+                    not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
 
     def get_body(self):
         """
@@ -167,19 +180,32 @@ class ASTSynapse(ASTNode):
         else:
             return ret
 
-    def get_parameter_symbols(self):
+
+    def get_internals_blocks(self):
         """
-        Returns a list of all parameter symbol defined in the model.
-        :return: a list of parameter symbols.
-        :rtype: list(VariableSymbol)
+        Returns a list of all internals blocks defined in this body.
+        :return: a list of internals-blocks.
+        :rtype: list(ASTBlockWithVariables)
         """
-        symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.PARAMETERS and \
-                    not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
+        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+        for elem in self.get_body().get_synapse_body_elements():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
+
+    def get_pre_receive(self):
+        """
+        Returns the pre_receive block
+        :return: the pre_receive block
+        :rtype: ...
+        """
+        return self.get_body().get_pre_receive()
 
     def get_internal_symbols(self):
         """

@@ -107,9 +107,13 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         elif function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return 'XXX DELIVER_SPIKE CODE'
+            return 'e.set_weight( %s );\n' \
+                   'e.set_delay( %s );\n' \
+                   'e.set_receiver( *get_target( tid ) );\n' \
+                   'e.set_rport( get_rport() );\n' \
+                   'e()'
         elif ASTUtils.needs_arguments(function_call):
-            return function_name + '(%s)'
+            return function_name + '(' + ', '.join(['%s' for _ in range(len(function_call.get_args()))]) + ')'
         else:
             return function_name + '()'
 

@@ -45,16 +45,31 @@ class CodeGenerator(object):
             code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
+    def generate_synapses(self, synapses):
+        # type: (list(ASTsynapse)) -> None
+        """
+        Analysis a list of synapses, solves them and generates the corresponding code.
+        :param synapses: a list of synapses.
+        """
+        from pynestml.frontend.frontend_configuration import FrontendConfiguration
+
+        for synapse in synapses:
+            if Logger.logging_level == LoggingLevel.INFO:
+                print("Generating code for the synapse {}.".format(synapse.get_name()))
+            self.generate_synapse_code(synapse)
+            code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
+            Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
+
     @staticmethod
     def get_known_targets():
         return ["NEST", ""]     # include the empty string here to represent "no code generated"
 
 
-    def generate_code(self, neurons):
+    def generate_code(self, neurons, synapses):
         if self._target == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
             _codeGenerator = NESTCodeGenerator()
-            _codeGenerator.generate_code(neurons)
+            _codeGenerator.generate_code(neurons, synapses)
         elif self._target == "":
             # dummy/null target: user requested to not generate any code
             code, message = Messages.get_no_code_generated()

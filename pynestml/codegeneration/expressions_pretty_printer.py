@@ -106,7 +106,7 @@ class ExpressionsPrettyPrinter(object):
         # type: (ASTFunctionCall) -> str
         function_name = self.reference_converter.convert_function_call(function_call)
         if ASTUtils.needs_arguments(function_call):
-            return function_name % self.print_function_call_arguments(function_call)
+            return function_name % self.print_function_call_argument_list(function_call)
         else:
             return function_name
 
@@ -118,6 +118,13 @@ class ExpressionsPrettyPrinter(object):
             if function_call.get_args().index(arg) < len(function_call.get_args()) - 1:
                 ret += ', '
         return ret
+
+    def print_function_call_argument_list(self, function_call):
+        # type: (ASTFunctionCall) -> list
+        ret = []
+        for arg in function_call.get_args():
+            ret.append(self.print_expression(arg))
+        return tuple(ret)
 
 
 class TypesPrinter(object):

@@ -346,7 +346,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitDeclaration(self, ctx):
         is_recordable = (True if ctx.isRecordable is not None else False)
         is_function = (True if ctx.isFunction is not None else False)
-        print("XXX: gathering magic keywords...")
 
         magicKeywords = []
         for kw in ctx.anyMagicKeyword():
