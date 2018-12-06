@@ -71,6 +71,9 @@ class {{synapseName}} : public Connection< targetidentifierT >
 {
 
 private:
+
+  double weight_;
+
   /**
   * Free parameters of the synapse.
   *
@@ -105,8 +108,6 @@ private:
     Parameters_();
   };
 
-  double weight_;
-
 public:
   // this line determines which common properties to use
   typedef CommonSynapseProperties CommonPropertiesType;
@@ -119,26 +120,14 @@ public:
    */
   {{synapseName}}()
     : ConnectionBase()
-    // , weight_( {{ synapse.get_default_weight() }} )
   {
-
-    //set_delay( XXX TODO ); // as {# synapse.get_default_delay_dtype().get_type_symbol().print_symbol() #}
-    // set_delay( {# printer.print_expression(synapse.get_default_delay_expression()) #} ); // as {# synapse.get_default_delay_dtype().get_type_symbol().print_symbol() #}
-
-
-
 
   {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
-
-
-
-
-
-
+    set_weight_( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
 
   }
 
@@ -148,8 +137,8 @@ public:
    */
   {{synapseName}}( const {{synapseName}}& rhs )
     : ConnectionBase( rhs )
-    , weight_( rhs.weight_ )
   {
+    set_weight(rhs.weight_);
   }
 
   // Explicitly declare all methods inherited from the dependent base
@@ -209,6 +198,50 @@ public:
     }
   };
 
+
+  /**
+   * Get named parameter from the `Parameter_` struct
+  **/
+  template < typename T >
+  T get_named_parameter(Name &n) {
+    {%- for paramBlock in synapse.get_parameter_blocks() %}
+    {%- for decl in paramBlock.get_declarations() %}
+    {%- set namespaceName = decl.get_namespace_decorator("nest") %}
+    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
+    {%- set parameterName = decl.get_variables()[0].name %}
+    if (n == names::{{namespaceName}}) {
+      return &P_.{{parameterName}}; // type: {- {declarations.print_variable_type(parameter)} -}
+    }
+
+    {%- endfor %}
+    {%- endfor %}
+  }
+
+
+  /**
+   * set named parameter from the Parameter_ struct
+  **/
+  // {- - % - C++ type of the variable that was annotated % - } get_named_parameter(Name &n) {
+  //   if (n == {- % names::weight % -}) {
+  //     return &P_.{ - % name of the variable that was annotated % - }
+  //   }
+  //   elif (n == ...
+  //     ...
+  //   }
+  // }
+
+
+
+
+  inline void set_weight(double w) {
+    set_named_parameter(names::weight, w);
+    weight_ = get_named_parameter(names::weight);
+  }
+  
+  inline double get_weight() {
+    return weight_;
+  }
+
   void
   check_connection( Node& s,
     Node& t,
@@ -233,19 +266,12 @@ public:
   void get_status( DictionaryDatum& d ) const;
 
   void set_status( const DictionaryDatum& d, ConnectorModel& cm );
-
-  void
-  set_weight( double w )
-  {
-    weight_ = w;
-  }
 };
 
 template < typename targetidentifierT >
 void
 {{synapseName}}< targetidentifierT >::get_status( DictionaryDatum& d ) const
 {
-
   ConnectionBase::get_status( d );
   def< double >( d, names::weight, weight_ );
   def< long >( d, names::size_of, sizeof( *this ) );

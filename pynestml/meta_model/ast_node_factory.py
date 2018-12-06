@@ -56,6 +56,7 @@ from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
+from pynestml.meta_model.ast_magic_namespace import ASTMagicNamespace
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_ode_function import ASTOdeFunction
@@ -108,6 +109,10 @@ class ASTNodeFactory(object):
         # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
         return ASTBlockWithVariables(is_state, is_parameters, is_internals, is_initial_values, declarations,
                                      source_position)
+
+    @classmethod
+    def create_ast_magic_namespace(cls, namespace=None, name=None, source_position=None):
+        return ASTMagicNamespace(namespace, name, source_position)
 
     @classmethod
     def create_ast_pre_receive(cls, block=None, source_position=None):

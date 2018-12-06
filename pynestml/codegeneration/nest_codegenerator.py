@@ -139,7 +139,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         for synapse in synapses:
             if Logger.logging_level == LoggingLevel.INFO:
-                print("Analysing/transforming synapse {}.".format(synapse.get_name()))
+                print("Analysing/transforming synapse {}.".format(synapse.get_name() + "_connection"))
             self.analyse_synapse(synapse)
             # now store the transformed model
             self.store_transformed_model(synapse)
@@ -271,7 +271,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
-        namespace['synapseName'] = synapse.get_name()
+        namespace['synapseName'] = synapse.get_name() + "_connection"
         namespace['synapse'] = synapse
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         namespace['printer'] = NestPrinter(legacy_pretty_printer)

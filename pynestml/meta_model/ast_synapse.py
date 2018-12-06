@@ -155,12 +155,7 @@ class ASTSynapse(ASTNode):
         for elem in self.get_body().get_synapse_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
                 ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
-            return None
-        else:
-            return ret
+        return ret
 
     def get_internals_blocks(self):
         """
@@ -289,10 +284,13 @@ class ASTSynapse(ASTNode):
         :return: the corresponding comment.
         :rtype: str
         """
-        block = self.get_parameter_blocks()
-        if block is None:
+        blocks = self.get_parameter_blocks()
+        if len(blocks) == 0:
             return prefix if prefix is not None else ''
-        return block.print_comment(prefix)
+        comment = ""
+        for block in blocks:
+            comment += block.print_comment(prefix)
+        return comment
 
     def print_internal_comment(self, prefix=None):
         """

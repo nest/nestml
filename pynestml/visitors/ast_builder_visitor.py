@@ -457,16 +457,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # now the meta_model seems to be correct, return it
         return neuron
 
+    def visitMagicNamespace(self, ctx):
+            return ctx.NAME()
+
+    def visitMagicNamespaceName(self, ctx):
+            return ctx.NAME()
+
     def visitAnyMagicKeyword(self, ctx):
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
         if ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS, 0) is not None:
             return PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS
         elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS, 0) is not None:
             return PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS
-        elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_WEIGHT, 0) is not None:
-            return PyNestMLLexer.MAGIC_KEYWORD_WEIGHT
-        elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_DELAY, 0) is not None:
-            return PyNestMLLexer.MAGIC_KEYWORD_DELAY
+        elif ctx.getToken(PyNestMLLexer.AT, 0) is not None:
+            magicNamespace = self.visit(ctx.magicNamespace()) if ctx.magicNamespace() is not None else None
+            magicNamespaceName = self.visit(ctx.magicNamespaceName()) if ctx.magicNamespaceName() is not None else None
+            return ASTNodeFactory.create_ast_magic_namespace(magicNamespace, magicNamespaceName, source_position=create_source_pos(ctx))
         else:
             return None
 

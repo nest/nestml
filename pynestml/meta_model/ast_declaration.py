@@ -20,6 +20,7 @@
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_magic_namespace import ASTMagicNamespace
 
 
 class ASTDeclaration(ASTNode):
@@ -83,6 +84,42 @@ class ASTDeclaration(ASTNode):
         self.invariant = invariant
         self.magicKeywords = magicKeywords
         return
+
+    def get_namespace_decorator(self, namespaceName):
+        kws = self.get_magic_keywords()
+        if len(kws) == 0:
+            return None
+
+        for kw in kws:
+            if type(kw) is ASTMagicNamespace and str(kw.namespace) == namespaceName:
+                return str(kw.name)
+
+        return None
+
+
+    def has_namespace_decorator(self):
+        kws = self.get_magic_keywords()
+        if len(kws) == 0:
+            return False
+
+        for kw in kws:
+            if type(kw) is ASTMagicNamespace:
+                return True
+
+        return False
+
+    def print_namespace_annotation_name(self):
+        kws = self.get_magic_keywords()
+        if len(kws) == 0:
+            return ""
+
+        for kw in kws:
+            if type(kw) is ASTMagicNamespace:
+                return str(kw.name)
+
+        return ""
+
+
 
     def get_variables(self):
         """

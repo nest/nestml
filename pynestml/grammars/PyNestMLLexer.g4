@@ -84,6 +84,7 @@ lexer grammar PyNestMLLexer;
   MAGIC_KEYWORD_HOMOGENEOUS : '@homogeneous';
   MAGIC_KEYWORD_HETEROGENEOUS : '@heterogeneous';
 
+  AT : '@';
   ELLIPSIS : '...';
   LEFT_PAREN : '(';
   RIGHT_PAREN : ')';
@@ -119,6 +120,7 @@ lexer grammar PyNestMLLexer;
   PERCENT : '%';
   QUESTION : '?';
   COLON : ':';
+  DOUBLE_COLON : '::';
   SEMICOLON : ';';
 
 
