@@ -10,9 +10,11 @@ NestML is a domain specific language that supports the specification of neuron m
 
 `pynestml` - The source code of PyNestML.
 
-`tests` - A collection of tests for testing of the toolchains behavior.
+`tests` - A collection of tests for testing of the toolchain's behavior.
 
 `doc` - The documentation of the modeling language NestML as well as processing toolchain PyNestML.
+
+`extras` - Miscellaneous development tools, editor syntax highlighting rules, etc.
 
 ## Installing NESTML
 
@@ -112,8 +114,11 @@ nest.Install("nestmlmodule")
 nest.Simulate(400.0)
 ```
 
-For an in-depth introduction to the underlying modeling language NestML, we refer to the following [introduction](doc/lan/doc.md).
-For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, a [documentation](doc/impl/doc.md) of all implemented components is provided. 
+## Further reading
+
+For an in-depth introduction to the underlying modeling language NestML, please refer to the [NestML language documentation](doc/nestml_language.md).
+
+For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, please refer to the [PyNestML documentation](doc/pynestml/index.md).
 
 ## Publications
 
