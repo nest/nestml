@@ -308,7 +308,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 
 {% if is_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e){
-  assert(e.get_delay() > 0);
+  assert(e.get_delay_steps() > 0);
   {% if neuron.is_multisynapse_spikes() -%}
   {%- set spikeBuffer = neuron.get_spike_buffers()[0] -%}
   B_.{{spikeBuffer.get_symbol_name()}}[e.get_rport() - 1].add_value(
@@ -345,7 +345,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e){
 {% endif -%}
 {% if is_current_input %}
 void {{neuronName}}::handle(nest::CurrentEvent& e){
-  assert(e.get_delay() > 0);
+  assert(e.get_delay_steps() > 0);
 
   const double current=e.get_current();
   const double weight=e.get_weight();
