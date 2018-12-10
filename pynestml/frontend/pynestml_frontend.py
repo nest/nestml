@@ -25,7 +25,8 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
-    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg, \
+    qualifier_suffix
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -36,7 +37,7 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name = None, store_log = False,
+def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name = None, store_log = False, suffix = "",
             dev = False):
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
@@ -56,6 +57,9 @@ def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name
         args.append(str(module_name))
     if store_log:
         args.append(qualifier_store_log_arg)
+    if len(suffix) > 0:
+        args.append(qualifier_suffix)
+        args.append(suffix)
     if dev:
         args.append(qualifier_dev_arg)
     FrontendConfiguration.parse_config(args)
