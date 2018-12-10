@@ -1,5 +1,5 @@
 /* BeginDocumentation
-Name: hh_psc_alpha_nestml - Hodgkin Huxley neuron model.
+Name: hh_psc_alpha - Hodgkin Huxley neuron model.
 
 Description:
 
@@ -135,7 +135,7 @@ end
 
 
 /* BeginDocumentation
-Name: hh_psc_alpha_nestml - Hodgkin Huxley neuron model.
+Name: hh_psc_alpha - Hodgkin Huxley neuron model.
 
 Description:
 

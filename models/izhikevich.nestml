@@ -1,5 +1,5 @@
 /*
-Name: izhikevich_nestml - Izhikevich neuron model
+Name: izhikevich - Izhikevich neuron model
 
 Description:
 Implementation of the simple spiking neuron model introduced by Izhikevich

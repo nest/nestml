@@ -1,10 +1,10 @@
 /*
-  Name: iaf_tum_2000_nestml - Leaky integrate-and-fire neuron model with exponential
+  Name: iaf_tum_2000 - Leaky integrate-and-fire neuron model with exponential
                           PSCs.
 
   Description:
 
-  iaf_tum_2000_nestml is an implementation of a leaky integrate-and-fire model
+  iaf_tum_2000 is an implementation of a leaky integrate-and-fire model
   with exponential shaped postsynaptic currents (PSCs) according to [1].
   The postsynaptic currents have an infinitely short rise time.
   In particular, this model allows setting an absolute and relative
@@ -41,7 +41,7 @@
 
   The template support of recent C++ compilers enables a more succinct
   formulation without loss of runtime performance already at minimal
-  optimization levels. A future version of iaf_tum_2000_nestml will probably
+  optimization levels. A future version of iaf_tum_2000 will probably
   address the problem of efficient usage of appropriate vector and
   matrix objects.
 

@@ -43,7 +43,7 @@
 
    SeeAlso: ht_synapse
 */
-neuron ht_neuron_nestml:
+neuron ht_neuron:
   state:
     r_potassium integer
     g_spike boolean = false
