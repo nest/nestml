@@ -91,11 +91,11 @@ class NESTReferenceConverter(IReferenceConverter):
         elif function_name == 'steps':
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
         elif function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s)'
+            return 'std::pow(%s, %s)'
         elif function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
-            return 'std::max(%s)'
+            return 'std::max(%s, %s)'
         elif function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
-            return 'std::min(%s)'
+            return 'std::min(%s, %s)'
         elif function_name == PredefinedFunctions.EXP:
             return 'std::exp(%s)'
         elif function_name == PredefinedFunctions.LOG:
@@ -108,7 +108,7 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         elif function_name == PredefinedFunctions.DELIVER_SPIKE:
             return 'e.set_weight( %s );\n' \
-                   'e.set_delay( %s );\n' \
+                   'e.set_delay_steps( %s );\n' \
                    'e.set_receiver( *get_target( tid ) );\n' \
                    'e.set_rport( get_rport() );\n' \
                    'e()'

@@ -72,7 +72,7 @@ class {{synapseName}} : public Connection< targetidentifierT >
 
 private:
 
-  double weight_;
+  double *weight_;
 
   /**
   * Free parameters of the synapse.
@@ -105,8 +105,10 @@ private:
     {% endif -%}
 
     /** Initialize parameters to their default values. */
-    Parameters_();
+    Parameters_() {};
   };
+
+  Parameters_ P_;  //!< Free parameters.
 
 public:
   // this line determines which common properties to use
@@ -127,7 +129,9 @@ public:
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
-    set_weight_( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
+
+    weight_ = get_named_parameter<double>(names::weight);
+    // set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
 
   }
 
@@ -138,7 +142,8 @@ public:
   {{synapseName}}( const {{synapseName}}& rhs )
     : ConnectionBase( rhs )
   {
-    set_weight(rhs.weight_);
+    weight_ = get_named_parameter<double>(names::weight);
+    set_weight(*(rhs.weight_));
   }
 
   // Explicitly declare all methods inherited from the dependent base
@@ -203,7 +208,7 @@ public:
    * Get named parameter from the `Parameter_` struct
   **/
   template < typename T >
-  T get_named_parameter(Name &n) {
+  T* get_named_parameter(const Name &n) {
     {%- for paramBlock in synapse.get_parameter_blocks() %}
     {%- for decl in paramBlock.get_declarations() %}
     {%- set namespaceName = decl.get_namespace_decorator("nest") %}
@@ -213,14 +218,13 @@ public:
       return &P_.{{parameterName}}; // type: {- {declarations.print_variable_type(parameter)} -}
     }
 
+    assert(false);    // unknown name requested
+
     {%- endfor %}
     {%- endfor %}
   }
 
 
-  /**
-   * set named parameter from the Parameter_ struct
-  **/
   // {- - % - C++ type of the variable that was annotated % - } get_named_parameter(Name &n) {
   //   if (n == {- % names::weight % -}) {
   //     return &P_.{ - % name of the variable that was annotated % - }
@@ -230,16 +234,13 @@ public:
   //   }
   // }
 
-
-
-
   inline void set_weight(double w) {
-    set_named_parameter(names::weight, w);
-    weight_ = get_named_parameter(names::weight);
+    // set_named_parameter(names::weight, w);
+    *weight_ = w;
   }
   
   inline double get_weight() {
-    return weight_;
+    return *weight_;
   }
 
   void
@@ -273,7 +274,7 @@ void
 {{synapseName}}< targetidentifierT >::get_status( DictionaryDatum& d ) const
 {
   ConnectionBase::get_status( d );
-  def< double >( d, names::weight, weight_ );
+  def< double >( d, names::weight, *weight_ );
   def< long >( d, names::size_of, sizeof( *this ) );
 }
 
@@ -283,7 +284,7 @@ void
   ConnectorModel& cm )
 {
   ConnectionBase::set_status( d, cm );
-  updateValue< double >( d, names::weight, weight_ );
+  updateValue< double >( d, names::weight, *weight_ );
 }
 
 } // namespace

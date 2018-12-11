@@ -89,7 +89,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='[INFO, WARNING/S, ERROR/S, NO]', type=str, help=help_logging)
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
-        cls.argument_parser.add_argument(qualifier_suffix, metavar='SUFFIX', type=str, help=help_suffix)
+        cls.argument_parser.add_argument(qualifier_suffix, metavar='SUFFIX', type=str, help=help_suffix, default='')
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
         parsed_args = cls.argument_parser.parse_args(args)
         # get the source path
@@ -113,7 +113,7 @@ appropriate numeric solver otherwise.
         elif os.path.isfile(parsed_args.input_path[0]):
             cls.module_name = 'nestmlmodule'
         elif os.path.isdir(parsed_args.input_path[0]):
-            cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path[0]))
+            cls.module_name = 'nestmlmodule' # XXX was: ...  = os.path.basename(os.path.normpath(parsed_args.input_path[0]))
         else:
             cls.module_name = 'nestmlmodule'
         cls.suffix = parsed_args.suffix

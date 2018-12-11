@@ -344,21 +344,21 @@ class Messages(object):
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
-    def get_code_generated(cls, synapse_name, path):
+    def get_code_generated(cls, model_name, path):
         """
         Returns a message indicating that code has been successfully generated for a synapse in a certain path.
-        :param synapse_name: the name of the synapse.
-        :type synapse_name: str
+        :param model_name: the name of the synapse.
+        :type model_name: str
         :param path: the path to the file
         :type path: str
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (synapse_name is not None and isinstance(synapse_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(synapse_name)
+        assert (model_name is not None and isinstance(model_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
-        message = 'Successfully generated NEST code for the synapse: \'' + synapse_name + '\' in: \'' + path + '\' !'
+        message = 'Successfully generated NEST code for the model: \'' + model_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod

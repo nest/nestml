@@ -79,9 +79,9 @@ class NESTCodeGenerator(CodeGenerator):
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
-        self.generate_module_code(neurons)      # XXX TODO: include synapses
+        self.generate_module_code(neurons, synapses)
 
-    def generate_module_code(self, neurons):
+    def generate_module_code(self, neurons, synapses):
         # type: (list(ASTNeuron)) -> None
         """
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
@@ -89,6 +89,7 @@ class NESTCodeGenerator(CodeGenerator):
         :type neurons: list(ASTNeuron)
         """
         namespace = {'neurons': neurons,
+                     'synapses': synapses,
                      'moduleName': FrontendConfiguration.get_module_name(),
                      'now': datetime.datetime.utcnow()}
         if not os.path.exists(FrontendConfiguration.get_target_path()):
@@ -139,7 +140,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         for synapse in synapses:
             if Logger.logging_level == LoggingLevel.INFO:
-                print("Analysing/transforming synapse {}.".format(synapse.get_name() + "_connection"))
+                print("Analysing/transforming synapse {}.".format(synapse.get_name()))
             self.analyse_synapse(synapse)
             # now store the transformed model
             self.store_transformed_model(synapse)
@@ -271,7 +272,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
-        namespace['synapseName'] = synapse.get_name() + "_connection"
+        namespace['synapseName'] = synapse.get_name()
         namespace['synapse'] = synapse
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         namespace['printer'] = NestPrinter(legacy_pretty_printer)

@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
@@ -64,7 +65,7 @@ class ASTSynapse(ASTNode):
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.Synapse) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
         super(ASTSynapse, self).__init__(source_position)
-        self.name = name
+        self.name = name + "_connection" + FrontendConfiguration.suffix
         self.body = body
         self.artifact_name = artifact_name
         self._default_weight = None
