@@ -135,7 +135,7 @@ end
 
 
 /* BeginDocumentation
-Name: hh_psc_alpha - Hodgkin Huxley neuron model.
+Name: hh_psc_alpha_implicit - Hodgkin Huxley neuron model.
 
 Description:
 
