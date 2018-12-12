@@ -74,7 +74,7 @@ nest.SetKernelStatus({'resolution': resolution})
 
 wr = nest.Create('weight_recorder')
 nest.CopyModel("static_connection_nestml", "static_connection_nestml_rec",
-			   {"weight_recorder": wr[0], "weight": 1.})
+			   {"weight_recorder": wr[0], "weight": 1., "delay" : 1.})
 
 # create spike_generators with these times
 pre_sg = nest.Create("spike_generator",
@@ -117,9 +117,9 @@ for i in range(n_spikes):
 post_spike_times = nest.GetStatus(spikedet, "events")[0]["times"]
 n_spikes = len(post_spike_times)
 for i in range(n_spikes):
-		ax3.plot(2 * list(post_spike_times), [0, 1], linewidth=2, color="red", alpha=.4)
+		ax3.plot(2 * [post_spike_times[i]], [0, 1], linewidth=2, color="red", alpha=.4)
 
-ax2.plot(nest.GetStatus(m)[0]['events']['times'], nest.GetStatus(m)[0]['V_m'])
+ax2.plot(nest.GetStatus(mm)[0]['events']['times'], nest.GetStatus(mm)[0]['V_m'])
 ax2.set_xlabel("Time [ms]")
 ax1.set_ylabel("Pre spikes")
 ax3.set_ylabel("Post spikes")
