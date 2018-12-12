@@ -100,10 +100,10 @@ neuron hh_psc_alpha_neuron:
     C_m pF = 100.0pF       # Membrane Capacitance
     E_Na mV = 50mV         # Sodium reversal potential
     E_K mV = -77.mV        # Potassium reversal potentia
-    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential) in mV
+    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0pA           # Constant Current in pA
+    I_e pA = 0pA           # Constant Current
   end
 
   internals:
@@ -243,10 +243,10 @@ neuron hh_psc_alpha_implicit:
     C_m pF = 100.0pF       # Membrane Capacitance
     E_Na mV = 50mV         # Sodium reversal potential
     E_K mV = -77.mV        # Potassium reversal potentia
-    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential) in mV
+    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0pA           # Constant Current in pA
+    I_e pA = 0pA           # Constant Current
   end
 
   internals:
