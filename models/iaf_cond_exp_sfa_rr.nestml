@@ -1,4 +1,4 @@
-/* BeginDocumentation
+/*
 Name: iaf_cond_exp_sfa_rr_implicit - Simple conductance based leaky integrate-and-fire
                             neuron model.
 
@@ -113,7 +113,7 @@ neuron iaf_cond_exp_sfa_rr_neuron:
 
 end
 
-/* BeginDocumentation
+/*
 Name: iaf_cond_exp_sfa_rr_implicit - Simple conductance based leaky integrate-and-fire
                             neuron model.
 
