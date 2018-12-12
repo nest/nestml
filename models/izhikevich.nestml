@@ -39,7 +39,7 @@ FirstVersion: 2009
 Author: Hanuschkin, Morrison, Kunkel
 SeeAlso: iaf_psc_delta, mat2_psc_exp
 */
-neuron izhikevich_neuron:
+neuron izhikevich:
 
   initial_values:
     V_m mV = -65mV # Membrane potential in mV

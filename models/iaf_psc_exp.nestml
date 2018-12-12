@@ -74,7 +74,7 @@ SeeAlso: iaf_psc_exp_ps
 FirstVersion: March 2006
 Author: Moritz Helias
 */
-neuron iaf_psc_exp_neuron:
+neuron iaf_psc_exp:
 
   state:
     r integer                               # counts number of tick during the refractory period

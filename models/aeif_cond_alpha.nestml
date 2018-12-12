@@ -30,7 +30,7 @@ References: Brette R and Gerstner W (2005) Adaptive Exponential
 
 SeeAlso: iaf_cond_alpha, aeif_cond_exp
 */
-neuron aeif_cond_alpha_neuron:
+neuron aeif_cond_alpha:
 
   initial_values:
     V_m mV = E_L      # Membrane potential
@@ -122,7 +122,7 @@ neuron aeif_cond_alpha_neuron:
 end
 
 /*
-Name: aeif_cond_alpha -  Conductance based exponential integrate-and-fire neuron
+Name: aeif_cond_alpha_implicit -  Conductance based exponential integrate-and-fire neuron
                          model according to Brette and Gerstner (2005).
 
 Description:

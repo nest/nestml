@@ -22,7 +22,7 @@ Author: Heiberg
 
 SeeAlso: iaf_cond_alpha
 */
-neuron iaf_chxk_2008_neuron:
+neuron iaf_chxk_2008:
 
   initial_values:
     V_m mV = E_L   # membrane potential

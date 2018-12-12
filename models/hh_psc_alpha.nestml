@@ -44,7 +44,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Authors: Schrader
 SeeAlso: hh_cond_exp_traub
 */
-neuron hh_psc_alpha_neuron:
+neuron hh_psc_alpha:
   state:
     r integer # number of steps in the current refractory phase
   end
