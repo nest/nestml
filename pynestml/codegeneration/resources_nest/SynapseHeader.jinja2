@@ -142,6 +142,10 @@ public:
   {{synapseName}}( const {{synapseName}}& rhs )
     : ConnectionBase( rhs )
   {
+    {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
+      P_.{{names.name(parameter)}} = rhs.P_.{{names.name(parameter)}};
+    {% endfor %}
+
     weight_ = get_named_parameter<double>(names::weight);
     set_weight(*(rhs.weight_));
   }
