@@ -42,7 +42,7 @@ SeeAlso: iaf_psc_delta, mat2_psc_exp
 neuron izhikevich:
 
   initial_values:
-    V_m mV = -65mV # Membrane potential in mV
+    V_m mV = -65mV # Membrane potential
     U_m real = 0   # Membrane potential recovery variable
   end
 
@@ -56,7 +56,7 @@ neuron izhikevich:
     b real = 0.2    # sensitivity of recovery variable
     c mV = -65 mV     # after-spike reset value of V_m
     d real = 8.0    # after-spike reset value of U_m
-    I_e pA = 0 pA   # Constant input current in pA. (R=1)
+    I_e pA = 0 pA   # Constant input current. (R=1)
     V_min mV = -inf * mV # Absolute lower value for the membrane potential.
   end
 

@@ -82,18 +82,18 @@ neuron hh_cond_exp_traub:
   end
 
   parameters:
-    g_Na nS = 20000.0nS       # Threshold Potential in mV
+    g_Na nS = 20000.0nS       # Na Conductance
     g_K nS = 6000.0nS         # K Conductance
     g_L nS = 10nS             # Leak Conductance
-    C_m pF = 200.0pF          # Membrane Capacitance in pF
+    C_m pF = 200.0pF          # Membrane Capacitance
     E_Na mV = 50mV            # Reversal potentials
     E_K mV = -90.mV           # Potassium reversal potential
-    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential) in mV
+    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential)
     V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
                               # parameters, V_T = -63mV results in a threshold around -50mV.
-    tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA              # Constant Current in pA
+    tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse
+    I_e pA = 0pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
   end
@@ -212,18 +212,18 @@ neuron hh_cond_exp_traub_implicit:
   end
 
   parameters:
-    g_Na nS = 20000.0nS       # Threshold Potential in mV
+    g_Na nS = 20000.0nS       # Na Conductance
     g_K nS = 6000.0nS         # K Conductance
     g_L nS = 10nS             # Leak Conductance
-    C_m pF = 200.0pF          # Membrane Capacitance in pF
+    C_m pF = 200.0pF          # Membrane Capacitance
     E_Na mV = 50mV            # Reversal potentials
     E_K mV = -90.mV           # Potassium reversal potential
-    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential) in mV
+    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential)
     V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
                               # parameters, V_T = -63mV results in a threshold around -50mV.
-    tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA              # Constant Current in pA
+    tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse
+    I_e pA = 0pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
   end

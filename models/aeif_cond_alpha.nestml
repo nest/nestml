@@ -54,26 +54,26 @@ neuron aeif_cond_alpha:
 
   parameters:
     # membrane parameters
-    C_m   pF = 281.0pF       # Membrane Capacitance in pF
-    t_ref ms = 0.0ms         # Refractory period in ms
-    V_reset mV = -60.0mV     # Reset Potential in mV
-    g_L nS = 30.0nS          # Leak Conductance in nS
-    E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential) in mV
-    I_e pA = 0pA             # Constant Current in pA
+    C_m   pF = 281.0pF       # Membrane Capacitance
+    t_ref ms = 0.0ms         # Refractory period
+    V_reset mV = -60.0mV     # Reset Potential
+    g_L nS = 30.0nS          # Leak Conductance
+    E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential)
+    I_e pA = 0pA             # Constant Current
 
     # spike adaptation parameters
     a nS = 4nS               # Subthreshold adaptation
     b pA = 80.5pA            # pike-triggered adaptation
     Delta_T mV = 2.0mV       # Slope factor
     tau_w ms = 144.0ms       # Adaptation time constant
-    V_th mV = -50.4mV        # Threshold Potential in mV
+    V_th mV = -50.4mV        # Threshold Potential
     V_peak mV = 0mV          # Spike detection threshold
 
     # synaptic parameters
-    E_ex mV = 0mV            # Excitatory reversal Potential in mV
-    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
-    E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
-    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+    E_ex mV = 0mV            # Excitatory reversal Potential
+    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse
+    E_in mV = -85.0mV        # Inhibitory reversal Potential
+    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse
 
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
@@ -164,8 +164,8 @@ neuron aeif_cond_alpha_implicit:
     w pA = 0 pA            # Spike-adaptation current
     g_in nS = 0 nS         # Excitatory synaptic conductance
     g_in' nS/ms = nS * e / tau_syn_in  # Excitatory synaptic conductance
-    g_ex nS = 0 nS         # Inhibitory synaptic conductance in nS
-    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
+    g_ex nS = 0 nS         # Inhibitory synaptic conductance
+    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance
   end
 
   equations:
@@ -188,26 +188,26 @@ neuron aeif_cond_alpha_implicit:
 
   parameters:
     # membrane parameters
-    C_m pF = 281.0 pF         # Membrane Capacitance in pF
-    t_ref ms = 0.0 ms         # Refractory period in ms
-    V_reset mV = -60.0 mV     # Reset Potential in mV
-    g_L nS = 30.0 nS          # Leak Conductance in nS
-    E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential) in mV
-    I_e pA = 0 pA             # Constant Current in pA
+    C_m pF = 281.0 pF         # Membrane Capacitance
+    t_ref ms = 0.0 ms         # Refractory period
+    V_reset mV = -60.0 mV     # Reset Potential
+    g_L nS = 30.0 nS          # Leak Conductance
+    E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
+    I_e pA = 0 pA             # Constant Current
 
     # spike adaptation parameters
     a nS = 4 nS               # Subthreshold adaptation
-    b pA = 80.5 pA            # pike-triggered adaptation
+    b pA = 80.5 pA            # Spike-triggered adaptation
     Delta_T mV = 2.0 mV       # Slope factor
     tau_w ms = 144.0 ms       # Adaptation time constant
-    V_th mV = -50.4 mV        # Threshold Potential in mV
+    V_th mV = -50.4 mV        # Threshold Potential
     V_peak mV = 0 mV          # Spike detection threshold
 
     # synaptic parameters
-    E_ex mV = 0 mV            # Excitatory reversal Potential in mV
-    tau_syn_ex ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse in ms
-    E_in mV = -85.0 mV        # Inhibitory reversal Potential in mV
-    tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+    E_ex mV = 0 mV            # Excitatory reversal Potential
+    tau_syn_ex ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
+    E_in mV = -85.0 mV        # Inhibitory reversal Potential
+    tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
   end
 
   internals:

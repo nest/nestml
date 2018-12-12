@@ -47,16 +47,16 @@ neuron iaf_chxk_2008:
     V_th mV = -45.0mV        # Threshold Potential
     E_ex mV = 20mV           # Excitatory reversal potential
     E_in mV = -90mV          # Inhibitory reversal potential
-    g_L nS = 100nS           # Leak Conductance in nS
+    g_L nS = 100nS           # Leak Conductance
     C_m pF = 1000.0pF        # Membrane Capacitance
-    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse in ms
+    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse
     tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
     g_ahp nS = 443.8nS       # AHP conductance
     E_ahp mV = -95mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current in pA
+    I_e pA = 0 pA            # Constant Current
 
   end
 
@@ -169,16 +169,16 @@ neuron iaf_chxk_2008_implicit:
     V_th mV = -45.0mV        # Threshold Potential
     E_ex mV = 20mV           # Excitatory reversal potential
     E_in mV = -90mV          # Inhibitory reversal potential
-    g_L nS = 100nS           # Leak Conductance in nS
+    g_L nS = 100nS           # Leak Conductance
     C_m pF = 1000.0pF        # Membrane Capacitance
-    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse in ms
+    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse
     tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
     g_ahp nS = 443.8nS       # AHP conductance
     E_ahp mV = -95mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current in pA
+    I_e pA = 0 pA            # Constant Current
 
   end
 
