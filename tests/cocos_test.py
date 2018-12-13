@@ -32,27 +32,25 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.model_parser import ModelParser
 
-# minor setup steps required
-Logger.init_logger(LoggingLevel.INFO)
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-PredefinedUnits.register_units()
-PredefinedTypes.register_types()
-PredefinedVariables.register_variables()
-PredefinedFunctions.register_functions()
 
+class CoCosTest(unittest.TestCase):
 
-class InvalidElementDefinedAfterUsage(unittest.TestCase):
-    def test(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+    def setUp(self):
+        Logger.init_logger(LoggingLevel.NO)
+        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedVariables.register_variables()
+        PredefinedFunctions.register_functions()
+
+    def test_invalid_element_defined_after_usage(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableDefinedAfterUsage.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
-
-class ValidElementDefinedAfterUsage(unittest.TestCase):
-    def test(self):
+    def test_valid_element_defined_after_usage(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -60,9 +58,7 @@ class ValidElementDefinedAfterUsage(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidElementInSameLine(unittest.TestCase):
-    def test(self):
+    def test_invalid_element_in_same_line(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -70,9 +66,7 @@ class InvalidElementInSameLine(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidElementInSameLine(unittest.TestCase):
-    def test(self):
+    def test_valid_element_in_same_line(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -80,9 +74,7 @@ class ValidElementInSameLine(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidElementNotDefinedInScope(unittest.TestCase):
-    def test(self):
+    def test_invalid_element_not_defined_in_scope(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -90,9 +82,7 @@ class InvalidElementNotDefinedInScope(unittest.TestCase):
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 4)
 
-
-class ValidElementNotDefinedInScope(unittest.TestCase):
-    def test(self):
+    def test_valid_element_not_defined_in_scope(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -101,9 +91,7 @@ class ValidElementNotDefinedInScope(unittest.TestCase):
             len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)),
             0)
 
-
-class InvalidVariableRedeclaration(unittest.TestCase):
-    def test(self):
+    def test_invalid_variable_redeclaration(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -111,9 +99,7 @@ class InvalidVariableRedeclaration(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
-
-class ValidVariableRedeclaration(unittest.TestCase):
-    def test(self):
+    def test_valid_variable_redeclaration(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -121,9 +107,7 @@ class ValidVariableRedeclaration(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidEachBlockUnique(unittest.TestCase):
-    def test(self):
+    def test_invalid_each_block_unique(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -131,9 +115,7 @@ class InvalidEachBlockUnique(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
-
-class ValidEachBlockUnique(unittest.TestCase):
-    def test(self):
+    def test_valid_each_block_unique(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -141,9 +123,7 @@ class ValidEachBlockUnique(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidFunctionUniqueAndDefined(unittest.TestCase):
-    def test(self):
+    def test_invalid_function_unique_and_defined(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -151,9 +131,7 @@ class InvalidFunctionUniqueAndDefined(unittest.TestCase):
         self.assertEqual(
             len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
 
-
-class ValidFunctionUniqueAndDefined(unittest.TestCase):
-    def test(self):
+    def test_valid_function_unique_and_defined(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -161,9 +139,7 @@ class ValidFunctionUniqueAndDefined(unittest.TestCase):
         self.assertEqual(
             len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidFunctionsHaveRhs(unittest.TestCase):
-    def test(self):
+    def test_invalid_functions_have_rhs(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -171,9 +147,7 @@ class InvalidFunctionsHaveRhs(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidFunctionsHaveRhs(unittest.TestCase):
-    def test(self):
+    def test_valid_functions_have_rhs(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -181,9 +155,7 @@ class ValidFunctionsHaveRhs(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidFunctionHasSeveralLhs(unittest.TestCase):
-    def test(self):
+    def test_invalid_function_has_several_lhs(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -191,9 +163,7 @@ class InvalidFunctionHasSeveralLhs(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidFunctionHasSeveralLhs(unittest.TestCase):
-    def test(self):
+    def test_valid_function_has_several_lhs(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -201,9 +171,7 @@ class ValidFunctionHasSeveralLhs(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidNoValuesAssignedToBuffers(unittest.TestCase):
-    def test(self):
+    def test_invalid_no_values_assigned_to_buffers(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -211,9 +179,7 @@ class InvalidNoValuesAssignedToBuffers(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
-
-class ValidNoValuesAssignedToBuffers(unittest.TestCase):
-    def test(self):
+    def test_valid_no_values_assigned_to_buffers(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -221,9 +187,7 @@ class ValidNoValuesAssignedToBuffers(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidOrderOfEquationsCorrect(unittest.TestCase):
-    def test(self):
+    def test_invalid_order_of_equations_correct(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -231,9 +195,7 @@ class InvalidOrderOfEquationsCorrect(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidOrderOfEquationsCorrect(unittest.TestCase):
-    def test(self):
+    def test_valid_order_of_equations_correct(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -241,9 +203,7 @@ class ValidOrderOfEquationsCorrect(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidNumeratorOfUnitOne(unittest.TestCase):
-    def test(self):
+    def test_invalid_numerator_of_unit_one(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -251,9 +211,7 @@ class InvalidNumeratorOfUnitOne(unittest.TestCase):
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 2)
 
-
-class ValidNumeratorOfUnitOne(unittest.TestCase):
-    def test(self):
+    def test_valid_numerator_of_unit_one(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -261,27 +219,21 @@ class ValidNumeratorOfUnitOne(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidNamesOfNeuronsUnique(unittest.TestCase):
-    def test(self):
+    def test_invalid_names_of_neurons_unique(self):
         Logger.init_logger(LoggingLevel.NO)
         ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoMultipleNeuronsWithEqualName.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(None, LoggingLevel.ERROR)), 1)
 
-
-class ValidNamesOfNeuronsUnique(unittest.TestCase):
-    def test(self):
+    def test_valid_names_of_neurons_unique(self):
         Logger.init_logger(LoggingLevel.NO)
         ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoMultipleNeuronsWithEqualName.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(None, LoggingLevel.ERROR)), 0)
 
-
-class InvalidNoNestCollision(unittest.TestCase):
-    def test(self):
+    def test_invalid_no_nest_collision(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -289,9 +241,7 @@ class InvalidNoNestCollision(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidNoNestCollision(unittest.TestCase):
-    def test(self):
+    def test_valid_no_nest_collision(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -299,9 +249,7 @@ class ValidNoNestCollision(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidRedundantBufferKeywordsDetected(unittest.TestCase):
-    def test(self):
+    def test_invalid_redundant_buffer_keywords_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -309,9 +257,7 @@ class InvalidRedundantBufferKeywordsDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidRedundantBufferKeywordsDetected(unittest.TestCase):
-    def test(self):
+    def test_valid_redundant_buffer_keywords_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -319,9 +265,7 @@ class ValidRedundantBufferKeywordsDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
-    def test(self):
+    def test_invalid_parameters_assigned_only_in_parameters_block(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -329,9 +273,7 @@ class InvalidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
-    def test(self):
+    def test_valid_parameters_assigned_only_in_parameters_block(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -339,9 +281,7 @@ class ValidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
-    def test(self):
+    def test_invalid_current_buffers_not_specified_with_keywords(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -349,9 +289,7 @@ class InvalidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
-    def test(self):
+    def test_valid_current_buffers_not_specified(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -359,9 +297,7 @@ class ValidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidSpikeBufferWithoutDatatype(unittest.TestCase):
-    def test(self):
+    def test_invalid_spike_buffer_without_datatype(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -369,9 +305,7 @@ class InvalidSpikeBufferWithoutDatatype(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidSpikeBufferWithoutDatatype(unittest.TestCase):
-    def test(self):
+    def test_valid_spike_buffer_without_datatype(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -379,9 +313,7 @@ class ValidSpikeBufferWithoutDatatype(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidFunctionWithWrongArgNumberDetected(unittest.TestCase):
-    def test(self):
+    def test_invalid_function_with_wrong_arg_number_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -389,9 +321,7 @@ class InvalidFunctionWithWrongArgNumberDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidFunctionWithWrongArgNumberDetected(unittest.TestCase):
-    def test(self):
+    def test_valid_function_with_wrong_arg_number_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -399,9 +329,7 @@ class ValidFunctionWithWrongArgNumberDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidInitValuesHaveRhsAndOde(unittest.TestCase):
-    def test(self):
+    def test_invalid_init_values_have_rhs_and_ode(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -409,9 +337,7 @@ class InvalidInitValuesHaveRhsAndOde(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 3)
 
-
-class ValidInitValuesHaveRhsAndOde(unittest.TestCase):
-    def test(self):
+    def test_valid_init_values_have_rhs_and_ode(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -419,9 +345,7 @@ class ValidInitValuesHaveRhsAndOde(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidIncorrectReturnStmtDetected(unittest.TestCase):
-    def test(self):
+    def test_invalid_incorrect_return_stmt_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -429,9 +353,7 @@ class InvalidIncorrectReturnStmtDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
 
-
-class ValidIncorrectReturnStmtDetected(unittest.TestCase):
-    def test(self):
+    def test_valid_incorrect_return_stmt_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -439,9 +361,7 @@ class ValidIncorrectReturnStmtDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
-    def test(self):
+    def test_invalid_ode_vars_outside_init_block_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -449,9 +369,7 @@ class InvalidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
-    def test(self):
+    def test_valid_ode_vars_outside_init_block_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -459,9 +377,7 @@ class ValidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidConvolveCorrectlyDefined(unittest.TestCase):
-    def test(self):
+    def test_invalid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -469,9 +385,7 @@ class InvalidConvolveCorrectlyDefined(unittest.TestCase):
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 3)
 
-
-class ValidConvolveCorrectlyDefined(unittest.TestCase):
-    def test(self):
+    def test_valid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -479,9 +393,7 @@ class ValidConvolveCorrectlyDefined(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidVectorInNonVectorDeclarationDetected(unittest.TestCase):
-    def test(self):
+    def test_invalid_vector_in_non_vector_declaration_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -489,9 +401,7 @@ class InvalidVectorInNonVectorDeclarationDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidVectorInNonVectorDeclarationDetected(unittest.TestCase):
-    def test(self):
+    def test_valid_vector_in_non_vector_declaration_detected(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -499,9 +409,7 @@ class ValidVectorInNonVectorDeclarationDetected(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidSumCorrectlyParametrized(unittest.TestCase):
-    def test(self):
+    def test_invalid_sum_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -509,9 +417,7 @@ class InvalidSumCorrectlyParametrized(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
-
-class ValidSumCorrectlyParametrized(unittest.TestCase):
-    def test(self):
+    def test_valid_sum_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -519,9 +425,7 @@ class ValidSumCorrectlyParametrized(unittest.TestCase):
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 0)
 
-
-class InvalidInvariantCorrectlyTyped(unittest.TestCase):
-    def test(self):
+    def test_invalid_invariant_correctly_typed(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -529,9 +433,7 @@ class InvalidInvariantCorrectlyTyped(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-
-class ValidInvariantCorrectlyTyped(unittest.TestCase):
-    def test(self):
+    def test_valid_invariant_correctly_typed(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
@@ -539,9 +441,7 @@ class ValidInvariantCorrectlyTyped(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-
-class InvalidExpressionCorrectlyTyped(unittest.TestCase):
-    def test(self):
+    def test_invalid_expression_correctly_typed(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
@@ -549,16 +449,10 @@ class InvalidExpressionCorrectlyTyped(unittest.TestCase):
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 6)
 
-
-class ValidExpressionCorrectlyTyped(unittest.TestCase):
-    def test(self):
+    def test_valid_expression_correctly_typed(self):
         Logger.set_logging_level(LoggingLevel.NO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoIllegalExpression.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
-
-
-if __name__ == '__main__':
-    unittest.main()
