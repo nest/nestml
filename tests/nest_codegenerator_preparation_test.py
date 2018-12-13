@@ -1,5 +1,5 @@
 #
-# PyNestMLFrontendTest.py
+# nest_codegenerator_preparation_test.py
 #
 # This file is part of NEST.
 #
