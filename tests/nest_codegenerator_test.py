@@ -32,19 +32,19 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
-# setups the infrastructure
-PredefinedUnits.register_units()
-PredefinedTypes.register_types()
-PredefinedFunctions.register_functions()
-PredefinedVariables.register_variables()
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-Logger.init_logger(LoggingLevel.NO)
-
 
 class CodeGeneratorTest(unittest.TestCase):
     """
     Tests code generator with a psc, cond, delta and arbitrary model
     """
+
+    def setUp(self):
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedFunctions.register_functions()
+        PredefinedVariables.register_variables()
+        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        Logger.init_logger(LoggingLevel.NO)
 
     def test_model_preparation(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -95,7 +95,6 @@ class CodeGeneratorTest(unittest.TestCase):
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
-        tear_down()
 
     def test_iaf_psc_delta(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -115,7 +114,6 @@ class CodeGeneratorTest(unittest.TestCase):
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
-        tear_down()
 
     def test_iaf_cond_alpha_implicit(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -137,7 +135,6 @@ class CodeGeneratorTest(unittest.TestCase):
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(iaf_cond_alpha_implicit)
-        tear_down()
 
     def test_iaf_cond_alpha_functional(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -159,14 +156,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
-        tear_down()
 
-
-def tear_down():
-    # clean up
-    import shutil
-    shutil.rmtree(FrontendConfiguration.target_path)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(FrontendConfiguration.target_path)
