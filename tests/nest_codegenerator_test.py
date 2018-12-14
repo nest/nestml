@@ -131,8 +131,4 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def tearDown(self):
         import shutil
-        #try:
-        #    shutil.rmtree(self.target_path)
         shutil.rmtree(self.target_path)
-        #except:
-        #    pass
