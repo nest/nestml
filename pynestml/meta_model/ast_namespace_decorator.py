@@ -22,17 +22,17 @@ from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
-class ASTMagicNamespace(ASTNode):
+class ASTNamespaceDecorator(ASTNode):
     """
     """
 
     def __init__(self, namespace=None, name=None, source_position=None):
         """
         """
-        super(ASTMagicNamespace, self).__init__(source_position)
+        super(ASTNamespaceDecorator, self).__init__(source_position)
         self.namespace = namespace
         self.name = name
-        print("*********** CREATD ASTMagicNamespace wth " + str(name) + ", namespace= " + str(namespace))
+        print("*********** CREATD ASTNamespaceDecorator wth " + str(name) + ", namespace= " + str(namespace))
 
     def get_namespace(self):
         """
@@ -72,7 +72,7 @@ class ASTMagicNamespace(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTMagicNamespace):
+        if not isinstance(other, ASTNamespaceDecorator):
             return False
         return (self.get_name().equals(other.get_name()) and
                 self.get_namespace().equals(other.get_namespace()))

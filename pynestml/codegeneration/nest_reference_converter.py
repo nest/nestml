@@ -108,7 +108,9 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         elif function_name == PredefinedFunctions.DELIVER_SPIKE:
             return 'e.set_weight( %s );\n' \
-                   'e.set_delay_steps( %s );\n' \
+                   'const double _foo = %s;'\
+                   'e.set_delay_steps( _foo );\n' \
+                   'std::cout << "XXX: setting dlay steps to " << _foo << "\\n";'\
                    'e.set_receiver( *get_target( tid ) );\n' \
                    'e.set_rport( get_rport() );\n' \
                    'e()'

@@ -56,7 +56,7 @@ from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
-from pynestml.meta_model.ast_magic_namespace import ASTMagicNamespace
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_ode_function import ASTOdeFunction
@@ -111,8 +111,8 @@ class ASTNodeFactory(object):
                                      source_position)
 
     @classmethod
-    def create_ast_magic_namespace(cls, namespace=None, name=None, source_position=None):
-        return ASTMagicNamespace(namespace, name, source_position)
+    def create_ast_namespace_decorator(cls, namespace=None, name=None, source_position=None):
+        return ASTNamespaceDecorator(namespace, name, source_position)
 
     @classmethod
     def create_ast_pre_receive(cls, block=None, source_position=None):
@@ -155,10 +155,10 @@ class ASTNodeFactory(object):
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                source_position=None,  # type: ASTSourceLocation
-                               magicKeywords=[]  # type: list
+                               decorators=[],  # type: list
                                ):  # type: (...) -> ASTDeclaration
         return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
-                              source_position, magicKeywords)
+                              source_position, decorators)
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):

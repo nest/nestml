@@ -100,8 +100,18 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#anyMagicKeyword.
-    def visitAnyMagicKeyword(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#anyDecorator.
+    def visitAnyDecorator(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorNamespace.
+    def visitNamespaceDecoratorNamespace(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorName.
+    def visitNamespaceDecoratorName(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -162,6 +172,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNestMLParser#synapseBody.
     def visitSynapseBody(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#preReceiveBlock.
+    def visitPreReceiveBlock(self, ctx):
         return self.visitChildren(ctx)
 
 

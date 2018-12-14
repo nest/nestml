@@ -107,12 +107,64 @@ private:
     /** Initialize parameters to their default values. */
     Parameters_() {};
   };
+{#
+  /**
+   * All parameters marked as homogeneous will go into a CommonPropertiesDictionary
+  **/
+  {%- for paramBlock in synapse.get_parameter_blocks() %}
+    {%- for decl in paramBlock.get_declarations() %}
+    {%- set isHomogeneous = PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in decl.get_magic_keywords() %}
+    {%- if (isHomogeneous) %}
+    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
+    {%- set parameterName = decl.get_variables()[0].name %}
+  homeogensou decl -->> {{parameterName}}
+
+    {%- endif %}
+
+    {%- set isHeterogeneous = PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS in decl.get_magic_keywords() %}
+    {%- if (isHeterogeneous) %}
+    {%- set parameterName = decl.get_variables()[0].name %}
+  heterogensou decl -->> {{parameterName}}
+
+    {%- endif %}
+
+
+    {%- endfor %}
+  {%- endfor %}
+
+#}
+
+
 
   Parameters_ P_;  //!< Free parameters.
 
 public:
+
+
+  template < typename targetidentifierT >
+  class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
+  public:
+    {{synapseName}}CommonSynapseProperties()
+      : CommonSynapseProperties()
+    {
+      {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
+      {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+      {%- if (isHomogeneous) %}
+      // {-{ assert ( decl.get_variables()|length == 1 ) }-}
+      {%- set parameterName = names.name(parameter) %}
+      { - {declarations.print_variable_type(parameterName)} -} {{parameterName}};
+      {%- endif %}
+      {%- endfor %}
+    }
+  }
+
+
+
+
+
+
   // this line determines which common properties to use
-  typedef CommonSynapseProperties CommonPropertiesType;
+  typedef {{synapseName}}CommonSynapseProperties CommonPropertiesType;
 
   typedef Connection< targetidentifierT > ConnectionBase;
 
@@ -213,19 +265,16 @@ public:
   **/
   template < typename T >
   T* get_named_parameter(const Name &n) {
-    {%- for paramBlock in synapse.get_parameter_blocks() %}
-    {%- for decl in paramBlock.get_declarations() %}
-    {%- set namespaceName = decl.get_namespace_decorator("nest") %}
+    {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
+    {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
     // {-{ assert ( decl.get_variables()|length == 1 ) }-}
-    {%- set parameterName = decl.get_variables()[0].name %}
+    {%- set parameterName = names.name(parameter) %}
     if (n == names::{{namespaceName}}) {
       return &P_.{{parameterName}}; // type: {- {declarations.print_variable_type(parameter)} -}
     }
+    {%- endfor %}
 
     assert(false);    // unknown name requested
-
-    {%- endfor %}
-    {%- endfor %}
   }
 
 

@@ -347,9 +347,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_recordable = (True if ctx.isRecordable is not None else False)
         is_function = (True if ctx.isFunction is not None else False)
 
-        magicKeywords = []
-        for kw in ctx.anyMagicKeyword():
-            magicKeywords.append(self.visit(kw))
+        decorators = []
+        import pdb;pdb.set_trace()
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
 
         variables = list()
         for var in ctx.variable():
@@ -358,12 +359,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_param = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
+        import pdb;pdb.set_trace()
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_function=is_function,
                                                             variables=variables, data_type=data_type,
                                                             size_parameter=size_param,
                                                             expression=expression,
                                                             invariant=invariant, source_position=create_source_pos(ctx),
-                                                            magicKeywords=magicKeywords)
+                                                            decorators=decorators)
         update_node_comments(declaration, self.__comments.visit(ctx))
         return declaration
 
@@ -457,22 +459,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # now the meta_model seems to be correct, return it
         return neuron
 
-    def visitMagicNamespace(self, ctx):
+    def visitNamespaceDecoratorNamespace(self, ctx):
             return ctx.NAME()
 
-    def visitMagicNamespaceName(self, ctx):
+    def visitNamespaceDecoratorName(self, ctx):
             return ctx.NAME()
 
-    def visitAnyMagicKeyword(self, ctx):
+    def visitAnyDecorator(self, ctx):
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
-        if ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS, 0) is not None:
-            return PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS
-        elif ctx.getToken(PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS, 0) is not None:
-            return PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS
+        if ctx.getToken(PyNestMLLexer.DECORATOR_HETEROGENEOUS, 0) is not None:
+            return PyNestMLLexer.DECORATOR_HETEROGENEOUS
+        elif ctx.getToken(PyNestMLLexer.DECORATOR_HOMOGENEOUS, 0) is not None:
+            return PyNestMLLexer.DECORATOR_HOMOGENEOUS
         elif ctx.getToken(PyNestMLLexer.AT, 0) is not None:
-            magicNamespace = self.visit(ctx.magicNamespace()) if ctx.magicNamespace() is not None else None
-            magicNamespaceName = self.visit(ctx.magicNamespaceName()) if ctx.magicNamespaceName() is not None else None
-            return ASTNodeFactory.create_ast_magic_namespace(magicNamespace, magicNamespaceName, source_position=create_source_pos(ctx))
+            namespaceDecoratorNamespace = self.visit(ctx.namespaceDecoratorNamespace()) if ctx.namespaceDecoratorNamespace() is not None else None
+            namespaceDecoratorName = self.visit(ctx.namespaceDecoratorName()) if ctx.namespaceDecoratorName() is not None else None
+            return ASTNodeFactory.create_ast_namespace_decorator(namespaceDecoratorNamespace, namespaceDecoratorName, source_position=create_source_pos(ctx))
         else:
             return None
 
@@ -491,22 +493,22 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
-        print("Creating the synapse body now")
+        print("Creating ASTSynapse...")
         synapse = ASTNodeFactory.create_ast_synapse(name=name, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
 
         # # find the @heterogeneous/@homogeneous magic keyword
-        # for parameter_block in body.get_parameter_blocks():
-        #     for i, astDeclaration in enumerate(parameter_block.declarations):
-        #         assert not (PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_variables() \
-        #             and PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_variables()), PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS + " and " + PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS + " keywords cannot be combined"
-        #         if PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS in astDeclaration.get_magic_keywords():
-        #             assert len(astDeclaration.get_variables()) == 1, PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS + " keyword can only apply to a single variable"
-        #             # synapse.set_default_weight(astDeclaration.get_variables()[0])
-        #             synapse.set_parameter_heterogeneous(var=astDeclaration.get_variables()[0])
-        #         elif PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_magic_keywords():
-        #             assert len(astDeclaration.get_variables()) == 1, PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS + " keyword can only apply to a single variable"
-        #             synapse.set_parameter_homogeneous(var=astDeclaration.get_variables()[0])
+        """for parameter_block in body.get_parameter_blocks():
+            for i, astDeclaration in enumerate(parameter_block.declarations):
+                assert not (PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_variables() \
+                    and PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_variables()), PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS + " and " + PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS + " keywords cannot be combined"
+                if PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS in astDeclaration.get_magic_keywords():
+                    assert len(astDeclaration.get_variables()) == 1, PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS + " keyword can only apply to a single variable"
+                    # synapse.set_default_weight(astDeclaration.get_variables()[0])
+                    synapse.set_parameter_heterogeneous(var=astDeclaration.get_variables()[0])
+                elif PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_magic_keywords():
+                    assert len(astDeclaration.get_variables()) == 1, PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS + " keyword can only apply to a single variable"
+                    synapse.set_parameter_homogeneous(var=astDeclaration.get_variables()[0])"""
 
         # update the comments
         update_node_comments(synapse, self.__comments.visit(ctx))

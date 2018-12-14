@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.scope import Scope, ScopeType
@@ -338,7 +339,20 @@ class ASTSymbolTableVisitor(ASTVisitor):
                          self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
+        
+
+        # split the decorators in the AST up into namespace decorators and other decorators
+        decorators = []
+        namespace_decorators = {}
+        for d in node.get_decorators():
+            if isinstance(d, ASTNamespaceDecorator):
+                namespace_decorators[str(d.get_namespace())] = str(d.get_name())
+            else:
+                decorators.append(d)
+
         # now for each variable create a symbol and update the scope
+        print("Creating VariableSymbol with decorators = " + str(decorators) + ", namespace_decorators = " + str(namespace_decorators))
+        import pdb;pdb.set_trace()
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
@@ -346,13 +360,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
                                     block_type=self.block_type_stack.top(),
-                                    declaring_expression=expression, is_predefined=False,
+                                    declaring_expression=expression,
+                                    is_predefined=False,
                                     is_function=node.is_function,
                                     is_recordable=is_recordable,
                                     type_symbol=type_symbol,
                                     initial_value=init_value,
                                     vector_parameter=vector_parameter,
-                                    variable_type=VariableType.VARIABLE
+                                    variable_type=VariableType.VARIABLE,
+                                    decorators=decorators,
+                                    namespace_decorators=namespace_decorators
                                     )
             symbol.set_comment(node.get_comment())
             node.get_scope().add_symbol(symbol)

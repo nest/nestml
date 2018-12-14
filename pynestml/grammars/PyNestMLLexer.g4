@@ -40,7 +40,7 @@ lexer grammar PyNestMLLexer;
   /**
   * Symbols and literals are parsed first
   *
-  * Magic (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a magic keyword. (Rules are matched in the order in which they appear.)
+  * Decorator (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a decorator keyword. (Rules are matched in the order in which they appear.)
   */
 
   END_KEYWORD : 'end';
@@ -81,8 +81,8 @@ lexer grammar PyNestMLLexer;
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';
 
-  MAGIC_KEYWORD_HOMOGENEOUS : '@homogeneous';
-  MAGIC_KEYWORD_HETEROGENEOUS : '@heterogeneous';
+  DECORATOR_HOMOGENEOUS : '@homogeneous';
+  DECORATOR_HETEROGENEOUS : '@heterogeneous';
 
   AT : '@';
   ELLIPSIS : '...';

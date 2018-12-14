@@ -48,7 +48,7 @@ class VariableSymbol(Symbol):
 
     def __init__(self, element_reference=None, scope=None, name=None, block_type=None, vector_parameter=None,
                  declaring_expression=None, is_predefined=False, is_function=False, is_recordable=False,
-                 type_symbol=None, initial_value=None, variable_type=None):
+                 type_symbol=None, initial_value=None, variable_type=None, decorators=[], namespace_decorators={}):
         """
         Standard constructor.
         :param element_reference: a reference to the first element where this type has been used/defined
@@ -75,6 +75,10 @@ class VariableSymbol(Symbol):
         :type initial_value: ASTExpression
         :param variable_type: the type of the variable
         :type variable_type: VariableType
+        :param decorators: a list of decorator keywords
+        :type decorators list
+        :param namespace_decorators a list of namespace decorators
+        :type namespace_decorators list
         """
         super(VariableSymbol, self).__init__(element_reference=element_reference, scope=scope,
                                              name=name, symbol_kind=SymbolKind.VARIABLE)
@@ -89,6 +93,23 @@ class VariableSymbol(Symbol):
         self.variable_type = variable_type
         self.ode_declaration = None
         self.is_conductance_based = False
+        self.decorators = decorators
+        self.namespace_decorators = namespace_decorators
+
+    def has_decorators(self):
+        return len(self.decorators) > 0
+
+    def get_decorators(self):
+        """
+        Returns PyNESTMLLexer static variable codes
+        """
+        return self.decorators
+
+    def get_namespace_decorators(self):
+        return self.namespace_decorators
+
+    def get_namespace_decorator(self, namespace):
+        return self.namespace_decorators[namespace]
 
     def has_vector_parameter(self):
         """

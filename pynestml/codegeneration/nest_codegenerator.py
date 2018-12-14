@@ -288,6 +288,12 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
 
+        namespace["PyNestMLLexer"] = {}
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+        for kw in dir(PyNestMLLexer):
+            if kw.isupper():
+                namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
+
         # self.define_solver_type(synapse, namespace)
         return namespace
 
