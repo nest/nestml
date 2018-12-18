@@ -102,6 +102,39 @@ class NestPrinter(object):
     @classmethod
     def print_origin(cls, variable_symbol):
         """
+        Returns a prefix corresponding to the origin of the variable symbol as a C++ object. Can be used for e.g. calling resize() on vector variables.
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
+        :return: the corresponding prefix
+        :rtype: str
+        """
+        assert isinstance(variable_symbol, VariableSymbol), \
+            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
+                variable_symbol)
+        if variable_symbol.block_type == BlockType.STATE:
+            return 'S_.%s'
+        elif variable_symbol.block_type == BlockType.INITIAL_VALUES:
+            return 'S_.%s'
+        elif variable_symbol.block_type == BlockType.EQUATION:
+            return 'S_.%s'
+        elif variable_symbol.block_type == BlockType.PARAMETERS:
+            if variable_symbol.is_homogeneous():
+                # get the variable from the common properties dictionary
+                return 'cp.%s'
+            else:
+                return 'P_.%s'
+        elif variable_symbol.block_type == BlockType.INTERNALS:
+            return 'V_.%s'
+        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
+            return 'B_.%s'
+        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
+            return 'B_.%s'
+        else:
+            return ''
+
+    @classmethod
+    def print_origin_getter(cls, variable_symbol):
+        """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
         :type variable_symbol: VariableSymbol
@@ -112,19 +145,56 @@ class NestPrinter(object):
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 variable_symbol)
         if variable_symbol.block_type == BlockType.STATE:
-            return 'S_.'
+            return 'S_.%s'
         elif variable_symbol.block_type == BlockType.INITIAL_VALUES:
-            return 'S_.'
+            return 'S_.%s'
         elif variable_symbol.block_type == BlockType.EQUATION:
-            return 'S_.'
+            return 'S_.%s'
         elif variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'P_.'
+            if variable_symbol.is_homogeneous():
+                # get the variable from the common properties dictionary
+                return 'cp.%s'
+            else:
+                return 'P_.%s'
         elif variable_symbol.block_type == BlockType.INTERNALS:
-            return 'V_.'
+            return 'V_.%s'
         elif variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
-            return 'B_.'
+            return 'B_.%s'
         elif variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
-            return 'B_.'
+            return 'B_.%s'
+        else:
+            return ''
+
+    @classmethod
+    def print_origin_setter(cls, variable_symbol):
+        """
+        Returns a prefix corresponding to the origin of the variable symbol.
+        :param variable_symbol: a single variable symbol.
+        :type variable_symbol: VariableSymbol
+        :return: the corresponding prefix
+        :rtype: str
+        """
+        assert isinstance(variable_symbol, VariableSymbol), \
+            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
+                variable_symbol)
+        if variable_symbol.block_type == BlockType.STATE:
+            return 'S_.%s = %s'
+        elif variable_symbol.block_type == BlockType.INITIAL_VALUES:
+            return 'S_.%s = %s'
+        elif variable_symbol.block_type == BlockType.EQUATION:
+            return 'S_.%s = %s'
+        elif variable_symbol.block_type == BlockType.PARAMETERS:
+            if variable_symbol.is_homogeneous():
+                # set the variable in the common properties dictionary
+                return 'cp.%s = %s'
+            else:
+                return 'P_.%s = %s'
+        elif variable_symbol.block_type == BlockType.INTERNALS:
+            return 'V_.%s = %s'
+        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
+            return 'B_.%s = %s'
+        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
+            return 'B_.%s = %s'
         else:
             return ''
 

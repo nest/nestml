@@ -370,9 +370,9 @@ class ASTNodeFactory(object):
         return ASTUpdateBlock(block, source_position)
 
     @classmethod
-    def create_ast_variable(cls, name, differential_order=0, source_position=None):
+    def create_ast_variable(cls, name, differential_order=0, source_position=None, is_homogeneous=False):
         # type: (str,int,ASTSourceLocation) -> ASTVariable
-        return ASTVariable(name, differential_order, source_position)
+        return ASTVariable(name, differential_order, source_position, is_homogeneous)
 
     @classmethod
     def create_ast_while_stmt(cls,

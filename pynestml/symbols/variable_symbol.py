@@ -26,7 +26,7 @@ from pynestml.meta_model.ast_input_line import ASTInputLine
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
-
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 
 class VariableSymbol(Symbol):
     """
@@ -95,6 +95,9 @@ class VariableSymbol(Symbol):
         self.is_conductance_based = False
         self.decorators = decorators
         self.namespace_decorators = namespace_decorators
+
+    def is_homogeneous(self):
+        return PyNestMLLexer.DECORATOR_HOMOGENEOUS in self.decorators
 
     def has_decorators(self):
         return len(self.decorators) > 0

@@ -250,7 +250,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
-                                                  source_position=create_source_pos(ctx))
+                                                  source_position=create_source_pos(ctx),)
+                                                  # is_homogeneous=is_homogeneous)
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
@@ -348,7 +349,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_function = (True if ctx.isFunction is not None else False)
 
         decorators = []
-        import pdb;pdb.set_trace()
         for kw in ctx.anyDecorator():
             decorators.append(self.visit(kw))
 
@@ -359,7 +359,21 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_param = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
-        import pdb;pdb.set_trace()
+
+
+        # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
+        # # check if this variable was decorated as homogeneous
+        # import pynestml.generated.PyNestMLLexer
+        # is_homogeneous = any([isinstance(ch, pynestml.generated.PyNestMLParser.PyNestMLParser.AnyDecoratorContext) \
+        #   and len(ch.getTokens(pynestml.generated.PyNestMLLexer.PyNestMLLexer.DECORATOR_HOMOGENEOUS)) > 0 \
+        #   for ch in ctx.parentCtx.children])
+        # if is_homogeneous:
+        #     print("\t----> is homogeneous")
+        # import pdb;pdb.set_trace()
+
+
+
+
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_function=is_function,
                                                             variables=variables, data_type=data_type,
                                                             size_parameter=size_param,

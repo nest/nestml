@@ -59,13 +59,34 @@
 namespace nest
 {
 
+template < typename targetidentifierT >
+class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
+public:
+
+    // N.B.: we lazily define all parameters as public for easy reference conversion later on.
+    // This may or may not benefit performance. (todo: write inline getters/setters?)
+
+    {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if (isHomogeneous) %}
+    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
+    {%- set parameterName = names.name(parameter) %}
+    {{declarations.print_variable_type(parameter)}} {{parameter.get_symbol_name()}};
+    {%- endif %}
+    {%- endfor %}
+
+  {{synapseName}}CommonSynapseProperties()
+    : CommonSynapseProperties()
+  {
+  }
+};
+
+
 /**
  * Class representing a static connection. A static connection has the
  * properties weight, delay and receiver port. A suitable Connector containing
  * these connections can be obtained from the template GenericConnector.
  */
-
-
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
 {
@@ -96,9 +117,15 @@ private:
   */
   struct Parameters_{
     {% filter indent(4,True) %}
-    {% for variable in synapse.get_parameter_non_alias_symbols() -%}
-      {% include 'directives/MemberDeclaration.jinja2' -%}
-    {% endfor -%}{% endfilter %}
+    {%- for variable in synapse.get_parameter_non_alias_symbols() -%}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable.get_decorators() %}
+    {%- if (not isHomogeneous) %}
+    {%-   include 'directives/MemberDeclaration.jinja2' -%}
+    {%- else %}
+    // N.B. the parameter `{{names.name(variable)}}` is defined in the common properties class
+    {%- endif %}
+    {%- endfor -%}
+    {% endfilter %}
 
     {% if useGSL -%}
     double __gsl_error_tol;
@@ -107,70 +134,44 @@ private:
     /** Initialize parameters to their default values. */
     Parameters_() {};
   };
-{#
-  /**
-   * All parameters marked as homogeneous will go into a CommonPropertiesDictionary
-  **/
-  {%- for paramBlock in synapse.get_parameter_blocks() %}
-    {%- for decl in paramBlock.get_declarations() %}
-    {%- set isHomogeneous = PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in decl.get_magic_keywords() %}
-    {%- if (isHomogeneous) %}
-    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
-    {%- set parameterName = decl.get_variables()[0].name %}
-  homeogensou decl -->> {{parameterName}}
-
-    {%- endif %}
-
-    {%- set isHeterogeneous = PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS in decl.get_magic_keywords() %}
-    {%- if (isHeterogeneous) %}
-    {%- set parameterName = decl.get_variables()[0].name %}
-  heterogensou decl -->> {{parameterName}}
-
-    {%- endif %}
-
-
-    {%- endfor %}
-  {%- endfor %}
-
-#}
-
 
 
   Parameters_ P_;  //!< Free parameters.
 
+{#
+  /**
+   * All parameters marked as homogeneous will go into a CommonPropertiesDictionary
+  **/
+
+  {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if (isHomogeneous) %}
+    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
+    {%- set parameterName = names.name(parameter) %}
+    !!! homeogensou decl -->> {{parameterName}}
+    {%- endif %}
+  {%- endfor %}
+
+    {%- set isHeterogeneous = PyNestMLLexer["DECORATOR_HETEROGENEOUS"] in parameter.get_decorators() %}
+    {%- if (isHeterogeneous) %}
+    {%- set parameterName = decl.get_variables()[0].name %}
+  heterogensou decl -->> {{parameterName}}
+    {%- endif %}
+#}
+
 public:
 
-
-  template < typename targetidentifierT >
-  class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
-  public:
-    {{synapseName}}CommonSynapseProperties()
-      : CommonSynapseProperties()
-    {
-      {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
-      {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
-      {%- if (isHomogeneous) %}
-      // {-{ assert ( decl.get_variables()|length == 1 ) }-}
-      {%- set parameterName = names.name(parameter) %}
-      { - {declarations.print_variable_type(parameterName)} -} {{parameterName}};
-      {%- endif %}
-      {%- endfor %}
-    }
-  }
-
-
-
-
-
-
   // this line determines which common properties to use
-  typedef {{synapseName}}CommonSynapseProperties CommonPropertiesType;
+  typedef {{synapseName}}CommonSynapseProperties<targetidentifierT> CommonPropertiesType;
 
   typedef Connection< targetidentifierT > ConnectionBase;
 
   /**
-   * Default Constructor.
-   * Sets default values for all parameters. Needed by GenericConnectorModel.
+   * Default constructor.
+   * 
+   * Sets default values for all parameters (skipping common properties).
+   * 
+   * Needed by GenericConnectorModel.
    */
   {{synapseName}}()
     : ConnectionBase()
@@ -178,7 +179,15 @@ public:
 
   {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
+
+  {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in variable.get_decorators() %}
+  {%- if (not isHomogeneous) %}
+
+
   {%- include "directives/MemberInitialization.jinja2" %}
+
+  {%- endif %}
+
   {%- endwith %}
   {%- endfor %}
 
@@ -189,13 +198,19 @@ public:
 
   /**
    * Copy constructor from a property object.
+   * 
+   * Sets default values for all parameters (skipping common properties).
+   * 
    * Needs to be defined properly in order for GenericConnector to work.
    */
   {{synapseName}}( const {{synapseName}}& rhs )
     : ConnectionBase( rhs )
   {
     {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
-      P_.{{names.name(parameter)}} = rhs.P_.{{names.name(parameter)}};
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if (not isHomogeneous) %}
+    {{printer.print_origin_setter(parameter) % (names.name(parameter), 'rhs.' + (printer.print_origin_getter(parameter) % names.name(parameter)))}};
+    {%- endif %}
     {% endfor %}
 
     weight_ = get_named_parameter<double>(names::weight);
@@ -268,9 +283,8 @@ public:
     {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
     {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
     // {-{ assert ( decl.get_variables()|length == 1 ) }-}
-    {%- set parameterName = names.name(parameter) %}
     if (n == names::{{namespaceName}}) {
-      return &P_.{{parameterName}}; // type: {- {declarations.print_variable_type(parameter)} -}
+      return &{{printer.print_origin_getter(parameter) % names.name(parameter)}}; // type: {- {declarations.print_variable_type(parameter)} -}
     }
     {%- endfor %}
 
@@ -309,6 +323,9 @@ public:
   void
   send( Event& e, const thread tid, const CommonSynapseProperties& )
   {
+
+// XXX: how to pass bool to function transform?
+
 
     {%- set dynamics = synapse.get_pre_receive() -%}
     {%- with ast = dynamics.get_block() -%}{%- filter indent(2,True) -%}

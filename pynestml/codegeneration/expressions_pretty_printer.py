@@ -48,6 +48,8 @@ class ExpressionsPrettyPrinter(object):
 
     def print_expression(self, node):
         # type: (ASTExpressionNode) -> str
+        print("In ExpressionsPrettyPrinter::print_expression()")
+        print(" -------> expr= " +str(self.__do_print(node)))
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
         else:
@@ -55,6 +57,8 @@ class ExpressionsPrettyPrinter(object):
 
     def __do_print(self, node):
         # type: (ASTExpressionNode) -> str
+        print("In ExpressionsPrettyPrinter::__do_print()")
+        # import pdb;pdb.set_trace()
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
@@ -71,6 +75,9 @@ class ExpressionsPrettyPrinter(object):
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
+                print("In ExpressionsPrettyPrinter::__do_print(): name = " + str(self.reference_converter.convert_name_reference(node.get_variable())))
+                # node.get_variable().is_homogeneous()
+                import pdb;pdb.set_trace()
                 return self.reference_converter.convert_name_reference(node.get_variable())
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call())
@@ -105,7 +112,9 @@ class ExpressionsPrettyPrinter(object):
     def print_function_call(self, function_call):
         # type: (ASTFunctionCall) -> str
         function_name = self.reference_converter.convert_function_call(function_call)
+        print("In ExpressionsPrettyPrinter::print_function_call() " + str(function_name))
         if ASTUtils.needs_arguments(function_call):
+            import pdb;pdb.set_trace()
             return function_name % self.print_function_call_argument_list(function_call)
         else:
             return function_name

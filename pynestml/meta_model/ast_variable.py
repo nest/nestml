@@ -37,7 +37,7 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, source_position=None):
+    def __init__(self, name, differential_order=0, source_position=None, is_homogeneous=False):
         """
         Standard constructor.
         :param name: the name of the variable
@@ -57,6 +57,8 @@ class ASTVariable(ASTNode):
         self.name = name
         self.differential_order = differential_order
         self.type_symbol = None
+        self.is_homogeneous = is_homogeneous
+        print("XXX: name " + str(name) + " is_homogeneous = " + str(is_homogeneous))
 
     def resolve_in_own_scope(self):
         from pynestml.symbols.symbol import SymbolKind
@@ -78,6 +80,9 @@ class ASTVariable(ASTNode):
         :name: the name to set.
         """
         self.name = name
+
+    def get_is_homogeneous(self):
+        return self.is_homogeneous
 
     def get_differential_order(self):
         """

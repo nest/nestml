@@ -9,9 +9,9 @@
   }
 {% else %}
   inline {{declarations.print_variable_type(variable)}} {{names.getter(variable)}}() const {
-    return {{printer.print_origin(variable)}}{{names.name(variable)}};
+    return {{printer.print_origin_getter(variable) % names.name(variable)}};
   }
   inline void {{names.setter(variable)}}(const {{declarations.print_variable_type(variable)}} __v) {
-    {{printer.print_origin(variable)}}{{names.name(variable)}} = __v;
+    {{printer.print_origin_setter(variable) % (names.name(variable), '__v')}};
   }
 {% endif %}
