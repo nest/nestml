@@ -1,4 +1,3 @@
-
 #
 # nest_reference_converter.py
 #
@@ -74,7 +73,7 @@ class NESTReferenceConverter(IReferenceConverter):
             raise RuntimeError('Cannot determine binary operator!')
 
     @classmethod
-    def convert_function_call(cls, function_call, opt=None):
+    def convert_function_call(cls, function_call):
         """
         Converts a single handed over function call to nest processable format.
         :param function_call: a single function call
@@ -108,17 +107,10 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         elif function_name == PredefinedFunctions.DELIVER_SPIKE:
-            """s = ''
-            if opt is None or (not opt["weight_common_properties"]):
-                s += 'e.set_weight( %s );\n'
-            s +=   'const double _foo = %s;'\
-                   'e.set_delay_steps( _foo );\n' \
-                   'std::cout << "XXX: setting delay steps to " << _foo << "\\n";'\
-                   'e.set_receiver( *get_target( tid ) );\n' \
-                   'e.set_rport( get_rport() );\n' \
-                   'e()'"""
             return 'e.set_weight( %s );\n' \
-                   'e.set_delay_steps( %s );\n' \
+                   'const double _foo = %s;'\
+                   'e.set_delay_steps( _foo );\n' \
+                   'std::cout << "XXX: setting dlay steps to " << _foo << "\\n";'\
                    'e.set_receiver( *get_target( tid ) );\n' \
                    'e.set_rport( get_rport() );\n' \
                    'e()'
@@ -148,8 +140,6 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'numerics::e'
         else:
             symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
-
-
             if symbol is None:
                 # this should actually not happen, but an error message is better than an exception
                 code, message = Messages.get_could_not_resolve(variable_name)
@@ -160,21 +150,22 @@ class NESTReferenceConverter(IReferenceConverter):
                 if symbol.is_local():
                     return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
                 elif symbol.is_buffer():
-                    return NestPrinter.print_origin_getter(symbol) % (NestNamesConverter.buffer_value(symbol) \
-                           + ('[i]' if symbol.has_vector_parameter() else ''))
+                    return NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol) \
+                           + ('[i]' if symbol.has_vector_parameter() else '')
                 else:
                     if symbol.is_function:
                         return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
                     else:
                         if symbol.is_init_values():
+                            temp = NestPrinter.print_origin(symbol)
                             if self.uses_gsl:
-                                temp = GSLNamesConverter.name(symbol)
+                                temp += GSLNamesConverter.name(symbol)
                             else:
-                                temp = NestNamesConverter.name(symbol)
+                                temp += NestNamesConverter.name(symbol)
                             temp += ('[i]' if symbol.has_vector_parameter() else '')
-                            return NestPrinter.print_origin_getter(symbol) % temp
+                            return temp
                         else:
-                            return NestPrinter.print_origin_getter(symbol) % \
+                            return NestPrinter.print_origin(symbol) + \
                                    NestNamesConverter.name(symbol) + \
                                    ('[i]' if symbol.has_vector_parameter() else '')
 

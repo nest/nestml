@@ -1,8 +1,10 @@
 synapse static:
 
   parameters:
-    w nS = 900 pS @nest::weight @homogeneous
-    d ms = .9 ms @nest::delay @heterogeneous
+    w nS = 900 pS  @nest::weight @homogeneous
+    d ms = .9 ms  @nest::delay @heterogeneous
+    foo ms = 42 ms  @nest::a @homogeneous
+    bar pF = 100. pF  @nest::b @homogeneous
   end
 
   preReceive:

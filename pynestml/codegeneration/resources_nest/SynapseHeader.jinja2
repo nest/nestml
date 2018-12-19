@@ -63,22 +63,79 @@ template < typename targetidentifierT >
 class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
 public:
 
-    // N.B.: we lazily define all parameters as public for easy reference conversion later on.
-    // This may or may not benefit performance. (todo: write inline getters/setters?)
+    {{synapseName}}CommonSynapseProperties()
+    : CommonSynapseProperties()
+    {
+        {%- filter indent(width=8) %}
+        {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
+        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+        {%- if isHomogeneous %}
+        {%- with variable = parameter %}
+        {%- include "directives/MemberInitialization.jinja2" %}
+        {%- endwith %}
+        {%- endif %}
+        {%- endfor %}
+        {%- endfilter %}
+    }
+
+    /**
+     * Get all properties and put them into a dictionary.
+     */
+    void get_status( DictionaryDatum& d ) const
+    {
+        CommonSynapseProperties::get_status( d );
+
+        {%- filter indent(width=8) %}
+        {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
+        {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
+        {%- if namespaceName == '' %}
+        {{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % names.name(parameter)) }}
+        {%- endif %}
+        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+        {%- if isHomogeneous %}
+        {%- with variable = parameter %}
+        {%- include "directives/CommonPropertiesDictionaryWriter.jinja2" %}
+        {%- endwith %}
+        {%- endif %}
+        {%- endfor %}
+        {%- endfilter %}
+    }
+    
+    
+    /**
+     * Set properties from the values given in dictionary.
+     */
+    void set_status( const DictionaryDatum& d, ConnectorModel& cm )
+    {
+        CommonSynapseProperties::set_status( d, cm );
+
+        {%- filter indent(width=8) %}
+        {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
+        {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
+        {%- if (namespaceName == '') %}
+        {{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % names.name(parameter)) }}
+        {%- endif %}
+        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+        {%- if isHomogeneous %}
+        {%- with variable = parameter %}
+        {%- include "directives/CommonPropertiesDictionaryReader.jinja2" %}
+        {%- endwith %}
+        {%- endif %}
+        {%- endfor %}
+        {%- endfilter %}
+    }
+
+    // N.B.: we define all parameters as public for easy reference conversion later on.
+    // This may or may not benefit performance (TODO: compare with inline getters/setters)
 
     {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
     {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
     {%- if (isHomogeneous) %}
-    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
     {%- set parameterName = names.name(parameter) %}
     {{declarations.print_variable_type(parameter)}} {{parameter.get_symbol_name()}};
     {%- endif %}
     {%- endfor %}
 
-  {{synapseName}}CommonSynapseProperties()
-    : CommonSynapseProperties()
-  {
-  }
 };
 
 
@@ -209,7 +266,7 @@ public:
     {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
     {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
     {%- if (not isHomogeneous) %}
-    {{printer.print_origin_setter(parameter) % (names.name(parameter), 'rhs.' + (printer.print_origin_getter(parameter) % names.name(parameter)))}};
+    {{printer.print_origin(parameter)}}{{names.name(parameter)}} = rhs.{{printer.print_origin(parameter)}}{{names.name(parameter)}};
     {%- endif %}
     {% endfor %}
 
@@ -284,7 +341,7 @@ public:
     {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
     // {-{ assert ( decl.get_variables()|length == 1 ) }-}
     if (n == names::{{namespaceName}}) {
-      return &{{printer.print_origin_getter(parameter) % names.name(parameter)}}; // type: {- {declarations.print_variable_type(parameter)} -}
+      return &{{printer.print_origin(parameter)}}{{names.name(parameter)}}; // type: {- {declarations.print_variable_type(parameter)} -}
     }
     {%- endfor %}
 

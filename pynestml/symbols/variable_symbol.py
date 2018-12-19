@@ -112,7 +112,9 @@ class VariableSymbol(Symbol):
         return self.namespace_decorators
 
     def get_namespace_decorator(self, namespace):
-        return self.namespace_decorators[namespace]
+        if namespace in self.namespace_decorators:
+            return self.namespace_decorators[namespace]
+        return ''
 
     def has_vector_parameter(self):
         """
