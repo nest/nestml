@@ -59,7 +59,6 @@
 namespace nest
 {
 
-template < typename targetidentifierT >
 class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
 public:
 
@@ -71,7 +70,7 @@ public:
         {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
         {%- if isHomogeneous %}
         {%- with variable = parameter %}
-        {%- include "directives/MemberInitialization.jinja2" %}
+        {%- include "directives/CommonPropertiesDictionaryMemberInitialization.jinja2" %}
         {%- endwith %}
         {%- endif %}
         {%- endfor %}
@@ -86,18 +85,24 @@ public:
         CommonSynapseProperties::get_status( d );
 
         {%- filter indent(width=8) %}
+        
         {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
+        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+        
+        {%- if isHomogeneous %}
         {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
+        
         {%- if namespaceName == '' %}
         {{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % names.name(parameter)) }}
         {%- endif %}
-        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
-        {%- if isHomogeneous %}
+        
         {%- with variable = parameter %}
         {%- include "directives/CommonPropertiesDictionaryWriter.jinja2" %}
         {%- endwith %}
+
         {%- endif %}
         {%- endfor %}
+        
         {%- endfilter %}
     }
     
@@ -110,18 +115,24 @@ public:
         CommonSynapseProperties::set_status( d, cm );
 
         {%- filter indent(width=8) %}
+
         {%- for parameter in synapse.get_parameter_non_alias_symbols() -%}
+        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+        
+        {%- if isHomogeneous %}
         {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
+        
         {%- if (namespaceName == '') %}
         {{ raise('nest::names decorator is required for parameter "%s" when used in a common properties class' % names.name(parameter)) }}
         {%- endif %}
-        {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
-        {%- if isHomogeneous %}
+        
         {%- with variable = parameter %}
         {%- include "directives/CommonPropertiesDictionaryReader.jinja2" %}
         {%- endwith %}
+        
         {%- endif %}
         {%- endfor %}
+
         {%- endfilter %}
     }
 
@@ -135,7 +146,6 @@ public:
     {{declarations.print_variable_type(parameter)}} {{parameter.get_symbol_name()}};
     {%- endif %}
     {%- endfor %}
-
 };
 
 
@@ -219,7 +229,7 @@ private:
 public:
 
   // this line determines which common properties to use
-  typedef {{synapseName}}CommonSynapseProperties<targetidentifierT> CommonPropertiesType;
+  typedef {{synapseName}}CommonSynapseProperties CommonPropertiesType;
 
   typedef Connection< targetidentifierT > ConnectionBase;
 
@@ -248,7 +258,7 @@ public:
   {%- endwith %}
   {%- endfor %}
 
-    weight_ = get_named_parameter<double>(names::weight);
+    //weight_ = get_named_parameter<double>(names::weight);
     // set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
 
   }
@@ -270,8 +280,8 @@ public:
     {%- endif %}
     {% endfor %}
 
-    weight_ = get_named_parameter<double>(names::weight);
-    set_weight(*(rhs.weight_));
+    //weight_ = get_named_parameter<double>(names::weight);
+    //set_weight(*(rhs.weight_));
   }
 
   // Explicitly declare all methods inherited from the dependent base
@@ -335,11 +345,10 @@ public:
   /**
    * Get named parameter from the `Parameter_` struct
   **/
-  template < typename T >
+/*  template < typename T >
   T* get_named_parameter(const Name &n) {
     {% for parameter in synapse.get_parameter_non_alias_symbols() -%}
     {%- set namespaceName = parameter.get_namespace_decorator("nest") %}
-    // {-{ assert ( decl.get_variables()|length == 1 ) }-}
     if (n == names::{{namespaceName}}) {
       return &{{printer.print_origin(parameter)}}{{names.name(parameter)}}; // type: {- {declarations.print_variable_type(parameter)} -}
     }
@@ -347,26 +356,37 @@ public:
 
     assert(false);    // unknown name requested
   }
-
-
-  // {- - % - C++ type of the variable that was annotated % - } get_named_parameter(Name &n) {
-  //   if (n == {- % names::weight % -}) {
-  //     return &P_.{ - % name of the variable that was annotated % - }
-  //   }
-  //   elif (n == ...
-  //     ...
-  //   }
-  // }
-
+*/
   inline void set_weight(double w) {
-    // set_named_parameter(names::weight, w);
-    *weight_ = w;
+    {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
+    {%- set namespaceName = parameter.get_namespace_decorator('nest') %}
+    {%- if (namespaceName == 'weight') %}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if isHomogeneous %}
+    throw BadProperty(
+      "Setting of individual weights is not possible! The common weights can "
+      "be changed via CopyModel()." );
+    {%- else %}
+    {{printer.print_origin(parameter)}}{{names.name(parameter)}} = w; // type: {{declarations.print_variable_type(parameter)}}
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
   }
   
-  inline double get_weight() {
-    return *weight_;
+/*  inline double get_weight() {
+    {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
+    {%- set namespaceName = parameter.get_namespace_decorator('nest') %}
+    {%- if (namespaceName == 'weight') %}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if isHomogeneous %}
+    return cp.{{printer.print_origin(parameter)}}{{names.name(parameter)}}; // type: {{declarations.print_variable_type(parameter)}}   // XXX: replace with get_status or throw()
+    {%- else %}
+    return {{printer.print_origin(parameter)}}{{names.name(parameter)}}; // type: {{declarations.print_variable_type(parameter)}}
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
   }
-
+*/
   void
   check_connection( Node& s,
     Node& t,
@@ -378,17 +398,16 @@ public:
   }
 
   void
-  send( Event& e, const thread tid, const CommonSynapseProperties& )
+  send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
   {
-
-// XXX: how to pass bool to function transform?
-
+    {%- filter indent(2,True) -%}
 
     {%- set dynamics = synapse.get_pre_receive() -%}
-    {%- with ast = dynamics.get_block() -%}{%- filter indent(2,True) -%}
-    {%- include "directives/Block.jinja2" -%}{%- endfilter -%}
+    {%- with ast = dynamics.get_block() -%}
+    {%- include "directives/Block.jinja2" -%}
     {%- endwith %}
 
+    {%- endfilter -%}
   }
 
   void get_status( DictionaryDatum& d ) const;
@@ -401,7 +420,6 @@ void
 {{synapseName}}< targetidentifierT >::get_status( DictionaryDatum& d ) const
 {
   ConnectionBase::get_status( d );
-  def< double >( d, names::weight, *weight_ );
   def< long >( d, names::size_of, sizeof( *this ) );
 }
 
@@ -410,8 +428,10 @@ void
 {{synapseName}}< targetidentifierT >::set_status( const DictionaryDatum& d,
   ConnectorModel& cm )
 {
+  double _weight;
   ConnectionBase::set_status( d, cm );
-  updateValue< double >( d, names::weight, *weight_ );
+  updateValue< double >( d, names::weight, _weight );
+  set_weight( _weight );
 }
 
 } // namespace

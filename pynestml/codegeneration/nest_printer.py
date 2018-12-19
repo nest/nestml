@@ -119,7 +119,7 @@ class NestPrinter(object):
             return 'S_.'
         elif variable_symbol.block_type == BlockType.PARAMETERS:
             if variable_symbol.is_homogeneous():
-                return ''   # if the parameter is in a CommonProperties class, it is a public member variable, hence, no prefix needed
+                return 'cp.'   # if the parameter is in a CommonProperties class -- N.B. this is from the perspective of the Synapse class
             else:
                 return 'P_.'
         elif variable_symbol.block_type == BlockType.INTERNALS:
