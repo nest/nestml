@@ -20,7 +20,7 @@ the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
 Author: Schrader, Plesser
 SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha */
 
-neuron iaf_cond_beta_neuron:
+neuron iaf_cond_beta:
   state:
     r integer             # counts number of tick during the refractory period
   end

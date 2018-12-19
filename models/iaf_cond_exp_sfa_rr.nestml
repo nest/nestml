@@ -1,5 +1,5 @@
-/* BeginDocumentation
-Name: iaf_cond_exp_sfa_rr_implicit - Simple conductance based leaky integrate-and-fire
+/*
+Name: iaf_cond_exp_sfa_rr - Simple conductance based leaky integrate-and-fire
                             neuron model.
 
 Description:
@@ -36,7 +36,7 @@ Author: Sven Schrader, Eilif Muller
 SeeAlso: iaf_cond_exp_sfa_rr, aeif_cond_alpha, iaf_psc_delta, iaf_psc_exp,
 iaf_cond_alpha
 */
-neuron iaf_cond_exp_sfa_rr_neuron:
+neuron iaf_cond_exp_sfa_rr:
 
   state:
     r integer    # counts number of tick during the refractory period
@@ -113,7 +113,7 @@ neuron iaf_cond_exp_sfa_rr_neuron:
 
 end
 
-/* BeginDocumentation
+/*
 Name: iaf_cond_exp_sfa_rr_implicit - Simple conductance based leaky integrate-and-fire
                             neuron model.
 

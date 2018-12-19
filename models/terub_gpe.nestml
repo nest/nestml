@@ -1,9 +1,9 @@
 /*
-Name: terub_neuron_gpe - Terman Rubin neuron model.
+Name: terub_gpe - Terman Rubin neuron model.
 
 Description:
 
-terub_neuron_gpe is an implementation of a spiking neuron using the Terman Rubin model
+terub_gpe is an implementation of a spiking neuron using the Terman Rubin model
 based on the Hodgkin-Huxley formalism.
 
 (1) Post-syaptic currents
@@ -38,7 +38,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Author: Martin Ebert
 */
-neuron terub_neuron_gpe:
+neuron terub_gpe:
   state:
     r integer # counts number of tick during the refractory period
   end
@@ -176,11 +176,11 @@ neuron terub_neuron_gpe:
 end
 
 /*
-Name: terub_neuron_gpe - Terman Rubin neuron model.
+Name: terub_gpe_implicit - Terman Rubin neuron model.
 
 Description:
 
-terub_neuron_gpe is an implementation of a spiking neuron using the Terman Rubin model
+terub_gpe_implicit is an implementation of a spiking neuron using the Terman Rubin model
 based on the Hodgkin-Huxley formalism.
 
 (1) Post-syaptic currents
@@ -215,7 +215,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Author: Martin Ebert
 */
-neuron terub_neuron_gpe_implicit:
+neuron terub_gpe_implicit:
   state:
     r integer # counts number of tick during the refractory period
   end

@@ -1,9 +1,9 @@
 /*
-Name: iaf_psc_exp_nestml - Leaky integrate-and-fire neuron model with exponential
+Name: iaf_psc_exp - Leaky integrate-and-fire neuron model with exponential
                    PSCs.
 
 Description:
-iaf_psc_exp_nestml is an implementation of a leaky integrate-and-fire model
+iaf_psc_exp is an implementation of a leaky integrate-and-fire model
 with exponential shaped postsynaptic currents (PSCs) according to [1].
 Thus, postsynaptic currents have an infinitely short rise time.
 
@@ -33,7 +33,7 @@ object is required.
 
 The template support of recent C++ compilers enables a more succinct
 formulation without loss of runtime performance already at minimal
-optimization levels. A future version of iaf_psc_exp_nestml will probably
+optimization levels. A future version of iaf_psc_exp will probably
 address the problem of efficient usage of appropriate vector and
 matrix objects.
 
@@ -43,7 +43,7 @@ tau_syn_in, respectively, to avoid numerical instabilities.
 For details, please see IAF_Neruons_Singularity.ipynb in the
 NEST source code (docs/model_details).
 
-iaf_psc_exp_nestml can handle current input in two ways: Current input
+iaf_psc_exp can handle current input in two ways: Current input
 through receptor_type 0 are handled as stepwise constant current
 input as in other iaf models, i.e., this current directly enters
 the membrane potential equation. Current input through
@@ -74,7 +74,7 @@ SeeAlso: iaf_psc_exp_ps
 FirstVersion: March 2006
 Author: Moritz Helias
 */
-neuron iaf_psc_exp_neuron:
+neuron iaf_psc_exp:
 
   state:
     r integer                               # counts number of tick during the refractory period

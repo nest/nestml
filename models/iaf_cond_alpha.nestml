@@ -1,5 +1,5 @@
 /*
-Name: iaf_cond_alpha_neuron - Simple conductance based leaky integrate-and-fire neuron
+Name: iaf_cond_alpha - Simple conductance based leaky integrate-and-fire neuron
                        model.
 
 Description:
@@ -31,7 +31,7 @@ Author: Schrader, Plesser
 
 SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 */
-neuron iaf_cond_alpha_neuron:
+neuron iaf_cond_alpha:
 
   state:
     r integer      # counts number of tick during the refractory period
