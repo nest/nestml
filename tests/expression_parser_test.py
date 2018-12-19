@@ -1,5 +1,5 @@
 #
-# ExpressionParsingTest.py
+# expression_parser_test.py
 #
 # This file is part of NEST.
 #

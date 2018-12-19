@@ -129,22 +129,22 @@ neuron terub_neuron_gpe:
   end
 
   parameters:
-    E_L        mV = -55mV  # Resting membrane potential in mV.
-    g_L        nS = 0.1nS  # Leak conductance in nS.
-    C_m        pF = 1.0 pF # Capacity of the membrane in pF.
-    E_Na       mV = 55mV   # Sodium reversal potential in mV.
-    g_Na       nS = 120 nS # Sodium peak conductance in nS.
-    E_K        mV = -80.0mV# Potassium reversal potential in mV.
-    g_K        nS = 30.0nS # Potassium peak conductance in nS.
-    E_Ca       mV = 120mV  # Calcium reversal potential in mV.
-    g_Ca       nS = 0.15nS # Calcium peak conductance in nS.
-    g_T        nS = 0.5nS  # T-type Calcium channel peak conductance in nS.
-    g_ahp      nS = 30nS   # afterpolarization current peak conductance in nS.
-    tau_syn_ex ms = 1.0ms  # Rise time of the excitatory synaptic alpha function in ms.
-    tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function in ms.
-    I_e        pA = 0pA    # Constant external input current in pA.
-    E_gg			 mV = -100mV # reversal potential for inhibitory input (from GPe)
-    t_ref      ms = 2ms    # refractory time in ms
+    E_L        mV = -55mV  # Resting membrane potential.
+    g_L        nS = 0.1nS  # Leak conductance.
+    C_m        pF = 1.0 pF # Capacity of the membrane.
+    E_Na       mV = 55mV   # Sodium reversal potential.
+    g_Na       nS = 120 nS # Sodium peak conductance.
+    E_K        mV = -80.0mV# Potassium reversal potential.
+    g_K        nS = 30.0nS # Potassium peak conductance.
+    E_Ca       mV = 120mV  # Calcium reversal potential.
+    g_Ca       nS = 0.15nS # Calcium peak conductance.
+    g_T        nS = 0.5nS  # T-type Calcium channel peak conductance.
+    g_ahp      nS = 30nS   # afterpolarization current peak conductance.
+    tau_syn_ex ms = 1.0ms  # Rise time of the excitatory synaptic alpha function.
+    tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function.
+    I_e        pA = 0pA    # Constant external input current.
+    E_gg       mV = -100mV # reversal potential for inhibitory input (from GPe)
+    t_ref      ms = 2ms    # refractory time
   end
 
   internals:
@@ -230,8 +230,8 @@ neuron terub_neuron_gpe_implicit:
 
     g_in nS = 0 nS                     # Excitatory synaptic conductance
     g_in' nS/ms = nS * e / tau_syn_in  # Excitatory synaptic conductance
-    g_ex nS = 0 nS                     # Inhibitory synaptic conductance in nS
-    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
+    g_ex nS = 0 nS                     # Inhibitory synaptic conductance
+    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance
   end
 
   equations:
@@ -312,22 +312,22 @@ neuron terub_neuron_gpe_implicit:
   end
 
   parameters:
-    E_L        mV = -55mV  # Resting membrane potential in mV.
-    g_L        nS = 0.1nS  # Leak conductance in nS.
-    C_m        pF = 1.0 pF # Capacity of the membrane in pF.
-    E_Na       mV = 55mV   # Sodium reversal potential in mV.
-    g_Na       nS = 120 nS # Sodium peak conductance in nS.
-    E_K        mV = -80.0mV# Potassium reversal potential in mV.
-    g_K        nS = 30.0nS # Potassium peak conductance in nS.
-    E_Ca       mV = 120mV  # Calcium reversal potential in mV.
-    g_Ca       nS = 0.15nS # Calcium peak conductance in nS.
-    g_T        nS = 0.5nS  # T-type Calcium channel peak conductance in nS.
-    g_ahp      nS = 30nS   # afterpolarization current peak conductance in nS.
-    tau_syn_ex ms = 1.0ms  # Rise time of the excitatory synaptic alpha function in ms.
-    tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function in ms.
-    I_e        pA = 0pA    # Constant external input current in pA.
-    E_gg			 mV = -100mV # reversal potential for inhibitory input (from GPe)
-    t_ref      ms = 2ms    # refractory time in ms
+    E_L        mV = -55mV  # Resting membrane potential.
+    g_L        nS = 0.1nS  # Leak conductance.
+    C_m        pF = 1.0 pF # Capacity of the membrane.
+    E_Na       mV = 55mV   # Sodium reversal potential.
+    g_Na       nS = 120 nS # Sodium peak conductance.
+    E_K        mV = -80.0mV# Potassium reversal potential.
+    g_K        nS = 30.0nS # Potassium peak conductance.
+    E_Ca       mV = 120mV  # Calcium reversal potential.
+    g_Ca       nS = 0.15nS # Calcium peak conductance.
+    g_T        nS = 0.5nS  # T-type Calcium channel peak conductance.
+    g_ahp      nS = 30nS   # afterpolarization current peak conductance.
+    tau_syn_ex ms = 1.0ms  # Rise time of the excitatory synaptic alpha function.
+    tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function.
+    I_e        pA = 0pA    # Constant external input current.
+    E_gg       mV = -100mV # reversal potential for inhibitory input (from GPe)
+    t_ref      ms = 2ms    # refractory time
   end
 
   internals:

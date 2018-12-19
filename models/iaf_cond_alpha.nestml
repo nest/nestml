@@ -53,17 +53,17 @@ neuron iaf_cond_alpha_neuron:
   end
 
   parameters:
-    V_th mV = -55.0mV    # Threshold Potential in mV
-    V_reset mV = -60.0mV # Reset Potential in mV
-    t_ref ms = 2.ms      # Refractory period in ms
-    g_L nS = 16.6667nS   # Leak Conductance in nS
-    C_m pF = 250.0 pF    # Membrane Capacitance in pF
-    E_ex mV = 0mV        # Excitatory reversal Potential in mV
-    E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
-    E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA           # Constant Current in pA
+    V_th mV = -55.0mV    # Threshold Potential
+    V_reset mV = -60.0mV # Reset Potential
+    t_ref ms = 2.ms      # Refractory period
+    g_L nS = 16.6667nS   # Leak Conductance
+    C_m pF = 250.0 pF    # Membrane Capacitance
+    E_ex mV = 0mV        # Excitatory reversal Potential
+    E_in mV = -85.0mV    # Inhibitory reversal Potential
+    E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse
+    I_e pA = 0pA           # Constant Current
   end
 
   internals:
@@ -151,17 +151,17 @@ neuron iaf_cond_alpha_implicit:
   end
 
   parameters:
-    V_th mV = -55.0mV     # Threshold Potential in mV
-    V_reset mV = -60.0mV  # Reset Potential in mV
-    t_ref ms = 2.0ms      # Refractory period in ms
-    g_L nS = 16.6667nS    # Leak Conductance in nS
-    C_m pF = 250.0pF      # Membrane Capacitance in pF
-    E_ex mV = 0mV         # Excitatory reversal Potential in mV
-    E_in mV = -85.0mV     # Inhibitory reversal Potential in mV
-    E_L mV = -70.0mV      # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA          # Constant Current in pA
+    V_th mV = -55.0mV     # Threshold Potential
+    V_reset mV = -60.0mV  # Reset Potential
+    t_ref ms = 2.0ms      # Refractory period
+    g_L nS = 16.6667nS    # Leak Conductance
+    C_m pF = 250.0pF      # Membrane Capacitance
+    E_ex mV = 0mV         # Excitatory reversal Potential
+    E_in mV = -85.0mV     # Inhibitory reversal Potential
+    E_L mV = -70.0mV      # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
+    I_e pA = 0pA          # Constant Current
   end
 
   internals:
