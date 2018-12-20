@@ -421,6 +421,14 @@ void
 {
   ConnectionBase::get_status( d );
   def< long >( d, names::size_of, sizeof( *this ) );
+  
+    {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
+    {%- set namespaceName = parameter.get_namespace_decorator('nest') %}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if not isHomogeneous %}
+    def< {{declarations.print_variable_type(parameter)}} >( d, names::{{namespaceName}}, {{printer.print_origin(parameter)}}{{names.name(parameter)}} );
+    {%- endif %}
+    {%- endfor %}
 }
 
 template < typename targetidentifierT >
@@ -428,10 +436,27 @@ void
 {{synapseName}}< targetidentifierT >::set_status( const DictionaryDatum& d,
   ConnectorModel& cm )
 {
-  double _weight;
-  ConnectionBase::set_status( d, cm );
-  updateValue< double >( d, names::weight, _weight );
-  set_weight( _weight );
+    ConnectionBase::set_status( d, cm );
+    
+    {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
+    {%- set namespaceName = parameter.get_namespace_decorator('nest') %}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if not isHomogeneous %}
+    updateValue< {{declarations.print_variable_type(parameter)}} >( d, names::{{namespaceName}}, {{printer.print_origin(parameter)}}{{names.name(parameter)}} );
+    {%- endif %}
+    {%- endfor %}
+
+    {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
+    {%- set namespaceName = parameter.get_namespace_decorator('nest') %}
+    {%- if (namespaceName == 'weight') %}
+    {%- set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+    {%- if not isHomogeneous %}
+    double _weight;
+    updateValue< double >( d, names::weight, _weight );
+    set_weight( _weight );
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
 }
 
 } // namespace

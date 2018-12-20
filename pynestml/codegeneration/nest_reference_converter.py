@@ -110,7 +110,6 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'e.set_weight( %s );\n' \
                    'const double _foo = %s;'\
                    'e.set_delay_steps( _foo );\n' \
-                   'std::cout << "XXX: setting dlay steps to " << _foo << "\\n";'\
                    'e.set_receiver( *get_target( tid ) );\n' \
                    'e.set_rport( get_rport() );\n' \
                    'e()'

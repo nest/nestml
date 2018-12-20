@@ -32,10 +32,10 @@ def install_nest(models_path, nest_path):
         print('PyNestML: Models path not a directory (%s)! abort installation...' % models_path)
         return
     if not os.path.isdir(nest_path):
-        print('PyNestML: NEST path not a directory (%s)! abort installation...' % models_path)
+        print('PyNestML: NEST path not a directory (%s)! abort installation...' % nest_path)
         return
 
-    cmake_cmd = ['cmake', '-Dwith-nest=' + str(nest_path) + '/bin/nest-config', '.']
+    cmake_cmd = ['cmake', '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config'), '.']
     make_all_cmd = ['make', 'all']
     make_install_cmd = ['make', 'install']
     # check if we run on win

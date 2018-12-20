@@ -75,7 +75,7 @@ def install_nest(models_path, nest_path):
             the -Dwith-nest argument of the make command. The postfix /bin/nest-config is automatically attached.
     :return:
     """
-    nest_installer(models_path, nest_path)
+    nest_installer(models_path=models_path, nest_path=nest_path)
 
 
 def main(args):
