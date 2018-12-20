@@ -26,7 +26,7 @@ from pynestml.utils.messages import Messages
 class CodeGenerator(object):
 
     def __init__(self, target):
-        assert target in self.get_known_targets()
+        assert target.upper() in self.get_known_targets()
         self._target = target
 
 
@@ -47,15 +47,21 @@ class CodeGenerator(object):
 
     @staticmethod
     def get_known_targets():
-        return ["NEST", ""]     # include the empty string here to represent "no code generated"
-
+        targets = ["NEST", "autodoc", ""]     # include the empty string here to represent "no code generated"
+        targets = [s.upper() for s in targets]
+        return targets
 
     def generate_code(self, neurons):
-        if self._target == "NEST":
+        if self._target.upper() == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
             _codeGenerator = NESTCodeGenerator()
             _codeGenerator.generate_code(neurons)
-        elif self._target == "":
+        elif self._target.upper() == "AUTODOC":
+            from pynestml.codegeneration.autodoc_codegenerator import AutoDocCodeGenerator
+            _codeGenerator = AutoDocCodeGenerator()
+            _codeGenerator.generate_code(neurons)
+        else:
             # dummy/null target: user requested to not generate any code
+            assert self._target == ""
             code, message = Messages.get_no_code_generated()
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)

@@ -184,7 +184,7 @@ appropriate numeric solver otherwise.
         if target is None or target.upper() == "NONE":
             target = ""     # make sure `target` is always a string
 
-        if target not in CodeGenerator.get_known_targets():
+        if target.upper() not in CodeGenerator.get_known_targets():
             code, message = Messages.get_unknown_target(target)
             Logger.log_message(None, code, message, None, LoggingLevel.ERROR)
             raise InvalidTargetException()
