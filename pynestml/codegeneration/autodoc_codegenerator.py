@@ -62,17 +62,67 @@ class AutoDocCodeGenerator(CodeGenerator):
 
     def generate_code(self, neurons):
         self.generate_index(neurons)
+        self.generate_neurons(neurons)
 
     def generate_index(self, neurons):
         # type: (ASTNeuron) -> None
         """
         """
-        nestml_models_index = self._template_nestml_models_index.render(self.setup_generation_helpers(neurons))
+        nestml_models_index = self._template_nestml_models_index.render(self.setup_index_generation_helpers(neurons))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'index.html')), 'w+') as f:
             f.write(str(nestml_models_index))
 
+    def generate_neuron_code(self, neuron):
+        # type: (ASTNeuron) -> None
+        """
+        """
+        if not os.path.isdir(FrontendConfiguration.get_target_path()):
+            os.makedirs(FrontendConfiguration.get_target_path())
+        self.generate_neuron_model_doc(neuron)
 
-    def setup_generation_helpers(self, neurons):
+
+    def generate_neuron_model_doc(self, neuron):
+        # type: (ASTNeuron) -> None
+        """
+        For a handed over neuron, this method generates the corresponding header file.
+        :param neuron: a single neuron object.
+        """
+        nestml_model_doc = self._template_nestml_model.render(self.setup_model_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.html', 'w+') as f:
+            f.write(str(nestml_model_doc))
+
+    def setup_model_generation_helpers(self, neuron):
+        """
+        Returns a standard namespace with often required functionality.
+        :param neuron: a single neuron instance
+        :type neuron: ASTNeuron
+        :return: a map from name to functionality.
+        :rtype: dict
+        """
+        gsl_converter = GSLReferenceConverter()
+        gsl_printer = LegacyExpressionPrinter(gsl_converter)
+        # helper classes and objects
+        converter = NESTReferenceConverter(False)
+        legacy_pretty_printer = LegacyExpressionPrinter(converter)
+
+        namespace = dict()
+
+        namespace['now'] = datetime.datetime.utcnow()
+        namespace['neuron'] = neuron
+        namespace['neuronName'] = str(neuron.get_name())
+        namespace['printer'] = NestPrinter(legacy_pretty_printer)
+        namespace['assignments'] = NestAssignmentsHelper()
+        namespace['names'] = NestNamesConverter()
+        namespace['declarations'] = NestDeclarationsHelper()
+        namespace['utils'] = ASTUtils()
+        namespace['idemPrinter'] = LegacyExpressionPrinter()
+        namespace['odeTransformer'] = OdeTransformer()
+
+        return namespace
+
+
+
+    def setup_index_generation_helpers(self, neurons):
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance

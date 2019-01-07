@@ -87,7 +87,7 @@ class ASTDeclaration(ASTNode):
         """
         Returns the set of left-hand side variables.
         :return: a list of variables.
-        :rtype: list(ASTVariables)
+        :rtype: list(ASTVariable)
         """
         return self.variables
 

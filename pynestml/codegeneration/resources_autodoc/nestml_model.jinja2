@@ -2,16 +2,39 @@
 <html>
 <head>
 <style>
-td { padding: 3px; font-weight: bold }
+td { padding: 3px }
+th { padding: 3px 3em 3px 3px; font-weight: bold }
 .header td { background-color:#ddeeff; padding: 5px !important }
 .check_yes {background-color: #00ff33 }
 .check_no {background-color: #dd3300 }
-ul li { margin-bottom: 5px; margin-top: 5px }
-ul:nth-child(even) { background: #eee }
-ul:nth-child(odd) { background: #fff }
+tr { margin-bottom: 5px; margin-top: 5px }
+tr:nth-child(even) { background: #eee }
+tr:nth-child(odd) { background: #fff }
 </style>
 </head>
 <body>
+
+<p>Generated at {{ now }}</p>
+
+<p>Documentation for neuron: {{ neuronName }}</p>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Physical unit</th>
+<th>Default value</th>
+</tr>
+{%- set pb = neuron.get_parameter_blocks() %}
+{%- for decl in pb.get_declarations() %}
+{%- for v in decl.get_variables() %}
+<tr>
+<td>{{ v.get_name() }}</td>
+<td>{{ v.get_type_symbol().get_value().print_symbol() }}</td>       <!-- XXX: can also use decl.get_data_type() -->
+<td>{{ decl.get_expression() }}</td>
+</tr>
+{%- endfor %}
+{%- endfor %}
+</table>
 
 </body>
 </html>
