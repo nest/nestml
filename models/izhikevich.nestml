@@ -15,14 +15,6 @@ Implementation of the simple spiking neuron model introduced by Izhikevich [1]_.
    &\;\;\;\; u \text{ is incremented by } d\\
    &v \text{ jumps on each spike arrival by the weight of the spike}
 
-.. parsed-literal::
-
-   if :math:`v \geq V_{th}`:
-       :math:`v` is set to :math:`c`
-       :math:`u` is incremented by :math:`d`
-
-   :math:`v` jumps on each spike arrival by the weight of the spike
-
 As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
 
 1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value
@@ -31,14 +23,8 @@ As published in [1]_, the numerics differs from the standard forward Euler techn
 This model offers both forms of integration, they can be selected using the boolean parameter ``consistent_integration``. To reproduce some results published on the basis of this model, it is necessary to use the published form of the dynamics. In this case, ``consistent_integration`` must be set to false. For all other purposes, it is recommended to use the standard technique for forward Euler integration. In this case, ``consistent_integration`` must be set to true (default).
 
 
-References
-----------
-
-.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
-
-
 First Version
-------------
+-------------
 
 2009
 
@@ -53,6 +39,12 @@ See also
 --------
 
 iaf_psc_delta, mat2_psc_exp
+
+
+References
+----------
+
+.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
 */
 neuron izhikevich_neuron:
