@@ -69,7 +69,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         """
         """
         nestml_models_index = self._template_nestml_models_index.render(self.setup_index_generation_helpers(neurons))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'index.html')), 'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'index.rst')), 'w+') as f:
             f.write(str(nestml_models_index))
 
     def generate_neuron_code(self, neuron):
@@ -88,7 +88,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param neuron: a single neuron object.
         """
         nestml_model_doc = self._template_nestml_model.render(self.setup_model_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.html', 'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.rst', 'w+') as f:
             f.write(str(nestml_model_doc))
 
     def setup_model_generation_helpers(self, neuron):

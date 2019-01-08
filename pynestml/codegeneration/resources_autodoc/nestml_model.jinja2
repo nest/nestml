@@ -1,49 +1,45 @@
-<meta charset="UTF-8">
-<html>
-<head>
-<style>
-td { padding: 3px }
-th { padding: 3px 3em 3px 3px; font-weight: bold }
-.header td { background-color:#ddeeff; padding: 5px !important }
-.check_yes {background-color: #00ff33 }
-.check_no {background-color: #dd3300 }
-tr { margin-bottom: 5px; margin-top: 5px }
-tr:nth-child(even) { background: #eee }
-tr:nth-child(odd) { background: #fff }
-</style>
-</head>
-<body>
+{{ neuronName }}
+{% for i in range(neuronName | length) %}={%- endfor %}
 
-<p>Generated at {{ now }}</p>
+{{ neuron.print_comment() }}
 
-<p>Documentation for neuron: {{ neuronName }}</p>
 
-<table>
-<tr>
-<th>Name</th>
-<th>Physical unit</th>
-<th>Default value</th>
-<th>Description</th>
-</tr>
-{%- set pb = neuron.get_parameter_blocks() %}
-{%- for decl in pb.get_declarations() %}
-{%- for v in decl.get_variables() %}
-<tr>
-<td>{{ v.get_name() }}</td>
-<td>{{ v.get_type_symbol().get_value().print_symbol() }}</td>       <!-- XXX: can also use decl.get_data_type() -->
-<td>{{ decl.get_expression() }}</td>
-<td>
+Parameters
+----------
+
+{{ neuron.print_parameter_comment() }}
+
+.. csv-table::
+    :header: "Name", "Physical unit", "Default value", "Description"
+    :widths: auto
+
+{% macro comments(decl) -%}
 {%- for pre_comment in decl.pre_comments %}
 {%-   if pre_comment %}
 {{ pre_comment }}
 {%-   endif %}
 {%- endfor %}
 {{ decl.in_comment }}
-</td>
-</tr>
-{%- endfor %}
-{%- endfor %}
-</table>
+{%- endmacro %}
 
-</body>
-</html>
+   
+{%- set pb = neuron.get_parameter_blocks() %}
+
+{%- for decl in pb.get_declarations() %}
+{%- for v in decl.get_variables() %}
+
+{%- set _name = v.get_name() %}
+{%- set _type_symbol = v.get_type_symbol().get_value().print_symbol() %}    {# XXX: can also use decl.get_data_type() #}
+{%- set _default = decl.get_expression() %}
+    "{{ _name }}", "{{ _type_symbol }}", "{{ _default }}", "{{ comments(decl) | replace('\\', '\\\\') | replace('"', '""') | replace('|', '\\|') | indent }}"
+{%- endfor %}
+{%- endfor %}
+
+
+State variables
+---------------
+
+
+.. footer::
+
+   Generated at {{ now }}
