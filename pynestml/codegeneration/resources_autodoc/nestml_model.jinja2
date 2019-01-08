@@ -9,35 +9,24 @@ Parameters
 
 {{ neuron.print_parameter_comment() }}
 
-.. csv-table::
-    :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
+{% with block = neuron.get_parameter_blocks() %}
+{%- include "block_decl_table.jinja2" %}
+{% endwith %}
 
-{% macro comments(decl) -%}
-{%- for pre_comment in decl.pre_comments %}
-{%-   if pre_comment %}
-{{ pre_comment }}
-{%-   endif %}
-{%- endfor %}
-{{ decl.in_comment }}
-{%- endmacro %}
 
-   
-{%- set pb = neuron.get_parameter_blocks() %}
+get_initial_blocks
+get_initial_values_blocks
+get_state_blocks
+get_update_blocks
 
-{%- for decl in pb.get_declarations() %}
-{%- for v in decl.get_variables() %}
-
-{%- set _name = v.get_name() %}
-{%- set _type_symbol = v.get_type_symbol().get_value().print_symbol() %}    {# XXX: can also use decl.get_data_type() #}
-{%- set _default = decl.get_expression() %}
-    "{{ _name }}", "{{ _type_symbol }}", "{{ _default }}", "{{ comments(decl) | replace('\\', '\\\\') | replace('"', '""') | replace('|', '\\|') | indent }}"
-{%- endfor %}
-{%- endfor %}
 
 
 State variables
 ---------------
+
+{% with block = neuron.get_initial_blocks() %}
+{%- include "block_decl_table.jinja2" %}
+{% endwith %}
 
 
 .. footer::
