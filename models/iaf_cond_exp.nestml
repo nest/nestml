@@ -1,6 +1,6 @@
 /*
-Name: iaf_cond_exp_neuron - Simple conductance based leaky integrate-and-fire neuron
-                              model.
+Name: iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron
+                     model.
 
 Description:
 iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
@@ -23,7 +23,7 @@ Author: Sven Schrader
 
 SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 */
-neuron iaf_cond_exp_neuron:
+neuron iaf_cond_exp:
 
   state:
     r integer        # counts number of tick during the refractory period
@@ -89,7 +89,7 @@ Name: iaf_cond_exp_implicit - Simple conductance based leaky integrate-and-fire 
                               model.
 
 Description:
-iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
+iaf_cond_exp_implicit is an implementation of a spiking neuron using IAF dynamics with
 conductance-based synapses. Incoming spike events induce a post-synaptic change
 of conductance modelled by an exponential function. The exponential function
 is normalised such that an event of weight 1.0 results in a peak conductance of

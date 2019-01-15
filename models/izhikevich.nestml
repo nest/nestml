@@ -1,5 +1,5 @@
 /*
-Name: izhikevich_nestml - Izhikevich neuron model
+Name: izhikevich - Izhikevich neuron model
 
 Description:
 Implementation of the simple spiking neuron model introduced by Izhikevich
@@ -39,7 +39,7 @@ FirstVersion: 2009
 Author: Hanuschkin, Morrison, Kunkel
 SeeAlso: iaf_psc_delta, mat2_psc_exp
 */
-neuron izhikevich_neuron:
+neuron izhikevich:
 
   initial_values:
     V_m mV = -65mV # Membrane potential

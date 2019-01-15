@@ -31,7 +31,7 @@ Author: Schrader
 
 SeeAlso: hh_psc_alpha
 */
-neuron hh_cond_exp_traub_neuron:
+neuron hh_cond_exp_traub:
 
   state:
     r integer # counts number of tick during the refractory period
@@ -127,11 +127,11 @@ neuron hh_cond_exp_traub_neuron:
 end
 
 /*
-Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+Name: hh_cond_exp_traub_implicit - Hodgin Huxley based model, Traub modified.
 
 Description:
 
- hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model
+ hh_cond_exp_traub_implicit is an implementation of a modified Hodkin-Huxley model
 
  (1) Post-synaptic currents
  Incoming spike events induce a post-synaptic change of conductance modeled

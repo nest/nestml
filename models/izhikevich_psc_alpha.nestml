@@ -97,8 +97,8 @@ neuron izhikevich_psc_alpha:
 end
 
 /*
-Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped
-                             post-synaptic current.
+Name: izhikevich_psc_alpha_implicit - Detailed Izhikevich neuron model with 
+                                      alpha-shaped post-synaptic current.
 
 Description:
 Implementation of the simple spiking neuron model introduced by Izhikevich
