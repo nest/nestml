@@ -1,5 +1,5 @@
 #
-# PyNestMLFrontendTest.py
+# nest_codegenerator_test.py
 #
 # This file is part of NEST.
 #
@@ -32,141 +32,103 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
-# setups the infrastructure
-PredefinedUnits.register_units()
-PredefinedTypes.register_types()
-PredefinedFunctions.register_functions()
-PredefinedVariables.register_variables()
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-Logger.init_logger(LoggingLevel.NO)
-
 
 class CodeGeneratorTest(unittest.TestCase):
     """
-    Tests code generator with a psc, cond, delta and arbitrary model
+    Tests code generator with an IAF psc and cond model, both with alpha and delta shaped synaptic kernels
     """
 
-    def test_model_preparation(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            '..', 'models', 'iaf_psc_alpha.nestml'))))
-        compilation_unit = ModelParser.parse_model(path)
-        assert len(compilation_unit.get_neuron_list()) == 1
-        ast_neuron = compilation_unit.get_neuron_list()[0]
-        equations_block = ast_neuron.get_equations_block()
-        # the idea here is to go through the rhs, print expressions, use the same mechanism as before, and reread them
-        # again
-        # TODO: add tests for this function
-        # this function changes stuff inplace
-        nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.make_functions_self_contained(equations_block.get_ode_functions())
+    def setUp(self):
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedFunctions.register_functions()
+        PredefinedVariables.register_variables()
+        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        Logger.init_logger(LoggingLevel.NO)
 
-        nestCodeGenerator.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
-                                                       equations_block.get_ode_functions())
-
-        json_representation = nestCodeGenerator.transform_ode_and_shapes_to_json(equations_block)
-        self.assertTrue("convolve(I_shape_in, in_spikes)" in json_representation["odes"][0]["definition"])
-        self.assertTrue("convolve(I_shape_ex, ex_spikes)" in json_representation["odes"][0]["definition"])
-
-    def test_solve_odes_and_shapes(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            '..', 'models', 'iaf_psc_alpha.nestml'))))
-        compilation_unit = ModelParser.parse_model(path)
-        assert len(compilation_unit.get_neuron_list()) == 1
-        ast_neuron = compilation_unit.get_neuron_list()[0]
-
-        nestCodeGenerator = NESTCodeGenerator()
-        ast_neuron = nestCodeGenerator.transform_shapes_and_odes(ast_neuron, {})
+        self.target_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'target'))))
 
     def test_iaf_psc_alpha(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            '..', 'models', 'iaf_psc_alpha.nestml'))))
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'models', 'iaf_psc_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
-        params.append(path)
+        params.append(input_path)
         params.append('--logging_level')
         params.append('NO')
         params.append('--target_path')
-        params.append('target')
+        params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(path)
+        compilation_unit = ModelParser.parse_model(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
-        tear_down()
 
     def test_iaf_psc_delta(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            '..', 'models', 'iaf_psc_delta.nestml'))))
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'models', 'iaf_psc_delta.nestml'))))
 
         params = list()
         params.append('--input_path')
-        params.append(path)
+        params.append(input_path)
         params.append('--logging_level')
         params.append('NO')
         params.append('--target_path')
-        params.append('target')
+        params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(path)
+        compilation_unit = ModelParser.parse_model(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
-        tear_down()
 
     def test_iaf_cond_alpha_implicit(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            '..', 'models', 'iaf_cond_alpha.nestml'))))
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'models', 'iaf_cond_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
-        params.append(path)
+        params.append(input_path)
         params.append('--logging_level')
         params.append('NO')
         params.append('--target_path')
-        params.append('target')
+        params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(path)
+        compilation_unit = ModelParser.parse_model(input_path)
         iaf_cond_alpha_implicit = list()
         iaf_cond_alpha_implicit.append(compilation_unit.get_neuron_list()[1])
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(iaf_cond_alpha_implicit)
-        tear_down()
 
     def test_iaf_cond_alpha_functional(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            '..', 'models', 'iaf_cond_alpha.nestml'))))
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'models', 'iaf_cond_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
-        params.append(path)
+        params.append(input_path)
         params.append('--logging_level')
         params.append('NO')
         params.append('--target_path')
-        params.append('target')
+        params.append(self.target_path)
         params.append('--dev')
         FrontendConfiguration.parse_config(params)
 
-        compilation_unit = ModelParser.parse_model(path)
+        compilation_unit = ModelParser.parse_model(input_path)
         iaf_cond_alpha_functional = list()
         iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
-        tear_down()
 
-
-def tear_down():
-    # clean up
-    import shutil
-    shutil.rmtree(FrontendConfiguration.target_path)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.target_path)

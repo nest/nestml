@@ -1,5 +1,5 @@
-/* BeginDocumentation
-Name: hh_psc_alpha_nestml - Hodgkin Huxley neuron model.
+/*
+Name: hh_psc_alpha - Hodgkin Huxley neuron model.
 
 Description:
 
@@ -44,7 +44,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Authors: Schrader
 SeeAlso: hh_cond_exp_traub
 */
-neuron hh_psc_alpha_neuron:
+neuron hh_psc_alpha:
   state:
     r integer # number of steps in the current refractory phase
   end
@@ -134,8 +134,8 @@ neuron hh_psc_alpha_neuron:
 end
 
 
-/* BeginDocumentation
-Name: hh_psc_alpha_nestml - Hodgkin Huxley neuron model.
+/*
+Name: hh_psc_alpha_implicit - Hodgkin Huxley neuron model.
 
 Description:
 

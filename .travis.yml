@@ -13,7 +13,7 @@ before_install:
   - echo >> antlr4
   - chmod +x antlr4
   - export PATH=$PATH:`pwd`
-  - pip install --upgrade pip enum34
+  - pip install --upgrade pip enum34 pytest
   - pip install -r requirements.txt
   #- pip install matplotlib
   #- cd ~ && git clone https://github.com/nest/nest-simulator nest_source
@@ -40,23 +40,4 @@ install:
 sudo: true
 
 script:
-  - echo $PYTHONPATH
-  - python tests/lexer_parser_test.py
-  - python tests/special_block_parser_builder_test.py
-  - python tests/expression_parser_test.py
-  - python tests/ast_builder_test.py
-  - python tests/symbol_table_builder_test.py
-  - python tests/symbol_table_resolution_test.py
-  - python tests/cocos_test.py
-  - python tests/nest_codegenerator_test.py
-  - python tests/pynestml_frontend_test.py
-  - python tests/nestml_test.py
-  - python tests/expression_type_calculation_test.py
-  - python tests/comment_test.py
-  - python tests/as_component_test.py
-  - python tests/magnitude_compatibility_test.py
-  - python tests/nestml_printer_test.py
-  - python tests/pynestml_2_nest_type_converter_test.py 
-  - python tests/unit_system_test.py
-# - python tests/resources/NestmlIntegrationTest.py
-
+  - pytest tests

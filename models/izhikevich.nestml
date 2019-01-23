@@ -45,9 +45,8 @@ References
 ----------
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
-
 */
-neuron izhikevich_neuron:
+neuron izhikevich:
 
   initial_values:
     V_m mV = -65mV # Membrane potential
