@@ -19,20 +19,20 @@ synapse stdp:
   equations:
     # Kplus: all-to-all trace
     shape Kplus_kernel' = -Kplus_kernel / tau_plus
-    function Kplus = convolve(Kplus_kernel, pre_spikes)
+    function Kplus real = convolve(Kplus_kernel, pre_spikes)
     
     # Kmin: nearest-neighbour trace
     Kminus' = -Kminus / tau_minus
   end
   
-  postReceive:
+/*  postReceive:
     # update nearest-neighbour trace
     Kminus = 1
     
     # potentiate synapse
     w_ = Wmax * (( w / Wmax ) + (lambda * pow( 1. - ( w / Wmax ), mu_plus ) * Kplus ))
     w = min(Wmax, w + w_)
-  end  
+  end  */
 
   preReceive:
     # depress synapse

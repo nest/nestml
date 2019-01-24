@@ -251,7 +251,7 @@ parser grammar PyNestMLParser;
     @attribute function: A block declaring a used-defined function.
   */
   synapseBody:
-         ( NEWLINE | blockWithVariables | preReceiveBlock )*
+         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | updateBlock | function | preReceiveBlock )*
          END_KEYWORD;
 
   /** ASTPreReceiveBlock 
