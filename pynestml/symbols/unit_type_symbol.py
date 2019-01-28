@@ -165,4 +165,9 @@ class UnitTypeSymbol(TypeSymbol):
         if other_type.is_instance_of(RealTypeSymbol):
             return True
         else:
-            return False
+            # check unit equivalence with astropy
+            try:
+                self.unit.get_unit().to(other_type.unit.get_unit())
+                return True
+            except:
+                return False
