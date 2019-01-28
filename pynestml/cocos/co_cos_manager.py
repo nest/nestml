@@ -331,7 +331,7 @@ class CoCosManager(object):
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)
         cls.check_order_of_equations_correct(neuron)
-        cls.check_odes_have_consistent_units(_neuron)
+        cls.check_odes_have_consistent_units(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_type_of_buffer_unique(neuron)
