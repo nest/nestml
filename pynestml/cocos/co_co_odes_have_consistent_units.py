@@ -65,7 +65,6 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         inv_diff_order_unit_type_symbol = UnitTypeSymbol(inv_diff_order_unit_type)
         lhs_type = variable_type * inv_diff_order_unit_type_symbol
         rhs_type = node.get_rhs().type
-        import pdb;pdb.set_trace();
         if not rhs_type.is_castable_to(lhs_type):
             code, message = Messages.get_ode_needs_consistent_units(variable_name, node.get_lhs().get_differential_order(), lhs_type, rhs_type)
             Logger.log_message(error_position=node.get_source_position(), code=code,
