@@ -18,6 +18,8 @@ NestML is a domain specific language that supports the specification of neuron m
 
 ## Installing NESTML
 
+### Requirements
+
 In order to execute the language tool-chain, Python in version 2 or 3 is required.
 To ensure correct installation and resolving of dependencies, Python's package manager [pip](https://pip.pypa.io/en/stable/installing/), the distribution tool [setuptools](https://packaging.python.org/tutorials/installing-packages/) as well as the python headers (``python-dev`` on Ubuntu/Debian, ``python-devel`` on most other linux platforms) package are required and should be installed in advance. The setup file additionally installs the following components:
 
@@ -36,6 +38,8 @@ Requirements are stored in ``requirements.txt`` and can be installed in one step
 pip install -r requirements.txt
 ```
 
+### Installation
+
 Once all requirements are installed, a setup file is provided and can be run on Python 2 via 
 ```
 python2 setup.py install --user
@@ -44,6 +48,8 @@ Or for Python 3:
 ```
 python3 setup.py install --user
 ```
+
+### Testing
 
 Correct installation can then be tested by 
 ```
