@@ -35,11 +35,11 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('--input_path')
         params.append(path)
         params.append('--logging_level')
-        params.append('NO')
+        params.append('INFO')
         params.append('--target_path')
         params.append('target/models')
         params.append('--store_log')
-        params.append('--dev')
+        #params.append('--dev')
         # try:
         main(params)
         self.assertTrue(True)  # the goal is to reach this point without exceptions
