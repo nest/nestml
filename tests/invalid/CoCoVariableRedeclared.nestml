@@ -26,7 +26,7 @@
 neuron CoCoVariableRedeclared:
     state:
         test1 mV = 20mV # should not be detected as redeclared, since in global scope
-        e mV = 10mV
+        eV mV = 1 mV # should conflict with predefined unit eV
     end
     
     update:

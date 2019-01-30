@@ -26,7 +26,6 @@
 neuron CoCoVariableRedeclared:
     state:
         test1 mV = 20mV
-        eV mV = 10mV # eV is not a predefined variable
     end
     
     update:
