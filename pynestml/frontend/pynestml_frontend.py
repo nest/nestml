@@ -75,13 +75,14 @@ def install_nest(models_path, nest_path):
 
 
 def main(args):
+    """Returns the process exit code: 0 for success, > 0 for failure"""
     try:
         FrontendConfiguration.parse_config(args)
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return
     # after all argument have been collected, start the actual processing
-    process()
+    return process()
 
 
 def process():
@@ -90,6 +91,7 @@ def process():
     # The handed over parameters seem to be correct, proceed with the main routine
     init_predefined()
     # now proceed to parse all models
+    errors_occurred = False
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
     if not type(nestml_files) is list:
@@ -114,12 +116,13 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
+                    errors_occurred = True
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
         _codeGenerator.generate_code(neurons)
     if FrontendConfiguration.store_log:
         store_log_to_file()
-    return
+    return int(errors_occurred)
 
 
 def init_predefined():
@@ -139,7 +142,3 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
-
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
