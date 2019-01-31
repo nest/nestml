@@ -26,4 +26,5 @@ This file represents the entry point to the PyNestML.
 """
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    sys.exit(main(sys.argv[1:]))
+
