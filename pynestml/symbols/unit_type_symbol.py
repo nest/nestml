@@ -37,7 +37,7 @@ class UnitTypeSymbol(TypeSymbol):
 
     def __init__(self, unit):
         self.unit = unit
-        super(UnitTypeSymbol, self).__init__(name=str(unit.get_unit()))
+        super(UnitTypeSymbol, self).__init__(name=unit.name)
 
     def print_nestml_type(self):
         return self.unit.print_unit()
