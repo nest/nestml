@@ -80,7 +80,7 @@ def main(args):
         FrontendConfiguration.parse_config(args)
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
-        return
+        return 1
     # after all argument have been collected, start the actual processing
     return process()
 
@@ -120,6 +120,10 @@ def process():
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
         _codeGenerator.generate_code(neurons)
+        for neuron in neurons:
+            if Logger.has_errors(neuron):
+                errors_occurred = True
+                break
     if FrontendConfiguration.store_log:
         store_log_to_file()
     return int(errors_occurred)

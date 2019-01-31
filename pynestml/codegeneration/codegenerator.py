@@ -42,8 +42,9 @@ class CodeGenerator(object):
             if Logger.logging_level == LoggingLevel.INFO:
                 print("Generating code for the neuron {}.".format(neuron.get_name()))
             self.generate_neuron_code(neuron)
-            code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
-            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            if not Logger.has_errors(neuron):
+                code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
+                Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
     @staticmethod
     def get_known_targets():
