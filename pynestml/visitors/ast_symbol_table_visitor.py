@@ -45,6 +45,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.symbol_stack = Stack()
         self.scope_stack = Stack()
         self.block_type_stack = Stack()
+        self.skip_post_ode_specification_checks_ = False
 
     def visit_neuron(self, node):
         """
@@ -93,7 +94,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
             assign_ode_to_variables(equation_block)
-        CoCosManager.post_ode_specification_checks(node)
+        if not self.skip_post_ode_specification_checks_:
+            CoCosManager.post_ode_specification_checks(node)
         Logger.set_current_neuron(None)
         return
 
