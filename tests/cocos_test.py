@@ -335,7 +335,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 3)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
 
     def test_valid_init_values_have_rhs_and_ode(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -343,7 +343,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)), 0)
 
     def test_invalid_incorrect_return_stmt_detected(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -415,7 +415,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSumNotCorrectlyParametrized.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_valid_sum_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.INFO)
