@@ -153,7 +153,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.transform_shapes_and_odes(neuron, shape_to_buffers)
             # update the symbol table
             symbol_table_visitor = ASTSymbolTableVisitor()
-            symbol_table_visitor.skip_post_ode_specification_checks_ = True		# ODE block might have been removed entirely: suppress warnings
+            symbol_table_visitor.after_ast_rewrite_ = True		# ODE block might have been removed entirely: suppress warnings
             neuron.accept(symbol_table_visitor)
 
 
