@@ -33,7 +33,7 @@ class AsComponentTest(unittest.TestCase):
     def test_from_string(self):
         input_path = str(os.path.join(os.path.dirname(__file__), 'resources', 'CommentTest.nestml'))
         target_path = 'target'
-        logging_level = 'NO'
+        logging_level = 'INFO'
         module_name = 'module'
         store_log = False
         dev = True
@@ -47,7 +47,7 @@ class AsComponentTest(unittest.TestCase):
     def test_from_objects(self):
         input_path = os.path.join(os.path.dirname(__file__), 'resources', 'CommentTest.nestml')
         target_path = os.path.join('target')
-        logging_level = 'NO'
+        logging_level = 'INFO'
         module_name = 'module'
         store_log = False
         dev = True
