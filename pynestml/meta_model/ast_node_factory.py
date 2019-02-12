@@ -30,6 +30,7 @@ from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_pre_receive import ASTPreReceive
+from pynestml.meta_model.ast_post_receive import ASTPostReceive
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_body import ASTBody
@@ -117,6 +118,10 @@ class ASTNodeFactory(object):
     @classmethod
     def create_ast_pre_receive(cls, block=None, source_position=None):
         return ASTPreReceive(block, source_position)
+
+    @classmethod
+    def create_ast_post_receive(cls, block=None, source_position=None):
+        return ASTPostReceive(block, source_position)
 
     @classmethod
     def create_ast_body(cls, body_elements, source_position):

@@ -56,6 +56,8 @@
 
 */
 
+#define get_post_trace()    (target->get_K_value( __t_spike - __dendritic_delay ))
+
 namespace nest
 {
 
@@ -400,6 +402,52 @@ public:
   void
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
   {
+    // synapse STDP depressing/facilitation dynamics
+    const double __t_spike = e.get_stamp().get_ms();
+    
+    // use accessor functions (inherited from Connection< >) to obtain delay and target
+    const Node* __target = get_target( t );
+    const double __dendritic_delay = get_delay();
+
+    {
+      // get spike history in relevant range (t1, t2] from post-synaptic neuron
+      std::deque< histentry >::iterator start;
+      std::deque< histentry >::iterator finish;
+
+      // For a new synapse, t_lastspike_ contains the point in time of the last
+      // spike. So we initially read the
+      // history(t_last_spike - dendritic_delay, ..., T_spike-dendritic_delay]
+      // which increases the access counter for these entries.
+      // At registration, all entries' access counters of
+      // history[0, ..., t_last_spike - dendritic_delay] have been
+      // incremented by Archiving_Node::register_stdp_connection(). See bug #218 for
+      // details.
+      target->get_history( t_lastspike_ - dendritic_delay,
+        t_spike - dendritic_delay,
+        &start,
+        &finish );
+      // facilitation due to post-synaptic spikes since last pre-synaptic spike
+      double minus_dt;
+      while ( start != finish )
+      {
+        minus_dt = t_lastspike_ - ( start->t_ + dendritic_delay );
+        ++start;
+        // get_history() should make sure that
+        // start->t_ > t_lastspike - dendritic_delay, i.e. minus_dt < 0
+        assert( minus_dt < -1.0 * kernel().connection_manager.get_stdp_eps() );
+
+        {%- filter indent(8,True) -%}
+
+        {%- set dynamics = synapse.get_post_receive() -%}
+        {%- with ast = dynamics.get_block() -%}
+        {%- include "directives/Block.jinja2" -%}
+        {%- endwith %}
+
+        {%- endfilter -%}
+      }
+    }
+
+
     {%- filter indent(2,True) -%}
 
     {%- set dynamics = synapse.get_pre_receive() -%}

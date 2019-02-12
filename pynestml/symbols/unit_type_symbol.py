@@ -161,7 +161,9 @@ class UnitTypeSymbol(TypeSymbol):
         return factor
 
     def is_castable_to(self, other_type):
+        #import pdb;pdb.set_trace()
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
+        #if self.is_instance_of(RealTypeSymbol) \
         if other_type.is_instance_of(RealTypeSymbol):
             return True
         else:

@@ -79,13 +79,14 @@ def install_nest(models_path, nest_path):
 
 
 def main(args):
+    """Returns the process exit code: 0 for success, > 0 for failure"""
     try:
         FrontendConfiguration.parse_config(args)
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
-        return
+        return 1
     # after all argument have been collected, start the actual processing
-    process()
+    return process()
 
 
 def process():
@@ -101,6 +102,16 @@ def process():
     nestml_files = FrontendConfiguration.get_files()
     if not type(nestml_files) is list:
         nestml_files = [nestml_files]
+
+    from pynestml.symbols.predefined_functions import PredefinedFunctions 
+    if not "POST_TRACE_FUNCTION" in dir(PredefinedFunctions):
+        # register predefined functions that are specific to NEST
+        print("XXXXXXXXXXXXXX: iserting get_post_trace predef func")
+        params = list()
+        PredefinedFunctions.POST_TRACE_FUNCTION = "get_post_trace"
+        PredefinedFunctions.register_function(PredefinedFunctions.POST_TRACE_FUNCTION, params=[], return_type=PredefinedTypes.get_real_type(), element_reference=None)
+
+
     for nestml_file in nestml_files:
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:

@@ -107,6 +107,13 @@ class PredefinedFunctions(object):
         return
 
     @classmethod
+    def register_function(cls, name, params, return_type, element_reference):
+        symbol = FunctionSymbol(name=name, param_types=params,
+                                return_type=return_type,
+                                element_reference=element_reference, is_predefined=True)
+        cls.name2function[name] = symbol
+
+    @classmethod
     def __register_time_steps_function(cls):
         """
         Registers the time-resolution.

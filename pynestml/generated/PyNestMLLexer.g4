@@ -76,7 +76,6 @@ lexer grammar PyNestMLLexer;
   INPUT_KEYWORD : 'input';
   OUTPUT_KEYWORD : 'output';
   PRE_RECEIVE_KEYWORD : 'preReceive';
-  POST_RECEIVE_KEYWORD : 'postReceive';
   CURRENT_KEYWORD : 'current';
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';

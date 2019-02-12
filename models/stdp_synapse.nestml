@@ -1,45 +1,40 @@
 synapse stdp:
 
   initial_values:
-    w real = 1
-    Kplus real = 0
-    Kminus real = 0
+    w nS = 1 nS
+    Kplus real = 0.
+    Kminus real = 0.
   end
   
   parameters:
-    delay real = 1 ms
+    delay ms = 1 ms
     lambda real = 0.01
     tau_plus ms = 20 ms
-    alpha real = 1
-    mu_plus real = 1
-    mu_minus real = 1
-    Wmax real = 100
+    alpha real = 1.
+    mu_plus real = 1.
+    mu_minus real = 1.
+    Wmax nS = 100 nS
+    Wmin nS = 0 nS
   end
-  
+
   equations:
     # Kplus: all-to-all trace
     shape Kplus_kernel' = -Kplus_kernel / tau_plus
     function Kplus real = convolve(Kplus_kernel, pre_spikes)
-    
-    # Kmin: nearest-neighbour trace
-    Kminus' = -Kminus / tau_minus
   end
-  
-/*  postReceive:
-    # update nearest-neighbour trace
-    Kminus = 1
-    
+
+  postReceive:
     # potentiate synapse
-    w_ = Wmax * (( w / Wmax ) + (lambda * pow( 1. - ( w / Wmax ), mu_plus ) * Kplus ))
+    w_ nS = Wmax * (( w / Wmax ) + (lambda * pow( 1. - ( w / Wmax ), mu_plus ) * Kplus ))
     w = min(Wmax, w + w_)
-  end  */
+  end
 
   preReceive:
     # depress synapse
-    w_ = Wmax * (( w / Wmax ) - ( alpha * lambda * pow( w / Wmax, mu_minus ) * Kminus ))
-    w = max(0., w_)
-    
-    deliver_spike(w, d)
+    w_ nS = Wmax * (( w / Wmax ) - ( alpha * lambda * pow( w / Wmax, mu_minus ) * get_post_trace() ))
+    w = max(Wmin, w_)
+
+    deliver_spike(w, delay)
   end
   
   update:

@@ -51,6 +51,7 @@ from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_pre_receive import ASTPreReceive
+from pynestml.meta_model.ast_post_receive import ASTPostReceive
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
@@ -136,6 +137,13 @@ class ASTVisitor(object):
         """
         Used to visit a single preReceive block.
         :type node: ASTPreReceive
+        """
+        return
+
+    def visit_post_receive(self, node):
+        """
+        Used to visit a single postReceive block.
+        :type node: ASTPostReceive
         """
         return
 
@@ -465,6 +473,12 @@ class ASTVisitor(object):
     def endvisit_pre_receive(self, node):
         """
         Used to endvisit a preReceive block.
+        """
+        return
+
+    def endvisit_post_receive(self, node):
+        """
+        Used to endvisit a postReceive block.
         """
         return
 
@@ -877,6 +891,9 @@ class ASTVisitor(object):
         if isinstance(node, ASTPreReceive):
             self.visit_pre_receive(node)
             return
+        if isinstance(node, ASTPostReceive):
+            self.visit_post_receive(node)
+            return
         if isinstance(node, ASTVariable):
             self.visit_variable(node)
             return
@@ -1011,6 +1028,9 @@ class ASTVisitor(object):
         if isinstance(node, ASTPreReceive):
             self.traverse_pre_receive(node)
             return
+        if isinstance(node, ASTPostReceive):
+            self.traverse_post_receive(node)
+            return
         if isinstance(node, ASTVariable):
             self.traverse_variable(node)
             return
@@ -1144,6 +1164,9 @@ class ASTVisitor(object):
             return
         if isinstance(node, ASTPreReceive):
             self.endvisit_pre_receive(node)
+            return
+        if isinstance(node, ASTPostReceive):
+            self.endvisit_post_receive(node)
             return
         if isinstance(node, ASTVariable):
             self.endvisit_variable(node)
@@ -1410,6 +1433,11 @@ class ASTVisitor(object):
         return
 
     def traverse_pre_receive(self, node):
+        if node.get_block() is not None:
+            node.get_block().accept(self.get_real_self())
+        return
+
+    def traverse_post_receive(self, node):
         if node.get_block() is not None:
             node.get_block().accept(self.get_real_self())
         return

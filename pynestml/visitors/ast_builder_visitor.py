@@ -579,6 +579,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.preReceiveBlock() is not None:
             for child in ctx.preReceiveBlock():
                 body_elements.append(child)
+        if ctx.postReceiveBlock() is not None:
+            for child in ctx.postReceiveBlock():
+                body_elements.append(child)
         if ctx.blockWithVariables() is not None:
             for child in ctx.blockWithVariables():
                 body_elements.append(child)
@@ -724,6 +727,12 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitPreReceiveBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         ret = ASTNodeFactory.create_ast_pre_receive(block=block, source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
+        return ret
+
+    def visitPostReceiveBlock(self, ctx):
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        ret = ASTNodeFactory.create_ast_post_receive(block=block, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

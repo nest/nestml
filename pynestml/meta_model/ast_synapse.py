@@ -203,6 +203,14 @@ class ASTSynapse(ASTNode):
         """
         return self.get_body().get_pre_receive()
 
+    def get_post_receive(self):
+        """
+        Returns the post_receive block
+        :return: the post_receive block
+        :rtype: ...
+        """
+        return self.get_body().get_post_receive()
+
     def get_internal_symbols(self):
         """
         Returns a list of all internals symbol defined in the model.

@@ -115,6 +115,12 @@ class ASTSynapseBody(ASTNode):
             if isinstance(elem, ASTPreReceive):
                 return elem
 
+    def get_post_receive(self):
+        from pynestml.meta_model.ast_post_receive import ASTPostReceive
+        for elem in self.get_synapse_body_elements():
+            if isinstance(elem, ASTPostReceive):
+                return elem
+
 
 
     # def get_equations_blocks(self):

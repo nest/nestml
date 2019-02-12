@@ -110,6 +110,7 @@ class RealTypeSymbol(TypeSymbol):
     def is_castable_to(self, _other_type):
         from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
         from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
+        return True	# XXX: real can be cast to anything
         if _other_type.is_instance_of(BooleanTypeSymbol):
             return True
         elif _other_type.is_instance_of(IntegerTypeSymbol):
