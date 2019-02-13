@@ -45,22 +45,34 @@
 *  {{now}}
 */
 
-#ifndef {{synapseName.upper()}}
-#define {{synapseName.upper()}}
+#ifndef {{synapseName.upper()}}_H
+#define {{synapseName.upper()}}_H
+
+// C++ includes:
+#include <cmath>
 
 // Includes from nestkernel:
+#include "common_synapse_properties.h"
 #include "connection.h"
+#include "connector_model.h"
+#include "event.h"
 
-/* BeginDocumentation
-  Name: {{synapseName}}.
+// Includes from sli:
+#include "dictdatum.h"
+#include "dictutils.h"
 
-*/
+/** @BeginDocumentation
+{{ synapse.print_comment() }}
+**/
 
 #define get_post_trace()    (target->get_K_value( __t_spike - __dendritic_delay ))
 
 namespace nest
 {
 
+/** @BeginDocumentation
+
+**/
 class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
 public:
 
@@ -163,6 +175,7 @@ class {{synapseName}} : public Connection< targetidentifierT >
 private:
 
   double *weight_;
+  double t_lastspike_;
 
   /**
   * Free parameters of the synapse.
@@ -261,8 +274,8 @@ public:
   {%- endfor %}
 
     //weight_ = get_named_parameter<double>(names::weight);
-    // set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
-
+    set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
+    t_lastspike_ = 0.;
   }
 
   /**
@@ -283,7 +296,8 @@ public:
     {% endfor %}
 
     //weight_ = get_named_parameter<double>(names::weight);
-    //set_weight(*(rhs.weight_));
+    set_weight( rhs.weight_);
+    t_lastspike_  = rhs.t_lastspike_;
   }
 
   // Explicitly declare all methods inherited from the dependent base
@@ -422,19 +436,22 @@ public:
       // history[0, ..., t_last_spike - dendritic_delay] have been
       // incremented by Archiving_Node::register_stdp_connection(). See bug #218 for
       // details.
-      target->get_history( t_lastspike_ - dendritic_delay,
-        t_spike - dendritic_delay,
+      __target->get_history( t_lastspike_ - __dendritic_delay,
+        __t_spike - __dendritic_delay,
         &start,
         &finish );
       // facilitation due to post-synaptic spikes since last pre-synaptic spike
-      double minus_dt;
       while ( start != finish )
       {
-        minus_dt = t_lastspike_ - ( start->t_ + dendritic_delay );
+        double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
         ++start;
         // get_history() should make sure that
         // start->t_ > t_lastspike - dendritic_delay, i.e. minus_dt < 0
         assert( minus_dt < -1.0 * kernel().connection_manager.get_stdp_eps() );
+
+        /**
+         *  NESTML generated postReceive code block begins here!
+        **/
 
         {%- filter indent(8,True) -%}
 
@@ -448,6 +465,10 @@ public:
     }
 
 
+    /**
+     *  NESTML generated preReceive code block begins here!
+    **/
+
     {%- filter indent(2,True) -%}
 
     {%- set dynamics = synapse.get_pre_receive() -%}
@@ -456,6 +477,12 @@ public:
     {%- endwith %}
 
     {%- endfilter -%}
+
+    /**
+     *
+    **/
+
+    t_lastspike_ = __t_spike;
   }
 
   void get_status( DictionaryDatum& d ) const;
@@ -509,4 +536,4 @@ void
 
 } // namespace
 
-#endif /* #ifndef {{synapseName.upper()}} */
+#endif /* #ifndef {{synapseName.upper()}}_H */
