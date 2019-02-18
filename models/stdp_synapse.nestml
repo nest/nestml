@@ -58,7 +58,7 @@ synapse stdp:
   initial_values:
     w nS = 1 nS
     Kplus real = 0.
-    Kminus real = 0.
+    // N.B. Kminus is in postsynaptic partner; using `get_post_trace()`
   end
   
   parameters:
@@ -89,6 +89,7 @@ synapse stdp:
     w_ nS = Wmax * (( w / Wmax ) - ( alpha * lambda * pow( w / Wmax, mu_minus ) * get_post_trace() ))
     w = max(Wmin, w_)
 
+    # deliver spike to postsynaptic partner
     deliver_spike(w, delay)
   end
   

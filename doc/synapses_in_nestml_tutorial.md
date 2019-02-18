@@ -62,5 +62,8 @@ The NEST target
 
 NEST target synapses are not allowed to have any internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
 
-Additionally, NEST stores and updates the postsynaptic trace in the postsynaptic node class. This means that the shape of the postsynaptic trace is restricted to those supported in NEST, and that parameters (such as the decay time constant of the trace) have to be set by hand on the postsynaptic object. At the time of writing, only exponentially decaying traces, that are incremented by 1 at the time of a spike, are supported.
+Additionally, NEST stores and updates the postsynaptic trace in the postsynaptic node class. This means that the shape of the postsynaptic trace is restricted to those supported in NEST, and that parameters (such as the decay time constant of the trace) have to be set by hand on the postsynaptic object. At the time of writing, only exponentially decaying traces, that are incremented by 1 at the time of a spike, are supported (see https://github.com/nest/nest-simulator/blob/ae93769ffb7a828ab80f8f5e543f36081568edd4/nestkernel/archiving_node.cpp#L202).
+
+
+
 

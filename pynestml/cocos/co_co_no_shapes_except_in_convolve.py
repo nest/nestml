@@ -83,7 +83,7 @@ class ShapeUsageVisitor(ASTVisitor):
             # if it is not a shape just continue
             if symbol is None:
                 code, message = Messages.get_no_variable_found(shapeName)
-                Logger.log_message(neuron=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
+                Logger.log_message(astnode=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
                 continue
             if not symbol.is_shape():
                 continue

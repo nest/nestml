@@ -86,6 +86,42 @@ class ASTSynapse(ASTNode):
         self._default_delay_expression = expr
         self._default_delay_dtype = dtype
 
+    def get_state_blocks(self):
+        """
+        Returns a list of all state blocks defined in this body.
+        :return: a list of state-blocks.
+        :rtype: list(ASTBlockWithVariables)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+        for elem in self.get_body().get_body_elements():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_state:
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
+
+    def get_initial_blocks(self):
+        """
+        Returns a list of all initial blocks defined in this body.
+        :return: a list of initial-blocks.
+        :rtype: list(ASTBlockWithVariables)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+        for elem in self.get_body().get_body_elements():
+            if isinstance(elem, ASTBlockWithVariables) and elem.is_initial_values:
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
+
     def get_default_delay_expression(self):
         return self._default_delay_expression
 
@@ -114,6 +150,58 @@ class ASTSynapse(ASTNode):
                     not symbol.is_predefined:
                 ret.append(symbol)
         return ret
+
+
+    def get_state_symbols(self):
+        """
+        Returns a list of all state symbol defined in the model.
+        :return: a list of state symbols.
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.STATE and \
+                    not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
+
+    def get_initial_values_non_alias_symbols(self):
+        ret = list()
+        for init in self.get_initial_values_symbols():
+            if not init.is_function and not init.is_predefined:
+                ret.append(init)
+        return ret
+
+    def get_internal_non_alias_symbols(self):
+        """
+        Returns a list of all variable symbols representing non-function internal variables.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for param in self.get_internal_symbols():
+            if not param.is_function and not param.is_predefined:
+                ret.append(param)
+
+        return ret
+
+    def get_initial_values_symbols(self):
+        """
+        Returns a list of all initial values symbol defined in the model.
+        :return: a list of initial values symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.symbols.variable_symbol import BlockType
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INITIAL_VALUES and \
+                    not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
 
     def get_body(self):
         """
@@ -251,6 +339,24 @@ class ASTSynapse(ASTNode):
 
         return ret
 
+    def get_state_non_alias_symbols(self):
+        """
+        Returns a list of all variable symbols representing non-function state variables.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for param in self.get_state_symbols():
+            if not param.is_function and not param.is_predefined:
+                ret.append(param)
+        return ret
+
+    def get_initial_values_non_alias_symbols(self):
+        ret = list()
+        for init in self.get_initial_values_symbols():
+            if not init.is_function and not init.is_predefined:
+                ret.append(init)
+        return ret
 
     def get_parameter_invariants(self):
         """
@@ -284,6 +390,34 @@ class ASTSynapse(ASTNode):
             ASTUtils.create_internal_block(self)
         self.get_internals_blocks().get_declarations().append(declaration)
         return
+
+    def get_ode_aliases(self):
+        """
+        Returns a list of all equation function symbols defined in the model.
+        :return: a list of equation function  symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.symbols.variable_symbol import BlockType
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol,
+                          VariableSymbol) and symbol.block_type == BlockType.EQUATION and symbol.is_function:
+                ret.append(symbol)
+        return ret
+
+    def variables_defined_by_ode(self):
+        """
+        Returns a list of all variables which are defined by an ode.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_complete_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.is_ode_defined():
+                ret.append(symbol)
+        return ret
 
     def print_parameter_comment(self, prefix=None):
         """

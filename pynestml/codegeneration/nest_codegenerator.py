@@ -387,18 +387,12 @@ class NESTCodeGenerator(CodeGenerator):
         """
 
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "Only one equation block should be present"
-
         equations_block = neuron.get_equations_block()
 
-        if len(equations_block.get_ode_shapes()) == 0:
-            code, message = Messages.get_neuron_solved_by_solver(neuron.get_name())
-            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-            return neuron
-        elif len(equations_block.get_ode_shapes()) == 1 and \
+        if len(equations_block.get_ode_shapes()) == 1 and \
                 str(equations_block.get_ode_shapes()[0].get_expression()).strip().startswith(
                     "delta"):  # assume the model is well formed
             shape = equations_block.get_ode_shapes()[0]
-
             integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers)
             return neuron
         elif len(equations_block.get_ode_equations()) == 1:
@@ -407,18 +401,20 @@ class NESTCodeGenerator(CodeGenerator):
             solver_result = self.solve_ode_with_shapes(equations_block)
 
             if solver_result["solver"] is "analytical":
-                result = integrate_exact_solution(neuron, solver_result)
-                result.remove_equations_block()
-            elif solver_result["solver"] is "numeric":
+                neuron = integrate_exact_solution(neuron, solver_result)
+                neuron.remove_equations_block()
+                return neuron
+            else:
+                assert solver_result["solver"] is "numeric"
                 at_least_one_functional_shape = False
                 for shape in equations_block.get_ode_shapes():
                     if shape.get_variable().get_differential_order() == 0:
                         at_least_one_functional_shape = True
                 if at_least_one_functional_shape:
-                    functional_shapes_to_odes(result, solver_result)
-            else:
-                result = neuron
+                    functional_shapes_to_odes(neuron, solver_result)
+                return neuron
         else:
+            import pdb;pdb.set_trace()
             code, message = Messages.get_neuron_solved_by_solver(neuron.get_name())
             Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
             at_least_one_functional_shape = False
@@ -428,9 +424,8 @@ class NESTCodeGenerator(CodeGenerator):
                     break
             if at_least_one_functional_shape:
                 ode_shapes = self.solve_functional_shapes(equations_block)
-                functional_shapes_to_odes(result, ode_shapes)
-
-        return result
+                functional_shapes_to_odes(neuron, ode_shapes)
+            return neuron
 
 
     def apply_spikes_from_buffers(self, neuron, shape_to_buffers):
