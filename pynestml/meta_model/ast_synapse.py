@@ -56,8 +56,6 @@ class ASTSynapse(ASTNode):
         :param artifact_name: the name of the file this synapse is contained in
         :type artifact_name: str
         """
-        print("In ASTSynapse::__init__()")
-
         assert isinstance(name, str), \
             '(PyNestML.AST.Synapse) No  or wrong type of synapse name provided (%s)!' % type(name)
         assert isinstance(body, ASTSynapseBody), \
