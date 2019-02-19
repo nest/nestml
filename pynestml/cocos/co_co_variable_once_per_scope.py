@@ -57,16 +57,16 @@ class CoCoVariableOncePerScope(CoCo):
                     if sym1.is_predefined:
                         code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
                         Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
-                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           astnode=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
                     elif sym2.is_predefined:
                         code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
                         Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),
-                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           astnode=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
                     elif sym1.get_referenced_object().get_source_position().before(
                             sym2.get_referenced_object().get_source_position()):
                         code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), False)
                         Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
-                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           astnode=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
             checked.append(sym1)
         for scope in scope.get_scopes():
             cls.__check_scope(neuron, scope)
