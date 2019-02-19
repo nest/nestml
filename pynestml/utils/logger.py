@@ -45,6 +45,7 @@ class Logger(object):
     """
     log = {}
     curr_message = None
+    log_frozen = False
     logging_level = None
     current_astnode = None
     no_print = False
@@ -59,6 +60,7 @@ class Logger(object):
         cls.logging_level = logging_level
         cls.curr_message = 0
         cls.log = {}
+        cls.log_frozen = False
         return
 
     @classmethod

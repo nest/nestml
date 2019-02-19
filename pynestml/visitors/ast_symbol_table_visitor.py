@@ -145,12 +145,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.post_symbol_table_builder_checks(node)
         # the following part is done in order to mark conductance based buffers as such.
-        # Logger.set_current_synapse(None)
-        return
-
-
-    def endvisit_synapse_body(self, node):
-        
+        Logger.set_current_astnode(None)
         return
 
     def visit_synapse_body(self, node):
@@ -162,6 +157,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for synapseBodyElement in node.get_synapse_body_elements():
             synapseBodyElement.update_scope(node.get_scope())
         return
+
+    def endvisit_synapse_body(self, node):
+        pass
 
     def visit_function(self, node):
         """
