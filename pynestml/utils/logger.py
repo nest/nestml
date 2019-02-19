@@ -38,10 +38,10 @@ class Logger(object):
     level is set to WARNING, only warnings and errors are printed. Only if level is set to ALL, all messages 
     are printed.
     Attributes:
-        log       Stores all messages as received during the execution. Map from id (int) to neuron,type,message
+        log       Stores all messages as received during the execution. Map from id (int) to astnode,type,message
         curr_message A counter indicating the current message, this enables a sorting by the number of message
         logging_level Indicates messages of which level shall be printed to the screen.
-        current_neuron The currently processed model. This enables to retrieve all messages belonging to a certain model
+        current_astnode The currently processed model. This enables to retrieve all messages belonging to a certain model
     """
     log = {}
     curr_message = None
@@ -65,8 +65,8 @@ class Logger(object):
     def get_log(cls):
         """
         Returns the overall log of messages. The structure of the log is: (NEURON,LEVEL,MESSAGE)
-        :return: dict from id to neuron+message+type.
-        :rtype: dict(int->neuron,level,str)
+        :return: dict from id to astnode+message+type.
+        :rtype: dict(int->astnode,level,str)
         """
         return cls.log
 
@@ -101,7 +101,7 @@ class Logger(object):
         from pynestml.meta_model.ast_neuron import ASTNeuron
         from pynestml.meta_model.ast_synapse import ASTSynapse
         from pynestml.meta_model.ast_source_location import ASTSourceLocation
-        assert astnode is None or (isinstance(astnode, ASTNeuron) or isinstance(astnode, ASTSynapse)), \
+        assert astnode is None or isinstance(astnode, ASTNeuron) or isinstance(astnode, ASTSynapse), \
             '(PyNestML.Logger) Wrong type of neuron or synapse provided (%s)!' % type(astnode)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
             '(PyNestML.Logger) Wrong type of error position provided (%s)!' % type(error_position)
@@ -158,10 +158,10 @@ class Logger(object):
     @classmethod
     def set_current_astnode(cls, node):
         """
-        Sets the handed over neuron as the currently processed one. This enables a retrieval of messages for a
-        specific neuron.
-        :param neuron:  a single neuron instance
-        :type neuron: ast_neuron
+        Sets the handed over astnode as the currently processed one. This enables a retrieval of messages for a
+        specific astnode.
+        :param node:  a single astnode instance
+        :type node: astnode
         """
         from pynestml.meta_model.ast_neuron import ASTNeuron
         from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -169,25 +169,25 @@ class Logger(object):
         cls.current_astnode = node
 
     @classmethod
-    def get_all_messages_of_level_and_or_neuron(cls, neuron, level):
+    def get_all_messages_of_level_and_or_astnode(cls, astnode, level):
         """
-        Returns all messages which have a certain logging level, or have been reported for a certain neuron, or
+        Returns all messages which have a certain logging level, or have been reported for a certain astnode, or
         both.
-        :param neuron: a single neuron instance
-        :type neuron: ASTNeron
+        :param astnode: a single astnode instance
+        :type astnode: ASTNeron
         :param level: a logging level
         :type level: LoggingLevel
         :return: a list of messages with their levels.
         :rtype: list((str,Logging_Level)
         """
-        if level is None and neuron is None:
+        if level is None and astnode is None:
             return cls.get_log()
         ret = list()
-        for (artifactName, neuron_i, logLevel, code, errorPosition, message) in cls.log.values():
+        for (artifactName, astnode_i, logLevel, code, errorPosition, message) in cls.log.values():
             if (level == logLevel if level is not None else True) and (
-                    neuron if neuron is not None else True) and (
-                    neuron.get_artifact_name() == artifactName if neuron is not None else True):
-                ret.append((neuron, logLevel, message))
+                    astnode if astnode is not None else True) and (
+                    astnode.get_artifact_name() == artifactName if astnode is not None else True):
+                ret.append((astnode, logLevel, message))
         return ret
 
     @classmethod
@@ -202,39 +202,39 @@ class Logger(object):
         if level is None:
             return cls.get_log()
         ret = list()
-        for (artifactName, neuron, logLevel, code, errorPosition, message) in cls.log.values():
+        for (artifactName, astnode, logLevel, code, errorPosition, message) in cls.log.values():
             if level == logLevel:
-                ret.append((neuron, logLevel, message))
+                ret.append((astnode, logLevel, message))
         return ret
 
     @classmethod
-    def get_all_messages_of_neuron(cls, neuron):
+    def get_all_messages_of_astnode(cls, astnode):
         """
-        Returns all messages which have been reported for a certain neuron.
-        :param neuron: a single neuron instance
-        :type neuron: ASTNeron
+        Returns all messages which have been reported for a certain astnode.
+        :param astnode: a single astnode instance
+        :type astnode: ASTNeron
         :return: a list of messages with their levels.
         :rtype: list((str,Logging_Level)
         """
-        if neuron is None:
+        if astnode is None:
             return cls.get_log()
         ret = list()
-        for (artifactName, neuron_i, logLevel, code, errorPosition, message) in cls.log.values():
-            if (neuron_i == neuron if neuron is not None else True) and \
-                    (neuron.get_artifact_name() == artifactName if neuron is not None else True):
-                ret.append((neuron, logLevel, message))
+        for (artifactName, astnode_i, logLevel, code, errorPosition, message) in cls.log.values():
+            if (astnode_i == astnode if astnode is not None else True) and \
+                    (astnode.get_artifact_name() == artifactName if astnode is not None else True):
+                ret.append((astnode, logLevel, message))
         return ret
 
     @classmethod
-    def has_errors(cls, neuron):
+    def has_errors(cls, astnode):
         """
-        Indicates whether the handed over neuron, thus the corresponding model, has errors.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        Indicates whether the handed over astnode, thus the corresponding model, has errors.
+        :param astnode: a single astnode instance.
+        :type astnode: astnode
         :return: True if errors detected, otherwise False
         :rtype: bool
         """
-        return len(cls.get_all_messages_of_level_and_or_neuron(neuron, LoggingLevel.ERROR)) > 0
+        return len(cls.get_all_messages_of_level_and_or_astnode(astnode, LoggingLevel.ERROR)) > 0
 
     @classmethod
     def get_json_format(cls):
@@ -245,13 +245,13 @@ class Logger(object):
         """
         ret = '['
         for messageNr in cls.log.keys():
-            (artifactName, neuron, logLevel, code, errorPosition, message) = cls.log[messageNr]
+            (artifactName, astnode, logLevel, code, errorPosition, message) = cls.log[messageNr]
             ret += '{' + \
                    '"filename":"' + \
                    artifactName + \
                    '", ' + \
-                   '"neuronName":"' + \
-                   (neuron.get_name() if neuron is not None else 'GLOBAL') + '", ' + \
+                   '"modelName":"' + \
+                   (astnode.get_name() if astnode is not None else 'GLOBAL') + '", ' + \
                    '"severity":"' \
                    + str(logLevel.name) + '", ' \
                    + '"code":"' \
