@@ -53,7 +53,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: a single neuron.
         :rtype: ast_neuron
         """
-        print("In ASTSymbolTableVisitor::visit_neuron()")
         # set current processed neuron
         Logger.set_current_astnode(node)
         code, message = Messages.get_start_building_symbol_table()
