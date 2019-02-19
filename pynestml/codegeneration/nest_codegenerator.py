@@ -21,7 +21,7 @@ import datetime
 import os
 import re
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
 from pynestml.codegeneration.codegenerator import CodeGenerator
@@ -55,8 +55,12 @@ class NESTCodeGenerator(CodeGenerator):
 
     def __init__(self):
         # setup the template environment
+        def raise_helper(msg):
+            raise TemplateRuntimeError(msg)
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
+        env.globals['raise'] = raise_helper
         setup_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest', 'setup')))
+        setup_env.globals['raise'] = raise_helper
         # setup the cmake template
         self._template_cmakelists = setup_env.get_template('CMakeLists.jinja2')
         # setup the module class template
