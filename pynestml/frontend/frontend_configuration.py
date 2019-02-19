@@ -1,4 +1,3 @@
-
 #
 # frontend_configuration.py
 #
