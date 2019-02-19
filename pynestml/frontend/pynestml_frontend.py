@@ -57,7 +57,7 @@ def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name
     if store_log:
         args.append(qualifier_store_log_arg)
     if len(suffix) > 0:
-        args.append(qualifier_suffix)
+        args.append(qualifier_suffix_arg)
         args.append(suffix)
     if dev:
         args.append(qualifier_dev_arg)
