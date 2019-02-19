@@ -114,7 +114,8 @@ class NESTReferenceConverter(IReferenceConverter):
                    'e.set_rport( get_rport() );\n' \
                    'e()'
         elif ASTUtils.needs_arguments(function_call):
-            return function_name + '(' + ', '.join(['%s' for _ in range(len(function_call.get_args()))]) + ')'
+            n_args = len(function_call.get_args())
+            return function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
         else:
             return function_name + '()'
 
