@@ -351,7 +351,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 decorators.append(d)
 
         # now for each variable create a symbol and update the scope
-        print("Creating VariableSymbol with decorators = " + str(decorators) + ", namespace_decorators = " + str(namespace_decorators))
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
