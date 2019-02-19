@@ -39,7 +39,6 @@ if not "PYTHONPATH" in os.environ:
 os.environ["LD_LIBRARY_PATH"] += ":" + nestml_target_directory   #"/home/archels/julich/nest-simulator-build/lib:/home/archels/julich/nest-simulator-build/lib/python3.6/site-packages/nest:/tmp/nestml-target"
 os.environ["LD_LIBRARY_PATH"] += ":" + os.path.join(nest_path, "lib")
 os.environ["PYTHONPATH"] += ":" + os.path.join(nest_path, "lib/python3.6/site-packages")
-import nest
 
 try:
 	import nest
