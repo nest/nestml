@@ -40,4 +40,4 @@ install:
 sudo: true
 
 script:
-  - python -m pytest tests
+  - pytest tests
