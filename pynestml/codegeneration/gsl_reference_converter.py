@@ -85,7 +85,7 @@ class GSLReferenceConverter(IReferenceConverter):
         if function_name == 'steps':
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
         if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s)'
+            return 'std::pow(%s, %s)'
         if function_name == PredefinedFunctions.LOG:
             return 'std::log(%s)'
         if function_name == PredefinedFunctions.EXPM1:
@@ -96,9 +96,9 @@ class GSLReferenceConverter(IReferenceConverter):
             else:
                 return 'std::exp(%s)'
         if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
-            return 'std::max(%s)'
+            return 'std::max(%s, %s)'
         if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
-            return 'std::min(%s)'
+            return 'std::min(%s, %s)'
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
