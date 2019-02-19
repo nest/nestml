@@ -117,15 +117,6 @@ class ExpressionsPrettyPrinter(object):
             ret.append(self.print_expression(arg))
         return tuple(ret)
 
-    def print_function_call_arguments(self, function_call):
-        # type: (ASTFunctionCall) -> str
-        ret = ''
-        for arg in function_call.get_args():
-            ret += self.print_expression(arg)
-            if function_call.get_args().index(arg) < len(function_call.get_args()) - 1:
-                ret += ', '
-        return ret
-
 
 class TypesPrinter(object):
     """
