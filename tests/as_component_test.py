@@ -36,8 +36,9 @@ class AsComponentTest(unittest.TestCase):
         logging_level = 'INFO'
         module_name = 'module'
         store_log = False
+        suffix = ''
         dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, dev)
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'CMakeLists.txt')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))
@@ -50,8 +51,9 @@ class AsComponentTest(unittest.TestCase):
         logging_level = 'INFO'
         module_name = 'module'
         store_log = False
+        suffix = ''
         dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, dev)
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'CMakeLists.txt')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))
