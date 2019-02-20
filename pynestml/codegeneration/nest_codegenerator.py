@@ -152,7 +152,9 @@ class NESTCodeGenerator(CodeGenerator):
             # transform everything into gsl processable (e.g. no functional shapes) or exact form.
             self.transform_shapes_and_odes(neuron, shape_to_buffers)
             # update the symbol table
-            neuron.accept(ASTSymbolTableVisitor())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            symbol_table_visitor.after_ast_rewrite_ = True		# ODE block might have been removed entirely: suppress warnings
+            neuron.accept(symbol_table_visitor)
 
 
     def generate_neuron_code(self, neuron):

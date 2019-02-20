@@ -53,7 +53,7 @@ class MagnitudeCompatibilityTest(unittest.TestCase):
 
     def test(self):
         # Todo: this test is not yet complete, @ptraeder complete it
-        Logger.init_logger(LoggingLevel.NO)
+        Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'MagnitudeCompatibilityTest.nestml'))))
