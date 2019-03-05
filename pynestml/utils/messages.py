@@ -928,7 +928,7 @@ class Messages(object):
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Variable \'%s\' has the same name as a physical unit' % name
+        message = 'Variable \'%s\' has the same name as a physical unit!' % name
         return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
 
 class MessageCode(Enum):
