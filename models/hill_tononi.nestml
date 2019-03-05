@@ -71,6 +71,9 @@ neuron hill_tononi:
     function I_syn_gaba_b pA = -g_GABAB * ( V_m - GABA_B_E_rev )
     function I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
+    function I_Na pA = -g_NaL * ( V_m - E_Na )
+    function I_K pA = -g_KL * ( V_m - E_K )
+
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
     function INaP_thresh mV = -55.7 pA
     function INaP_slope mV = 7.7 pA
@@ -103,9 +106,6 @@ neuron hill_tononi:
     function D_thresh mV = -10.0
     function D_slope mV = 5.0
     function D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
-
-    function I_Na pA = -g_NaL * ( V_m - E_Na )
-    function I_K pA = -g_KL * ( V_m - E_K )
 
     Theta' = -( Theta - Theta_eq ) / Tau_theta
 
