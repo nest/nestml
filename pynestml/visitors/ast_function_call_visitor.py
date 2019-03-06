@@ -64,7 +64,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
             buffer_parameter = node.get_function_call().get_args()[1]
 
             if buffer_parameter.get_variable() is not None:
-                buffer_name = buffer_parameter.get_variable().getName()
+                buffer_name = buffer_parameter.get_variable().get_name()
                 buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
                 if buffer_symbol_resolve is not None:
                     node.type = buffer_symbol_resolve.get_type_symbol()
