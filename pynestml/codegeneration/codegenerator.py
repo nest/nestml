@@ -39,10 +39,11 @@ class CodeGenerator(object):
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
         for neuron in neurons:
+            if Logger.logging_level == LoggingLevel.INFO:
+                print("Generating code for the neuron {}.".format(neuron.get_name()))
             self.generate_neuron_code(neuron)
-            if not Logger.has_errors(neuron):
-                code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
-                Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
+            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
     @staticmethod
     def get_known_targets():
