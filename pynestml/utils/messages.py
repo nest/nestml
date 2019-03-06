@@ -918,7 +918,6 @@ class Messages(object):
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
     @classmethod
-
     def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
