@@ -296,7 +296,7 @@ class CoCosManager(object):
         CoCoIllegalExpression.check_co_co(neuron)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, neuron):
+    def post_symbol_table_builder_checks(cls, neuron, skip_check_correct_usage_of_shapes=False):
         """
         Checks the following constraints:
             cls.check_function_defined(_neuron)
@@ -341,7 +341,8 @@ class CoCosManager(object):
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
-        cls.check_correct_usage_of_shapes(neuron)
+        if not skip_check_correct_usage_of_shapes:
+            cls.check_correct_usage_of_shapes(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
