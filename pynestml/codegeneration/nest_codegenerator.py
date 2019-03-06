@@ -124,8 +124,8 @@ class NESTCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons.
         """
         for neuron in neurons:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Analysing/transforming neuron {}.".format(neuron.get_name()))
+            code, message = Messages.get_analysing_transforming_neuron(neuron.get_name())
+            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             self.analyse_neuron(neuron)
             # now store the transformed model
             self.store_transformed_model(neuron)
