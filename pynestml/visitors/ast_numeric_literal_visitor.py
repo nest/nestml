@@ -45,7 +45,10 @@ class ASTNumericLiteralVisitor(ASTVisitor):
             scope = node.get_scope()
             var_name = node.get_variable().get_name()
             variable_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-            node.type = variable_symbol_resolve.get_type_symbol()
+            if not variable_symbol_resolve is None:
+                node.type = variable_symbol_resolve.get_type_symbol()
+            else:
+                node.type = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
             node.type.referenced_object = node
             return
 
