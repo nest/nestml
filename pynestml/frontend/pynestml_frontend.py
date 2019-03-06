@@ -25,7 +25,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
-    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, qualifier_dev_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -37,7 +37,7 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 
 def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name = None, store_log = False,
-            dev = False):
+            suffix = "", dev = False):
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
@@ -56,6 +56,9 @@ def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name
         args.append(str(module_name))
     if store_log:
         args.append(qualifier_store_log_arg)
+    if len(suffix) > 0:
+        args.append(qualifier_suffix_arg)
+        args.append(suffix)
     if dev:
         args.append(qualifier_dev_arg)
     FrontendConfiguration.parse_config(args)
@@ -75,14 +78,13 @@ def install_nest(models_path, nest_path):
 
 
 def main(args):
-    """Returns the process exit code: 0 for success, > 0 for failure"""
     try:
         FrontendConfiguration.parse_config(args)
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
-        return 1
+        return
     # after all argument have been collected, start the actual processing
-    return process()
+    process()
 
 
 def process():
@@ -91,7 +93,6 @@ def process():
     # The handed over parameters seem to be correct, proceed with the main routine
     init_predefined()
     # now proceed to parse all models
-    errors_occurred = False
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
     if not type(nestml_files) is list:
@@ -116,17 +117,12 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
-                    errors_occurred = True
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
         _codeGenerator.generate_code(neurons)
-        for neuron in neurons:
-            if Logger.has_errors(neuron):
-                errors_occurred = True
-                break
     if FrontendConfiguration.store_log:
         store_log_to_file()
-    return int(errors_occurred)
+    return
 
 
 def init_predefined():
@@ -146,3 +142,7 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
