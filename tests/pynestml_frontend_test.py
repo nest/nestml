@@ -40,11 +40,8 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('--store_log')
         params.append('--dev')
-        # try:
-        main(params)
-        self.assertTrue(True)  # the goal is to reach this point without exceptions
-        # except Exception:
-        #    self.assertTrue(False)
+        exit_code = main(params)
+        self.assertTrue(exit_code == 0)
 
     def tearDown(self):
         # clean up
