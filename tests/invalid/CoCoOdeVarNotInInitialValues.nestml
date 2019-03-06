@@ -31,7 +31,7 @@ neuron CoCoOdeVarNotInInitialValues:
     end
 
     equations:
-        V_m' = 10mV
+        V_m' = 10 mV / s
     end
 
     update:

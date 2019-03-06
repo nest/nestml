@@ -931,6 +931,7 @@ class Messages(object):
         message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
+    @classmethod
     def get_variable_with_same_name_as_type(cls, name):
         """
         Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
