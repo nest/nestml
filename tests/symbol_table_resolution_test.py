@@ -32,7 +32,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
 # minor setup steps required
-Logger.init_logger(LoggingLevel.NO)
+Logger.init_logger(LoggingLevel.INFO)
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()

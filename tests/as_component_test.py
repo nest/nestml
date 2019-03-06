@@ -33,11 +33,12 @@ class AsComponentTest(unittest.TestCase):
     def test_from_string(self):
         input_path = str(os.path.join(os.path.dirname(__file__), 'resources', 'CommentTest.nestml'))
         target_path = 'target'
-        logging_level = 'NO'
+        logging_level = 'INFO'
         module_name = 'module'
         store_log = False
+        suffix = ''
         dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, dev)
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'CMakeLists.txt')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))
@@ -47,11 +48,12 @@ class AsComponentTest(unittest.TestCase):
     def test_from_objects(self):
         input_path = os.path.join(os.path.dirname(__file__), 'resources', 'CommentTest.nestml')
         target_path = os.path.join('target')
-        logging_level = 'NO'
+        logging_level = 'INFO'
         module_name = 'module'
         store_log = False
+        suffix = ''
         dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, dev)
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'CMakeLists.txt')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.cpp')))
         self.assertTrue(os.path.isfile(os.path.join(FrontendConfiguration.get_target_path(), 'commentTest.h')))

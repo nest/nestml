@@ -21,7 +21,7 @@ import datetime
 import os
 import re
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
 from pynestml.codegeneration.codegenerator import CodeGenerator
@@ -55,8 +55,12 @@ class NESTCodeGenerator(CodeGenerator):
 
     def __init__(self):
         # setup the template environment
+        def raise_helper(msg):
+            raise TemplateRuntimeError(msg)
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
+        env.globals['raise'] = raise_helper
         setup_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest', 'setup')))
+        setup_env.globals['raise'] = raise_helper
         # setup the cmake template
         self._template_cmakelists = setup_env.get_template('CMakeLists.jinja2')
         # setup the module class template
@@ -152,7 +156,9 @@ class NESTCodeGenerator(CodeGenerator):
             # transform everything into gsl processable (e.g. no functional shapes) or exact form.
             self.transform_shapes_and_odes(neuron, shape_to_buffers)
             # update the symbol table
-            neuron.accept(ASTSymbolTableVisitor())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            symbol_table_visitor.after_ast_rewrite_ = True		# ODE block might have been removed entirely: suppress warnings
+            neuron.accept(symbol_table_visitor)
 
 
     def generate_neuron_code(self, neuron):

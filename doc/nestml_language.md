@@ -177,7 +177,7 @@ Examples for valid assignments for a numeric variable `n` are
   * compound sum: `n += 10` which corresponds to `n = n + 10`
   * compound difference: `n -= 10` which corresponds to `n = n - 10`
   * compound product: `n *= 10` which corresponds to `n = n * 10`
-  * compound quotient: `n /= 10` which corresponds to `n = n - 10`
+  * compound quotient: `n /= 10` which corresponds to `n = n / 10`
 
 #### Functions
 
@@ -202,6 +202,7 @@ x = max(a*2, b/2)
 ##### Predefined functions
 
 The following set of functions is predefined in NestML and can be used out of the box:
+
 ||||
 |---|---|---|
 | resolution | steps | emit_spike |
@@ -352,7 +353,7 @@ For any two valid numeric expressions `a`, `b`, boolean expressions `c`,`c1`,`c2
 |`()`          | Expressions with parentheses | `(a)` |
 |`**`          | Power operator. | `a ** b` |
 |`+`, `-`, `~` | unary plus, unary minus, bitwise negation | `-a`, `~c` |
-|`\*`, `/`, `%`| Multiplication, Division and Modulo-Operator | `a \* b`, `a % b` |
+|`*`, `/`, `%`| Multiplication, Division and Modulo-Operator | `a * b`, `a % b` |
 |`+`, `-`      | Addition and Subtraction | `a + b`, `a - b` |
 |`<<`, `>>`    | Left and right bit shifts | `a << n`, `a >> n` |
 |`&`, `|`, `^`| Bitwise `and`, `or` and `xor` | `a&b`, `|`, `a~b` |
