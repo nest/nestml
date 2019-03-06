@@ -26,12 +26,7 @@ from astropy import units
 
 class CoCoOdesHaveConsistentUnits(CoCo):
     """
-    This coco ensures that whenever a ode-equation is assigned to a variable, it have a differential order 
-    of at leas one.
-        equations:
-            V_m' = ...
-        end
-    XXX: TODO: update documentation
+    This coco ensures that whenever an ODE is defined, the physical unit of the left-hand side variable matches that of the right-hand side expression.
     """
 
     @classmethod
@@ -45,9 +40,6 @@ class CoCoOdesHaveConsistentUnits(CoCo):
 
 
 class OdeConsistentUnitsVisitor(ASTVisitor):
-    """
-    ...
-    """
 
     def visit_ode_equation(self, node):
         """
@@ -55,10 +47,9 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         :param node: A single ode equation.
         :type node: ast_ode_equation
         """
-        print("muauaa")
         variable_name = node.get_lhs().get_name()
         variable_symbol = node.get_lhs().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
-        variable_type = variable_symbol.type_symbol #.astropy_unit
+        variable_type = variable_symbol.type_symbol
         from pynestml.utils.unit_type import UnitType
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         inv_diff_order_unit_type = UnitType(name="inv_diff_order_unit_type_" + variable_name + "'" * node.get_lhs().get_differential_order(), unit=1 / units.s**node.get_lhs().get_differential_order())
