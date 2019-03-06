@@ -80,7 +80,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
 
     # TODO: this test needs to be refactored.
     def test(self):
-        Logger.init_logger(LoggingLevel.NO)
+        Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
