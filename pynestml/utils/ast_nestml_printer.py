@@ -24,6 +24,7 @@ from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -43,6 +44,7 @@ from pynestml.meta_model.ast_input_type import ASTInputType
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_ode_function import ASTOdeFunction
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
@@ -84,6 +86,8 @@ class ASTNestMLPrinter(object):
             ret = self.print_block_with_variables(node)
         if isinstance(node, ASTBody):
             ret = self.print_body(node)
+        if isinstance(node, ASTSynapseBody):
+            ret = self.print_synapse_body(node)
         if isinstance(node, ASTComparisonOperator):
             ret = self.print_comparison_operator(node)
         if isinstance(node, ASTCompoundStmt):
@@ -122,6 +126,8 @@ class ASTNestMLPrinter(object):
             ret = self.print_compilation_unit(node)
         if isinstance(node, ASTNeuron):
             ret = self.print_neuron(node)
+        if isinstance(node, ASTSynapse):
+            ret = self.print_synapse(node)
         if isinstance(node, ASTOdeEquation):
             ret = self.print_ode_equation(node)
         if isinstance(node, ASTOdeFunction):
@@ -158,6 +164,16 @@ class ASTNestMLPrinter(object):
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         self.inc_indent()
         ret += 'neuron ' + node.get_name() + ':' + print_sl_comment(node.in_comment)
+        ret += '\n' + self.print_node(node.get_body()) + 'end' + '\n'
+        self.dec_indent()
+        ret += print_ml_comments(node.post_comments, self.indent, True)
+        return ret
+
+    def print_synapse(self, node):
+        # type: (ASTSynapse) -> str
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        self.inc_indent()
+        ret += 'synapse ' + node.get_name() + ':' + print_sl_comment(node.in_comment)
         ret += '\n' + self.print_node(node.get_body()) + 'end' + '\n'
         self.dec_indent()
         ret += print_ml_comments(node.post_comments, self.indent, True)
@@ -252,6 +268,14 @@ class ASTNestMLPrinter(object):
         # type: (ASTBody) -> str
         ret = ''
         for elem in node.bodyElements:
+            ret += self.print_node(elem)
+            ret += '\n'
+        return ret
+
+    def print_synapse_body(self, node):
+        # type: (ASTSynapseBody) -> str
+        ret = ''
+        for elem in node.get_body_elements():
             ret += self.print_node(elem)
             ret += '\n'
         return ret

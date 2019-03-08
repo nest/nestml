@@ -58,7 +58,7 @@ class ASTVariable(ASTNode):
         self.differential_order = differential_order
         self.type_symbol = None
         self.is_homogeneous = is_homogeneous
-        print("XXX: name " + str(name) + " is_homogeneous = " + str(is_homogeneous))
+        #print("XXX: name " + str(name) + " is_homogeneous = " + str(is_homogeneous))
 
     def resolve_in_own_scope(self):
         from pynestml.symbols.symbol import SymbolKind

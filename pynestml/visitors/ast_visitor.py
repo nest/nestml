@@ -1211,8 +1211,8 @@ class ASTVisitor(object):
         return
 
     def traverse_synapse_body(self, node):
-        if node.get_synapse_body_elements() is not None:
-            for sub_node in node.get_synapse_body_elements():
+        if node.get_body_elements() is not None:
+            for sub_node in node.get_body_elements():
                 sub_node.accept(self.get_real_self())
         return
 

@@ -160,7 +160,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single body element.
         :type node: ast_body
         """
-        for synapseBodyElement in node.get_synapse_body_elements():
+        for synapseBodyElement in node.get_body_elements():
             synapseBodyElement.update_scope(node.get_scope())
         return
 

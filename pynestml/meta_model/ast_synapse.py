@@ -227,10 +227,29 @@ class ASTSynapse(ASTNode):
         """
         ret = list()
         from pynestml.meta_model.ast_function import ASTFunction
-        for elem in self.get_body().get_synapse_body_elements():
+        for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTFunction):
                 ret.append(elem)
         return ret
+
+
+    def get_update_blocks(self):
+        """
+        Returns a list of all update blocks defined in this body.
+        :return: a list of update-block elements.
+        :rtype: list(ASTUpdateBlock)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+        for elem in self.get_body().get_body_elements():
+            if isinstance(elem, ASTUpdateBlock):
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
 
 
     def get_parameter_blocks(self):
@@ -241,7 +260,7 @@ class ASTSynapse(ASTNode):
         """
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_synapse_body_elements():
+        for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
                 ret.append(elem)
         return ret
@@ -254,7 +273,7 @@ class ASTSynapse(ASTNode):
         """
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_synapse_body_elements():
+        for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
@@ -265,21 +284,70 @@ class ASTSynapse(ASTNode):
             return ret
 
 
-    def get_internals_blocks(self):
+    def get_equations_blocks(self):
         """
-        Returns a list of all internals blocks defined in this body.
-        :return: a list of internals-blocks.
-        :rtype: list(ASTBlockWithVariables)
+        Returns a list of all equations BLOCKS defined in this body.
+        :return: a list of equations-blocks.
+        :rtype: list(ASTEquationsBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_body().get_synapse_body_elements():
-            if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
+        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+        for elem in self.get_body().get_body_elements():
+            if isinstance(elem, ASTEquationsBlock):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
         elif isinstance(ret, list) and len(ret) == 0:
             return None
+        else:
+            return ret
+
+    def get_equations_block(self):
+        """
+        Returns the unique equations block defined in this body.
+        :return: a  equations-block.
+        :rtype: ASTEquationsBlock
+        """
+        return self.get_equations_blocks()
+
+    def remove_equations_block(self):
+        # type: (...) -> None
+        """
+        Deletes all equations blocks. By construction as checked through cocos there is only one there.
+        """
+
+        for elem in self.get_body().get_body_elements():
+            if isinstance(elem, ASTEquationsBlock):
+                self.get_body().get_body_elements().remove(elem)
+
+    def get_initial_values_declarations(self):
+        """
+        Returns a list of initial values declarations made in this neuron.
+        :return: a list of initial values declarations
+        :rtype: list(ASTDeclaration)
+        """
+        initial_values_block = self.get_initial_blocks()
+        initial_values_declarations = list()
+        if initial_values_block is not None:
+            for decl in initial_values_block.get_declarations():
+                initial_values_declarations.append(decl)
+        return initial_values_declarations
+
+    def get_equations(self):
+        """
+        Returns all ode equations as defined in this neuron.
+        :return list of ode-equations
+        :rtype list(ASTOdeEquation)
+        """
+        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+        ret = list()
+        blocks = self.get_equations_blocks()
+        # the get equations block is not deterministic method, it can return a list or a single object.
+        if isinstance(blocks, list):
+            for block in blocks:
+                ret.extend(block.get_ode_equations())
+        elif isinstance(blocks, ASTEquationsBlock):
+            return blocks.get_ode_equations()
         else:
             return ret
 
@@ -390,6 +458,28 @@ class ASTSynapse(ASTNode):
             ASTUtils.create_internal_block(self)
         self.get_internals_blocks().get_declarations().append(declaration)
         return
+
+    def add_to_initial_values_block(self, declaration):
+        # todo by KP: factor me out to utils
+        """
+        Adds the handed over declaration to the initial values block.
+        :param declaration: a single declaration.
+        :type declaration: ast_declaration
+        """
+        if self.get_initial_blocks() is None:
+            ASTUtils.create_initial_values_block(self)
+        self.get_initial_blocks().get_declarations().append(declaration)
+        return
+
+    def add_shape(self, shape):
+        # type: (ASTOdeShape) -> None
+        """
+        Adds the handed over declaration to the initial values block.
+        :param shape: a single declaration.
+        """
+        assert self.get_equations_block() is not None
+        self.get_equations_block().get_declarations().append(shape)
+
 
     def get_ode_aliases(self):
         """

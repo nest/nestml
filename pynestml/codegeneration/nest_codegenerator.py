@@ -189,21 +189,22 @@ class NESTCodeGenerator(CodeGenerator):
         # make normalization
         # apply spikes to buffers
         # get rid of convolve, store them and apply then at the end
-        # equations_block = synapse.get_equations_block()
-        # shape_to_buffers = {}
-        # if synapse.get_equations_block() is not None:
-        #     # extract function names and corresponding incoming buffers
-        #     convolve_calls = OdeTransformer.get_sum_function_calls(equations_block)
-        #     for convolve in convolve_calls:
-        #         shape_to_buffers[str(convolve.get_args()[0])] = str(convolve.get_args()[1])
-        #     OdeTransformer.refactor_convolve_call(synapse.get_equations_block())
-        #     self.make_functions_self_contained(equations_block.get_ode_functions())
-        #     self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
-        #                                                    equations_block.get_ode_functions())
-        #     # transform everything into gsl processable (e.g. no functional shapes) or exact form.
-        #     self.transform_shapes_and_odes(synapse, shape_to_buffers)
-        #     # update the symbol table
-        #     synapse.accept(ASTSymbolTableVisitor())
+        equations_block = synapse.get_equations_block()
+        import pdb;pdb.set_trace()
+        shape_to_buffers = {}
+        if synapse.get_equations_block() is not None:
+            # extract function names and corresponding incoming buffers
+            convolve_calls = OdeTransformer.get_sum_function_calls(equations_block)
+            for convolve in convolve_calls:
+                shape_to_buffers[str(convolve.get_args()[0])] = str(convolve.get_args()[1])
+            OdeTransformer.refactor_convolve_call(synapse.get_equations_block())
+            self.make_functions_self_contained(equations_block.get_ode_functions())
+            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
+                                                           equations_block.get_ode_functions())
+            # transform everything into gsl processable (e.g. no functional shapes) or exact form.
+            self.transform_shapes_and_odes(synapse, shape_to_buffers)
+            # update the symbol table
+            synapse.accept(ASTSymbolTableVisitor())
 
 
     def generate_neuron_code(self, neuron):
@@ -451,7 +452,8 @@ class NESTCodeGenerator(CodeGenerator):
     def solve_ode_with_shapes(self, equations_block):
         # type: (ASTEquationsBlock) -> dict[str, list]
         odes_shapes_json = self.transform_ode_and_shapes_to_json(equations_block)
-
+        print("In solve_ode_with_shapes")
+        import pdb;pdb.set_trace()
         return analysis(odes_shapes_json)
 
 
@@ -517,6 +519,8 @@ class NESTCodeGenerator(CodeGenerator):
     def solve_functional_shapes(self, equations_block):
         # type: (ASTEquationsBlock) -> dict[str, list]
         shapes_json = self.transform_functional_shapes_to_json(equations_block)
+        print("In solve_functional_shapes")
+        import pdb;pdb.set_trace()
 
         return analysis(shapes_json)
 

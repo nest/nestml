@@ -36,7 +36,7 @@ class ASTSynapseBody(ASTNode):
         super(ASTSynapseBody, self).__init__(source_position)
         self.synapseBodyElements = synapse_body_elements
 
-    def get_synapse_body_elements(self):
+    def get_body_elements(self):
         """
         Returns the list of body elements.
         :return: a list of body elements.
@@ -57,18 +57,18 @@ class ASTSynapseBody(ASTNode):
     #             ret.append(elem)
     #     return ret
 
-    # def get_update_blocks(self):
-    #     """
-    #     Returns a list of all update blocks defined in this body.
-    #     :return: a list of update-block elements.
-    #     :rtype: list(ASTUpdateBlock)
-    #     """
-    #     ret = list()
-    #     from pynestml.meta_model.ast_update_block import ASTUpdateBlock
-    #     for elem in self.get_body_elements():
-    #         if isinstance(elem, ASTUpdateBlock):
-    #             ret.append(elem)
-    #     return ret
+    def get_update_blocks(self):
+        """
+        Returns a list of all update blocks defined in this body.
+        :return: a list of update-block elements.
+        :rtype: list(ASTUpdateBlock)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+        for elem in self.get_body_elements():
+            if isinstance(elem, ASTUpdateBlock):
+                ret.append(elem)
+        return ret
 
     # def get_state_blocks(self):
     #     """
@@ -91,7 +91,7 @@ class ASTSynapseBody(ASTNode):
         """
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_synapse_body_elements():
+        for elem in self.get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_parameters:
                 ret.append(elem)
         return ret
@@ -104,37 +104,36 @@ class ASTSynapseBody(ASTNode):
         """
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-        for elem in self.get_synapse_body_elements():
+        for elem in self.get_body_elements():
             if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
                 ret.append(elem)
         return ret
 
     def get_pre_receive(self):
         from pynestml.meta_model.ast_pre_receive import ASTPreReceive
-        for elem in self.get_synapse_body_elements():
+        for elem in self.get_body_elements():
             if isinstance(elem, ASTPreReceive):
                 return elem
 
     def get_post_receive(self):
         from pynestml.meta_model.ast_post_receive import ASTPostReceive
-        for elem in self.get_synapse_body_elements():
+        for elem in self.get_body_elements():
             if isinstance(elem, ASTPostReceive):
                 return elem
 
 
-
-    # def get_equations_blocks(self):
-    #     """
-    #     Returns a list of all equations blocks defined in this body.
-    #     :return: a list of equations-blocks.
-    #     :rtype: list(ASTEquationsBlock)
-    #     """
-    #     ret = list()
-    #     from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-    #     for elem in self.get_body_elements():
-    #         if isinstance(elem, ASTEquationsBlock):
-    #             ret.append(elem)
-    #     return ret
+    def get_equations_blocks(self):
+        """
+        Returns a list of all equations blocks defined in this body.
+        :return: a list of equations-blocks.
+        :rtype: list(ASTEquationsBlock)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+        for elem in self.get_body_elements():
+            if isinstance(elem, ASTEquationsBlock):
+                ret.append(elem)
+        return ret
 
     # def get_input_blocks(self):
     #     """
@@ -170,7 +169,7 @@ class ASTSynapseBody(ASTNode):
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        for stmt in self.get_synapse_body_elements():
+        for stmt in self.get_body_elements():
             if stmt is ast:
                 return self
             if stmt.get_parent(ast) is not None:
@@ -187,10 +186,10 @@ class ASTSynapseBody(ASTNode):
         """
         if not isinstance(other, ASTSynapseBody):
             return False
-        if len(self.get_synapse_body_elements()) != len(other.get_synapse_body_elements()):
+        if len(self.get_body_elements()) != len(other.get_body_elements()):
             return False
-        my_synapse_body_elements = self.get_synapse_body_elements()
-        your_synapse_body_elements = other.get_synapse_body_elements()
+        my_synapse_body_elements = self.get_body_elements()
+        your_synapse_body_elements = other.get_body_elements()
         for i in range(0, len(my_synapse_body_elements)):
             if not my_synapse_body_elements[i].equals(your_synapse_body_elements[i]):
                 return False

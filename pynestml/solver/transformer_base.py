@@ -54,20 +54,17 @@ def add_declaration_to_internals(neuron, variable_name, init_expression):
     :param init_expression: initialization expression
     :return: the neuron extended by the variable
     """
-    try:
-        tmp = ModelParser.parse_expression(init_expression)
-        vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
-
-        declaration_string = variable_name + ' real' + (
-            '[' + vector_variable.get_vector_parameter() + ']'
-            if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + init_expression
-        ast_declaration = ModelParser.parse_declaration(declaration_string)
-        if vector_variable is not None:
-            ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        neuron.add_to_internal_block(ast_declaration)
-        return neuron
-    except:
-        raise RuntimeError('Must not fail by construction.')
+    tmp = ModelParser.parse_expression(init_expression)
+    vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
+    
+    declaration_string = variable_name + ' real' + (
+        '[' + vector_variable.get_vector_parameter() + ']'
+        if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + init_expression
+    ast_declaration = ModelParser.parse_declaration(declaration_string)
+    if vector_variable is not None:
+        ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
+    neuron.add_to_internal_block(ast_declaration)
+    return neuron
 
 
 def add_declarations_to_initial_values(neuron, declarations):
@@ -92,20 +89,16 @@ def add_declaration_to_initial_values(neuron, variable, initial_value):
     :param initial_value: corresponding initial value
     :return: a modified neuron
     """
-    try:
-
-        tmp = ModelParser.parse_expression(initial_value)
-        vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
-        declaration_string = variable + ' real' + (
-            '[' + vector_variable.get_vector_parameter() + ']'
-            if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + initial_value
-        ast_declaration = ModelParser.parse_declaration(declaration_string)
-        if vector_variable is not None:
-            ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-        neuron.add_to_initial_values_block(ast_declaration)
-        return neuron
-    except:
-        raise RuntimeError('Must not fail by construction.')
+    tmp = ModelParser.parse_expression(initial_value)
+    vector_variable = ASTUtils.get_vectorized_variable(tmp, neuron.get_scope())
+    declaration_string = variable + ' real' + (
+        '[' + vector_variable.get_vector_parameter() + ']'
+        if vector_variable is not None and vector_variable.has_vector_parameter() else '') + ' = ' + initial_value
+    ast_declaration = ModelParser.parse_declaration(declaration_string)
+    if vector_variable is not None:
+        ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
+    neuron.add_to_initial_values_block(ast_declaration)
+    return neuron
 
 
 def compute_state_shape_variables_declarations(solver_output):

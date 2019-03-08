@@ -369,6 +369,26 @@ public:
   {%- endwith %}
   {%- endfor %}
 
+
+
+
+
+
+
+  {%- for variable in synapse.get_internal_non_alias_symbols() %}
+  {% include "directives/Calibrate.jinja2" %}
+  {%- endfor %}
+
+
+
+
+
+
+
+
+
+
+
     //weight_ = get_named_parameter<double>(names::weight);
     set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
     t_lastspike_ = 0.;
@@ -513,6 +533,8 @@ public:
   void
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
   {
+  
+  
     // synapse STDP depressing/facilitation dynamics
     const double __t_spike = e.get_stamp().get_ms();
     
@@ -566,14 +588,28 @@ public:
      *  NESTML generated preReceive code block begins here!
     **/
 
-    {%- filter indent(2,True) -%}
+    {% filter indent(2,True) -%}
 
     {%- set dynamics = synapse.get_pre_receive() -%}
     {%- with ast = dynamics.get_block() -%}
     {%- include "directives/Block.jinja2" -%}
     {%- endwith %}
 
-    {%- endfilter -%}
+    {%- endfilter %}
+
+
+    /**
+     *  NESTML generated equations code block begins here!
+    **/
+
+    {% filter indent(2,True) -%}
+
+    {%- set dynamics = synapse.get_update_blocks() -%}
+    {%- with ast = dynamics.get_block() -%}
+    {%- include "directives/Block.jinja2" -%}
+    {%- endwith %}
+    
+    {%- endfilter %}
 
     
     /**
