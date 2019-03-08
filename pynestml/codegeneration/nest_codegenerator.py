@@ -176,7 +176,9 @@ class NESTCodeGenerator(CodeGenerator):
             self.transform_shapes_and_odes(neuron, shape_to_buffers)
             self.apply_spikes_from_buffers(neuron, shape_to_buffers)
             # update the symbol table
-            neuron.accept(ASTSymbolTableVisitor())
+            symbol_table_visitor = ASTSymbolTableVisitor()
+            symbol_table_visitor.after_ast_rewrite_ = True		# ODE block might have been removed entirely: suppress warnings
+            neuron.accept(symbol_table_visitor)
 
     def analyse_synapse(self, synapse):
         # type: (ASTsynapse) -> None

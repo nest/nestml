@@ -47,7 +47,7 @@ qualifier_target_arg = '--target'
 qualifier_logging_level_arg = '--logging_level'
 qualifier_module_name_arg = '--module_name'
 qualifier_store_log_arg = '--store_log'
-qualifier_suffix = '--suffix'
+qualifier_suffix_arg = '--suffix'
 qualifier_dev_arg = '--dev'
 
 
@@ -89,7 +89,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='[INFO, WARNING/S, ERROR/S, NO]', type=str, help=help_logging)
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
-        cls.argument_parser.add_argument(qualifier_suffix, metavar='SUFFIX', type=str, help=help_suffix, default='')
+        cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
         parsed_args = cls.argument_parser.parse_args(args)
         # get the source path
@@ -118,6 +118,7 @@ appropriate numeric solver otherwise.
             cls.module_name = 'nestmlmodule'
         cls.suffix = parsed_args.suffix
         cls.store_log = parsed_args.store_log
+        cls.suffix = parsed_args.suffix
         cls.is_debug = parsed_args.dev
         return
 
