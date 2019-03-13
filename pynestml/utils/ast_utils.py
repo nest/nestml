@@ -245,7 +245,7 @@ class ASTUtils(object):
         for var in res:
             if '\'' not in var.get_complete_name():
                 symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-                if symbol.is_function:
+                if symbol is not None and symbol.is_function:
                     ret.append(symbol)
         return ret
 

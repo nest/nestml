@@ -1008,6 +1008,19 @@ class Messages(object):
         message = 'Not convertible unit \'%s\' used, 1 assumed as factor!' % name
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
+    @classmethod
+    def get_variable_with_same_name_as_type(cls, name):
+        """
+        Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
+        :param name: the name of the variable
+        :type name: str
+        :return: a tuple containing message code and message text
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Variable \'%s\' has the same name as a physical unit!' % name
+        return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
 
 class MessageCode(Enum):
     """
@@ -1082,3 +1095,4 @@ class MessageCode(Enum):
     LEXER_ERROR = 60
     PARSER_ERROR = 61
     UNKNOWN_TARGET = 62
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63

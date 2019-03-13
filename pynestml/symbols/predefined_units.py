@@ -42,14 +42,14 @@ class PredefinedUnits(object):
 
         for unit_str in dir(u.si) + dir(u.cgs) + dir(u.astrophys):
             try:
-                unit = eval("u." + unit_str)	# grab the unit object
+                unit = eval("u." + unit_str)    # grab the unit object
             except:
                 unit = None
+
             if issubclass(type(unit), u.core.UnitBase):
-                #print("...")
                 for unit_name in unit.names:
-                    temp_unit = UnitType(name=unit.name, unit=unit)
-                    cls.name2unit[unit.name] = temp_unit
+                    temp_unit = UnitType(name=str(unit_name), unit=unit)
+                    cls.name2unit[str(unit_name)] = temp_unit
 
     @classmethod
     def get_unit(cls, name):
