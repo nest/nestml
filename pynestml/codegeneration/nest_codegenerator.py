@@ -389,10 +389,15 @@ class NESTCodeGenerator(CodeGenerator):
         :return: A transformed version of the neuron that can be passed to the GSL.
         """
 
-        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "Only one equation block should be present"
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "Precondition violated: only one equation block should be present"
+
         equations_block = neuron.get_equations_block()
 
-        if len(equations_block.get_ode_shapes()) == 1 and \
+        if len(equations_block.get_ode_shapes()) == 0:
+            code, message = Messages.get_neuron_solved_by_solver(neuron.get_name())
+            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            return neuron
+        elif len(equations_block.get_ode_shapes()) == 1 and \
                 str(equations_block.get_ode_shapes()[0].get_expression()).strip().startswith(
                     "delta"):  # assume the model is well formed
             shape = equations_block.get_ode_shapes()[0]
@@ -406,41 +411,38 @@ class NESTCodeGenerator(CodeGenerator):
             if solver_result["solver"] is "analytical":
                 neuron = integrate_exact_solution(neuron, solver_result)
                 neuron.remove_equations_block()
-                return neuron
-            else:
-                assert solver_result["solver"] is "numeric"
-                at_least_one_functional_shape = False
-                for shape in equations_block.get_ode_shapes():
-                    if shape.get_variable().get_differential_order() == 0:
-                        at_least_one_functional_shape = True
-                if at_least_one_functional_shape:
-                    functional_shapes_to_odes(neuron, solver_result)
-                return neuron
+            elif (solver_result["solver"] is "numeric"
+                  and self.is_functional_shape_present(equations_block.get_ode_shapes())):
+                functional_shapes_to_odes(neuron, solver_result)
+
+            return neuron
         else:
-            import pdb;pdb.set_trace()
             code, message = Messages.get_neuron_solved_by_solver(neuron.get_name())
             Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-            at_least_one_functional_shape = False
-            for shape in equations_block.get_ode_shapes():
-                if shape.get_variable().get_differential_order() == 0:
-                    at_least_one_functional_shape = True
-                    break
-            if at_least_one_functional_shape:
+
+            if self.is_functional_shape_present(equations_block.get_ode_shapes()):
                 ode_shapes = self.solve_functional_shapes(equations_block)
                 functional_shapes_to_odes(neuron, ode_shapes)
+
             return neuron
 
 
     def apply_spikes_from_buffers(self, neuron, shape_to_buffers):
+        """generate the equations that update the dynamical variables when incoming spikes arrive.
+
+        For example, a resulting `assignment_string` could be "I_shape_in += (in_spikes/nS) * 1".
+
+        The definition of the spike kernel shape is then set to 0.
+        """
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
         for declaration in initial_values.get_declarations():
             variable = declaration.get_variables()[0]
             for shape in shape_to_buffers:
                 matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-                buffer_type = neuron.get_scope(). \
-                    resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
                 if re.match(matcher_computed_shape_odes, str(variable)):
+                    buffer_type = neuron.get_scope(). \
+                        resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
                     assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
                         shape] + '/' + buffer_type.print_nestml_type() + ") * " + \
                                         self._printer.print_expression(declaration.get_expression())
