@@ -47,11 +47,10 @@ class UnitTypeSymbol(TypeSymbol):
 
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
-        # defer comparison of units to sympy library
+        # defer comparison of units to astropy library
         if basic_equals is True:
             self_unit = self.astropy_unit
             other_unit = other.astropy_unit
-            # TODO: astropy complains this is deprecated
             return self_unit == other_unit
 
         return False

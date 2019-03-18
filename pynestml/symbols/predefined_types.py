@@ -241,9 +241,9 @@ class PredefinedTypes(object):
     @classmethod
     def register_unit(cls, unit):
         """
-        Registers a new sympy unit into the system
-        :param unit: a sympy unit.
-        :type unit: SympyUnit
+        Registers a new astropy unit into the system
+        :param unit: an astropy Unit object
+        :type unit: astropy.units.core.Unit
         """
         unit_type = UnitType(str(unit), unit)
         PredefinedUnits.register_unit(unit_type)
