@@ -46,11 +46,12 @@ parser grammar PyNestMLParser;
     complex data type as 'mV/s'
   */
   unitType : leftParentheses=LEFT_PAREN compoundUnit=unitType rightParentheses=RIGHT_PAREN
-           | base=unitType powOp=STAR_STAR exponent=( PLUS | MINUS )? UNSIGNED_INTEGER
+           | base=unitType powOp=STAR_STAR exponent=unitTypeExponent
            | left=unitType (timesOp=STAR | divOp=FORWARD_SLASH) right=unitType
            | unitlessLiteral=UNSIGNED_INTEGER divOp=FORWARD_SLASH right=unitType
            | unit=NAME;
 
+  unitTypeExponent : ( PLUS | MINUS )? UNSIGNED_INTEGER;
 
 
   /*********************************************************************************************************************
