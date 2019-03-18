@@ -484,7 +484,7 @@ class NESTCodeGenerator(CodeGenerator):
         result = []
 
         for fun in equations_block.get_functions():
-            result.append({"symbol": fun.getVariableName(),
+            result.append({"symbol": fun.get_variable_name(),
                            "definition": self._printer.print_expression(fun.get_expression())})
 
         return result
