@@ -78,7 +78,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_encapsulated = left_parenthesis and True if ctx.rightParentheses is not None else False
         base = self.visit(ctx.base) if ctx.base is not None else None
         is_pow = True if ctx.powOp is not None else False
-        exponent = int(str(ctx.exponent.text)) if ctx.exponent is not None else None
+        exponent = int(str(ctx.exponent.getText())) if ctx.exponent is not None else None
         if ctx.unitlessLiteral is not None:
             lhs = int(str(ctx.unitlessLiteral.text))
         else:
