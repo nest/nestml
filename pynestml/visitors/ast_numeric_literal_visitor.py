@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleExpression : (INTEGER|FLOAT) (variable)?
+simpleExpression : (UNSIGNED_INTEGER | FLOAT) (variable)?
 """
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind

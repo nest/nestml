@@ -50,7 +50,7 @@ class ASTSourceLocation(object):
     @classmethod
     def make_ast_source_position(cls, start_line, start_column, end_line, end_column):
         """
-        Factory method of the ASTSourcePosition class.
+        Factory method of the ASTSourceLocation class.
         :param start_line: The start line of the object
         :type start_line: int
         :param start_column: The start column of the object
@@ -59,7 +59,7 @@ class ASTSourceLocation(object):
         :type end_line: int
         :param end_column: The end column of the object
         :type end_column: int
-        :return: a new ASTSourcePosition object
+        :return: a new ASTSourceLocation object
         :rtype: ASTSourceLocation
         """
         return cls(start_line=start_line, start_column=start_column, end_line=end_line, end_column=end_column)

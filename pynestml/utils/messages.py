@@ -1,3 +1,4 @@
+
 #
 # messages.py.py
 #
@@ -945,6 +946,20 @@ class Messages(object):
         message = 'Variable \'%s\' has the same name as a physical unit!' % name
         return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
 
+    @classmethod
+    def get_analysing_transforming_neuron(cls, name):
+        """
+        Indicates start of code generation
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Analysing/transforming neuron \'%s\'' % name
+        return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+
 class MessageCode(Enum):
     """
     A mapping between codes and the corresponding messages.
@@ -1013,5 +1028,6 @@ class MessageCode(Enum):
     LEXER_ERROR = 60
     PARSER_ERROR = 61
     UNKNOWN_TARGET = 62
-    ODE_NEEDS_CONSISTENT_UNITS = 63
-    VARIABLE_WITH_SAME_NAME_AS_UNIT = 64
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
+    ANALYSING_TRANSFORMING_NEURON = 64
+    ODE_NEEDS_CONSISTENT_UNITS = 65
