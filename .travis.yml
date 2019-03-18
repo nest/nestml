@@ -21,7 +21,7 @@ before_install:
   #- cd nest_source && mkdir build && cd build
   #- cmake -DCMAKE_INSTALL_PREFIX=~/nest_install .. && make && make install
   #- cd $TRAVIS_BUILD_DIR
-  - pip install git+https://github.com/DimitriPlotnikov/ode-toolbox.git
+  - pip install git+https://github.com/nest/ode-toolbox.git
 
 install:
   - find pynestml/generated -not -name __init__.py -a -not -name generated -delete
