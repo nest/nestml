@@ -189,7 +189,7 @@ class CoCosManager(object):
     @classmethod
     def check_odes_have_consistent_units(cls, neuron):
         """
-        Checks that ...
+        Checks that all ODE lhs and rhs have consistent units.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
