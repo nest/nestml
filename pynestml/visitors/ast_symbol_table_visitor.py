@@ -68,11 +68,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # now first, we add all predefined elements to the scope
         variables = PredefinedVariables.get_variables()
         functions = PredefinedFunctions.get_function_symbols()
+        types = PredefinedTypes.get_types()
         for symbol in variables.keys():
             node.get_scope().add_symbol(variables[symbol])
         for symbol in functions.keys():
             node.get_scope().add_symbol(functions[symbol])
-        return
+        for symbol in types.keys():
+            node.get_scope().add_symbol(types[symbol])
 
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
