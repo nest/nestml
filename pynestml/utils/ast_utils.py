@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -373,7 +374,7 @@ class ASTUtils(object):
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
-                                                                      ASTSourcePosition.get_added_source_position())
+                                                                      ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(internal)
         return neuron
 
@@ -390,7 +391,7 @@ class ASTUtils(object):
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
-                                                                   ASTSourcePosition.get_added_source_position())
+                                                                   ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
         return neuron
 
@@ -408,7 +409,7 @@ class ASTUtils(object):
         if neuron.get_initial_blocks() is None:
             initial_values = ASTNodeFactory. \
                 create_ast_block_with_variables(False, False, False, True, list(),
-                                                ASTSourcePosition.get_added_source_position())
+                                                ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(initial_values)
         return neuron
 
