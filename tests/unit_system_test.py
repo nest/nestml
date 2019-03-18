@@ -111,9 +111,26 @@ class UnitSystemTest(unittest.TestCase):
     def test_expression_after_magnitude_conversion_in_declaration(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                         'DeclarationWithDifferentButCompatibleUnits.nestml'))
+                         'DeclarationWithDifferentButCompatibleUnitMagnitude.nestml'))
         printed_rhs_expression = print_rhs_of_first_declaration_in_state_block(model)
         self.assertEqual(printed_rhs_expression, '1000.0 * (10*V)')
+
+    def test_expression_after_type_conversion_in_declaration(self):
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+                         'DeclarationWithDifferentButCompatibleUnits.nestml'))
+        declaration = get_first_declaration_in_state_block(model)
+        from astropy import units as u
+        self.assertTrue(declaration.get_expression().type.unit.unit == u.mV)
+
+    def test_declaration_with_same_variable_name_as_unit(self):
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+                         'DeclarationWithSameVariableNameAsUnit.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)), 1)
 
     def test_expression_after_magnitude_conversion_in_standalone_function_call(self):
         model = ModelParser.parse_model(

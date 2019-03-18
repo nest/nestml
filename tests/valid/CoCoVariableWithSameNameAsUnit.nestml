@@ -20,21 +20,18 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This test is used to test the functionality of the coco which ensures that redeclaration of symbols is detected
- * Positive case.
+ * This model is used to test if broken CoCos are identified correctly. Here, if redeclaration of symbols is detected.
+ * Negative case.
 */
-neuron CoCoVariableRedeclared:
+neuron CoCoVariableWithSameNameAsUnit:
     state:
-        test1 mV = 20mV
+        eV mV = 1 mV # should not conflict with predefined unit eV but throw a warning
     end
     
     update:
-        test1 mV = 10mV # no redeclaration since shadowed by the local scope
-        test2 boolean = True
     end
 
     input:
-        # required for construction of a correct ast
     end
 
     output: spike
