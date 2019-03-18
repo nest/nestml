@@ -1,3 +1,4 @@
+
 #
 # messages.py.py
 #
@@ -917,6 +918,20 @@ class Messages(object):
         message = 'Not convertible unit \'%s\' used, 1 assumed as factor!' % name
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
+    @classmethod
+    def get_analysing_transforming_neuron(cls, name):
+        """
+        Indicates start of code generation
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Analysing/transforming neuron \'%s\'' % name
+        return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+
 
 class MessageCode(Enum):
     """
@@ -986,3 +1001,4 @@ class MessageCode(Enum):
     LEXER_ERROR = 60
     PARSER_ERROR = 61
     UNKNOWN_TARGET = 62
+    ANALYSING_TRANSFORMING_NEURON = 63
