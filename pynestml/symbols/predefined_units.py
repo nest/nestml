@@ -97,10 +97,10 @@ class PredefinedUnits(object):
     @classmethod
     def get_unit(cls, name):
         """
-        Returns a single sympy unit symbol if the corresponding unit has been predefined.
+        Returns a single UnitType if the corresponding unit has been predefined.
         :param name: the name of a unit
         :type name: str
-        :return: a single UnitType object.
+        :return: a single UnitType object, or None
         :rtype: UnitType
         """
         if name in cls.name2unit.keys():
