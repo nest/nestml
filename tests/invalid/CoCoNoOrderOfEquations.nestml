@@ -30,7 +30,7 @@ neuron CoCoNoOrderOfEquations:
     end
 
     equations:
-        V_m = 10mV # here, we did not specified the order of equation
+        V_m = 10 mV / s # here, we did not specified the order of equation
     end
 
     input:

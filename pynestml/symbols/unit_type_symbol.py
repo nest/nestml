@@ -170,4 +170,3 @@ class UnitTypeSymbol(TypeSymbol):
                 return True
             except:
                 return False
-

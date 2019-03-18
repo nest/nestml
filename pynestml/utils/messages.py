@@ -919,6 +919,20 @@ class Messages(object):
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
     @classmethod
+    def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE definition for \''
+        if differential_order > 1:
+            message += 'd^' + str(differential_order) + ' ' + name + ' / dt^' + str(differential_order) + '\''
+        if differential_order > 0:
+            message += 'd ' + name + ' / dt\''
+        else:
+            message += '\'' + str(name) + '\''
+        message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+        return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
     def get_variable_with_same_name_as_type(cls, name):
         """
         Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
@@ -1016,3 +1030,4 @@ class MessageCode(Enum):
     UNKNOWN_TARGET = 62
     VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
     ANALYSING_TRANSFORMING_NEURON = 64
+    ODE_NEEDS_CONSISTENT_UNITS = 65

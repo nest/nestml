@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoOdeVarNotInInitialValues.nestml
+ *  CoCoOdeIncorrectlyTyped.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,18 +20,20 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if each buffer is defined uniquely, i.e.,
- * no redundant keywords are used.
+ * This model is used to test if broken CoCos are identified correctly.
+ *
+ * Here, an ODE is defined with incorrect units.
+ *
  * Negative case.
 */
 
-neuron CoCoOdeVarNotInInitialValues:
+neuron CoCoOdeIncorrectlyTyped:
     state:
         V_m mV = 10mV
     end
 
     equations:
-        V_m' = 10 mV / s
+        V_m' = 10 mA
     end
 
     update:
