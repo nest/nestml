@@ -36,6 +36,7 @@ class UnitTypeSymbol(TypeSymbol):
         return False
 
     def __init__(self, unit):
+        assert isinstance(unit, UnitType)
         self.unit = unit
         super(UnitTypeSymbol, self).__init__(name=unit.name)
 
@@ -47,11 +48,8 @@ class UnitTypeSymbol(TypeSymbol):
 
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
-        # defer comparison of units to astropy library
         if basic_equals is True:
-            self_unit = self.astropy_unit
-            other_unit = other.astropy_unit
-            return self_unit == other_unit
+            return self.unit == other.unit
 
         return False
 
