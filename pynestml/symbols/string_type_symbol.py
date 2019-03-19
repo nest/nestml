@@ -34,9 +34,6 @@ class StringTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'string'
 
-    def print_nest_type(self):
-        return 'std::string'
-
     def __add__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         from pynestml.symbols.void_type_symbol import VoidTypeSymbol

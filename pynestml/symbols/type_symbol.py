@@ -50,17 +50,6 @@ class TypeSymbol(Symbol):
         self.is_buffer = False
         return
 
-    @property
-    def nest_type(self):
-        if self.is_buffer:
-            return 'nest::RingBuffer'
-        else:
-            return self.print_nest_type()
-
-    @abstractmethod
-    def print_nest_type(self):
-        pass
-
     @abstractmethod
     def print_nestml_type(self):
         pass

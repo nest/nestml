@@ -34,9 +34,6 @@ class IntegerTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'integer'
 
-    def print_nest_type(self):
-        return 'long'
-
     def __mul__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
