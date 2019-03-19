@@ -21,7 +21,7 @@
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-
+from pynestml.utils.unit_type import UnitType
 
 class UnitTypeSymbol(TypeSymbol):
 
