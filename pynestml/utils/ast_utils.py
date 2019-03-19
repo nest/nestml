@@ -240,34 +240,6 @@ class ASTUtils(object):
             return False
 
     @classmethod
-    def differs_in_magnitude(cls, type_a, type_b):
-        """
-        Indicates whether both type represent the same unit but with different magnitudes. This
-        case is still valid, e.g., mV can be assigned to volt.
-        :param type_a: a type
-        :type type_a:  TypeSymbol
-        :param type_b: a type
-        :type type_b: type_symbol
-        :return: True if both elements equal or differ in magnitude, otherwise False.
-        :rtype: bool
-        """
-        if type_a.equals(type_b):
-            return True
-        # in the case that we don't deal with units, there are no magnitudes
-        if not (type_a.is_unit() and type_b.is_unit()):
-            return False
-        # if it represents the same unit, if we disregard the prefix and simplify it
-        unit_a = type_a.get_unit().unit
-        unit_b = type_b.get_unit().unit
-        # if isinstance(unit_a,)
-        from astropy import units
-        # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unit_a, units.PrefixUnit) and isinstance(type_b, units.PrefixUnit) \
-                and unit_a.physical_type == unit_b.physical_type:
-            return True
-        return False
-
-    @classmethod
     def get_all(cls, ast, node_type):
         """
         Finds all meta_model which are part of the tree as spanned by the handed over meta_model.
