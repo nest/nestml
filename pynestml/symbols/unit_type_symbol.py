@@ -42,9 +42,6 @@ class UnitTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return self.unit.print_unit()
 
-    def print_nest_type(self):
-        return 'double'
-
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
         # defer comparison of units to astropy library

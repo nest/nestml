@@ -34,9 +34,6 @@ class RealTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'real'
 
-    def print_nest_type(self):
-        return 'double'
-
     def __mul__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol

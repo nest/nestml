@@ -47,9 +47,6 @@ class ErrorTypeSymbol(TypeSymbol):
     def __init__(self):
         super(ErrorTypeSymbol, self).__init__(name='error')
 
-    def print_nest_type(self):
-        return 'ERROR'
-
     def __mul__(self, other):
         return self
 

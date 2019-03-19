@@ -34,9 +34,6 @@ class BooleanTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'boolean'
 
-    def print_nest_type(self):
-        return 'bool'
-
     def negate(self):
         return self
 
