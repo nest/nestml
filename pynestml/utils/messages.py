@@ -1,3 +1,4 @@
+
 #
 # messages.py.py
 #
@@ -917,6 +918,47 @@ class Messages(object):
         message = 'Not convertible unit \'%s\' used, 1 assumed as factor!' % name
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
+    @classmethod
+    def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE definition for \''
+        if differential_order > 1:
+            message += 'd^' + str(differential_order) + ' ' + name + ' / dt^' + str(differential_order) + '\''
+        if differential_order > 0:
+            message += 'd ' + name + ' / dt\''
+        else:
+            message += '\'' + str(name) + '\''
+        message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+        return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
+    def get_variable_with_same_name_as_type(cls, name):
+        """
+        Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
+        :param name: the name of the variable
+        :type name: str
+        :return: a tuple containing message code and message text
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Variable \'%s\' has the same name as a physical unit!' % name
+        return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
+
+    @classmethod
+    def get_analysing_transforming_neuron(cls, name):
+        """
+        Indicates start of code generation
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Analysing/transforming neuron \'%s\'' % name
+        return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
 
 class MessageCode(Enum):
     """
@@ -986,3 +1028,6 @@ class MessageCode(Enum):
     LEXER_ERROR = 60
     PARSER_ERROR = 61
     UNKNOWN_TARGET = 62
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
+    ANALYSING_TRANSFORMING_NEURON = 64
+    ODE_NEEDS_CONSISTENT_UNITS = 65

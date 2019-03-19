@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableRedeclared.nestml
+ *  CoCoOdeCorrectlyTyped.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,23 +20,30 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This test is used to test the functionality of the coco which ensures that redeclaration of symbols is detected
- * Positive case.
+ * This model is used to test if broken CoCos are identified correctly.
+ *
+ * Here, ODE is defined with correct typing.
+ *
+ * Positive case
 */
-neuron CoCoVariableRedeclared:
-    state:
-        test1 mV = 20mV
+
+neuron CoCoOdeCorrectlyTyped:
+
+    initial_values: # variable is now defined in the initial block, thus everything is correct.
+        V_m mV = 10 mV
     end
-    
+
+    equations:
+        V_m' = (10 pA) / (100 pF)
+    end
+
     update:
-        test1 mV = 10mV # no redeclaration since shadowed by the local scope
-        test2 boolean = True
+        # required for creation of a correct ast
     end
 
     input:
-        # required for construction of a correct ast
+        # required for creation of a correct ast
     end
 
     output: spike
-
 end
