@@ -95,7 +95,10 @@ class ASTDataType(ASTNode):
         :return: a single type symbol element.
         :rtype: type_symbol
         """
-        return self.type_symbol
+        if self.is_unit_type():
+            return self.get_unit_type().get_type_symbol()
+        else:
+            return self.type_symbol
 
     def set_type_symbol(self, type_symbol):
         """

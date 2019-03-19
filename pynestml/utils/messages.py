@@ -166,7 +166,7 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Implicit casting %s to %s!' % (rhs_type, lhs_type)
+        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -960,6 +960,19 @@ class Messages(object):
         message = 'Analysing/transforming neuron \'%s\'' % name
         return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
 
+    @classmethod
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+        return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
+
+
 class MessageCode(Enum):
     """
     A mapping between codes and the corresponding messages.
@@ -1031,3 +1044,4 @@ class MessageCode(Enum):
     VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
     ANALYSING_TRANSFORMING_NEURON = 64
     ODE_NEEDS_CONSISTENT_UNITS = 65
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 66

@@ -155,7 +155,7 @@ class TypeSymbol(Symbol):
             return self.is_buffer == other.is_buffer
         return False
 
-    def differs_only_in_magnitude_or_is_equal_to(self, other_type):
+    def differs_only_in_magnitude(self, other_type):
         """
         Indicates whether both type represent the same unit but with different magnitudes. This
         case is still valid, e.g., mV can be assigned to volt.
@@ -191,7 +191,10 @@ class TypeSymbol(Symbol):
         :return: True if castable, otherwise False
         :rtype: bool
         """
-        pass
+        from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
+        if isinstance(_other_type, TemplateTypeSymbol):
+            return True
+        return False
 
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
