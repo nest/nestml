@@ -99,7 +99,7 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
 def install_nest(models_path, nest_path):
     # type: (str,str) -> None
     '''
-    This procedure can be used to install generate models into the NEST
+    This procedure can be used to install generated models into the NEST
     simulator.
 
     Parameters
