@@ -53,7 +53,7 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         Sets which level of information should be displayed duing code
         generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
     module_name : str, optional (default: "nestmlmodule")
-        Name of the module, which will be use to import the model in NEST via
+        Name of the module, which will be used to import the model in NEST via
         ``nest.Install(module_name)``.
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
