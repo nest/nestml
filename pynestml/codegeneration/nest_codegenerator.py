@@ -348,7 +348,7 @@ class NESTCodeGenerator(CodeGenerator):
         # type: (ASTEquationsBlock) -> dict[str, list]
         odes_shapes_json = self.transform_ode_and_shapes_to_json(equations_block)
 
-        return analysis(odes_shapes_json)
+        return analysis(odes_shapes_json, enable_stiffness_check=False)
 
 
     def transform_ode_and_shapes_to_json(self, equations_block):
@@ -406,7 +406,7 @@ class NESTCodeGenerator(CodeGenerator):
                                      "definition": shape_name_to_shape_definition[shape_name],
                                      "initial_values": shape_name_to_initial_values[shape_name]})
 
-        result["parameters"] = []  # ode-framework requires this.
+        result["parameters"] = {}  # ode-framework requires this.
         return result
 
 
@@ -414,7 +414,7 @@ class NESTCodeGenerator(CodeGenerator):
         # type: (ASTEquationsBlock) -> dict[str, list]
         shapes_json = self.transform_functional_shapes_to_json(equations_block)
 
-        return analysis(shapes_json)
+        return analysis(shapes_json, enable_stiffness_check=False)
 
 
     def transform_functional_shapes_to_json(self, equations_block):
@@ -432,7 +432,7 @@ class NESTCodeGenerator(CodeGenerator):
                                          "symbol": shape.get_variable().get_complete_name(),
                                          "definition": self._printer.print_expression(shape.get_expression())})
 
-        result["parameters"] = []  # ode-framework requires this.
+        result["parameters"] = {}  # ode-framework requires this.
         return result
 
     def make_functions_self_contained(self, functions):
