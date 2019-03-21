@@ -39,7 +39,7 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 def to_nest(input_path, target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False):
     '''
-    Translate NESTML file models into their equivalent C++ code for the NEST
+    Translate NESTML files into their equivalent C++ code for the NEST
     simulator.
 
     Parameters
