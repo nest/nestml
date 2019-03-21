@@ -111,10 +111,10 @@ def install_nest(models_path, nest_path):
         Path to the NEST installation, which should point to the main directory
         where NEST is installed. This folder contains the bin/, lib(64)/,
         include/, and share/ folders of the NEST install. Most importantly, the
-        bin/ folder should contain the "nest-config" script. This path is given
-        through the -Dwith-nest argument of the CMake command during the
-        installation of NEST. The suffix /bin/nest-config will be
-        automatically attached to `nest_path`.
+        bin/ folder should contain the "nest-config" script. This path is
+        passed through the -Dwith-nest argument of the CMake command during the
+        installation of the generated NEST module. The suffix /bin/nest-config
+        will be automatically attached to `nest_path`.
     '''
     nest_installer(models_path, nest_path)
 
