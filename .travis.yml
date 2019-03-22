@@ -15,6 +15,16 @@ before_install:
   - export PATH=$PATH:`pwd`
   - pip install --upgrade pip enum34 pytest
   - pip install -r requirements.txt
+ 
+  # gsl library to support ode-toolbox stiffness testing
+  - wget http://ftp.wrz.de/pub/gnu/gsl/gsl-2.5.tar.gz
+  - tar -xvzf gsl-2.5.tar.gz
+  - cd gsl-2.5
+  - ./configure && make && sudo make install
+  - cd ..
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+  - pip install pygsl
+
   #- pip install matplotlib
   #- cd ~ && git clone https://github.com/nest/nest-simulator nest_source
   #- mkdir nest_install
@@ -31,6 +41,7 @@ install:
   - export PYTHONPATH=$PYTHONPATH:`pwd`
   - echo $PYTHONPATH
   - python setup.py install
+
   #- python PyNestML.py -path models -target target
   #- cd ../target && mkdir build && cd build
   #- cmake -Dwith-nest=~/nest_install/bin/nest-config .. && make && make install
