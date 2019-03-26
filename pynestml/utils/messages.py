@@ -87,6 +87,11 @@ class Messages(object):
         return MessageCode.OPERATION_NOT_DEFINED, message
 
     @classmethod
+    def get_binary_operation_type_could_not_be_derived(cls, lhs, operator, rhs, lhs_type, rhs_type):
+        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (lhs, operator, rhs, lhs_type, rhs_type)
+        return MessageCode.TYPE_MISMATCH, message
+
+    @classmethod
     def get_unary_operation_not_defined(cls, operator, term):
         message = 'Operation %s%s is not defined!' % (operator, term)
         return MessageCode.OPERATION_NOT_DEFINED, message

@@ -176,8 +176,7 @@ class TypeSymbol(Symbol):
         # if isinstance(unit_a,)
         from astropy import units
         # TODO: consider even more complex cases which can be resolved to the same unit?
-        if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a,
-                                                                                                 units.CompositeUnit)) \
+        if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a, units.CompositeUnit)) \
                 and (isinstance(unit_b, units.Unit) or isinstance(unit_b, units.PrefixUnit)
                      or isinstance(unit_b, units.CompositeUnit)) and unit_a.physical_type == unit_b.physical_type:
             return True
@@ -199,7 +198,7 @@ class TypeSymbol(Symbol):
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
-        code, message = Messages.get_binary_operation_not_defined(lhs=self, operator=_operator, rhs=_other)
+        code, message = Messages.get_binary_operation_not_defined(lhs=self.print_nestml_type(), operator=_operator, rhs=_other.print_nestml_type())
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
                            log_level=LoggingLevel.ERROR)
         return result
@@ -217,7 +216,7 @@ class TypeSymbol(Symbol):
     def inverse_of_unit(cls, other):
         """
         :param other: the unit to invert
-        :type other: unit_type_symbol
+        :type other: UnitTypeSymbol
         :return: UnitTypeSymbol
         """
         from pynestml.symbols.predefined_types import PredefinedTypes
