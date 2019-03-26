@@ -34,12 +34,16 @@ class PredefinedFunctions(object):
         POW                   The callee name of the power function.
         EXP                   The callee name of the exponent function.
         LOG                   The callee name of the logarithm function.
+        COSH                  The callee name of the hyperbolic cosine.
+        SINH                  The callee name of the hyperbolic sine.
+        TANH                  The callee name of the hyperbolic tangent.
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM                The callee name of the random function.
         RANDOM_INT            The callee name of the random int function.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
+        CLIP                  The callee name of the clip function.
         MAX                   The callee name of the max function.
         BOUNDED_MAX           The callee name of the bounded-max function.
         MIN                   The callee name of the min function.
@@ -58,12 +62,16 @@ class PredefinedFunctions(object):
     POW = 'pow'
     EXP = 'exp'
     LOG = 'log'
+    COSH = 'cosh'
+    SINH = 'sinh'
+    TANH = 'tanh'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
     RANDOM = 'random'
     RANDOM_INT = 'randomInt'
     EXPM1 = 'expm1'
     DELTA = 'delta'
+    CLIP = 'clip'
     MAX = 'max'
     BOUNDED_MAX = 'bounded_max'
     MIN = 'min'
@@ -88,12 +96,16 @@ class PredefinedFunctions(object):
         cls.__register_power_function()
         cls.__register_exponent_function()
         cls.__register_log_function()
+        cls.__register_cosh_function()
+        cls.__register_sinh_function()
+        cls.__register_tanh_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_function()
         cls.__register_random_int_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
+        cls.__register_clip_function()
         cls.__register_max_function()
         cls.__register_max_bounded_function()
         cls.__register_min_function()
@@ -187,6 +199,42 @@ class PredefinedFunctions(object):
         cls.name2function[cls.LOG] = symbol
 
     @classmethod
+    def __register_cosh_function(cls):
+        """
+        Registers the hyperbolic cosine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.COSH, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.COSH] = symbol
+
+    @classmethod
+    def __register_sinh_function(cls):
+        """
+        Registers the hyperbolic cosine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.SINH, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.SINH] = symbol
+
+    @classmethod
+    def __register_tanh_function(cls):
+        """
+        Registers the hyperbolic cosine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.TANH, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.TANH] = symbol
+
+    @classmethod
     def __register_logger_info_function(cls):
         """
         Registers the logger info method into the scope.
@@ -264,6 +312,26 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.DELTA] = symbol
+
+    @classmethod
+    def __register_clip_function(cls):
+        """
+        Registers the clip function (bound a number between a minimum and a
+        maximum value).
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type()) # value
+        params.append(PredefinedTypes.get_real_type()) # min
+        params.append(PredefinedTypes.get_real_type()) # max
+
+        # we switch the order to [max, min, value]
+        # (necessary for C++ implementation)
+        params = params[::-1]
+
+        symbol = FunctionSymbol(name=cls.CLIP, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.CLIP] = symbol
 
     @classmethod
     def __register_max_function(cls):

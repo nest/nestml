@@ -95,6 +95,22 @@ class GSLReferenceConverter(IReferenceConverter):
                 return 'std::exp(std::min(%s,' + str(self.maximal_exponent) + '))'
             else:
                 return 'std::exp(%s)'
+        if function_name == PredefinedFunctions.COSH:
+            if self.is_upper_bound:
+                return 'std::cosh(std::min(std::abs(%s),' + str(self.maximal_exponent) + '))'
+            else:
+                return 'std::cosh(%s)'
+        if function_name == PredefinedFunctions.SINH:
+            if self.is_upper_bound:
+                return 'std::sinh((%s > 0 ? 1 : -1)*std::min(std::abs(%s),' + str(self.maximal_exponent) + '))'
+            else:
+                return 'std::sinh(%s)'
+        if function_name == PredefinedFunctions.TANH:
+            return 'std::tanh(%s)'
+        if function_name == PredefinedFunctions.CLIP:
+            # warning: the arguments of this function have been swapped and
+            # are therefore [v_max, v_min, v], hence its structure
+            return 'std::min(%s, std::max(%s, %s))'
         if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
             return 'std::max(%s, %s)'
         if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
