@@ -92,6 +92,10 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
         elif function_name == PredefinedFunctions.POW:
             return 'std::pow(%s, %s)'
+        elif function_name == PredefinedFunctions.CLIP:
+            # warning: the arguments of this function have been swapped and
+            # are therefore [v_max, v_min, v], hence its structure
+            return 'std::min(%s, std::max(%s, %s))'
         elif function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
             return 'std::max(%s, %s)'
         elif function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
@@ -100,7 +104,13 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'std::exp(%s)'
         elif function_name == PredefinedFunctions.LOG:
             return 'std::log(%s)'
-        elif function_name == 'expm1':
+        elif function_name == PredefinedFunctions.COSH:
+              return 'std::cosh(%s)'
+        elif function_name == PredefinedFunctions.SINH:
+              return 'std::sinh(%s)'
+        elif function_name == PredefinedFunctions.TANH:
+            return 'std::tanh(%s)'
+        elif function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1(%s)'
         elif function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
