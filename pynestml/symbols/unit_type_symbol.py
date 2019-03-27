@@ -21,7 +21,7 @@
 from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
-
+from pynestml.utils.unit_type import UnitType
 
 class UnitTypeSymbol(TypeSymbol):
 
@@ -36,6 +36,7 @@ class UnitTypeSymbol(TypeSymbol):
         return False
 
     def __init__(self, unit):
+        assert isinstance(unit, UnitType)
         self.unit = unit
         super(UnitTypeSymbol, self).__init__(name=unit.name)
 
@@ -44,11 +45,8 @@ class UnitTypeSymbol(TypeSymbol):
 
     def equals(self, other=None):
         basic_equals = super(UnitTypeSymbol, self).equals(other)
-        # defer comparison of units to astropy library
         if basic_equals is True:
-            self_unit = self.astropy_unit
-            other_unit = other.astropy_unit
-            return self_unit == other_unit
+            return self.unit == other.unit
 
         return False
 
@@ -134,7 +132,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.attempt_magnitude_cast(other)
 
     def attempt_magnitude_cast(self, other):
-        if self.differs_only_in_magnitude_or_is_equal_to(other):
+        if self.differs_only_in_magnitude(other):
             factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, other.astropy_unit)
             other.referenced_object.set_implicit_conversion_factor(factor)
             code, message = Messages.get_implicit_magnitude_conversion(self, other, factor)
@@ -156,14 +154,16 @@ class UnitTypeSymbol(TypeSymbol):
         factor = (_from / to).si.scale
         return factor
 
-    def is_castable_to(self, other_type):
+    def is_castable_to(self, _other_type):
+        if super(UnitTypeSymbol, self).is_castable_to(_other_type):
+            return True
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
-        if other_type.is_instance_of(RealTypeSymbol):
+        if _other_type.is_instance_of(RealTypeSymbol):
             return True
         else:
             # check unit equivalence with astropy
             try:
-                self.unit.get_unit().to(other_type.unit.get_unit())
+                self.unit.get_unit().to(_other_type.unit.get_unit())
                 return True
             except:
                 return False

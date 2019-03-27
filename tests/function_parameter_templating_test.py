@@ -1,5 +1,5 @@
 #
-# expression_type_calculation_test.py
+# function_parameter_templating_test.py
 #
 # This file is part of NEST.
 #
@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import unittest
 
@@ -42,55 +43,18 @@ PredefinedVariables.register_variables()
 PredefinedFunctions.register_functions()
 
 
-class ExpressionTestVisitor(ASTVisitor):
-    def endvisit_assignment(self, node):
-        scope = node.get_scope()
-        var_name = node.get_variable().get_name()
-
-        _expr = node.get_expression()
-
-        var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-
-        _equals = var_symbol.get_type_symbol().equals(_expr.type) \
-         or var_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
-
-        message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
-                  var_symbol.get_type_symbol().get_symbol_name() + \
-                  ' RHS = ' + _expr.type.get_symbol_name() + \
-                  ' Equal ? ' + str(_equals)
-
-        if isinstance(_expr.type, UnitTypeSymbol):
-            message += " Neuroscience Factor: " + \
-                       str(UnitConverter().get_factor(_expr.type.astropy_unit))
-
-        Logger.log_message(error_position=node.get_source_position(), code=MessageCode.TYPE_MISMATCH,
-                           message=message, log_level=LoggingLevel.INFO)
-
-        if _equals is False:
-            Logger.log_message(message="Type mismatch in test!",
-                               code=MessageCode.TYPE_MISMATCH,
-                               error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        return
-
-
-class ExpressionTypeCalculationTest(unittest.TestCase):
+class FunctionParameterTemplatingTest(unittest.TestCase):
     """
-    A simple test that prints all top-level expression types in a file.
+    This test is used to test the correct derivation of types when functions use templated type parameters.
     """
 
-    # TODO: this test needs to be refactored.
     def test(self):
         Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                       'resources', 'ExpressionTypeTest.nestml'))))
-        Logger.set_current_neuron(model.get_neuron_list()[0])
-        model.accept(ExpressionTestVisitor())
-        # ExpressionTestVisitor().handle(model)
-        Logger.set_current_neuron(None)
+                                                       'resources', 'FunctionParameterTemplatingTest.nestml'))))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 2)
+                                                                            LoggingLevel.ERROR)), 5)
 
 
 if __name__ == '__main__':

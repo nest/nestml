@@ -75,8 +75,8 @@ neuron hill_tononi:
     function I_K pA = -g_KL * ( V_m - E_K )
 
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
-    function INaP_thresh mV = -55.7 pA
-    function INaP_slope mV = 7.7 pA
+    function INaP_thresh mV = -55.7 mV
+    function INaP_slope mV = 7.7 mV
     function m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
     # Persistent Na current; member only to allow recording
     recordable function I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )

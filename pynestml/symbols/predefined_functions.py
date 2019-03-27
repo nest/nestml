@@ -167,10 +167,10 @@ class PredefinedFunctions(object):
         Registers the power function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())  # the base type
+        params.append(PredefinedTypes.get_template_type(0))  # the base type
         params.append(PredefinedTypes.get_real_type())  # the exponent type
         symbol = FunctionSymbol(name=cls.POW, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.POW] = symbol
 
@@ -180,9 +180,9 @@ class PredefinedFunctions(object):
         Registers the exponent (e(X)) function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())  # the argument
+        params.append(PredefinedTypes.get_template_type(0))  # the argument
         symbol = FunctionSymbol(name=cls.EXP, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXP] = symbol
 
@@ -192,9 +192,9 @@ class PredefinedFunctions(object):
         Registers the logarithm function (to base 10).
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())  # the argument
+        params.append(PredefinedTypes.get_template_type(0))  # the argument
         symbol = FunctionSymbol(name=cls.LOG, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.LOG] = symbol
 
@@ -294,9 +294,9 @@ class PredefinedFunctions(object):
         Registers the alternative version of the exponent function, exp1.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())  # the argument
+        params.append(PredefinedTypes.get_template_type(0))  # the argument
         symbol = FunctionSymbol(name=cls.EXPM1, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXPM1] = symbol
 
@@ -339,10 +339,10 @@ class PredefinedFunctions(object):
         Registers the maximum function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_template_type(0))
+        params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.MAX, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+								return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MAX] = symbol
 
@@ -352,10 +352,10 @@ class PredefinedFunctions(object):
         Registers the maximum (bounded) function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_template_type(0))
+        params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.BOUNDED_MAX, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.BOUNDED_MAX] = symbol
 
@@ -365,10 +365,10 @@ class PredefinedFunctions(object):
         Registers the minimum function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_template_type(0))
+        params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.MIN, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MIN] = symbol
 
@@ -378,10 +378,10 @@ class PredefinedFunctions(object):
         Registers the minimum (bounded) function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_template_type(0))
+        params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.BOUNDED_MIN, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.BOUNDED_MIN] = symbol
 

@@ -1,5 +1,5 @@
 #
-# nest_time_type_symbol.py
+# template_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -21,26 +21,29 @@
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class NESTTimeTypeSymbol(TypeSymbol):
+class TemplateTypeSymbol(TypeSymbol):
+    def __init__(self, i):
+        super(TemplateTypeSymbol, self).__init__(name='_template_' + str(i))
+        self.i = i
+
     def is_numeric(self):
         return False
 
     def is_primitive(self):
-        return False
-
-    def __init__(self):
-        super(NESTTimeTypeSymbol, self).__init__(name='time')
+        return True
 
     def print_nestml_type(self):
-        return 'time'
-
-    def __add__(self, other):
-        from pynestml.symbols.string_type_symbol import StringTypeSymbol
-        if other.is_instance_of(StringTypeSymbol):
-            return other
-        return self.binary_operation_not_defined_error('+', other)
+        return '_template_' + str(self.i)
 
     def is_castable_to(self, _other_type):
-        if super(NESTTimeTypeSymbol, self).is_castable_to(_other_type):
+        if isinstance(_other_type, TemplateTypeSymbol) and _other_type.i == self.i:
             return True
+
         return False
+
+    def __eq__(self, other):
+        if isinstance(other, TemplateTypeSymbol) and other.i == self.i:
+            return True
+
+        return False
+
