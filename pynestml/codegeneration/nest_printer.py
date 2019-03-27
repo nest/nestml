@@ -186,7 +186,7 @@ class NestPrinter(object):
                 if function_symbol.get_parameter_types().index(typeSym) < len(
                         function_symbol.get_parameter_types()) - 1:
                     declaration += ', '
-            declaration += ')\n'
+            declaration += ') const\n'
             return declaration
         else:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
@@ -226,7 +226,7 @@ class NestPrinter(object):
                 if function_symbol.get_parameter_types().index(typeSym) < \
                         len(function_symbol.get_parameter_types()) - 1:
                     declaration += ', '
-            declaration += ')\n'
+            declaration += ') const\n'
             return declaration
         else:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())

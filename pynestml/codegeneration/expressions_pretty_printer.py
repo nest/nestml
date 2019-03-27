@@ -46,14 +46,14 @@ class ExpressionsPrettyPrinter(object):
         else:
             self.types_printer = TypesPrinter()
 
-    def print_expression(self, node):
+    def print_expression(self, node, prefix=""):
         # type: (ASTExpressionNode) -> str
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
         else:
-            return self.__do_print(node)
+            return self.__do_print(node, prefix=prefix)
 
-    def __do_print(self, node):
+    def __do_print(self, node, prefix=""):
         # type: (ASTExpressionNode) -> str
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
@@ -73,48 +73,48 @@ class ExpressionsPrettyPrinter(object):
             elif node.is_variable():
                 return self.reference_converter.convert_name_reference(node.get_variable())
             elif node.is_function_call():
-                return self.print_function_call(node.get_function_call())
+                return self.print_function_call(node.get_function_call(), prefix=prefix)
         elif isinstance(node, ASTExpression):
             # a unary operator
             if node.is_unary_operator():
                 op = self.reference_converter.convert_unary_op(node.get_unary_operator())
-                rhs = self.print_expression(node.get_expression())
+                rhs = self.print_expression(node.get_expression(), prefix=prefix)
                 return op % rhs
             # encapsulated in brackets
             elif node.is_encapsulated:
-                return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression())
+                return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression(), prefix=prefix)
             # logical not
             elif node.is_logical_not:
                 op = self.reference_converter.convert_logical_not()
-                rhs = self.print_expression(node.get_expression())
+                rhs = self.print_expression(node.get_expression(), prefix=prefix)
                 return op % rhs
             # compound rhs with lhs + rhs
             elif node.is_compound_expression():
-                lhs = self.print_expression(node.get_lhs())
+                lhs = self.print_expression(node.get_lhs(), prefix=prefix)
                 op = self.reference_converter.convert_binary_op(node.get_binary_operator())
-                rhs = self.print_expression(node.get_rhs())
+                rhs = self.print_expression(node.get_rhs(), prefix=prefix)
                 return op % (lhs, rhs)
             elif node.is_ternary_operator():
-                condition = self.print_expression(node.get_condition())
-                if_true = self.print_expression(node.get_if_true())
-                if_not = self.print_expression(node.if_not)
+                condition = self.print_expression(node.get_condition(), prefix=prefix)
+                if_true = self.print_expression(node.get_if_true(), prefix=prefix)
+                if_not = self.print_expression(node.if_not, prefix=prefix)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
         else:
             raise RuntimeError('Unsupported rhs in rhs pretty printer!')
 
-    def print_function_call(self, function_call):
+    def print_function_call(self, function_call, prefix=""):
         # type: (ASTFunctionCall) -> str
         function_name = self.reference_converter.convert_function_call(function_call)
         if ASTUtils.needs_arguments(function_call):
-            return function_name % self.print_function_call_argument_list(function_call)
+            return prefix + function_name % self.print_function_call_argument_list(function_call, prefix=prefix)
         else:
-            return function_name
+            return prefix + function_name
 
-    def print_function_call_argument_list(self, function_call):
+    def print_function_call_argument_list(self, function_call, prefix=""):
         # type: (ASTFunctionCall) -> tuple of str
         ret = []
         for arg in function_call.get_args():
-            ret.append(self.print_expression(arg))
+            ret.append(self.print_expression(arg, prefix=prefix))
         return tuple(ret)
 
 
