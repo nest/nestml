@@ -73,7 +73,6 @@ class ASTFunctionCallVisitor(ASTVisitor):
             correctTemplatedArgumentTypesVisitor._failure_occurred = False
             node.accept(correctTemplatedArgumentTypesVisitor)
             if correctTemplatedArgumentTypesVisitor._failure_occurred:
-                from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
                 return_type = ErrorTypeSymbol()
 
         return_type.referenced_object = node
