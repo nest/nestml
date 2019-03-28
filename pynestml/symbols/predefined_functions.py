@@ -223,7 +223,7 @@ class PredefinedFunctions(object):
     @classmethod
     def __register_random_int_function(cls):
         """
-        Registers the random method as used to generate a random integer-typed value.
+        Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
         """
         symbol = FunctionSymbol(name=cls.RANDOM_INT, param_types=list(),
                                 return_type=PredefinedTypes.get_integer_type(),
