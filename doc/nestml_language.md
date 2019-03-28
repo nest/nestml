@@ -213,7 +213,7 @@ The following set of functions is predefined in NestML and can be used out of th
 |bounded\_max|bounded\_min|integrate_odes|
 |curr\_sum|cond\_sum|convolve|
 
-  * **randomNorm**: used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance)
+  * **randomNorm**: used to generate a random normal (Gaussian) distributed variable with parameters "mean" and "standard deviation"
 
 #### Return statement
 
