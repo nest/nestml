@@ -208,7 +208,7 @@ The following set of functions is predefined in NestML and can be used out of th
 | resolution | steps | emit_spike |
 | print | println | pow |
 | exp | log | info |
-|warning|random|randomInt|
+|warning|randomNorm|
 |expm1|delta|max|min|
 |bounded\_max|bounded\_min|integrate_odes|
 |curr\_sum|cond\_sum|convolve|

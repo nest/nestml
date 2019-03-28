@@ -37,7 +37,6 @@ class PredefinedFunctions(object):
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
         RANDOM_NORM           The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
-        RANDOM_POISSON        The callee name of the function used to generate a random Poisson distributed real-typed variable with parameter `lambda` (the event rate).
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         MAX                   The callee name of the max function.
@@ -61,7 +60,6 @@ class PredefinedFunctions(object):
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
     RANDOM_NORM = 'randomNorm'
-    RANDOM_POISSON = 'randomPoisson'
     EXPM1 = 'expm1'
     DELTA = 'delta'
     MAX = 'max'
@@ -91,7 +89,6 @@ class PredefinedFunctions(object):
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
         cls.__register_random_norm_function()
-        cls.__register_random_poisson_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_max_function()
@@ -213,24 +210,15 @@ class PredefinedFunctions(object):
     @classmethod
     def __register_random_norm_function(cls):
         """
-        Registers the random method as used to generate a random Poisson distributed real-typed variable with parameter `lambda` (the event rate).
+        Registers the random method as used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
         """
-        symbol = FunctionSymbol(name=cls.RANDOM_NORM, param_types=list(),
-                                return_type=PredefinedTypes.get_real_type(),
+        symbol = FunctionSymbol(name=cls.RANDOM_NORM, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.RANDOM_NORM] = symbol
 
     @classmethod
-    def __register_random_int_function(cls):
-        """
-        Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
-        """
-        symbol = FunctionSymbol(name=cls.RANDOM_INT, param_types=list(),
-                                return_type=PredefinedTypes.get_integer_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM_INT] = symbol
 
-    @classmethod
     def __register_time_resolution_function(cls):
         """
         Registers the time resolution function.
