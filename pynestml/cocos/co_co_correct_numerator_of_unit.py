@@ -55,6 +55,8 @@ class NumericNumeratorVisitor(ASTVisitor):
         :type node: ast_unit_type
         """
         if node.is_div and isinstance(node.lhs, int) and node.lhs != 1:
+            from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+            node.set_type_symbol(ErrorTypeSymbol())
             code, message = Messages.get_wrong_numerator(str(node))
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)

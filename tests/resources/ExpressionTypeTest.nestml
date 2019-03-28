@@ -71,7 +71,7 @@ neuron expressionType_test:
         force = foo(mass,distance,time)
         force = 1 kg * distance/(time**2)
         force = kg*m/(s**2)
-        force = volts*amps
+        force = volts*amps      # this is expected to yield an error
     end
 
     input:
