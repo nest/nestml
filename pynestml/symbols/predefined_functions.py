@@ -210,7 +210,7 @@ class PredefinedFunctions(object):
     @classmethod
     def __register_random_norm_function(cls):
         """
-        Registers the random method as used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
         """
         symbol = FunctionSymbol(name=cls.RANDOM_NORM, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
                                 return_type=PredefinedTypes.get_template_type(0),
