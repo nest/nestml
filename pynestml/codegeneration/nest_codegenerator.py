@@ -48,6 +48,7 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
 class NESTCodeGenerator(CodeGenerator):
 
@@ -211,6 +212,7 @@ class NESTCodeGenerator(CodeGenerator):
         converter = NESTReferenceConverter(False)
         legacy_pretty_printer = LegacyExpressionPrinter(converter)
 
+
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
@@ -228,6 +230,10 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
+
+        rng_visitor = ASTRandomNumberGeneratorVisitor()
+        neuron.accept(rng_visitor)
+        namespace['norm_rng'] = rng_visitor._norm_rng_is_used
 
         self.define_solver_type(neuron, namespace)
         return namespace
