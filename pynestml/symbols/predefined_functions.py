@@ -24,7 +24,7 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions(object):
     """
     This class is used to represent all predefined functions of NESTML.
-    
+
     Attributes:
         TIME_RESOLUTION       The callee name of the resolution function.
         TIME_STEPS            The callee name of the time-steps function.
@@ -36,8 +36,8 @@ class PredefinedFunctions(object):
         LOG                   The callee name of the logarithm function.
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
-        RANDOM                The callee name of the random function.
-        RANDOM_INT            The callee name of the random int function.
+        RANDOM_NORM           The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_POISSON        The callee name of the function used to generate a random Poisson distributed real-typed variable with parameter `lambda` (the event rate).
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         MAX                   The callee name of the max function.
@@ -60,8 +60,8 @@ class PredefinedFunctions(object):
     LOG = 'log'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
-    RANDOM = 'random'
-    RANDOM_INT = 'randomInt'
+    RANDOM_NORM = 'randomNorm'
+    RANDOM_POISSON = 'randomPoisson'
     EXPM1 = 'expm1'
     DELTA = 'delta'
     MAX = 'max'
@@ -90,8 +90,8 @@ class PredefinedFunctions(object):
         cls.__register_log_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
-        cls.__register_random_function()
-        cls.__register_random_int_function()
+        cls.__register_random_norm_function()
+        cls.__register_random_poisson_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_max_function()
@@ -211,14 +211,14 @@ class PredefinedFunctions(object):
         cls.name2function[cls.LOGGER_WARNING] = symbol
 
     @classmethod
-    def __register_random_function(cls):
+    def __register_random_norm_function(cls):
         """
-        Registers the random method as used to generate a random real-typed value.
+        Registers the random method as used to generate a random Poisson distributed real-typed variable with parameter `lambda` (the event rate).
         """
-        symbol = FunctionSymbol(name=cls.RANDOM, param_types=list(),
+        symbol = FunctionSymbol(name=cls.RANDOM_NORM, param_types=list(),
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM] = symbol
+        cls.name2function[cls.RANDOM_NORM] = symbol
 
     @classmethod
     def __register_random_int_function(cls):
