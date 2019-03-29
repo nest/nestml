@@ -324,10 +324,6 @@ class PredefinedFunctions(object):
         params.append(PredefinedTypes.get_real_type()) # min
         params.append(PredefinedTypes.get_real_type()) # max
 
-        # we switch the order to [max, min, value]
-        # (necessary for C++ implementation)
-        params = params[::-1]
-
         symbol = FunctionSymbol(name=cls.CLIP, param_types=params,
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)

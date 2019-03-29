@@ -89,36 +89,36 @@ class NESTReferenceConverter(IReferenceConverter):
         elif function_name == 'resolution':
             return 'nest::Time::get_resolution().get_ms()'
         elif function_name == 'steps':
-            return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
+            return 'nest::Time(nest::Time::ms((double) {!s})).get_steps()'
         elif function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
+            return 'std::pow({!s}, {!s})'
         elif function_name == PredefinedFunctions.CLIP:
-            # warning: the arguments of this function have been swapped and
+            # warning: the arguments of this function must swapped and
             # are therefore [v_max, v_min, v], hence its structure
-            return 'std::min(%s, std::max(%s, %s))'
+            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
         elif function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
-            return 'std::max(%s, %s)'
+            return 'std::max({!s}, {!s})'
         elif function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
-            return 'std::min(%s, %s)'
+            return 'std::min({!s}, {!s})'
         elif function_name == PredefinedFunctions.EXP:
-            return 'std::exp(%s)'
+            return 'std::exp({!s})'
         elif function_name == PredefinedFunctions.LOG:
-            return 'std::log(%s)'
+            return 'std::log({!s})'
         elif function_name == PredefinedFunctions.COSH:
-              return 'std::cosh(%s)'
+              return 'std::cosh({!s})'
         elif function_name == PredefinedFunctions.SINH:
-              return 'std::sinh(%s)'
+              return 'std::sinh({!s})'
         elif function_name == PredefinedFunctions.TANH:
-            return 'std::tanh(%s)'
+            return 'std::tanh({!s})'
         elif function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1(%s)'
+            return 'numerics::expm1({!s})'
         elif function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         elif ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            return function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         else:
             return function_name + '()'
 
