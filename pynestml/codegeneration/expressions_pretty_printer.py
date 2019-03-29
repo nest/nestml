@@ -23,8 +23,8 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
-
 
 class ExpressionsPrettyPrinter(object):
     """
@@ -46,14 +46,14 @@ class ExpressionsPrettyPrinter(object):
         else:
             self.types_printer = TypesPrinter()
 
-    def print_expression(self, node, prefix=""):
+    def print_expression(self, node, prefix=''):
         # type: (ASTExpressionNode) -> str
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
         else:
             return self.__do_print(node, prefix=prefix)
 
-    def __do_print(self, node, prefix=""):
+    def __do_print(self, node, prefix=''):
         # type: (ASTExpressionNode) -> str
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
@@ -102,15 +102,20 @@ class ExpressionsPrettyPrinter(object):
         else:
             raise RuntimeError('Unsupported rhs in rhs pretty printer!')
 
-    def print_function_call(self, function_call, prefix=""):
+    def print_function_call(self, function_call, prefix=''):
         # type: (ASTFunctionCall) -> str
         function_name = self.reference_converter.convert_function_call(function_call)
+        function_is_predefined = PredefinedFunctions.get_function(function_call.get_name())  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+
+        if function_is_predefined:
+            prefix = ''
+
         if ASTUtils.needs_arguments(function_call):
             return prefix + function_name % self.print_function_call_argument_list(function_call, prefix=prefix)
         else:
             return prefix + function_name
 
-    def print_function_call_argument_list(self, function_call, prefix=""):
+    def print_function_call_argument_list(self, function_call, prefix=''):
         # type: (ASTFunctionCall) -> tuple of str
         ret = []
         for arg in function_call.get_args():
