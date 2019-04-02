@@ -187,7 +187,7 @@ class NestPrinter(object):
             if function_symbol.get_parameter_types().index(typeSym) < len(
                     function_symbol.get_parameter_types()) - 1:
                 declaration += ', '
-        declaration += ')\n'
+        declaration += ') const\n'
         return declaration
 
     @classmethod
@@ -226,7 +226,7 @@ class NestPrinter(object):
             if function_symbol.get_parameter_types().index(typeSym) < \
                     len(function_symbol.get_parameter_types()) - 1:
                 declaration += ', '
-        declaration += ')\n'
+        declaration += ') const\n'
         return declaration
 
     def print_buffer_array_getter(self, ast_buffer):
