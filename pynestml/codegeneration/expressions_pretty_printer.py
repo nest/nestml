@@ -109,11 +109,6 @@ class ExpressionsPrettyPrinter(object):
 
         if function_is_predefined:
             prefix = ''
-            print(function_name)
-            print(function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix)))
-        # ~ if function_name.startswith("tau_shape"):
-            # ~ print(function_name)
-            # ~ print(function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix)))
 
         if ASTUtils.needs_arguments(function_call):
             return prefix + function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
@@ -126,11 +121,7 @@ class ExpressionsPrettyPrinter(object):
         for arg in function_call.get_args():
             ret.append(self.print_expression(arg, prefix=prefix))
         function_name = self.reference_converter.convert_function_call(function_call)
-        
-        if function_name.startswith("clip"):
-            print(function_name)
-            print(function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix)))
-            print(ret)
+
         return tuple(ret)
 
 
