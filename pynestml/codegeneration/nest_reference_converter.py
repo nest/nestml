@@ -131,7 +131,10 @@ class NESTReferenceConverter(IReferenceConverter):
         else:
             symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
             if symbol is None:
-                # this should actually not happen, but an error message is better than an exception
+                # test if variable name can be resolved to a type
+                if PredefinedUnits.is_unit(variable.get_complete_name()):
+                    return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+
                 code, message = Messages.get_could_not_resolve(variable_name)
                 Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                    error_position=variable.get_source_position())
