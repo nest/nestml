@@ -74,25 +74,36 @@ class NESTReferenceConverter(IReferenceConverter):
             raise RuntimeError('Cannot determine binary operator!')
 
     @classmethod
-    def convert_function_call(cls, function_call):
+    def convert_function_call(cls, function_call, prefix=''):
         """
-        Converts a single handed over function call to nest processable format.
-        :param function_call: a single function call
-        :type function_call:  ASTFunctionCall
-        :return: a string representation
-        :rtype: str
+        Converts a single handed over function call to C++ NEST API syntax.
+
+        Parameters
+        ----------
+        function_call : ASTFunctionCall
+            The function call node to convert.
+        prefix : str
+            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
+
+            Predefined functions will not be prefixed.
+
+        Returns
+        -------
+        s : str
+            The function call string in C++ syntax.
         """
         function_name = function_call.get_name()
+
         if function_name == 'and':
             return '&&'
 
         if function_name == 'or':
             return '||'
 
-        if function_name == 'resolution':
+        if function_name == PredefinedFunctions.TIME_RESOLUTION:
             return 'nest::Time::get_resolution().get_ms()'
 
-        if function_name == 'steps':
+        if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
 
         if function_name == PredefinedFunctions.POW:
@@ -110,22 +121,27 @@ class NESTReferenceConverter(IReferenceConverter):
         if function_name == PredefinedFunctions.LOG:
             return 'std::log(%s)'
 
-        if function_name == 'expm1':
+        if function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1(%s)'
 
-        if function_name == 'randomNorm':
-            return '((%s) + (%s) * node.normal_dev_( nest::kernel().rng_manager.get_rng( node.get_thread() ) ))'
+        if function_name == PredefinedFunctions.RANDOM_NORM:
+            return '((%s) + (%s) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
 
+        # suppress prefix for misc. predefined functions
+        function_is_predefined = PredefinedFunctions.get_function(function_name)  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        if function_is_predefined:
+            prefix = ''
+
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            return prefix + function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
 
-        return function_name + '()'
+        return prefix + function_name + '()'
 
     def convert_name_reference(self, variable):
         """
@@ -141,15 +157,15 @@ class NESTReferenceConverter(IReferenceConverter):
                 variable)
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
-        if PredefinedUnits.is_unit(variable.get_complete_name()):
-            return str(
-                UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
             symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
             if symbol is None:
-                # this should actually not happen, but an error message is better than an exception
+                # test if variable name can be resolved to a type
+                if PredefinedUnits.is_unit(variable.get_complete_name()):
+                    return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+
                 code, message = Messages.get_could_not_resolve(variable_name)
                 Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                    error_position=variable.get_source_position())
