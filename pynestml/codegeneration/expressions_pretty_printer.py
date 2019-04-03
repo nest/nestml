@@ -132,16 +132,12 @@ class ExpressionsPrettyPrinter(object):
         s : str
             The function call string.
         """
-        function_name = self.reference_converter.convert_function_call(function_call)
-        function_is_predefined = PredefinedFunctions.get_function(function_call.get_name())  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
-
-        if function_is_predefined:
-            prefix = ''
+        function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
 
         if ASTUtils.needs_arguments(function_call):
-            return prefix + function_name % self.print_function_call_argument_list(function_call, prefix=prefix)
+            return function_name % self.print_function_call_argument_list(function_call, prefix=prefix)
         else:
-            return prefix + function_name
+            return function_name
 
     def print_function_call_argument_list(self, function_call, prefix=''):
         # type: (ASTFunctionCall) -> tuple of str

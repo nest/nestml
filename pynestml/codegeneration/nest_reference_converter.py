@@ -1,3 +1,4 @@
+
 #
 # nest_reference_converter.py
 #
@@ -73,44 +74,74 @@ class NESTReferenceConverter(IReferenceConverter):
             raise RuntimeError('Cannot determine binary operator!')
 
     @classmethod
-    def convert_function_call(cls, function_call):
+    def convert_function_call(cls, function_call, prefix=''):
         """
-        Converts a single handed over function call to nest processable format.
-        :param function_call: a single function call
-        :type function_call:  ASTFunctionCall
-        :return: a string representation
-        :rtype: str
+        Converts a single handed over function call to C++ NEST API syntax.
+
+        Parameters
+        ----------
+        function_call : ASTFunctionCall
+            The function call node to convert.
+        prefix : str
+            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
+
+            Predefined functions will not be prefixed.
+
+        Returns
+        -------
+        s : str
+            The function call string in C++ syntax.
         """
         function_name = function_call.get_name()
+
         if function_name == 'and':
             return '&&'
-        elif function_name == 'or':
+
+        if function_name == 'or':
             return '||'
-        elif function_name == 'resolution':
+
+        if function_name == PredefinedFunctions.TIME_RESOLUTION:
             return 'nest::Time::get_resolution().get_ms()'
-        elif function_name == 'steps':
+
+        if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
-        elif function_name == PredefinedFunctions.POW:
+
+        if function_name == PredefinedFunctions.POW:
             return 'std::pow(%s, %s)'
-        elif function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
+
+        if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
             return 'std::max(%s, %s)'
-        elif function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
+
+        if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
             return 'std::min(%s, %s)'
-        elif function_name == PredefinedFunctions.EXP:
+
+        if function_name == PredefinedFunctions.EXP:
             return 'std::exp(%s)'
-        elif function_name == PredefinedFunctions.LOG:
+
+        if function_name == PredefinedFunctions.LOG:
             return 'std::log(%s)'
-        elif function_name == 'expm1':
+
+        if function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1(%s)'
-        elif function_name == PredefinedFunctions.EMIT_SPIKE:
+
+        if function_name == PredefinedFunctions.RANDOM_NORM:
+            return '((%s) + (%s) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+
+        if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-        elif ASTUtils.needs_arguments(function_call):
+
+        # suppress prefix for misc. predefined functions
+        function_is_predefined = PredefinedFunctions.get_function(function_name)  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        if function_is_predefined:
+            prefix = ''
+
+        if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
-        else:
-            return function_name + '()'
+            return prefix + function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+
+        return prefix + function_name + '()'
 
     def convert_name_reference(self, variable):
         """
