@@ -451,11 +451,19 @@ class NESTCodeGenerator(CodeGenerator):
         :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.
         """
         for source in functions:
+            source_position = source.get_source_position()
             for target in functions:
                 matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
                 target.expression = ModelParser.parse_expression(target_definition)
+
+                def log_set_source_position(node):
+                    if node.get_source_position().is_added_source_position():
+                        node.set_source_position(source_position)
+
+                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+
         return functions
 
 
@@ -470,11 +478,18 @@ class NESTCodeGenerator(CodeGenerator):
         :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
         """
         for fun in functions:
+            source_position = fun.get_source_position()
             for target in definitions:
                 matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
                 target_definition = str(target.get_rhs())
                 target_definition = re.sub(matcher, "(" + str(fun.get_expression()) + ")", target_definition)
                 target.rhs = ModelParser.parse_expression(target_definition)
+
+                def log_set_source_position(node):
+                    if node.get_source_position().is_added_source_position():
+                        node.set_source_position(source_position)
+
+                target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
         return definitions
 
 

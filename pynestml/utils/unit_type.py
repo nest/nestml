@@ -76,7 +76,7 @@ class UnitType(object):
 
     def equals(self, _obj=None):
         """
-        Compares this to the handed object and checks if their semantically equal.
+        Compares this to the handed object and checks if they are semantically equal.
         :param _obj: a single object
         :type _obj: object
         :return: True if equal, otherwise false.
@@ -84,4 +84,5 @@ class UnitType(object):
         """
         if not isinstance(_obj, UnitType):
             return False
-        return self.get_name() == _obj.get_name() and self.get_unit() is _obj.get_unit()
+        # defer comparison to astropy
+        return self.get_name() == _obj.get_name() and self.get_unit() == _obj.get_unit()

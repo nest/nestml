@@ -45,7 +45,7 @@ from pynestml.cocos.co_co_type_of_buffer_unique import CoCoTypeOfBufferUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
-
+from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 
 class CoCosManager(object):
     """
@@ -320,6 +320,7 @@ class CoCosManager(object):
             cls.check_vector_in_non_vector_declaration_detected(_neuron)
             cls.check_sum_has_correct_parameter(_neuron)
             cls.check_expression_correct(_neuron)
+            cls.check_function_argument_template_types_consistent(_neuron)
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
@@ -347,6 +348,7 @@ class CoCosManager(object):
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
         cls.check_expression_correct(neuron)
+        #cls.check_function_argument_template_types_consistent(neuron)      # already called by the ASTFunctionCallVisitor
         return
 
     @classmethod
@@ -358,3 +360,13 @@ class CoCosManager(object):
         :type neuron: ast_neuron
         """
         cls.check_init_vars_with_odes_provided(neuron)
+
+    @classmethod
+    def check_function_argument_template_types_consistent(cls, neuron):
+        """
+        Checks if no declaration a vector value is added to a non vector one.
+        :param neuron: a single neuron object.
+        :type neuron: ast_neuron
+        """
+        CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
+
