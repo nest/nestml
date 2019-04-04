@@ -1,0 +1,31 @@
+neuron test_random:
+
+  initial_values:
+    p mV = randomNorm(500 mV, 25 mV)
+    q real = randomNorm(500, 25)
+  end
+
+  equations:
+    p' = randomNorm(500 mV, 25 mV) / s
+    q' = randomNorm(500, 25) / s
+  end
+
+  parameters:
+  end
+
+  internals:
+  end
+
+  input:
+    ex_spikes nS <- excitatory spike
+    in_spikes nS <- inhibitory spike
+    currents    <- current
+  end
+
+  output: spike
+
+  update:
+    integrate_odes()
+  end
+
+end
