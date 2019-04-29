@@ -29,9 +29,9 @@ class ASTUnitType(ASTNode):
     complex data type as 'mV/s'
   
     unitType : leftParentheses='(' unitType rightParentheses=')'
-               | base=unitType powOp='**' exponent=INTEGER
+               | base=unitType powOp='**' exponent=UNSIGNED_INTEGER
                | left=unitType (timesOp='*' | divOp='/') right=unitType
-               | unitlessLiteral=INTEGER divOp='/' right=unitType
+               | unitlessLiteral=UNSIGNED_INTEGER divOp='/' right=unitType
                | unit=NAME;
     Attributes:
         # encapsulated or not

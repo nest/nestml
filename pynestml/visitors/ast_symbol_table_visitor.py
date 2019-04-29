@@ -46,6 +46,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.symbol_stack = Stack()
         self.scope_stack = Stack()
         self.block_type_stack = Stack()
+        self.after_ast_rewrite_ = False
 
     def visit_neuron(self, node):
         """
@@ -68,15 +69,17 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # now first, we add all predefined elements to the scope
         variables = PredefinedVariables.get_variables()
         functions = PredefinedFunctions.get_function_symbols()
+        types = PredefinedTypes.get_types()
         for symbol in variables.keys():
             node.get_scope().add_symbol(variables[symbol])
         for symbol in functions.keys():
             node.get_scope().add_symbol(functions[symbol])
-        return
+        for symbol in types.keys():
+            node.get_scope().add_symbol(types[symbol])
 
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node)
+        CoCosManager.post_symbol_table_builder_checks(node, skip_check_correct_usage_of_shapes=self.after_ast_rewrite_)
         # the following part is done in order to mark conductance based buffers as such.
         if node.get_input_blocks() is not None and node.get_equations_blocks() is not None and \
                 len(node.get_equations_blocks().get_declarations()) > 0:
@@ -94,7 +97,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
             assign_ode_to_variables(equation_block)
-        CoCosManager.post_ode_specification_checks(node)
+        if not self.after_ast_rewrite_:
+            CoCosManager.post_ode_specification_checks(node)
         Logger.set_current_astnode(None)
         return
 
@@ -873,3 +877,4 @@ def convert_variable_name_to_generator_notation(variable):
             name += '__d'
         diff_order -= 1
     return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
+

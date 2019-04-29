@@ -98,7 +98,7 @@ class ASTNode(object):
         """
         Updates the source position of the element.
         :param new_position: a new source position
-        :type new_position: ASTSourcePosition
+        :type new_position: ASTSourceLocation
         :return: a source position object.
         :rtype: ASTSourceLocation
         """

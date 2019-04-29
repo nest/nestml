@@ -57,9 +57,13 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # first test if the symbol has been defined at least
                 if symbol is None:
-                    code, message = Messages.get_variable_not_defined(var.get_name())
-                    Logger.log_message(astnode=node, code=code, message=message, log_level=LoggingLevel.ERROR,
-                                       error_position=var.get_source_position())
+                    # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
+                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
+                    if symbol is None:
+                        # symbol has not been defined; neither as a variable name nor as a type symbol
+                        code, message = Messages.get_variable_not_defined(var.get_name())
+                        Logger.log_message(neuron=node, code=code, message=message, log_level=LoggingLevel.ERROR,
+                                           error_position=var.get_source_position())
                 # first check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
                 # so check if the parent is a declaration and the expression the invariant

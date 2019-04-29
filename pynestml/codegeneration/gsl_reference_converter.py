@@ -28,6 +28,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class GSLReferenceConverter(IReferenceConverter):
@@ -103,7 +104,12 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-        raise RuntimeError('Cannot map the function: "' + function_name + '".')
+        elif ASTUtils.needs_arguments(function_call):
+            n_args = len(function_call.get_args())
+            return function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+        else:
+            return function_name + '()'
+#        raise RuntimeError('Cannot map the function: "' + function_name + '".')
 
     def convert_constant(self, constant_name):
         """

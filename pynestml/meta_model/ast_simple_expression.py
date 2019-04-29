@@ -30,7 +30,7 @@ class ASTSimpleExpression(ASTExpressionNode):
     Grammar:
     simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false ;
-                   | (INTEGER|FLOAT) (variable)?
+                   | (UNSIGNED_INTEGER | FLOAT) (variable)?
                    | isInf='inf'
                    | STRING_LITERAL
                    | variable;

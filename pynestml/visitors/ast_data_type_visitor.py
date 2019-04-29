@@ -94,8 +94,8 @@ class ASTDataTypeVisitor(ASTVisitor):
         elif node.is_pow:
             base_symbol = node.base.get_type_symbol()
             exponent = node.exponent
-            sympy_unit = base_symbol.astropy_unit ** exponent
-            res = handle_unit(sympy_unit)
+            astropy_unit = base_symbol.astropy_unit ** exponent
+            res = handle_unit(astropy_unit)
             node.set_type_symbol(res)
             self.symbol = res
         elif node.is_div:
@@ -125,10 +125,10 @@ def handle_unit(unit_type):
     """
     Handles a handed over unit by creating the corresponding unit-type, storing it in the list of predefined
     units, creating a type symbol and returning it.
-    :param unit_type: a single sympy unit symbol
-    :type unit_type: Symbol (sympy)
+    :param unit_type: astropy unit object
+    :type unit_type: astropy.units.core.Unit
     :return: a new type symbol
-    :rtype: type_symbol
+    :rtype: TypeSymbol
     """
     # first ensure that it does not already exists, if not create it and register it in the set of predefined units
     # first clean up the unit of not required components, here it is the 1.0 in front of the unit

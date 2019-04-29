@@ -73,8 +73,8 @@ class PredefinedTypes(object):
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
         units = PredefinedUnits.get_units()
         for unitName in units.keys():
-            t_symbol = UnitTypeSymbol(unit=units[unitName])
-            cls.name2type[unitName] = t_symbol
+            type_symbol = UnitTypeSymbol(unit=units[unitName])
+            cls.name2type[unitName] = type_symbol
         return
 
     @classmethod
@@ -135,25 +135,6 @@ class PredefinedTypes(object):
         :rtype: copy(list(TypeSymbol)
         """
         return cls.name2type
-
-    @classmethod
-    def getType(cls, _name=None):
-        """
-        Returns the symbol corresponding to the handed over name.
-        :param _name: the name of a symbol
-        :type _name: str
-        :return: a copy of a TypeSymbol
-        :rtype: copy(TypeSymbol)
-        """
-        # todo by kp: we now have two times getType? (cf. get_types)
-        raise RuntimeError('No longer used: This should not happen!')
-        assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
-        typ_e = cls.get_type(_name)
-        if typ_e is not None:
-            return typ_e
-        else:
-            raise RuntimeError('(PyNestML.SymbolTable.PredefinedTypes) Cannot resolve the predefined type: ' + _name)
 
     @classmethod
     def get_buffer_type_if_exists(cls, name):
@@ -260,9 +241,9 @@ class PredefinedTypes(object):
     @classmethod
     def register_unit(cls, unit):
         """
-        Registers a new sympy unit into the system
-        :param unit: a sympy unit.
-        :type unit: SympyUnit
+        Registers a new astropy unit into the system
+        :param unit: an astropy Unit object
+        :type unit: astropy.units.core.Unit
         """
         unit_type = UnitType(str(unit), unit)
         PredefinedUnits.register_unit(unit_type)

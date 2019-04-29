@@ -82,7 +82,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         is_encapsulated = left_parenthesis and True if ctx.rightParentheses is not None else False
         base = self.visit(ctx.base) if ctx.base is not None else None
         is_pow = True if ctx.powOp is not None else False
-        exponent = int(str(ctx.exponent.text)) if ctx.exponent is not None else None
+        exponent = int(str(ctx.exponent.getText())) if ctx.exponent is not None else None
         if ctx.unitlessLiteral is not None:
             lhs = int(str(ctx.unitlessLiteral.text))
         else:
@@ -186,8 +186,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         function_call = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
         boolean_literal = ((True if re.match(r'[Tt]rue', str(
             ctx.BOOLEAN_LITERAL())) else False) if ctx.BOOLEAN_LITERAL() is not None else None)
-        if ctx.INTEGER() is not None:
-            numeric_literal = int(str(ctx.INTEGER()))
+        if ctx.UNSIGNED_INTEGER() is not None:
+            numeric_literal = int(str(ctx.UNSIGNED_INTEGER()))
         elif ctx.FLOAT() is not None:
             numeric_literal = float(str(ctx.FLOAT()))
         else:
@@ -430,8 +430,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         start_from = self.visit(ctx.start_from) if ctx.start_from is not None else None
         end_at = self.visit(ctx.end_at) if ctx.end_at is not None else None
         step_scalar = -1 if ctx.negative is not None else 1
-        if ctx.INTEGER() is not None:
-            value = int(str(ctx.INTEGER()))
+        if ctx.UNSIGNED_INTEGER() is not None:
+            value = int(str(ctx.UNSIGNED_INTEGER()))
         else:
             value = float(str(ctx.FLOAT()))
 
