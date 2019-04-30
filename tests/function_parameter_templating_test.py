@@ -1,5 +1,5 @@
 #
-# nestml_test.py
+# function_parameter_templating_test.py
 #
 # This file is part of NEST.
 #
@@ -18,45 +18,43 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
-
 import os
 import unittest
 
-from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.codegeneration.unit_converter import UnitConverter
 from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
-from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import MessageCode
 from pynestml.utils.model_parser import ModelParser
+from pynestml.visitors.ast_visitor import ASTVisitor
 
-# setups the infrastructure
+# minor setup steps required
+SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()
-PredefinedFunctions.register_functions()
 PredefinedVariables.register_variables()
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-Logger.init_logger(LoggingLevel.INFO)
+PredefinedFunctions.register_functions()
 
 
-# TODO: this is not a unit test. Don't run it with unittests or use mocks to hide filesystem, solver etc
-class NESTMLTest(unittest.TestCase):
+class FunctionParameterTemplatingTest(unittest.TestCase):
     """
-    Tests if the overall model processing frontend works as intended.
+    This test is used to test the correct derivation of types when functions use templated type parameters.
     """
 
     def test(self):
-        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                 os.path.join('..', 'models')))):
-            if filename.endswith(".nestml"):
-                # print('Start creating AST for ' + filename + ' ...'),
-                model = ModelParser.parse_model(os.path.join(os.path.dirname(__file__),
-                                                             os.path.join(os.path.join('..', 'models'), filename)))
-                self.assertTrue(isinstance(model, ASTNestMLCompilationUnit))
-        return
+        Logger.init_logger(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                       'resources', 'FunctionParameterTemplatingTest.nestml'))))
+        self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
+                                                                            LoggingLevel.ERROR)), 5)
 
 
 if __name__ == '__main__':

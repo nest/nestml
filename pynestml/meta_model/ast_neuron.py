@@ -431,11 +431,11 @@ class ASTNeuron(ASTNode):
                 if iBuffer is not None:
                     ret.append(iBuffer)
                 else:
-                    code, message = Messages.get_could_not_resolve(iBuffer.getSymbolName())
+                    code, message = Messages.get_could_not_resolve(iBuffer.get_symbol_name())
                     Logger.log_message(
                         message=message,
                         code=code,
-                        error_position=iBuffer.getSourcePosition(),
+                        error_position=iBuffer.get_source_position(),
                         log_level=LoggingLevel.ERROR)
         return ret
 

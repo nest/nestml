@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -209,7 +210,7 @@ class ASTUtils(object):
         for var in res:
             if '\'' not in var.get_complete_name():
                 symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-                if symbol.is_function:
+                if symbol is not None and symbol.is_function:
                     ret.append(symbol)
         return ret
 
@@ -238,34 +239,6 @@ class ASTUtils(object):
             return True
         else:
             return False
-
-    @classmethod
-    def differs_in_magnitude(cls, type_a, type_b):
-        """
-        Indicates whether both type represent the same unit but with different magnitudes. This
-        case is still valid, e.g., mV can be assigned to volt.
-        :param type_a: a type
-        :type type_a:  TypeSymbol
-        :param type_b: a type
-        :type type_b: type_symbol
-        :return: True if both elements equal or differ in magnitude, otherwise False.
-        :rtype: bool
-        """
-        if type_a.equals(type_b):
-            return True
-        # in the case that we don't deal with units, there are no magnitudes
-        if not (type_a.is_unit() and type_b.is_unit()):
-            return False
-        # if it represents the same unit, if we disregard the prefix and simplify it
-        unit_a = type_a.get_unit().unit
-        unit_b = type_b.get_unit().unit
-        # if isinstance(unit_a,)
-        from astropy import units
-        # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unit_a, units.PrefixUnit) and isinstance(type_b, units.PrefixUnit) \
-                and unit_a.physical_type == unit_b.physical_type:
-            return True
-        return False
 
     @classmethod
     def get_all(cls, ast, node_type):
@@ -373,7 +346,7 @@ class ASTUtils(object):
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
-                                                                      ASTSourcePosition.get_added_source_position())
+                                                                      ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(internal)
         return neuron
 
@@ -390,7 +363,7 @@ class ASTUtils(object):
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
             state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
-                                                                   ASTSourcePosition.get_added_source_position())
+                                                                   ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
         return neuron
 
@@ -408,7 +381,7 @@ class ASTUtils(object):
         if neuron.get_initial_blocks() is None:
             initial_values = ASTNodeFactory. \
                 create_ast_block_with_variables(False, False, False, True, list(),
-                                                ASTSourcePosition.get_added_source_position())
+                                                ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(initial_values)
         return neuron
 

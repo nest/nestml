@@ -51,7 +51,8 @@ class ExpressionTestVisitor(ASTVisitor):
 
         var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.get_type_symbol().equals(_expr.type)
+        _equals = var_symbol.get_type_symbol().equals(_expr.type) \
+         or var_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
 
         message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
                   var_symbol.get_type_symbol().get_symbol_name() + \

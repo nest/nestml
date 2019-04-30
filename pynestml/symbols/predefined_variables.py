@@ -37,8 +37,6 @@ class PredefinedVariables(object):
         cls.name2variable = {}
         cls.__register_euler_constant()
         cls.__register_time_constant()
-        cls.__register_predefined_type_variables()
-        return
 
     @classmethod
     def __register_predefined_type_variables(cls):
@@ -49,7 +47,7 @@ class PredefinedVariables(object):
             symbol = VariableSymbol(name=name, block_type=BlockType.PREDEFINED,
                                     is_predefined=True,
                                     type_symbol=PredefinedTypes.get_type(name),
-                                    variable_type=VariableType.VARIABLE)
+                                    variable_type=VariableType.TYPE)
             cls.name2variable[name] = symbol
         return
 

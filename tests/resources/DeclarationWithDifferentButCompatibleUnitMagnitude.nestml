@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableRedeclared.nestml
+ *  DeclarationWithDifferentButCompatibleUnitMagnitude.nestml
  *
  *  This file is part of NEST.
  *
@@ -19,24 +19,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *
- * This test is used to test the functionality of the coco which ensures that redeclaration of symbols is detected
- * Positive case.
 */
-neuron CoCoVariableRedeclared:
+neuron BlockTest:
     state:
-        test1 mV = 20mV
+        lhs mV = 10V
     end
-    
     update:
-        test1 mV = 10mV # no redeclaration since shadowed by the local scope
-        test2 boolean = True
     end
 
     input:
-        # required for construction of a correct ast
     end
 
     output: spike
-
 end

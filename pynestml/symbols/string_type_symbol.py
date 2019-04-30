@@ -34,9 +34,6 @@ class StringTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'string'
 
-    def print_nest_type(self):
-        return 'std::string'
-
     def __add__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         from pynestml.symbols.void_type_symbol import VoidTypeSymbol
@@ -47,4 +44,6 @@ class StringTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
+        if super(StringTypeSymbol, self).is_castable_to(_other_type):
+            return True
         return False

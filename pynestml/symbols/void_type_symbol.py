@@ -33,8 +33,7 @@ class VoidTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'void'
 
-    def print_nest_type(self):
-        return 'void'
-
     def is_castable_to(self, _other_type):
+        if super(VoidTypeSymbol, self).is_castable_to(_other_type):
+            return True
         return False

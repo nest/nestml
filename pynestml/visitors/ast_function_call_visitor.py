@@ -22,6 +22,7 @@ simpleExpression : functionCall
 """
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
@@ -55,6 +56,25 @@ class ASTFunctionCallVisitor(ASTVisitor):
             node.type = ErrorTypeSymbol()
             return
         return_type = method_symbol.get_return_type()
+
+        if isinstance(return_type, TemplateTypeSymbol):
+            for i, arg_type in enumerate(method_symbol.param_types):
+                if arg_type == return_type:
+                    return_type = node.get_function_call().get_args()[i].type
+                    break
+
+            if isinstance(return_type, TemplateTypeSymbol):
+                # error: return type template not found among parameter type templates
+                assert(False)
+
+            # check for consistency among actual derived types for template parameters
+            from pynestml.cocos.co_co_function_argument_template_types_consistent import CorrectTemplatedArgumentTypesVisitor
+            correctTemplatedArgumentTypesVisitor = CorrectTemplatedArgumentTypesVisitor()
+            correctTemplatedArgumentTypesVisitor._failure_occurred = False
+            node.accept(correctTemplatedArgumentTypesVisitor)
+            if correctTemplatedArgumentTypesVisitor._failure_occurred:
+                return_type = ErrorTypeSymbol()
+
         return_type.referenced_object = node
 
         # convolve symbol does not have a return type set.
@@ -63,11 +83,11 @@ class ASTFunctionCallVisitor(ASTVisitor):
             # Deviations from the assumptions made here are handled in the convolveCoco
             buffer_parameter = node.get_function_call().get_args()[1]
 
-            if buffer_parameter.getVariable() is not None:
-                buffer_name = buffer_parameter.getVariable().getName()
+            if buffer_parameter.get_variable() is not None:
+                buffer_name = buffer_parameter.get_variable().get_name()
                 buffer_symbol_resolve = scope.resolve_to_symbol(buffer_name, SymbolKind.VARIABLE)
                 if buffer_symbol_resolve is not None:
-                    node.type = buffer_symbol_resolve.getTypeSymbol()
+                    node.type = buffer_symbol_resolve.get_type_symbol()
                     return
 
             # getting here means there is an error with the parameters to convolve

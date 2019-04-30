@@ -36,6 +36,7 @@ from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
+from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_only_spike_buffer_data_types import CoCoOnlySpikeBufferDataTypes
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
@@ -44,7 +45,7 @@ from pynestml.cocos.co_co_type_of_buffer_unique import CoCoTypeOfBufferUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
-
+from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 
 class CoCosManager(object):
     """
@@ -186,6 +187,15 @@ class CoCosManager(object):
         CoCoCurrentBuffersNotSpecified.check_co_co(neuron)
 
     @classmethod
+    def check_odes_have_consistent_units(cls, neuron):
+        """
+        Checks that all ODE lhs and rhs have consistent units.
+        :param neuron: a single neuron object.
+        :type neuron: ast_neuron
+        """
+        CoCoOdesHaveConsistentUnits.check_co_co(neuron)
+
+    @classmethod
     def check_buffer_types_are_correct(cls, neuron):
         """
         Checks that input buffers have specified the data type if required an no data type if not allowed.
@@ -297,6 +307,7 @@ class CoCosManager(object):
             cls.check_function_has_max_one_lhs(_neuron)
             cls.check_no_values_assigned_to_buffers(_neuron)
             cls.check_order_of_equations_correct(_neuron)
+            cls.check_odes_have_consistent_units(_neuron)
             cls.check_numerator_of_unit_is_one_if_numeric(_neuron)
             cls.check_no_nest_namespace_collisions(_neuron)
             cls.check_type_of_buffer_unique(_neuron)
@@ -309,6 +320,7 @@ class CoCosManager(object):
             cls.check_vector_in_non_vector_declaration_detected(_neuron)
             cls.check_sum_has_correct_parameter(_neuron)
             cls.check_expression_correct(_neuron)
+            cls.check_function_argument_template_types_consistent(_neuron)
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
@@ -320,6 +332,7 @@ class CoCosManager(object):
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)
         cls.check_order_of_equations_correct(neuron)
+        cls.check_odes_have_consistent_units(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_type_of_buffer_unique(neuron)
@@ -335,6 +348,7 @@ class CoCosManager(object):
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
         cls.check_expression_correct(neuron)
+        #cls.check_function_argument_template_types_consistent(neuron)      # already called by the ASTFunctionCallVisitor
         return
 
     @classmethod
@@ -346,3 +360,13 @@ class CoCosManager(object):
         :type neuron: ast_neuron
         """
         cls.check_init_vars_with_odes_provided(neuron)
+
+    @classmethod
+    def check_function_argument_template_types_consistent(cls, neuron):
+        """
+        Checks if no declaration a vector value is added to a non vector one.
+        :param neuron: a single neuron object.
+        :type neuron: ast_neuron
+        """
+        CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
+

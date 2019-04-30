@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableRedeclared.nestml
+ *  FunctionParameterTemplatingTest.nestml
  *
  *  This file is part of NEST.
  *
@@ -19,18 +19,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *
- * This test is used to test the functionality of the coco which ensures that redeclaration of symbols is detected
- * Positive case.
+ *  This test is used to test the correct derivation of types when functions use templated type parameters.
 */
-neuron CoCoVariableRedeclared:
+
+
+neuron templated_function_parameters_type_test:
     state:
-        test1 mV = 20mV
+       force N
+       foo real
     end
-    
+
+    parameters:
+    end
+
     update:
-        test1 mV = 10mV # no redeclaration since shadowed by the local scope
-        test2 boolean = True
+        force = max(1 N, 10 N)
+        force = max(1 A, 10 N)
+        force = max(1 N, 10 A)
+        force = max(1 A, 10 A)
+        foo = max(1, 3.14)
     end
 
     input:
