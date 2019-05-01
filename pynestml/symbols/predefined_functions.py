@@ -31,7 +31,6 @@ class PredefinedFunctions(object):
         EMIT_SPIKE            The callee name of the emit-spike function.
         PRINT                 The callee name of the print function.
         PRINTLN               The callee name of the println function.
-        POW                   The callee name of the power function.
         EXP                   The callee name of the exponent function.
         LOG                   The callee name of the logarithm function.
         LOGGER_INFO           The callee name of the logger-info function.
@@ -85,7 +84,6 @@ class PredefinedFunctions(object):
         cls.__register_emit_spike_function()
         cls.__register_print_function()
         cls.__register_print_ln_function()
-        cls.__register_power_function()
         cls.__register_exponent_function()
         cls.__register_log_function()
         cls.__register_logger_info_function()
@@ -148,19 +146,6 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.PRINTLN] = symbol
-
-    @classmethod
-    def __register_power_function(cls):
-        """
-        Registers the power function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the base type
-        params.append(PredefinedTypes.get_real_type())  # the exponent type
-        symbol = FunctionSymbol(name=cls.POW, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.POW] = symbol
 
     @classmethod
     def __register_exponent_function(cls):
