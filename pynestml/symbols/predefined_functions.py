@@ -24,7 +24,7 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions(object):
     """
     This class is used to represent all predefined functions of NESTML.
-    
+
     Attributes:
         TIME_RESOLUTION       The callee name of the resolution function.
         TIME_STEPS            The callee name of the time-steps function.
@@ -54,7 +54,6 @@ class PredefinedFunctions(object):
     EMIT_SPIKE = 'emit_spike'
     PRINT = 'print'
     PRINTLN = 'println'
-    POW = 'pow'
     EXP = 'exp'
     LOG = 'log'
     LOGGER_INFO = 'info'

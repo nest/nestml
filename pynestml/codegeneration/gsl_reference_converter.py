@@ -84,8 +84,6 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'nest::Time::get_resolution().get_ms()'
         if function_name == 'steps':
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
-        if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
         if function_name == PredefinedFunctions.LOG:
             return 'std::log(%s)'
         if function_name == PredefinedFunctions.EXPM1:
