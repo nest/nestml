@@ -74,7 +74,7 @@ where arguments are:<a name="table_args"></a>
 | --logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
 | --module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
 | --store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
-| --dev          | (Optional) Executes the toolchain in the development mode where errors in models are ignored. Default is OFF.|
+| --dev          | (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.|
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 ```
@@ -116,7 +116,7 @@ A typical script, therefore, could look like the following. For this example, we
 ```py
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-to_nest(input_path="/home/nest/work/pynestml/models", target_path="/home/nest/work/pynestml/target", dev=True)
+to_nest(input_path="/home/nest/work/pynestml/models", target_path="/home/nest/work/pynestml/target")
 
 install_nest("/home/nest/work/pynestml/target", "/home/nest/work/nest-install")
 

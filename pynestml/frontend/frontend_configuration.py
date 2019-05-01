@@ -31,15 +31,11 @@ from pynestml.utils.messages import Messages
 help_input_path = 'Path to a single file or a directory containing the source models.'
 help_target_path = 'Path to a target directory where models should be generated to. Standard is "target".'
 help_target = 'Name of the target platform to build code for. Default is NEST.'
-help_logging = 'Indicates which messages shall be logged and printed to the screen. ' \
-               'Standard is ERRORS.'
-help_module = 'Indicates the name of the module. Optional. If not indicated, ' \
-              'the name of the directory containing the models is used!'
+help_logging = 'Indicates which messages shall be logged and printed to the screen. Standard is ERROR.'
+help_module = 'Indicates the name of the module. Optional. If not indicated, the name of the directory containing the models is used!'
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
 help_suffix = 'A suffix string that will be appended to the name of all generated models.'
-help_dev = 'Indicates whether the dev mode should be active, i.e., ' \
-           'the whole toolchain executed even though errors in models are present.' \
-           ' This option is designed for debug purpose only!'
+help_dev = 'Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.'
 
 qualifier_input_path_arg = '--input_path'
 qualifier_target_path_arg = '--target_path'
@@ -64,7 +60,7 @@ class FrontendConfiguration(object):
     module_name = None
     store_log = False
     suffix = ''
-    is_debug = False
+    is_dev = False
 
     @classmethod
     def parse_config(cls, args):
@@ -118,7 +114,7 @@ appropriate numeric solver otherwise.
             cls.module_name = 'nestmlmodule'
         cls.store_log = parsed_args.store_log
         cls.suffix = parsed_args.suffix
-        cls.is_debug = parsed_args.dev
+        cls.is_dev = parsed_args.dev
         return
 
     @classmethod
@@ -178,11 +174,11 @@ appropriate numeric solver otherwise.
     @classmethod
     def is_dev(cls):
         """
-        Returns whether the dev mode have benn set as active.
-        :return: True if dev mode is active, otherwise False.
+        Returns whether the development mode has been enabled.
+        :return: True if development mode is enabled, otherwise False.
         :rtype: bool
         """
-        return cls.is_debug
+        return cls.is_dev
 
     @classmethod
     def handle_target(cls, target):
