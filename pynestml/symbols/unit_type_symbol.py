@@ -160,6 +160,7 @@ class UnitTypeSymbol(TypeSymbol):
             return True
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
         if _other_type.is_instance_of(RealTypeSymbol):
+            # anything can be cast to a real
             return True
         else:
             # check unit equivalence with astropy
