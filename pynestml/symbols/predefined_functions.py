@@ -153,9 +153,9 @@ class PredefinedFunctions(object):
         Registers the exponent (e(X)) function.
         """
         params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the argument
+        params.append(PredefinedTypes.get_real_type())  # the argument
         symbol = FunctionSymbol(name=cls.EXP, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXP] = symbol
 
@@ -165,9 +165,9 @@ class PredefinedFunctions(object):
         Registers the logarithm function (to base 10).
         """
         params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the argument
+        params.append(PredefinedTypes.get_real_type())  # the argument
         symbol = FunctionSymbol(name=cls.LOG, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.LOG] = symbol
 
@@ -231,9 +231,9 @@ class PredefinedFunctions(object):
         Registers the alternative version of the exponent function, exp1.
         """
         params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the argument
+        params.append(PredefinedTypes.get_real_type())  # the argument
         symbol = FunctionSymbol(name=cls.EXPM1, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXPM1] = symbol
 
