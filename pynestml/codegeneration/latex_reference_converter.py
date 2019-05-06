@@ -23,6 +23,8 @@ from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.predefined_units import PredefinedUnits
 
 
 class LatexReferenceConverter(IReferenceConverter):
@@ -51,7 +53,9 @@ class LatexReferenceConverter(IReferenceConverter):
         """
         var_name = ast_variable.get_complete_name()
         print("Converting name reference: " + str(var_name))
-
+        if not ast_variable.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE) \
+         and PredefinedUnits.is_unit(var_name):
+            var_name = "\color{grey}\mathrm{" + var_name + "}\color{black}"
         # convert first underscore
         usc_idx = var_name.find("_")
         if usc_idx > 0:
@@ -109,8 +113,6 @@ class LatexReferenceConverter(IReferenceConverter):
             "Psi" : r"\\Psi",
             "Omega" : r"\\Omega"
         }
-        if var_name == "epsilon":
-            import pdb;pdb.set_trace()
         for symbol_find, symbol_replace in symbols.items():
             before = var_name
             var_name = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])", symbol_replace, var_name)	# "whole word" match
