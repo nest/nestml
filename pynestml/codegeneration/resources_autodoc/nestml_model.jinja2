@@ -35,15 +35,14 @@ Equations
 {% for eq in block.get_ode_equations() %}
 
 .. math::
-{% if eq.get_lhs().differential_order == 1 %}
+{%- if eq.get_lhs().differential_order == 1 %}
    \frac{ d{{ eq.get_lhs().get_name() }} } { dt }
-{% elif eq.get_lhs().differential_order > 1 %}
+{%- elif eq.get_lhs().differential_order > 1 %}
    \frac{ d^{{ eq.get_lhs().differential_order }} {{ eq.get_lhs().get_name() }} } { dt^{{ eq.get_lhs().differential_order }} }
-{% else %} {# differential_order == 0 #}
+{%- else %} {# differential_order == 0 #}
    {{ eq.get_lhs().get_name() }}
-{% endif %}
-   =
-   {{ eq.get_rhs() }}
+{%- endif -%}
+   = {{ printer.print_expression(eq.get_rhs()) }}
 {% endfor %}
 {% endwith %}
 

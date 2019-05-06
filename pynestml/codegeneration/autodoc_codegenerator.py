@@ -25,15 +25,12 @@ from jinja2 import Environment, FileSystemLoader
 from odetoolbox import analysis
 
 from pynestml.codegeneration.codegenerator import CodeGenerator
-from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
-from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
-from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
-from pynestml.codegeneration.legacy_expression_printer import LegacyExpressionPrinter
+from pynestml.codegeneration.latex_expression_printer import LatexExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
-from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
@@ -58,7 +55,7 @@ class AutoDocCodeGenerator(CodeGenerator):
         # setup the module class template
         self._template_nestml_model = env.get_template('nestml_model.jinja2')
 
-        self._printer = ExpressionsPrettyPrinter()
+        self._printer = LatexExpressionPrinter()
 
     def generate_code(self, neurons):
         self.generate_index(neurons)
@@ -99,23 +96,19 @@ class AutoDocCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        gsl_converter = GSLReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(gsl_converter)
-        # helper classes and objects
-        converter = NESTReferenceConverter(False)
-        legacy_pretty_printer = LegacyExpressionPrinter(converter)
+        converter = LatexReferenceConverter()
+        latex_expression_printer = LatexExpressionPrinter(converter)
 
         namespace = dict()
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neuron'] = neuron
         namespace['neuronName'] = str(neuron.get_name())
-        namespace['printer'] = NestPrinter(legacy_pretty_printer)
+        namespace['printer'] = NestPrinter(latex_expression_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['idemPrinter'] = LegacyExpressionPrinter()
         namespace['odeTransformer'] = OdeTransformer()
 
         return namespace
@@ -130,23 +123,19 @@ class AutoDocCodeGenerator(CodeGenerator):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        gsl_converter = GSLReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(gsl_converter)
-        # helper classes and objects
-        converter = NESTReferenceConverter(False)
-        legacy_pretty_printer = LegacyExpressionPrinter(converter)
+        converter = LatexReferenceConverter()
+        latex_expression_printer = LatexExpressionPrinter(converter)
 
         namespace = dict()
 
         namespace['now'] = datetime.datetime.utcnow()
         namespace['neurons'] = neurons
         namespace['neuronNames'] = [str(neuron.get_name()) for neuron in neurons]
-        namespace['printer'] = NestPrinter(legacy_pretty_printer)
+        namespace['printer'] = NestPrinter(latex_expression_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['idemPrinter'] = LegacyExpressionPrinter()
         namespace['odeTransformer'] = OdeTransformer()
 
         return namespace
