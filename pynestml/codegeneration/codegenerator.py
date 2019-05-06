@@ -33,17 +33,16 @@ class CodeGenerator(object):
     def generate_neurons(self, neurons):
         # type: (list(ASTNeuron)) -> None
         """
-        Analysis a list of neurons, solves them and generates the corresponding code.
+        Analyse a list of neurons, solve them and generate the corresponding code.
         :param neurons: a list of neurons.
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
         for neuron in neurons:
-            if Logger.logging_level == LoggingLevel.INFO:
-                print("Generating code for the neuron {}.".format(neuron.get_name()))
             self.generate_neuron_code(neuron)
-            code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
-            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+            if not Logger.has_errors(neuron):
+                code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
+                Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
     @staticmethod
     def get_known_targets():

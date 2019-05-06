@@ -54,11 +54,17 @@ class ASTVariableVisitor(ASTVisitor):
             node.type = var_resolve.get_type_symbol()
             node.type.referenced_object = node
         else:
-            message = 'Variable ' + str(node) + ' could not be resolved!'
-            Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
-                               error_position=node.get_source_position(),
-                               message=message, log_level=LoggingLevel.ERROR)
-            node.type = ErrorTypeSymbol()
+            # check if var_name is actually a type literal (e.g. "mV")
+            var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
+            if var_resolve is not None:
+                node.type = var_resolve
+                node.type.referenced_object = node
+            else:
+                message = 'Variable ' + str(node) + ' could not be resolved!'
+                Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
+                                   error_position=node.get_source_position(),
+                                   message=message, log_level=LoggingLevel.ERROR)
+                node.type = ErrorTypeSymbol()
         return
 
     def visit_expression(self, node):

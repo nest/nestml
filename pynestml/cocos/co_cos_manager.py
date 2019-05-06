@@ -36,6 +36,7 @@ from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
+from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_only_spike_buffer_data_types import CoCoOnlySpikeBufferDataTypes
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
@@ -186,6 +187,15 @@ class CoCosManager(object):
         CoCoCurrentBuffersNotSpecified.check_co_co(neuron)
 
     @classmethod
+    def check_odes_have_consistent_units(cls, neuron):
+        """
+        Checks that all ODE lhs and rhs have consistent units.
+        :param neuron: a single neuron object.
+        :type neuron: ast_neuron
+        """
+        CoCoOdesHaveConsistentUnits.check_co_co(neuron)
+
+    @classmethod
     def check_buffer_types_are_correct(cls, neuron):
         """
         Checks that input buffers have specified the data type if required an no data type if not allowed.
@@ -286,7 +296,7 @@ class CoCosManager(object):
         CoCoIllegalExpression.check_co_co(neuron)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, neuron):
+    def post_symbol_table_builder_checks(cls, neuron, skip_check_correct_usage_of_shapes=False):
         """
         Checks the following constraints:
             cls.check_function_defined(_neuron)
@@ -297,6 +307,7 @@ class CoCosManager(object):
             cls.check_function_has_max_one_lhs(_neuron)
             cls.check_no_values_assigned_to_buffers(_neuron)
             cls.check_order_of_equations_correct(_neuron)
+            cls.check_odes_have_consistent_units(_neuron)
             cls.check_numerator_of_unit_is_one_if_numeric(_neuron)
             cls.check_no_nest_namespace_collisions(_neuron)
             cls.check_type_of_buffer_unique(_neuron)
@@ -320,6 +331,7 @@ class CoCosManager(object):
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)
         cls.check_order_of_equations_correct(neuron)
+        cls.check_odes_have_consistent_units(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_type_of_buffer_unique(neuron)
@@ -329,7 +341,8 @@ class CoCosManager(object):
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
-        cls.check_correct_usage_of_shapes(neuron)
+        if not skip_check_correct_usage_of_shapes:
+            cls.check_correct_usage_of_shapes(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)

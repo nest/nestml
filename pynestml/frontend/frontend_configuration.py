@@ -36,6 +36,7 @@ help_logging = 'Indicates which messages shall be logged and printed to the scre
 help_module = 'Indicates the name of the module. Optional. If not indicated, ' \
               'the name of the directory containing the models is used!'
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
+help_suffix = 'A suffix string that will be appended to the name of all generated models.'
 help_dev = 'Indicates whether the dev mode should be active, i.e., ' \
            'the whole toolchain executed even though errors in models are present.' \
            ' This option is designed for debug purpose only!'
@@ -46,6 +47,7 @@ qualifier_target_arg = '--target'
 qualifier_logging_level_arg = '--logging_level'
 qualifier_module_name_arg = '--module_name'
 qualifier_store_log_arg = '--store_log'
+qualifier_suffix_arg = '--suffix'
 qualifier_dev_arg = '--dev'
 
 
@@ -61,6 +63,7 @@ class FrontendConfiguration(object):
     target_path = None
     module_name = None
     store_log = False
+    suffix = ''
     is_debug = False
 
     @classmethod
@@ -86,6 +89,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='[INFO, WARNING/S, ERROR/S, NO]', type=str,help=help_logging)
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
+        cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
         parsed_args = cls.argument_parser.parse_args(args)
         # get the source path
@@ -113,6 +117,7 @@ appropriate numeric solver otherwise.
         else:
             cls.module_name = 'nestmlmodule'
         cls.store_log = parsed_args.store_log
+        cls.suffix = parsed_args.suffix
         cls.is_debug = parsed_args.dev
         return
 

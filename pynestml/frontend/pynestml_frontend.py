@@ -25,7 +25,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
-    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_dev_arg
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, qualifier_dev_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -36,41 +36,86 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(input_path, target_path = None, logging_level = 'ERROR', module_name = None, store_log = False,
-            dev = False):
+def to_nest(input_path, target_path=None, logging_level='ERROR',
+            module_name=None, store_log=False, suffix="", dev=False):
+    '''
+    Translate NESTML files into their equivalent C++ code for the NEST
+    simulator.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to the NESTML file or to a folder containing NESTML files to
+        convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: 'ERROR')
+        Sets which level of information should be displayed duing code
+        generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
+    module_name : str, optional (default: "nestmlmodule")
+        Name of the module, which will be used to import the model in NEST via
+        ``nest.Install(module_name)``.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        Suffix which will be appended to the model's name (internal use to
+        avoid naming conflicts with existing NEST models).
+    dev : bool, optional (default: False)
+    '''
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
     args = list()
     args.append(qualifier_input_path_arg)
     args.append(str(input_path))
+
     if target_path is not None:
         args.append(qualifier_target_path_arg)
         args.append(str(target_path))
+
     args.append(qualifier_target_arg)
     args.append(str("NEST"))
     args.append(qualifier_logging_level_arg)
     args.append(str(logging_level))
+
     if module_name is not None:
         args.append(qualifier_module_name_arg)
         args.append(str(module_name))
+
     if store_log:
         args.append(qualifier_store_log_arg)
+
+    if suffix:
+        args.append(qualifier_suffix_arg)
+        args.append(suffix)
+
     if dev:
         args.append(qualifier_dev_arg)
+
     FrontendConfiguration.parse_config(args)
     process()
 
 
 def install_nest(models_path, nest_path):
     # type: (str,str) -> None
-    """
-    This procedure can be used to install generate models into the NEST simulator.
-    :param models_path: the path to the generated models, should contain the cmake file (automatically generated).
-    :param nest_path: the path to the NEST installation, should point to the dir where nest is installed, a.k.a.
-            the -Dwith-nest argument of the make command. The postfix /bin/nest-config is automatically attached.
-    :return:
-    """
+    '''
+    This procedure can be used to install generated models into the NEST
+    simulator.
+
+    Parameters
+    ----------
+    models_path : str
+        Path to the generated models, which should contain the
+        (automatically generated) CMake file.
+    nest_path : str
+        Path to the NEST installation, which should point to the main directory
+        where NEST is installed. This folder contains the bin/, lib(64)/,
+        include/, and share/ folders of the NEST install. Most importantly, the
+        bin/ folder should contain the "nest-config" script. This path is
+        passed through the -Dwith-nest argument of the CMake command during the
+        installation of the generated NEST module. The suffix /bin/nest-config
+        will be automatically attached to `nest_path`.
+    '''
     nest_installer(models_path, nest_path)
 
 
