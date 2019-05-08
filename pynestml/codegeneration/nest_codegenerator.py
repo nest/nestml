@@ -228,6 +228,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
+        namespace['tracing'] = FrontendConfiguration.is_dev
 
         self.define_solver_type(neuron, namespace)
         return namespace
