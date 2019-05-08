@@ -21,9 +21,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class IReferenceConverter(object):
-    """
-    This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker
-    or LEMS.
+    """This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker or LEMS.
     """
 
     __metaclass__ = ABCMeta
@@ -33,7 +31,7 @@ class IReferenceConverter(object):
         pass
 
     @abstractmethod
-    def convert_function_call(self, function_call):
+    def convert_function_call(self, function_call, prefix=''):
         pass
 
     @abstractmethod
