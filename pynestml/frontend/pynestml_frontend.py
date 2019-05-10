@@ -38,29 +38,24 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 def to_nest(input_path, target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False):
-    '''
-    Translate NESTML files into their equivalent C++ code for the NEST
-    simulator.
+    '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
     ----------
     input_path : str
-        Path to the NESTML file or to a folder containing NESTML files to
-        convert to NEST code.
+        Path to the NESTML file or to a folder containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
     logging_level : str, optional (default: 'ERROR')
-        Sets which level of information should be displayed duing code
-        generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
+        Sets which level of information should be displayed duing code generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
     module_name : str, optional (default: "nestmlmodule")
-        Name of the module, which will be used to import the model in NEST via
-        ``nest.Install(module_name)``.
+        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
-        Suffix which will be appended to the model's name (internal use to
-        avoid naming conflicts with existing NEST models).
+        Suffix which will be appended to the model's name (internal use to avoid naming conflicts with existing NEST models).
     dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     '''
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
@@ -151,7 +146,7 @@ def process():
         # check if across two files two neurons with same name have been defined
         CoCosManager.check_not_two_neurons_across_units(compilation_units)
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev():
+        if not FrontendConfiguration.is_dev:
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())

@@ -47,7 +47,20 @@ class ExpressionsPrettyPrinter(object):
             self.types_printer = TypesPrinter()
 
     def print_expression(self, node, prefix=''):
-        # type: (ASTExpressionNode) -> str
+        """Print an expression.
+
+        Parameters
+        ----------
+        node : ASTExpressionNode
+            The expression node to print.
+        prefix : str
+            *See documentation for the function print_function_call().*
+
+        Returns
+        -------
+        s : str
+            The expression string.
+        """
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
         else:
@@ -103,17 +116,28 @@ class ExpressionsPrettyPrinter(object):
             raise RuntimeError('Unsupported rhs in rhs pretty printer!')
 
     def print_function_call(self, function_call, prefix=''):
-        # type: (ASTFunctionCall) -> str
-        function_name = self.reference_converter.convert_function_call(function_call)
-        function_is_predefined = PredefinedFunctions.get_function(function_call.get_name())  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        """Print a function call, including bracketed arguments list.
 
-        if function_is_predefined:
-            prefix = ''
+        Parameters
+        ----------
+        node : ASTFunctionCall
+            The function call node to print.
+        prefix : str
+            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
+
+            Predefined functions will not be prefixed.
+
+        Returns
+        -------
+        s : str
+            The function call string.
+        """
+        function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
 
         if ASTUtils.needs_arguments(function_call):
-            return prefix + function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
         else:
-            return prefix + function_name
+            return function_name
 
     def print_function_call_argument_list(self, function_call, prefix=''):
         # type: (ASTFunctionCall) -> tuple of str
