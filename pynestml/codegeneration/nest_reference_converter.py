@@ -105,9 +105,6 @@ class NESTReferenceConverter(IReferenceConverter):
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
 
-        if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
-
         if function_name == PredefinedFunctions.MAX:
             return 'std::max(%s, %s)'
 
