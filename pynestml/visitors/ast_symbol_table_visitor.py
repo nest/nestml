@@ -167,6 +167,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         else:
             symbol.set_return_type(PredefinedTypes.get_void_type())
         self.block_type_stack.pop()  # before leaving update the type
+        node.get_scope().delete_scope(scope)    # delete function-local scope
 
     def visit_update_block(self, node):
         """
