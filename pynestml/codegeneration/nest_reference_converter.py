@@ -90,9 +90,9 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'nest::Time::get_resolution().get_ms()'
         elif function_name == 'steps':
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
-        elif function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
+        elif function_name == PredefinedFunctions.MAX:
             return 'std::max(%s, %s)'
-        elif function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
+        elif function_name == PredefinedFunctions.MIN:
             return 'std::min(%s, %s)'
         elif function_name == PredefinedFunctions.EXP:
             return 'std::exp(%s)'

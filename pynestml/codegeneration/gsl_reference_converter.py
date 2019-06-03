@@ -93,9 +93,9 @@ class GSLReferenceConverter(IReferenceConverter):
                 return 'std::exp(std::min(%s,' + str(self.maximal_exponent) + '))'
             else:
                 return 'std::exp(%s)'
-        if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
+        if function_name == PredefinedFunctions.MAX:
             return 'std::max(%s, %s)'
-        if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
+        if function_name == PredefinedFunctions.MIN:
             return 'std::min(%s, %s)'
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \

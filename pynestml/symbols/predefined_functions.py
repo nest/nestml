@@ -40,9 +40,7 @@ class PredefinedFunctions(object):
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         MAX                   The callee name of the max function.
-        BOUNDED_MAX           The callee name of the bounded-max function.
         MIN                   The callee name of the min function.
-        BOUNDED_MIN           The callee name of the bounded-min function.
         INTEGRATE_ODES        The callee name of the integrate-ode function.
         CURR_SUM              The callee name of the curr-sum function.
         COND_SUM              The callee name of the cond-sum function.
@@ -63,9 +61,7 @@ class PredefinedFunctions(object):
     EXPM1 = 'expm1'
     DELTA = 'delta'
     MAX = 'max'
-    BOUNDED_MAX = 'bounded_max'
     MIN = 'min'
-    BOUNDED_MIN = 'bounded_min'
     INTEGRATE_ODES = 'integrate_odes'
     CURR_SUM = 'curr_sum'
     COND_SUM = 'cond_sum'
@@ -92,9 +88,7 @@ class PredefinedFunctions(object):
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_max_function()
-        cls.__register_max_bounded_function()
         cls.__register_min_function()
-        cls.__register_min_bounded_function()
         cls.__register_integrated_odes_function()
         cls.__register_curr_sum_function()
         cls.__register_cond_sum_function()
@@ -263,19 +257,6 @@ class PredefinedFunctions(object):
         cls.name2function[cls.MAX] = symbol
 
     @classmethod
-    def __register_max_bounded_function(cls):
-        """
-        Registers the maximum (bounded) function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_template_type(0))
-        params.append(PredefinedTypes.get_template_type(0))
-        symbol = FunctionSymbol(name=cls.BOUNDED_MAX, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.BOUNDED_MAX] = symbol
-
-    @classmethod
     def __register_min_function(cls):
         """
         Registers the minimum function.
@@ -287,19 +268,6 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MIN] = symbol
-
-    @classmethod
-    def __register_min_bounded_function(cls):
-        """
-        Registers the minimum (bounded) function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_template_type(0))
-        params.append(PredefinedTypes.get_template_type(0))
-        symbol = FunctionSymbol(name=cls.BOUNDED_MIN, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.BOUNDED_MIN] = symbol
 
     @classmethod
     def __register_integrated_odes_function(cls):

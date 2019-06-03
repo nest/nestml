@@ -45,7 +45,7 @@ neuron ExpressionCollection:
         testC ms**-2 = 1
         test0 = E_L
         test1 = 0pA
-        test2 = bounded_min(V_m, V_peak) # prevent exponential divergence
+        test2 = min(V_m, V_peak)
         test3 = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
         test4 = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
         test5 = (V_bounded-V_th)/Delta_T
@@ -68,7 +68,7 @@ neuron ExpressionCollection:
         #neuron aeif_cond_exp_neuron
         test22 = E_L  # Membrane potential
         test23= 0 pA    # Spike-adaptation current
-        test24 = bounded_min(V_m, V_peak) # prevent exponential divergence
+        test24 = min(V_m, V_peak)
         test25 = exp(-1/tau_syn_in*t)
         test26 = exp(-1/tau_syn_ex*t)
         test27 = (V_bounded-V_th)/Delta_T
