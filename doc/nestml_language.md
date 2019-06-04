@@ -207,7 +207,7 @@ The following functions are predefined in NestML and can be used out of the box:
 | --- | --- | ----------------------------------------------------------------- |
 | min | x, y | Returns the minimum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
 | max | x, y | Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
-| clip | x, y, z | Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to he return type. |
+| clip | x, y, z | Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type. |
 | exp | x | Returns the exponential of x. The type of x and the return type are Real. |
 | log | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
 | expm1 | x | Returns the exponential of x minus 1. The type of x and the return type are Real. |
