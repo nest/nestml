@@ -78,7 +78,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node, skip_check_correct_usage_of_shapes=self.after_ast_rewrite_)
+        CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
         # the following part is done in order to mark conductance based buffers as such.
         if node.get_input_blocks() is not None and node.get_equations_blocks() is not None and \
                 len(node.get_equations_blocks().get_declarations()) > 0:
