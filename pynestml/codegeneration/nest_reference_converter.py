@@ -103,7 +103,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'nest::Time::get_resolution().get_ms()'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return 'nest::Time(nest::Time::ms((double) {!s})).get_steps()'
+            return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
 
         if function_name == PredefinedFunctions.CLIP:
             # warning: the arguments of this function must swapped and
