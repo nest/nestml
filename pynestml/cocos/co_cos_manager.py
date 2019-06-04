@@ -348,7 +348,7 @@ class CoCosManager(object):
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
         cls.check_expression_correct(neuron)
-        #cls.check_function_argument_template_types_consistent(neuron)      # already called by the ASTFunctionCallVisitor
+        cls.check_function_argument_template_types_consistent(neuron)
         return
 
     @classmethod

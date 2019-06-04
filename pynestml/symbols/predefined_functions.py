@@ -24,14 +24,13 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions(object):
     """
     This class is used to represent all predefined functions of NESTML.
-    
+
     Attributes:
         TIME_RESOLUTION       The callee name of the resolution function.
         TIME_STEPS            The callee name of the time-steps function.
         EMIT_SPIKE            The callee name of the emit-spike function.
         PRINT                 The callee name of the print function.
         PRINTLN               The callee name of the println function.
-        POW                   The callee name of the power function.
         EXP                   The callee name of the exponent function.
         LOG                   The callee name of the logarithm function.
         COSH                  The callee name of the hyperbolic cosine.
@@ -45,9 +44,7 @@ class PredefinedFunctions(object):
         DELTA                 The callee name of the delta function.
         CLIP                  The callee name of the clip function.
         MAX                   The callee name of the max function.
-        BOUNDED_MAX           The callee name of the bounded-max function.
         MIN                   The callee name of the min function.
-        BOUNDED_MIN           The callee name of the bounded-min function.
         INTEGRATE_ODES        The callee name of the integrate-ode function.
         CURR_SUM              The callee name of the curr-sum function.
         COND_SUM              The callee name of the cond-sum function.
@@ -59,7 +56,6 @@ class PredefinedFunctions(object):
     EMIT_SPIKE = 'emit_spike'
     PRINT = 'print'
     PRINTLN = 'println'
-    POW = 'pow'
     EXP = 'exp'
     LOG = 'log'
     COSH = 'cosh'
@@ -73,9 +69,7 @@ class PredefinedFunctions(object):
     DELTA = 'delta'
     CLIP = 'clip'
     MAX = 'max'
-    BOUNDED_MAX = 'bounded_max'
     MIN = 'min'
-    BOUNDED_MIN = 'bounded_min'
     INTEGRATE_ODES = 'integrate_odes'
     CURR_SUM = 'curr_sum'
     COND_SUM = 'cond_sum'
@@ -93,7 +87,6 @@ class PredefinedFunctions(object):
         cls.__register_emit_spike_function()
         cls.__register_print_function()
         cls.__register_print_ln_function()
-        cls.__register_power_function()
         cls.__register_exponent_function()
         cls.__register_log_function()
         cls.__register_cosh_function()
@@ -107,9 +100,7 @@ class PredefinedFunctions(object):
         cls.__register_delta_function()
         cls.__register_clip_function()
         cls.__register_max_function()
-        cls.__register_max_bounded_function()
         cls.__register_min_function()
-        cls.__register_min_bounded_function()
         cls.__register_integrated_odes_function()
         cls.__register_curr_sum_function()
         cls.__register_cond_sum_function()
@@ -162,27 +153,14 @@ class PredefinedFunctions(object):
         cls.name2function[cls.PRINTLN] = symbol
 
     @classmethod
-    def __register_power_function(cls):
-        """
-        Registers the power function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the base type
-        params.append(PredefinedTypes.get_real_type())  # the exponent type
-        symbol = FunctionSymbol(name=cls.POW, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.POW] = symbol
-
-    @classmethod
     def __register_exponent_function(cls):
         """
         Registers the exponent (e(X)) function.
         """
         params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the argument
+        params.append(PredefinedTypes.get_real_type())  # the argument
         symbol = FunctionSymbol(name=cls.EXP, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXP] = symbol
 
@@ -192,9 +170,9 @@ class PredefinedFunctions(object):
         Registers the logarithm function (to base 10).
         """
         params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the argument
+        params.append(PredefinedTypes.get_real_type())  # the argument
         symbol = FunctionSymbol(name=cls.LOG, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.LOG] = symbol
 
@@ -294,9 +272,9 @@ class PredefinedFunctions(object):
         Registers the alternative version of the exponent function, exp1.
         """
         params = list()
-        params.append(PredefinedTypes.get_template_type(0))  # the argument
+        params.append(PredefinedTypes.get_real_type())  # the argument
         symbol = FunctionSymbol(name=cls.EXPM1, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.EXPM1] = symbol
 
@@ -320,12 +298,13 @@ class PredefinedFunctions(object):
         maximum value).
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type()) # value
-        params.append(PredefinedTypes.get_real_type()) # min
-        params.append(PredefinedTypes.get_real_type()) # max
+
+        params.append(PredefinedTypes.get_template_type(0)) # value
+        params.append(PredefinedTypes.get_template_type(0)) # min
+        params.append(PredefinedTypes.get_template_type(0)) # max
 
         symbol = FunctionSymbol(name=cls.CLIP, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.CLIP] = symbol
 
@@ -343,19 +322,6 @@ class PredefinedFunctions(object):
         cls.name2function[cls.MAX] = symbol
 
     @classmethod
-    def __register_max_bounded_function(cls):
-        """
-        Registers the maximum (bounded) function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_template_type(0))
-        params.append(PredefinedTypes.get_template_type(0))
-        symbol = FunctionSymbol(name=cls.BOUNDED_MAX, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.BOUNDED_MAX] = symbol
-
-    @classmethod
     def __register_min_function(cls):
         """
         Registers the minimum function.
@@ -367,19 +333,6 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MIN] = symbol
-
-    @classmethod
-    def __register_min_bounded_function(cls):
-        """
-        Registers the minimum (bounded) function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_template_type(0))
-        params.append(PredefinedTypes.get_template_type(0))
-        symbol = FunctionSymbol(name=cls.BOUNDED_MIN, param_types=params,
-                                return_type=PredefinedTypes.get_template_type(0),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.BOUNDED_MIN] = symbol
 
     @classmethod
     def __register_integrated_odes_function(cls):

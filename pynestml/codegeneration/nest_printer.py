@@ -176,25 +176,24 @@ class NestPrinter(object):
         assert (ast_function is not None and isinstance(ast_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)
         function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)
-        if function_symbol is not None:
-            declaration = ast_function.print_comment('//') + '\n'
-            declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
-            declaration += ' '
-            declaration += ast_function.get_name() + '('
-            for typeSym in function_symbol.get_parameter_types():
-                declaration += PyNestml2NestTypeConverter.convert(typeSym)
-                if function_symbol.get_parameter_types().index(typeSym) < len(
-                        function_symbol.get_parameter_types()) - 1:
-                    declaration += ', '
-            declaration += ') const\n'
-            return declaration
-        else:
+        if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
+        declaration = ast_function.print_comment('//') + '\n'
+        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += ' '
+        declaration += ast_function.get_name() + '('
+        for typeSym in function_symbol.get_parameter_types():
+            declaration += PyNestml2NestTypeConverter.convert(typeSym)
+            if function_symbol.get_parameter_types().index(typeSym) < len(
+                    function_symbol.get_parameter_types()) - 1:
+                declaration += ', '
+        declaration += ') const\n'
+        return declaration
 
     @classmethod
     def print_function_definition(cls, ast_function, namespace):
         """
-        Returns a nest processable function definition, i.e. the part which appears in the .c file.
+        Returns a nest processable function definition, i.e. the part which appears in the .cpp file.
         :param ast_function: a single function.
         :type ast_function: ASTFunction
         :param namespace: the namespace in which this function is defined in
@@ -207,29 +206,28 @@ class NestPrinter(object):
         assert isinstance(namespace, str), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(namespace)
         function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)
-        if function_symbol is not None:
-            # first collect all parameters
-            params = list()
-            for param in ast_function.get_parameters():
-                params.append(param.get_name())
-            declaration = ast_function.print_comment('//') + '\n'
-            declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
-            declaration += ' '
-            if namespace is not None:
-                declaration += namespace + '::'
-            declaration += ast_function.get_name() + '('
-            for typeSym in function_symbol.get_parameter_types():
-                # create the type name combination, e.g. double Tau
-                declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
-                               params[function_symbol.get_parameter_types().index(typeSym)]
-                # if not the last component, separate by ','
-                if function_symbol.get_parameter_types().index(typeSym) < \
-                        len(function_symbol.get_parameter_types()) - 1:
-                    declaration += ', '
-            declaration += ') const\n'
-            return declaration
-        else:
+        if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
+        # first collect all parameters
+        params = list()
+        for param in ast_function.get_parameters():
+            params.append(param.get_name())
+        declaration = ast_function.print_comment('//') + '\n'
+        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += ' '
+        if namespace is not None:
+            declaration += namespace + '::'
+        declaration += ast_function.get_name() + '('
+        for typeSym in function_symbol.get_parameter_types():
+            # create the type name combination, e.g. double Tau
+            declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
+                            params[function_symbol.get_parameter_types().index(typeSym)]
+            # if not the last component, separate by ','
+            if function_symbol.get_parameter_types().index(typeSym) < \
+                    len(function_symbol.get_parameter_types()) - 1:
+                declaration += ', '
+        declaration += ') const\n'
+        return declaration
 
     def print_buffer_array_getter(self, ast_buffer):
         """

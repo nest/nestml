@@ -201,17 +201,34 @@ x = max(a*2, b/2)
 
 ##### Predefined functions
 
-The following set of functions is predefined in NestML and can be used out of the box:
+The following functions are predefined in NestML and can be used out of the box:
 
-||||
-|---|---|---|
-| resolution | steps | emit_spike |
-| print | println | pow |
-| exp | log | info |
-|warning|random|randomInt|
-|expm1|delta|max|min|
-|bounded\_max|bounded\_min|integrate_odes|
-|curr\_sum|cond\_sum|convolve|
+| Name | Parameters | Description |
+| --- | --- | ----------------------------------------------------------------- |
+| min | x, y | Returns the minimum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
+| max | x, y | Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
+| clip | x, y, z | Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to he return type. |
+| exp | x | Returns the exponential of x. The type of x and the return type are Real. |
+| log | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
+| expm1 | x | Returns the exponential of x minus 1. The type of x and the return type are Real. |
+| sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
+| cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
+| tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
+| random | | *Not yet implemented.* |
+| randomInt | | *Not yet implemented.* |
+| delta | t | A Dirac delta impulse function at time t. |
+| curr\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
+| cond\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
+| convolve | f, g | The convolution of function f with function g. |
+| info | s | Log the string s with logging level "info". |
+| warning | s | Log the string s with logging level "warning". |
+| print | s | Print the string s to stdout (no line break at the end). |
+| println | s | Print the string s to stdout (with a line break at the end). |
+| integrate\_odes | | This function can be used to integrate all stated differential equations of the equations block. |
+| emit\_spike | | Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time. |
+| steps | t | Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information. |
+| resolution | | Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information. |
+
 
 #### Return statement
 
@@ -465,11 +482,11 @@ The content of spike and current buffers can be used by just using their plain n
 
 ## Dynamics and time evolution
 
-`update:` inside this block, the current time can be accessed via the variable `t`
+Inside the `update` block, the current time can be accessed via the variable `t`.
 
 `integrate_odes`: this function can be used to integrate all stated differential equations of the `equations` block.
 
-`emit_spike()`: calling this function in the `update`-block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+`emit_spike`: calling this function in the `update`-block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 ### Solver selection
 
