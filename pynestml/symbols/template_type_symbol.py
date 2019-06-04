@@ -22,9 +22,12 @@ from pynestml.symbols.type_symbol import TypeSymbol
 
 
 class TemplateTypeSymbol(TypeSymbol):
+    """Function type templates for predefined NESTML functions. This allows e.g. functions like max() and min() to have a return type equal to the type of their arguments, regardless of what type the arguments are (integers, meters, nanosiemens...)
+
+    Template type symbols are uniquely identified with an integer number `i`, i.e. TemplateTypeSymbol(n) == TemplateTypeSymbol(m) iff n == m."""
     def __init__(self, i):
         super(TemplateTypeSymbol, self).__init__(name='_template_' + str(i))
-        self.i = i
+        self._i = i
 
     def is_numeric(self):
         return False
@@ -33,16 +36,16 @@ class TemplateTypeSymbol(TypeSymbol):
         return True
 
     def print_nestml_type(self):
-        return '_template_' + str(self.i)
+        return '_template_' + str(self._i)
 
     def is_castable_to(self, _other_type):
-        if isinstance(_other_type, TemplateTypeSymbol) and _other_type.i == self.i:
+        if isinstance(_other_type, TemplateTypeSymbol) and _other_type._i == self._i:
             return True
 
         return False
 
     def __eq__(self, other):
-        if isinstance(other, TemplateTypeSymbol) and other.i == self.i:
+        if isinstance(other, TemplateTypeSymbol) and other._i == self._i:
             return True
 
         return False

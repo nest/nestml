@@ -28,7 +28,6 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.utils.ast_utils import ASTUtils
 
 
 class GSLReferenceConverter(IReferenceConverter):
@@ -97,13 +96,10 @@ class GSLReferenceConverter(IReferenceConverter):
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
 
-        if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
-
-        if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
+        if function_name == PredefinedFunctions.MAX:
             return 'std::max(%s, %s)'
 
-        if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
+        if function_name == PredefinedFunctions.MIN:
             return 'std::min(%s, %s)'
 
         if function_name == PredefinedFunctions.EXP:

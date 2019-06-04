@@ -94,7 +94,8 @@ class UnitTypeSymbol(TypeSymbol):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         if isinstance(power, ErrorTypeSymbol):
             return power
-        if isinstance(power, int):
+        if isinstance(power, int) \
+         or isinstance(power, float):
             return self.to_the_power_of(power)
         return self.binary_operation_not_defined_error('**', power)
 
@@ -159,6 +160,7 @@ class UnitTypeSymbol(TypeSymbol):
             return True
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
         if _other_type.is_instance_of(RealTypeSymbol):
+            # anything can be cast to a real
             return True
         else:
             # check unit equivalence with astropy

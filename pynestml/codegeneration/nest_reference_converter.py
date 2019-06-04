@@ -1,4 +1,3 @@
-
 #
 # nest_reference_converter.py
 #
@@ -106,13 +105,10 @@ class NESTReferenceConverter(IReferenceConverter):
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
 
-        if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
-
-        if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
+        if function_name == PredefinedFunctions.MAX:
             return 'std::max(%s, %s)'
 
-        if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
+        if function_name == PredefinedFunctions.MIN:
             return 'std::min(%s, %s)'
 
         if function_name == PredefinedFunctions.EXP:
@@ -312,19 +308,18 @@ class NESTReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         if op.is_plus_op:
-            return '%s' + '+' + '%s'
+            return '%s' + ' + ' + '%s'
         if op.is_minus_op:
-            return '%s' + '-' + '%s'
+            return '%s' + ' - ' + '%s'
         if op.is_times_op:
-            return '%s' + '*' + '%s'
+            return '%s' + ' * ' + '%s'
         if op.is_div_op:
-            return '%s' + '/' + '%s'
+            return '%s' + ' / ' + '%s'
         if op.is_modulo_op:
-            return '%s' + '%' + '%s'
+            return '%s' + ' % ' + '%s'
         if op.is_pow_op:
-            return 'pow' + '(%s,%s)'
-        else:
-            raise RuntimeError('Cannot determine arithmetic operator!')
+            return 'pow' + '(%s, %s)'
+        raise RuntimeError('Cannot determine arithmetic operator!')
 
     @classmethod
     def convert_ternary_operator(cls):
@@ -333,4 +328,5 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
+        return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
+

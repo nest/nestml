@@ -29,8 +29,7 @@ class OdeTransformer(object):
     """
     This class contains several methods as used to transform ODEs.
     """
-    functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE,
-                 PredefinedFunctions.BOUNDED_MAX, PredefinedFunctions.BOUNDED_MIN)
+    functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE)
     sum_functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE)
 
     @classmethod
