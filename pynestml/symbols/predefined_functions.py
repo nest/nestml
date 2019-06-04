@@ -203,7 +203,7 @@ class PredefinedFunctions(object):
     @classmethod
     def __register_tanh_function(cls):
         """
-        Registers the hyperbolic cosine function.
+        Registers the hyperbolic tangent function.
         """
         params = list()
         params.append(PredefinedTypes.get_real_type())  # the argument
