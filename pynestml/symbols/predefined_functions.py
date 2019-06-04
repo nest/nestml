@@ -191,7 +191,7 @@ class PredefinedFunctions(object):
     @classmethod
     def __register_sinh_function(cls):
         """
-        Registers the hyperbolic cosine function.
+        Registers the hyperbolic sine function.
         """
         params = list()
         params.append(PredefinedTypes.get_real_type())  # the argument
