@@ -147,7 +147,6 @@ class NESTReferenceConverter(IReferenceConverter):
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
-        
         return prefix + function_name + '()'
 
     def convert_name_reference(self, variable):
