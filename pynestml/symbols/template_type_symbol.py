@@ -1,5 +1,5 @@
 #
-# nest_time_type_symbol.py
+# template_type_symbol.py
 #
 # This file is part of NEST.
 #
@@ -21,26 +21,32 @@
 from pynestml.symbols.type_symbol import TypeSymbol
 
 
-class NESTTimeTypeSymbol(TypeSymbol):
+class TemplateTypeSymbol(TypeSymbol):
+    """Function type templates for predefined NESTML functions. This allows e.g. functions like max() and min() to have a return type equal to the type of their arguments, regardless of what type the arguments are (integers, meters, nanosiemens...)
+
+    Template type symbols are uniquely identified with an integer number `i`, i.e. TemplateTypeSymbol(n) == TemplateTypeSymbol(m) iff n == m."""
+    def __init__(self, i):
+        super(TemplateTypeSymbol, self).__init__(name='_template_' + str(i))
+        self._i = i
+
     def is_numeric(self):
         return False
 
     def is_primitive(self):
-        return False
-
-    def __init__(self):
-        super(NESTTimeTypeSymbol, self).__init__(name='time')
+        return True
 
     def print_nestml_type(self):
-        return 'time'
-
-    def __add__(self, other):
-        from pynestml.symbols.string_type_symbol import StringTypeSymbol
-        if other.is_instance_of(StringTypeSymbol):
-            return other
-        return self.binary_operation_not_defined_error('+', other)
+        return '_template_' + str(self._i)
 
     def is_castable_to(self, _other_type):
-        if super(NESTTimeTypeSymbol, self).is_castable_to(_other_type):
+        if isinstance(_other_type, TemplateTypeSymbol) and _other_type._i == self._i:
             return True
+
         return False
+
+    def __eq__(self, other):
+        if isinstance(other, TemplateTypeSymbol) and other._i == self._i:
+            return True
+
+        return False
+
