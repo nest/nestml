@@ -53,23 +53,34 @@ class GSLReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         variable_name = NestNamesConverter.convert_to_cpp_name(ast_variable.get_name())
-        symbol = ast_variable.get_scope().resolve_to_symbol(ast_variable.get_complete_name(), SymbolKind.VARIABLE)
 
-        if PredefinedUnits.is_unit(ast_variable.get_complete_name()):
-            return str(
-                UnitConverter.get_factor(PredefinedUnits.get_unit(ast_variable.get_complete_name()).get_unit()))
+        if variable_name == PredefinedVariables.E_CONSTANT:
+            return 'numerics::e'
+
+        symbol = ast_variable.get_scope().resolve_to_symbol(ast_variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol is None:
+            # test if variable name can be resolved to a type
+            if PredefinedUnits.is_unit(ast_variable.get_complete_name()):
+                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(ast_variable.get_complete_name()).get_unit()))
+
+            code, message = Messages.get_could_not_resolve(variable_name)
+            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
+                              error_position=variable.get_source_position())
+            return ''
+
         if symbol.is_init_values():
             return GSLNamesConverter.name(symbol)
-        elif symbol.is_buffer():
+
+        if symbol.is_buffer():
             return 'node.B_.' + NestNamesConverter.buffer_value(symbol)
-        elif variable_name == PredefinedVariables.E_CONSTANT:
-            return 'numerics::e'
-        elif symbol.is_local() or symbol.is_function:
+
+        if symbol.is_local() or symbol.is_function:
             return variable_name
-        elif symbol.has_vector_parameter():
+
+        if symbol.has_vector_parameter():
             return 'node.get_' + variable_name + '()[i]'
-        else:
-            return 'node.get_' + variable_name + '()'
+
+        return 'node.get_' + variable_name + '()'
 
     def convert_function_call(self, function_call, prefix=''):
         """Convert a single function call to C++ GSL API syntax.
