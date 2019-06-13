@@ -67,7 +67,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         result = function_call.get_name()
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            result += '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         else:
             result += '()'
         return result

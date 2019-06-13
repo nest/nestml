@@ -105,25 +105,45 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'nest::Time::get_resolution().get_ms()'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
+            return 'nest::Time(nest::Time::ms((double) {!s})).get_steps()'
 
         if function_name == PredefinedFunctions.MAX:
-            return 'std::max(%s, %s)'
+            return 'std::max({!s}, {!s})'
 
         if function_name == PredefinedFunctions.MIN:
-            return 'std::min(%s, %s)'
+            return 'std::min({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.CLIP:
+            # warning: the arguments of this function have been swapped and
+            # are therefore [v_max, v_min, v], hence its structure
+            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
 
         if function_name == PredefinedFunctions.EXP:
             if self.is_upper_bound:
-                return 'std::exp(std::min(%s,' + str(self.maximal_exponent) + '))'
+                return 'std::exp(std::min({!s},' + str(self.maximal_exponent) + '))'
             else:
-                return 'std::exp(%s)'
+                return 'std::exp({!s})'
+
+        if function_name == PredefinedFunctions.COSH:
+            if self.is_upper_bound:
+                return 'std::cosh(std::min(std::abs({!s}),' + str(self.maximal_exponent) + '))'
+            else:
+                return 'std::cosh({!s})'
+
+        if function_name == PredefinedFunctions.SINH:
+            if self.is_upper_bound:
+                return 'std::sinh(({!s} > 0 ? 1 : -1)*std::min(std::abs({!s}),' + str(self.maximal_exponent) + '))'
+            else:
+                return 'std::sinh({!s})'
+
+        if function_name == PredefinedFunctions.TANH:
+            return 'std::tanh({!s})'
 
         if function_name == PredefinedFunctions.LOG:
-            return 'std::log(%s)'
+            return 'std::log({!s})'
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1(%s)'
+            return 'numerics::expm1({!s})'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
@@ -137,7 +157,7 @@ class GSLReferenceConverter(IReferenceConverter):
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return prefix + function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
 
         return prefix + function_name + '()'
 

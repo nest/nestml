@@ -462,10 +462,11 @@ neuron ExpressionCollection:
         t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
         normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
         test = g_peak * normalisation_factor * exact_integration_adjustment
-        ##########################
-        ###iaf_chxk_2008_neuron###
-        ##########################
-
+        # clip and hyperbolic functions
+        Vclip mV = clip(V_m, -120 mV, 0 mV)
+        testsinh real = sinh(0.)
+        testcosh real = cosh(0.)
+        testtanh real = tanh(0.)
 
     end
 end
