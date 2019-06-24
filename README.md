@@ -18,9 +18,11 @@ NESTML is a domain-specific language that supports the specification of neuron m
 
 ## Installing NESTML
 
+Please note that only Python 3 is supported. The instructions below assume that `python` is aliased to or refers to `python3`, and `pip` to `pip3`.
+
 ### Installing the latest release from PyPi
 
-The easiest way to install NESTML is to use the Python Package Index (PyPI). This requires `pip3` to be installed. In Ubuntu, Mint and Debian Linux you can install `pip3` as follows:
+The easiest way to install NESTML is to use the Python Package Index (PyPI). This requires the Python package management system `pip` to be installed. In Ubuntu, Mint and Debian Linux you can install `pip` as follows:
 
 ```Shell
 sudo apt install python3-pip
@@ -29,13 +31,13 @@ sudo apt install python3-pip
 NESTML can then be installed into your local user directory via:
 
 ```Shell
-pip3 install nestml --user
+pip install nestml --user
 ```
 
-Optionally, you can run `pip3` as root to install NESTML system-wide:
+Optionally, you can run `pip` as root to install NESTML system-wide:
 
 ```Shell
-sudo pip3 -H install nestml
+sudo pip -H install nestml
 ```
 
 ### Installing the latest development version from GitHub
@@ -50,13 +52,13 @@ First, install the requirements:
 
 ```Shell
 cd nestml
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Then, install locally using:
 
 ```Shell
-python3 setup.py install --user
+python setup.py install --user
 ```
 
 ### Testing
@@ -64,14 +66,14 @@ python3 setup.py install --user
 After installation, correct operation can be tested by:
 
 ```Shell
-python3 setup.py test
+python setup.py test
 ```
 
 ## Running NESTML
 
 After the installation, the toolchain can be executed by the following command.
 ```Shell
-python3 PyNESTML.py ARGUMENTS
+python PyNESTML.py ARGUMENTS
 ```
 where arguments are:<a name="table_args"></a>
 
