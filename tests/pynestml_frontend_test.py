@@ -23,6 +23,13 @@ import unittest
 from pynestml.frontend.pynestml_frontend import main
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
+try:
+    # python 3.4+ should use builtin unittest.mock not mock package
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
+
 
 class PyNestMLFrontendTest(unittest.TestCase):
     """
@@ -32,6 +39,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
     def test_codegeneration_for_all_models(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
         params = list()
+        params.append('nestml')
         params.append('--input_path')
         params.append(path)
         params.append('--logging_level')
@@ -40,7 +48,9 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('--store_log')
         params.append('--dev')
-        exit_code = main(params)
+        exit_code = None
+        with patch.object(sys, 'argv', params):
+            exit_code = main()
         self.assertTrue(exit_code == 0)
 
     def tearDown(self):
