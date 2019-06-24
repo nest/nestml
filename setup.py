@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from setuptools import setup, find_packages
 import sys
 
@@ -33,9 +34,8 @@ setup(
                 ' appropriate numeric solver otherwise.',
     license='GNU General Public License v2.0',
     url='https://github.com/nest/nestml',
-    packages=find_packages() + ['nestml'],
-    package_data={'': ['*.jinja2']},
-    package_dir={'nestml': 'pynestml'},
+    packages=find_packages(),
+    package_data={'pynestml': ['*.jinja2']},
     scripts= ['PyNestML.py'],
     install_requires=requirements,
     test_suite='tests',

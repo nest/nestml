@@ -1,67 +1,77 @@
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) [![Build Status](https://travis-ci.org/nest/nestml.svg?branch=master)](https://travis-ci.org/kperun/nestml)
 
-# PyNestML - The NEST Modelling Language @Python
+# NESTML: The NEST Modelling Language
 
-NestML is a domain specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by NESTML to compute an exact solution if possible or use an appropriate numeric solver otherwise.
+NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain, written in Python, to compute an exact solution if possible or use an appropriate numeric solver otherwise.
 
 ## Directory structure
 
-`models` - Example neuron models in NestML format.
+`models` - Example neuron models in NESTML format.
 
-`pynestml` - The source code of PyNestML.
+`pynestml` - The source code of the PyNESTML toolchain.
 
 `tests` - A collection of tests for testing of the toolchain's behavior.
 
-`doc` - The documentation of the modeling language NestML as well as processing toolchain PyNestML.
+`doc` - The documentation of the modeling language NESTML as well as processing toolchain PyNESTML.
 
 `extras` - Miscellaneous development tools, editor syntax highlighting rules, etc.
 
 ## Installing NESTML
 
-### Requirements
+### Installing the latest release from PyPi
 
-In order to execute the language tool-chain, Python in version 2 or 3 is required.
-To ensure correct installation and resolving of dependencies, Python's package manager [pip](https://pip.pypa.io/en/stable/installing/), the distribution tool [setuptools](https://packaging.python.org/tutorials/installing-packages/) as well as the python headers (``python-dev`` on Ubuntu/Debian, ``python-devel`` on most other linux platforms) package are required and should be installed in advance. The setup file additionally installs the following components:
+The easiest way to install NESTML is to use the Python Package Index (PyPI). This requires `pip3` to be installed. In Ubuntu, Mint and Debian Linux you can install `pip3` as follows:
 
-* [SymPy in the version >= 1.1.1](http://www.sympy.org/en/index.html)
-* [NumPy in the version >=1.8.2](http://www.numpy.org/)
-* [Antlr4 runtime environment in the version >= 4.7](https://github.com/antlr/antlr4/blob/master/doc/python-target.md)
-
-In the case that no 'enum' package is found, additionally, enum34 has to be updated by
-```
-pip install --upgrade pip enum34
+```Shell
+sudo apt install python3-pip
 ```
 
-First of all, you should make sure that all required packages are installed.
-Requirements are stored in ``requirements.txt`` and can be installed in one step through pip by running
-```
-pip install -r requirements.txt
+NESTML can then be installed into your local user directory via:
+
+```Shell
+pip3 install nestml --user
 ```
 
-### Installation
+Optionally, you can run `pip3` as root to install NESTML system-wide:
 
-Once all requirements are installed, a setup file is provided and can be run on Python 2 via 
+```Shell
+sudo pip3 -H install nestml
 ```
-python2 setup.py install --user
+
+### Installing the latest development version from GitHub
+
+To obtain the latest development version, clone directly from the master branch of the GitHub repository:
+
+```Shell
+git clone https://github.com/nest/nestml
 ```
-Or for Python 3:
+
+First, install the requirements:
+
+```Shell
+cd nestml
+pip3 install -r requirements.txt
 ```
+
+Then, install locally using:
+
+```Shell
 python3 setup.py install --user
 ```
 
 ### Testing
 
-Correct installation can then be tested by 
-```
-python2 setup.py test
-\# respectively python3 setup.py test 
+After installation, correct operation can be tested by:
+
+```Shell
+python3 setup.py test
 ```
 
 ## Running NESTML
 
 After the installation, the toolchain can be executed by the following command.
-```
-python PyNestML.py ARGUMENTS
+```Shell
+python3 PyNESTML.py ARGUMENTS
 ```
 where arguments are:<a name="table_args"></a>
 
@@ -77,21 +87,23 @@ where arguments are:<a name="table_args"></a>
 | --dev          | (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.|
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
-```
+
+```Shell
 cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
 ```
+
 where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamically load a module with `module_name` = `nestmlmodule` in PyNEST:
+
 ```py
 nest.Install("nestmlmodule")
 ```
-
-PyNestML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNestML has been installed, the following modules have to be imported:
+PyNESTML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNESTML has been installed, the following modules have to be imported:
 ```py
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 ```
-Subsequently, it is possible to call PyNestML from other Python tools and scripts via:
+Subsequently, it is possible to call PyNESTML from other Python tools and scripts via:
 ```py
 to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
 ```
@@ -106,7 +118,7 @@ This operation expects the same set of arguments as in the case of command line 
 | store_log     | boolean | False |
 | dev           | boolean | False |
 
-If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNestML features a function for an installation of NEST models directly into NEST:
+If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
 ```py
 install_nest(models_path, nest_path)
 ```
@@ -127,9 +139,9 @@ nest.Simulate(400.0)
 
 ## Further reading
 
-For an in-depth introduction to the underlying modeling language NestML, please refer to the [NestML language documentation](doc/nestml_language.md).
+For an in-depth introduction to the underlying modeling language NESTML, please refer to the [NESTML language documentation](doc/nestml_language.md).
 
-For those interested in the implementation of PyNestML or the general structure of a DSL-processing toolchain, please refer to the [PyNestML documentation](doc/pynestml/index.md).
+For those interested in the implementation of PyNESTML or the general structure of a DSL-processing toolchain, please refer to the [PyNESTML documentation](doc/pynestml/index.md).
 
 ## Publications
 
