@@ -81,7 +81,7 @@ where arguments are:<a name="table_args"></a>
 |---             |---          |
 | -h or --help   | Print help message.|
 | --input_path   | Path to the source file or directory containing the model.|
-| --target_path  | (Optional) Path to target directory where models will be generated to. Default is `target`.| 
+| --target_path  | (Optional) Path to target directory where generated code will be written into. Default is `target`, which will be created in the current working directory if it does not yet exist.| 
 | --target       | (Optional) The name of the target platform to generate code for. Default is NEST.|
 | --logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
 | --module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
