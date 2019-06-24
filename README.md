@@ -22,21 +22,21 @@ Please note that only Python 3 is supported. The instructions below assume that 
 
 ### Installing the latest release from PyPi
 
-The easiest way to install NESTML is to use the Python Package Index (PyPI). This requires the Python package management system `pip` to be installed. In Ubuntu, Mint and Debian Linux you can install `pip` as follows:
+The easiest way to install NESTML is to use the [Python Package Index (PyPI)](https://pypi.org). This requires the Python package management system `pip` to be installed. In Ubuntu, Mint and Debian Linux you can install `pip` as follows:
 
-```Shell
+```
 sudo apt install python3-pip
 ```
 
 NESTML can then be installed into your local user directory via:
 
-```Shell
+```
 pip install nestml --user
 ```
 
 Optionally, you can run `pip` as root to install NESTML system-wide:
 
-```Shell
+```
 sudo pip -H install nestml
 ```
 
@@ -44,20 +44,20 @@ sudo pip -H install nestml
 
 To obtain the latest development version, clone directly from the master branch of the GitHub repository:
 
-```Shell
+```
 git clone https://github.com/nest/nestml
 ```
 
 First, install the requirements:
 
-```Shell
+```
 cd nestml
 pip install -r requirements.txt
 ```
 
 Then, install locally using:
 
-```Shell
+```
 python setup.py install --user
 ```
 
@@ -65,14 +65,14 @@ python setup.py install --user
 
 After installation, correct operation can be tested by:
 
-```Shell
+```
 python setup.py test
 ```
 
 ## Running NESTML
 
 After the installation, the toolchain can be executed by the following command.
-```Shell
+```
 python PyNESTML.py ARGUMENTS
 ```
 where arguments are:<a name="table_args"></a>
@@ -90,7 +90,7 @@ where arguments are:<a name="table_args"></a>
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 
-```Shell
+```
 cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
 make all
 make install
