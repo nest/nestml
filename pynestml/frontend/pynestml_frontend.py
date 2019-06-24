@@ -114,10 +114,10 @@ def install_nest(models_path, nest_path):
     nest_installer(models_path, nest_path)
 
 
-def main(args):
+def main():
     """Returns the process exit code: 0 for success, > 0 for failure"""
     try:
-        FrontendConfiguration.parse_config(args)
+        FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return 1
