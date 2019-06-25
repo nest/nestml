@@ -203,8 +203,8 @@ appropriate numeric solver otherwise.
                 pynestml_dir = os.getcwd()
                 cls.target_path = os.path.join(pynestml_dir, path)
         else:
-            pynestml_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-            cls.target_path = os.path.join(pynestml_dir, 'target')
+            cls.target_path = os.path.join(os.getcwd(), 'target')
+            Logger.log_message(log_level=LoggingLevel.INFO, message="Target files will be generated in directory \"" + cls.target_path + "\"")
         # check if the target path dir already exists
         if not os.path.isdir(cls.target_path):
             os.makedirs(cls.target_path)
