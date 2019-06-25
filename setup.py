@@ -38,7 +38,13 @@ setup(
     url='https://github.com/nest/nestml',
     packages=find_packages(),
     package_data={'pynestml': ['*.jinja2']},
-    scripts= ['PyNestML.py'],
+    entry_points = {
+        'console_scripts': [
+            'nestml = pynestml.frontend.pynestml_frontend:main',
+        ],
+    },
+
     install_requires=requirements,
     test_suite='tests',
 )
+
