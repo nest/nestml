@@ -37,7 +37,7 @@ pip install nestml --user
 Optionally, you can run `pip` as root to install NESTML system-wide:
 
 ```
-sudo pip -H install nestml
+sudo -H pip install nestml
 ```
 
 ### Installing the latest development version from GitHub
@@ -48,16 +48,10 @@ To obtain the latest development version, clone directly from the master branch 
 git clone https://github.com/nest/nestml
 ```
 
-First, install the requirements:
+Install into the local (user home) directory using:
 
 ```
 cd nestml
-pip install -r requirements.txt
-```
-
-Then, install locally using:
-
-```
 python setup.py install --user
 ```
 
