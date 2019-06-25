@@ -61,7 +61,7 @@ python setup.py test
 
 After the installation, the toolchain can be executed by the following command.
 ```
-python PyNESTML.py ARGUMENTS
+nestml ARGUMENTS
 ```
 where arguments are:<a name="table_args"></a>
 
