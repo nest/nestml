@@ -88,7 +88,8 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         args.append(qualifier_dev_arg)
 
     FrontendConfiguration.parse_config(args)
-    process()
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
 
 
 def install_nest(models_path, nest_path):
