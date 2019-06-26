@@ -80,10 +80,10 @@ appropriate numeric solver otherwise.
 
  Version ''' + str(pynestml.__version__), formatter_class=argparse.RawDescriptionHelpFormatter)
 
-        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', type=str, nargs='+', help=help_input_path, required=True)
-        cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, nargs='?', help=help_target_path)
-        cls.argument_parser.add_argument(qualifier_target_arg, metavar='NEST, none', type=str, nargs='?', help=help_target, default='NEST')
-        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='[INFO, WARNING/S, ERROR/S, NO]', type=str,help=help_logging)
+        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', type=str, help=help_input_path, required=True)
+        cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
+        cls.argument_parser.add_argument(qualifier_target_arg, choices=['NEST', 'none'], type=str, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{INFO, WARNING, ERROR, NONE}', choices=['INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
@@ -98,7 +98,7 @@ appropriate numeric solver otherwise.
             cls.logging_level = 'ERROR'
             Logger.init_logger(Logger.string_to_level('ERROR'))
 
-        cls.handle_input_path(parsed_args.input_path[0])
+        cls.handle_input_path(parsed_args.input_path)
         cls.handle_target(parsed_args.target)
         cls.handle_target_path(parsed_args.target_path)
 
@@ -109,11 +109,11 @@ appropriate numeric solver otherwise.
             if not re.match('[a-zA-Z_][a-zA-Z0-9_]*\Z', parsed_args.module_name):
                 raise Exception('The specified module name ("' + parsed_args.module_name + '") cannot be parsed as a C variable name')
             cls.module_name = parsed_args.module_name
-        elif os.path.isfile(parsed_args.input_path[0]):
+        elif os.path.isfile(parsed_args.input_path):
             cls.module_name = 'nestmlmodule'
             Logger.log_message(message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
-        elif os.path.isdir(parsed_args.input_path[0]):
-            cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path[0]))
+        elif os.path.isdir(parsed_args.input_path):
+            cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path))
             if not re.match('[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
                 raise Exception('No module name specified; tried to use the input directory name ("' + cls.module_name + '"), but it cannot be parsed as a C variable name')
             if not cls.module_name.endswith('module'):

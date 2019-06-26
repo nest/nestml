@@ -138,7 +138,7 @@ class Logger(object):
             return LoggingLevel.WARNING
         elif string == 'ERROR' or string == 'ERRORS':
             return LoggingLevel.ERROR
-        elif string == 'NO':
+        elif string == 'NO' or string == 'NONE':
             return LoggingLevel.NO
         else:
             return LoggingLevel.ERROR
