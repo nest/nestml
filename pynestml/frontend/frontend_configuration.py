@@ -27,7 +27,7 @@ from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.messages import Messages
+from pynestml.utils.messages import Messages, MessageCode
 
 help_input_path = 'Path to a single file or a directory containing the source models.'
 help_target_path = 'Path to a target directory where models should be generated to. Standard is "target".'
@@ -91,12 +91,8 @@ appropriate numeric solver otherwise.
         parsed_args = cls.argument_parser.parse_args(args)
 
         # initialize the logger
-        if parsed_args.logging_level is not None:
-            cls.logging_level = parsed_args.logging_level
-            Logger.init_logger(Logger.string_to_level(parsed_args.logging_level))
-        else:
-            cls.logging_level = 'ERROR'
-            Logger.init_logger(Logger.string_to_level('ERROR'))
+        cls.logging_level = parsed_args.logging_level
+        Logger.init_logger(Logger.string_to_level(parsed_args.logging_level))
 
         cls.handle_input_path(parsed_args.input_path)
         cls.handle_target(parsed_args.target)
@@ -111,14 +107,14 @@ appropriate numeric solver otherwise.
             cls.module_name = parsed_args.module_name
         elif os.path.isfile(parsed_args.input_path):
             cls.module_name = 'nestmlmodule'
-            Logger.log_message(message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
         elif os.path.isdir(parsed_args.input_path):
             cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path))
             if not re.match('[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
                 raise Exception('No module name specified; tried to use the input directory name ("' + cls.module_name + '"), but it cannot be parsed as a C variable name')
             if not cls.module_name.endswith('module'):
                 cls.module_name += 'module'
-            Logger.log_message(message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
         else:
             assert False # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
 
@@ -213,7 +209,7 @@ appropriate numeric solver otherwise.
                 cls.target_path = os.path.join(pynestml_dir, path)
         else:
             cls.target_path = os.path.join(os.getcwd(), 'target')
-            Logger.log_message(log_level=LoggingLevel.INFO, message='Target files will be generated in directory \'' + cls.target_path + '\'')
+            Logger.log_message(code=MessageCode.TARGET_PATH_INFO, log_level=LoggingLevel.INFO, message='Target files will be generated in directory \'' + cls.target_path + '\'')
         # check if the target path dir already exists
         if not os.path.isdir(cls.target_path):
             os.makedirs(cls.target_path)
@@ -241,5 +237,5 @@ appropriate numeric solver otherwise.
         else:
             # input_path should be either a file or a directory
             code, message = Messages.get_input_path_not_found(path=cls.provided_path)
-            Logger.log_message(message=message, log_level=LoggingLevel.ERROR)
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
             raise Exception(message)

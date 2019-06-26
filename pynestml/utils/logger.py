@@ -247,11 +247,12 @@ class Logger(object):
                    '"neuronName":"' + \
                    (neuron.get_name() if neuron is not None else 'GLOBAL') + '", ' + \
                    '"severity":"' \
-                   + str(logLevel.name) + '", ' \
-                   + '"code":"' \
-                   + code.name + \
-                   '", ' + \
-                   '"row":"' + \
+                   + str(logLevel.name) + '", '
+            if not code is None:
+                ret += '"code":"' + \
+                       code.name + \
+                       '", '
+            ret += '"row":"' + \
                    (str(errorPosition.get_start_line()) if errorPosition is not None else '') + \
                    '", ' + \
                    '"col":"' \
