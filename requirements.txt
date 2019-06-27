@@ -5,5 +5,4 @@ setuptools
 Jinja2 >= 2.10
 typing
 astropy == 2.0.3
-enum34
 odetoolbox
