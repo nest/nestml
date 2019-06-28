@@ -84,7 +84,7 @@ jobs:
         - python setup.py install
 
       script:
-        - nestml --input_path models --target_path target --suffix nestml_unit_test --logging_level INFO
+        - nestml --input_path models --target_path target --suffix nestml_unit_test --logging_level INFO --module_name nestmlmodule
         - cd target
         - cmake -Dwith-nest=/home/travis/nest_install/bin/nest-config .
         - make && make install
