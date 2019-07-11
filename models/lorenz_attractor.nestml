@@ -9,8 +9,8 @@ end
 equations:
   shape foo = exp(-t)
   x' = sigma * (y - x) / s
-  #y' = (x * (rho - z) - y) / s
-  #z' = (x * y - beta * z) / s
+  y' = (x * (rho - z) - y) / s
+  z' = (x * y - beta * z) / s
 end
 
 update:

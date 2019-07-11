@@ -29,7 +29,7 @@ from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPretty
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
 from pynestml.codegeneration.idempotent_reference_converter import IdempotentReferenceConverter
-from pynestml.codegeneration.legacy_expression_printer import LegacyExpressionPrinter
+from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
@@ -206,22 +206,22 @@ class NESTCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         gsl_converter = GSLReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(gsl_converter)
+        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
         # helper classes and objects
         converter = NESTReferenceConverter(False)
-        legacy_pretty_printer = LegacyExpressionPrinter(converter)
+        unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
         namespace['neuron'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
-        namespace['printer'] = NestPrinter(legacy_pretty_printer)
+        namespace['printer'] = NestPrinter(unitless_pretty_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['idemPrinter'] = LegacyExpressionPrinter()
+        namespace['idemPrinter'] = UnitlessExpressionPrinter()
         namespace['outputEvent'] = namespace['printer'].print_output_event(neuron.get_body())
         namespace['is_spike_input'] = ASTUtils.is_spike_input(neuron.get_body())
         namespace['is_current_input'] = ASTUtils.is_current_input(neuron.get_body())
@@ -254,8 +254,8 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace['names'] = GSLNamesConverter()
                 namespace['useGSL'] = True
                 converter = NESTReferenceConverter(True)
-                legacy_pretty_printer = LegacyExpressionPrinter(converter)
-                namespace['printer'] = NestPrinter(legacy_pretty_printer)
+                unitless_pretty_printer = UnitlessExpressionPrinter(converter)
+                namespace['printer'] = NestPrinter(unitless_pretty_printer)
         return
 
 
@@ -360,7 +360,7 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = { "dynamics" : [] }
 
         gsl_converter = IdempotentReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(gsl_converter)
+        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
 
         for equation in equations_block.get_ode_equations():
             lhs = str(equation.lhs)

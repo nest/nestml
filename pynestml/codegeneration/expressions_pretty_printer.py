@@ -113,7 +113,7 @@ class ExpressionsPrettyPrinter(object):
                 if_not = self.print_expression(node.if_not, prefix=prefix)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
         else:
-            raise RuntimeError('Unsupported rhs in rhs pretty printer!')
+            raise RuntimeError('Unsupported rhs in rhs pretty printer (%s)!' % str(node))
 
     def print_function_call(self, function_call, prefix=''):
         """Print a function call, including bracketed arguments list.
