@@ -48,7 +48,7 @@ def add_declarations_to_internals(neuron, declarations):
 def add_declaration_to_internals(neuron, variable_name, init_expression):
     # type: (ASTNeuron,  str, str) -> ASTNeuron
     """
-    Adds the variable as stored in the declaration tuple to the neuron.
+    Adds the variable as stored in the declaration tuple to the neuron. The declared variable is of type real.
     :param neuron: a single neuron instance
     :param variable_name: the name of the variable to add
     :param init_expression: initialization expression
@@ -67,7 +67,7 @@ def add_declaration_to_internals(neuron, variable_name, init_expression):
     return neuron
 
 
-def add_declarations_to_initial_values(neuron, declarations):
+def add_declarations_to_initial_values(neuron, variables, initial_values):
     # type: (ASTNeuron, map(str, str)) -> ASTNeuron
     """
     Adds a single declaration to the initial values block of the neuron.
@@ -75,15 +75,15 @@ def add_declarations_to_initial_values(neuron, declarations):
     :param declarations: a single
     :return: a modified neuron
     """
-    for variable in declarations:
-        add_declaration_to_initial_values(neuron, variable, declarations[variable])
+    for variable, initial_value in zip(variables, initial_values):
+        add_declaration_to_initial_values(neuron, variable, initial_value)
     return neuron
 
 
 def add_declaration_to_initial_values(neuron, variable, initial_value):
     # type: (ASTNeuron, str, str) -> ASTNeuron
     """
-    Adds a single declaration to the initial values block of the neuron.
+    Adds a single declaration to the initial values block of the neuron. The declared variable is of type real.
     :param neuron: a neuron
     :param variable: state variable to add
     :param initial_value: corresponding initial value
@@ -98,79 +98,6 @@ def add_declaration_to_initial_values(neuron, variable, initial_value):
     if vector_variable is not None:
         ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
     neuron.add_to_initial_values_block(ast_declaration)
-    return neuron
-
-
-def compute_state_shape_variables_declarations(solver_output):
-    # type: (...) -> map[str, str]
-    """
-    Computes a set of state variables with the corresponding set of initial values from the given solver output.
-    :param solver_output: a single solver output dictionary
-    :return: Map of variable names to corresponding initial values
-    """
-    initial_values = []
-    for initial_value_for_shape in solver_output["shape_initial_values"]:
-        initial_values += initial_value_for_shape
-
-    shape_state_variables = []
-
-    for single_shape in solver_output["shape_state_variables"]:
-        shape_state_variables += reversed(single_shape)  # cf. issue #7 on github
-
-    state_shape_declarations = {}
-    for i in range(0, len(initial_values)):
-        state_shape_declarations[shape_state_variables[i]] = initial_values[i]
-
-    return state_shape_declarations
-
-
-def compute_state_shape_variables_updates(solver_output):
-    # type: (...) -> map[str, str]
-    """
-    Computes which expression must be used to update state shape variables in update block.
-    :param solver_output: a single solver output dictionary
-    :return: Map of variable names to update ex
-    """
-    shape_state_updates = []
-    for shape_state_update in solver_output["shape_state_updates"]:
-        shape_state_updates += shape_state_update
-
-    shape_state_variables = []
-
-    for single_shape in solver_output["shape_state_variables"]:
-        shape_state_variables += (single_shape)  # cf. issue #7 on github
-
-    state_shape_updates = {}
-    for i in range(0, len(shape_state_updates)):
-        state_shape_updates[shape_state_variables[i]] = shape_state_updates[i]
-
-    return state_shape_updates
-
-
-def replace_integrate_call(neuron, update_instructions):
-    # type: (...) -> ASTNeuron
-    """
-    Replaces all integrate calls to the corresponding references to propagation.
-    :param neuron: a single neuron instance
-    :return: The neuron without an integrate calls. The function calls are replaced through an
-             incremental exact solution,
-    """
-    integrate_call = ASTUtils.get_function_call(neuron.get_update_blocks(), PredefinedFunctions.INTEGRATE_ODES)
-    # by construction of a valid neuron, only a single integrate call should be there
-    if isinstance(integrate_call, list):
-        integrate_call = integrate_call[0]
-    if integrate_call is not None:
-        small_statement = neuron.get_parent(integrate_call)
-        assert (small_statement is not None and isinstance(small_statement, ASTSmallStmt))
-
-        block = neuron.get_parent(neuron.get_parent(small_statement))
-        assert (block is not None and isinstance(block, ASTBlock))
-
-        for i in range(0, len(block.get_stmts())):
-            if block.get_stmts()[i].equals(neuron.get_parent(small_statement)):
-                del block.get_stmts()[i]
-                block.get_stmts()[i:i] = list((ModelParser.parse_stmt(prop) for prop in update_instructions))
-                break
     return neuron
 
 
@@ -235,7 +162,7 @@ def add_declaration_to_update_block(declaration, neuron):
     return neuron
 
 
-def add_state_updates(state_shape_variables_updates, neuron):
+def add_state_updates(neuron, update_expressions):
     # type: (map[str, str], ASTNeuron) -> ASTNeuron
     """
     Adds all update instructions as contained in the solver output to the update block of the neuron.
@@ -243,9 +170,9 @@ def add_state_updates(state_shape_variables_updates, neuron):
     :param neuron: a single neuron
     :return: a modified version of the neuron
     """
-    for variable in state_shape_variables_updates:
-        declaration_statement = variable + '__tmp real = ' + state_shape_variables_updates[variable]
+    for variable, update_expression in update_expressions.items():
+        declaration_statement = variable + '__tmp real = ' + update_expression
         add_declaration_to_update_block(ModelParser.parse_declaration(declaration_statement), neuron)
-    for variable in state_shape_variables_updates:
+    for variable, update_expression in update_expressions.items():
         add_assignment_to_update_block(ModelParser.parse_assignment(variable + ' = ' + variable + '__tmp'), neuron)
     return neuron

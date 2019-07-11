@@ -44,12 +44,17 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
         self.types_printer = TypesPrinter()
 
     def do_print(self, node):
-        """
-        Prints a single rhs.
-        :param node: a single rhs.
-        :type node: ASTExpression or ASTSimpleExpression.
-        :return: string representation of the rhs
-        :rtype: str
+        """Print an expression.
+
+        Parameters
+        ----------
+        node : ASTExpressionNode
+            The expression node to print.
+
+        Returns
+        -------
+        s : str
+            The expression string.
         """
         # todo : printing of literals etc. should be done by constant converter, not a type converter
         if isinstance(node, ASTSimpleExpression):

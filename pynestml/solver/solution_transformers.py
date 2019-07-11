@@ -25,84 +25,33 @@ from sympy.parsing.sympy_parser import parse_expr
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.solver.transformer_base import add_declarations_to_internals, \
-    compute_state_shape_variables_declarations, add_declarations_to_initial_values, \
-    compute_state_shape_variables_updates, replace_integrate_call, add_state_updates
+    add_declarations_to_initial_values
 from pynestml.utils.model_parser import ModelParser
 
 
-def integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers):
-    def ode_is_lin_const_coeff(ode_symbol, ode_definition, shapes):
-        """
-        TODO: improve the original code: the function should take a list of shape names, not objects
-        :param ode_symbol string encoding the LHS
-        :param ode_definition string encoding RHS
-        :param shapes A list with shape names
-        :return true iff the ode definition is a linear and constant coefficient ODE
-        """
-
-        ode_symbol_sp = parse_expr(ode_symbol)
-        ode_definition_sp = parse_expr(ode_definition)
-
-        # Check linearity
-        ddvar = diff(diff(ode_definition_sp, ode_symbol_sp), ode_symbol_sp)
-
-        if simplify(ddvar) != 0:
-            return False
-
-        # Check coefficients
-        dvar = diff(ode_definition_sp, ode_symbol_sp)
-
-        for shape in shapes:
-            for symbol in dvar.free_symbols:
-                if shape == str(symbol):
-                    return False
-        return True
-
-    ode_lhs = str(equations_block.get_ode_equations()[0].get_lhs().get_name())
-    ode_rhs = str(equations_block.get_ode_equations()[0].get_rhs())
-    shape_name = shape.get_variable().get_name()
-    if not (ode_is_lin_const_coeff(ode_lhs, ode_rhs, [shape_name])):
-        raise Exception("Cannot handle delta shape in a not linear constant coefficient ODE.")
-    ode_lhs = parse_expr(ode_lhs)
-    ode_rhs = parse_expr(ode_rhs)
-    # constant input
-    const_input = simplify(1 / diff(ode_rhs, parse_expr(shape_name)) *
-                           (ode_rhs - diff(ode_rhs, ode_lhs) * ode_lhs) - (parse_expr(shape_name)))
-    # ode var factor
-    c1 = diff(ode_rhs, ode_lhs)
-    # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
-    c2 = diff(ode_rhs, parse_expr(shape_name))
-    # tau is passed as the second argument of the 'delta' function
-    tau_constant = parse_expr(str(shape.get_expression().get_function_call().get_args()[1]))
-    ode_var_factor = exp(-Symbol('__h') / tau_constant)
-    ode_var_update_instructions = [
-        str(ode_lhs) + " = " + str(ode_var_factor * ode_lhs),
-        str(ode_lhs) + " += " + str(simplify(c2 / c1 * (exp(Symbol('__h') * c1) - 1)) * const_input)]
-    for k in shape_to_buffers:
-        ode_var_update_instructions.append(str(ode_lhs) + " += " + shape_to_buffers[k])
-    neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
-    replace_integrate_call(neuron, ode_var_update_instructions)
-    return neuron
-
-
-def integrate_exact_solution(neuron, exact_solution):
+def integrate_exact_solution(neuron, solver_dict):
     # type: (ASTNeuron, map[str, list]) -> ASTNeuron
     """
-    Adds a set of instructions to the given neuron as stated in the solver output.
-    :param neuron: a single neuron instance
-    :param exact_solution: exact solution
-    :return: a modified neuron with integrated exact solution and without equations block
+    Adds declarations of state variables and initial value expressions to the AST, on the basis of an analytic solver dictionary returned from ode-toolbox.
+
+    Note that the actual integration step takes place whenever `integrate_odes()` is called; refer to the corresponding Jinja template.
+
+    Parameters
+    -----------
+    neuron: ASTNeuron
+        An ASTNeuron instance. Will be modified.
+    solver_dict: dict
+        A dictionary returned by ode-toolbox analysis() call, such that solver_dict["solver"] == "analytical"
+
+    Returns
+    -------
+    neuron : ASTNeuron
+        the modified neuron with integrated exact solution
     """
-    neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
-    neuron = add_declarations_to_internals(neuron, exact_solution["propagator"])
+    assert sum([k["solver"] == "analytic" for k in solver_dict]) <= 1, "There should be no more than one analytic solver."
 
-    state_shape_variables_declarations = compute_state_shape_variables_declarations(exact_solution)
-    neuron = add_declarations_to_initial_values(neuron, state_shape_variables_declarations)
-
-    state_shape_variables_updates = compute_state_shape_variables_updates(exact_solution)
-    neuron = add_state_updates(state_shape_variables_updates, neuron)
-
-    neuron = replace_integrate_call(neuron, exact_solution["ode_updates"])
+    neuron = add_declarations_to_internals(neuron, solver_dict["propagators"])
+    neuron = add_declarations_to_initial_values(neuron, solver_dict["state_variables"], solver_dict["initial_values"])
 
     return neuron
 
