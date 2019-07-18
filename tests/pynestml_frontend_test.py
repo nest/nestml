@@ -18,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import pytest
 import sys
+import tempfile
 import unittest
 
 from pynestml.frontend.pynestml_frontend import main
@@ -53,6 +55,68 @@ class PyNestMLFrontendTest(unittest.TestCase):
         with patch.object(sys, 'argv', params):
             exit_code = main()
         self.assertTrue(exit_code == 0)
+
+
+    def test_module_name_parsing_right_module_name_specified(self):
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
+
+        params = list()
+        params.append('--input_path')
+        params.append(path)
+        params.append('--module_name')
+        params.append('xyzzymodule')
+        FrontendConfiguration.parse_config(params)
+
+        assert FrontendConfiguration.module_name == 'xyzzymodule'
+
+
+    def test_module_name_parsing_wrong_module_name_specified(self):
+        with pytest.raises(Exception):
+            path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
+
+            params = list()
+            params.append('--input_path')
+            params.append(path)
+            params.append('--module_name')
+            params.append('xyzzy')
+            FrontendConfiguration.parse_config(params)
+
+
+    def test_module_name_parsing_input_path_is_file(self):
+        h, path = tempfile.mkstemp(prefix='nestml')
+        basename = os.path.basename(os.path.normpath(path))
+
+        params = list()
+        params.append('--input_path')
+        params.append(path)
+        FrontendConfiguration.parse_config(params)
+        assert FrontendConfiguration.module_name == 'nestmlmodule'
+
+
+    def test_module_name_parsing_input_path_is_dir(self):
+        path = tempfile.mkdtemp(prefix='nestml')
+        basename = os.path.basename(os.path.normpath(path))
+
+        params = list()
+        params.append('--input_path')
+        params.append(path)
+        params.append('--logging_level')
+        params.append('INFO')
+        FrontendConfiguration.parse_config(params)
+        assert FrontendConfiguration.module_name == basename + 'module'
+
+
+    def test_module_name_parsing_input_path_is_wrong_dir(self):
+        with pytest.raises(Exception):
+            path = tempfile.mkdtemp(prefix='nestml-')
+
+            params = list()
+            params.append('--input_path')
+            params.append(path)
+            params.append('--logging_level')
+            params.append('INFO')
+            FrontendConfiguration.parse_config(params)
+
 
     def tearDown(self):
         # clean up
