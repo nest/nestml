@@ -1,22 +1,301 @@
 {
 	"scopeName": "source.nestml",
-	"patterns": [{ "include": "#expression" }],
+	"patterns": [
+		{ "include": "#statement" },
+		{ "include": "#expression" }
+	],
 	"repository": {
+		"statement": {
+			"patterns": [
+				{
+					"include": "#class-declaration"
+				},
+				{
+					"include": "#function-declaration"
+				},
+				{
+					"include": "#statement-keyword"
+				},
+				{
+					"include": "#assignment-operator"
+				},
+				{
+					"include": "#operator"
+				},
+				{
+					"include": "#docstring"
+				}
+			]
+		},
 		"expression": {
 			"patterns": [
-				{ "include": "#letter" },
-				{ "include": "#paren-expression" },
-				{ "include": "#comment"},
-				{ "include": "#docstring"}
+				{
+					"include": "#comment"
+				},
+				{
+					"include": "#expression-bare"
+				},
+				{
+					"comment": "Tokenize identifiers to help linters",
+					"match": "(?x) \\b ([[:alpha:]_]\\w*) \\b"
+				}
 			]
+		},
+		"expression-bare": {
+			"comment": "valid nestml expressions w/o comments and line continuation",
+			"patterns": [
+				{
+					"include": "#literal"
+				},
+				{
+					"include": "#string"
+				},
+				{
+					"include": "#ode-declaration"
+				},
+				{
+					"include": "#operator"
+				},
+				{
+					"include": "#round-braces"
+				},
+				{
+					"include": "#function-call"
+				},
+				{
+					"include": "#builtin-functions"
+				},
+				{
+					"include": "#builtin-types"
+				},
+				{
+					"include": "#special-names"
+				},
+				{
+					"include": "#illegal-names"
+				},
+				{
+					"include": "#punctuation"
+				}
+			]
+		},
+		"literal": {
+			"patterns": [
+				{
+					"name": "constant.language.nestml",
+					"match": "\\b(True|False)\\b"
+				},
+				{
+					"include": "#number"
+				},
+				{
+					"include": "#unit"
+				}
+			]
+		},
+		"number": {
+			"begin": "(?<!\\w)(?=\\d|\\.\\d)",
+			"end": "(?!(?:(?:[0-9a-zA-Z_\\.]|')|(?<=[eEpP])[+-]))",
+			"patterns": [
+				{
+					"name": "constant.numeric.float.nestml",
+					"match": "(\\G(?=[0-9.])(?!0[xXbB]))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?:(?<=[0-9])\\.|\\.(?=[0-9])))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?<!')([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?([lLfF](?!\\w))?(?!(?:(?:[0-9a-zA-Z_\\.]|')|(?<=[eEpP])[+-]))",
+					"captures": {
+						"2": {
+							"name": "constant.numeric.decimal.nestml",
+							"patterns": [
+								{
+									"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+									"name": "punctuation.separator.constant.numeric"
+								}
+							]
+						},
+						"3": {
+							"name": "punctuation.separator.constant.numeric"
+						},
+						"4": {
+							"name": "constant.numeric.decimal.point.nestml"
+						},
+						"5": {
+							"name": "constant.numeric.decimal.nestml",
+							"patterns": [
+								{
+									"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+									"name": "punctuation.separator.constant.numeric"
+								}
+							]
+						},
+						"6": {
+							"name": "punctuation.separator.constant.numeric"
+						},
+						"8": {
+							"name": "keyword.other.unit.exponent.decimal.nestml"
+						},
+						"9": {
+							"name": "keyword.operator.plus.exponent.decimal.nestml"
+						},
+						"10": {
+							"name": "keyword.operator.minus.exponent.decimal.nestml"
+						},
+						"11": {
+							"name": "constant.numeric.exponent.decimal.nestml",
+							"patterns": [
+								{
+									"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+									"name": "punctuation.separator.constant.numeric"
+								}
+							]
+						},
+						"12": {
+							"name": "keyword.other.unit.suffix.floating-point.nestml"
+						}
+					}
+				},
+				{
+					"match": "(\\G(?=[0-9.])(?!0[xXbB]))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)((?<!')([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?((?:(?:(?:(?:(?:[uU]|[uU]ll?)|[uU]LL?)|ll?[uU]?)|LL?[uU]?)|[fF])(?!\\w))?(?!(?:(?:[0-9a-zA-Z_\\.]|')|(?<=[eEpP])[+-]))",
+					"captures": {
+						"2": {
+							"name": "constant.numeric.decimal.nestml",
+							"patterns": [
+								{
+									"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+									"name": "punctuation.separator.constant.numeric"
+								}
+							]
+						},
+						"3": {
+							"name": "punctuation.separator.constant.numeric"
+						},
+						"5": {
+							"name": "keyword.other.unit.exponent.decimal.nestml"
+						},
+						"6": {
+							"name": "keyword.operator.plus.exponent.decimal.nestml"
+						},
+						"7": {
+							"name": "keyword.operator.minus.exponent.decimal.nestml"
+						},
+						"8": {
+							"name": "constant.numeric.exponent.decimal.nestml",
+							"patterns": [
+								{
+									"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+									"name": "punctuation.separator.constant.numeric"
+								}
+							]
+						},
+						"9": {
+							"name": "keyword.other.unit.suffix.integer.nestml"
+						}
+					}
+				},
+				{
+					"match": "(?:(?:[0-9a-zA-Z_\\.]|')|(?<=[eEpP])[+-])+",
+					"name": "invalid.illegal.constant.numeric"
+				}
+			]
+		},
+		"unit": {
+			"name": "variable.unit.nestml",
+			"match": "\\b(?:(?:([yzafpnumcd]|da|[hkMGTPEZY])*(m|kg|s|A|K|mol|cd|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|lm|lx))|(real|integer))\\b",
+			"captures": {
+				"1": {
+					"name": "constant.unit.magnitude-prefix.nestml"
+				},
+				"2": {
+					"name": "constant.unit.name.nestml"
+				},
+				"3": {
+					"name": "constant.unit.name.nestml"
+				}
+			}
+		},
+		"string": {
+			"name": "string.quoted.single.nestml",
+			"begin": "(\")",
+			"end": "(\\1)|((?<!\\\\)\\n)",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.string.begin.nestml"
+				}
 			},
-			"letter": {
-			"match": "a|b|c",
-			"name": "keyword.letter"
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.string.end.nestml"
+				},
+				"2": {
+					"name": "invalid.illegal.newline.nestml"
+				}
 			},
-			"comment": {
-			"match": "#.*\n",
-			"name": "comment.inline"
+			"patterns": [
+				{
+					"include": "#string-single-bad-brace1-formatting-unicode"
+				},
+				{
+					"include": "#string-single-bad-brace2-formatting-unicode"
+				},
+				{
+					"include": "#string-unicode-guts"
+				}
+			]
+		},
+		"string-unicode-guts": {
+			"patterns": [
+				{
+					"include": "#escape-sequence-unicode"
+				},
+				{
+					"include": "#string-entity"
+				},
+				{
+					"include": "#string-brace-formatting"
+				}
+			]
+		},
+		"string-entity": {
+			"patterns": [
+				{
+					"include": "#escape-sequence"
+				}
+			]
+		},
+		"escape-sequence-unicode": {
+			"patterns": [
+				{
+					"name": "constant.character.escape.nestml",
+					"match": "(?x)\n  \\\\ (\n        u[0-9A-Fa-f]{4}\n        | U[0-9A-Fa-f]{8}\n        | N\\{[\\w\\s]+?\\}\n     )\n"
+				}
+			]
+		},
+		"escape-sequence": {
+			"name": "constant.character.escape.nestml",
+			"match": "(?x)\n  \\\\ (\n        x[0-9A-Fa-f]{2}\n        | [0-7]{1,3}\n        | [\\\\\"'abfnrtv]\n     )\n"
+		},
+		"string-single-bad-brace1-formatting-unicode": {
+			"comment": "template using {% ... %}",
+			"begin": "(?x)\n    (?= \\{%\n          ( .*? (?!(['\"])|((?<!\\\\)\\n)) )\n        %\\}\n    )\n",
+			"end": "(?=(['\"])|((?<!\\\\)\\n))",
+			"patterns": [
+				{
+					"include": "#escape-sequence-unicode"
+				},
+				{
+					"include": "#escape-sequence"
+				}
+			]
+		},
+		"string-single-bad-brace2-formatting-unicode": {
+			"comment": "odd format or format-like syntax",
+			"begin": "(?x)\n    (?!\\{\\{)\n    (?= \\{ (\n              \\w*? (?!(['\"])|((?<!\\\\)\\n)) [^!:\\.\\[}\\w]\n           )\n        .*?(?!(['\"])|((?<!\\\\)\\n))\n        \\}\n    )\n",
+			"end": "(?=(['\"])|((?<!\\\\)\\n))",
+			"patterns": [
+				{
+					"include": "#escape-sequence-unicode"
+				},
+				{
+					"include": "#string-entity"
+				}
+			]
 		},
 		"docstring": {
 			"patterns": [
@@ -37,17 +316,262 @@
 				}
 			]
 		},
-		"paren-expression": {
-			"begin": "\\(",
-			"end": "\\)",
-			"beginCaptures": {
-				"0": { "name": "punctuation.paren.open" }
-			},
+		"comment": {
+			"match": "#.*\n",
+			"name": "comment.inline"
+		},
+		"statement-keyword": {
+			"patterns": [
+				{	
+					"name": "storage.type.function.nestml",
+					"match": "\\b(function|shape)\\b"
+				},
+				{
+					"name": "storage.type.class.nestml",
+					"match": "\\b(?<!\\.)(neuron)\\b"
+				},
+				{
+					"name": "keyword.control.flow.nestml",
+					"match": "(?x)\n  \\b(?<!\\.)(\n   for\n  | elif | else | if  | return |  while )\\b\n"
+				},
+				{
+					"name": "keyword.control.block.nestml",
+					"match": "(?x)\n  \\b(?<!\\.)( initial_values | equations | parameters | internals | input | output | update | end)\\b\n"
+				}
+			]
+		},
+		"assignment-operator": {
+			"name": "keyword.operator.assignment.nestml",
+			"match": "(?x)\n     <<= | >>= | //= | \\*\\*=\n    | \\+= | -= | /= | <- | \\*= | %= | ~= | \\^= | &= | \\|=\n    | =(?!=)\n"
+		},
+		"operator": {
+			"match": "(?x)\n    \\b(?<!\\.)\n      (?:\n        (and | or | not | in | is)                         (?# 1)\n        |\n        (for | if | else | elif)  (?# 2)\n      )\n    (?!\\s*:)\\b\n\n    | (<< | >> | & | \\| | \\^ | ~)                          (?# 3)\n\n    | (\\*\\* | \\* | \\+ | - | % | // | / | @)                (?# 4)\n\n    | (!= | == | >= | <= | < | >)                          (?# 5)\n",
+			"captures": {
+				"1": {
+					"name": "keyword.operator.logical.nestml"
+				},
+				"2": {
+					"name": "keyword.control.flow.nestml"
+				},
+				"3": {
+					"name": "keyword.operator.bitwise.nestml"
+				},
+				"4": {
+					"name": "keyword.operator.arithmetic.nestml"
+				},
+				"5": {
+					"name": "keyword.operator.comparison.nestml"
+				}
+			}
+		},
+		"class-declaration": {
+			"patterns": [
+				{
+					"name": "meta.class.nestml",
+					"begin": "(?x)\n  \\s*(neuron)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (:|\\()\n    )\n",
+					"end": "(:)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.type.class.nestml"
+						}
+					},
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.section.class.begin.nestml"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#class-name"
+						}
+					]
+				}
+			]
+		},
+		"class-name": {
+			"patterns": [
+				{
+					"name": "entity.name.type.class.nestml",
+					"match": "(?x)\n  \\b ([[:alpha:]_]\\w*) \\b\n"
+				}
+			]
+		},
+		"ode-declaration": {
+			"name": "variable.derivative.nestml",
+			"match": "(?x)\n  \\s*([[:alpha:]_]\\w*)\\s* ('+)\\s+(=)",
+			"captures": {
+				"1": {
+					"name": "variable.ode-variable.nestml"
+				},
+				"2": {
+					"name": "variable.time-derivative.nestml"
+				},
+				"3": {
+					"name": "keyword.operator.assignment.nestml"
+				}
+			}
+		},
+		"function-declaration": {
+			"patterns": [
+				{
+					"name": "meta.function.nestml",
+					"begin": "(?x)\n  \\s*(function)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (=|\\()\n    )\n",
+					"end": "(=)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.type.function.nestml"
+						}
+					},
+					"endCaptures": {
+						"1": {
+							"name": "keyword.operator.assignment.nestml"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#function-def-name"
+						}
+					]
+				}
+			]
+		},
+		"function-def-name": {
+			"patterns": [
+				{
+					"name": "entity.name.function.nestml",
+					"match": "(?x)\n  \\b ([[:alpha:]_]\\w*) \\b\n"
+				}
+			]
+		},
+		"function-call": {
+			"name": "meta.function-call.nestml",
+			"begin": "(?x)\n  \\b(?=\n    ([[:alpha:]_]\\w*) \\s* (\\()\n  )\n",
+			"end": "(\\))",
 			"endCaptures": {
-				"0": { "name": "punctuation.paren.close" }
+				"1": {
+					"name": "punctuation.definition.arguments.end.nestml"
+				}
 			},
-			"name": "expression.group",
-			"patterns": [{ "include": "#expression" }]
+			"patterns": [
+				{
+					"include": "#function-name"
+				},
+				{
+					"include": "#function-arguments"
+				}
+			]
+		},
+		"function-name": {
+			"patterns": [
+				{
+					"include": "#builtin-possible-callables"
+				},
+				{
+					"comment": "Some color schemas support meta.function-call.generic scope",
+					"name": "meta.function-call.generic.nestml",
+					"match": "(?x)\n  \\b ([[:alpha:]_]\\w*) \\b\n"
+				}
+			]
+		},
+		"function-arguments": {
+			"begin": "(\\()",
+			"end": "(?=\\))(?!\\)\\s*\\()",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.arguments.begin.nestml"
+				}
+			},
+			"contentName": "meta.function-call.arguments.nestml",
+			"patterns": [
+				{
+					"name": "punctuation.separator.arguments.nestml",
+					"match": "(,)"
+				},
+				{
+					"include": "#illegal-names"
+				},
+				{
+					"match": "\\b([[:alpha:]_]\\w*)\\s*(=)(?!=)",
+					"captures": {
+						"1": {
+							"name": "variable.parameter.function-call.nestml"
+						},
+						"2": {
+							"name": "keyword.operator.assignment.nestml"
+						}
+					}
+				},
+				{
+					"name": "keyword.operator.assignment.nestml",
+					"match": "=(?!=)"
+				},
+				{
+					"include": "#expression"
+				},
+				{
+					"match": "\\s*(\\))\\s*(\\()",
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.arguments.end.nestml"
+						},
+						"2": {
+							"name": "punctuation.definition.arguments.begin.nestml"
+						}
+					}
+				}
+			]
+		},
+		"builtin-callables": {
+			"patterns": [
+				{
+					"include": "#illegal-names"
+				},
+				{
+					"include": "#illegal-object-name"
+				},
+				{
+					"include": "#builtin-functions"
+				},
+				{
+					"include": "#builtin-types"
+				}
+			]
+		},
+		"builtin-possible-callables": {
+			"patterns": [
+				{
+					"include": "#builtin-callables"
+				}
+			]
+		},
+		"builtin-functions": {
+			"patterns": [
+				{
+					"name": "support.function.builtin.nestml",
+					"match": "(?x)\n  (?<!\\.) \\b(\n  min | max| clip | exp | log | expm1 | sinh | cosh | tanh | random | randomInt | delta | curr_sum | cond_sum | convolve | info | warning |  print | println | integrate_odes | emit_spike | steps | resolution\n  )\\b\n"
+				},
+				{
+					"name": "variable.legacy.builtin.nestml",
+					"match": "(?x)\n  (?<!\\.) \\b(\n    file | reduce | intern | raw_input | unicode | cmp | basestring\n    | execfile | long | xrange\n  )\\b\n"
+				}
+			]
+		},
+		"builtin-types": {
+			"name": "support.type.nestml",
+			"match": "(?x)\n  (?<!\\.) \\b(\n  inhibitory | excitatory | spike | current \n  )\\b\n"
+		},
+		"illegal-names": {
+			"match": "(?x)\n  \\b(?:\n    (\n      and | neuron | function\n      | elif | else | for | if | not | or | return | while\n    )\n  )\\b\n",
+			"captures": {
+				"1": {
+					"name": "keyword.control.flow.nestml"
+				}
+			}
+		},
+		"illegal-object-name": {
+			"comment": "It's illegal to name class or function \"True\"",
+			"name": "keyword.illegal.name.nestml",
+			"match": "\\b(True|False|None)\\b"
 		}
 	}
 }
