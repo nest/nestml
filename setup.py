@@ -28,7 +28,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='NESTML',
-    version='3.0-post-dev2',
+    version='3.0-post-dev',
     description='NESTML is a domain specific language that supports the specification of neuron models in a'
                 ' precise and concise syntax, based on the syntax of Python. Model equations can either be given'
                 ' as a simple string of mathematical notation or as an algorithm written in the built-in procedural'
@@ -37,7 +37,9 @@ setup(
     license='GNU General Public License v2.0',
     url='https://github.com/nest/nestml',
     packages=find_packages(),
-    package_data={'pynestml': ['*.jinja2']},
+     package_data={'pynestml': ['codegeneration/resources_nest/*.jinja2',
+                                'codegeneration/resources_nest/setup/*.jinja2',
+                                'codegeneration/resources_nest/directives/*.jinja2']},
     entry_points = {
         'console_scripts': [
             'nestml = pynestml.frontend.pynestml_frontend:main',
