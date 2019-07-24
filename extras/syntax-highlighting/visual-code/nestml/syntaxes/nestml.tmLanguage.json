@@ -1,0 +1,53 @@
+{
+	"scopeName": "source.nestml",
+	"patterns": [{ "include": "#expression" }],
+	"repository": {
+		"expression": {
+			"patterns": [
+				{ "include": "#letter" },
+				{ "include": "#paren-expression" },
+				{ "include": "#comment"},
+				{ "include": "#docstring"}
+			]
+			},
+			"letter": {
+			"match": "a|b|c",
+			"name": "keyword.letter"
+			},
+			"comment": {
+			"match": "#.*\n",
+			"name": "comment.inline"
+		},
+		"docstring": {
+			"patterns": [
+				{
+					"name": "string.quoted.docstring.nestml",
+					"begin": "(\\\"\\\"\\\")",
+					"end": "(\\1)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.definition.string.begin.nestml"
+						}
+					},
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.definition.string.end.nestml"
+						}
+					}
+				}
+			]
+		},
+		"paren-expression": {
+			"begin": "\\(",
+			"end": "\\)",
+			"beginCaptures": {
+				"0": { "name": "punctuation.paren.open" }
+			},
+			"endCaptures": {
+				"0": { "name": "punctuation.paren.close" }
+			},
+			"name": "expression.group",
+			"patterns": [{ "include": "#expression" }]
+		}
+	}
+}
