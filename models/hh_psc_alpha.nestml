@@ -200,7 +200,7 @@ neuron hh_psc_alpha_implicit:
     function alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
     function beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
 
-    Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m
+    Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Activation variable h
     Act_n real =  alpha_n_init / ( alpha_n_init + beta_n_init ) # Inactivation variable n
   end
