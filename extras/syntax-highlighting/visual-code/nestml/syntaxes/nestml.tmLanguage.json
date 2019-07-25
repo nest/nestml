@@ -197,7 +197,7 @@
 		},
 		"unit": {
 			"name": "variable.unit.nestml",
-			"match": "\\b(?:(?:([yzafpnumcd]|da|[hkMGTPEZY])*(m|kg|s|A|K|mol|cd|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|lm|lx))|(real|integer))\\b",
+			"match": "\\b(?:(?:([yzafpnumcd]|da|[hkMGTPEZY])*(m|kg|s|A|K|mol|cd|rad|sr|Hz|N|Pa|J|W|C|V|F|Ω|S|Wb|T|H|lm|lx|L))|(real|integer))\\b",
 			"captures": {
 				"1": {
 					"name": "constant.unit.magnitude-prefix.nestml"
@@ -328,7 +328,7 @@
 				},
 				{
 					"name": "storage.type.class.nestml",
-					"match": "\\b(?<!\\.)(neuron)\\b"
+					"match": "\\b(neuron)\\b"
 				},
 				{
 					"name": "keyword.control.flow.nestml",
@@ -415,8 +415,8 @@
 			"patterns": [
 				{
 					"name": "meta.function.nestml",
-					"begin": "(?x)\n  \\s*(function)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (=|\\()\n    )\n",
-					"end": "(=)",
+					"begin": "(?x)\n  \\s*\\b(function)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (\\s+|\\()\n    )\n",
+					"end": "(?:(=)|(:))",
 					"beginCaptures": {
 						"1": {
 							"name": "storage.type.function.nestml"
@@ -429,7 +429,13 @@
 					},
 					"patterns": [
 						{
+							"include": "#unit"
+						},
+						{
 							"include": "#function-def-name"
+						},
+						{
+							"include": "#parameters"
 						}
 					]
 				}
@@ -440,6 +446,40 @@
 				{
 					"name": "entity.name.function.nestml",
 					"match": "(?x)\n  \\b ([[:alpha:]_]\\w*) \\b\n"
+				}
+			]
+		},
+		"parameters": {
+			"name": "meta.function.parameters.nestml",
+			"begin": "(\\()",
+			"end": "(\\))",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.parameters.begin.nestml"
+				}
+			},
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.parameters.end.nestml"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#illegal-names"
+				},
+				{
+					"include": "#illegal-object-name"
+				},
+				{
+					"match": "(?x)\n  ([[:alpha:]_]\\w*)\n    \\s* (?: (,) | (?=[)#\\n=]))\n",
+					"captures": {
+						"1": {
+							"name": "variable.parameter.function.language.nestml"
+						},
+						"2": {
+							"name": "punctuation.separator.parameters.nestml"
+						}
+					}
 				}
 			]
 		},
@@ -548,11 +588,7 @@
 			"patterns": [
 				{
 					"name": "support.function.builtin.nestml",
-					"match": "(?x)\n  (?<!\\.) \\b(\n  min | max| clip | exp | log | expm1 | sinh | cosh | tanh | random | randomInt | delta | curr_sum | cond_sum | convolve | info | warning |  print | println | integrate_odes | emit_spike | steps | resolution\n  )\\b\n"
-				},
-				{
-					"name": "variable.legacy.builtin.nestml",
-					"match": "(?x)\n  (?<!\\.) \\b(\n    file | reduce | intern | raw_input | unicode | cmp | basestring\n    | execfile | long | xrange\n  )\\b\n"
+					"match": "(?x)\n  (?<!\\.) \\b(\n  min | max| clip | exp | log | expm1 | sinh | cosh | tanh | random | randomInt | delta | curr_sum | cond_sum | convolve | info | warning |  print | println | integrate_odes | emit_spike | steps | resolution \n  )\\b\n"
 				}
 			]
 		},
