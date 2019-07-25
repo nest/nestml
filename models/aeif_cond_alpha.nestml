@@ -7,7 +7,7 @@ aeif_cond_alpha is the adaptive exponential integrate and fire neuron according
 to Brette and Gerstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4 th order Runge-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
 The membrane potential is given by the following differential equation:
@@ -130,7 +130,7 @@ aeif_cond_alpha is the adaptive exponential integrate and fire neuron according
 to Brette and Gerstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4 th order Runge-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
 The membrane potential is given by the following differential equation:

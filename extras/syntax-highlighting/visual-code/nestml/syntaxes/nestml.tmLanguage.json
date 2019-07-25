@@ -322,7 +322,7 @@
 		},
 		"statement-keyword": {
 			"patterns": [
-				{	
+				{
 					"name": "storage.type.function.nestml",
 					"match": "\\b(function|shape)\\b"
 				},

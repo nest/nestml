@@ -7,7 +7,7 @@ aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron acc
 to Brette and g_exrstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4 th order Rung_ex-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
 The membrane potential is g_inven by the following differential equation:
@@ -124,7 +124,7 @@ aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron acc
 to Brette and g_exrstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4 th order Rung_ex-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
 The membrane potential is g_inven by the following differential equation:

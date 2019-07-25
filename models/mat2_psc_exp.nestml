@@ -100,8 +100,8 @@ neuron mat2_psc_exp:
 
   internals:
     h ms = resolution()
-    P11 th real = exp( -h / tau_1 )
-    P22 th real = exp( -h / tau_2 )
+    P11th real = exp( -h / tau_1 )
+    P22th real = exp( -h / tau_2 )
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
@@ -119,8 +119,8 @@ neuron mat2_psc_exp:
     integrate_odes()
 
     # evolve adaptive threshold
-    V_th_alpha_1 = V_th_alpha_1 * P11 th
-    V_th_alpha_2 = V_th_alpha_2 * P22 th
+    V_th_alpha_1 = V_th_alpha_1 * P11th
+    V_th_alpha_2 = V_th_alpha_2 * P22th
 
     if r == 0: # not refractory
       if V_abs >= omega + V_th_alpha_1 + V_th_alpha_2: # threshold crossing

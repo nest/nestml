@@ -6,7 +6,7 @@ The file ``filetypes.NestML.conf`` provides definitions for syntax highlighting 
 Use
 ---
 
-Simply copy-paste the file to you local Geany configuration folder. On most Unix platforms, this is in ``~/config/geany/filedefs/``.
+Simply copy-paste the file to you local Geany configuration folder. On most Unix platforms, this is in ``~/.config/geany/filedefs/``.
 
 Limitations
 -----------
