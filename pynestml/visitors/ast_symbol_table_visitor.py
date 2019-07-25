@@ -272,6 +272,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         vector_parameter = node.get_size_parameter()
         # now for each variable create a symbol and update the scope
         for var in node.get_variables():  # for all variables declared create a new symbol
+            print("--> var = " +str(var))
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
             symbol = VariableSymbol(element_reference=node,
@@ -498,6 +499,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
             BlockType.PARAMETERS if node.is_parameters else
             BlockType.INITIAL_VALUES)
         for decl in node.get_declarations():
+            if node.is_internals:
+                print("node = " + str(node) + ", decl = " + str(decl))
             decl.update_scope(node.get_scope())
         return
 

@@ -50,6 +50,7 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 class NESTCodeGenerator(CodeGenerator):
@@ -157,12 +158,15 @@ class NESTCodeGenerator(CodeGenerator):
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
                                                            equations_block.get_ode_functions())
             # transform everything into gsl processable (e.g. no functional shapes) or exact form.
-            self.transform_shapes_and_odes(neuron, shape_to_buffers)
+            neuron = self.transform_shapes_and_odes(neuron, shape_to_buffers)
             self.apply_spikes_from_buffers(neuron, shape_to_buffers)
             # update the symbol table
+            
+            SymbolTable.clean_up_table()
             symbol_table_visitor = ASTSymbolTableVisitor()
             symbol_table_visitor.after_ast_rewrite_ = True		# suppress warnings due to AST rewrites
             neuron.accept(symbol_table_visitor)
+            SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
 
 
     def generate_neuron_code(self, neuron):
@@ -236,9 +240,16 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['uses_analytic_solver'] = not self.analytical_solver is None
         if namespace['uses_analytic_solver']:
             namespace['state_variables'] = self.analytical_solver["state_variables"]
-            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in self.analytical_solver["update_expressions"].items() }
-            
-            
+            namespace['variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['state_variables'] }
+            namespace['update_expressions'] = {}
+            for sym in namespace['state_variables']:
+                expr_str = self.analytical_solver["update_expressions"][sym]
+                expr_ast = ModelParser.parse_expression(expr_str)
+                expr_ast.update_scope(neuron.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
+                expr_ast.accept(ASTSymbolTableVisitor())
+                namespace['update_expressions'][sym] = expr_ast
+
+#            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in self.analytical_solver["update_expressions"].items() }
 
             #namespace['update_expressions'] = self.analytical_solver["update_expressions"]
             namespace['propagators'] = self.analytical_solver["propagators"]
@@ -293,7 +304,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param shape_to_buffers: Map of shape names to buffers to which they were connected.
         :return: A transformed version of the neuron that can be passed to the GSL.
         """
-        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "Precondition violated: only one equation block should be present"
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
 
         equations_block = neuron.get_equations_block()
 
@@ -334,13 +345,15 @@ class NESTCodeGenerator(CodeGenerator):
         # XXX: TODO: assert that __h is not yet defined
         neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
 
+        self.remove_initial_values_for_shapes_(neuron)
         self.create_initial_values_for_shapes_(neuron, solver_result)
 
         for solver_dict in solver_result:
             if solver_dict["solver"] == "analytical":
-                #neuron = integrate_exact_solution(neuron, solver_dict)
                 neuron = add_declarations_to_internals(neuron, solver_dict["propagators"])
+                SymbolTable.clean_up_table()
                 neuron.accept(ASTSymbolTableVisitor())
+                SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
             elif solver_dict["solver"].startswith("numeric"):
                 functional_shapes_to_odes(neuron, solver_dict)
 
@@ -360,6 +373,36 @@ class NESTCodeGenerator(CodeGenerator):
                     break
 
 """
+
+    def remove_initial_values_for_shapes_(self, neuron):
+        """remove original declarations (e.g. g_in, g_in'); these might conflict with the initial value expressions returned from ode-toolbox"""
+        
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
+
+        equations_block = neuron.get_equations_block()
+
+        symbols_to_remove = []
+        for shape in equations_block.get_ode_shapes():
+            shape_order = shape.get_variable().get_differential_order()
+            for order in range(shape_order):
+                symbol_name = shape.get_variable().get_name() + "'" * order
+                symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+                print("Would have removed symbol " + str(symbol_name) + " = " + str(symbol))
+                symbols_to_remove.append(symbol_name)
+
+        decl_to_remove = []
+        for symbol_name in symbols_to_remove:
+            for decl in neuron.get_initial_blocks().get_declarations():
+                if decl.get_variables()[0].get_complete_name() == symbol_name:
+                    decl_to_remove.append(decl)
+                    break
+
+        for decl in decl_to_remove:
+            neuron.get_initial_blocks().get_declarations().remove(decl)
+                #initial_value_expr = symbol.get_declaring_expression()
+                #assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name
+                #entry["initial_values"][symbol_name] = gsl_printer.print_expression(initial_value_expr)
+            #odetoolbox_indict["dynamics"].append(entry)
 
     def create_initial_values_for_shapes_(self, neuron, solver_result):
         for solver_dict in solver_result:
@@ -440,7 +483,6 @@ class NESTCodeGenerator(CodeGenerator):
             for var in decl.variables:
                 odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
         print("odetoolbox_indict = " + str(json.dumps(odetoolbox_indict, indent=4)))
-        import pdb;pdb.set_trace()
         return odetoolbox_indict
 
 
