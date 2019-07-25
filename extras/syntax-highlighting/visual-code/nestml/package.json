@@ -21,5 +21,6 @@
             "scopeName": "source.nestml",
             "path": "./syntaxes/nestml.tmLanguage.json"
         }]
-    }
+    },
+    "publisher": "Tanguy Fardet"
 }
