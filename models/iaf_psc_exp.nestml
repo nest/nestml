@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_psc_exp - Leaky integrate-and-fire neuron model with exponential
                    PSCs.
 
@@ -28,7 +28,7 @@ The present implementation uses individual variables for the
 components of the state vector and the non-zero matrix elements of
 the propagator.  Because the propagator is a lower triangular matrix
 no full matrix multiplication needs to be carried out and the
-computation can be done "in place" i.e. no temporary state vector
+computation can be done "in place" i. e. no temporary state vector
 object is required.
 
 The template support of recent C++ compilers enables a more succinct
@@ -40,12 +40,12 @@ matrix objects.
 Remarks: If tau_m is very close to tau_syn_ex or tau_syn_in, the model
 will numerically behave as if tau_m is equal to tau_syn_ex or
 tau_syn_in, respectively, to avoid numerical instabilities.
-For details, please see IAF_Neruons_Singularity.ipynb in the
+For details, please see IAF_Neruons_Singularity. ipynb in the
 NEST source code (docs/model_details).
 
 iaf_psc_exp can handle current input in two ways: Current input
 through receptor_type 0 are handled as stepwise constant current
-input as in other iaf models, i.e., this current directly enters
+input as in other iaf models, i. e., this current directly enters
 the membrane potential equation. Current input through
 receptor_type 1, in contrast, is filtered through an exponential
 kernel with the time constant of the excitatory synapse,
@@ -73,7 +73,7 @@ SeeAlso: iaf_psc_exp_ps
 
 FirstVersion: March 2006
 Author: Moritz Helias
-*/
+"""
 neuron iaf_psc_exp:
 
   state:
@@ -81,7 +81,7 @@ neuron iaf_psc_exp:
   end
 
   initial_values:
-    V_abs mV = 0mV
+    V_abs mV = 0 mV
     function V_m mV = V_abs + E_L # Membrane potential.
   end
 
@@ -93,16 +93,16 @@ neuron iaf_psc_exp:
   end
 
   parameters:
-    C_m pF = 250pF       # Capacity of the membrane
-    tau_m ms = 10ms      # Membrane time constant.
-    tau_syn_in ms = 2ms  # Time constant of synaptic current.
-    tau_syn_ex ms = 2ms  # Time constant of synaptic current.
-    t_ref ms = 2ms       # Duration of refractory period
-    E_L  mV = -70mV      # Resting potential.
-    function V_reset mV = -70mV - E_L # reset value of the membrane potential
-    function Theta   mV = -55mV - E_L # Threshold, RELATIVE TO RESTING POTENTAIL(!).
-                                   # I.e. the real threshold is (E_L_+V_th_)
-    I_e     pA = 0pA     # External current.
+    C_m pF = 250 pF       # Capacity of the membrane
+    tau_m ms = 10 ms      # Membrane time constant.
+    tau_syn_in ms = 2 ms  # Time constant of synaptic current.
+    tau_syn_ex ms = 2 ms  # Time constant of synaptic current.
+    t_ref ms = 2 ms       # Duration of refractory period
+    E_L  mV = -70 mV      # Resting potential.
+    function V_reset mV = -70 mV - E_L # reset value of the membrane potential
+    function Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTAIL(!).
+                                   # I. e. the real threshold is (E_L_+V_th_)
+    I_e     pA = 0 pA     # External current.
   end
 
   internals:

@@ -1,4 +1,4 @@
-/*
+"""
 Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
 
 Description:
@@ -20,7 +20,7 @@ Only the channel variables m,h,n are implemented. The original
 contains variables called y,s,r,q and \chi.
 References:
 
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
+Traub, R. D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
 Cambridge University Press, Cambridge UK.
 
 Sends: SpikeEvent
@@ -30,7 +30,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author: Schrader
 
 SeeAlso: hh_psc_alpha
-*/
+"""
 neuron hh_cond_exp_traub:
 
   state:
@@ -82,20 +82,20 @@ neuron hh_cond_exp_traub:
   end
 
   parameters:
-    g_Na nS = 20000.0nS       # Na Conductance
-    g_K nS = 6000.0nS         # K Conductance
-    g_L nS = 10nS             # Leak Conductance
-    C_m pF = 200.0pF          # Membrane Capacitance
-    E_Na mV = 50mV            # Reversal potentials
-    E_K mV = -90.mV           # Potassium reversal potential
-    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential)
-    V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
-                              # parameters, V_T = -63mV results in a threshold around -50mV.
-    tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse
-    tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0pA              # Constant Current
+    g_Na nS = 20000.0 nS       # Na Conductance
+    g_K nS = 6000.0 nS         # K Conductance
+    g_L nS = 10 nS             # Leak Conductance
+    C_m pF = 200.0 pF          # Membrane Capacitance
+    E_Na mV = 50 mV            # Reversal potentials
+    E_K mV = -90. mV           # Potassium reversal potential
+    E_L mV = -60. mV           # Leak reversal Potential (aka resting potential)
+    V_T mV = -63.0 mV          # Voltage offset that controls dynamics. For default
+                              # parameters, V_T = -63 mV results in a threshold around -50 mV.
+    tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+    I_e pA = 0 pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
-    E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
+    E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
   end
 
   internals:
@@ -117,7 +117,7 @@ neuron hh_cond_exp_traub:
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
       r -= 1
-    elif V_m > V_T + 30mV and U_old > V_m:
+    elif V_m > V_T + 30 mV and U_old > V_m:
       r = RefractoryCounts
       emit_spike()
     end
@@ -126,7 +126,7 @@ neuron hh_cond_exp_traub:
 
 end
 
-/*
+"""
 Name: hh_cond_exp_traub_implicit - Hodgin Huxley based model, Traub modified.
 
 Description:
@@ -148,7 +148,7 @@ Only the channel variables m,h,n are implemented. The original
 contains variables called y,s,r,q and \chi.
 References:
 
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
+Traub, R. D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
 Cambridge University Press, Cambridge UK.
 
 Sends: SpikeEvent
@@ -158,7 +158,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author: Schrader
 
 SeeAlso: hh_psc_alpha
-*/
+"""
 neuron hh_cond_exp_traub_implicit:
 
   state:
@@ -168,8 +168,8 @@ neuron hh_cond_exp_traub_implicit:
   initial_values:
     V_m mV = E_L #  Membrane potential
 
-    g_in nS = 1nS # Inhibitory synaptic conductance
-    g_ex nS = 1nS # Excitatory synaptic conductance
+    g_in nS = 1 nS # Inhibitory synaptic conductance
+    g_ex nS = 1 nS # Excitatory synaptic conductance
 
     function alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
     function beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
@@ -212,20 +212,20 @@ neuron hh_cond_exp_traub_implicit:
   end
 
   parameters:
-    g_Na nS = 20000.0nS       # Na Conductance
-    g_K nS = 6000.0nS         # K Conductance
-    g_L nS = 10nS             # Leak Conductance
-    C_m pF = 200.0pF          # Membrane Capacitance
-    E_Na mV = 50mV            # Reversal potentials
-    E_K mV = -90.mV           # Potassium reversal potential
-    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential)
-    V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
-                              # parameters, V_T = -63mV results in a threshold around -50mV.
-    tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse
-    tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0pA              # Constant Current
+    g_Na nS = 20000.0 nS       # Na Conductance
+    g_K nS = 6000.0 nS         # K Conductance
+    g_L nS = 10 nS             # Leak Conductance
+    C_m pF = 200.0 pF          # Membrane Capacitance
+    E_Na mV = 50 mV            # Reversal potentials
+    E_K mV = -90. mV           # Potassium reversal potential
+    E_L mV = -60. mV           # Leak reversal Potential (aka resting potential)
+    V_T mV = -63.0 mV          # Voltage offset that controls dynamics. For default
+                              # parameters, V_T = -63 mV results in a threshold around -50 mV.
+    tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+    I_e pA = 0 pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
-    E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
+    E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
   end
 
   internals:
@@ -247,7 +247,7 @@ neuron hh_cond_exp_traub_implicit:
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
       r -= 1
-    elif V_m > V_T + 30mV and U_old > V_m:
+    elif V_m > V_T + 30 mV and U_old > V_m:
       r = RefractoryCounts
       emit_spike()
     end

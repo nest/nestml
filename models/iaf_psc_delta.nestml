@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_psc_delta - Leaky integrate-and-fire neuron with delta-shaped PSCs.
 
 Description:
@@ -42,7 +42,7 @@ The present implementation uses individual variables for the
 components of the state vector and the non-zero matrix elements of
 the propagator.  Because the propagator is a lower triangular matrix
 no full matrix multiplication needs to be carried out and the
-computation can be done "in place" i.e. no temporary state vector
+computation can be done "in place" i. e. no temporary state vector
 object is required.
 
 The template support of recent C++ compilers enables a more succinct
@@ -65,7 +65,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Author:  September 1999, Diesmann, Gewaltig
 SeeAlso: iaf_psc_alpha, iaf_psc_exp, iaf, iaf_psc_delta_canon
-*/
+"""
 neuron iaf_psc_delta:
 
   state:
@@ -84,12 +84,12 @@ neuron iaf_psc_delta:
   end
 
   parameters:
-    tau_m   ms = 10ms      # Membrane time constant.
-    C_m     pF = 250pF     # Capacity of the membrane
-    t_ref   ms = 2ms       # Duration of refractory period.
-    tau_syn ms = 2ms       # Time constant of synaptic current.
-    E_L     mV = -70mV     # Resting membrane potential.
-    I_e     pA = 0pA       # Constant input current.
+    tau_m   ms = 10 ms      # Membrane time constant.
+    C_m     pF = 250 pF     # Capacity of the membrane
+    t_ref   ms = 2 ms       # Duration of refractory period.
+    tau_syn ms = 2 ms       # Time constant of synaptic current.
+    E_L     mV = -70 mV     # Resting membrane potential.
+    I_e     pA = 0 pA       # Constant input current.
     function V_reset mV = -70 mV - E_L # Reset potential of the membrane.
     function Theta   mV = -55 mV - E_L # Spike threshold.
     V_min mV = -inf * 1 mV           # Absolute lower value for the membrane potential
@@ -114,7 +114,7 @@ neuron iaf_psc_delta:
 
       # if we have accumulated spikes from refractory period,
       # add and reset accumulator
-      if with_refr_input and refr_spikes_buffer != 0.0mV:
+      if with_refr_input and refr_spikes_buffer != 0.0 mV:
         V_abs += refr_spikes_buffer
         refr_spikes_buffer = 0.0 mV
       end
