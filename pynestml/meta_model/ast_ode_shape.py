@@ -45,7 +45,7 @@ class ASTOdeShape(ASTNode):
         self.lhs = lhs
         self.rhs = rhs
         return
-
+    
     def get_variable(self):
         """
         Returns the variable of the left-hand side.

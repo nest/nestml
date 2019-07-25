@@ -31,7 +31,7 @@ Author: Schrader, Plesser
 
 SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 */
-neuron iaf_cond_alpha:
+/*neuron iaf_cond_alpha:
 
   state:
     r integer      # counts number of tick during the refractory period
@@ -91,7 +91,7 @@ neuron iaf_cond_alpha:
   end
 
 end
-
+*/
 /*
 Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
                        model.
@@ -140,8 +140,8 @@ neuron iaf_cond_alpha_implicit:
   end
 
   equations:
-    shape g_in'' = (-1)/(tau_syn_in)**(2)*g_in+(-2)/tau_syn_in*g_in'
-    shape g_ex'' = (-1)/(tau_syn_ex)**(2)*g_ex+(-2)/tau_syn_ex*g_ex'
+    shape g_in'' = -1/tau_syn_in**2 * g_in - 2/tau_syn_in * g_in'
+    shape g_ex'' = -1/tau_syn_ex**2 * g_ex - 2/tau_syn_ex * g_ex'
 
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )

@@ -166,6 +166,8 @@ class NESTReferenceConverter(IReferenceConverter):
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
 
+        assert not variable.get_scope() is None, "Undeclared variable: " + variable.get_complete_name()
+            
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type

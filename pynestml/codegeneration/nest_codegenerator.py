@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import json
 import datetime
 import os
 import re
@@ -38,7 +40,8 @@ from pynestml.codegeneration.nest_reference_converter import NESTReferenceConver
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes
-from pynestml.solver.transformer_base import add_assignment_to_update_block
+from pynestml.solver.transformer_base import add_assignment_to_update_block, add_declarations_to_internals
+from pynestml.solver.transformer_base import add_declaration_to_initial_values
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -73,7 +76,7 @@ class NESTCodeGenerator(CodeGenerator):
         self._template_neuron_h_file = env.get_template('NeuronHeader.jinja2')
         # setup the neuron implementation template
         self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
-
+        self.analytic_solver_dict = None
         self._printer = ExpressionsPrettyPrinter()
 
     def generate_code(self, neurons):
@@ -230,10 +233,15 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
 
-        if not self.analytic_solver_dict is None:
-            assert self.analytic_solver_dict["solver"] == "analytic"
-            namespace['state_variables'] = self.analytic_solver_dict["state_variables"]
-            namespace['update_expressions'] = self.analytic_solver_dict["update_expressions"]
+        namespace['uses_analytic_solver'] = not self.analytical_solver is None
+        if namespace['uses_analytic_solver']:
+            namespace['state_variables'] = self.analytical_solver["state_variables"]
+            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in self.analytical_solver["update_expressions"].items() }
+            
+            
+
+            #namespace['update_expressions'] = self.analytical_solver["update_expressions"]
+            namespace['propagators'] = self.analytical_solver["propagators"]
 
         self.define_solver_type(neuron, namespace)
         return namespace
@@ -285,7 +293,6 @@ class NESTCodeGenerator(CodeGenerator):
         :param shape_to_buffers: Map of shape names to buffers to which they were connected.
         :return: A transformed version of the neuron that can be passed to the GSL.
         """
-
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "Precondition violated: only one equation block should be present"
 
         equations_block = neuron.get_equations_block()
@@ -293,6 +300,7 @@ class NESTCodeGenerator(CodeGenerator):
         if len(equations_block.get_ode_shapes()) == 0 and len(equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return neuron
+
 
         # map from variable symbol names to buffer names
         # XXX: TODO: replace
@@ -303,25 +311,61 @@ class NESTCodeGenerator(CodeGenerator):
         # where __spikes is the spike buffer
 
         # shape_to_buffers[k]
-
         code, message = Messages.get_neuron_analyzed(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-        odes_shapes_json = self.transform_ode_and_shapes_to_json(equations_block)
-        solver_result = analysis(odes_shapes_json, enable_stiffness_check=False)
+        parameters_block = neuron.get_parameter_blocks()
+        odetoolbox_indict = self.transform_ode_and_shapes_to_json(equations_block, parameters_block)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        print("Invoking ode-toolbox with JSON input:")
+        print(odetoolbox_indict)
+        solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False)
+        print("Got result from ode-toolbox:")
+        print(solver_result)
+        self.solver_result = solver_result
+        analytical_solvers = [x for x in self.solver_result if x["solver"] == "analytical"]
+        assert len(analytical_solvers) <= 1
+        if len(analytical_solvers) > 0:
+            self.analytical_solver = analytical_solvers[0]
+        else:
+            self.analytical_solver = None
 
         # XXX: TODO: assert that __h is not yet defined
         neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
 
-        ## XXX: be here add parameters? solver_dict["parameters"]
+        self.create_initial_values_for_shapes_(neuron, solver_result)
 
         for solver_dict in solver_result:
             if solver_dict["solver"] == "analytical":
-                neuron = integrate_exact_solution(neuron, solver_dict)
+                #neuron = integrate_exact_solution(neuron, solver_dict)
+                neuron = add_declarations_to_internals(neuron, solver_dict["propagators"])
+                neuron.accept(ASTSymbolTableVisitor())
             elif solver_dict["solver"].startswith("numeric"):
                 functional_shapes_to_odes(neuron, solver_dict)
 
         return neuron
+
+    """
+
+    def create_initial_values_for_shapes_(self, neuron, solver_result):
+        equations_block = neuron.get_equations_block()
+        for shape in equations_block.get_ode_shapes():
+            var_name = shape.get_variable().get_complete_name()
+            for solver_dict in solver_result:
+                if var_name in solver_dict["initial_values"].keys():
+                    add_declaration_to_initial_values(neuron, var_name, solver_dict["initial_values"][var_name])
+                    
+                    print("Adding " + str(var_name) + " = " + str(solver_dict["initial_values"][var_name]) + " to initial values")
+                    break
+
+"""
+
+    def create_initial_values_for_shapes_(self, neuron, solver_result):
+        for solver_dict in solver_result:
+            for var_name in solver_dict["initial_values"].keys():
+                add_declaration_to_initial_values(neuron, var_name, solver_dict["initial_values"][var_name])
+                print("Adding " + str(var_name) + " = " + str(solver_dict["initial_values"][var_name]) + " to initial values")
 
 
     def apply_spikes_from_buffers(self, neuron, shape_to_buffers):
@@ -350,72 +394,53 @@ class NESTCodeGenerator(CodeGenerator):
             add_assignment_to_update_block(assignment, neuron)
 
 
-    def transform_ode_and_shapes_to_json(self, equations_block):
+    def transform_ode_and_shapes_to_json(self, equations_block, parameters_block):
         # type: (ASTEquationsBlock) -> dict[str, list]
         """
         Converts AST node to a JSON representation
         :param equations_block:equations_block
         :return: json mapping: {odes: [...], shape: [...]}
         """
-        odetoolbox_indict = { "dynamics" : [] }
+        odetoolbox_indict = {}
 
         gsl_converter = IdempotentReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)
 
+        odetoolbox_indict["dynamics"] = []
         for equation in equations_block.get_ode_equations():
-            lhs = str(equation.lhs)
+            lhs = str(equation.lhs) # n.b. includes single quotation marks to indicate differential order
             rhs = gsl_printer.print_expression(equation.get_rhs())
             entry = {"expression": lhs + " = " + rhs}
             symbol_name = equation.get_lhs().get_name()
             symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
             initial_value_expr = symbol.get_declaring_expression()
             if not initial_value_expr is None:
-                entry["initial_value"] = gsl_printer.print_expression(initial_value_expr)
-
+                expr = gsl_printer.print_expression(initial_value_expr)
+                entry["initial_value"] = expr
             odetoolbox_indict["dynamics"].append(entry)
 
-
-        import pdb;pdb.set_trace()
-        """
         for shape in equations_block.get_ode_shapes():
-            if shape.get_variable().get_differential_order() == 0:
-                result["shapes"].append({"type": "function",
-                                         "symbol": shape.get_variable().get_complete_name(),
-                                         "definition": self._printer.print_expression(shape.get_expression())})
-            else:
-                extracted_shape_name = shape.get_variable().get_name()
-                if '__' in shape.get_variable().get_name():
-                    extracted_shape_name = shape.get_variable().get_name()[0:shape.get_variable().get_name().find("__")]
-                if extracted_shape_name not in ode_shape_names:  # add shape name only once
-                    ode_shape_names.add(extracted_shape_name)
+            lhs = str(shape.get_variable()) # n.b. includes single quotation marks to indicate differential order
+            rhs = str(shape.get_expression())
+            entry = {}
+            entry["expression"] = lhs + " = " + rhs
+            entry["initial_values"] = {}
+            shape_order = shape.get_variable().get_differential_order()
+            for order in range(shape_order):
+                symbol_name = shape.get_variable().get_name() + "'" * order
+                assert not equations_block.get_scope() is None, "Undeclared variable: " + symbol_name
+                symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+                initial_value_expr = symbol.get_declaring_expression()
+                assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name
+                entry["initial_values"][symbol_name] = gsl_printer.print_expression(initial_value_expr)
+            odetoolbox_indict["dynamics"].append(entry)
 
-        # try to resolve all available initial values
-        shape_name_to_initial_values = {}
-        shape_name_to_shape_definition = {}
-
-        for shape_name in ode_shape_names:
-            shape_name_symbol = equations_block.get_scope().resolve_to_symbol(shape_name, SymbolKind.VARIABLE)
-            shape_name_to_initial_values[shape_name] = [
-                self._printer.print_expression(shape_name_symbol.get_declaring_expression())]
-            shape_name_to_shape_definition[shape_name] = self._printer.print_expression(shape_name_symbol.get_ode_definition())
-            order = 1
-            while True:
-                shape_name_symbol = equations_block.get_scope().resolve_to_symbol(shape_name + "__" + 'd' * order, SymbolKind.VARIABLE)
-                if shape_name_symbol is not None:
-                    shape_name_to_initial_values[shape_name].append(
-                        self._printer.print_expression(shape_name_symbol.get_declaring_expression()))
-                    shape_name_to_shape_definition[shape_name] = self._printer.print_expression(
-                        shape_name_symbol.get_ode_definition())
-                else:
-                    break
-                order = order + 1
-
-        for shape_name in ode_shape_names:
-            result["shapes"].append({"type": "ode",
-                                     "symbol": shape_name,
-                                     "definition": shape_name_to_shape_definition[shape_name],
-                                     "initial_values": shape_name_to_initial_values[shape_name]})
-"""
+        odetoolbox_indict["parameters"] = {}
+        for decl in parameters_block.get_declarations():
+            for var in decl.variables:
+                odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
+        print("odetoolbox_indict = " + str(json.dumps(odetoolbox_indict, indent=4)))
+        import pdb;pdb.set_trace()
         return odetoolbox_indict
 
 

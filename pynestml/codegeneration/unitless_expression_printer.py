@@ -62,7 +62,7 @@ class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
         if isinstance(node, ASTSimpleExpression):
             if node.is_numeric_literal():
                 return self.types_printer.pretty_print(node.get_numeric_literal())
-            elif node.is_variable():
+            elif node.is_variable() and (not node.get_scope() is None):
                 node_is_variable_symbol = not node.get_scope().resolve_to_symbol(node.variable.get_complete_name(), SymbolKind.VARIABLE) is None
                 if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
                     # case for a literal unit, e.g. "ms"
