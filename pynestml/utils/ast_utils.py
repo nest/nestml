@@ -448,7 +448,6 @@ class ASTUtils(object):
         """
         from pynestml.meta_model.ast_variable import ASTVariable
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        # type: ASTVariable -> str
 
         name = variable.get_name()
         diff_order = variable.get_differental_order()

@@ -415,7 +415,7 @@
 			"patterns": [
 				{
 					"name": "meta.function.nestml",
-					"begin": "(?x)\n  \\s*\\b(function)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (\\s+|\\()\n    )\n",
+					"begin": "(?x)\n  \\s*\\b(function|shape)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (\\s+|\\()\n    )\n",
 					"end": "(?:(=)|(:))",
 					"beginCaptures": {
 						"1": {
