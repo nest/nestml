@@ -551,8 +551,7 @@ class ASTNeuron(ASTNode):
 
     def get_ode_defined_symbols(self):
         """
-        Returns a list of all variable symbols which have been defined in th initial_values blocks
-        and are provided with an ode.
+        Returns a list of all variable symbols which have been defined in the initial_values blocks and are provided with an ode.
         :return: a list of initial value variables with odes
         :rtype: list(VariableSymbol)
         """
@@ -560,6 +559,23 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and \
+                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
+    def get_shape_defined_symbols(self):
+        """
+        Returns a list of all variable symbols which have been defined in the initial_values blocks and are provided with an ode.
+        :return: a list of initial value variables with odes
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.symbols.variable_symbol import BlockType
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            import pdb;pdb.set_trace()
             if isinstance(symbol, VariableSymbol) and \
                     symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
                     and not symbol.is_predefined:

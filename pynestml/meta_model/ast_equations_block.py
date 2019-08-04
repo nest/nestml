@@ -118,6 +118,7 @@ class ASTEquationsBlock(ASTNode):
             if isinstance(decl, ASTOdeFunction):
                 ret.append(decl)
         return ret
+    
 
     def clear(self):
         """

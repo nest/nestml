@@ -257,6 +257,7 @@ class Messages(object):
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
         message = 'No variable \'%s\' found!' % variable_name
+        #import pdb;pdb.set_trace()
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod

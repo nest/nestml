@@ -39,9 +39,10 @@ from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes
 from pynestml.solver.transformer_base import add_assignment_to_update_block, add_declarations_to_internals
-from pynestml.solver.transformer_base import add_declaration_to_initial_values
+from pynestml.solver.transformer_base import add_declaration_to_initial_values, declaration_in_initial_values
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -239,10 +240,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['uses_analytic_solver'] = not self.analytical_solver is None
         if namespace['uses_analytic_solver']:
-            namespace['state_variables'] = self.analytical_solver["state_variables"]
-            namespace['variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['state_variables'] }
+            namespace['analytic_state_variables'] = self.analytical_solver["state_variables"]
+            namespace['analytic_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
             namespace['update_expressions'] = {}
-            for sym in namespace['state_variables']:
+            for sym in namespace['analytic_state_variables']:
                 expr_str = self.analytical_solver["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 expr_ast.update_scope(neuron.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
@@ -354,6 +355,17 @@ class NESTCodeGenerator(CodeGenerator):
                 SymbolTable.clean_up_table()
                 neuron.accept(ASTSymbolTableVisitor())
                 SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+                
+                self.remove_shape_definitions_from_equations_block(neuron, solver_dict["state_variables"])
+                
+                
+                
+                # force set "is_ode_defined" for shape symbols returned from ode-toolbox
+                
+                import pdb;pdb.set_trace()
+                #add_ode_to_variable()
+                #ModelParser.parse_expression("0")
+                
             elif solver_dict["solver"].startswith("numeric"):
                 functional_shapes_to_odes(neuron, solver_dict)
 
@@ -382,6 +394,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_block()
 
         symbols_to_remove = []
+
         for shape in equations_block.get_ode_shapes():
             shape_order = shape.get_variable().get_differential_order()
             for order in range(shape_order):
@@ -389,6 +402,12 @@ class NESTCodeGenerator(CodeGenerator):
                 symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
                 print("Would have removed symbol " + str(symbol_name) + " = " + str(symbol))
                 symbols_to_remove.append(symbol_name)
+
+        for ode in equations_block.get_ode_equations():
+            symbol_name = ode.lhs.get_name()
+            symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+            print("Would have removed symbol " + str(symbol_name) + " = " + str(symbol))
+            symbols_to_remove.append(symbol_name)
 
         decl_to_remove = []
         for symbol_name in symbols_to_remove:
@@ -404,9 +423,11 @@ class NESTCodeGenerator(CodeGenerator):
                 #entry["initial_values"][symbol_name] = gsl_printer.print_expression(initial_value_expr)
             #odetoolbox_indict["dynamics"].append(entry)
 
+
     def create_initial_values_for_shapes_(self, neuron, solver_result):
         for solver_dict in solver_result:
             for var_name in solver_dict["initial_values"].keys():
+                assert not declaration_in_initial_values(neuron, var_name)  # original initial value expressions should have been removed to make place for ode-toolbox results
                 add_declaration_to_initial_values(neuron, var_name, solver_dict["initial_values"][var_name])
                 print("Adding " + str(var_name) + " = " + str(solver_dict["initial_values"][var_name]) + " to initial values")
 
@@ -435,6 +456,22 @@ class NESTCodeGenerator(CodeGenerator):
                     declaration.set_expression(ModelParser.parse_expression("0"))
         for assignment in spike_updates:
             add_assignment_to_update_block(assignment, neuron)
+
+
+    def remove_shape_definitions_from_equations_block(self, neuron, shapes_name_list):
+        """
+        Removes all shapes in this block.
+        """
+        shapes_name_list_ = [s.replace("'", "__d") for s in shapes_name_list]
+        equations_block = neuron.get_equations_block()
+        
+        decl_to_remove = []
+        for decl in equations_block.get_declarations():
+            if type(decl) is ASTOdeShape and decl.lhs.get_name() in shapes_name_list_:
+                decl_to_remove.append(decl)
+
+        for decl in decl_to_remove:
+            equations_block.get_declarations().remove(decl)
 
 
     def transform_ode_and_shapes_to_json(self, equations_block, parameters_block):

@@ -287,6 +287,9 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
+        print("is ode defined for ", end="")
+        print(self, end="?")
+        #import pdb;pdb.set_trace()
         return self.ode_declaration is not None and (isinstance(self.ode_declaration, ASTExpression) or
                                                      isinstance(self.ode_declaration, ASTSimpleExpression))
 

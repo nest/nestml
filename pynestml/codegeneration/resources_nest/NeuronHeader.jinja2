@@ -276,10 +276,21 @@ private:
     {% else -%}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
-    {% for variable in neuron.get_ode_defined_symbols() -%}
-      {{variable.print_comment("// ")}}
-      {{names.convert_to_cpp_name(variable.get_symbol_name())}},
-      {% endfor -%}
+
+{% if uses_analytic_solver -%}
+       // analytic solver state variables
+{%   for variable_name in analytic_state_variables: -%}
+       {{variable_name}},
+{%   endfor -%}
+{% endif -%}
+
+{% if uses_numeric_solver -%}
+       // numeric solver state variables
+{%   for variable_name in numeric_state_variables: -%}
+       {{variable_name}},
+{%   endfor -%}
+{% endif -%}
+
       STATE_VEC_SIZE
     };
     //! state vector, must be C-array for GSL solver
@@ -377,35 +388,41 @@ private:
     {% endif -%}
   };
 
+  /* getters/setters for state block */
+
   {%- for state in neuron.get_state_symbols() -%}
   {%- with variable = state -%}
   {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
 
-  {%- for init in neuron.get_initial_values_symbols() -%}
-  {%- with variable = init -%}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {%- endwith -%}
-  {%- endfor -%}
+  /* getters/setters for initial values block */
 
-  {%- for parameter in neuron.get_parameter_symbols() -%}
-  {%- with variable = parameter -%}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {%- endwith -%}
-  {%- endfor -%}
+  {% for init in neuron.get_initial_values_symbols() -%}
+  {% with variable = init -%}
+  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
+  {% endwith -%}
+  {% endfor -%}
 
-  {%- for internal in neuron.get_internal_symbols() -%}
-  {%- with variable = internal -%}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {%- endwith -%}
-  {%- endfor -%}
+  /* getters/setters for parameters */
 
-  {%- for odeAlias in neuron.get_ode_aliases() %}
-  {%- with variable = odeAlias %}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {%- endwith -%}
-  {%- endfor %}
+  {% for parameter in neuron.get_parameter_symbols() -%}
+  {% with variable = parameter -%}
+  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
+  {% endwith -%}
+  {% endfor -%}
+
+  {% for internal in neuron.get_internal_symbols() -%}
+  {% with variable = internal -%}
+  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
+  {% endwith -%}
+  {% endfor -%}
+
+  {% for odeAlias in neuron.get_ode_aliases() %}
+  {% with variable = odeAlias %}
+  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
+  {% endwith -%}
+  {% endfor %}
 
   {% for buffer in neuron.get_input_buffers() %}
   {{printer.print_buffer_getter(buffer, false)}};

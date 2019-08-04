@@ -705,7 +705,7 @@ def assign_ode_to_variables(ode_block):
 
 def add_ode_to_variable(ode_equation):
     """
-    Resolves to the corresponding symbol and updates the corresponding ode-declaration. In the case that
+    Resolves to the corresponding symbol and updates the corresponding ode-declaration.
     :param ode_equation: a single ode-equation
     :type ode_equation: ast_ode_equation
     """
@@ -734,6 +734,8 @@ def add_ode_shape_to_variable(ode_shape):
     :param ode_shape: a single shape object.
     :type ode_shape: ast_ode_shape
     """
+    print("Does " + str(ode_shape.get_variable().name) + " define ode?")
+    print("ode_shape.get_variable().get_differential_order() = " + str(ode_shape.get_variable().get_differential_order()))
     if ode_shape.get_variable().get_differential_order() == 0:
         # we only update those which define an ode
         return
