@@ -34,7 +34,7 @@ class NestPrinter(object):
     """
     This class contains all methods as required to transform
     """
-    
+
     def __init__(self, expression_pretty_printer, reference_convert=None):
         """
         The standard constructor.
@@ -47,7 +47,7 @@ class NestPrinter(object):
             self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
         return
 
-    def print_expression(self, node):
+    def print_expression(self, node, prefix=""):
         # type: (ASTExpressionNode) -> str
         """
         Pretty Prints the handed over rhs to a nest readable format.
@@ -56,7 +56,7 @@ class NestPrinter(object):
         :return: the corresponding string representation
         :rtype: str
         """
-        return self.expression_pretty_printer.print_expression(node)
+        return self.expression_pretty_printer.print_expression(node, prefix=prefix)
 
     def print_method_call(self, node):
         # type: (ASTFunctionCall) -> str
@@ -100,7 +100,7 @@ class NestPrinter(object):
         return for_stmt.get_step()
 
     @classmethod
-    def print_origin(cls, variable_symbol):
+    def print_origin(cls, variable_symbol, prefix=''):
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
@@ -112,21 +112,27 @@ class NestPrinter(object):
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 variable_symbol)
         if variable_symbol.block_type == BlockType.STATE:
-            return 'S_.'
-        elif variable_symbol.block_type == BlockType.INITIAL_VALUES:
-            return 'S_.'
-        elif variable_symbol.block_type == BlockType.EQUATION:
-            return 'S_.'
-        elif variable_symbol.block_type == BlockType.PARAMETERS:
-            return 'P_.'
-        elif variable_symbol.block_type == BlockType.INTERNALS:
-            return 'V_.'
-        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
-            return 'B_.'
-        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
-            return 'B_.'
-        else:
-            return ''
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.INITIAL_VALUES:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.EQUATION:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.PARAMETERS:
+            return prefix + 'P_.'
+
+        if variable_symbol.block_type == BlockType.INTERNALS:
+            return prefix + 'V_.'
+
+        if variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
+            return prefix + 'B_.'
+
+        if variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
+            return prefix + 'B_.'
+
+        return ''
 
     @classmethod
     def print_output_event(cls, ast_body):

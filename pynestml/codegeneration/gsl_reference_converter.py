@@ -44,7 +44,7 @@ class GSLReferenceConverter(IReferenceConverter):
         """
         self.is_upper_bound = is_upper_bound
 
-    def convert_name_reference(self, ast_variable):
+    def convert_name_reference(self, ast_variable, prefix=''):
         """
         Converts a single name reference to a gsl processable format.
         :param ast_variable: a single variable
@@ -72,15 +72,15 @@ class GSLReferenceConverter(IReferenceConverter):
             return GSLNamesConverter.name(symbol)
 
         if symbol.is_buffer():
-            return 'node.B_.' + NestNamesConverter.buffer_value(symbol)
+            return prefix + 'B_.' + NestNamesConverter.buffer_value(symbol)
 
         if symbol.is_local() or symbol.is_function:
             return variable_name
 
         if symbol.has_vector_parameter():
-            return 'node.get_' + variable_name + '()[i]'
+            return prefix + 'get_' + variable_name + '()[i]'
 
-        return 'node.get_' + variable_name + '()'
+        return prefix + 'get_' + variable_name + '()'
 
     def convert_function_call(self, function_call, prefix=''):
         """Convert a single function call to C++ GSL API syntax.

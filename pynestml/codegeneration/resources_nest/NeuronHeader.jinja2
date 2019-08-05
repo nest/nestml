@@ -277,12 +277,14 @@ private:
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
 
+{# N.B. numeric solver contains all state variables, including those whose value will later be overwritten by the analytic solver
 {% if uses_analytic_solver -%}
        // analytic solver state variables
 {%   for variable_name in analytic_state_variables: -%}
        {{variable_name}},
 {%   endfor -%}
 {% endif -%}
+#}
 
 {% if uses_numeric_solver -%}
        // numeric solver state variables

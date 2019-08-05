@@ -39,7 +39,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable):
+    def convert_name_reference(self, ast_variable, prefix=''):
         """
         Returns the same string
         :param ast_variable: a single variable
@@ -47,7 +47,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same string
         :rtype: str
         """
-        return ast_variable.get_complete_name()
+        return prefix + ast_variable.get_complete_name()
 
     def convert_function_call(self, function_call, prefix=''):
         """Return the function call in NESTML syntax.

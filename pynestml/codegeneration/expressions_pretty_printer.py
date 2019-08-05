@@ -62,7 +62,7 @@ class ExpressionsPrettyPrinter(object):
             The expression string.
         """
         if node.get_implicit_conversion_factor() is not None:
-            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
+            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, prefix=prefix) + ')'
         else:
             return self.__do_print(node, prefix=prefix)
 
@@ -72,7 +72,7 @@ class ExpressionsPrettyPrinter(object):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
-                       self.reference_converter.convert_name_reference(node.get_variable())
+                       self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:
@@ -84,7 +84,7 @@ class ExpressionsPrettyPrinter(object):
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable())
+                return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
         elif isinstance(node, ASTExpression):
