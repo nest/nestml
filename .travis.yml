@@ -60,7 +60,7 @@ stages:
 jobs:
   include:
     - stage: test
-      script: pytest -s tests
+      script: pytest -s -o norecursedirs='*' tests
 
     - stage: integration
       install:
