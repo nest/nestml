@@ -100,7 +100,6 @@ if __name__ == "__main__":
     models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
     models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
-    """models.append(("iaf_cond_beta_neuron", "iaf_cond_beta_nestml", None, 0.001))
     models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp", "iaf_cond_exp_implicit_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 0.001))
@@ -110,10 +109,7 @@ if __name__ == "__main__":
     models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
     models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
     models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
-    models.append(("izhikevich_psc_alpha", "izhikevich_psc_alpha_implicit_nestml", 1.e-3, 0.1))
     models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
-    models.append(("terub_neuron_gpe", "terub_neuron_gpe_implicit_nestml", 1.e-3, 0.001))
-    models.append(("terub_neuron_stn", "terub_neuron_stn_implicit_nestml", 1.e-3, 0.001))"""
 
     for reference, testant, gsl_error_tol, tollerance in models:
         test(reference, testant, gsl_error_tol, tollerance)
