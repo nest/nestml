@@ -32,11 +32,11 @@ nest.Install("nestmlmodule")
 
 
 def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
-    nest.ResetKernel()
 
     spike_times = [100.0, 200.0]
     spike_weights = [1., -1.]
 
+    nest.ResetKernel()
     neuron1 = nest.Create(referenceModel)
     neuron2 = nest.Create(testant)
 
@@ -88,8 +88,8 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
 if __name__ == "__main__":
     # execute only if run as a script
     models = list()
-    models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
     models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
+    models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 0.001))
