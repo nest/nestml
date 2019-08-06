@@ -64,14 +64,12 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     Vms1 = dmm1["events"][V_m_specifier]
     ts1 = dmm1["events"]["times"]
 
-    events1 = dmm1["events"]
-    fig, ax = plt.subplots(2, 1)
-
     dmm2 = nest.GetStatus(multimeter2)[0]
     Vms2 = dmm2["events"][V_m_specifier]
     ts2 = dmm2["events"]["times"]
 
     if TEST_PLOTS:
+        fig, ax = plt.subplots(2, 1)
         ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
         ax[1].plot(ts2, Vms2, label = "Testant " + testant)
         for _ax in ax:
