@@ -1,5 +1,5 @@
 #
-# nest_integration_test_for_models.py
+# nest_integration_test.py
 #
 # This file is part of NEST.
 #
@@ -19,14 +19,21 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import nest
-import pylab
 
-nest.Install("models")
-nest.set_verbosity("M_WARNING")
+TEST_PLOTS = True
+if TEST_PLOTS:
+    import matplotlib
+    import matplotlib.pyplot as plt
+
+nest.set_verbosity("M_ALL")
+nest.Install("nestmlmodule")
 
 
 def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     nest.ResetKernel()
+
+    spike_times = [100.0, 200.0]
+    spike_weights = [1., -1.]
 
     neuron1 = nest.Create(referenceModel)
     neuron2 = nest.Create(testant)
@@ -35,7 +42,7 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
         nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
     spikegenerator = nest.Create('spike_generator',
-                                 params={'spike_times': [100.0, 200.0], 'spike_weights': [1.0, -1.0]})
+                                 params={'spike_times': spike_times, 'spike_weights': spike_weights})
 
     nest.Connect(spikegenerator, neuron1)
     nest.Connect(spikegenerator, neuron2)
@@ -56,89 +63,32 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     ts1 = dmm1["events"]["times"]
 
     events1 = dmm1["events"]
-    pylab.figure(1)
+    fig, ax = plt.subplots(2, 1)
 
     dmm2 = nest.GetStatus(multimeter2)[0]
     Vms2 = dmm2["events"][V_m_specifier]
     ts2 = dmm2["events"]["times"]
 
-    # pylab.plot(ts1, Vms1, label = "Reference " + referenceModel)
-    # pylab.plot(ts2, Vms2, label = "Testant " + testant)
-    # pylab.legend(loc='upper right')
+    if TEST_PLOTS:
+        ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
+        ax[1].plot(ts2, Vms2, label = "Testant " + testant)
+        for _ax in ax:
+            _ax.legend(loc='upper right')
+            _ax.grid()
+        plt.show()
 
     for index in range(0, len(Vms1)):
         if abs(Vms1[index] - Vms2[index]) > tolerance:
-            print('!!!!!!!!!!!!!!!!!!!!')
-            print(str(Vms1[index]) + " divers from  " + str(Vms2[index]) + " at iteration: " + str(
-                index) + " of overall iterations: " + str(len(Vms1)))
-            print('!!!!!!!!!!!!!!!!!!!!')
+            print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
             raise Exception(testant + ": TEST FAILED")
-        elif abs(Vms1[index] - Vms2[index]) > 0:
-            None  # print("Greater than 0 difference" + str(abs(Vms1[index]-Vms2[index])) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
+
     print(testant + " PASSED")
-
-
-def test_multysinapse():
-    neuron1 = nest.Create("iaf_psc_alpha_multisynapse_neuron")
-    neuron2 = nest.Create("iaf_psc_alpha_multisynapse_neuron")
-
-    nest.SetDefaults("iaf_psc_alpha_multisynapse", {"tau_syn": [1.0, 2.0]})
-
-    spikegenerator = nest.Create('spike_generator', params={'spike_times': [100.0, 200.0]})
-
-    syn_dict = {"model": "static_synapse", "weight": 2.5, 'receptor_type': 1}
-
-    nest.Connect(spikegenerator, neuron2, syn_spec=syn_dict)
-    nest.Connect(spikegenerator, neuron1, syn_spec=syn_dict)
-
-    # nest.SetStatus(neuron1, {"I_e": 376.0})
-    # nest.SetStatus(neuron2, {"I_e": 376.0})
-
-    multimeter1 = nest.Create('multimeter')
-    multimeter2 = nest.Create('multimeter')
-
-    V_m_specifier = 'V_m'  # 'delta_V_m'
-    nest.SetStatus(multimeter1, {"withtime": True, "record_from": [V_m_specifier]})
-    nest.SetStatus(multimeter2, {"withtime": True, "record_from": [V_m_specifier]})
-
-    nest.Connect(multimeter1, neuron1)
-    nest.Connect(multimeter2, neuron2)
-
-    nest.Simulate(400.0)
-    dmm1 = nest.GetStatus(multimeter1)[0]
-    Vms1 = dmm1["events"][V_m_specifier]
-    ts1 = dmm1["events"]["times"]
-
-    events1 = dmm1["events"]
-    pylab.figure(1)
-
-    dmm2 = nest.GetStatus(multimeter2)[0]
-    Vms2 = dmm2["events"][V_m_specifier]
-    ts2 = dmm2["events"]["times"]
-
-    pylab.plot(ts1, Vms1)
-    pylab.plot(ts2, Vms2)
-
-    pylab.show()
-
-    for index in range(0, len(Vms1)):
-        if abs(Vms1[index] - Vms2[index]) > 0.000001:
-            print('!!!!!!!!!!!!!!!!!!!!')
-            print(str(Vms1[index]) + " divers from  " + str(Vms2[index]) + " at iteration: " + str(
-                index) + " of overall iterations: " + str(len(Vms1)))
-            print('!!!!!!!!!!!!!!!!!!!!')
-            raise Exception("TEST FAILED")
-        elif abs(Vms1[index] - Vms2[index]) > 0:
-            print("Greater than 0 difference" + str(abs(Vms1[index] - Vms2[index])) + " at iteration: " + str(
-                index) + " of overall iterations: " + str(len(Vms1)))
-    print("Test: PASSED")
 
 
 if __name__ == "__main__":
     # execute only if run as a script
-    # test_multysinapse()
     models = list()
-    models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit", 1.e-3, 0.001))
+    """models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit", 1.e-3, 0.001))
     models.append(("iaf_chxk_2008", "iaf_chxk_2008_neuron", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_neuron", 1.e-3, 0.001))
@@ -147,10 +97,10 @@ if __name__ == "__main__":
     models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit", 1.e-3, 0.001))
     models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_neuron", 1.e-3, 0.001))
     models.append(("hh_psc_alpha", "hh_psc_alpha_implicit", 1.e-3, 0.001))
-    models.append(("hh_psc_alpha", "hh_psc_alpha_neuron", 1.e-3, 0.001))
-    models.append(("iaf_cond_alpha", "iaf_cond_alpha_neuron", 1.e-3, 0.001))
-    models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit", 1.e-3, 0.001))
-    models.append(("iaf_cond_beta_neuron", "iaf_cond_beta_neuron", None, 0.001))
+    models.append(("hh_psc_alpha", "hh_psc_alpha_neuron", 1.e-3, 0.001))"""
+    models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+    models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
+    """models.append(("iaf_cond_beta_neuron", "iaf_cond_beta_neuron", None, 0.001))
     models.append(("iaf_cond_exp", "iaf_cond_exp_neuron", 1.e-3, 0.001))
     models.append(("iaf_cond_exp", "iaf_cond_exp_implicit", 1.e-3, 0.001))
     models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_neuron", 1.e-3, 0.001))
@@ -164,7 +114,7 @@ if __name__ == "__main__":
     models.append(("izhikevich_psc_alpha", "izhikevich_psc_alpha_implicit", 1.e-3, 0.1))
     models.append(("mat2_psc_exp", "mat2_psc_exp_neuron", None, 0.1))
     models.append(("terub_neuron_gpe", "terub_neuron_gpe_implicit", 1.e-3, 0.001))
-    models.append(("terub_neuron_stn", "terub_neuron_stn_implicit", 1.e-3, 0.001))
+    models.append(("terub_neuron_stn", "terub_neuron_stn_implicit", 1.e-3, 0.001))"""
 
     for reference, testant, gsl_error_tol, tollerance in models:
         test(reference, testant, gsl_error_tol, tollerance)
