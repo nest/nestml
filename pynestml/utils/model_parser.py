@@ -160,6 +160,12 @@ class ModelParser(object):
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+
+        # store source paths
+        for neuron in ast.get_neuron_list():
+            neuron.file_path = file_path
+        ast.file_path = file_path
+
         return ast
 
     @classmethod
