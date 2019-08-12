@@ -1,5 +1,5 @@
 Syntax highlighting for Geany
-===========================
+=============================
 
 The file ``filetypes.NestML.conf`` provides definitions for syntax highlighting with the lightweight IDE [Geany](https://www.geany.org/).
 
