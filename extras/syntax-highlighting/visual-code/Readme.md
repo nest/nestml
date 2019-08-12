@@ -1,4 +1,4 @@
-Syntax highliting for Visual Studio Code
+Syntax highlighting for Visual Studio Code
 ========================================
 
 The files ``language-configuration.json`` and ``syntaxes/nestml.tmLanguage.json`` provides definitions for syntax highlighting and autoclosure/indentation with [Visual Studio Code](https://code.visualstudio.com/).
