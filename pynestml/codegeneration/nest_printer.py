@@ -28,7 +28,45 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
-
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_bit_operator import ASTBitOperator
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
+from pynestml.meta_model.ast_data_type import ASTDataType
+from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_elif_clause import ASTElifClause
+from pynestml.meta_model.ast_else_clause import ASTElseClause
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_for_stmt import ASTForStmt
+from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_if_clause import ASTIfClause
+from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_input_block import ASTInputBlock
+from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_output_block import ASTOutputBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
+from pynestml.meta_model.ast_unit_type import ASTUnitType
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 class NestPrinter(object):
     """
@@ -46,6 +84,110 @@ class NestPrinter(object):
         else:
             self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
         return
+    def print_node(self, node):
+        ret = ''
+        if isinstance(node, ASTArithmeticOperator):
+            ret = self.print_arithmetic_operator(node)
+        if isinstance(node, ASTAssignment):
+            ret = self.print_assignment(node)
+        if isinstance(node, ASTBitOperator):
+            ret = self.print_bit_operator(node)
+        if isinstance(node, ASTBlock):
+            ret = self.print_block(node)
+        if isinstance(node, ASTBlockWithVariables):
+            ret = self.print_block_with_variables(node)
+        if isinstance(node, ASTBody):
+            ret = self.print_body(node)
+        if isinstance(node, ASTComparisonOperator):
+            ret = self.print_comparison_operator(node)
+        if isinstance(node, ASTCompoundStmt):
+            ret = self.print_compound_stmt(node)
+        if isinstance(node, ASTDataType):
+            ret = self.print_data_type(node)
+        if isinstance(node, ASTDeclaration):
+            ret = self.print_declaration(node)
+        if isinstance(node, ASTElifClause):
+            ret = self.print_elif_clause(node)
+        if isinstance(node, ASTElseClause):
+            ret = self.print_else_clause(node)
+        if isinstance(node, ASTEquationsBlock):
+            ret = self.print_equations_block(node)
+        if isinstance(node, ASTExpression):
+            ret = self.print_expression(node)
+        if isinstance(node, ASTForStmt):
+            ret = self.print_for_stmt(node)
+        if isinstance(node, ASTFunction):
+            ret = self.print_function(node)
+        if isinstance(node, ASTFunctionCall):
+            ret = self.print_function_call(node)
+        if isinstance(node, ASTIfClause):
+            ret = self.print_if_clause(node)
+        if isinstance(node, ASTIfStmt):
+            ret = self.print_if_stmt(node)
+        if isinstance(node, ASTInputBlock):
+            ret = self.print_input_block(node)
+        if isinstance(node, ASTInputLine):
+            ret = self.print_input_line(node)
+        if isinstance(node, ASTInputType):
+            ret = self.print_input_type(node)
+        if isinstance(node, ASTLogicalOperator):
+            ret = self.print_logical_operator(node)
+        if isinstance(node, ASTNestMLCompilationUnit):
+            ret = self.print_compilation_unit(node)
+        if isinstance(node, ASTNeuron):
+            ret = self.print_neuron(node)
+        if isinstance(node, ASTOdeEquation):
+            ret = self.print_ode_equation(node)
+        if isinstance(node, ASTOdeFunction):
+            ret = self.print_ode_function(node)
+        if isinstance(node, ASTOdeShape):
+            ret = self.print_ode_shape(node)
+        if isinstance(node, ASTOutputBlock):
+            ret = self.print_output_block(node)
+        if isinstance(node, ASTParameter):
+            ret = self.print_parameter(node)
+        if isinstance(node, ASTReturnStmt):
+            ret = self.print_return_stmt(node)
+        if isinstance(node, ASTSimpleExpression):
+            ret = self.print_simple_expression(node)
+        if isinstance(node, ASTSmallStmt):
+            ret = self.print_small_stmt(node)
+        if isinstance(node, ASTUnaryOperator):
+            ret = self.print_unary_operator(node)
+        if isinstance(node, ASTUnitType):
+            ret = self.print_unit_type(node)
+        if isinstance(node, ASTUpdateBlock):
+            ret = self.print_update_block(node)
+        if isinstance(node, ASTVariable):
+            ret = self.print_variable(node)
+        if isinstance(node, ASTWhileStmt):
+            ret = self.print_while_stmt(node)
+        if isinstance(node, ASTStmt):
+            ret = self.print_stmt(node)
+        return ret
+    
+    def print_assignment(self, node, prefix=""):
+        # type: (ASTAssignment) -> str
+        ret = self.print_node(node.lhs) + ' '
+        if node.is_compound_quotient:
+            ret += '/='
+        elif node.is_compound_product:
+            ret += '*='
+        elif node.is_compound_minus:
+            ret += '-='
+        elif node.is_compound_sum:
+            ret += '+='
+        else:
+            ret += '='
+        ret += ' ' + self.print_node(node.rhs)
+        return ret        
+
+    def print_variable(self, node):
+        # type: (ASTVariable) -> str
+        ret = node.name
+        for i in range(1, node.differential_order + 1):
+            ret += "__d"
+        return ret
 
     def print_expression(self, node, prefix=""):
         # type: (ASTExpressionNode) -> str

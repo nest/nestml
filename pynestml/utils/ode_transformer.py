@@ -29,19 +29,18 @@ class OdeTransformer(object):
     """
     This class contains several methods as used to transform ODEs.
     """
-    sum_functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE)
 
-    @classmethod
-    def refactor_convolve_call(cls, _ast):
-        """
-        Replaces all `convolve` calls in the handed over node.
-        :param _ast: a single node
-        :type _ast: ASTNode
-        """
+    #@classmethod
+    #def refactor_convolve_call(cls, _ast):
+        #"""
+        #Replaces all `convolve` calls in the handed over node.
+        #:param _ast: a single node
+        #:type _ast: ASTNode
+        #"""
 
-        function_calls = cls.get_sum_function_calls(_ast)
-        for call in function_calls:
-            cls.replace_function_call_through_first_argument(_ast, call)
+        #function_calls = cls.get_sum_function_calls(_ast)
+        #for call in function_calls:
+            #cls.replace_function_call_through_first_argument(_ast, call)
 
     @classmethod
     def replace_function_call_through_first_argument(cls, ast, function_name_to_replace):
@@ -66,16 +65,16 @@ class OdeTransformer(object):
         ast.accept(ASTHigherOrderVisitor(func))
 
     @classmethod
-    def get_sum_function_calls(cls, ast):
+    def get_convolve_function_calls(cls, ast):
         """
         Returns all sum function calls in the handed over meta_model node or one of its children.
         :param ast: a single meta_model node.
         :type ast: ASTNode
         """
-        return cls.get_function_calls(ast, cls.sum_functions)
+        return cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)
 
     @classmethod
-    def contains_sum_function_call(cls, ast):
+    def contains_convolve_function_call(cls, ast):
         """
         Indicates whether _ast or one of its child nodes contains a sum call.
         :param ast: a single meta_model
@@ -83,7 +82,7 @@ class OdeTransformer(object):
         :return: True if sum is contained, otherwise False.
         :rtype: bool
         """
-        return len(cls.get_function_calls(ast, cls.sum_functions)) > 0
+        return len(cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)) > 0
 
     @classmethod
     def get_function_calls(cls, ast_node, function_list):

@@ -217,9 +217,7 @@ The following functions are predefined in NestML and can be used out of the box:
 | random | | *Not yet implemented.* |
 | randomInt | | *Not yet implemented.* |
 | delta | t | A Dirac delta impulse function at time t. |
-| curr\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
-| cond\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
-| convolve | f, g | The convolution of function f with function g. |
+| convolve | f, g | The convolution of shape f with spike train g (or vice versa). |
 | info | s | Log the string s with logging level "info". |
 | warning | s | Log the string s with logging level "warning". |
 | print | s | Print the string s to stdout (no line break at the end). |
@@ -406,7 +404,7 @@ The following blocks are mandataroy: **input**, **output** and **update**
 
 ### Synaptic input
 
-A neuron model written in NestML can be configured to receive two distinct types of input, spikes, and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
+A neuron model written in NestML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 ```
 port_name <- inhibitory? excitatory? (spike | current)
 ```
@@ -435,18 +433,24 @@ Please note that this block is **not** terminated with the `end` keyword.
 
 ## Synaptic input
 
-NestML has two dedicated functions to ease the summation of synaptic input.
+Spikes arriving at the input port of a neuron can be written as a spike train *s(t)*:
 
-`curr_sum` is a function that has two arguments. The first is a function *I* of *t* which is either a `shape` function (see [Synaptic response](#synaptic-response)) or a function that is defined by an ODE plus initial values (see [Systems of ODEs](#systems-of-odes)). The second is a `spike` input buffer (see [Synaptic input](#synaptic-input)). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t\_i*. In mathematical terms, it thus performs the following operation:
+<!-- $\large s(t) = \sum_{i=1}^N \delta(t - t_i)$ -->
+![equation](https://latex.codecogs.com/gif.latex?%5Clarge%20s%28t%29%20%3D%20%5Csum_%7Bi%3D1%7D%5EN%20%5Cdelta%28t%20-%20t_i%29).
 
-<!-- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ -->
-![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w).
+To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha function (bi-exponential), decaying exponential, or a delta function. (See [Shape functions](#shape-functions) for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
 
-When the sum above is used to describe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit that the neural dynamics are based on synaptic conductances rather than currents.
+<!-- $\large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)$ -->
+![equation](https://latex.codecogs.com/gif.latex?%5Clarge%20%28f%20%5Cast%20s%29%28t%29%20%3D%20%5Csum_%7Bi%3D1%7D%5EN%20w_i%20%5Ccdot%20f%28t%20-%20t_i%29).
 
-For modeling postsynaptic responses with delta functions, `curr_sum` and `cond_sum` can be called with the keyword `delta` as first argument instead of a `shape` function.
+where *w_i* is the weight of spike *i*.
 
-For convenience reason, `curr_sum` and `cond_sum` are not required to be called (although possible). Instead, the `convolve` function can be used to perform the correct steps.
+For example, say there is a spiking input port defined named `spikes`. A decaying exponential with time constant `tau_syn` is defined as postsynaptic shape `G`. Integration into the membrane potential `V_m` can be expressed using the `convolve(f, g)` function, which takes a shape and input port as its arguments:
+
+```
+shape G = exp(-t/tau_syn)
+V_m' = -V_m/tau_m + convolve(G, spikes)
+```
 
 ## Handling of time
 
@@ -459,7 +463,7 @@ These functions can be used to implement custom buffer lookup logic but should b
 
 ## Equations
 
-### Synaptic response
+### Shape functions
 
 A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
 
@@ -486,11 +490,11 @@ Inside the `update` block, the current time can be accessed via the variable `t`
 
 `integrate_odes`: this function can be used to integrate all stated differential equations of the `equations` block.
 
-`emit_spike`: calling this function in the `update`-block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+`emit_spike`: calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 ### Solver selection
 
-Currently, there is support for GSL and exact integration.
+Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `SetStatus` call. The default value of the `gsl_error_tol` is `1e-3`.
 

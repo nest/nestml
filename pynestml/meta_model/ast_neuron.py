@@ -575,7 +575,6 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            import pdb;pdb.set_trace()
             if isinstance(symbol, VariableSymbol) and \
                     symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
                     and not symbol.is_predefined:
@@ -761,3 +760,13 @@ class ASTNeuron(ASTNode):
         if not isinstance(other, ASTNeuron):
             return False
         return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
+
+    def get_initial_value(self, variable_name):
+        assert type(variable_name) is str
+
+        for decl in self.get_initial_values_blocks().get_declarations():
+            assert len(decl.variables) == 1
+            if str(decl.variables[0]) == variable_name:
+                return decl.get_expression()
+
+        return None

@@ -7,6 +7,7 @@
 {%- include "directives/AnalyticIntegrationStep_begin.jinja2" -%}
 {%- include "directives/GSLIntegrationStep.jinja2" -%}
 {%- include "directives/AnalyticIntegrationStep_end.jinja2" -%}
+{%- include "directives/ApplySpikesFromBuffers.jinja2" -%}
 {%- else -%}
 {{printer.print_method_call(ast)}};
 {%- endif -%}
