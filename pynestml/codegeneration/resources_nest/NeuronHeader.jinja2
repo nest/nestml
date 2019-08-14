@@ -266,49 +266,37 @@ private:
   *         assignment operator to copy those members.
   */
   struct State_{
-    {% if not useGSL %}{% filter indent(4,True) -%}
-    {% for variable in neuron.get_state_non_alias_symbols() -%}
-    {% include "directives/MemberDeclaration.jinja2" -%}
-    {% endfor -%}
-    {% for variable in neuron.get_initial_values_symbols() -%}
-    {% include "directives/MemberDeclaration.jinja2" -%}
-    {% endfor -%}{% endfilter -%}
-    {% else -%}
+{%- if not useGSL %}
+{%-   filter indent(4,True) %}
+{%-   for variable in neuron.get_state_non_alias_symbols() %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfor %}
+{%-   for variable in neuron.get_initial_values_symbols() %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfor %}
+{%-   endfilter %}
+{%- else %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
-
-{# N.B. numeric solver contains all state variables, including those whose value will later be overwritten by the analytic solver
-{% if uses_analytic_solver -%}
-       // analytic solver state variables
-{%   for variable_name in analytic_state_variables: -%}
-       {{variable_name}},
-{%   endfor -%}
-{% endif -%}
-#}
-
-{% if uses_numeric_solver -%}
-       // numeric solver state variables
-{%   for variable_name in numeric_state_variables: -%}
-       {{variable_name}},
-{%   endfor -%}
-{% endif -%}
-
+{# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver#}
+{%-   if uses_numeric_solver %}
+      // numeric solver state variables
+{%-     for variable_name in numeric_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
+{%-   endif %}
       STATE_VEC_SIZE
     };
     //! state vector, must be C-array for GSL solver
-    double ode_state[STATE_VEC_SIZE];{% filter indent(4,True) -%}
-    {% for variable in neuron.get_state_symbols() -%}
-      {% include "directives/MemberDeclaration.jinja2" -%}
-    {% endfor -%}
-    {% for variable in neuron.get_function_initial_values_symbols() -%}
-      {% include "directives/MemberDeclaration.jinja2" -%}
-    {% endfor -%}{% endfilter -%}
-    {% endif -%}
-    {% filter indent(4,True) -%}
-    {% for variable in neuron.get_ode_aliases() -%}
-      {% include 'directives/MemberDeclaration.jinja2' -%}
-    {% endfor %}
-    {% endfilter -%}
+    double ode_state[STATE_VEC_SIZE];
+    
+    // state variables from state block
+{%-   filter indent(4,True) %}
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfor %}
+{%-   endfilter %}
+{%- endif %}
 
     State_();
   };
@@ -420,8 +408,8 @@ private:
   {% endwith -%}
   {% endfor -%}
 
-  {% for odeAlias in neuron.get_ode_aliases() %}
-  {% with variable = odeAlias %}
+  {% for funcsym in neuron.get_function_symbols() %}
+  {% with variable = funcsym %}
   {% include "directives/MemberVariableGetterSetter.jinja2" -%}
   {% endwith -%}
   {% endfor %}

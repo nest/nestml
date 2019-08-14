@@ -91,7 +91,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             # todo by KP: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
             #                    not isinstance(decl, ASTOdeShape))
-            mark_conductance_based_buffers(input_lines=buffers)
         # now update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
@@ -667,23 +666,6 @@ def make_implicit_odes_explicit(equations_block):
                 base_found = False
 
         checked.append(declaration)
-    return
-
-
-def mark_conductance_based_buffers(input_lines):
-    """
-    Inspects all handed over buffer definitions and updates them to conductance based if they occur as part of
-    a cond_sum rhs.
-    :param input_lines: a set of input buffers.
-    :type input_lines: ast_input_line
-    """
-    # this is the updated version, where nS buffers are marked as conductance based
-    for bufferDeclaration in input_lines:
-        if bufferDeclaration.is_spike():
-            symbol = bufferDeclaration.get_scope().resolve_to_symbol(bufferDeclaration.get_name(),
-                                                                     SymbolKind.VARIABLE)
-            if symbol is not None and symbol.get_type_symbol().equals(PredefinedTypes.get_buffer_type_if_exists('nS')):
-                symbol.set_conductance_based(True)
     return
 
 

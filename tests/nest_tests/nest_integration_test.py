@@ -19,9 +19,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import nest
+import numpy as np
 
 try:
-    import matplotlib
+    import matplotlib as mpl
+    mpl.use("Agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except:
@@ -31,13 +33,13 @@ nest.set_verbosity("M_ALL")
 nest.Install("nestmlmodule")
 
 
-def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
+def test(referenceModel, testant, gsl_error_tol, tolerance=1E-6):
 
     spike_times = [100.0, 200.0]
     spike_weights = [1., -1.]
 
     nest.ResetKernel()
-    neuron1 = nest.Create(referenceModel)
+    neuron1 = nest.Create("iaf_psc_exp")
     neuron2 = nest.Create(testant)
 
     if not (gsl_error_tol is None):
@@ -78,17 +80,20 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
         plt.savefig("/tmp/nestml_nest_integration_test_[" + referenceModel + "]_[" + testant + "].png")
 
     for index in range(0, len(Vms1)):
-        if abs(Vms1[index] - Vms2[index]) > tolerance:
+        if abs(Vms1[index] - Vms2[index]) > tolerance \
+         or np.isnan(Vms1[index]) \
+         or np.isnan(Vms2[index]):
             print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
             raise Exception(testant + ": TEST FAILED")
 
     print(testant + " PASSED")
+    import pdb;pdb.set_trace()
 
 
 if __name__ == "__main__":
     # execute only if run as a script
     models = list()
-    models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
+    """models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
     models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 0.001))
@@ -97,19 +102,24 @@ if __name__ == "__main__":
     models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 0.001))
     models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 0.001))
     models.append(("hh_psc_alpha", "hh_psc_alpha_implicit_nestml", 1.e-3, 0.001))
-    models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1.e-3, 0.001))
-    models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-    models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
-    models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1.e-3, 0.001))
+    models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1.e-3, 0.001))"""
+    #models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+    #models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
+    """models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp", "iaf_cond_exp_implicit_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 0.001))
-    models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
-    models.append(("iaf_psc_delta", "iaf_psc_delta", None, 0.001))
-    models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
-    models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
+    """
+
+
+    models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 1E-6))
+    #models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
+    #models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
+
+
+    """models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
     models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
-    models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
+    models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))"""
 
     for reference, testant, gsl_error_tol, tollerance in models:
         test(reference, testant, gsl_error_tol, tollerance)

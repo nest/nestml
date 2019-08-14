@@ -89,8 +89,8 @@ namespace nest
   {%- for variable in neuron.get_parameter_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
-  {%- for odeAlias in neuron.get_ode_aliases() %}
-    {%- with variable = odeAlias %}
+  {%- for funcsym in neuron.get_function_symbols() %}
+    {%- with variable = funcsym %}
       {%- include "directives/RecordCallback.jinja2" %}
     {%- endwith %}
   {%- endfor %}{% endfilter %}
@@ -148,22 +148,26 @@ namespace nest
   P_.__gsl_error_tol = 1e-3;
   {%- endif %}
 
+  // initial values for parameters
   {%- for parameter in neuron.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
+  // initial values for state variables
   {%- for state in neuron.get_state_non_alias_symbols() -%}
   {%- with variable = state %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
-  {%- for init in neuron.get_initial_values_symbols() -%}
+  // initial values for initial values block
+  {%- for init in neuron.get_initial_values_non_alias_symbols() -%}
   {%- with variable = init -%}
   {%- include "directives/MemberInitialization.jinja2" %}
-  {%- endwith %}{% endfor %}
+  {%- endwith %}
+  {%- endfor %}
 }
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
@@ -335,8 +339,8 @@ void {{neuronName}}::handle(nest::SpikeEvent &e){
   if ( weight < 0.0 ){ // inhibitory
     get_{{buffer.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                      {% if buffer.is_conductance_based %} // ensure conductance is positive {% endif %}
-                      {% if buffer.is_conductance_based %} -1 * {% endif %} weight * multiplicity );
+                      {% if buffer.is_conductance_based() %} // ensure conductance is positive {% endif %}
+                      {% if buffer.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
   }
   {%- endif -%}
   {%- endfor %}

@@ -103,20 +103,3 @@ class OdeTransformer(object):
         ast_node.accept(vis)
         return res
 
-    @classmethod
-    def get_cond_sum_function_calls(cls, node):
-        """
-        Collects all cond_sum function calls in the meta_model.
-        :param node: a single meta_model node
-        :type node: ASTNode
-        :return: a list of all functions in the meta_model
-        :rtype: list(ASTFunctionCall)
-        """
-        res = list()
-
-        def loc_get_cond_sum(a_node):
-            if isinstance(a_node, ASTFunctionCall) and a_node.get_name() == PredefinedFunctions.COND_SUM:
-                res.append(a_node)
-
-        node.accept(ASTHigherOrderVisitor(loc_get_cond_sum))
-        return res

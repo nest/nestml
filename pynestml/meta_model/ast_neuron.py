@@ -361,18 +361,19 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_ode_aliases(self):
+    def get_function_symbols(self):
         """
-        Returns a list of all equation function symbols defined in the model.
-        :return: a list of equation function  symbols.
+        Returns a list of all function symbols defined in the model.
+        :return: a list of function symbols.
         :rtype: list(VariableSymbol)
         """
         from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol,
-                          VariableSymbol) and symbol.block_type == BlockType.EQUATION and symbol.is_function:
+            if isinstance(symbol, VariableSymbol) \
+             and symbol.block_type == BlockType.EQUATION \
+             and symbol.is_function:
                 ret.append(symbol)
         return ret
 

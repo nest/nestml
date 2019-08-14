@@ -28,11 +28,10 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoNoShapesExceptInConvolve(CoCo):
     """
-    This CoCo ensures that shape variables do not occur on the right hand side except in convolve/curr_sum and
-    cond_sum.
+    This CoCo ensures that shape variables do not occur on the right hand side except in convolve().
     Allowed:
         shape g_ex ...
-        function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+        function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
 
     Not allowed
         shape g_ex ...
@@ -95,8 +94,7 @@ class ShapeUsageVisitor(ASTVisitor):
                     grandparent = self.__neuron_node.get_parent(parent)
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
                         grandparent_func_name = grandparent.get_name()
-                        if grandparent_func_name == 'curr_sum' or grandparent_func_name == 'cond_sum' or \
-                                grandparent_func_name == 'convolve':
+                        if grandparent_func_name == 'convolve':
                             continue
                 code, message = Messages.get_shape_outside_convolve(shapeName)
                 Logger.log_message(error_position=node.get_source_position(),

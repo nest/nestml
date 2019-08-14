@@ -24,8 +24,12 @@ from enum import Enum
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_line import ASTInputLine
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+
+from astropy import units
 
 
 class VariableSymbol(Symbol):
@@ -41,7 +45,7 @@ class VariableSymbol(Symbol):
         is_recordable        Indicates whether this symbol belongs to a recordable element. Type: bool
         type_symbol          The concrete type of this variable.
         ode_declaration      Used to store the corresponding ode declaration.
-        is_conductance_based  Indicates whether this buffer is used in a cond_sum rhs.
+        is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value        Indicates the initial value if such is declared.
         variable_type        The type of the variable, either a shape, or buffer or function. Type: VariableType
     """
@@ -88,7 +92,6 @@ class VariableSymbol(Symbol):
         self.initial_value = initial_value
         self.variable_type = variable_type
         self.ode_declaration = None
-        self.is_conductance_based = False
 
     def has_vector_parameter(self):
         """
@@ -241,6 +244,9 @@ class VariableSymbol(Symbol):
         :return: True if part of a shape definition, otherwise False.
         :rtype: bool
         """
+        #print("is_shape(" + self.name + ") ? --> " + str(self.variable_type == VariableType.SHAPE))
+        #if not(self.variable_type == VariableType.SHAPE):
+            #import pdb;pdb.set_trace()
         return self.variable_type == VariableType.SHAPE
 
     def is_init_values(self):
@@ -287,9 +293,6 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        print("is ode defined for ", end="")
-        print(self, end="?")
-        #import pdb;pdb.set_trace()
         return self.ode_declaration is not None and (isinstance(self.ode_declaration, ASTExpression) or
                                                      isinstance(self.ode_declaration, ASTSimpleExpression))
 
@@ -315,16 +318,11 @@ class VariableSymbol(Symbol):
         :return: True if conductance based, otherwise False.
         :rtype: bool
         """
-        # TODO it is a workaround. improve.
-        return self.is_conductance_based  # or self.type_symbol.print_symbol().startswith("nS")
-
-    def set_conductance_based(self, is_conductance_base):
-        """
-        Updates the information regarding the conductance property of this element.
-        :param is_conductance_base: the new status.
-        :type is_conductance_base: bool
-        """
-        self.is_conductance_based = is_conductance_base
+        is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))        
+        is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
+        assert is_cond_based != is_curr_based, "Unable to determine based on type '" + self.type_symbol.print_nestml_type() + "' of variable '" + self.name + "' whether conductance-based or current-based"
+    
+        return is_cond_based
 
     def get_variable_type(self):
         """

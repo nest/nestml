@@ -46,8 +46,6 @@ class PredefinedFunctions(object):
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
         INTEGRATE_ODES        The callee name of the integrate-ode function.
-        CURR_SUM              The callee name of the curr-sum function.
-        COND_SUM              The callee name of the cond-sum function.
         CONVOLVE              The callee name of the convolve function.
         name2function         A dict of function symbols as currently defined.
     """
@@ -71,8 +69,6 @@ class PredefinedFunctions(object):
     MAX = 'max'
     MIN = 'min'
     INTEGRATE_ODES = 'integrate_odes'
-    CURR_SUM = 'curr_sum'
-    COND_SUM = 'cond_sum'
     CONVOLVE = 'convolve'
     name2function = {}  # a map dict from function-names to symbols
 
@@ -102,8 +98,6 @@ class PredefinedFunctions(object):
         cls.__register_max_function()
         cls.__register_min_function()
         cls.__register_integrated_odes_function()
-        cls.__register_curr_sum_function()
-        cls.__register_cond_sum_function()
         cls.__register_convolve()
         return
 
@@ -343,32 +337,6 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.INTEGRATE_ODES] = symbol
-
-    @classmethod
-    def __register_curr_sum_function(cls):
-        """
-        Registers the curr_sum function into scope.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_type('pA'))
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.CURR_SUM, param_types=params,
-                                return_type=PredefinedTypes.get_type('pA'),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.CURR_SUM] = symbol
-
-    @classmethod
-    def __register_cond_sum_function(cls):
-        """
-        Registers the cond_sum function into scope.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_type('nS'))
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.COND_SUM, param_types=params,
-                                return_type=PredefinedTypes.get_type('nS'),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.COND_SUM] = symbol
 
     @classmethod
     def __register_convolve(cls):

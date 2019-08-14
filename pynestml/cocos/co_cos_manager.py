@@ -235,7 +235,7 @@ class CoCosManager(object):
     @classmethod
     def check_convolve_cond_curr_is_correct(cls, neuron):
         """
-        Checks if all convolve/curr_sum/cond_sum rhs are correctly provided with arguments.
+        Checks if all convolve rhs are correctly provided with arguments.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
@@ -244,7 +244,7 @@ class CoCosManager(object):
     @classmethod
     def check_correct_usage_of_shapes(cls, neuron):
         """
-        Checks if all shapes are only used in cond_sum, cur_sum, convolve.
+        Checks if all shapes are only used in convolve.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
@@ -280,7 +280,7 @@ class CoCosManager(object):
     @classmethod
     def check_sum_has_correct_parameter(cls, neuron):
         """
-        Checks that all cond_sum,cur_sum and convolve have variables as arguments.
+        Checks that all convolve function calls have variables as arguments.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """

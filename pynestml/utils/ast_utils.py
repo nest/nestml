@@ -396,9 +396,7 @@ class ASTUtils(object):
             return False
         else:
             for func in variable.get_declaring_expression().get_function_calls():
-                if func.get_name() == PredefinedFunctions.CONVOLVE or \
-                        func.get_name() == PredefinedFunctions.CURR_SUM or \
-                        func.get_name() == PredefinedFunctions.COND_SUM:
+                if func.get_name() == PredefinedFunctions.CONVOLVE:
                     return True
         return False
 

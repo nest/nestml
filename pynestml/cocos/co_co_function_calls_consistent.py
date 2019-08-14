@@ -55,7 +55,7 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
         :type node: ASTFunctionCall
         """
         func_name = node.get_name()
-        if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':
+        if func_name == 'convolve':
             return
 
         symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.FUNCTION)
