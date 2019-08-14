@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import nest
+import numpy as np
 
 try:
     import matplotlib
