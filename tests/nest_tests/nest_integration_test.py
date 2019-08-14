@@ -78,7 +78,9 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
         plt.savefig("/tmp/nestml_nest_integration_test_[" + referenceModel + "]_[" + testant + "].png")
 
     for index in range(0, len(Vms1)):
-        if abs(Vms1[index] - Vms2[index]) > tolerance:
+        if abs(Vms1[index] - Vms2[index]) > tolerance \
+         or np.isnan(Vms1[index]) \
+         or np.isnan(Vms2[index]):
             print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
             raise Exception(testant + ": TEST FAILED")
 
