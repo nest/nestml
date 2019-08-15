@@ -321,7 +321,7 @@ class VariableSymbol(Symbol):
         is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))        
         is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
         assert is_cond_based != is_curr_based, "Unable to determine based on type '" + self.type_symbol.print_nestml_type() + "' of variable '" + self.name + "' whether conductance-based or current-based"
-    
+        print("Units: " + str(self.type_symbol.unit.unit) + " -> condbased = " + str(is_cond_based))
         return is_cond_based
 
     def get_variable_type(self):

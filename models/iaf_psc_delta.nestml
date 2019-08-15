@@ -69,7 +69,6 @@ SeeAlso: iaf_psc_alpha, iaf_psc_exp, iaf, iaf_psc_delta_canon
 neuron iaf_psc_delta:
 
   state:
-    refr_spikes_buffer mV = 0 mV
     r integer # counts number of tick during the refractory period
   end
 
@@ -79,8 +78,8 @@ neuron iaf_psc_delta:
   end
 
   equations:
-    shape G = delta(t, tau_m)
-    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, spikes) + I_e + currents)
+    shape G = 42 * delta(t)
+    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, ex_spikes) + convolve(G, in_spikes) + I_e + currents)
   end
 
   parameters:
@@ -97,12 +96,12 @@ neuron iaf_psc_delta:
   end
 
   internals:
-    h ms = resolution()
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:
-    spikes pA <- spike
+    ex_spikes pA <- excitatory spike
+    in_spikes pA <- inhibitory spike
     currents <- current
   end
 
@@ -111,24 +110,7 @@ neuron iaf_psc_delta:
   update:
     if r == 0: # neuron not refractory
       integrate_odes()
-
-      # if we have accumulated spikes from refractory period,
-      # add and reset accumulator
-      if with_refr_input and refr_spikes_buffer != 0.0mV:
-        V_abs += refr_spikes_buffer
-        refr_spikes_buffer = 0.0 mV
-      end
-
-      # lower bound of membrane potential
-      V_abs = V_abs < V_min?V_min:V_abs
-
-    else: # neuron is absolute refractory
-      # read spikes from buffer and accumulate them, discounting
-      # for decay until end of refractory period
-      # the buffer is clear automatically
-      if with_refr_input:
-        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV/pA
-      end
+    else:
       r -= 1
     end
 

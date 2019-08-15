@@ -198,7 +198,6 @@ class NESTCodeGenerator(CodeGenerator):
         return shape_buffers
     
     def replace_convolve_calls_with_buffer_expr_(self, equations_block, shape, spike_input_port, buffer_var):
-
         def replace_function_call_through_var(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
                 convolve = _expr.get_function_call()
@@ -206,8 +205,10 @@ class NESTCodeGenerator(CodeGenerator):
                 sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
                 if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
                     el = (el[1], el[0])
-                _expr.set_function_call(None)
-                _expr.set_variable(ASTVariable(buffer_var))
+                if shape.get_variable().get_name() == el[0].get_variable().get_name() \
+                 and spike_input_port.get_variable().get_name() == el[1].get_variable().get_name():
+                    _expr.set_function_call(None)
+                    _expr.set_variable(ASTVariable(buffer_var))
 
         func = lambda x: replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
@@ -229,13 +230,11 @@ class NESTCodeGenerator(CodeGenerator):
         """
         code, message = Messages.get_start_processing_neuron(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-        # make normalization
-        # apply spikes to buffers
-        # get rid of convolve, store them and apply then at the end
         equations_block = neuron.get_equations_block()
         if equations_block is not None:
 
             shape_buffers = self.get_convolve_function_calls_(equations_block)
+            print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
             self.replace_convolve_calls_with_buffers_(equations_block, shape_buffers)
 
             self.make_functions_self_contained(equations_block.get_ode_functions())
@@ -579,7 +578,6 @@ class NESTCodeGenerator(CodeGenerator):
                 spike_updates.append(ast_assignment)
     
         print("spike_updates = " + str(spike_updates))
-        import pdb;pdb.set_trace()
 
         return spike_updates
         #for assignment in spike_updates:
@@ -615,7 +613,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         gsl_converter = IdempotentReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)
-
+        import pdb;pdb.set_trace()
         odetoolbox_indict["dynamics"] = []
         for equation in equations_block.get_ode_equations():
             lhs = str(equation.lhs) # n.b. includes single quotation marks to indicate differential order
@@ -630,7 +628,6 @@ class NESTCodeGenerator(CodeGenerator):
             odetoolbox_indict["dynamics"].append(entry)
 
         for shape in equations_block.get_ode_shapes():
-            
             shape_variable_names = []
             for shape_, spike_buf in shape_buffers:
                 shape_name = shape_.__str__()
