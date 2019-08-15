@@ -604,5 +604,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {% endif %}
 };
 
-#endif /* #ifndef {{neuronName.upper()}} */{% if useGSL %}
-#endif /* HAVE GSL */{% endif %}
+#endif /* #ifndef {{neuronName.upper()}} */
+{%- if useGSL %}
+#endif /* HAVE GSL */
+{%- endif %}

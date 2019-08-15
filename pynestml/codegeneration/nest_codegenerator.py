@@ -613,7 +613,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         gsl_converter = IdempotentReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)
-        import pdb;pdb.set_trace()
+
         odetoolbox_indict["dynamics"] = []
         for equation in equations_block.get_ode_equations():
             lhs = str(equation.lhs) # n.b. includes single quotation marks to indicate differential order

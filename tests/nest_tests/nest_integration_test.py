@@ -39,7 +39,7 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=1E-6):
     spike_weights = [1., -1.]
 
     nest.ResetKernel()
-    neuron1 = nest.Create("iaf_psc_exp")
+    neuron1 = nest.Create(referenceModel)
     neuron2 = nest.Create(testant)
 
     if not (gsl_error_tol is None):
@@ -112,7 +112,9 @@ if __name__ == "__main__":
     """
 
 
-    models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 1E-6))
+    #models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 1E-6))
+    models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-6))
+
     #models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
     #models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
 

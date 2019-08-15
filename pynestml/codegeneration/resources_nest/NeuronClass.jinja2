@@ -155,14 +155,14 @@ namespace nest
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables
+  // initial values for state variables not in ODE or shape
   {%- for state in neuron.get_state_non_alias_symbols() -%}
   {%- with variable = state %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for initial values block
+  // initial values for state variables in ODE or shape
   {%- for init in neuron.get_initial_values_non_alias_symbols() -%}
   {%- with variable = init -%}
   {%- include "directives/MemberInitialization.jinja2" %}

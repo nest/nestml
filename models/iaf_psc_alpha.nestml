@@ -84,22 +84,22 @@ neuron iaf_psc_alpha:
   end
 
   equations:
-    shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    shape I_shape_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+    shape I_shape_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
     function I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + currents
-    V_abs' = -1/Tau * V_abs + 1/C_m * I
+    V_abs' = -V_abs / Tau + I / C_m
   end
 
   parameters:
-    C_m     pF = 250pF   # Capacity of the membrane
-    Tau     ms = 10ms    # Membrane time constant.
-    tau_syn_in ms = 2ms  # Time constant of synaptic current.
-    tau_syn_ex ms = 2ms  # Time constant of synaptic current.
-    t_ref   ms = 2ms     # Duration of refractory period.
-    E_L     mV = -70mV   # Resting potential.
-    function V_reset mV = -70mV - E_L # Reset potential of the membrane.
-    function Theta   mV = -55mV - E_L # Spike threshold.
-    I_e     pA = 0pA     # Constant external input current.
+    C_m     pF = 250 pF   # Capacitance of the membrane
+    Tau     ms = 10 ms    # Membrane time constant
+    tau_syn_in ms = 2 ms  # Time constant of synaptic current
+    tau_syn_ex ms = 2 ms  # Time constant of synaptic current
+    t_ref   ms = 2 ms     # Duration of refractory period
+    E_L     mV = -70 mV   # Resting potential
+    function V_reset mV = -70 mV - E_L # Reset potential of the membrane
+    function Theta   mV = -55 mV - E_L # Spike threshold
+    I_e     pA = 0 pA     # Constant external input current
   end
 
   internals:
@@ -107,9 +107,9 @@ neuron iaf_psc_alpha:
   end
 
   input:
-    ex_spikes pA  <- excitatory spike
-    in_spikes pA  <- inhibitory spike
-    currents    <- current
+    ex_spikes pA <- excitatory spike
+    in_spikes pA <- inhibitory spike
+    currents <- current
   end
 
   output: spike
