@@ -112,11 +112,9 @@ if __name__ == "__main__":
     """
 
 
-    #models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 1E-6))
+    models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 1E-6))
     models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-6))
-
-    #models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
-    #models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
+    models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-6))
 
 
     """models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))

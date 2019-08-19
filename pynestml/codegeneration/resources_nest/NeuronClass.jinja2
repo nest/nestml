@@ -77,18 +77,30 @@ namespace nest
   // for each quantity to be recorded.
   template <> void RecordablesMap<{{neuronName}}>::create(){
   // use standard names whereever you can for consistency!{% filter indent(2,True) %}
-  {%- for variable in neuron.get_state_symbols() %}
+  
+  // initial values for state variables not in ODE or shape
+  {%- for variable in neuron.get_state_non_alias_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
-  {%- for variable in neuron.get_initial_values_symbols() %}
-    {%- include "directives/RecordCallback.jinja2" %}
-  {%- endfor %}
+
+  // initial values for state variables in ODE or shape
+{%- for variable in neuron.get_initial_values_non_alias_symbols() %}
+{%-   if not is_delta_shape(neuron.get_shape_by_name(variable.name)) %}
+{%-     include "directives/RecordCallback.jinja2" %}
+{%-   endif %}
+{%- endfor %}
+  
+  // internals
   {%- for variable in neuron.get_internal_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
+  
+  // parameters
   {%- for variable in neuron.get_parameter_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
+
+  // function symbols
   {%- for funcsym in neuron.get_function_symbols() %}
     {%- with variable = funcsym %}
       {%- include "directives/RecordCallback.jinja2" %}
@@ -164,9 +176,11 @@ namespace nest
 
   // initial values for state variables in ODE or shape
   {%- for init in neuron.get_initial_values_non_alias_symbols() -%}
+  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
   {%- with variable = init -%}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
+  {%- endif %}
   {%- endfor %}
 }
 
@@ -179,8 +193,10 @@ namespace nest
     S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
   {% endfor %}
   {% for init in neuron.get_initial_values_non_alias_symbols() -%}
+{%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
     S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
-  {% endfor %}
+{%- endif %}
+    {% endfor %}
   {% for internal in neuron.get_internal_non_alias_symbols() -%}
     V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
   {% endfor %}

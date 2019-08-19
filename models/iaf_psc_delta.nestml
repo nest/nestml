@@ -79,7 +79,7 @@ neuron iaf_psc_delta:
 
   equations:
     shape G = 42 * delta(t)
-    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, ex_spikes) + convolve(G, in_spikes) + I_e + currents)
+    V_abs' = -V_abs / tau_m + (I_e + currents) / C_m + convolve(G, ex_spikes) + convolve(G, in_spikes)
   end
 
   parameters:

@@ -372,7 +372,7 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) \
-             and symbol.block_type == BlockType.EQUATION \
+             and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.INITIAL_VALUES) \
              and symbol.is_function:
                 ret.append(symbol)
         return ret
@@ -641,6 +641,7 @@ class ASTNeuron(ASTNode):
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
         self.get_internals_blocks().get_declarations().append(declaration)
+        declaration.update_scope(self.get_internals_blocks().get_scope())
         return
 
     def add_to_initial_values_block(self, declaration):
@@ -653,6 +654,7 @@ class ASTNeuron(ASTNode):
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
+        declaration.update_scope(self.get_initial_blocks().get_scope())
         return
 
     def add_shape(self, shape):
@@ -663,6 +665,7 @@ class ASTNeuron(ASTNode):
         """
         assert self.get_equations_block() is not None
         self.get_equations_block().get_declarations().append(shape)
+        shape.update_scope(self.get_equations_blocks().get_scope())
 
     """
     The following print methods are used by the backend and represent the comments as stored at the corresponding 
@@ -771,3 +774,21 @@ class ASTNeuron(ASTNode):
                 return decl.get_expression()
 
         return None
+
+    def get_shape_by_name(self, shape_name):
+        assert type(shape_name) is str
+        shape_name = shape_name.split("__X__")[0]
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape and decl.get_variable().get_name() == shape_name:
+                print("Is shape " + str(shape_name) + "? YES")
+                return decl
+        print("Is shape " + str(shape_name) + "? NO")
+        return None
+
+
+    def get_all_shapes(self):
+        shapes = []
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape:
+                shapes.append(decl)
+        return shapes

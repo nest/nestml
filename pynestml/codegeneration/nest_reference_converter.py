@@ -190,6 +190,9 @@ class NESTReferenceConverter(IReferenceConverter):
         if symbol.is_function:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
+        if symbol.is_shape():
+            print("Printing node " + str(symbol.name))
+
         if symbol.is_init_values():
             temp = NestPrinter.print_origin(symbol, prefix=prefix)
             if self.uses_gsl:

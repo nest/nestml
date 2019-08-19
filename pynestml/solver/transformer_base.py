@@ -153,6 +153,8 @@ def add_assignment_to_update_block(assignment, neuron):
     stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                           source_position=ASTSourceLocation.get_added_source_position())
     neuron.get_update_blocks().get_block().get_stmts().append(stmt)
+    small_stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
+    stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
     return neuron
 
 
@@ -169,6 +171,8 @@ def add_declaration_to_update_block(declaration, neuron):
     stmt = ASTNodeFactory.create_ast_stmt(small_stmt=small_stmt,
                                           source_position=ASTSourceLocation.get_added_source_position())
     neuron.get_update_blocks().get_block().get_stmts().append(stmt)
+    small_stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
+    stmt.update_scope(neuron.get_update_blocks().get_block().get_scope())
     return neuron
 
 

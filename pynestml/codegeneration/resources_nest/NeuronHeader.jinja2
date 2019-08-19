@@ -386,13 +386,15 @@ private:
   {%- endwith -%}
   {%- endfor -%}
 
-  /* getters/setters for initial values block */
+  /* getters/setters for initial values block (excluding functions) */
 
-  {% for init in neuron.get_initial_values_symbols() -%}
-  {% with variable = init -%}
-  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {% endwith -%}
-  {% endfor -%}
+  {%- for init in neuron.get_non_function_initial_values_symbols() %}
+  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- with variable = init %}
+  {%- include "directives/MemberVariableGetterSetter.jinja2" %}
+  {%- endwith %}
+  {%- endif %}
+  {%- endfor %}
 
   /* getters/setters for parameters */
 
@@ -402,11 +404,15 @@ private:
   {% endwith -%}
   {% endfor -%}
 
-  {% for internal in neuron.get_internal_symbols() -%}
+  /* getters/setters for parameters */
+
+  {% for internal in neuron.get_internal_non_alias_symbols() -%}
   {% with variable = internal -%}
   {% include "directives/MemberVariableGetterSetter.jinja2" -%}
   {% endwith -%}
   {% endfor -%}
+
+  /* getters/setters for functions */
 
   {% for funcsym in neuron.get_function_symbols() %}
   {% with variable = funcsym %}
@@ -414,14 +420,18 @@ private:
   {% endwith -%}
   {% endfor %}
 
+  /* getters/setters for input buffers */
+
   {% for buffer in neuron.get_input_buffers() %}
   {{printer.print_buffer_getter(buffer, false)}};
   {% endfor %}
 
-  // Generate function header
+  /* function declarations */
+
   {% for function in neuron.get_functions() %}
   {{printer.print_function_declaration(function)}};
   {% endfor %}
+
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,
@@ -512,22 +522,35 @@ inline nest::port {{neuronName}}::handles_test_event(
 
 // TODO call get_status on used or internal components
 inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
-  {%- for parameter in neuron.get_parameter_symbols() -%}
-  {%- with variable = parameter -%}{%- filter indent(2,True) -%}
-  {% include "directives/WriteInDictionary.jinja2" %}
-  {% endfilter -%}{% endwith -%}
-  {%- endfor -%}
-  {%- for state in neuron.get_state_symbols() -%}
-  {%- with variable = state -%}{%- filter indent(2,True) -%}
-  {% include "directives/WriteInDictionary.jinja2" %}
-  {% endfilter -%}{% endwith -%}
-  {%- endfor -%}
-  {%- for init in neuron.get_initial_values_symbols() -%}
-  {%- with variable = init -%}{%- filter indent(2,True) -%}
-  {% include "directives/WriteInDictionary.jinja2" %}
-  {% endfilter -%}{% endwith -%}
-  {%- endfor -%}
 
+  // parameters
+  {%- for parameter in neuron.get_parameter_symbols() -%}
+  {%- with variable = parameter %}
+  {%- filter indent(2,True) %}
+  {%- include "directives/WriteInDictionary.jinja2" %}
+  {%- endfilter %}
+  {%- endwith %}
+  {%- endfor %}
+
+  // initial values for state variables not in ODE or shape
+  {%- for state in neuron.get_state_non_alias_symbols() %}
+  {%- with variable = state %}
+  {%- filter indent(2,True) %}
+  {%- include "directives/WriteInDictionary.jinja2" %}
+  {%- endfilter %}
+  {%- endwith %}
+  {%- endfor %}
+
+  // initial values for state variables in ODE or shape
+  {%- for init in neuron.get_initial_values_non_alias_symbols() %}
+  {%- with variable = init %}
+  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- filter indent(2,True) %}
+  {%- include "directives/WriteInDictionary.jinja2" %}
+  {%- endfilter %}
+  {%- endif %}
+  {%- endwith %}
+  {%- endfor %}
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
@@ -548,22 +571,34 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
 }
 
 inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
+  // parameters
   {%- for parameter in neuron.get_parameter_symbols() -%}
-  {%- with variable = parameter -%}
+  {%- with variable = parameter %}
+  {%- filter indent(2,True) %}
   {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
-  {%- endwith -%}
-  {%- endfor -%}
-  {%- for state in neuron.get_state_symbols() %}
-  {%- with variable = state %}
-  {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
-  {% endwith -%}
-  {% endfor -%}
-  {%- for init in neuron.get_initial_values_symbols() %}
-  {%- with variable = init %}
-  {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
-  {% endwith -%}
-  {% endfor -%}
+  {%- endfilter %}
+  {%- endwith %}
+  {%- endfor %}
 
+  // initial values for state variables not in ODE or shape
+  {%- for state in neuron.get_state_non_alias_symbols() %}
+  {%- with variable = state %}
+  {%- filter indent(2,True) %}
+  {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
+  {%- endfilter %}
+  {%- endwith %}
+  {%- endfor %}
+
+  // initial values for state variables in ODE or shape
+  {%- for init in neuron.get_initial_values_non_alias_symbols() %}
+  {%- with variable = init %}
+  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- filter indent(2,True) %}
+  {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
+  {%- endfilter %}
+  {%- endif %}
+  {%- endwith %}
+  {%- endfor %}
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that
@@ -574,19 +609,27 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   // if we get here, temporaries contain consistent set of properties
   {%- for parameter in neuron.get_parameter_symbols() -%}
   {%- with variable = parameter -%}
+  {%- filter indent(2,True) %}
   {%- include "directives/AssignTmpDictionaryValue.jinja2" -%}
+  {%- endfilter %}
   {%- endwith -%}
   {%- endfor -%}
 
-  {%- for state in neuron.get_state_symbols() -%}
+  {%- for state in neuron.get_state_non_alias_symbols() -%}
   {%- with variable = state %}
+  {%- filter indent(2,True) %}
   {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
+  {%- endfilter %}
   {%- endwith %}
   {%- endfor %}
 
-  {%- for init in neuron.get_initial_values_symbols() -%}
+  {%- for init in neuron.get_initial_values_non_alias_symbols() %}
   {%- with variable = init %}
+  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- filter indent(2,True) %}
   {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
+  {%- endfilter %}
+  {%- endif %}
   {%- endwith %}
   {%- endfor %}
 

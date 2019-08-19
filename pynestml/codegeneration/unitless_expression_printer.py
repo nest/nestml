@@ -69,3 +69,4 @@ class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
                     return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
         return super(UnitlessExpressionPrinter, self).print_expression(node, prefix=prefix)
+

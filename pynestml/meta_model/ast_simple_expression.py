@@ -134,6 +134,14 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.numeric_literal
 
+    def set_numeric_literal(self, numeric_literal):
+        """
+        Updates the numeric literal attribute of this node.
+        :param numeric_literal: a single numeric literal
+        :type numeric_literal: int or float
+        """
+        self.numeric_literal = numeric_literal
+
     def is_variable(self):
         """
         Returns whether it is a variable or not.
