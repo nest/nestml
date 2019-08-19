@@ -98,8 +98,6 @@ class NESTCodeGenerator(CodeGenerator):
     _variable_matching_template = r'(\b)({})(\b)'
 
     def __init__(self):
-        self.analytic_solver = {}
-        self.numeric_solver = {}
         # setup the template environment
         def raise_helper(msg):
             raise TemplateRuntimeError(msg)
@@ -247,9 +245,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
             self.make_functions_self_contained(equations_block.get_ode_functions())
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
-            neuron, analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
-            self.analytic_solver[neuron.get_name()] = analytic_solver
-            self.numeric_solver[neuron.get_name()] = numeric_solver
+            neuron = self.ode_toolbox_analysis(neuron, shape_buffers)
             spike_updates = self.apply_spikes_from_buffers(neuron, shape_buffers)
             self.update_symbol_table(neuron, shape_buffers)
 
@@ -324,37 +320,35 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
 
-        analytic_solver = self.analytic_solver[neuron.get_name()]
-        numeric_solver = self.numeric_solver[neuron.get_name()]
         namespace['initial_values'] = {}
-        namespace['uses_analytic_solver'] = not analytic_solver is None
+        namespace['uses_analytic_solver'] = not self.analytic_solver is None
         if namespace['uses_analytic_solver']:
-            namespace['analytic_state_variables'] = analytic_solver["state_variables"]
+            namespace['analytic_state_variables'] = self.analytic_solver["state_variables"]
             namespace['analytic_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
             namespace['update_expressions'] = {}
-            for sym, expr in analytic_solver["initial_values"].items():
+            for sym, expr in self.analytic_solver["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             for sym in namespace['analytic_state_variables']:
-                expr_str = analytic_solver["update_expressions"][sym]
+                expr_str = self.analytic_solver["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 expr_ast.update_scope(neuron.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['update_expressions'][sym] = expr_ast
 
-#            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in analytic_solver["update_expressions"].items() }
+#            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in self.analytic_solver["update_expressions"].items() }
 
-            #namespace['update_expressions'] = analytic_solver["update_expressions"]
-            namespace['propagators'] = analytic_solver["propagators"]
+            #namespace['update_expressions'] = self.analytic_solver["update_expressions"]
+            namespace['propagators'] = self.analytic_solver["propagators"]
 
-        namespace['uses_numeric_solver'] = not numeric_solver is None
+        namespace['uses_numeric_solver'] = not self.numeric_solver is None
         if namespace['uses_numeric_solver']:
-            namespace['numeric_state_variables'] = numeric_solver["state_variables"]
+            namespace['numeric_state_variables'] = self.numeric_solver["state_variables"]
             namespace['numeric_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables'] }
             namespace['numeric_update_expressions'] = {}
-            for sym, expr in numeric_solver["initial_values"].items():
+            for sym, expr in self.numeric_solver["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             for sym in namespace['numeric_state_variables']:
-                expr_str = numeric_solver["update_expressions"][sym]
+                expr_str = self.numeric_solver["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 expr_ast.update_scope(neuron.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
                 expr_ast.accept(ASTSymbolTableVisitor())
@@ -364,10 +358,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['names'] = GSLNamesConverter()
             converter = NESTReferenceConverter(True)
             unitless_pretty_printer = UnitlessExpressionPrinter(converter)
-            namespace['printer'] = NestPrinter(unitless_pretty_printer)
+            namespace['printer'] = NestPrinter(unitless_pretty_printer)        
 
         namespace["spike_updates"] = neuron.spike_updates
-
+        
         return namespace
 
 
@@ -416,15 +410,16 @@ class NESTCodeGenerator(CodeGenerator):
         solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False)
         print("Got result from ode-toolbox:")
         print(solver_result)
+        self.solver_result = solver_result
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
         if len(analytic_solvers) > 0:
-            analytic_solver = analytic_solvers[0]
+            self.analytic_solver = analytic_solvers[0]
         else:
-            analytic_solver = None
+            self.analytic_solver = None
 
         # if numeric solver is required, generate a stepping function that includes each state variable
-        numeric_solver = None
+        self.numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
             solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False, disable_analytic_solver=True)
@@ -433,27 +428,27 @@ class NESTCodeGenerator(CodeGenerator):
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:
-                numeric_solver = numeric_solvers[0]
+                self.numeric_solver = numeric_solvers[0]
             else:
-                numeric_solver = None
+                self.numeric_solver = None
 
         assert neuron.get_initial_value("__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols()], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
 
         self.remove_initial_values_for_shapes_(neuron)
-        self.create_initial_values_for_shapes_(neuron, [analytic_solver, numeric_solver], shape_buffers)
+        self.create_initial_values_for_shapes_(neuron, [self.analytic_solver, self.numeric_solver], shape_buffers)
 
-        if not analytic_solver is None:
-            neuron = add_declarations_to_internals(neuron, analytic_solver["propagators"])
+        if not self.analytic_solver is None:
+            neuron = add_declarations_to_internals(neuron, self.analytic_solver["propagators"])
 
         self.update_symbol_table(neuron, shape_buffers)
-        #self.remove_shape_definitions_from_equations_block(neuron, analytic_solver["state_variables"])
+        #self.remove_shape_definitions_from_equations_block(neuron, self.analytic_solver["state_variables"])
 
         #if not self.numeric_solver is None:
         #    functional_shapes_to_odes(neuron, self.numeric_solver)
 
-        return neuron, analytic_solver, numeric_solver
+        return neuron
 
     def update_symbol_table(self, neuron, shape_buffers):
         """mark corresponding variable symbols properly as belonging to a shape"""
