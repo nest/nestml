@@ -20,11 +20,13 @@
 import re as re
 
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
@@ -64,6 +66,11 @@ def add_declaration_to_internals(neuron, variable_name, init_expression):
     if vector_variable is not None:
         ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
     neuron.add_to_internal_block(ast_declaration)
+    ast_declaration.update_scope(neuron.get_internals_blocks().get_scope())
+    symtable_visitor = ASTSymbolTableVisitor()
+    symtable_visitor.block_type_stack.push(BlockType.INTERNALS)
+    ast_declaration.accept(symtable_visitor)
+    symtable_visitor.block_type_stack.pop()
     return neuron
 
 
@@ -98,7 +105,15 @@ def add_declaration_to_initial_values(neuron, variable, initial_value):
     if vector_variable is not None:
         ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
     neuron.add_to_initial_values_block(ast_declaration)
+    ast_declaration.update_scope(neuron.get_initial_values_blocks().get_scope())
+
+    symtable_visitor = ASTSymbolTableVisitor()
+    symtable_visitor.block_type_stack.push(BlockType.INITIAL_VALUES)
+    ast_declaration.accept(symtable_visitor)
+    symtable_visitor.block_type_stack.pop()
+
     return neuron
+
 
 def declaration_in_initial_values(neuron, variable_name):
     assert type(variable_name) is str

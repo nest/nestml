@@ -30,6 +30,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
 
+
 class ASTNeuron(ASTNode):
     """
     This class is used to store instances of neurons.
@@ -638,11 +639,16 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration
         :type declaration: ast_declaration
         """
+        print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
         self.get_internals_blocks().get_declarations().append(declaration)
         declaration.update_scope(self.get_internals_blocks().get_scope())
-        return
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        symtable_vistor = ASTSymbolTableVisitor()
+        symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
+        declaration.accept(symtable_vistor)
+        symtable_vistor.block_type_stack.pop()
 
     def add_to_initial_values_block(self, declaration):
         # todo by KP: factor me out to utils
@@ -651,11 +657,22 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
+        print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
         declaration.update_scope(self.get_initial_blocks().get_scope())
-        return
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        #from pynestml.symbols.variable_symbol import BlockType
+
+        symtable_vistor = ASTSymbolTableVisitor()
+        symtable_vistor.block_type_stack.push(BlockType.INITIAL_VALUES)
+        declaration.accept(symtable_vistor)
+        symtable_vistor.block_type_stack.pop()
+        #self.get_initial_blocks().accept(symtable_vistor)
+        from pynestml.symbols.symbol import SymbolKind
+        assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
+        assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
 
     def add_shape(self, shape):
         # type: (ASTOdeShape) -> None

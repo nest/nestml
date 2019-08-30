@@ -53,6 +53,7 @@ class GSLReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         variable_name = NestNamesConverter.convert_to_cpp_name(ast_variable.get_name())
+        print("In gsl_reference_converter: converting " + str(variable_name))
 
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'

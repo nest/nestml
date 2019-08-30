@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
 import json
 import datetime
 import os
@@ -39,6 +40,7 @@ from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes
@@ -60,6 +62,33 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
+
+
+def replace_rhs_variable(expr, variable_name_to_replace, new_variable_name):
+    def replace_shape_var(node):
+        if type(node) is ASTSimpleExpression \
+            and node.is_variable() \
+            and node.get_variable().get_name() == variable_name_to_replace:
+            print("Replacing variable " + str(node.get_variable().get_name()) + " with " + str(new_variable_name))
+            print("\t order before = " + str(node.get_variable().get_differential_order()))
+            print("\t scope before = " + str(node.get_scope()))
+            print("\t scope before = " + str(node.get_variable().get_scope()))
+            #replace_with.update_scope(node.get_scope())
+            #replace_with.accept(ASTSymbolTableVisitor())
+            new_variable = ASTVariable(new_variable_name, node.get_variable().get_differential_order())
+            node.set_variable(new_variable)
+            print("\t order after = " + str(node.get_variable().get_differential_order()))
+            print("\t scope after = " + str(node.get_scope()))
+            print("\t scope after = " + str(node.get_variable().get_scope()))
+
+    expr.accept(ASTHigherOrderVisitor(visit_funcs=replace_shape_var))
+
+
+def replace_rhs_variables(expr, shape_buffers):
+    for shape, spike_buf in shape_buffers:
+        variable_name_to_replace = shape.get_variable().get_name()
+        new_variable_name = variable_name_to_replace + "__X__" + str(spike_buf)
+        replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace, new_variable_name=new_variable_name)
 
 
 def is_delta_shape(shape):
@@ -98,6 +127,8 @@ class NESTCodeGenerator(CodeGenerator):
     _variable_matching_template = r'(\b)({})(\b)'
 
     def __init__(self):
+        self.analytic_solver = {}
+        self.numeric_solver = {}
         # setup the template environment
         def raise_helper(msg):
             raise TemplateRuntimeError(msg)
@@ -175,6 +206,7 @@ class NESTCodeGenerator(CodeGenerator):
             # now store the transformed model
             self.store_transformed_model(neuron)
 
+
     def get_convolve_function_calls_(self, equations_block):
         # extract function names and corresponding incoming buffers
         shape_buffers = set()
@@ -187,6 +219,7 @@ class NESTCodeGenerator(CodeGenerator):
             print("Adding " + el[0].__str__() + ", " + el[1].__str__())
             shape_buffers.add(el)
         return shape_buffers
+
 
     def replace_convolve_calls_with_buffer_expr_(self, equations_block, shape, spike_input_port, buffer_var):
 
@@ -202,14 +235,19 @@ class NESTCodeGenerator(CodeGenerator):
                     _expr.set_function_call(None)
                     if type(buffer_var) is str:
                         ast_variable = ASTVariable(buffer_var)
-                        ast_variable.update_scope(_expr.get_scope())
+                        #ast_variable.update_scope(_expr.get_scope())
                         _expr.set_variable(ast_variable)
-                        assert not ast_variable.get_scope() is None
+                        #equations_block.accept(ASTSymbolTableVisitor())
+                        #print("ast_variable scope = " + str(ast_variable.get_scope()))
+                        #print("_expr scope = " + str(_expr.get_scope()))
+                        #assert not ast_variable.get_scope() is None
+                        #assert not equations_block.get_scope().resolve_to_symbol(ast_variable.get_name(), SymbolKind.VARIABLE) is None
                         print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
                     elif type(buffer_var) in [int, float]:
                         _expr.set_numeric_literal(buffer_var)
                         print("Replacing convolve call " + str(convolve) + " with expr " + str(buffer_var))
                     else:
+                        assert False
                         # assert type(buffer_var) in [int, float]
                         _expr.set_numeric_literal()
                         print("Replacing convolve call " + str(convolve) + " with expr " + str(buffer_var))
@@ -243,11 +281,23 @@ class NESTCodeGenerator(CodeGenerator):
             shape_buffers = self.get_convolve_function_calls_(equations_block)
             print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
             self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
-            self.make_functions_self_contained(equations_block.get_ode_functions())
+            print("NEST codegenerator step 0...")
+            self.mark_shape_variable_symbols(neuron, shape_buffers)
+            print("NEST codegenerator step 1...")
+            #self.make_functions_self_contained(equations_block.get_ode_functions())
+            print("NEST codegenerator step 2...")
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
+            print("NEST codegenerator step 3...")
+            #self.update_symbol_table(neuron, shape_buffers)
+            print("NEST codegenerator step 4...")
             neuron = self.ode_toolbox_analysis(neuron, shape_buffers)
+            print("NEST codegenerator step 5...")
+            #self.update_symbol_table(neuron, shape_buffers)
+            print("NEST codegenerator step 6...")
             spike_updates = self.apply_spikes_from_buffers(neuron, shape_buffers)
+            print("NEST codegenerator step 7...")
             self.update_symbol_table(neuron, shape_buffers)
+            print("NEST codegenerator step 8...")
 
         return spike_updates
 
@@ -270,7 +320,7 @@ class NESTCodeGenerator(CodeGenerator):
         For a handed over neuron, this method generates the corresponding header file.
         :param neuron: a single neuron object.
         """
-        # print("!!!", neuron)
+        print("generate_model_h_file: neuron " + str(neuron.get_name()))
         neuron_h_file = self._template_neuron_h_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
             f.write(str(neuron_h_file))
@@ -282,6 +332,7 @@ class NESTCodeGenerator(CodeGenerator):
         For a handed over neuron, this method generates the corresponding implementation file.
         :param neuron: a single neuron object.
         """
+        print("generate_model_cpp_file: neuron " + str(neuron.get_name()))
         neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
             f.write(str(neuron_cpp_file))
@@ -321,15 +372,15 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['tracing'] = FrontendConfiguration.is_dev
 
         namespace['initial_values'] = {}
-        namespace['uses_analytic_solver'] = not self.analytic_solver is None
+        namespace['uses_analytic_solver'] = not self.analytic_solver[neuron.get_name()] is None
         if namespace['uses_analytic_solver']:
-            namespace['analytic_state_variables'] = self.analytic_solver["state_variables"]
+            namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
             namespace['analytic_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
             namespace['update_expressions'] = {}
-            for sym, expr in self.analytic_solver["initial_values"].items():
+            for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             for sym in namespace['analytic_state_variables']:
-                expr_str = self.analytic_solver["update_expressions"][sym]
+                expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 expr_ast.update_scope(neuron.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
                 expr_ast.accept(ASTSymbolTableVisitor())
@@ -338,17 +389,17 @@ class NESTCodeGenerator(CodeGenerator):
 #            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in self.analytic_solver["update_expressions"].items() }
 
             #namespace['update_expressions'] = self.analytic_solver["update_expressions"]
-            namespace['propagators'] = self.analytic_solver["propagators"]
+            namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
 
-        namespace['uses_numeric_solver'] = not self.numeric_solver is None
+        namespace['uses_numeric_solver'] = not self.numeric_solver[neuron.get_name()] is None
         if namespace['uses_numeric_solver']:
-            namespace['numeric_state_variables'] = self.numeric_solver["state_variables"]
+            namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
             namespace['numeric_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables'] }
             namespace['numeric_update_expressions'] = {}
-            for sym, expr in self.numeric_solver["initial_values"].items():
+            for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             for sym in namespace['numeric_state_variables']:
-                expr_str = self.numeric_solver["update_expressions"][sym]
+                expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 expr_ast.update_scope(neuron.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
                 expr_ast.accept(ASTSymbolTableVisitor())
@@ -414,12 +465,12 @@ class NESTCodeGenerator(CodeGenerator):
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
         if len(analytic_solvers) > 0:
-            self.analytic_solver = analytic_solvers[0]
+            self.analytic_solver[neuron.get_name()] = analytic_solvers[0]
         else:
-            self.analytic_solver = None
+            self.analytic_solver[neuron.get_name()] = None
 
         # if numeric solver is required, generate a stepping function that includes each state variable
-        self.numeric_solver = None
+        self.numeric_solver[neuron.get_name()] = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
             solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False, disable_analytic_solver=True)
@@ -428,21 +479,23 @@ class NESTCodeGenerator(CodeGenerator):
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:
-                self.numeric_solver = numeric_solvers[0]
+                self.numeric_solver[neuron.get_name()] = numeric_solvers[0]
             else:
-                self.numeric_solver = None
+                self.numeric_solver[neuron.get_name()] = None
 
         assert neuron.get_initial_value("__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols()], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
+        #self.update_symbol_table(neuron, shape_buffers)
 
         self.remove_initial_values_for_shapes_(neuron)
-        self.create_initial_values_for_shapes_(neuron, [self.analytic_solver, self.numeric_solver], shape_buffers)
+        self.create_initial_values_for_shapes_(neuron, [self.analytic_solver[neuron.get_name()], self.numeric_solver[neuron.get_name()]], shape_buffers)
+        #self.update_symbol_table(neuron, shape_buffers)
 
-        if not self.analytic_solver is None:
-            neuron = add_declarations_to_internals(neuron, self.analytic_solver["propagators"])
+        if not self.analytic_solver[neuron.get_name()] is None:
+            neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
-        self.update_symbol_table(neuron, shape_buffers)
+        #self.update_symbol_table(neuron, shape_buffers)
         #self.remove_shape_definitions_from_equations_block(neuron, self.analytic_solver["state_variables"])
 
         #if not self.numeric_solver is None:
@@ -450,12 +503,20 @@ class NESTCodeGenerator(CodeGenerator):
 
         return neuron
 
+
     def update_symbol_table(self, neuron, shape_buffers):
         """mark corresponding variable symbols properly as belonging to a shape"""
-        SymbolTable.clean_up_table()
+        print("SymbolTable scope keys before update: " + str(SymbolTable.name2neuron_scope.keys()))
+        print("Updating for neuron: " + str(neuron.get_name()))
+        SymbolTable.delete_neuron_scope(neuron.get_name())
+        #SymbolTable.clean_up_table()
+        #import pdb;pdb.set_trace()
+        #SymbolTable.initialize_symbol_table(neuron.get_source_position())
         neuron.accept(ASTSymbolTableVisitor())
         SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
+        print("SymbolTable scope keys after update: " + str(SymbolTable.name2neuron_scope.keys()))
 
+    def mark_shape_variable_symbols(self, neuron, shape_buffers):
         shape_buffer_names = []
         for shape, spike_input_port in shape_buffers:
             shape_order = 0
@@ -469,7 +530,6 @@ class NESTCodeGenerator(CodeGenerator):
                 shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__() + "__d" * order
                 shape_buffer_names.append(shape_spike_buf_name)
 
-
         def mark_variable_symbol_as_shape(_expr=None):
             if _expr.is_variable():
                 if _expr.get_variable().get_name() in shape_buffer_names:
@@ -477,7 +537,6 @@ class NESTCodeGenerator(CodeGenerator):
                     if not sym is None:
                         sym.set_variable_type(VariableType.SHAPE)
                         print("Marking symbol " + str(sym.name) + " as SHAPE")
-#                        print("Scop = " + str(neuron.et_scope()))
 
         func = lambda x: mark_variable_symbol_as_shape(x) if isinstance(x, ASTSimpleExpression) else True
 
@@ -552,7 +611,6 @@ class NESTCodeGenerator(CodeGenerator):
 
 
 
-
     def apply_spikes_from_buffers(self, neuron, shape_buffers):
         """generate the equations that update the dynamical variables when incoming spikes arrive.
 
@@ -610,17 +668,11 @@ class NESTCodeGenerator(CodeGenerator):
 
                 print("\t\t\t--> assignment_string = " + str(assignment_string))
                 #spike_updates.append(assignment_string + "\n")
+                #print("\t\tupdating scope to that of neuron " + str(neuron.get_name()) + ", scope = " + str(neuron.get_scope()))
                 ast_assignment = ModelParser.parse_assignment(assignment_string)
                 ast_assignment.update_scope(neuron.get_scope())
+                ast_assignment.accept(ASTSymbolTableVisitor())
 
-                ##SymbolTable.clean_up_table()
-                symbol_table_visitor = ASTSymbolTableVisitor()
-                ##symbol_table_visitor.after_ast_rewrite_ = True		# suppress warnings due to AST rewrites
-                ast_assignment.accept(symbol_table_visitor)
-                ##SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
-                #self.update_symbol_table(neuron, shape_buffers)
-
-                #.accept(ASTSymbolTableVisitor())
                 spike_updates.append(ast_assignment)
 
         print("spike_updates = " + str(spike_updates))
@@ -652,6 +704,13 @@ class NESTCodeGenerator(CodeGenerator):
         # type: (ASTEquationsBlock) -> dict[str, list]
         """Converts AST node to a JSON representation suitable for passing to ode-toolbox
 
+        Each shape has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
+
+            convolve(G, ex_spikes)
+            convolve(G, in_spikes)
+
+        then `shape_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.            
+
         :param equations_block:equations_block
         :return: dictionary
         """
@@ -673,35 +732,48 @@ class NESTCodeGenerator(CodeGenerator):
                 entry["initial_value"] = expr
             odetoolbox_indict["dynamics"].append(entry)
 
+        # for each shape: make a copy for each (shape, spike buffer) combination
         for shape in equations_block.get_ode_shapes():
-            shape_variable_names = []
-            for shape_, spike_buf in shape_buffers:
-                shape_name = shape_.__str__()
-                print("Testing " + shape_name + " == " +shape.get_variable().get_name()) 
-                if shape_name == shape.get_variable().get_name():
-                    shape_variable_names.append(shape.get_variable().get_name() + "__X__" + str(spike_buf) + "'" * shape.get_variable().get_differential_order())
-            
-            for lhs in shape_variable_names:
-                rhs = str(shape.get_expression())
 
-                if is_delta_shape(shape):
-                    # delta function -- skip passing this to ode-toolbox
-                    continue
+            if is_delta_shape(shape):
+                # delta function -- skip passing this to ode-toolbox
+                continue
+
+            shape_variable_names = []
+            shape_order = shape.get_variable().get_differential_order()
+            for shape_, spike_buf in shape_buffers:
+                shape_name_ = shape_.__str__()
+                if shape_name_ == shape.get_variable().get_name():
+                    shape_variable_names.append(shape.get_variable().get_name() + "__X__" + str(spike_buf))
+            print("For shape " + str(shape.get_variable().get_name()) + ": All shape x spike buffer names introduced: " + str(shape_variable_names))
+            
+            for shape_variable_name in shape_variable_names:
+                expr = copy.deepcopy(shape.get_expression())
+
+                print("\tshape_variable_name = " + str(shape_variable_name))
+                print("\t shape expression before transform = " + str(expr))
+                replace_rhs_variables(expr, shape_buffers)
+                #expr.update_scope(equations_block.get_scope())
+                #expr.accept(ASTSymbolTableVisitor())
+                #print("\t updating scope to " + str(equations_block.get_scope()))
+                #print("\t shape expression after transform = " + str(expr))
 
                 entry = {}
-                entry["expression"] = lhs + " = " + rhs
+                entry["expression"] = shape_variable_name + "'" * shape_order + " = " + str(expr)
+
+                # initial values need to be declared for order 1 up to shape order (e.g. none for shape function f(t) = ..., 1 for shape ODE f'(t) = ..., 2 for f''(t) = ... and so on)
                 entry["initial_values"] = {}
-                shape_order = shape.get_variable().get_differential_order()
                 for order in range(shape_order):
-                    symbol_name = shape.get_variable().get_name() + "'" * order
-                    assert not equations_block.get_scope() is None, "Undeclared variable: " + symbol_name
-                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+                    symbol_name_ = shape.get_variable().get_name() + "'" * order
+                    symbol_name = shape_variable_name + "'" * order
+                    assert not equations_block.get_scope() is None, "Undeclared variable: " + symbol_name_
+                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
                     initial_value_expr = symbol.get_declaring_expression()
-                    assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name
+                    assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name_
                     entry["initial_values"][symbol_name] = gsl_printer.print_expression(initial_value_expr)
+
                 odetoolbox_indict["dynamics"].append(entry)
 
-                       
         odetoolbox_indict["parameters"] = {}
         for decl in parameters_block.get_declarations():
             for var in decl.variables:
@@ -713,25 +785,34 @@ class NESTCodeGenerator(CodeGenerator):
     def make_functions_self_contained(self, functions):
         # type: (list(ASTOdeFunction)) -> list(ASTOdeFunction)
         """
+        Make function definition self contained, i.e. without any references to other functions.
+
         TODO: it should be a method inside of the ASTOdeFunction
         TODO by KP: this should be done by means of a visitor
-        Make function definition self contained, e.g. without any references to functions from `functions`.
+
         :param functions: A sorted list with entries ASTOdeFunction.
         :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.
         """
         for source in functions:
             source_position = source.get_source_position()
+            print("In make_functions_self_contained(): source = " + str(source))
             for target in functions:
                 matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
                 target.expression = ModelParser.parse_expression(target_definition)
+                target.expression.update_scope(source.get_scope())
+                target.expression.accept(ASTSymbolTableVisitor())
+
+                print("\ttarget = " + str(target))
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():
                         node.set_source_position(source_position)
 
                 target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+
+                #print("\t -> updating scope to " + str(source.get_scope()))
 
         return functions
 
@@ -748,18 +829,24 @@ class NESTCodeGenerator(CodeGenerator):
         :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
         """
         for fun in functions:
+            print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
             source_position = fun.get_source_position()
             for target in definitions:
+                print("\ttarget = " + str(target))
                 matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
                 target_definition = str(target.get_rhs())
                 target_definition = re.sub(matcher, "(" + str(fun.get_expression()) + ")", target_definition)
                 target.rhs = ModelParser.parse_expression(target_definition)
+                target.update_scope(fun.get_scope())
+                target.accept(ASTSymbolTableVisitor())
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():
                         node.set_source_position(source_position)
 
                 target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+
+                #print("\t updating scope to " + str(fun.get_scope()))
 
         return definitions
 

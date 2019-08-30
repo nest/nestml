@@ -37,8 +37,8 @@ neuron iaf_cond_exp:
     shape g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
     shape g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
 
-    function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
@@ -124,8 +124,8 @@ neuron iaf_cond_exp_implicit:
   equations:
     shape g_in' = -g_in/tau_synI
     shape g_ex' = -g_ex/tau_synE
-    function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end

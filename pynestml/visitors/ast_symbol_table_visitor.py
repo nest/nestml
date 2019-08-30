@@ -58,11 +58,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
-        # before starting the work on the neuron, make everything which was implicit explicit
-        # but if we have a model without an equations block, just skip this step
-        #if node.get_equations_blocks() is not None:
-        #    make_implicit_odes_explicit(node.get_equations_blocks())   # XXX: function can be removed?!
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
+        print("In ASTSymbolTableVisitor::visit_neuron(): neuron = " + node.get_name() + ", scope = " + str(scope))
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
@@ -227,13 +224,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def visit_assignment(self, node):
         """
-        Private method: Used to visit a single node and update the its corresponding scope.
+        Private method: Used to visit a single node and update its corresponding scope.
         :param node: an node object.
         :type node: ast_assignment
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
         return
@@ -591,82 +587,6 @@ def make_trivial_assignment(var, order, equations_block, is_shape=False):
         node = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression, source_position=source_loc)
     equations_block.get_declarations().append(node)
     return node
-
-
-def make_implicit_odes_explicit(equations_block):
-    """
-    This method inspects a handed over block of equations and makes all implicit declarations of odes explicit.
-    E.g. the declaration g_in'' implies that there have to be, either implicit or explicit, g_in' and g_in
-    stated somewhere. This method collects all non explicitly defined elements and adds them to the model.
-    :param equations_block: a single equations block
-    :type equations_block: ast_equations_block
-    """
-    from pynestml.meta_model.ast_ode_shape import ASTOdeShape
-    from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-    checked = list()  # used to avoid redundant checking
-    for declaration in equations_block.get_declarations():
-        if declaration in checked:
-            continue
-        if isinstance(declaration, ASTOdeShape) and declaration.get_variable().get_differential_order() > 0:
-            # now we found a variable with order > 0, thus check if all previous orders have been defined
-            order = declaration.get_variable().get_differential_order()
-            # check for each smaller order if it is defined
-            for i in range(1, order):
-                found = False
-                for eq in equations_block.get_ode_shapes():
-                    if eq.get_variable().get_name() == declaration.get_variable().get_name() and \
-                            eq.get_variable().get_differential_order() == i:
-                        found = True
-                        break
-                # now if we did not found the corresponding declaration, we have to add it by hand
-                if not found:
-                    checked.append(make_trivial_assignment(declaration.get_variable(), i,
-                                                           equations_block, True))
-            # the following code ensures that after g_in__d has been processed, we also check g_in
-            base_found = False
-            base_var = convert_variable_name_to_model_notation(declaration.get_variable())
-            base_var.differential_order = base_var.differential_order
-            if base_var.differential_order == 0:
-                continue
-            for eq in equations_block.get_ode_shapes():
-                if eq.get_variable().get_complete_name() == base_var.get_complete_name():
-                    base_found = True
-                    break
-            if not base_found:
-                checked.append(make_trivial_assignment(base_var, 0, equations_block, True))
-                base_var = None
-                base_found = False
-
-        if isinstance(declaration, ASTOdeEquation):
-            # now we found a variable with order > 0, thus check if all previous orders have been defined
-            order = declaration.get_lhs().get_differential_order()
-            # check for each smaller order if it is defined
-            for i in range(1, order):
-                found = False
-                for ode in equations_block.get_ode_equations():
-                    if (ode.get_lhs().get_name() == declaration.get_lhs().get_name() and
-                            ode.get_lhs().get_differential_order() == i):
-                        found = True
-                        break
-                # now if we did not found the corresponding declaration, we have to add it by hand
-                if not found:
-                    checked.append(make_trivial_assignment(declaration.get_lhs(), i, equations_block, True))
-            # the following code ensures that after g_in__d has been processed, we also check g_in
-            base_found = False
-            base_var = convert_variable_name_to_model_notation(declaration.get_lhs())
-            if base_var.differential_order == 0:
-                continue
-            for eq in equations_block.get_ode_equations():
-                if eq.get_lhs().get_complete_name() == base_var.get_complete_name():
-                    base_found = True
-                    break
-            if not base_found:
-                checked.append(make_trivial_assignment(base_var, 0, equations_block, False))
-                base_var = None
-                base_found = False
-
-        checked.append(declaration)
-    return
 
 
 def assign_ode_to_variables(ode_block):

@@ -126,6 +126,19 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.numeric_literal is not None
 
+    def get_boolean_literal(self):
+        """
+        Returns whether it is a numeric literal or not.
+        :return: True if numeric literal, otherwise False.
+        :rtype: bool
+        """
+        if self.is_boolean_true:
+            return True
+        elif self.is_boolean_false:
+            return False
+        else:
+            return None
+
     def get_numeric_literal(self):
         """
         Returns the value of the numeric literal.

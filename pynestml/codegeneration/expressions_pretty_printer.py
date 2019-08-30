@@ -41,6 +41,7 @@ class ExpressionsPrettyPrinter(object):
             self.reference_converter = reference_converter
         else:
             self.reference_converter = IdempotentReferenceConverter()
+
         if types_printer is not None:
             self.types_printer = types_printer
         else:
@@ -61,12 +62,8 @@ class ExpressionsPrettyPrinter(object):
         s : str
             The expression string.
         """
-        
-        #print("__X__ in " + str(self.__do_print(node, prefix=prefix)))
-        #print("NOW PRINTING EXPRESSION " + str(node))
-        #if str(node) == "G__X__in_spikes" and str(self.__do_print(node, prefix=prefix)) == "":
-            #import pdb;pdb.set_trace()
-        if node.get_implicit_conversion_factor() is not None:
+        if (node.get_implicit_conversion_factor() is not None) \
+         and (not node.get_implicit_conversion_factor() == 1):
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, prefix=prefix) + ')'
         else:
             return self.__do_print(node, prefix=prefix)

@@ -84,6 +84,7 @@ class NestPrinter(object):
         else:
             self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
         return
+
     def print_node(self, node):
         ret = ''
         if isinstance(node, ASTArithmeticOperator):

@@ -31,7 +31,7 @@ Author: Schrader, Plesser
 
 SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 */
-/*neuron iaf_cond_alpha:
+neuron iaf_cond_alpha:
 
   state:
     r integer      # counts number of tick during the refractory period
@@ -91,7 +91,7 @@ SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
   end
 
 end
-*/
+
 /*
 Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
                        model.
