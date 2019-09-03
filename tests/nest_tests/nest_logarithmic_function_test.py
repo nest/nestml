@@ -36,6 +36,8 @@ except:
 
 if __name__ == "__main__":
 
+    MAX_SSE = 1E-12
+
     input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
     nest_path = "/home/travis/nest_install"
     target_path = 'target'
@@ -69,8 +71,8 @@ if __name__ == "__main__":
     ref_ln_state_ts = np.log(timevec - 1)
     ref_log10_state_ts = np.log10(timevec - 1)
 
-    assert np.all(ln_state_ts == ref_ln_state_ts)
-    assert np.all(log10_state_ts == ref_log10_state_ts)
+    assert np.all((ln_state_ts - ref_ln_state_ts)**2 < MAX_SSE)
+    assert np.all((log10_state_ts - ref_log10_state_ts)**2 < MAX_SSE)
 
     # test that expected failure occurs
 
@@ -94,5 +96,5 @@ if __name__ == "__main__":
     ref_ln_state_ts = np.log(timevec - 1)
     ref_log10_state_ts = np.log10(timevec - 1)
 
-    assert not np.all(ln_state_ts == ref_ln_state_ts)
-    assert not np.all(log10_state_ts == ref_log10_state_ts)
+    assert not np.all((ln_state_ts - ref_ln_state_ts)**2 < MAX_SSE)
+    assert not np.all((log10_state_ts - ref_log10_state_ts)**2 < MAX_SSE)
