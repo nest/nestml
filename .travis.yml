@@ -96,3 +96,4 @@ jobs:
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
         - python tests/nest_tests/nest_instantiability_test.py
         - python tests/nest_tests/nest_integration_test.py
+        - python tests/nest_tests/nest_logarithmic_function_test.py
