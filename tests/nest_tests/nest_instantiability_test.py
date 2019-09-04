@@ -19,11 +19,12 @@ models = nest.Models(mtype="nodes")
 neuron_models = [m for m in models if str(nest.GetDefaults(m, "element_type")) == "neuron"]
 _neuron_models = strip_suffix(neuron_models, "_neuron")
 
-nestml_unit_test_models = [neuron_model_name for neuron_model_name in _neuron_models if neuron_model_name.endswith("nestml_unit_test")]
+nestml_unit_test_models = [neuron_model_name for neuron_model_name in _neuron_models if neuron_model_name.endswith("_nestml")]
 
 nest.ResetKernel()
 
 for neuron_model in nestml_unit_test_models:
+    print("Instantiating neuron model: " + str(neuron_model))
     nest.Create(neuron_model)
 
 nest.Simulate(100)
