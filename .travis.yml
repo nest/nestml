@@ -60,7 +60,7 @@ stages:
 jobs:
   include:
     - stage: test
-      script: pytest -s tests
+      script: pytest -s -o norecursedirs='*' tests
 
     - stage: integration
       install:
@@ -84,14 +84,16 @@ jobs:
         - python setup.py install
 
       script:
-        - nestml --input_path models --target_path target --suffix nestml_unit_test --logging_level INFO --module_name nestmlmodule
+        - nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestmlmodule
         - cd target
         - cmake -Dwith-nest=/home/travis/nest_install/bin/nest-config .
         - make && make install
+        - cd ..
         - export PYNESTKERNEL_LOCATION=`find /home/travis/nest_install/lib -name pynestkernel.so`
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - echo $PYNESTKERNEL_LOCATION
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
+        - python $TRAVIS_BUILD_DIR/nest_instantiability_test.py
         - python $TRAVIS_BUILD_DIR/extras/nest_integration_test.py
         - python $TRAVIS_BUILD_DIR/extras/nest_logarithmic_function_test.py

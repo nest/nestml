@@ -1,4 +1,4 @@
-[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) [![Build Status](https://travis-ci.org/nest/nestml.svg?branch=master)](https://travis-ci.org/kperun/nestml)
+[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) [![Build Status](https://travis-ci.org/nest/nestml.svg?branch=master)](https://travis-ci.org/nest/nestml)
 
 # NESTML: The NEST Modelling Language
 
@@ -74,6 +74,7 @@ where arguments are:<a name="table_args"></a>
 | --logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO] |
 | --module_name  | (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`. |
 | --store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
+| --suffix       | (Optional) A suffix string that will be appended to the name of all generated models.|
 | --dev          | (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.|
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
