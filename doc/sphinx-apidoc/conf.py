@@ -43,7 +43,6 @@ import subprocess
 # import shlex
 
 from subprocess import check_output, CalledProcessError
-from mock import Mock as MagicMock
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -81,7 +80,7 @@ templates_path = ['_templates']
 master_doc = 'contents'
 
 # General information about the project.
-project = u'NESTML '
+project = u'NESTML API documentation'
 copyright = u'2004, nest-simulator'
 author = u'nest-simulator'
 
