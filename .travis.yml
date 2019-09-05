@@ -94,6 +94,6 @@ jobs:
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - echo $PYNESTKERNEL_LOCATION
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
-        - python $TRAVIS_BUILD_DIR/nest_instantiability_test.py
-        - python $TRAVIS_BUILD_DIR/extras/nest_integration_test.py
-        - python $TRAVIS_BUILD_DIR/extras/nest_logarithmic_function_test.py
+        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_instantiability_test.py
+        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_integration_test.py
+        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_logarithmic_function_test.py
