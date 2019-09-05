@@ -3,5 +3,5 @@ Table of Contents
 
 .. toctree::
 
-   index
+   * modules.rst_
 

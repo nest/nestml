@@ -47,7 +47,19 @@ from subprocess import check_output, CalledProcessError
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../../pynestml'))
+sys.path.insert(0, os.path.abspath('../doc/sphinx-apidoc'))
+sys.path.insert(0, os.path.abspath('doc/sphinx-apidoc'))
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
+
+
+os.system('cp -v ' 
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contents.rst')
+ + ' '
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/contents.rst'))	# copy master file into source directory as sphinx needs it there
+
+# The master toctree document.
+master_doc = "contents"
 
 source_suffix = ['.rst']
 
@@ -75,9 +87,6 @@ templates_path = ['_templates']
 #
 # source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
-
-# The master toctree document.
-master_doc = 'contents'
 
 # General information about the project.
 project = u'NESTML API documentation'
