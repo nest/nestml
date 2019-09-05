@@ -53,6 +53,8 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 
 
+os.system("sphinx-apidoc -o ../pynestml ../pynestml")	# in-source generation of necessary .rst files
+
 os.system('cp -v ' 
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contents.rst')
  + ' '
