@@ -9,7 +9,4 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
 API documentation
 =================
 
-.. toctree::
-   :maxdepth: 1
-
-   * :mod:`pynestml` Module
+* :mod:`pynestml` Module
