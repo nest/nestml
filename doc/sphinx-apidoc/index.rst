@@ -20,3 +20,10 @@ API documentation
     :undoc-members:
     :show-inheritance:
 
+:mod:`pynestml` Module
+------------------
+
+.. automodule:: pynestml
+    :members:
+    :undoc-members:
+    :show-inheritance:
