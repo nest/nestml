@@ -12,7 +12,7 @@ API documentation
 .. toctree::
    :maxdepth: 1
 
-   * modules
+   * modules.rst
 
 
 .. automodule:: pynestml
