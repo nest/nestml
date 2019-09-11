@@ -55,7 +55,7 @@ sys.path.insert(0, os.path.abspath('pynestml'))
 sys.path.insert(0, os.path.abspath('pynestml/codegeneration'))
 
 
-os.system("sphinx-apidoc -o "
+os.system("sphinx-apidoc --module-first -o "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml')
  + " "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml'))	# in-source generation of necessary .rst files
