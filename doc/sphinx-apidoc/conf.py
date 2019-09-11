@@ -71,7 +71,7 @@ os.system('cp -v '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there
 
 # The master toctree document.
-master_doc = "contents"
+master_doc = "index"
 
 source_suffix = ['.rst']
 
