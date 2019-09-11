@@ -12,18 +12,4 @@ API documentation
 .. toctree::
    :maxdepth: 1
 
-   * modules.rst
-
-
-.. automodule:: pynestml
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`pynestml` Module
-------------------
-
-.. automodule:: pynestml
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   * :mod:`pynestml` Module
