@@ -5,6 +5,12 @@ Welcome to the API documentation for PyNESTML. PyNESTML is the Python-based tool
 
 Please note that this readthedocs page strictly hosts API documentation. For more information about the NESTML language itself, as well as documentation about PyNESTML writen by and for humans, please see the `doc folder <https://github.com/nest/nestml/tree/master/doc>`_ in the NESTML repository.
 
+.. toctree::
+   :glob:
+
+   nestml_language
+   pynestml/*
+
 
 API documentation
 =================
