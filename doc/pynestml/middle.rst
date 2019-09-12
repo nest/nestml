@@ -1,5 +1,5 @@
 Section 2: Assisting Classes 
------------------------------
+============================
 
 As opposed to a typical DSL architecture, where semantical checks, as
 well as model transformations, are seen as a part of the *function
@@ -29,30 +29,17 @@ providing assisting functionality. Although not crucial, these elements
 are often required to provide a straightforward tooling as well as
 certain quality standards.
 
-.. raw:: html
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/pynestml/pic/mid_overview_cropped.png
+   :alt: reStructuredText, the markup syntax
 
-   <p align="center">
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
-Figure 2.1: Overview of assisting components: The *PyNestMLFrontend*
-represents an orchestrating component, governing PyNestML’s workflow.
-Parameters handed over by the user are stored in the
-*FrontendConfiguration*, while the *Logger* and *Messages* classes take
-care of logging. For the modification and creation of ASTs, the
-*ASTUtils*, *ASTNodeFactory* and *ASTOdeTransformer* are employed. The
-*ASTHigherOrderVisitor* represents an assisting component making
-traversal and modification of ASTs easier.
-
-.. raw:: html
-
-   </p>
+   Figure 2.1: Overview of assisting components: The *PyNestMLFrontend*
+   represents an orchestrating component, governing PyNestML’s workflow.
+   Parameters handed over by the user are stored in the
+   *FrontendConfiguration*, while the *Logger* and *Messages* classes take
+   care of logging. For the modification and creation of ASTs, the
+   *ASTUtils*, *ASTNodeFactory* and *ASTOdeTransformer* are employed. The
+   *ASTHigherOrderVisitor* represents an assisting component making
+   traversal and modification of ASTs easier.
 
 As introduced in the previous section, the *ModelParser* class reads in
 and checks a textual model for syntactical and semantical correctness.
