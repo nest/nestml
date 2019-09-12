@@ -80,12 +80,12 @@ print(os.path.join(os.path.basename(os.path.basename(os.path.abspath(__file__)))
 print(fns)
 fns = [ fn for fn in fns if fn.endswith(".rst") and not "sphinx-apidoc" in fn ]
 print(fns)
-for fn in fns:
+"""
+for fn in matches:
 	fn_from = fn
-	fn_to = os.path.join(os.path.join(os.path.abspath(__file__), fn))
+	fn_to = os.path.join(static_docs_dir, os.path.basename(fn)))
 	print("From " + fn_from + " to " + fn_to)
 	#os.system('install -v -D ' + fn_from + " " + fn_to)
-"""
 #os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
 
 """os.system('cp -v '
