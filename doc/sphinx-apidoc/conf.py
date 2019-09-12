@@ -64,13 +64,14 @@ os.system("sphinx-apidoc --module-first -o "
 import fnmatch
 import os
 
-static_docs_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))
+static_docs_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 matches = []
 for root, dirnames, filenames in os.walk(static_docs_dir):
     for filename in fnmatch.filter(filenames, '*.rst'):
             matches.append(os.path.join(root, filename))
 print(matches)
+
 """
 import glob
 /home/docs/checkouts/readthedocs.org/user_builds/nestml-api-documentation/checkouts/latest/doc/sphinx-apidoc
