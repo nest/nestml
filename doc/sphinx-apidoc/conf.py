@@ -65,8 +65,15 @@ os.system("sphinx-apidoc --module-first -o "
  + ' '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/contents.rst'))	# copy master file into source directory as sphinx needs it there"""
 
-os.system('cp -v '
+os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
+
+cp -v '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/*.rst')
+ + ' '
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there
+
+os.system('cp -v '
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../*.rst')
  + ' '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there
 
