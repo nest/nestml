@@ -60,9 +60,21 @@ os.system("sphinx-apidoc --module-first -o "
  + " "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml'))	# in-source generation of necessary .rst files
 
-import glob
 
-fns = glob.glob(os.path.join(os.path.basename(os.path.basename(os.path.abspath(__file__))), "*.rst"), recursive=True)
+import fnmatch
+import os
+
+static_docs_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))
+
+matches = []
+for root, dirnames, filenames in os.walk(static_docs_dir):
+    for filename in fnmatch.filter(filenames, '*.rst'):
+            matches.append(os.path.join(root, filename))
+print(matches)
+"""
+import glob
+/home/docs/checkouts/readthedocs.org/user_builds/nestml-api-documentation/checkouts/latest/doc/sphinx-apidoc
+fns = glob.glob(os.path.join(os.path.basename(os.path.basename("/home/docs/checkouts/readthedocs.org/user_builds/nestml-api-documentation/checkouts/latest/doc/sphinx-apidoc")), "*.rst"), recursive=True)
 print(os.path.join(os.path.basename(os.path.basename(os.path.abspath(__file__))), "*.rst"))
 print(fns)
 fns = [ fn for fn in fns if fn.endswith(".rst") and not "sphinx-apidoc" in fn ]
@@ -72,7 +84,7 @@ for fn in fns:
 	fn_to = os.path.join(os.path.join(os.path.abspath(__file__), fn))
 	print("From " + fn_from + " to " + fn_to)
 	#os.system('install -v -D ' + fn_from + " " + fn_to)
-
+"""
 #os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
 
 """os.system('cp -v '
