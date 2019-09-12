@@ -33,7 +33,7 @@ class PredefinedFunctions(object):
         PRINTLN               The callee name of the println function.
         EXP                   The callee name of the exponent function.
         LN                    The callee name of the natural logarithm function, i.e. the logarithm function of base :math:`e`.
-        LOG                   The callee name of the logarithm function of base 10.
+        LOG10                 The callee name of the logarithm function of base 10.
         COSH                  The callee name of the hyperbolic cosine.
         SINH                  The callee name of the hyperbolic sine.
         TANH                  The callee name of the hyperbolic tangent.
