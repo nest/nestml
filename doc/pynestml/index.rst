@@ -1,6 +1,14 @@
 PyNestML - NestML Toolchain in Python
 =====================================
 
+.. toctree::
+   
+   front
+   middle
+   back
+   extensions
+
+
 **Disclaimer**: This documentation represents PyNestML's implementation
 "as it is". **No guarantee of completeness or correctness is given.** As
 typical for all types of software, the actual implementation may change
