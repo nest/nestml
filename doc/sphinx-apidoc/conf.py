@@ -66,7 +66,7 @@ fns = glob.glob(os.path.join(os.path.abspath(__file__), "../"))
 fns = [ fn for fn in fns if fn.endswith(".rst") and not "sphinx-apidoc" in fn ]
 for fn in fns:
 	fn_from = fn
-	fn_to = os.path.join(os.path.join(os.path.abspath(__file__), fn)
+	fn_to = os.path.join(os.path.join(os.path.abspath(__file__), fn))
 	print("From " + fn_from + " to " + fn_to)
 	#os.system('install -v -D ' + fn_from + " " + fn_to)
 
