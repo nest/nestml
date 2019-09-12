@@ -331,8 +331,8 @@ class NESTCodeGenerator(CodeGenerator):
         for declaration in initial_values.get_declarations():
             variable = declaration.get_variables()[0]
             for shape in shape_to_buffers:
-                matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-                if re.match(matcher_computed_shape_odes, str(variable)):
+                matcher_computed_shape_odes = re.compile(shape + r"(__d)*")
+                if re.fullmatch(matcher_computed_shape_odes, str(variable)):
                     buffer_type = neuron.get_scope(). \
                         resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
                     assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
@@ -341,6 +341,7 @@ class NESTCodeGenerator(CodeGenerator):
                     spike_updates.append(ModelParser.parse_assignment(assignment_string))
                     # the IV is applied. can be reset
                     declaration.set_expression(ModelParser.parse_expression("0"))
+                    break
         for assignment in spike_updates:
             add_assignment_to_update_block(assignment, neuron)
 
