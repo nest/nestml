@@ -443,7 +443,7 @@ equations:
 end
 ```
 
-After generating and building the model code, a `receptor_types` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types):
+After generating and building the model code, a `receptor_type` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types):
 ```
 neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
