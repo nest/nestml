@@ -1,5 +1,5 @@
 Section 1: The model-processing Frontend
-----------------------------------------
+========================================
 
 In this section we will demonstrate how the model-processing frontend of
 PyNestML is structred. To this end, it is first necessary to parse a
@@ -30,19 +30,6 @@ class which represents the interface to the model-processing frontend.
 chapter. In order to avoid ambiguity, we refer to the framework as
 *PyNestML*, while the processed language itself is called *NestML*.
 
-.. raw:: html
-
-   <p align="center">
-     
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   <p>
-
 Figure 1.0: Overview of the model-processing Frontend: The lexer and
 parser process a textual model to the corresponding parse tree and can
 be completely generated from a grammar artifact. The ASTBuilderVisitor
@@ -55,9 +42,6 @@ Symbols and the predefined subsystem. Semantic Checks conclude the
 processing by checking the model for semantical correctness. All steps
 are orchestrated by the ModelParser.
 
-.. raw:: html
-
-   </p>
 
 Section 1.1: Lexer, Parser and AST classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

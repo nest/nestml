@@ -2,6 +2,7 @@ PyNestML - NestML Toolchain in Python
 =====================================
 
 .. toctree::
+   :maxdepth: 1
    
    front
    middle
