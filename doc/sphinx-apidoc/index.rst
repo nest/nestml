@@ -10,23 +10,9 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
    :maxdepth: 1
 
    nestml_language
+   pynestml/index
+   pynestml/front
 
-foo
-
-.. toctree::
-   :glob:
-
-   pynestml/*
-
-bar
-
-.. toctree::
-   :glob:
-
-   pynestml/index.rst
-
-
-bz
 
 API documentation
 =================
