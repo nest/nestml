@@ -62,8 +62,8 @@ os.system("sphinx-apidoc --module-first -o "
 
 import glob
 
-fns = glob.glob(os.path.join(os.path.abspath(__file__), "../*"))
-print(os.path.join(os.path.abspath(__file__), "../*"))
+fns = glob.glob(os.path.join(os.path.abspath(__file__), "../*.rst"), recursive=True)
+print(os.path.join(os.path.abspath(__file__), "../*.rst"))
 print(fns)
 fns = [ fn for fn in fns if fn.endswith(".rst") and not "sphinx-apidoc" in fn ]
 print(fns)
