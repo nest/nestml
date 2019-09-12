@@ -32,7 +32,8 @@ class PredefinedFunctions(object):
         PRINT                 The callee name of the print function.
         PRINTLN               The callee name of the println function.
         EXP                   The callee name of the exponent function.
-        LOG                   The callee name of the logarithm function.
+        LN                    The callee name of the natural logarithm function, i.e. the logarithm function of base :math:`e`.
+        LOG10                 The callee name of the logarithm function of base 10.
         COSH                  The callee name of the hyperbolic cosine.
         SINH                  The callee name of the hyperbolic sine.
         TANH                  The callee name of the hyperbolic tangent.
@@ -57,7 +58,8 @@ class PredefinedFunctions(object):
     PRINT = 'print'
     PRINTLN = 'println'
     EXP = 'exp'
-    LOG = 'log'
+    LN = 'ln'
+    LOG10 = 'log10'
     COSH = 'cosh'
     SINH = 'sinh'
     TANH = 'tanh'
@@ -88,7 +90,8 @@ class PredefinedFunctions(object):
         cls.__register_print_function()
         cls.__register_print_ln_function()
         cls.__register_exponent_function()
-        cls.__register_log_function()
+        cls.__register_ln_function()
+        cls.__register_log10_function()
         cls.__register_cosh_function()
         cls.__register_sinh_function()
         cls.__register_tanh_function()
@@ -165,16 +168,28 @@ class PredefinedFunctions(object):
         cls.name2function[cls.EXP] = symbol
 
     @classmethod
-    def __register_log_function(cls):
+    def __register_ln_function(cls):
         """
-        Registers the logarithm function (to base 10).
+        Registers the natural logarithm function, i.e. the logarithm function of base :math:`e`.
         """
         params = list()
         params.append(PredefinedTypes.get_real_type())  # the argument
-        symbol = FunctionSymbol(name=cls.LOG, param_types=params,
+        symbol = FunctionSymbol(name=cls.LN, param_types=params,
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.LOG] = symbol
+        cls.name2function[cls.LN] = symbol
+
+    @classmethod
+    def __register_log10_function(cls):
+        """
+        Registers the logarithm function of base 10.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.LOG10, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.LOG10] = symbol
 
     @classmethod
     def __register_cosh_function(cls):

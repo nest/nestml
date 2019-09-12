@@ -459,7 +459,8 @@ neuron ExpressionCollection:
         r_potassium = PotassiumRefractoryCounts
         emit_spike()
         exact_integration_adjustment real = ( ( 1 / Tau_2 ) - ( 1 / Tau_1 ) ) * ms
-        t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
+        t_peak real = ( Tau_2 * Tau_1 ) * log10( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
+        t_peak123 real = ( Tau_2 * Tau_1 ) * ln( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
         normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
         test = g_peak * normalisation_factor * exact_integration_adjustment
         # clip and hyperbolic functions
