@@ -85,7 +85,7 @@ for fn in matches:
 	if "sphinx-apidoc" in fn:
 		continue
 	fn_from = fn
-	fn_to = fn[len(static_docs_dir):]
+	fn_to = os.path.join(static_docs_dir, "doc/sphinx-apidoc", fn[len(static_docs_dir)+1:])
 	print("From " + fn_from + " to " + fn_to)
 	#os.system('install -v -D ' + fn_from + " " + fn_to)
 #os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
