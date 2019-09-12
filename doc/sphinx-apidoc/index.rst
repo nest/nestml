@@ -11,4 +11,9 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
 
    nestml_language
    pynestml/index
-   :mod:`pynestml` Module
+
+
+Foo
+===
+
+* :mod:`pynestml` Module
