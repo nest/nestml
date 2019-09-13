@@ -283,9 +283,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#shape.
     def visitOdeShape(self, ctx):
-        lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
-        rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
-        shape = ASTNodeFactory.create_ast_ode_shape(lhs=lhs, rhs=rhs, source_position=create_source_pos(ctx))
+        var_nodes = []
+        expr_nodes = []
+        for var, expr in zip(ctx.variable(), ctx.expression()):
+            var_node = self.visit(var)
+            expr_node = self.visit(expr)
+            var_nodes.append(var_node)
+            expr_nodes.append(expr_node)
+        shape = ASTNodeFactory.create_ast_ode_shape(variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
         update_node_comments(shape, self.__comments.visit(ctx))
         return shape
 

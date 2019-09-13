@@ -48,7 +48,7 @@ from pynestml.solver.transformer_base import add_assignment_to_update_block, add
 from pynestml.solver.transformer_base import add_declaration_to_initial_values, declaration_in_initial_values
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableType
+from pynestml.symbols.variable_symbol import VariableType, VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -62,20 +62,35 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
+def get_expr_from_shape_var(shape, var_name):
+    assert type(var_name) == str
+    for var, expr in zip(shape.get_variables(), shape.get_expressions()):
+        if var.get_complete_name() == var_name:
+            return expr
+    assert False, "variable name not found in shape"
 
 
-def replace_rhs_variable(expr, variable_name_to_replace, new_variable_name):
+def construct_shape_X_spike_buf_name(shape_var, spike_buf, order, diff_order_symbol="__d"):
+    assert type(shape_var) is ASTVariable
+    assert type(order) is int
+    assert type(diff_order_symbol) is str
+    return shape_var.get_name().replace("$", "__DOLLAR") + "__X__" + str(spike_buf) + diff_order_symbol * order
+
+
+def replace_rhs_variable(expr, variable_name_to_replace, shape_var, spike_buf):
     def replace_shape_var(node):
         if type(node) is ASTSimpleExpression \
             and node.is_variable() \
             and node.get_variable().get_name() == variable_name_to_replace:
+            #replace_with.update_scope(node.get_scope())
+            #replace_with.accept(ASTSymbolTableVisitor())
+            var_order = node.get_variable().get_differential_order()
+            new_variable_name = construct_shape_X_spike_buf_name(shape_var, spike_buf, var_order - 1, diff_order_symbol="'")
+            new_variable = ASTVariable(new_variable_name, var_order)
             print("Replacing variable " + str(node.get_variable().get_name()) + " with " + str(new_variable_name))
             print("\t order before = " + str(node.get_variable().get_differential_order()))
             print("\t scope before = " + str(node.get_scope()))
             print("\t scope before = " + str(node.get_variable().get_scope()))
-            #replace_with.update_scope(node.get_scope())
-            #replace_with.accept(ASTSymbolTableVisitor())
-            new_variable = ASTVariable(new_variable_name, node.get_variable().get_differential_order())
             node.set_variable(new_variable)
             print("\t order after = " + str(node.get_variable().get_differential_order()))
             print("\t scope after = " + str(node.get_scope()))
@@ -85,16 +100,45 @@ def replace_rhs_variable(expr, variable_name_to_replace, new_variable_name):
 
 
 def replace_rhs_variables(expr, shape_buffers):
-    for shape, spike_buf in shape_buffers:
-        variable_name_to_replace = shape.get_variable().get_name()
-        new_variable_name = variable_name_to_replace + "__X__" + str(spike_buf)
-        replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace, new_variable_name=new_variable_name)
+    """
+    Replace variable names in definitions of shape dynamics.
+
+    Say that the shape is
+
+    .. code-block::
+
+        G = -G / tau
+
+    Its variable symbol might be replaced by "G__X__spikesEx":
+
+    .. code-block::
+
+        G__X__spikesEx = -G / tau
+
+    This function updates the right-hand side of `expr` so that it would also read (in this example):
+
+    .. code-block::
+
+        G__X__spikesEx = -G__X__spikesEx / tau
+
+    These equations will later on be fed to ode-toolbox, so we use the symbol "'" to indicate differential order.
+
+    Note that for shapes/systems of ODE of dimension > 1, all variable orders and all variables for this shape will already be present in `shape_buffers`.
+    """
+    for shape_var_expr, spike_buf in shape_buffers:
+        shape_var = shape_var_expr.get_variable()
+        variable_name_to_replace = shape_var.get_name()
+        var_order = shape_var.get_differential_order()
+        replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace, shape_var=shape_var, spike_buf=spike_buf) #, new_variable_name=new_variable_name)
 
 
 def is_delta_shape(shape):
     """catches definition of shape, or reference (function call or variable name) of a delta shape function"""
     if type(shape) is ASTOdeShape:
-        expr = shape.get_expression()
+        if not len(shape.get_variables()) == 1:
+            # delta shape not allowed if more than one variable is defined in this shape
+            return False
+        expr = shape.get_expressions()[0]
     else:
         expr = shape
 
@@ -114,7 +158,8 @@ def is_delta_shape(shape):
 
 def get_delta_shape_prefactor_expr(shape):
     assert type(shape) is ASTOdeShape
-    expr = shape.get_expression()
+    assert len(shape.get_variables()) == 1
+    expr = shape.get_expressions()[0]
     if type(expr) is ASTExpression \
      and expr.get_rhs().is_function_call() \
      and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
@@ -207,17 +252,31 @@ class NESTCodeGenerator(CodeGenerator):
             self.store_transformed_model(neuron)
 
 
-    def get_convolve_function_calls_(self, equations_block):
-        # extract function names and corresponding incoming buffers
+    def generate_shape_buffers_(self, neuron, equations_block):
+        """generate a set of tuples (shape_name, spike_buf) that corresponds to all uses of the given shape variable name and spike buffer name in a convolution `convolve(shape_name, spike_buf)`."""
+
         shape_buffers = set()
         convolve_calls = OdeTransformer.get_convolve_function_calls(equations_block)
         for convolve in convolve_calls:
             el = (convolve.get_args()[0], convolve.get_args()[1])
             sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
+            if sym is None:
+                raise Exception("No initial value(s) defined for shape with variable \"" + convolve.get_args()[0].get_variable().get_complete_name() + "\"")
             if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
                 el = (el[1], el[0])
-            print("Adding " + el[0].__str__() + ", " + el[1].__str__())
-            shape_buffers.add(el)
+            print("Adding variable used in convolve: " + el[0].__str__() + ", " + el[1].__str__())
+
+            # find the corresponding shape object
+            var = el[0].get_variable()
+            shape = neuron.get_shape_by_name(var.get_name())
+
+            # generate an entry for all variables defined in the shape
+            for var in shape.get_variables():
+                expr = ASTNodeFactory.create_ast_simple_expression(variable=var, source_position=var.get_source_position())
+                el = (expr, el[1])
+                shape_buffers.add(el)
+                print("Adding " + el[0].__str__() + ", " + el[1].__str__())
+
         return shape_buffers
 
 
@@ -258,13 +317,17 @@ class NESTCodeGenerator(CodeGenerator):
 
 
     def replace_convolve_calls_with_buffers_(self, neuron, equations_block, shape_buffers):
-        for (shape, spike_input_port) in shape_buffers:
-            buffer_var = shape.__str__() + "__X__" + spike_input_port.__str__()
-            if is_delta_shape(neuron.get_shape_by_name(shape.__str__())):
-                #self.replace_convolve_calls_with_buffer_expr_(equations_block, shape, spike_input_port, 0)
-                self.replace_convolve_calls_with_buffer_expr_(equations_block, shape, spike_input_port, spike_input_port.__str__())
+        """
+        Replace each `convolve(shape, spike_buf)` function call with the corresponding element in `shape_buffers` (e.g. `G__X__spikesEx`). For delta shapes, replace the convolve call with the name of the spike input port directly.
+        """
+        for (shape_var_expr, spike_input_port) in shape_buffers:
+            shape_var = shape_var_expr.get_variable()
+            if is_delta_shape(neuron.get_shape_by_name(shape_var.get_complete_name())):
+                self.replace_convolve_calls_with_buffer_expr_(equations_block, shape_var_expr, spike_input_port, spike_input_port.__str__())
             else:
-                self.replace_convolve_calls_with_buffer_expr_(equations_block, shape, spike_input_port, buffer_var)
+                shape_order = shape_var.get_differential_order()
+                buffer_var = construct_shape_X_spike_buf_name(shape_var, spike_input_port, shape_order - 1)
+                self.replace_convolve_calls_with_buffer_expr_(equations_block, shape_var_expr, spike_input_port, buffer_var)
 
 
     def analyse_neuron(self, neuron):
@@ -276,9 +339,9 @@ class NESTCodeGenerator(CodeGenerator):
         code, message = Messages.get_start_processing_neuron(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
         equations_block = neuron.get_equations_block()
-        if equations_block is not None:
 
-            shape_buffers = self.get_convolve_function_calls_(equations_block)
+        if equations_block is not None:
+            shape_buffers = self.generate_shape_buffers_(neuron, equations_block)
             print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
             self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
             print("NEST codegenerator step 0...")
@@ -453,7 +516,7 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
         parameters_block = neuron.get_parameter_blocks()
-        odetoolbox_indict = self.transform_ode_and_shapes_to_json(equations_block, parameters_block, shape_buffers)
+        odetoolbox_indict = self.transform_ode_and_shapes_to_json(neuron, parameters_block, shape_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         print("Invoking ode-toolbox with JSON input:")
@@ -510,25 +573,36 @@ class NESTCodeGenerator(CodeGenerator):
         print("Updating for neuron: " + str(neuron.get_name()))
         SymbolTable.delete_neuron_scope(neuron.get_name())
         #SymbolTable.clean_up_table()
-        #import pdb;pdb.set_trace()
         #SymbolTable.initialize_symbol_table(neuron.get_source_position())
         neuron.accept(ASTSymbolTableVisitor())
         SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
         print("SymbolTable scope keys after update: " + str(SymbolTable.name2neuron_scope.keys()))
 
-    def mark_shape_variable_symbols(self, neuron, shape_buffers):
+
+    def get_shape_buffer_names(self, neuron, shape_buffers):
         shape_buffer_names = []
-        for shape, spike_input_port in shape_buffers:
-            shape_order = 0
-            while True:
-                shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__() + "__d" * shape_order
-                if neuron.get_initial_value(shape_spike_buf_name) is None:
-                    break
-                shape_order += 1
-            print("\tShape " + str(shape.__str__()) + ", order = " + str(shape_order))
-            for order in range(shape_order):
-                shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__() + "__d" * order
-                shape_buffer_names.append(shape_spike_buf_name)
+        for shape_var_expr, spike_input_port in shape_buffers:
+            shape_var = shape_var_expr.get_variable()
+            var_order = shape_var.get_differential_order()
+
+            shape_spike_buf_name = construct_shape_X_spike_buf_name(shape_var, spike_input_port, var_order)
+            shape_buffer_names.append(shape_spike_buf_name)
+
+        return shape_buffer_names
+
+
+    def get_shape_variable_names(self, shape):
+        shape_variable_names = []
+
+        for var in shape.get_variables():
+            shape_variable_names.append(var.get_complete_name())
+
+        return shape_variable_names
+
+
+    def mark_shape_variable_symbols(self, neuron, shape_buffers):
+
+        shape_buffer_names = self.get_shape_buffer_names(neuron, shape_buffers)
 
         def mark_variable_symbol_as_shape(_expr=None):
             if _expr.is_variable():
@@ -542,8 +616,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         neuron.accept(ASTHigherOrderVisitor(func))
 
+
     def remove_initial_values_for_shapes_(self, neuron):
-        """remove original declarations (e.g. g_in, g_in'); these might conflict with the initial value expressions returned from ode-toolbox"""
+        """remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ode-toolbox
+        """
 
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
 
@@ -552,12 +628,13 @@ class NESTCodeGenerator(CodeGenerator):
         symbols_to_remove = []
 
         for shape in equations_block.get_ode_shapes():
-            shape_order = shape.get_variable().get_differential_order()
-            for order in range(shape_order):
-                symbol_name = shape.get_variable().get_name() + "'" * order
-                symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
-                print("Would have removed symbol " + str(symbol_name) + " = " + str(symbol))
-                symbols_to_remove.append(symbol_name)
+            for shape_var in shape.get_variables():
+                shape_var_order = shape_var.get_differential_order()
+                for order in range(shape_var_order):
+                    symbol_name = shape_var.get_name() + "'" * order
+                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+                    print("Would have removed symbol " + str(symbol_name) + " = " + str(symbol))
+                    symbols_to_remove.append(symbol_name)
 
         for ode in equations_block.get_ode_equations():
             symbol_name = ode.lhs.get_name()
@@ -568,6 +645,7 @@ class NESTCodeGenerator(CodeGenerator):
         decl_to_remove = []
         for symbol_name in symbols_to_remove:
             for decl in neuron.get_initial_blocks().get_declarations():
+                assert len(decl.get_variables()) == 1, "Multiple declarations in the same statement not yet supported"
                 if decl.get_variables()[0].get_complete_name() == symbol_name:
                     decl_to_remove.append(decl)
                     break
@@ -593,7 +671,6 @@ class NESTCodeGenerator(CodeGenerator):
             for var_name in solver_dict["initial_values"].keys():
                 # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
                 if not declaration_in_initial_values(neuron, var_name):
-                    # note that for shapes that will be used in a convolution, the "initial value" is actually the value to be incremented by when a spike arrives
                     expr = solver_dict["initial_values"][var_name]
                     add_declaration_to_initial_values(neuron, var_name, expr)
                 print("Adding " + str(var_name) + " = " + str(solver_dict["initial_values"][var_name]) + " to initial values")
@@ -609,71 +686,84 @@ class NESTCodeGenerator(CodeGenerator):
                 add_declaration_to_initial_values(neuron, shape_spike_buf_name, "0")
 
 
+    """def get_shape_spike_buf_names(self, neuron, shape, spike_input_port):
+        shape_order = 0
+        while True:
+            shape_spike_buf_name = shape.get_variable().get_name().replace("$", "__DOLLAR") + "__X__" + spike_input_port.__str__() + "__d" * shape_order
+            shape_order += 1
+            if neuron.get_initial_value(shape_spike_buf_name) is None:
+                break
 
+        print("\tShape " + str(shape.get_variable().get_name()) + ", order = " + str(shape_order))
+
+        shape_spike_buf_names = []
+        for order in range(shape_order):
+            shape_spike_buf_name = shape.get_variable().get_name().replace("$", "__DOLLAR") + "__X__" + spike_input_port.__str__() + "__d" * order
+            shape_spike_buf_names.append(shape_spike_buf_name)
+
+            # check whether other variables exist that belong to the same shape, e.g. "g_in$" for the shape named "g_in"
+            for decl in neuron.get_equations_block().get_declarations():
+                if isinstance(decl, ASTOdeShape) \
+                 and re.compile(shape.get_variable().get_name() + "\$+").search(decl.get_variable().get_name()):
+                    assert decl.get_variable().get_differential_order() == 1
+                    shape_spike_buf_names.append(decl.get_variable().get_name().replace("$", "__DOLLAR") + "__X__" + str(spike_input_port))
+
+        import pdb;pdb.set_trace()
+        return shape_spike_buf_names
+"""
 
     def apply_spikes_from_buffers(self, neuron, shape_buffers):
-        """generate the equations that update the dynamical variables when incoming spikes arrive.
+        """Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
-        For example, a resulting `assignment_string` could be "I_shape_in += (in_spikes/nS) * 1".
+        For example, a resulting `assignment_string` could be "I_shape_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
 
         Note that for shapes, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
-
-        The definition of the spike kernel shape is then set to 0.
         """
-
-        """how many unique shape/buffer? each shape x each spike input is separate buffer? no, right?
-        convolve(G, spikes_inh)
-        convolve(G, spikes_exc)
-        convolve(F, spikes_exc)"""
-
         print("in apply_spikes_from_buffers")
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
 
-        for shape, spike_input_port in shape_buffers:
-            if is_delta_shape(neuron.get_shape_by_name(shape.get_variable().get_name())):
+        for shape_var_expr, spike_input_port in shape_buffers:
+            shape_var = shape_var_expr.get_variable()
+            var_order = shape_var.get_differential_order()
+            shape = neuron.get_shape_by_name(shape_var.get_name())
+
+            if is_delta_shape(shape):
                 continue
 
             buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 
-            # apply spikes from input port `spike_input_port` to the state variable named `shape_spike_buf_name` (as well as its higher order derivatives) 
-            shape_order = 0
-            while True:
-                shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__() + "__d" * shape_order
-                if neuron.get_initial_value(shape_spike_buf_name) is None:
-                    break
-                shape_order += 1
-            print("\tShape " + str(shape.__str__()) + ", order = " + str(shape_order))
-            for order in range(shape_order):
-                shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__() + "__d" * order
-                shape_name = shape.get_variable().get_name()
-                expr = "1."
-                if is_delta_shape(neuron.get_shape_by_name(shape_name)):
-                    expr = get_delta_shape_prefactor_expr(neuron.get_shape_by_name(shape_name))
-                else:  # not a delta shape
+            # apply spikes from input port `spike_input_port` to the state variable named `shape__X__spike_buf_name[__d]`
 
-                    expr = str(neuron.get_initial_value(shape_spike_buf_name))
-                    assert not expr is None, "Initial value not found for shape " + shape_name
+            shape_spike_buf_name = construct_shape_X_spike_buf_name(shape_var, spike_input_port, var_order - 1)
+            #expr = "1."
 
-                if expr in ["0", "0.", "0.0"]:
-                    print("zero")
-                    continue    # skip adding the statement if we're only adding zero
+            """if is_delta_shape(neuron.get_shape_by_name(shape_var.get_name())):
+                expr = get_delta_shape_prefactor_expr(neuron.get_shape_by_name(shape_var.get_name()))
+            else:  # not a delta shape"""
 
-                assignment_string = shape_spike_buf_name + " += "
-                assignment_string += "(" + str(spike_input_port) + ")"
-                if not expr in ["1.", "1.0", "1"]:
-                    assignment_string += " * (" + self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
-                if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
-                    assignment_string += " / (" + buffer_type.print_nestml_type() + ")"
+            expr = str(neuron.get_initial_value(shape_spike_buf_name))
+            assert not expr is None, "Initial value not found for shape " + shape_name
 
-                print("\t\t\t--> assignment_string = " + str(assignment_string))
-                #spike_updates.append(assignment_string + "\n")
-                #print("\t\tupdating scope to that of neuron " + str(neuron.get_name()) + ", scope = " + str(neuron.get_scope()))
-                ast_assignment = ModelParser.parse_assignment(assignment_string)
-                ast_assignment.update_scope(neuron.get_scope())
-                ast_assignment.accept(ASTSymbolTableVisitor())
+            if expr in ["0", "0.", "0.0"]:
+                print("\tzero")
+                continue    # skip adding the statement if we're only adding zero
 
-                spike_updates.append(ast_assignment)
+            assignment_string = shape_spike_buf_name + " += "
+            assignment_string += "(" + str(spike_input_port) + ")"
+            if not expr in ["1.", "1.0", "1"]:
+                assignment_string += " * (" + self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+            if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                assignment_string += " / (" + buffer_type.print_nestml_type() + ")"
+
+            print("\t\t\t--> assignment_string = " + str(assignment_string))
+            #spike_updates.append(assignment_string + "\n")
+            #print("\t\tupdating scope to that of neuron " + str(neuron.get_name()) + ", scope = " + str(neuron.get_scope()))
+            ast_assignment = ModelParser.parse_assignment(assignment_string)
+            ast_assignment.update_scope(neuron.get_scope())
+            ast_assignment.accept(ASTSymbolTableVisitor())
+
+            spike_updates.append(ast_assignment)
 
         print("spike_updates = " + str(spike_updates))
 
@@ -700,7 +790,7 @@ class NESTCodeGenerator(CodeGenerator):
             equations_block.get_declarations().remove(decl)
 
 
-    def transform_ode_and_shapes_to_json(self, equations_block, parameters_block, shape_buffers):
+    def transform_ode_and_shapes_to_json(self, neuron, parameters_block, shape_buffers):
         # type: (ASTEquationsBlock) -> dict[str, list]
         """Converts AST node to a JSON representation suitable for passing to ode-toolbox
 
@@ -714,12 +804,14 @@ class NESTCodeGenerator(CodeGenerator):
         :param equations_block:equations_block
         :return: dictionary
         """
+
         odetoolbox_indict = {}
 
         gsl_converter = IdempotentReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)
 
         odetoolbox_indict["dynamics"] = []
+        equations_block = neuron.get_equations_block()
         for equation in equations_block.get_ode_equations():
             lhs = str(equation.lhs) # n.b. includes single quotation marks to indicate differential order
             rhs = gsl_printer.print_expression(equation.get_rhs())
@@ -732,47 +824,44 @@ class NESTCodeGenerator(CodeGenerator):
                 entry["initial_value"] = expr
             odetoolbox_indict["dynamics"].append(entry)
 
-        # for each shape: make a copy for each (shape, spike buffer) combination
-        for shape in equations_block.get_ode_shapes():
+        # write a copy for each (shape, spike buffer) combination
+        for shape_var_expr, spike_buf in shape_buffers:
+            shape = neuron.get_shape_by_name(str(shape_var_expr))
+            expr = get_expr_from_shape_var(shape, str(shape_var_expr))
+            shape_var = shape_var_expr.get_variable()
+            shape_order = shape_var.get_differential_order()
+            #shape_X_spike_buf_name = construct_shape_X_spike_buf_name(shape_var, spike_buf, shape_order)
+            shape_X_spike_buf_name_ticks = construct_shape_X_spike_buf_name(shape_var, spike_buf, shape_order, diff_order_symbol="'")
 
-            if is_delta_shape(shape):
+            print("Making JSON entry for shape with var_expr = " + str(shape_var_expr) + ", expr = " + str(expr))
+
+            if is_delta_shape(expr):
                 # delta function -- skip passing this to ode-toolbox
                 continue
 
-            shape_variable_names = []
-            shape_order = shape.get_variable().get_differential_order()
-            for shape_, spike_buf in shape_buffers:
-                shape_name_ = shape_.__str__()
-                if shape_name_ == shape.get_variable().get_name():
-                    shape_variable_names.append(shape.get_variable().get_name() + "__X__" + str(spike_buf))
-            print("For shape " + str(shape.get_variable().get_name()) + ": All shape x spike buffer names introduced: " + str(shape_variable_names))
-            
-            for shape_variable_name in shape_variable_names:
-                expr = copy.deepcopy(shape.get_expression())
-
-                print("\tshape_variable_name = " + str(shape_variable_name))
-                print("\t shape expression before transform = " + str(expr))
-                replace_rhs_variables(expr, shape_buffers)
+            replace_rhs_variables(expr, shape_buffers)
                 #expr.update_scope(equations_block.get_scope())
                 #expr.accept(ASTSymbolTableVisitor())
                 #print("\t updating scope to " + str(equations_block.get_scope()))
                 #print("\t shape expression after transform = " + str(expr))
 
-                entry = {}
-                entry["expression"] = shape_variable_name + "'" * shape_order + " = " + str(expr)
+            entry = {}
+            entry["expression"] = shape_X_spike_buf_name_ticks + " = " + str(expr)
 
-                # initial values need to be declared for order 1 up to shape order (e.g. none for shape function f(t) = ..., 1 for shape ODE f'(t) = ..., 2 for f''(t) = ... and so on)
-                entry["initial_values"] = {}
-                for order in range(shape_order):
-                    symbol_name_ = shape.get_variable().get_name() + "'" * order
-                    symbol_name = shape_variable_name + "'" * order
-                    assert not equations_block.get_scope() is None, "Undeclared variable: " + symbol_name_
-                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
-                    initial_value_expr = symbol.get_declaring_expression()
-                    assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name_
-                    entry["initial_values"][symbol_name] = gsl_printer.print_expression(initial_value_expr)
+            # initial values need to be declared for order 1 up to shape order (e.g. none for shape function f(t) = ...; 1 for shape ODE f'(t) = ...; 2 for f''(t) = ... and so on)
+            entry["initial_values"] = {}
+            for order in range(shape_order):
+                iv_sym_name_odetb = construct_shape_X_spike_buf_name(shape_var, spike_buf, order, diff_order_symbol="'")
+                #symbol_name_ = shape_var_expr.get_variable().get_name() + "'" * order
+                #symbol_name = shape_X_spike_buf_name + "'" * order
+                symbol_name_ = shape_var.get_name() + "'" * order
+                symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
+                assert not symbol is None, "Could not find initial value for variable " + symbol_name_
+                initial_value_expr = symbol.get_declaring_expression()
+                assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name_
+                entry["initial_values"][iv_sym_name_odetb] = gsl_printer.print_expression(initial_value_expr)
 
-                odetoolbox_indict["dynamics"].append(entry)
+            odetoolbox_indict["dynamics"].append(entry)
 
         odetoolbox_indict["parameters"] = {}
         for decl in parameters_block.get_declarations():

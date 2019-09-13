@@ -458,20 +458,22 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single ode-shape.
         :type node: ast_ode_shape
         """
-        if node.get_variable().get_differential_order() == 0 and \
-                node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
-                                                   SymbolKind.VARIABLE) is None:
-            symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
-                                    name=node.get_variable().get_name(),
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            if var.get_differential_order() == 0 and \
+             node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
+                symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
+                                    name=var.get_name(),
                                     block_type=BlockType.EQUATION,
-                                    declaring_expression=node.get_expression(),
-                                    is_predefined=False, is_function=False,
+                                    declaring_expression=expr,
+                                    is_predefined=False,
+                                    is_function=False,
                                     is_recordable=True,
-                                    type_symbol=PredefinedTypes.get_real_type(), variable_type=VariableType.SHAPE)
-            symbol.set_comment(node.get_comment())
-            node.get_scope().add_symbol(symbol)
-        node.get_variable().update_scope(node.get_scope())
-        node.get_expression().update_scope(node.get_scope())
+                                    type_symbol=PredefinedTypes.get_real_type(),
+                                    variable_type=VariableType.SHAPE)
+                symbol.set_comment(node.get_comment())
+                node.get_scope().add_symbol(symbol)
+            var.update_scope(node.get_scope())
+            expr.update_scope(node.get_scope())
 
     def visit_ode_equation(self, node):
         """
@@ -636,26 +638,26 @@ def add_ode_shape_to_variable(ode_shape):
     :param ode_shape: a single shape object.
     :type ode_shape: ast_ode_shape
     """
-    print("Does " + str(ode_shape.get_variable().name) + " define ode?")
-    print("ode_shape.get_variable().get_differential_order() = " + str(ode_shape.get_variable().get_differential_order()))
-    if ode_shape.get_variable().get_differential_order() == 0:
-        # we only update those which define an ode
+    if len(ode_shape.get_variables()) == 1 \
+     and ode_shape.get_variables()[0].get_differential_order() == 0:
+        # we only update those which define an ODE; skip "direct function of time" specifications
         return
-    # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-    existing_symbol = ode_shape.get_scope().resolve_to_symbol(ode_shape.get_variable().get_name_of_lhs(),
-                                                              SymbolKind.VARIABLE)
-    if existing_symbol is not None:
-        existing_symbol.set_ode_definition(ode_shape.get_expression())
-        existing_symbol.set_variable_type(VariableType.SHAPE)
-        ode_shape.get_scope().update_variable_symbol(existing_symbol)
-        code, message = Messages.get_ode_updated(ode_shape.get_variable().get_name_of_lhs())
-        Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
-                           code=code, message=message, log_level=LoggingLevel.INFO)
-    else:
-        code, message = Messages.get_no_variable_found(ode_shape.get_variable().get_name_of_lhs())
-        Logger.log_message(code=code, message=message, error_position=ode_shape.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
-    return
+    
+    for var, expr in zip(ode_shape.get_variables(), ode_shape.get_expressions()):
+        # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
+        existing_symbol = ode_shape.get_scope().resolve_to_symbol(var.get_name_of_lhs(),
+                                                                SymbolKind.VARIABLE)
+        if existing_symbol is not None:
+            existing_symbol.set_ode_definition(expr)
+            existing_symbol.set_variable_type(VariableType.SHAPE)
+            ode_shape.get_scope().update_variable_symbol(existing_symbol)
+            code, message = Messages.get_ode_updated(var.get_name_of_lhs())
+            Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
+                            code=code, message=message, log_level=LoggingLevel.INFO)
+        else:
+            code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
+            Logger.log_message(code=code, message=message, error_position=ode_shape.get_source_position(),
+                            log_level=LoggingLevel.ERROR)
 
 
 def convert_variable_name_to_model_notation(variable):

@@ -30,11 +30,11 @@ class CoCoNoShapesExceptInConvolve(CoCo):
     """
     This CoCo ensures that shape variables do not occur on the right hand side except in convolve().
     Allowed:
-        shape g_ex ...
+        shape g_ex = ...
         function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
 
     Not allowed
-        shape g_ex ...
+        shape g_ex = ...
         function I_syn_exc pA = g_ex * ( V_m - E_ex )
 
     """
@@ -127,4 +127,5 @@ class ShapeCollectingVisitor(ASTVisitor):
         :param node: a single shape node.
         :type node: ASTOdeShape
         """
-        self.shape_names.append(node.get_variable().get_name_of_lhs())
+        for var in node.get_variables():
+            self.shape_names.append(var.get_name_of_lhs())

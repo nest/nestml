@@ -32,14 +32,6 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
   f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
 {% endfor -%}
 
-
-  {#
-  {%- for odeVariable in neuron.get_non_function_initial_values_symbols() -%}
-  {%-   if odeVariable.is_ode_defined() %}
-  f[{{names.array_index(odeVariable)}}] = {{printerGSL.print_expression(odeVariable.get_ode_definition(), prefix="node.")}};
-  {%-   endif -%}
-  {%- endfor %}
-  #}
   return GSL_SUCCESS;
 }
 

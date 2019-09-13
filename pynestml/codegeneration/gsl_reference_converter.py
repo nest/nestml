@@ -28,6 +28,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.utils.messages import Messages
 
 
 class GSLReferenceConverter(IReferenceConverter):
@@ -66,7 +67,7 @@ class GSLReferenceConverter(IReferenceConverter):
 
             code, message = Messages.get_could_not_resolve(variable_name)
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                              error_position=variable.get_source_position())
+                               error_position=variable.get_source_position())
             return ''
 
         if symbol.is_init_values():

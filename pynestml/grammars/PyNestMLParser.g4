@@ -122,7 +122,7 @@ parser grammar PyNestMLParser;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  odeShape : SHAPE_KEYWORD lhs=variable EQUALS rhs=expression (SEMICOLON)?;
+  odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -259,6 +259,7 @@ parser grammar PyNestMLParser;
                    (odeFunction|odeEquation|odeShape|NEWLINE)*
                    END_KEYWORD;
 
+                   
   /** ASTInputBlock represents a single input block:
     input:
       spikeBuffer   <- inhibitory excitatory spike

@@ -378,19 +378,6 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def variables_defined_by_ode(self):
-        """
-        Returns a list of all variables which are defined by an ode.
-        :return: a list of variable symbols
-        :rtype: list(VariableSymbol)
-        """
-        symbols = self.get_scope().get_symbols_in_complete_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.is_ode_defined():
-                ret.append(symbol)
-        return ret
-
     def get_output_blocks(self):
         """
         Returns a list of all output-blocks defined.
@@ -548,54 +535,6 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in self.get_initial_values_symbols():
             if not symbol.is_function:
-                ret.append(symbol)
-        return ret
-
-    def get_ode_defined_symbols(self):
-        """
-        Returns a list of all variable symbols which have been defined in the initial_values blocks and are provided with an ode.
-        :return: a list of initial value variables with odes
-        :rtype: list(VariableSymbol)
-        """
-        from pynestml.symbols.variable_symbol import BlockType
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and \
-                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
-                    and not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
-
-    def get_shape_defined_symbols(self):
-        """
-        Returns a list of all variable symbols which have been defined in the initial_values blocks and are provided with an ode.
-        :return: a list of initial value variables with odes
-        :rtype: list(VariableSymbol)
-        """
-        from pynestml.symbols.variable_symbol import BlockType
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and \
-                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
-                    and not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
-
-    def get_state_symbols_without_ode(self):
-        """
-        Returns a list of all elements which have been defined in the state block.
-        :return: a list of of state variable symbols.
-        :rtype: list(VariableSymbol)
-        """
-        from pynestml.symbols.variable_symbol import BlockType
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and \
-                    symbol.block_type == BlockType.STATE and not symbol.is_ode_defined() \
-                    and not symbol.is_predefined:
                 ret.append(symbol)
         return ret
 
@@ -795,10 +734,20 @@ class ASTNeuron(ASTNode):
     def get_shape_by_name(self, shape_name):
         assert type(shape_name) is str
         shape_name = shape_name.split("__X__")[0]
+
+        # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and decl.get_variable().get_name() == shape_name:
+            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
                 print("Is shape " + str(shape_name) + "? YES")
                 return decl
+
+        # check if defined for a higher order of differentiation
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                print("Is shape " + str(shape_name) + "? YES2")
+                return decl
+
+
         print("Is shape " + str(shape_name) + "? NO")
         return None
 
