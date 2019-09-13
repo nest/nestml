@@ -1,11 +1,7 @@
 Section 2: Assisting Classes 
 ============================
 
-As opposed to a typical DSL architecture, where semantical checks, as
-well as model transformations, are seen as a part of the *function
-library*, PyNestML implements a slightly different structuring of the
-components. In the previous section, checks for semantical correctness
-of a given model were already included in the model-processing frontend
+As opposed to a typical DSL architecture, where semantical checks, as well as model transformations, are seen as a part of the *function library*, PyNestML implements a slightly different structuring of the components. In the previous section, checks for semantical correctness of a given model were already included in the model-processing frontend
 instead of characterizing this component as an element of the subsystem
 sitting between the frontend and the code generator. We, therefore,
 decided to factor out the functionality normally contained in the

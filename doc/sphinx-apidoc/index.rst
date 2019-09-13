@@ -10,10 +10,10 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
    :maxdepth: 2
 
    nestml_language
-   pynestml/index
+   pynestml_toolchain/index
 
-
-Foo
-===
+API documentation
+=================
 
 * :mod:`pynestml` Module
+

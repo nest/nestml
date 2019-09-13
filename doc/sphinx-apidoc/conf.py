@@ -66,7 +66,7 @@ import os
 
 static_docs_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc"))
-sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/pynestml"))
+sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/pynestml_toolchain"))
 matches = []
 for root, dirnames, filenames in os.walk(static_docs_dir):
     for filename in fnmatch.filter(filenames, '*.rst'):
