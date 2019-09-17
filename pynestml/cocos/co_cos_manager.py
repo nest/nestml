@@ -296,7 +296,7 @@ class CoCosManager(object):
         CoCoIllegalExpression.check_co_co(neuron)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, neuron, skip_check_correct_usage_of_shapes=False):
+    def post_symbol_table_builder_checks(cls, neuron, after_ast_rewrite=False):
         """
         Checks the following constraints:
             cls.check_function_defined(_neuron)
@@ -332,7 +332,6 @@ class CoCosManager(object):
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)
         cls.check_order_of_equations_correct(neuron)
-        cls.check_odes_have_consistent_units(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_type_of_buffer_unique(neuron)
@@ -342,13 +341,14 @@ class CoCosManager(object):
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
-        if not skip_check_correct_usage_of_shapes:
+        if not after_ast_rewrite:
+            cls.check_odes_have_consistent_units(neuron)        # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
             cls.check_correct_usage_of_shapes(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
         cls.check_expression_correct(neuron)
-        #cls.check_function_argument_template_types_consistent(neuron)      # already called by the ASTFunctionCallVisitor
+        cls.check_function_argument_template_types_consistent(neuron)
         return
 
     @classmethod

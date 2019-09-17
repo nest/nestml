@@ -49,18 +49,25 @@ class IdempotentReferenceConverter(IReferenceConverter):
         """
         return ast_variable.get_complete_name()
 
-    def convert_function_call(self, function_call):
-        """
-        Returns the same function call back.
-        :param function_call: a function call
-        :type function_call: ASTFunctionCall
-        :return: the same sting back
-        :rtype: str
+    def convert_function_call(self, function_call, prefix=''):
+        """Return the function call in NESTML syntax.
+
+        Parameters
+        ----------
+        function_call : ASTFunctionCall
+            The function call node to convert.
+        prefix : str
+            The prefix argument is not relevant for rendering NESTML syntax and will be ignored.
+
+        Returns
+        -------
+        s : str
+            The function call string in NESTML syntax.
         """
         result = function_call.get_name()
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
+            result += '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         else:
             result += '()'
         return result

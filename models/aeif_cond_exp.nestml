@@ -41,7 +41,7 @@ neuron aeif_cond_exp:
   end
 
   equations:
-    function V_bounded mV = bounded_min(V_m, V_peak) # prevent exponential divergence
+    function V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
     shape g_in = exp(-1/tau_syn_in*t)
     shape g_ex = exp(-1/tau_syn_ex*t)
 

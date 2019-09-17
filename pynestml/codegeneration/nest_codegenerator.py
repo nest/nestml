@@ -145,12 +145,12 @@ class NESTCodeGenerator(CodeGenerator):
         # get rid of convolve, store them and apply then at the end
         equations_block = neuron.get_equations_block()
         shape_to_buffers = {}
-        if neuron.get_equations_block() is not None:
+        if equations_block is not None:
             # extract function names and corresponding incoming buffers
             convolve_calls = OdeTransformer.get_sum_function_calls(equations_block)
             for convolve in convolve_calls:
                 shape_to_buffers[str(convolve.get_args()[0])] = str(convolve.get_args()[1])
-            OdeTransformer.refactor_convolve_call(neuron.get_equations_block())
+            OdeTransformer.refactor_convolve_call(equations_block)
             self.make_functions_self_contained(equations_block.get_ode_functions())
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
                                                            equations_block.get_ode_functions())
@@ -159,7 +159,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.apply_spikes_from_buffers(neuron, shape_to_buffers)
             # update the symbol table
             symbol_table_visitor = ASTSymbolTableVisitor()
-            symbol_table_visitor.after_ast_rewrite_ = True		# ODE block might have been removed entirely: suppress warnings
+            symbol_table_visitor.after_ast_rewrite_ = True		# suppress warnings due to AST rewrites
             neuron.accept(symbol_table_visitor)
 
 
@@ -230,6 +230,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
+        namespace['tracing'] = FrontendConfiguration.is_dev
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)

@@ -184,9 +184,9 @@ class TypeSymbol(Symbol):
 
     @abstractmethod
     def is_castable_to(self, _other_type):
-        """
-        Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
-        a unit where unit is expected is allowed.
+        """Test castability of this SymbolType to `_other_type`.
+
+        The implementation of this function in `TypeSymbol` takes care of casting to `TemplateTypeSymbol`s, hence, any children that override this function need to always call the parent implementation, before doing their own castability checks.
         :return: True if castable, otherwise False
         :rtype: bool
         """
