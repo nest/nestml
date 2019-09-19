@@ -96,10 +96,10 @@ for fn in matches:
  + ' '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/contents.rst'))	# copy master file into source directory as sphinx needs it there"""
 
-"""os.system('cp -v '
+os.system('cp -v '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml/*.rst')
  + ' '
- + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there"""
+ + os.path.join(os.path.dirname(os.path.abspath(__file__)), '.'))	# copy master file into source directory as sphinx needs it there
 
 os.system('cp -v '
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../*.rst')
