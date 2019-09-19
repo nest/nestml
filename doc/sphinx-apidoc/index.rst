@@ -17,7 +17,11 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
 The NESTML language
 ===================
 
-`<nestml_language>`_
+`<nestml_language.rst>`_
+
+foo
+
+nestml_language_
 
 also point at tutorial
 
