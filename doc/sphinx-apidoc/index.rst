@@ -7,13 +7,30 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
 
 .. toctree::
    :glob:
-   :maxdepth: 2
+   :maxdepth: 0
 
    nestml_language
    pynestml_toolchain/index
 
+
+The NESTML language
+===================
+
+`nestml_language`_
+
+also point at tutorial
+
+
+The PyNESTML toolchain
+======================
+
+Design documentation
+
+`pynestml_toolchain/index`_
+
+
 API documentation
-=================
+-----------------
 
 * :mod:`pynestml` Module
 
