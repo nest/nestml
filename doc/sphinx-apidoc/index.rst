@@ -7,7 +7,8 @@ Please note that this readthedocs page strictly hosts API documentation. For mor
 
 .. toctree::
    :glob:
-   :maxdepth: 0
+   :hidden:
+   :maxdepth: 1
 
    nestml_language
    pynestml_toolchain/index
