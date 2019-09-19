@@ -48,7 +48,6 @@ class Scope(object):
         self.enclosing_scope = enclosing_scope
         self.source_position = source_position
         print("------- CREATING SCOPE " + str(self) + " ---------")
-        #import pdb;pdb.set_trace()
 
     def add_symbol(self, symbol):
         """

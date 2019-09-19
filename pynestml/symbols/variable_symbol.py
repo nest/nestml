@@ -125,135 +125,116 @@ class VariableSymbol(Symbol):
         """
         return self.declaring_expression
 
-    def has_declaring_expression(self):
+    def has_declaring_expression(self) -> bool:
         """
         Indicates whether a declaring rhs is present.
         :return: True if present, otherwise False.
-        :rtype: bool
         """
         return self.declaring_expression is not None and (isinstance(self.declaring_expression, ASTSimpleExpression)
                                                           or isinstance(self.declaring_expression, ASTExpression))
 
-    def is_spike_buffer(self):
+    def is_spike_buffer(self) -> bool:
         """
         Returns whether this symbol represents a spike buffer.
         :return: True if spike buffer, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_spike()
 
-    def is_current_buffer(self):
+    def is_current_buffer(self) -> bool:
         """
         Returns whether this symbol represents a current buffer.
         :return: True if current buffer, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_current()
 
-    def is_excitatory(self):
+    def is_excitatory(self) -> bool:
         """
         Returns whether this symbol represents a buffer of type excitatory.
         :return: True if is excitatory, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_excitatory()
 
-    def is_inhibitory(self):
+    def is_inhibitory(self) -> bool:
         """
         Returns whether this symbol represents a buffer of type inhibitory.
         :return: True if is inhibitory, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_inhibitory()
 
-    def is_state(self):
+    def is_state(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a state block.
         :return: True if declared in a state block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.STATE
 
-    def is_parameters(self):
+    def is_parameters(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a parameters block.
         :return: True if declared in a parameters block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.PARAMETERS
 
-    def is_internals(self):
+    def is_internals(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a internals block.
         :return: True if declared in a internals block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INTERNALS
 
-    def is_equation(self):
+    def is_equation(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a equation block.
         :return: True if declared in a equation block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.EQUATION
 
-    def is_local(self):
+    def is_local(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a local (e.g., update) block.
         :return: True if declared in a local block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.LOCAL
 
-    def is_input_buffer_current(self):
+    def is_input_buffer_current(self) -> bool:
         """
         Returns whether this variable symbol has been declared as a input-buffer current element.
         :return: True if input-buffer current, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INPUT_BUFFER_CURRENT
 
-    def is_input_buffer_spike(self):
+    def is_input_buffer_spike(self) -> bool:
         """
         Returns whether this variable symbol has been declared as a input-buffer spike element.
         :return: True if input-buffer spike, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INPUT_BUFFER_SPIKE
 
-    def is_buffer(self):
+    def is_buffer(self) -> bool:
         """
         Returns whether this variable symbol represents a buffer or not.
         :return: True if buffer, otherwise False.
-        :rtype: bool
         """
         return self.variable_type == VariableType.BUFFER
 
-    def is_output(self):
+    def is_output(self) -> bool:
         """
         Returns whether this variable symbol has been declared as a output-buffer element.
         :return: True if output element, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.OUTPUT
 
-    def is_shape(self):
+    def is_shape(self) -> bool:
         """
         Returns whether this variable belongs to the definition of a shape.
         :return: True if part of a shape definition, otherwise False.
-        :rtype: bool
         """
-        #print("is_shape(" + self.name + ") ? --> " + str(self.variable_type == VariableType.SHAPE))
-        #if not(self.variable_type == VariableType.SHAPE):
-            #import pdb;pdb.set_trace()
         return self.variable_type == VariableType.SHAPE
 
-    def is_init_values(self):
+    def is_init_values(self) -> bool:
         """
         Returns whether this variable belongs to the definition of a initial value.
         :return: True if part of a initial value, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INITIAL_VALUES
 

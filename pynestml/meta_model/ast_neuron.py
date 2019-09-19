@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
@@ -28,7 +30,6 @@ from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
-
 
 
 class ASTNeuron(ASTNode):
@@ -731,7 +732,7 @@ class ASTNeuron(ASTNode):
 
         return None
 
-    def get_shape_by_name(self, shape_name):
+    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
         assert type(shape_name) is str
         shape_name = shape_name.split("__X__")[0]
 
