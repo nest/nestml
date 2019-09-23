@@ -15,21 +15,23 @@ Welcome to the documentation for NESTML. PyNESTML is the Python-based toolchain 
 The NESTML language
 ===================
 
-:doc:`The NESTML language <nestml_language>`
+ * :doc:`The NESTML language <nestml_language>`
 
-also point at tutorial
+   Summary of language features and syntax.
+
+ * :doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial.rst>`
+
+   Learn how to finish a partial Izhikevich spiking neuron model.
 
 
 The PyNESTML toolchain
 ======================
 
-Design documentation
+ * :doc:`Design documentation <pynestml_toolchain/index>`
 
-`pynestml_toolchain/index`_
+   Detailed description of the design and operation of PyNESTML, the NESTML language toolchain.
 
+ * API documentation: :mod:`pynestml` module index
 
-API documentation
------------------
-
-* :mod:`pynestml` Module
+   This documentation is automatically generated from the toolchain source code in `pynestml`.
 
