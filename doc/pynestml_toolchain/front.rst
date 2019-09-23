@@ -1,105 +1,29 @@
 Section 1: The model-processing Frontend
 ========================================
 
-In this section we will demonstrate how the model-processing frontend of
-PyNestML is structred. To this end, it is first necessary to parse a
-textual model to an internal representation by means of a *lexer* and
-*parser*. `Section 1.1 <#chap:main:front:ast>`__ introduces this
-subsystem together with a collection of AST classes and the
-*ASTBuilderVisitor*, a component which extracts an AST representation
-from a given *parse tree*. Subsequently, the *CommentCollectorVisitor*
-and its underlying process responsible for the extraction of comments
-from the source model and their correct storing in the AST is
-demonstrated, making the generation of self-documenting models possible.
-Having a model’s AST, it remains to check its semantical correctness.
-For this purpose, `Section 1.2 <#chap:main:front:typing>`__ will first
-introduce a data structure for the storage of context-related details,
-namely the *Symbol* classes. Here, we also show how modeled data types
-can be represented and handled. In order to provide a basic set of
-constants and functions predefined in NestML, the *predefined* subsystem
-is implemented. With a parsed model represented by the respective AST,
-and a structure for storing context information, the frontend proceeds
-to collect context related details of the model. Demonstrated in
-`Section 1.3 <#chap:main:front:semantics>`__ together with the
-*SymbolTable* and a set of *context conditions*, the
-*ASTSymbolTableVisitor* ensures semantical correctness. After all
-context conditions have been checked, the frontend’s model processing is
-complete. All steps outlined above are orchestrated by the *ModelParser*
-class which represents the interface to the model-processing frontend.
-`Figure 1.0 <#fig1.0>`__ subsumes the concepts demonstrated in this
-chapter. In order to avoid ambiguity, we refer to the framework as
-*PyNestML*, while the processed language itself is called *NestML*.
+In this section we will demonstrate how the model-processing frontend of PyNestML is structred. To this end, it is first necessary to parse a textual model to an internal representation by means of a *lexer* and *parser*. `Section 1.1 <#chap:main:front:ast>`__ introduces this subsystem together with a collection of AST classes and the *ASTBuilderVisitor*, a component which extracts an AST representation from a given *parse tree*. Subsequently, the *CommentCollectorVisitor* and its underlying process responsible for the extraction of comments from the source model and their correct storing in the AST is demonstrated, making the generation of self-documenting models possible. Having a model’s AST, it remains to check its semantical correctness. For this purpose, `Section 1.2 <#chap:main:front:typing>`__ will first introduce a data structure for the storage of context-related details, namely the *Symbol* classes. Here, we also show how modeled data types can be represented and handled. In order to provide a basic set of constants and functions predefined in NestML, the *predefined* subsystem is implemented. With a parsed model represented by the respective AST, and a structure for storing context information, the frontend proceeds to collect context related details of the model. Demonstrated in `Section 1.3 <#chap:main:front:semantics>`__ together with the *SymbolTable* and a set of *context conditions*, the *ASTSymbolTableVisitor* ensures semantical correctness. After all context conditions have been checked, the frontend’s model processing is complete. All steps outlined above are orchestrated by the *ModelParser* class which represents the interface to the model-processing frontend. :numref:`fig-frontend-overview` subsumes the concepts demonstrated in this chapter. In order to avoid ambiguity, we refer to the framework as *PyNestML*, while the processed language itself is called *NestML*.
 
-Figure 1.0: Overview of the model-processing Frontend: The lexer and
-parser process a textual model to the corresponding parse tree and can
-be completely generated from a grammar artifact. The ASTBuilderVisitor
-is responsible for the initialization of a model’s AST, employing
-classes which conform to the DSL’s grammar. After the AST has been
-constructed, the CommentCollectorVisitor collects and stores all
-comments stated in the source model. The ASTSymbolTableVisitor
-subsequently collects context information of the model by utilizing
-Symbols and the predefined subsystem. Semantic Checks conclude the
-processing by checking the model for semantical correctness. All steps
-are orchestrated by the ModelParser.
+.. _fig-frontend-overview:
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/pynestml/pic/front_overview_cropped.jpg
+   :alt: Overview of the model-processing Frontend
+
+   Overview of the model-processing Frontend: The lexer and parser process a textual model to the corresponding parse tree and can be completely generated from a grammar artifact. The ASTBuilderVisitor is responsible for the initialization of a model’s AST, employing classes which conform to the DSL’s grammar. After the AST has been constructed, the CommentCollectorVisitor collects and stores all comments stated in the source model. The ASTSymbolTableVisitor subsequently collects context information of the model by utilizing Symbols and the predefined subsystem. Semantic Checks conclude the rocessing by checking the model for semantical correctness. All steps are orchestrated by the ModelParser.
 
 
 Section 1.1: Lexer, Parser and AST classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------
 
-The first step during the processing of a textual model is the creation
-of an internal representation by means of an AST. For this purpose, it
-is first necessary to implement a *lexer* and *parser* which read in a
-textual model and create a respective *parse tree*. However, the parse
-tree represents an immutable data structure where no data retrieval and
-modification operations are provided, making required transformations
-and interactions difficult. Consequently, a refined representation in
-the from of an AST has to be derived. It is therefore necessary to
-implement a collection of AST classes used to store individual elements
-of the AST. In order to retrieve all required information from the parse
-tree and instantiate a respective AST, the *ASTBuilderVisitor* is
-implemented. The result is a model’s AST which can be used for further
-checks and modifications. All these steps are encapsulated in the
-orchestrating *ModelParser* class. `Figure 1.1 <#fig1.1>`__ provides an
-overview of the components as introduced in this section.
+The first step during the processing of a textual model is the creation of an internal representation by means of an AST. For this purpose, it is first necessary to implement a *lexer* and *parser* which read in a textual model and create a respective *parse tree*. However, the parse tree represents an immutable data structure where no data retrieval and modification operations are provided, making required transformations and interactions difficult. Consequently, a refined representation in the from of an AST has to be derived. It is therefore necessary to implement a collection of AST classes used to store individual elements of the AST. In order to retrieve all required information from the parse tree and instantiate a respective AST, the *ASTBuilderVisitor* is implemented. The result is a model’s AST which can be used for further checks and modifications. All these steps are encapsulated in the orchestrating *ModelParser* class. :numref:`lexer-parser-overview` provides an overview of the components as introduced in this section.
 
-.. raw:: html
+.. _fig-lexer-parser-overview:
 
-   <p align="center">
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/pynestml/pic/front_parser_overview_cropped.jpg
+   :alt: Overview of the lexer, parser and the AST classes
 
-.. raw:: html
+   Overview of the lexer, parser and the AST classes: The grammar represents the artifact from which the lexer and parser are generated. Moreover, the ASTBuilderVisitor class extends the generated ParseTreeVisitor class and transforms the handed over parse tree to the respective AST. The ASTNodeFactory features a set of operations for node initialization. The ModelParser encapsulates all processes and can be used to parse complete models or single statements.
 
-   </p>
-
-.. raw:: html
-
-   <p>
-
-Figure 1.1: Overview of the lexer, parser and the AST classes: The
-grammar represents the artifact from which the lexer and parser are
-generated. Moreover, the ASTBuilderVisitor class extends the generated
-ParseTreeVisitor class and transforms the handed over parse tree to the
-respective AST. The ASTNodeFactory features a set of operations for node
-initialization. The ModelParser encapsulates all processes and can be
-used to parse complete models or single statements.
-
-.. raw:: html
-
-   </p>
-
-Although possible, *lexer* and *parser* are usually not implemented by
-hand but rather generated from their respective grammar. In the case of
-PyNestML, `*Antlr* <http://www.antlr.org/>`__ was selected to define the
-grammar and generate the lexer and parser. For this purpose, it is first
-necessary to create the grammar of the language. Although modular and
-easy to understand, PyNestML’s grammar is still an artifact of several
-hundreds lines of code. In the following we will therefore use a
-simplified working example as depicted in `Figure 1.2 <#fig1.2>`__. The
-grammar as used to define the complete language can be found
-`here <../../pynestml/grammars/PyNestMLParser.g4>`__. The grammar is
-hereby an artifact structured according to Antlr’s syntax and defines
-which rules and tokens the language accepts. All concepts as introduced
-for the working example are implemented analogously for the complete
-grammar.
+Although possible, *lexer* and *parser* are usually not implemented by hand but rather generated from their respective grammar. In the case of PyNestML, `*Antlr* <http://www.antlr.org/>`__ was selected to define the grammar and generate the lexer and parser. For this purpose, it is first necessary to create the grammar of the language. Although modular and easy to understand, PyNestML’s grammar is still an artifact of several hundreds lines of code. In the following we will therefore use a simplified working example as depicted in `Figure 1.2 <#fig1.2>`__. The grammar as used to define the complete language can be found `here <../../pynestml/grammars/PyNestMLParser.g4>`__. The grammar is hereby an artifact structured according to Antlr’s syntax and defines which rules and tokens the language accepts. All concepts as introduced for the working example are implemented analogously for the complete grammar.
 
 .. raw:: html
 
