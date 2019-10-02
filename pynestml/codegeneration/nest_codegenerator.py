@@ -874,7 +874,6 @@ class NESTCodeGenerator(CodeGenerator):
                 shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__()
                 add_declaration_to_initial_values(neuron, shape_spike_buf_name, "0")
 
-
     """def get_shape_spike_buf_names(self, neuron, shape, spike_input_port):
         shape_order = 0
         while True:
