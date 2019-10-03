@@ -319,7 +319,8 @@ class NESTCodeGenerator(CodeGenerator):
                 _expr.set_function_call(None)
                 buffer_var = construct_shape_X_spike_buf_name(var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if is_delta_shape(shape):
-                    import pdb;pdb.set_trace() # XXX: TODO
+                    _expr.set_variable(spike_input_port)
+                    print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
                 else:
                     ast_variable = ASTVariable(buffer_var)
                     _expr.set_variable(ast_variable)
@@ -864,7 +865,7 @@ class NESTCodeGenerator(CodeGenerator):
                 ##shape = neuron.get_shape_by_name(shape_var.get_name())
                 
         
-
+        """
         # shapes containing delta functions were removed before passing to ode-toolbox; reinstate initial values here
         spike_updates = []
         for shape, spike_input_port in shape_buffers:
@@ -872,7 +873,7 @@ class NESTCodeGenerator(CodeGenerator):
             print("\t\tshape = " + str(shape))
             if is_delta_shape(shape):
                 shape_spike_buf_name = shape.__str__() + "__X__" + spike_input_port.__str__()
-                add_declaration_to_initial_values(neuron, shape_spike_buf_name, "0")
+                add_declaration_to_initial_values(neuron, shape_spike_buf_name, "0")"""
 
     """def get_shape_spike_buf_names(self, neuron, shape, spike_input_port):
         shape_order = 0
