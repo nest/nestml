@@ -119,8 +119,11 @@ class NESTReferenceConverter(IReferenceConverter):
         if function_name == PredefinedFunctions.EXP:
             return 'std::exp({!s})'
 
-        if function_name == PredefinedFunctions.LOG:
+        if function_name == PredefinedFunctions.LN:
             return 'std::log({!s})'
+
+        if function_name == PredefinedFunctions.LOG10:
+            return 'std::log10({!s})'
 
         if function_name == PredefinedFunctions.COSH:
               return 'std::cosh({!s})'

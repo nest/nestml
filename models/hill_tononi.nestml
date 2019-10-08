@@ -240,7 +240,7 @@ neuron hill_tononi:
     # section 3.1.2.
     exact_integration_adjustment real = ( ( 1 / Tau_2 ) - ( 1 / Tau_1 ) ) * ms
 
-    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
+    t_peak real = ( Tau_2 * Tau_1 ) * ln( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
     normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
 
     return g_peak * normalisation_factor * exact_integration_adjustment
