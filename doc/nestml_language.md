@@ -469,7 +469,7 @@ Please note that receptor ports are numbered starting from 1.
 
 The output shows the different time constants for each synapse:
 
-![NESTML multisynapse example waveform traces](https://github.com/nest/nestml/tree/master/doc/fig/nestml-multisynapse-example.png)
+![NESTML multisynapse example waveform traces](https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png)
 
 For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
 
