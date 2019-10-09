@@ -76,8 +76,8 @@ class CoCoAllVariablesDefined(CoCo):
                  and symbol.block_type != BlockType.INPUT_BUFFER_SPIKE \
                  and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
-                    if (not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and
-                            symbol.block_type != BlockType.PARAMETERS):
+                    if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))
+                     and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS])):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(neuron=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)

@@ -87,7 +87,7 @@ def add_declarations_to_initial_values(neuron, variables, initial_values):
     return neuron
 
 
-def add_declaration_to_initial_values(neuron, variable, initial_value):
+def add_declaration_to_initial_values(neuron, variable: str, initial_value: str):
     # type: (ASTNeuron, str, str) -> ASTNeuron
     """
     Adds a single declaration to the initial values block of the neuron. The declared variable is of type real.

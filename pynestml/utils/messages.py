@@ -823,7 +823,6 @@ class Messages(object):
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        import pdb;pdb.set_trace()
         message = 'Could not resolve symbol \'%s\'!' % name
         return MessageCode.SYMBOL_NOT_RESOLVED, message
 

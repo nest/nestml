@@ -254,6 +254,7 @@ class NestPrinter(object):
         assert isinstance(variable_symbol, VariableSymbol), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 variable_symbol)
+
         if variable_symbol.block_type == BlockType.STATE:
             return prefix + 'S_.'
 

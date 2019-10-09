@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.idempotent_reference_converter import IdempotentReferenceConverter
+from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -40,7 +40,7 @@ class ExpressionsPrettyPrinter(object):
         if reference_converter is not None:
             self.reference_converter = reference_converter
         else:
-            self.reference_converter = IdempotentReferenceConverter()
+            self.reference_converter = NestMLReferenceConverter()
 
         if types_printer is not None:
             self.types_printer = types_printer
