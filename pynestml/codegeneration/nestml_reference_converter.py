@@ -17,16 +17,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
-class IdempotentReferenceConverter(IReferenceConverter):
+class NestMLReferenceConverter(IReferenceConverter):
     """
-    Returns the same input as output, i.e., an identity mapping of elements is preformed. This converter is used
-    whenever comments have to be printed, in order to preserve the initial PyNestML syntax.
+    This converter preserves the initial NestML syntax.
     """
 
     def convert_unary_op(self, ast_unary_operator):
