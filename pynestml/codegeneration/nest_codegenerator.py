@@ -65,6 +65,25 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 
+def variable_in_solver(shape_var: str, solver_dicts):
+    """Check if a variable by this name is defined in the ode-toolbox solver results
+    """
+
+    order = -1
+    for solver_dict in solver_dicts:
+        if solver_dict is None:
+            continue
+
+        for var_name in solver_dict["state_variables"]:
+            var_name_base = var_name.split("__X__")[0]
+            #var_name_base = var_name_base.split("__d")[0]
+            if var_name_base == shape_var:
+                return True
+
+    return False
+
+
+
 def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
     """Get the differential order of the variable with the given name from the ode-toolbox results JSON.
 
@@ -88,7 +107,12 @@ def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
     return order
 
 
+def to_odetb_processed_name(name: str) -> str:
+    """convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible with ode-toolbox output"""
+    return name.replace("$", "__DOLLAR").replace("'", "__d")
+
 def to_odetb_name(name: str) -> str:
+    """convert to a name suitable for ode-toolbox input"""
     return name.replace("$", "__DOLLAR")
 
 
@@ -308,39 +332,27 @@ class NESTCodeGenerator(CodeGenerator):
         return shape_buffers
 
 
-    def replace_variable_names_in_expressions(self, neuron):
+    def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted variable name (e.g. `g_ex__DOLLAR__d__d`).
         """
-
         def replace_var(_expr=None):
-            if "G_ahp" in str(_expr):
-                import pdb;pdb.set_trace()
-            return
-        
-            if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
-                convolve = _expr.get_function_call()
-                el = (convolve.get_args()[0], convolve.get_args()[1])
-                sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
-                if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
-                    el = (el[1], el[0])
-                var = el[0].get_variable()
-                spike_input_port = el[1].get_variable()
-                shape = neuron.get_shape_by_name(var.get_name())
-
-                _expr.set_function_call(None)
-                buffer_var = construct_shape_X_spike_buf_name(var.get_name(), spike_input_port, var.get_differential_order() - 1)
-                if is_delta_shape(shape):
-                    _expr.set_variable(spike_input_port)
-                    print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
-                else:
-                    ast_variable = ASTVariable(buffer_var)
+            #if "G_ahp" in str(_expr):
+                #import pdb;pdb.set_trace()
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+                if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
+                    ast_variable = ASTVariable(to_odetb_processed_name(var.get_complete_name()), differential_order=0)
+                    print("\t Replacing variable " + var.get_complete_name() + " by " + ast_variable.get_complete_name())
                     _expr.set_variable(ast_variable)
-                    print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+                if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
+                    print("\t Replacing variable " + var.get_complete_name() + " by " + to_odetb_processed_name(var.get_complete_name()))
+                    var.set_name(to_odetb_processed_name(var.get_complete_name()))
+                    var.set_differential_order(0)
 
-                #elif type(buffer_var) in [int, float]:
-                    #_expr.set_numeric_literal(buffer_var)
 
-        func = lambda x: replace_var(x) if isinstance(x, ASTSimpleExpression) else True
+        func = lambda x: replace_var(x)
 
         equations_block = neuron.get_equations_blocks()
         equations_block.accept(ASTHigherOrderVisitor(func))
@@ -450,7 +462,7 @@ class NESTCodeGenerator(CodeGenerator):
         if equations_block is not None:
             shape_buffers = self.generate_shape_buffers_(neuron, equations_block)
             print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
-            #self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
+            self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
             
             print("NEST codegenerator step 0...")
             #self.mark_shape_variable_symbols(neuron, shape_buffers)
@@ -480,10 +492,10 @@ class NESTCodeGenerator(CodeGenerator):
             print("NEST codegenerator: Adding ode-toolbox processed shapes to AST...")
             #self.add_shape_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
             self.create_initial_values_for_odetb_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
-            self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
+            #self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
 
             print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result...")
-            self.replace_variable_names_in_expressions(neuron)
+            self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
 
             if not self.analytic_solver[neuron.get_name()] is None:
                 print("NEST codegenerator: Adding propagators...")

@@ -87,6 +87,14 @@ class ASTVariable(ASTNode):
         """
         return self.differential_order
 
+    def set_differential_order(self, differential_order):
+        """
+        Returns the differential order of the variable.
+        :return: the differential order.
+        :rtype: int
+        """
+        self.differential_order = differential_order
+
     def get_complete_name(self):
         """
         Returns the complete name, consisting of the name and the differential order.
