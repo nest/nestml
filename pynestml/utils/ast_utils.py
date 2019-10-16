@@ -347,6 +347,7 @@ class ASTUtils(object):
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
                                                                       ASTSourceLocation.get_added_source_position())
+            internal.update_scope(neuron.get_scope())
             neuron.get_body().get_body_elements().append(internal)
         return neuron
 

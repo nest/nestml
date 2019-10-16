@@ -77,6 +77,11 @@ class Messages(object):
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
+    def get_could_not_determine_cond_based(cls, type_str, name):
+        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
+        return MessageCode.LEXER_ERROR, message
+
+    @classmethod
     def get_parser_error(cls):
         message = 'Error occurred during parsing: abort'
         return MessageCode.PARSER_ERROR, message

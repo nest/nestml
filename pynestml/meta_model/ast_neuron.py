@@ -572,17 +572,22 @@ class ASTNeuron(ASTNode):
                     ret.append(decl.get_invariant())
         return ret
 
-    def add_to_internal_block(self, declaration):
+    def add_to_internal_block(self, declaration, index=-1):
         # todo by KP: factor me out to utils
         """
         Adds the handed over declaration the internal block
         :param declaration: a single declaration
         :type declaration: ast_declaration
         """
-        print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
-        self.get_internals_blocks().get_declarations().append(declaration)
+        print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
+        n_declarations = len(self.get_internals_blocks().get_declarations())
+        if n_declarations == 0:
+            index = 0
+        else:
+            index = 1 + (index % len(self.get_internals_blocks().get_declarations()))
+        self.get_internals_blocks().get_declarations().insert(index, declaration)
         declaration.update_scope(self.get_internals_blocks().get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         symtable_vistor = ASTSymbolTableVisitor()

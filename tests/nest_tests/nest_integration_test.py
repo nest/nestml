@@ -23,6 +23,7 @@ import numpy as np
 
 try:
     import matplotlib
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
 except:
@@ -32,14 +33,16 @@ nest.set_verbosity("M_ALL")
 nest.Install("nestmlmodule")
 
 
-def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
+def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts={}, custom_model_opts={}):
 
-    spike_times = [100.0, 200.0]
+    #spike_times = [10.0, 11., 12., 13., 14., 15., 50.0]
+    #spike_weights = [1.,1.,1.,1.,1.,1., -1.]
+    spike_times = [10., 50.]
     spike_weights = [1., -1.]
 
     nest.ResetKernel()
-    neuron1 = nest.Create(referenceModel)
-    neuron2 = nest.Create(testant)
+    neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
+    neuron2 = nest.Create(testant, params=custom_model_opts)
 
     if not (gsl_error_tol is None):
         nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
@@ -60,7 +63,8 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     nest.Connect(multimeter1, neuron1)
     nest.Connect(multimeter2, neuron2)
 
-    nest.Simulate(400.0)
+    nest.Simulate(80.)
+    
     dmm1 = nest.GetStatus(multimeter1)[0]
     Vms1 = dmm1["events"][V_m_specifier]
     ts1 = dmm1["events"]["times"]
@@ -72,28 +76,41 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     if TEST_PLOTS:
         fig, ax = plt.subplots(2, 1)
         ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
+        ax[0].plot(ts2, Vms2, alpha=.3)
         ax[1].plot(ts2, Vms2, label = "Testant " + testant)
         for _ax in ax:
             _ax.legend(loc='upper right')
             _ax.grid()
-        plt.savefig("/tmp/nestml_nest_integration_test_[" + referenceModel + "]_[" + testant + "].png")
+        plt.savefig("/tmp/nestml_nest_integration_test_[" + referenceModel + "]_[" + testant + "].png", dpi=150)
 
     for index in range(0, len(Vms1)):
         if abs(Vms1[index] - Vms2[index]) > tolerance \
          or np.isnan(Vms1[index]) \
          or np.isnan(Vms2[index]):
             print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
-            raise Exception(testant + ": TEST FAILED")
+            print(Exception(testant + ": TEST FAILED"))
 
     print(testant + " PASSED")
 
 
 if __name__ == "__main__":
-    # execute only if run as a script
     models = list()
-    models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
-    models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
-    models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
+
+    models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
+    models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
+    models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
+
+    models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1.e-3, 0.001))
+    models.append(("iaf_cond_exp", "iaf_cond_exp_implicit_nestml", 1.e-3, 0.001))
+    models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+    models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
+    models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 1., "tau_decay_ex" : 2., "tau_rise_in" : 1., "tau_decay_in" : 2.}, {"tau_syn_rise_E" : 1., "tau_syn_decay_E" : 2., "tau_syn_rise_I" : 1., "tau_syn_decay_I" : 2.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+    models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+
+    #models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
+    #models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
+
+    """models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 0.001))
     models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 0.001))
@@ -101,18 +118,26 @@ if __name__ == "__main__":
     models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 0.001))
     models.append(("hh_psc_alpha", "hh_psc_alpha_implicit_nestml", 1.e-3, 0.001))
     models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1.e-3, 0.001))
-    models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-    models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
-    models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1.e-3, 0.001))
-    models.append(("iaf_cond_exp", "iaf_cond_exp_implicit_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 0.001))
     models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 0.001))
-    models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
-    models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
-    models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
     models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
-    models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
-    models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
+    models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))"""
 
-    for reference, testant, gsl_error_tol, tollerance in models:
-        test(reference, testant, gsl_error_tol, tollerance)
+    #models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", None, 1E-5))
+    #models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", None, 1E-5))
+
+    for model in models:
+        reference = model[0]
+        testant = model[1]
+        gsl_error_tol = model[2]
+        tolerance = model[3]
+        if len(model) > 4:
+            nest_ref_model_opts = model[4]
+        else:
+            nest_ref_model_opts = {}
+        if len(model) > 5:
+            custom_model_opts = model[5]
+        else:
+            custom_model_opts = {}
+            
+        test(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)

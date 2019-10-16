@@ -24,10 +24,13 @@ from enum import Enum
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_line import ASTInputLine
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 from astropy import units
 
@@ -295,13 +298,18 @@ class VariableSymbol(Symbol):
 
     def is_conductance_based(self):
         """
-        Indicates whether this element is conductance based.
+        Indicates whether this element is conductance based, based on the physical units of the spike buffer. If the unit can be cast to Siemens, the function returns True, otherwise it returns False.
+        
         :return: True if conductance based, otherwise False.
         :rtype: bool
         """
-        is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))        
+        is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))
         is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
-        assert is_cond_based != is_curr_based, "Unable to determine based on type '" + self.type_symbol.print_nestml_type() + "' of variable '" + self.name + "' whether conductance-based or current-based"
+        if is_cond_based == is_curr_based:
+            code, message = Messages.get_could_not_determine_cond_based(type_str=self.type_symbol.print_nestml_type(), name=self.name)
+            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING, error_position=ASTSourceLocation.get_added_source_position())
+            return False
+                        
         print("Units: " + str(self.type_symbol.unit.unit) + " -> condbased = " + str(is_cond_based))
         return is_cond_based
 

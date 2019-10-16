@@ -69,7 +69,6 @@ def variable_in_solver(shape_var: str, solver_dicts):
     """Check if a variable by this name is defined in the ode-toolbox solver results
     """
 
-    order = -1
     for solver_dict in solver_dicts:
         if solver_dict is None:
             continue
@@ -82,6 +81,39 @@ def variable_in_solver(shape_var: str, solver_dicts):
 
     return False
 
+
+
+def variable_in_shapes(var_name: str, shapes):
+    """Check if a variable by this name (in ode-toolbox style) is defined in the ode-toolbox solver results
+    """
+
+    var_name_base = var_name.split("__X__")[0]
+    var_name_base = var_name_base.split("__d")[0]
+    var_name_base = var_name_base.replace("__DOLLAR", "$")
+
+    for shape in shapes:
+        for shape_var in shape.get_variables():
+            if var_name_base == shape_var.get_name():
+                return True
+
+    return False
+
+
+def get_initial_value_from_odetb_result(var_name: str, solver_dicts):
+    """Get the initial value of the variable with the given name from the ode-toolbox results JSON.
+
+    N.B. the variable name is given in ode-toolbox notation.
+    """
+
+    order = -1
+    for solver_dict in solver_dicts:
+        if solver_dict is None:
+            continue
+
+        if var_name in solver_dict["state_variables"]:
+            return solver_dict["initial_values"][var_name]
+
+    assert False, "Initial value not found for ODE with name \"" + var_name + "\""
 
 
 def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
@@ -323,7 +355,7 @@ class NESTCodeGenerator(CodeGenerator):
             var = el[0].get_variable()
             assert not var is None
             shape = neuron.get_shape_by_name(var.get_name())
-            assert not shape is None
+            assert not shape is None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no shape by name \"" + var.get_name() + "\" found in neuron."
 
             el = (shape, el[1])
             shape_buffers.add(el)
@@ -336,8 +368,6 @@ class NESTCodeGenerator(CodeGenerator):
         """replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted variable name (e.g. `g_ex__DOLLAR__d__d`).
         """
         def replace_var(_expr=None):
-            #if "G_ahp" in str(_expr):
-                #import pdb;pdb.set_trace()
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
@@ -446,7 +476,7 @@ class NESTCodeGenerator(CodeGenerator):
     def add_timestep_symbol(self, neuron):
         assert neuron.get_initial_value("__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
         assert not "__h" in [sym.name for sym in neuron.get_internal_symbols()], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
-        neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'))
+        neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
 
     def analyse_neuron(self, neuron):
@@ -483,15 +513,19 @@ class NESTCodeGenerator(CodeGenerator):
 
             print("NEST codegenerator: Removing shape definitions from neuron...")
             self.remove_initial_values_for_shapes(neuron)
-            self.remove_shape_definitions_from_equations_block(neuron)
-            
+            shapes = self.remove_shape_definitions_from_equations_block(neuron)
+
             print("NEST codegenerator: Removing ODE definitions from neuron...")
             self.remove_initial_values_for_odes(neuron)
             self.remove_ode_definitions_from_equations_block(neuron)
 
+            print("NEST codegenerator: Adding timestep symbol...")
+            self.add_timestep_symbol(neuron)
+            self.update_symbol_table(neuron, shape_buffers)
+
             print("NEST codegenerator: Adding ode-toolbox processed shapes to AST...")
             #self.add_shape_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
-            self.create_initial_values_for_odetb_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
+            self.create_initial_values_for_odetb_odes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
             #self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
 
             print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result...")
@@ -500,9 +534,6 @@ class NESTCodeGenerator(CodeGenerator):
             if not self.analytic_solver[neuron.get_name()] is None:
                 print("NEST codegenerator: Adding propagators...")
                 neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
-
-            print("NEST codegenerator: Adding timestep symbol...")
-            self.add_timestep_symbol(neuron)
 
             #self.update_symbol_table(neuron, shape_buffers)
             #self.remove_shape_definitions_from_equations_block(neuron, self.analytic_solver["state_variables"])
@@ -513,16 +544,10 @@ class NESTCodeGenerator(CodeGenerator):
             # update shape buffers in case direct functions of time have been replaced by higher-order differential
 
             print("NEST codegenerator step 5...")
-            #self.update_symbol_table(neuron, shape_buffers)
+            self.update_symbol_table(neuron, shape_buffers)
 
             print("NEST codegenerator step 6...")
             spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver])
-
-            print("NEST codegenerator step 7...")
-            self.update_symbol_table(neuron, shape_buffers)
-
-            print("NEST codegenerator step 8...")
-            import pdb;pdb.set_trace()
 
         return spike_updates
 
@@ -827,7 +852,6 @@ class NESTCodeGenerator(CodeGenerator):
 
 
     '''def mark_shape_variable_symbols(self, neuron, shape_buffers):
-        import pdb;pdb.set_trace()
 
         shape_buffer_names = self.get_shape_buffer_names(neuron, shape_buffers)
 
@@ -912,7 +936,7 @@ class NESTCodeGenerator(CodeGenerator):
         return None
 
 
-    def create_initial_values_for_odetb_odes(self, neuron, solver_dicts, shape_buffers):
+    def create_initial_values_for_odetb_odes(self, neuron, solver_dicts, shape_buffers, shapes):
         """add the variables used in ODEs from the ode-toolbox result dictionary as ODEs in NESTML AST"""
 
         ##
@@ -947,9 +971,17 @@ class NESTCodeGenerator(CodeGenerator):
 
             for var_name, expr in solver_dict["initial_values"].items():
                 # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
+
+                print("1089273 Var " + var_name + " is ", end="")
+                if not variable_in_shapes(var_name, shapes):
+                    print(" NOT ", end="")
+                print(" in shapes")
+                if variable_in_shapes(var_name, shapes):
+                    expr = "0"    # for shapes, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                
                 if not declaration_in_initial_values(neuron, var_name):
                     add_declaration_to_initial_values(neuron, var_name, expr)
-                print("\tAdding to initial values: " + str(var_name) + " = " + str(solver_dict["initial_values"][var_name]))
+                print("\tAdding to initial values: " + str(var_name) + " = " + str(expr))
 
 
 
@@ -1031,7 +1063,7 @@ class NESTCodeGenerator(CodeGenerator):
             buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 
             if is_delta_shape(shape):
-                # delta function -- skip passing this to ode-toolbox
+                # for delta functions, there is no state, so nothing needs to be updated
                 continue
 
             #    buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
@@ -1039,8 +1071,11 @@ class NESTCodeGenerator(CodeGenerator):
             for shape_var in shape.get_variables():
                 for var_order in range(get_shape_var_order_from_ode_toolbox_result(shape_var.get_name(), solver_dicts)):
                     shape_spike_buf_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_input_port, var_order)
-                    expr = neuron.get_initial_value(shape_spike_buf_name)
+                    #expr = neuron.get_initial_value(shape_spike_buf_name)
+                    expr = get_initial_value_from_odetb_result(shape_spike_buf_name, solver_dicts)
                     assert not expr is None, "Initial value not found for shape " + shape_var
+                    print("\t" + str(shape_spike_buf_name))
+                    print("\t" + str(spike_input_port))
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
                         print("\tzero")
@@ -1086,6 +1121,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         for decl in decl_to_remove:
             equations_block.get_declarations().remove(decl)
+        
+        return decl_to_remove
 
 
     def remove_ode_definitions_from_equations_block(self, neuron):
