@@ -31,6 +31,12 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
+def symbol_by_name(name, symbols):
+    """get a symbol from a list of symbols by the given name"""
+    for sym in symbols:
+        if sym.name == name:
+            return sym
+    return None
 
 class ASTNeuron(ASTNode):
     """
@@ -475,18 +481,36 @@ class ASTNeuron(ASTNode):
 
     def get_initial_values_symbols(self):
         """
-        Returns a list of all initial values symbol defined in the model.
+        Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the order by which the symbols are defined in the model: this is important if a particular variable is defined in terms of another (earlier) variable.
+        
         :return: a list of initial values symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
+
+        """from pynestml.symbols.variable_symbol import BlockType
+        import pdb;pdb.set_trace()
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INITIAL_VALUES and \
-                    not symbol.is_predefined:
+            if isinstance(symbol, VariableSymbol) \
+             and symbol.block_type == BlockType.INITIAL_VALUES \
+             and not symbol.is_predefined:
                 ret.append(symbol)
-        return ret
+        return ret"""
+
+        iv_syms = []
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        
+        iv_blk = self.get_initial_values_blocks()
+        for decl in iv_blk.get_declarations():
+            for var in decl.get_variables():
+                iv_sym = symbol_by_name(var.get_complete_name(), symbols)
+                assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
+                iv_syms.append(iv_sym)
+        print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
+        return iv_syms
+                
+        
 
     def get_initial_values_blocks(self):
         """

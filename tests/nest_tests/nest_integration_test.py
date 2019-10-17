@@ -105,7 +105,16 @@ if __name__ == "__main__":
     models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
     models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
     models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 1., "tau_decay_ex" : 2., "tau_rise_in" : 1., "tau_decay_in" : 2.}, {"tau_syn_rise_E" : 1., "tau_syn_decay_E" : 2., "tau_syn_rise_I" : 1., "tau_syn_decay_I" : 2.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+    
     models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+    
+    models.append(("hh_psc_alpha", "hh_psc_alpha_implicit_nestml", 1E-3, 1E-3))
+    models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
+
+
+    # --------------
+
+
 
     #models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
     #models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
