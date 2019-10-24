@@ -22,23 +22,23 @@ Author: Heiberg
 
 SeeAlso: iaf_cond_alpha
 */
+
 neuron iaf_chxk_2008:
 
   initial_values:
-    V_m mV = E_L   # membrane potential
-    G_ahp nS = 0 nS      # AHP conductance
-    G_ahp' nS/ms = 0 nS/ms   # AHP conductance
-    #G_ahp' nS/ms = e / tau_ahp * nS   # AHP conductance
+    V_m mV = E_L   # membrane potenteral
+    g_ahp nS = 0 nS      # AHP conductance
+    g_ahp' nS/ms = 0 nS/ms   # AHP conductance
   end
 
   equations:
     shape g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
-    G_ahp'' = -2 * G_ahp' / tau_ahp - G_ahp / tau_ahp**2
+    g_ahp'' = -2 * g_ahp' / tau_ahp - (g_ahp / 1000) / tau_ahp**2
 
     function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-    function I_ahp pA = G_ahp * ( V_m - E_ahp )
+    function I_ahp pA = g_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
@@ -54,11 +54,10 @@ neuron iaf_chxk_2008:
     tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse
     tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
-    g_ahp nS = 443.8nS       # AHP conductance
+    G_ahp nS = 443.8nS       # AHP conductance
     E_ahp mV = -95mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
     I_e pA = 0 pA            # Constant Current
-
   end
 
   internals:
@@ -70,7 +69,7 @@ neuron iaf_chxk_2008:
     # conductance excursion.
     PSConInit_I nS/ms = nS * e / tau_syn_in
 
-    PSConInit_AHP real = g_ahp * e / tau_ahp * (ms/nS)
+    PSConInit_AHP real = G_ahp * e / tau_ahp * (ms/nS)
   end
 
   input:
@@ -82,7 +81,6 @@ neuron iaf_chxk_2008:
   output: spike
 
   update:
-
     vm_prev mV = V_m
     integrate_odes()
     if vm_prev < V_th and V_m >= V_th:
@@ -98,11 +96,11 @@ neuron iaf_chxk_2008:
 
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
-        G_ahp  = delta_g_ahp * nS
-        G_ahp' = delta_dg_ahp * nS/ms
+        g_ahp  = delta_g_ahp * nS
+        g_ahp' = delta_dg_ahp * nS/ms
       else:
-        G_ahp  += delta_g_ahp * nS
-        G_ahp' += delta_dg_ahp * nS/ms
+        g_ahp  += delta_g_ahp * nS
+        g_ahp' += delta_dg_ahp * nS/ms
       end
 
       emit_spike()
@@ -111,7 +109,6 @@ neuron iaf_chxk_2008:
   end
 
 end
-
 
 /*
 Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
@@ -137,16 +134,17 @@ Author: Heiberg
 
 SeeAlso: iaf_cond_alpha
 */
+/*
 neuron iaf_chxk_2008_implicit:
 
   initial_values:
     V_m mV       = E_L   # membrane potential
     g_in nS      = 0 nS      # inputs from the inh conductance
-    g_in' nS/ms  = 0 nS/ms   # inputs from the inh conductance
+    g_in' nS/ms  = 1 nS/ms   # inputs from the inh conductance
     g_ex nS      = 0 nS      # inputs from the exc conductance
-    g_ex' nS/ms  = 0 nS/ms   # inputs from the exc conductance
-    G_ahp nS     = 0 nS      # AHP conductance
-    G_ahp$ nS/ms = 0 nS/ms   # AHP conductance
+    g_ex' nS/ms  = 1 nS/ms   # inputs from the exc conductance
+    g_ahp nS     = 0 nS      # AHP conductance
+    g_ahp$ nS/ms = 0 nS/ms   # AHP conductance
   end
 
   equations:
@@ -154,12 +152,12 @@ neuron iaf_chxk_2008_implicit:
     shape g_in'' = -2 * g_in' / tau_syn_in - g_in / tau_syn_in**2
     shape g_ex'' = -2 * g_ex' / tau_syn_ex - g_ex / tau_syn_ex**2
 
-    G_ahp$' = -G_ahp$ / tau_ahp
-    G_ahp' = G_ahp$ -  G_ahp / tau_ahp
+    g_ahp' = g_ahp$ - g_ahp / tau_ahp
+    g_ahp$' = -g_ahp$ / tau_ahp
 
     function I_syn_inh pA = PSConInit_I * convolve(g_in, spikesInh) * (V_m - E_in)
     function I_syn_exc pA = PSConInit_E * convolve(g_ex, spikesExc) * (V_m - E_ex)
-    function I_ahp pA = G_ahp * ( V_m - E_ahp )
+    function I_ahp pA = g_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
@@ -175,7 +173,7 @@ neuron iaf_chxk_2008_implicit:
     tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse
     tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
-    g_ahp nS = 443.8nS       # AHP conductance
+    G_ahp nS = 443.8nS       # AHP conductance
     E_ahp mV = -95mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
     I_e pA = 0 pA            # Constant Current
@@ -190,7 +188,7 @@ neuron iaf_chxk_2008_implicit:
     # conductance excursion.
     PSConInit_I 1/ms = e / tau_syn_in
 
-    PSConInit_AHP real = g_ahp * e / tau_ahp * (ms/nS)
+    PSConInit_AHP real = G_ahp * e / tau_ahp * (ms/nS)
   end
 
   input:
@@ -218,11 +216,11 @@ neuron iaf_chxk_2008_implicit:
 
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
-        G_ahp = delta_g_ahp * nS
-        G_ahp$ = delta_dg_ahp * nS/ms
+        g_ahp = delta_g_ahp * nS
+        g_ahp$ = delta_dg_ahp * nS/ms
       else:
-        G_ahp += delta_g_ahp * nS
-        G_ahp$ += delta_dg_ahp * nS/ms
+        g_ahp += delta_g_ahp * nS
+        g_ahp$ += delta_dg_ahp * nS/ms
       end
 
       emit_spike()
@@ -231,3 +229,4 @@ neuron iaf_chxk_2008_implicit:
   end
 
 end
+*/
