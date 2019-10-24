@@ -755,9 +755,9 @@ class ASTNeuron(ASTNode):
         assert type(variable_name) is str
 
         for decl in self.get_initial_values_blocks().get_declarations():
-            assert len(decl.variables) == 1
-            if str(decl.variables[0]) == variable_name:
-                return decl.get_expression()
+            for var in decl.variables:
+                if var.get_complete_name() == variable_name:
+                    return decl.get_expression()
 
         return None
 

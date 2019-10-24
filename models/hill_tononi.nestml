@@ -57,18 +57,27 @@ neuron hill_tononi:
   initial_values:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
     Theta mV = Theta_eq # Threshold
-    g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS = 0.0nS
-    g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms = 0.0 nS/ms
+    IKNa_D, IT_m, IT_h, Ih_m nS = 0.0 nS
+
+    g_AMPA real = 0
+    g_NMDA real = 0
+    g_GABAA real = 0
+    g_GABAB real = 0
+    g_AMPA$ real = AMPAInitialValue
+    g_NMDA$ real = NMDAInitialValue
+    g_GABAA$ real = GABA_AInitialValue
+    g_GABAB$ real = GABA_BInitialValue
   end
 
   equations:
     #############
     # V_m
     #############
-    function I_syn_ampa pA = -g_AMPA * ( V_m - AMPA_E_rev )
-    function I_syn_nmda pA = -g_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-    function I_syn_gaba_a pA = -g_GABAA * ( V_m - GABA_A_E_rev )
-    function I_syn_gaba_b pA = -g_GABAB * ( V_m - GABA_B_E_rev )
+    
+    function I_syn_ampa pA = -convolve(g_AMPA, AMPA) * ( V_m - AMPA_E_rev )
+    function I_syn_nmda pA = -convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+    function I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
+    function I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
     function I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
     function I_Na pA = -g_NaL * ( V_m - E_Na )
@@ -84,15 +93,16 @@ neuron hill_tononi:
     function d_half real = 0.25
     function m_inf_KNa real = 1.0 / ( 1.0 + ( d_half / ( IKNa_D / nS ) )**3.5 )
     # Depol act. K current; member only to allow recording
-    recordable function  I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+    recordable function I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
 
     # Low-thresh Ca current; member only to allow recording
-    recordable function  I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+    recordable function I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
 
     recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
     V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + currents ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
+
     #############
     # Intrinsic currents
     #############
@@ -123,17 +133,17 @@ neuron hill_tononi:
     #############
     # Synapses
     #############
-    g_AMPA'' = -g_AMPA' / AMPA_Tau_1
-    g_AMPA' = g_AMPA' - g_AMPA  / AMPA_Tau_2
+    shape g_AMPA' = g_AMPA$ - g_AMPA  / AMPA_Tau_2,
+          g_AMPA$' = -g_AMPA$ / AMPA_Tau_1
 
-    g_NMDA'' = -g_NMDA' / NMDA_Tau_1
-    g_NMDA' = g_NMDA' - g_NMDA / NMDA_Tau_2 
+    shape g_NMDA' = g_NMDA$ - g_NMDA / NMDA_Tau_2,
+          g_NMDA$' = -g_NMDA$ / NMDA_Tau_1
 
-    g_GABAA'' = -g_GABAA' / GABA_A_Tau_1
-    g_GABAA' = g_GABAA' - g_GABAA / GABA_A_Tau_2 
+    shape g_GABAA' = g_GABAA$ - g_GABAA / GABA_A_Tau_2,
+          g_GABAA$' = -g_GABAA$ / GABA_A_Tau_1
 
-    g_GABAB'' = -g_GABAB' / GABA_B_Tau_1
-    g_GABAB' = g_GABAB' - g_GABAB /GABA_B_Tau_2 
+    shape g_GABAB' = g_GABAB$ - g_GABAB / GABA_B_Tau_2,
+          g_GABAB$' = -g_GABAB$ / GABA_B_Tau_1
   end
 
   parameters:
@@ -206,11 +216,6 @@ neuron hill_tononi:
       g_spike = false # Deactivate potassium current.
     end
     r_potassium -= 1
-
-    g_AMPA' += AMPAInitialValue * AMPA /ms
-    g_NMDA' += NMDAInitialValue * NMDA /ms
-    g_GABAA' += GABA_AInitialValue * GABA_A /ms
-    g_GABAB' += GABA_BInitialValue * GABA_B /ms
 
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.

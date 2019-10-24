@@ -37,6 +37,7 @@ from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpac
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
+from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_only_spike_buffer_data_types import CoCoOnlySpikeBufferDataTypes
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
@@ -296,6 +297,10 @@ class CoCosManager(object):
         CoCoIllegalExpression.check_co_co(neuron)
 
     @classmethod
+    def check_simple_delta_function(cls, neuron):
+        CoCoSimpleDeltaFunction.check_co_co(neuron)
+
+    @classmethod
     def post_symbol_table_builder_checks(cls, neuron, after_ast_rewrite=False):
         """
         Checks the following constraints:
@@ -348,6 +353,7 @@ class CoCosManager(object):
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
         cls.check_expression_correct(neuron)
+        cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
         return
 

@@ -983,6 +983,33 @@ class Messages(object):
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
+    @classmethod
+    def delta_function_cannot_be_mixed(cls):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this shape is used"
+        return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
+
+    @classmethod
+    def delta_function_one_arg(cls, deltafunc):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "delta function takes exactly one argument (time *t*); instead found " + ", ".join([str(arg) for arg in deltafunc.get_args()])
+        return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
+
+
+
+
 
 class MessageCode(Enum):
     """
@@ -1058,3 +1085,4 @@ class MessageCode(Enum):
     TEMPLATED_ARG_TYPES_INCONSISTENT = 66
     MODULE_NAME_INFO = 67
     TARGET_PATH_INFO = 68
+    DELTA_FUNCTION_CANNOT_BE_MIXED = 69

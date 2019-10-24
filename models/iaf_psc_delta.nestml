@@ -78,8 +78,8 @@ neuron iaf_psc_delta:
   end
 
   equations:
-    shape G = 42 * delta(t)
-    V_abs' = -V_abs / tau_m + (I_e + currents) / C_m + convolve(G, ex_spikes) + convolve(G, in_spikes)
+    shape G = delta(t)
+    V_abs' = -V_abs / tau_m + (convolve(G, ex_spikes) + convolve(G, in_spikes) + I_e + currents) / C_m
   end
 
   parameters:

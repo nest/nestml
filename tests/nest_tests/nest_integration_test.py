@@ -50,8 +50,8 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_mo
     spikegenerator = nest.Create('spike_generator',
                                  params={'spike_times': spike_times, 'spike_weights': spike_weights})
 
-    nest.Connect(spikegenerator, neuron1)
-    nest.Connect(spikegenerator, neuron2)
+    nest.Connect(spikegenerator, neuron1, syn_spec={"receptor_type" : 1})
+    nest.Connect(spikegenerator, neuron2, syn_spec={"receptor_type" : 1})
 
     multimeter1 = nest.Create('multimeter')
     multimeter2 = nest.Create('multimeter')
@@ -96,6 +96,8 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_mo
 if __name__ == "__main__":
     models = list()
 
+    #models.append(("ht_neuron", "hill_tononi_nestml", None, 0.001))
+    
     models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
     models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
     models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))

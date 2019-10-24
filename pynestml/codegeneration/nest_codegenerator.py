@@ -189,14 +189,17 @@ def replace_rhs_variable(expr, variable_name_to_replace, shape_var, spike_buf):
             var_order = node.get_variable().get_differential_order()
             new_variable_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
             new_variable = ASTVariable(new_variable_name, var_order)
+            new_variable.set_source_position(node.get_variable().get_source_position())
             print("Replacing variable " + str(node.get_variable().get_name()) + " with " + str(new_variable_name))
             print("\t order before = " + str(node.get_variable().get_differential_order()))
             print("\t scope before = " + str(node.get_scope()))
             print("\t scope before = " + str(node.get_variable().get_scope()))
+            print("\t source_position before = " + str(shape_var.get_source_position()))
             node.set_variable(new_variable)
             print("\t order after = " + str(node.get_variable().get_differential_order()))
             print("\t scope after = " + str(node.get_scope()))
             print("\t scope after = " + str(node.get_variable().get_scope()))
+            print("\t source_position before = " + str(node.get_variable().get_source_position()))
 
     expr.accept(ASTHigherOrderVisitor(visit_funcs=replace_shape_var))
 
@@ -388,6 +391,8 @@ class NESTCodeGenerator(CodeGenerator):
                 var = _expr.get_variable()
                 if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
                     ast_variable = ASTVariable(to_odetb_processed_name(var.get_complete_name()), differential_order=0)
+                    ast_variable.set_source_position(var.get_source_position())
+                    print("\t source_position = " + str(ast_variable.get_source_position()))
                     print("\t Replacing variable " + var.get_complete_name() + " by " + ast_variable.get_complete_name())
                     _expr.set_variable(ast_variable)
             elif isinstance(_expr, ASTVariable):
@@ -426,9 +431,11 @@ class NESTCodeGenerator(CodeGenerator):
                 buffer_var = construct_shape_X_spike_buf_name(var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if is_delta_shape(shape):
                     _expr.set_variable(spike_input_port)
+                    prefactor = get_delta_shape_prefactor_expr(shape)
                     print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
                 else:
                     ast_variable = ASTVariable(buffer_var)
+                    ast_variable.set_source_position(_expr.get_source_position())
                     _expr.set_variable(ast_variable)
                     print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
 
@@ -515,9 +522,6 @@ class NESTCodeGenerator(CodeGenerator):
             
             print("NEST codegenerator step 1...")
             #self.make_functions_self_contained(equations_block.get_ode_functions())
-            
-            print("NEST codegenerator step 2...")
-            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
 
             print("NEST codegenerator step 3...")
             #self.update_symbol_table(neuron, shape_buffers)
@@ -526,7 +530,7 @@ class NESTCodeGenerator(CodeGenerator):
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
             self.analytic_solver[neuron.get_name()] = analytic_solver
             self.numeric_solver[neuron.get_name()] = numeric_solver
-
+            
             print("NEST codegenerator: Removing shape definitions from neuron...")
             self.remove_initial_values_for_shapes(neuron)
             shapes = self.remove_shape_definitions_from_equations_block(neuron)
@@ -552,8 +556,12 @@ class NESTCodeGenerator(CodeGenerator):
             #self.add_shape_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
             #self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
 
-            print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result...")
+            print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result names...")
             self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+
+            print("NEST codegenerator: replacing functions through defining expressions...")
+            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
+            #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
 
             if not self.analytic_solver[neuron.get_name()] is None:
                 print("NEST codegenerator: Adding propagators...")
@@ -722,7 +730,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         if len(equations_block.get_ode_shapes()) == 0 and len(equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
-            return neuron
+            return None, None
 
         code, message = Messages.get_neuron_analyzed(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
@@ -916,9 +924,13 @@ class NESTCodeGenerator(CodeGenerator):
         decl_to_remove = set()
         for symbol_name in symbols_to_remove:
             for decl in neuron.get_initial_blocks().get_declarations():
-                assert len(decl.get_variables()) == 1, "Multiple declarations in the same statement not yet supported"
-                if decl.get_variables()[0].get_name() == symbol_name:
-                    decl_to_remove.add(decl)
+                if len(decl.get_variables()) == 1:
+                    if decl.get_variables()[0].get_name() == symbol_name:
+                        decl_to_remove.add(decl)
+                else:
+                    for var in decl.get_variables():
+                        if var.get_name() == symbol_name:
+                            decl.variables.remove(var)
 
         for decl in decl_to_remove:
             print("\tRemoving decl: " + str(decl))
@@ -1384,6 +1396,37 @@ class NESTCodeGenerator(CodeGenerator):
                 #print("\t updating scope to " + str(fun.get_scope()))
 
         return definitions
+
+    def replace_functions_through_defining_expressions2(self, solver_dicts, functions):
+        # type: (list(ASTOdeEquation), list(ASTOdeFunction)) -> list(ASTOdeFunction)
+        """
+        Refactors symbols form `functions` in `definitions` with corresponding defining expressions from `functions`.
+
+        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made
+        free from.
+        :param functions: A sorted list with entries {"symbol": "name", "definition": "expression"} with functions which
+        must be replaced in `definitions`.
+        :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
+        """
+
+        def replace_func_by_def_in_expr(expr, functions):
+            for fun in functions:
+                print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
+                matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
+                expr = re.sub(matcher, "(" + str(fun.get_expression()) + ")", expr)
+
+            return expr
+        
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
+            
+            for var, expr in solver_dict["update_expressions"]:
+                solver_dict["update_expressions"][var] = replace_func_by_def_in_expr(expr, functions)
+
+            for var, expr in solver_dict["propagators"]:
+                solver_dict["propagators"][var] = replace_func_by_def_in_expr(expr, functions)
+
 
 
     def store_transformed_model(self, ast):

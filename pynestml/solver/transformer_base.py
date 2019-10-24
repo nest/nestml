@@ -119,9 +119,9 @@ def declaration_in_initial_values(neuron, variable_name):
     assert type(variable_name) is str
 
     for decl in neuron.get_initial_values_blocks().get_declarations():
-        assert len(decl.variables) == 1
-        if str(decl.variables[0]) == variable_name:
-            return True
+        for var in decl.get_variables():
+            if var.get_complete_name() == variable_name:
+                return True
 
     return False
 
