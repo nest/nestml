@@ -134,7 +134,7 @@ Author: Heiberg
 
 SeeAlso: iaf_cond_alpha
 */
-/*
+
 neuron iaf_chxk_2008_implicit:
 
   initial_values:
@@ -229,4 +229,3 @@ neuron iaf_chxk_2008_implicit:
   end
 
 end
-*/
