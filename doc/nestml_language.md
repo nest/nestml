@@ -181,7 +181,17 @@ Examples for valid assignments for a numeric variable `n` are
 
 #### Functions
 
-Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword `end`.
+Functions can be used to write repeatedly used code blocks only once, or to improve legibility in a model description. There are two types of functions: "ODE functions" and regular functions. The former are lightweight definitions that take no parameters, and will simply cause all mentions of the variable symbol to be subsituted with the defining expression during code generation. For example:
+
+```
+function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
+function I_syn_inh pA = convolve(I_syn_in, spikesInh)
+V_m' = - V_m / tau_m + ( I_syn_inh + I_syn_exc ) / C_m
+```
+
+Note that these functions are referred to just by the name of the variable, without parentheses.
+
+In contrast, regular functions consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword `end`.
 ```
 function <name>(<list_of_arguments>) <return_type>?:
   <statements>
@@ -192,7 +202,7 @@ function divide(a real, b real) real:
 end
 ```
 
-To use a function, it has to be called. A function call is composed of the function name and the list of required parameters. The returned value (if any) can be directly assigned to a variable of the corresponding type.
+To use a (regular) function, it has to be called. A function call is composed of the function name and the list of required parameters. The returned value (if any) can be directly assigned to a variable of the corresponding type.
 ```
 <function_name>(<list_of_arguments>)
 
