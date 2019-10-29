@@ -412,6 +412,7 @@ class NESTCodeGenerator(CodeGenerator):
         update_block.accept(ASTHigherOrderVisitor(func))
 
 
+
     def replace_convolve_calls_with_buffers_(self, neuron, equations_block, shape_buffers):
         """replace all occurrences of `convolve(shape[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a shape named `g_E` and a spike input port named `spikes_exc`.
         """
@@ -546,6 +547,9 @@ class NESTCodeGenerator(CodeGenerator):
             
             self.create_initial_values_for_odetb_shapes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
 
+            print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result names...")
+            self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+
 
 
             print("NEST codegenerator: Adding timestep symbol...")
@@ -555,9 +559,6 @@ class NESTCodeGenerator(CodeGenerator):
             print("NEST codegenerator: Adding ode-toolbox processed shapes to AST...")
             #self.add_shape_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
             #self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
-
-            print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result names...")
-            self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
 
             print("NEST codegenerator: replacing functions through defining expressions...")
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
