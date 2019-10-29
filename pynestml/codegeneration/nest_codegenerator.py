@@ -521,11 +521,13 @@ class NESTCodeGenerator(CodeGenerator):
             print("NEST codegenerator step 0...")
             #self.mark_shape_variable_symbols(neuron, shape_buffers)
             
-            print("NEST codegenerator step 1...")
-            #self.make_functions_self_contained(equations_block.get_ode_functions())
-
             print("NEST codegenerator step 3...")
             #self.update_symbol_table(neuron, shape_buffers)
+
+            print("NEST codegenerator: replacing functions through defining expressions...")
+            self.make_functions_self_contained(equations_block.get_ode_functions())
+            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
+            #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
 
             print("NEST codegenerator step 4...")
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
@@ -559,10 +561,6 @@ class NESTCodeGenerator(CodeGenerator):
             print("NEST codegenerator: Adding ode-toolbox processed shapes to AST...")
             #self.add_shape_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
             #self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
-
-            print("NEST codegenerator: replacing functions through defining expressions...")
-            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
-            #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
 
             if not self.analytic_solver[neuron.get_name()] is None:
                 print("NEST codegenerator: Adding propagators...")
@@ -1368,7 +1366,9 @@ class NESTCodeGenerator(CodeGenerator):
     def replace_functions_through_defining_expressions(self, definitions, functions):
         # type: (list(ASTOdeEquation), list(ASTOdeFunction)) -> list(ASTOdeFunction)
         """
-        Refactors symbols form `functions` in `definitions` with corresponding defining expressions from `functions`.
+        Refactors symbols from `functions` in `definitions` with corresponding defining expressions from `functions`.
+        
+        Note that this only touches "ode functions", i.e. one-liner function definitions without an `end` keyword.
 
         :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made
         free from.
@@ -1414,7 +1414,22 @@ class NESTCodeGenerator(CodeGenerator):
             for fun in functions:
                 print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
                 matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
+                import pdb;pdb.set_trace()
                 expr = re.sub(matcher, "(" + str(fun.get_expression()) + ")", expr)
+                target_definition = str(target.get_expression())
+                target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
+                target.expression = ModelParser.parse_expression(target_definition)
+                target.expression.update_scope(source.get_scope())
+                target.expression.accept(ASTSymbolTableVisitor())
+
+                print("\ttarget = " + str(target))
+
+                def log_set_source_position(node):
+                    if node.get_source_position().is_added_source_position():
+                        node.set_source_position(source_position)
+
+                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+
 
             return expr
         
@@ -1422,11 +1437,12 @@ class NESTCodeGenerator(CodeGenerator):
             if solver_dict is None:
                 continue
             
-            for var, expr in solver_dict["update_expressions"]:
+            for var, expr in solver_dict["update_expressions"].items():
                 solver_dict["update_expressions"][var] = replace_func_by_def_in_expr(expr, functions)
 
-            for var, expr in solver_dict["propagators"]:
-                solver_dict["propagators"][var] = replace_func_by_def_in_expr(expr, functions)
+            if "propagators" in solver_dict.keys():
+                for var, expr in solver_dict["propagators"].items():
+                    solver_dict["propagators"][var] = replace_func_by_def_in_expr(expr, functions)
 
 
 

@@ -30,40 +30,6 @@ class OdeTransformer(object):
     This class contains several methods as used to transform ODEs.
     """
 
-    #@classmethod
-    #def refactor_convolve_call(cls, _ast):
-        #"""
-        #Replaces all `convolve` calls in the handed over node.
-        #:param _ast: a single node
-        #:type _ast: ASTNode
-        #"""
-
-        #function_calls = cls.get_sum_function_calls(_ast)
-        #for call in function_calls:
-            #cls.replace_function_call_through_first_argument(_ast, call)
-
-    @classmethod
-    def replace_function_call_through_first_argument(cls, ast, function_name_to_replace):
-        """
-        Replaces all occurrences of the handed over function call by the first argument.
-        :param ast: a single ast node
-        :type ast: ASTNode
-        :param function_name_to_replace: the function to replace
-        :type function_name_to_replace: ASTFunctionCall
-        """
-
-        # we define a local collection operation
-        def replace_function_call_through_first_argument(_expr=None):
-            if _expr.is_function_call() and _expr.get_function_call() == function_name_to_replace:
-                first_arg = _expr.get_function_call().get_args()[0].get_variable()
-                _expr.set_function_call(None)
-                _expr.set_variable(first_arg)
-            return
-
-        func = (
-            lambda x: replace_function_call_through_first_argument(x) if isinstance(x, ASTSimpleExpression) else True)
-        ast.accept(ASTHigherOrderVisitor(func))
-
     @classmethod
     def get_convolve_function_calls(cls, ast):
         """

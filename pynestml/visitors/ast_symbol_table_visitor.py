@@ -153,7 +153,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                         block_type=BlockType.LOCAL, is_predefined=False, is_function=False,
                                         is_recordable=False,
                                         type_symbol=PredefinedTypes.get_type(type_name),
-                                        variable_type=VariableType.VARIABLE)
+                                        variable_type=VariableType.VARIABLE)        # XXX FUNCTION??
             assert isinstance(scope, Scope)
             scope.add_symbol(var_symbol)
         if node.has_return_type():
@@ -445,7 +445,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                 is_predefined=False, is_function=True,
                                 is_recordable=node.is_recordable,
                                 type_symbol=type_symbol,
-                                variable_type=VariableType.VARIABLE)
+                                variable_type=VariableType.VARIABLE)    # XXX: function?
         symbol.set_comment(node.get_comment())
         # now update the scopes
         node.get_scope().add_symbol(symbol)
