@@ -36,3 +36,12 @@ class ODEToolboxReferenceConverter(NestMLReferenceConverter):
         :rtype: str
         """
         return prefix + ast_variable.get_complete_name().replace("$", "__DOLLAR")
+
+    def convert_ternary_operator(self):
+        """
+        ODE-toolbox does not support ternary operator! Ignore condition, and hard-wire to first parameter.
+        :return: a string representation
+        :rtype: str
+        """
+        s = '0 * (' + '%s' + ') + (' + '%s' + ') + 0 * (' + '%s' + ')'
+        return '(' + s + ')'
