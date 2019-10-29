@@ -488,7 +488,6 @@ class ASTNeuron(ASTNode):
         """
 
         """from pynestml.symbols.variable_symbol import BlockType
-        import pdb;pdb.set_trace()
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
