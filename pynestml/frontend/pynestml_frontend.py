@@ -123,6 +123,7 @@ def main():
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return 1
     # after all argument have been collected, start the actual processing
+    sys.setrecursionlimit(10000)
     return int(process())
 
 

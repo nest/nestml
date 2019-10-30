@@ -135,8 +135,6 @@ class ExpressionsPrettyPrinter(object):
             The function call string.
         """
         function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
-        print(function_call)
-
         if ASTUtils.needs_arguments(function_call):
             return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
         else:

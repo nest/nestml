@@ -190,16 +190,16 @@ def replace_rhs_variable(expr, variable_name_to_replace, shape_var, spike_buf):
             new_variable_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
             new_variable = ASTVariable(new_variable_name, var_order)
             new_variable.set_source_position(node.get_variable().get_source_position())
-            print("Replacing variable " + str(node.get_variable().get_name()) + " with " + str(new_variable_name))
-            print("\t order before = " + str(node.get_variable().get_differential_order()))
-            print("\t scope before = " + str(node.get_scope()))
-            print("\t scope before = " + str(node.get_variable().get_scope()))
-            print("\t source_position before = " + str(shape_var.get_source_position()))
+            #print("Replacing variable " + str(node.get_variable().get_name()) + " with " + str(new_variable_name))
+            #print("\t order before = " + str(node.get_variable().get_differential_order()))
+            #print("\t scope before = " + str(node.get_scope()))
+            #print("\t scope before = " + str(node.get_variable().get_scope()))
+            #print("\t source_position before = " + str(shape_var.get_source_position()))
             node.set_variable(new_variable)
-            print("\t order after = " + str(node.get_variable().get_differential_order()))
-            print("\t scope after = " + str(node.get_scope()))
-            print("\t scope after = " + str(node.get_variable().get_scope()))
-            print("\t source_position before = " + str(node.get_variable().get_source_position()))
+            #print("\t order after = " + str(node.get_variable().get_differential_order()))
+            #print("\t scope after = " + str(node.get_scope()))
+            #print("\t scope after = " + str(node.get_variable().get_scope()))
+            #print("\t source_position before = " + str(node.get_variable().get_source_position()))
 
     expr.accept(ASTHigherOrderVisitor(visit_funcs=replace_shape_var))
 
@@ -738,8 +738,8 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.transform_ode_and_shapes_to_json(neuron, parameters_block, shape_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        print("Invoking ode-toolbox with JSON input:")
-        print(odetoolbox_indict)
+        #print("Invoking ode-toolbox with JSON input:")
+        #print(odetoolbox_indict)
         solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False)
         print("Got result from ode-toolbox:")
         print(solver_result)
@@ -1324,7 +1324,7 @@ class NESTCodeGenerator(CodeGenerator):
         for decl in parameters_block.get_declarations():
             for var in decl.variables:
                 odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
-        print("odetoolbox_indict = " + str(json.dumps(odetoolbox_indict, indent=4)))
+        #print("odetoolbox_indict = " + str(json.dumps(odetoolbox_indict, indent=4)))
         return odetoolbox_indict
 
 
@@ -1341,7 +1341,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         for source in functions:
             source_position = source.get_source_position()
-            print("In make_functions_self_contained(): source = " + str(source))
+            #print("In make_functions_self_contained(): source = " + str(source))
             for target in functions:
                 matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
                 target_definition = str(target.get_expression())
@@ -1350,7 +1350,7 @@ class NESTCodeGenerator(CodeGenerator):
                 target.expression.update_scope(source.get_scope())
                 target.expression.accept(ASTSymbolTableVisitor())
 
-                print("\ttarget = " + str(target))
+                #print("\ttarget = " + str(target))
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():
@@ -1377,10 +1377,10 @@ class NESTCodeGenerator(CodeGenerator):
         :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
         """
         for fun in functions:
-            print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
+            #print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
             source_position = fun.get_source_position()
             for target in definitions:
-                print("\ttarget = " + str(target))
+                #print("\ttarget = " + str(target))
                 matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
                 target_definition = str(target.get_rhs())
                 target_definition = re.sub(matcher, "(" + str(fun.get_expression()) + ")", target_definition)
@@ -1412,7 +1412,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         def replace_func_by_def_in_expr(expr, functions):
             for fun in functions:
-                print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
+                #print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
                 matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
                 import pdb;pdb.set_trace()
                 expr = re.sub(matcher, "(" + str(fun.get_expression()) + ")", expr)
@@ -1422,7 +1422,7 @@ class NESTCodeGenerator(CodeGenerator):
                 target.expression.update_scope(source.get_scope())
                 target.expression.accept(ASTSymbolTableVisitor())
 
-                print("\ttarget = " + str(target))
+                #print("\ttarget = " + str(target))
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():
