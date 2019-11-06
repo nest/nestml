@@ -59,7 +59,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
-        print("In ASTSymbolTableVisitor::visit_neuron(): neuron = " + node.get_name() + ", scope = " + str(scope))
+        #print("In ASTSymbolTableVisitor::visit_neuron(): neuron = " + node.get_name() + ", scope = " + str(scope))
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
@@ -267,7 +267,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         vector_parameter = node.get_size_parameter()
         # now for each variable create a symbol and update the scope
         for var in node.get_variables():  # for all variables declared create a new symbol
-            print("--> var = " +str(var))
+            #print("--> var = " +str(var))
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
             symbol = VariableSymbol(element_reference=node,
@@ -496,8 +496,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
             BlockType.PARAMETERS if node.is_parameters else
             BlockType.INITIAL_VALUES)
         for decl in node.get_declarations():
-            if node.is_internals:
-                print("node = " + str(node) + ", decl = " + str(decl))
+            #if node.is_internals:
+                #print("node = " + str(node) + ", decl = " + str(decl))
             decl.update_scope(node.get_scope())
         return
 

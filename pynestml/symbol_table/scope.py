@@ -47,7 +47,6 @@ class Scope(object):
         self.scope_type = scope_type
         self.enclosing_scope = enclosing_scope
         self.source_position = source_position
-        print("------- CREATING SCOPE " + str(self) + " ---------")
 
     def add_symbol(self, symbol):
         """

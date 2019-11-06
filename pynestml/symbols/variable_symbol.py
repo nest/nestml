@@ -310,7 +310,7 @@ class VariableSymbol(Symbol):
             Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING, error_position=ASTSourceLocation.get_added_source_position())
             return False
                         
-        print("Units: " + str(self.type_symbol.unit.unit) + " -> condbased = " + str(is_cond_based))
+        #print("Units: " + str(self.type_symbol.unit.unit) + " -> condbased = " + str(is_cond_based))
         return is_cond_based
 
     def get_variable_type(self):

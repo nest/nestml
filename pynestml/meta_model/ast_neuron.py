@@ -506,7 +506,7 @@ class ASTNeuron(ASTNode):
                 iv_sym = symbol_by_name(var.get_complete_name(), symbols)
                 assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
                 iv_syms.append(iv_sym)
-        print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
+        #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
         return iv_syms
                 
         
@@ -604,7 +604,7 @@ class ASTNeuron(ASTNode):
         """
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
-        print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
+        #print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
         n_declarations = len(self.get_internals_blocks().get_declarations())
         if n_declarations == 0:
             index = 0
@@ -625,7 +625,7 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
-        print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
+        #print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
@@ -767,17 +767,16 @@ class ASTNeuron(ASTNode):
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
-                print("Is shape " + str(shape_name) + "? YES")
+                #print("Is shape " + str(shape_name) + "? YES")
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                print("Is shape " + str(shape_name) + "? YES2")
+                #print("Is shape " + str(shape_name) + "? YES2")
                 return decl
 
-
-        print("Is shape " + str(shape_name) + "? NO")
+        #print("Is shape " + str(shape_name) + "? NO")
         return None
 
 
