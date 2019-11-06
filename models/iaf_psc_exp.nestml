@@ -28,7 +28,7 @@ The present implementation uses individual variables for the
 components of the state vector and the non-zero matrix elements of
 the propagator.  Because the propagator is a lower triangular matrix
 no full matrix multiplication needs to be carried out and the
-computation can be done "in place" i. e. no temporary state vector
+computation can be done "in place" i.e. no temporary state vector
 object is required.
 
 The template support of recent C++ compilers enables a more succinct
@@ -40,12 +40,12 @@ matrix objects.
 Remarks: If tau_m is very close to tau_syn_ex or tau_syn_in, the model
 will numerically behave as if tau_m is equal to tau_syn_ex or
 tau_syn_in, respectively, to avoid numerical instabilities.
-For details, please see IAF_Neruons_Singularity. ipynb in the
+For details, please see IAF_Neurons_Singularity.ipynb in the
 NEST source code (docs/model_details).
 
 iaf_psc_exp can handle current input in two ways: Current input
 through receptor_type 0 are handled as stepwise constant current
-input as in other iaf models, i. e., this current directly enters
+input as in other iaf models, i.e., this current directly enters
 the membrane potential equation. Current input through
 receptor_type 1, in contrast, is filtered through an exponential
 kernel with the time constant of the excitatory synapse,
@@ -101,7 +101,7 @@ neuron iaf_psc_exp:
     E_L  mV = -70 mV      # Resting potential.
     function V_reset mV = -70 mV - E_L # reset value of the membrane potential
     function Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTAIL(!).
-                                   # I. e. the real threshold is (E_L_+V_th_)
+                                   # I.e. the real threshold is (E_L_+V_th_)
     I_e     pA = 0 pA     # External current.
   end
 

@@ -28,7 +28,7 @@ neuron iaf_psc_exp_multisynapse_neuron:
   initial_values:
     V_abs mV # membrane potential
     function V_m mV = V_abs + E_L # Relative membrane potential.
-                               # I. e. the real threshold is (V_m-E_L).
+                               # I.e. the real threshold is (V_m-E_L).
   end
 
   equations:
@@ -46,9 +46,9 @@ neuron iaf_psc_exp_multisynapse_neuron:
     E_L     mV = 0 mV    # Resting potential.
     function V_reset mV = -55.0 mV - E_L # Reset value of the membrane potential
                                      # RELATIVE TO RESTING POTENTIAL(!).
-                                     # I. e. the real threshold is (V_reset + E_L).
+                                     # I.e. the real threshold is (V_reset + E_L).
     function V_th   mV = -70.0 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-                                    # I. e. the real threshold is (E_L+V_th).
+                                    # I.e. the real threshold is (E_L+V_th).
     I_e     pA = 0 pA     # External current.
   end
 

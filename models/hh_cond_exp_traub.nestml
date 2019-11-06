@@ -20,7 +20,7 @@ Only the channel variables m,h,n are implemented. The original
 contains variables called y,s,r,q and \chi.
 References:
 
-Traub, R. D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
+Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
 Cambridge University Press, Cambridge UK.
 
 Sends: SpikeEvent
