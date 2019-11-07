@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_psc_exp - Leaky integrate-and-fire neuron model with exponential
                    PSCs.
 
@@ -40,7 +40,7 @@ matrix objects.
 Remarks: If tau_m is very close to tau_syn_ex or tau_syn_in, the model
 will numerically behave as if tau_m is equal to tau_syn_ex or
 tau_syn_in, respectively, to avoid numerical instabilities.
-For details, please see IAF_Neruons_Singularity.ipynb in the
+For details, please see IAF_Neurons_Singularity.ipynb in the
 NEST source code (docs/model_details).
 
 iaf_psc_exp can handle current input in two ways: Current input
@@ -73,7 +73,7 @@ SeeAlso: iaf_psc_exp_ps
 
 FirstVersion: March 2006
 Author: Moritz Helias
-*/
+"""
 neuron iaf_psc_exp:
 
   state:
@@ -81,7 +81,7 @@ neuron iaf_psc_exp:
   end
 
   initial_values:
-    V_abs mV = 0mV
+    V_abs mV = 0 mV
     function V_m mV = V_abs + E_L # Membrane potential.
   end
 
@@ -93,16 +93,16 @@ neuron iaf_psc_exp:
   end
 
   parameters:
-    C_m pF = 250pF       # Capacity of the membrane
-    tau_m ms = 10ms      # Membrane time constant.
-    tau_syn_in ms = 2ms  # Time constant of synaptic current.
-    tau_syn_ex ms = 2ms  # Time constant of synaptic current.
-    t_ref ms = 2ms       # Duration of refractory period
-    E_L  mV = -70mV      # Resting potential.
-    function V_reset mV = -70mV - E_L # reset value of the membrane potential
-    function Theta   mV = -55mV - E_L # Threshold, RELATIVE TO RESTING POTENTAIL(!).
+    C_m pF = 250 pF       # Capacity of the membrane
+    tau_m ms = 10 ms      # Membrane time constant.
+    tau_syn_in ms = 2 ms  # Time constant of synaptic current.
+    tau_syn_ex ms = 2 ms  # Time constant of synaptic current.
+    t_ref ms = 2 ms       # Duration of refractory period
+    E_L  mV = -70 mV      # Resting potential.
+    function V_reset mV = -70 mV - E_L # reset value of the membrane potential
+    function Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTAIL(!).
                                    # I.e. the real threshold is (E_L_+V_th_)
-    I_e     pA = 0pA     # External current.
+    I_e     pA = 0 pA     # External current.
   end
 
   internals:
