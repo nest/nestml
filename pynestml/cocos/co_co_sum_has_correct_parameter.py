@@ -27,7 +27,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoSumHasCorrectParameter(CoCo):
     """
-    This coco ensures that convolve get only simple variable references as inputs.
+    This coco ensures that convolve gets only simple variable references as inputs.
     Not allowed:
      V mV = convolve(g_in+g_ex,Buffer)
     """

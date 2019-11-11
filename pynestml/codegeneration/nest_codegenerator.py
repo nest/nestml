@@ -41,6 +41,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -64,6 +65,7 @@ from pynestml.symbols.variable_symbol import BlockType
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+#from pynestml.visitors.ast_symbol_table_visitor import assign_ode_to_variables
 
 
 def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
@@ -386,6 +388,15 @@ class NESTCodeGenerator(CodeGenerator):
         """replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted variable name (e.g. `g_ex__DOLLAR__d__d`).
         """
         def replace_var(_expr=None):
+            #if isinstance(_expr, ASTDeclaration):
+                #node = _expr
+                #for var in node.get_variables():
+                    #if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
+                        #existing_symbol = node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
+                        #existing_symbol.set_variable_type(VariableType.SHAPE)
+                        #print("6666 setting symbol to " + var.get_name())
+
+            #el
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
@@ -394,6 +405,13 @@ class NESTCodeGenerator(CodeGenerator):
                     #print("\t source_position = " + str(ast_variable.get_source_position()))
                     #print("\t Replacing variable " + var.get_complete_name() + " by " + ast_variable.get_complete_name())
                     _expr.set_variable(ast_variable)
+                    
+                    #existing_symbol = neuron.get_scope().resolve_to_symbol(ast_variable.get_name(), SymbolKind.VARIABLE)
+                    #existing_symbol.set_variable_type(VariableType.SHAPE)
+                    
+                    #print("1234 setting symbol to " + ast_variable.get_name())
+
+
             elif isinstance(_expr, ASTVariable):
                 var = _expr
                 if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):
@@ -401,16 +419,17 @@ class NESTCodeGenerator(CodeGenerator):
                     var.set_name(to_odetb_processed_name(var.get_complete_name()))
                     var.set_differential_order(0)
 
+                    #existing_symbol = neuron.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                    #existing_symbol.set_variable_type(VariableType.SHAPE)
+
+                    #print("1234 setting symbol to " + var.get_name())
+
 
         func = lambda x: replace_var(x)
 
-        equations_block = neuron.get_equations_blocks()
-        equations_block.accept(ASTHigherOrderVisitor(func))
-        
-        update_block = neuron.get_update_blocks()
-        update_block.accept(ASTHigherOrderVisitor(func))
-
-
+        neuron.accept(ASTHigherOrderVisitor(func))
+        #assert neuron.get_scope().resolve_to_symbol("V_m", SymbolKind.VARIABLE).get_variable_type() is VariableType.SHAPE
+        #assert neuron.get_initial_values_blocks().get_scope().resolve_to_symbol("V_m", SymbolKind.VARIABLE).get_variable_type() is VariableType.SHAPE
 
     def replace_convolve_calls_with_buffers_(self, neuron, equations_block, shape_buffers):
         """replace all occurrences of `convolve(shape[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a shape named `g_E` and a spike input port named `spikes_exc`.
@@ -528,34 +547,18 @@ class NESTCodeGenerator(CodeGenerator):
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
             #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
 
-            #print("NEST codegenerator step 4...")
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
             self.analytic_solver[neuron.get_name()] = analytic_solver
             self.numeric_solver[neuron.get_name()] = numeric_solver
             
-            #print("NEST codegenerator: Removing shape definitions from neuron...")
             self.remove_initial_values_for_shapes(neuron)
             shapes = self.remove_shape_definitions_from_equations_block(neuron)
-
-
-
-
-
             self.remove_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
-            #self.create_initial_values_for_odetb_odes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
-
             self.remove_ode_definitions_from_equations_block(neuron)
-            
             self.create_initial_values_for_odetb_shapes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
-
-            #print("NEST codegenerator: replacing variable names in expressions with ode-toolbox result names...")
             self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
-
-
-
-            #print("NEST codegenerator: Adding timestep symbol...")
             self.add_timestep_symbol(neuron)
-            self.update_symbol_table(neuron, shape_buffers)
+            #self.update_symbol_table(neuron, shape_buffers)
 
             #print("NEST codegenerator: Adding ode-toolbox processed shapes to AST...")
             #self.add_shape_odes(neuron, [analytic_solver, numeric_solver], shape_buffers)
@@ -578,6 +581,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             #print("NEST codegenerator step 6...")
             spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver])
+            
 
         return spike_updates
 
@@ -857,7 +861,9 @@ class NESTCodeGenerator(CodeGenerator):
         SymbolTable.delete_neuron_scope(neuron.get_name())
         #SymbolTable.clean_up_table()
         #SymbolTable.initialize_symbol_table(neuron.get_source_position())
-        neuron.accept(ASTSymbolTableVisitor())
+        symbol_table_visitor = ASTSymbolTableVisitor()
+        symbol_table_visitor.after_ast_rewrite_ = True
+        neuron.accept(symbol_table_visitor)
         SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
         #print("SymbolTable scope keys after update: " + str(SymbolTable.name2neuron_scope.keys()))
 
@@ -1413,7 +1419,6 @@ class NESTCodeGenerator(CodeGenerator):
             for fun in functions:
                 #print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
                 matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
-                import pdb;pdb.set_trace()
                 expr = re.sub(matcher, "(" + str(fun.get_expression()) + ")", expr)
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)

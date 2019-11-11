@@ -566,31 +566,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.compound_stmt.update_scope(node.get_scope())
 
 
-def make_trivial_assignment(var, order, equations_block, is_shape=False):
-    from pynestml.meta_model.ast_variable import ASTVariable
-    from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-    from pynestml.meta_model.ast_node import ASTNode
-    # type: (ASTVariable,int,ASTEquationsBlock,bool) -> ASTNode
-    lhs_variable = ASTNodeFactory.create_ast_variable(name=var.get_name(),
-                                                      differential_order=order + 1,
-                                                      source_position=ASTSourceLocation.
-                                                      get_added_source_position())
-    rhs_variable = ASTNodeFactory.create_ast_variable(name=convert_variable_name_to_generator_notation(var).get_name(),
-                                                      differential_order=order,
-                                                      source_position=ASTSourceLocation.
-                                                      get_added_source_position())
-    expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
-                                                             source_position=ASTSourceLocation.
-                                                             get_added_source_position())
-    source_loc = ASTSourceLocation.get_added_source_position()
-    if is_shape:
-        node = ASTNodeFactory.create_ast_ode_shape(lhs=lhs_variable, rhs=expression, source_position=source_loc)
-    else:
-        node = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression, source_position=source_loc)
-    equations_block.get_declarations().append(node)
-    return node
-
-
 def assign_ode_to_variables(ode_block):
     """
     Adds for each variable symbol the corresponding ode declaration if present.
@@ -602,9 +577,8 @@ def assign_ode_to_variables(ode_block):
     for decl in ode_block.get_declarations():
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)
-        if isinstance(decl, ASTOdeShape):
+        elif isinstance(decl, ASTOdeShape):
             add_ode_shape_to_variable(decl)
-    return
 
 
 def add_ode_to_variable(ode_equation):
@@ -613,92 +587,55 @@ def add_ode_to_variable(ode_equation):
     :param ode_equation: a single ode-equation
     :type ode_equation: ast_ode_equation
     """
+
     # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
-    diff_order = ode_equation.get_lhs().get_differential_order() - 1
+    #diff_order = ode_equation.get_lhs().get_differential_order() - 1
     # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-    existing_symbol = (ode_equation.get_scope().resolve_to_symbol(ode_equation.get_lhs().get_name() + '\'' * diff_order,
-                                                                  SymbolKind.VARIABLE))
-    if existing_symbol is not None:
-        existing_symbol.set_ode_definition(ode_equation.get_rhs())
-        # todo added on merge
+    #existing_symbol = (ode_equation.get_scope().resolve_to_symbol(ode_equation.get_lhs().get_name() + '\'' * diff_order,
+                                                                  #SymbolKind.VARIABLE))
+                                                                  
+    for diff_order in range(ode_equation.get_lhs().get_differential_order()):
+        var_name = ode_equation.get_lhs().get_name() + "'" * diff_order
+        existing_symbol = ode_equation.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+
+        if existing_symbol is None:
+            code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
+            Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
+            return
+
+        existing_symbol.set_ode_or_shape(ode_equation)
+
         ode_equation.get_scope().update_variable_symbol(existing_symbol)
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)
-    else:
-        code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
-        Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
-    return
 
 
-def add_ode_shape_to_variable(ode_shape):
+def add_ode_shape_to_variable(shape):
     """
     Adds the shape as the defining equation.
-    :param ode_shape: a single shape object.
-    :type ode_shape: ast_ode_shape
+    
+    If the definition of the shape is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their shape definition and variable type set.
+    
+    :param shape: a single shape object.
+    :type shape: ASTOdeShape
     """
-    if len(ode_shape.get_variables()) == 1 \
-     and ode_shape.get_variables()[0].get_differential_order() == 0:
+    if len(shape.get_variables()) == 1 \
+     and shape.get_variables()[0].get_differential_order() == 0:
         # we only update those which define an ODE; skip "direct function of time" specifications
         return
     
-    for var, expr in zip(ode_shape.get_variables(), ode_shape.get_expressions()):
-        # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-        existing_symbol = ode_shape.get_scope().resolve_to_symbol(var.get_name_of_lhs(),
-                                                                SymbolKind.VARIABLE)
-        if existing_symbol is not None:
-            existing_symbol.set_ode_definition(expr)
+    for var, expr in zip(shape.get_variables(), shape.get_expressions()):
+        for diff_order in range(var.get_differential_order()):
+            var_name = var.get_name() + "'" * diff_order
+            existing_symbol = shape.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+
+            if existing_symbol is None:
+                code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
+                Logger.log_message(code=code, message=message, error_position=shape.get_source_position(), log_level=LoggingLevel.ERROR)
+                return
+
+            existing_symbol.set_ode_or_shape(expr)
             existing_symbol.set_variable_type(VariableType.SHAPE)
-            ode_shape.get_scope().update_variable_symbol(existing_symbol)
-            code, message = Messages.get_ode_updated(var.get_name_of_lhs())
-            Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
-                            code=code, message=message, log_level=LoggingLevel.INFO)
-        else:
-            code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
-            Logger.log_message(code=code, message=message, error_position=ode_shape.get_source_position(),
-                            log_level=LoggingLevel.ERROR)
-
-
-def convert_variable_name_to_model_notation(variable):
-    """
-    This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
-    It is used to find all variables which have to provided with a ode declaration.
-    """
-    from pynestml.meta_model.ast_variable import ASTVariable
-    # type: ASTVariable -> str
-
-    name = variable.get_name()
-    diff_order = 0
-    while True:
-        if name.endswith('__d'):
-            diff_order += 1
-            name = name[:-3]
-            break
-        elif name.endswith('d'):
-            diff_order += 1
-            name = name[:-1]
-        else:
-            break
-    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
-
-
-def convert_variable_name_to_generator_notation(variable):
-    """
-    This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
-    one (e.g., g_in_d). It decreases the unsupported order by one.
-    """
-    from pynestml.meta_model.ast_variable import ASTVariable
-    # type: ASTVariable -> str
-
-    name = variable.get_name()
-    diff_order = variable.get_differential_order()
-    if diff_order > 0:
-        import re
-        pattern = re.compile('w*_((d)*)\b')
-        if pattern.match(name):
-            name += 'd'
-        else:
-            name += '__d'
-        diff_order -= 1
-    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
+            shape.get_scope().update_variable_symbol(existing_symbol)

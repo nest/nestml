@@ -23,8 +23,10 @@ from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
@@ -94,7 +96,7 @@ class VariableSymbol(Symbol):
         self.type_symbol = type_symbol
         self.initial_value = initial_value
         self.variable_type = variable_type
-        self.ode_declaration = None
+        self.ode_or_shape = None
 
     def has_vector_parameter(self):
         """
@@ -277,24 +279,26 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.ode_declaration is not None and (isinstance(self.ode_declaration, ASTExpression) or
-                                                     isinstance(self.ode_declaration, ASTSimpleExpression))
+        return self.ode_or_shape is not None and (isinstance(self.ode_or_shape, ASTExpression) or
+                                                     isinstance(self.ode_or_shape, ASTSimpleExpression) or
+                                                     isinstance(self.ode_or_shape, ASTOdeShape) or
+                                                     isinstance(self.ode_or_shape, ASTOdeEquation))
 
-    def get_ode_definition(self):
+    def get_ode_or_shape(self):
         """
-        Returns the ode defining the value of this variable symbol.
+        Returns the ODE or shape defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression
+        :rtype: ASTExpression or ASTSimpleExpression or ASTOdeShape
         """
-        return self.ode_declaration
+        return self.ode_or_shape
 
-    def set_ode_definition(self, expression):
+    def set_ode_or_shape(self, expression):
         """
         Updates the currently stored ode-definition to the handed-over one.
         :param expression: a single rhs object.
         :type expression: ASTExpression
         """
-        self.ode_declaration = expression
+        self.ode_or_shape = expression
 
     def is_conductance_based(self):
         """
