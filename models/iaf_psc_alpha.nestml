@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_psc_alpha - Leaky integrate-and-fire neuron model.
 
 Description:
@@ -51,7 +51,7 @@ Remarks:
   If tau_m is very close to tau_syn_ex or tau_syn_in, the model
   will numerically behave as if tau_m is equal to tau_syn_ex or
   tau_syn_in, respectively, to avoid numerical instabilities.
-  For details, please see IAF_Neruons_Singularity.ipynb in
+  For details, please see IAF_Neurons_Singularity.ipynb in
   the NEST source code (docs/model_details).
 
 References:
@@ -71,7 +71,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 FirstVersion: September 1999
 Author:  Diesmann, Gewaltig
 SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
-*/
+"""
 neuron iaf_psc_alpha:
 
   state:
@@ -79,15 +79,15 @@ neuron iaf_psc_alpha:
   end
 
   initial_values:
-    V_abs mV = 0mV
+    V_abs mV = 0 mV
     function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:
-    shape I_shape_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-    shape I_shape_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+    shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
     function I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + currents
-    V_abs' = -V_abs / Tau + I / C_m
+    V_abs' = -1/Tau * V_abs + 1/C_m * I
   end
 
   parameters:

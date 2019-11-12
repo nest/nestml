@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
                       used in Casti et al 2008.
 
@@ -21,12 +21,11 @@ Receives: SpikeEvent, CurrentEvent
 Author: Heiberg
 
 SeeAlso: iaf_cond_alpha
-*/
-
+"""
 neuron iaf_chxk_2008:
 
   initial_values:
-    V_m mV = E_L   # membrane potenteral
+    V_m mV = E_L   # membrane potential
     g_ahp nS = 0 nS      # AHP conductance
     g_ahp' nS/ms = 0 nS/ms   # AHP conductance
   end
@@ -45,17 +44,17 @@ neuron iaf_chxk_2008:
   end
 
   parameters:
-    V_th mV = -45.0mV        # Threshold Potential
-    E_ex mV = 20mV           # Excitatory reversal potential
-    E_in mV = -90mV          # Inhibitory reversal potential
-    g_L nS = 100nS           # Leak Conductance
-    C_m pF = 1000.0pF        # Membrane Capacitance
-    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential)
-    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse
-    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse
-    tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
-    G_ahp nS = 443.8nS       # AHP conductance
-    E_ahp mV = -95mV         # AHP potential
+    V_th mV = -45.0 mV        # Threshold Potential
+    E_ex mV = 20 mV           # Excitatory reversal potential
+    E_in mV = -90 mV          # Inhibitory reversal potential
+    g_L nS = 100 nS           # Leak Conductance
+    C_m pF = 1000.0 pF        # Membrane Capacitance
+    E_L mV = -60.0 mV         # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 1 ms      # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 1 ms      # Synaptic Time Constant for Inhibitory Synapse
+    tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
+    G_ahp nS = 443.8 nS       # AHP conductance
+    E_ahp mV = -95 mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
     I_e pA = 0 pA            # Constant Current
   end
@@ -110,7 +109,8 @@ neuron iaf_chxk_2008:
 
 end
 
-/*
+
+"""
 Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
                       used in Casti et al 2008.
 
@@ -133,7 +133,7 @@ Receives: SpikeEvent, CurrentEvent
 Author: Heiberg
 
 SeeAlso: iaf_cond_alpha
-*/
+"""
 neuron iaf_chxk_2008_implicit:
 
   initial_values:
@@ -163,17 +163,17 @@ neuron iaf_chxk_2008_implicit:
   end
 
   parameters:
-    V_th mV = -45.0mV        # Threshold Potential
-    E_ex mV = 20mV           # Excitatory reversal potential
-    E_in mV = -90mV          # Inhibitory reversal potential
-    g_L nS = 100nS           # Leak Conductance
-    C_m pF = 1000.0pF        # Membrane Capacitance
-    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential)
-    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse
-    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse
-    tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
-    G_ahp nS = 443.8nS       # AHP conductance
-    E_ahp mV = -95mV         # AHP potential
+    V_th mV = -45.0 mV        # Threshold Potential
+    E_ex mV = 20 mV           # Excitatory reversal potential
+    E_in mV = -90 mV          # Inhibitory reversal potential
+    g_L nS = 100 nS           # Leak Conductance
+    C_m pF = 1000.0 pF        # Membrane Capacitance
+    E_L mV = -60.0 mV         # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 1 ms      # Synaptic Time Constant Excitatory Synapse
+    tau_syn_in ms = 1 ms      # Synaptic Time Constant for Inhibitory Synapse
+    tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
+    G_ahp nS = 443.8 nS       # AHP conductance
+    E_ahp mV = -95 mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
     I_e pA = 0 pA            # Constant Current
   end
@@ -224,7 +224,6 @@ neuron iaf_chxk_2008_implicit:
 
       emit_spike()
     end
-
   end
 
 end

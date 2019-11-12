@@ -1,4 +1,5 @@
-/* Name: iaf_cond_beta - Simple conductance based leaky integrate-and-fire neuron model.
+"""
+Name: iaf_cond_beta - Simple conductance based leaky integrate-and-fire neuron model.
 
 Description:
 iaf_cond_beta is an implementation of a spiking neuron using IAF dynamics with
@@ -18,7 +19,8 @@ single pyramidal cells.  Proc. Natl. Acad. Sci. USA, 88(24),
 Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in
 the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
 Author: Schrader, Plesser
-SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha */
+SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha
+"""
 
 neuron iaf_cond_beta:
   state:
@@ -51,21 +53,21 @@ neuron iaf_cond_beta:
   end
 
   parameters:
-    E_L mV = -70 mV              # Leak reversal potential (aka resting potential)
-    C_m pF = 250 pF              # Capacity of the membrane
-    t_ref ms = 2 ms              # Refractory period
-    V_th mV = -55 mV             # Threshold potential
-    V_reset mV = -60 mV          # Reset potential
-    E_ex mV = 0 mV               # Excitatory reversal potential
-    E_in mV = -85 mV             # Inhibitory reversal potential
-    g_L nS = 16.6667 nS          # Leak conductance
-    tau_syn_rise_I ms = .2 ms    # Synaptic time constant excitatory synapse
-    tau_syn_decay_I ms = 2 ms    # Synaptic time constant for inhibitory synapse
-    tau_syn_rise_E ms = .2 ms    # Synaptic time constant excitatory synapse
-    tau_syn_decay_E ms = 2 ms    # Synaptic time constant for inhibitory synapse
-    I_e pA = 0 pA                # Constant current
-    F_E nS = 0 nS                # Constant external input conductance (excitatory)
-    F_I nS = 0 nS                # Constant external input conductance (inhibitory)
+    E_L mV = -85.0 mV # Leak reversal potential (aka resting potential)
+    C_m pF = 250.0 pF # Capacitance of the membrane
+    t_ref ms = 2.0 ms # Refractory period
+    V_th mV = -55.0 mV      # Threshold potential
+    V_reset mV = -60.0 mV   # Reset potential
+    E_ex mV = 0 mV          # Excitatory reversal potential
+    E_in mV = -85.0 mV      # Inhibitory reversal potential
+    g_L nS = 16.6667 nS     # Leak conductance
+    tau_syn_rise_I ms = 0.2 ms    # Synaptic time constant excitatory synapse
+    tau_syn_decay_I ms = 2.0 ms   # Synaptic time constant for inhibitory synapse
+    tau_syn_rise_E ms = 0.2 ms    # Synaptic time constant excitatory synapse
+    tau_syn_decay_E ms = 2.0 ms   # Synaptic time constant for inhibitory synapse
+    I_e pA = 0 pA            # Constant current
+    F_E nS = 0 nS            # Constant external input conductance (excitatory).
+    F_I nS = 0 nS            # Constant external input conductance (inhibitory).
   end
 
   internals:

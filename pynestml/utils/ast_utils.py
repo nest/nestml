@@ -414,3 +414,4 @@ class ASTUtils(object):
             ASTUtils.create_state_block(neuron)
         neuron.get_state_blocks().get_declarations().append(declaration)
         return
+

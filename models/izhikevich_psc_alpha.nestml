@@ -1,4 +1,4 @@
-/*
+"""
 Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped
                              post-synaptic current.
 
@@ -26,7 +26,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 FirstVersion: 2009
 Author: Hanuschkin, Morrison, Kunkel
 SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
-*/
+"""
 
 neuron izhikevich_psc_alpha:
 
@@ -96,8 +96,8 @@ neuron izhikevich_psc_alpha:
 
 end
 
-/*
-Name: izhikevich_psc_alpha_implicit - Detailed Izhikevich neuron model with 
+"""
+Name: izhikevich_psc_alpha_implicit - Detailed Izhikevich neuron model with
                                       alpha-shaped post-synaptic current.
 
 Description:
@@ -124,7 +124,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 FirstVersion: 2009
 Author: Hanuschkin, Morrison, Kunkel
 SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
-*/
+"""
 
 neuron izhikevich_psc_alpha_implicit:
 
@@ -137,7 +137,7 @@ neuron izhikevich_psc_alpha_implicit:
     U_m pA = 0 pA                          # Membrane potential recovery variable
     I_syn_ex pA = 0. pA                    # inputs from the exc conductance
     I_syn_ex' pA/ms = pA * e / tau_syn_in  # inputs from the exc conductance
-    I_syn_in pA = 0pA                      # inputs from the inh conductance
+    I_syn_in pA = 0 pA                      # inputs from the inh conductance
     I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh conductance
   end
 
@@ -149,10 +149,10 @@ neuron izhikevich_psc_alpha_implicit:
 
     # alpha function for the g_ex
     shape I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
-    
+
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
-    
+
     V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
   end
