@@ -33,10 +33,17 @@ nest.set_verbosity("M_ALL")
 nest.Install("nestmlmodule")
 
 
-def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts={}, custom_model_opts={}):
+def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
+
+    if nest_ref_model_opts is None:
+        nest_ref_model_opts = {}
+    
+    if custom_model_opts is None:
+        custom_model_opts = {}
 
     #spike_times = [10.0, 11., 12., 13., 14., 15., 50.0]
     #spike_weights = [1.,1.,1.,1.,1.,1., -1.]
+       
     spike_times = [10., 50.]
     spike_weights = [1., -1.]
 
@@ -50,8 +57,8 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_mo
     spikegenerator = nest.Create('spike_generator',
                                  params={'spike_times': spike_times, 'spike_weights': spike_weights})
 
-    nest.Connect(spikegenerator, neuron1, syn_spec={"receptor_type" : 1})
-    nest.Connect(spikegenerator, neuron2, syn_spec={"receptor_type" : 1})
+    nest.Connect(spikegenerator, neuron1)
+    nest.Connect(spikegenerator, neuron2)
 
     multimeter1 = nest.Create('multimeter')
     multimeter2 = nest.Create('multimeter')
@@ -78,6 +85,7 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_mo
         ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
         ax[0].plot(ts2, Vms2, alpha=.3)
         ax[1].plot(ts2, Vms2, label = "Testant " + testant)
+        #ax[2].plot(ts2, dmm2["events"]["I_h"], label = "I_h")
         for _ax in ax:
             _ax.legend(loc='upper right')
             _ax.grid()
@@ -115,8 +123,6 @@ if __name__ == "__main__":
 
 
     # --------------
-
-
 
     #models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
     #models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
