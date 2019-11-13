@@ -23,6 +23,7 @@ import json
 import datetime
 import os
 import re
+import sympy
 from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
@@ -358,6 +359,43 @@ class NESTCodeGenerator(CodeGenerator):
             self.store_transformed_model(neuron)
 
 
+    def get_delta_factors_(self, neuron, equations_block):
+        """For every occurrence of a convolution of the form `x^(n) = a * convolve(shape, inport) + ...` where `shape` is a delta function, add the element `(x^(n), inport) --> a` to the set. 
+        """
+
+        #gsl_converter = ODEToolboxReferenceConverter()
+        #gsl_printer = UnitlessExpressionPrinter(gsl_converter)
+
+        delta_factors = {}
+        for ode_eq in equations_block.get_ode_equations():
+            var = ode_eq.get_lhs()
+            expr = ode_eq.get_rhs()
+            conv_calls = OdeTransformer.get_convolve_function_calls(expr)
+            for conv_call in conv_calls:
+                assert len(conv_call.args) == 2, "convolve() function call should have precisely two arguments: shape and spike buffer"
+                shape = conv_call.args[0]
+                if is_delta_shape(neuron.get_shape_by_name(shape.get_variable().get_name())):
+                    inport = conv_call.args[1].get_variable()
+                    #expr_str = gsl_printer.print_expression(expr)
+                    expr_str = str(expr)
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+                    sympy_expr = sympy.expand(sympy_expr)
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call))
+                    factor_str = []
+                    for term in sympy.Add.make_args(sympy_expr):
+                        if term.find(sympy_conv_expr):
+                            factor_str.append(str(term.replace(sympy_conv_expr, 1)))
+                    factor_str = " + ".join(factor_str)
+                    #factor = ModelParser.parse_expression(factor_str)
+                    #factor.update_scope(neuron.get_scope())
+                    #factor.accept(ASTSymbolTableVisitor())
+                    delta_factors[(var, inport)] = factor_str
+
+            print("Delta factors = " + str(delta_factors))
+
+        return delta_factors
+
+
     def generate_shape_buffers_(self, neuron, equations_block):
         """For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(shape, spike_buf)` to the set, with `shape` being the shape that contains variable `var`.
         """
@@ -449,9 +487,11 @@ class NESTCodeGenerator(CodeGenerator):
                 _expr.set_function_call(None)
                 buffer_var = construct_shape_X_spike_buf_name(var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if is_delta_shape(shape):
-                    _expr.set_variable(spike_input_port)
-                    prefactor = get_delta_shape_prefactor_expr(shape)
-                    #print("Replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
+                    # delta shapes are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
+                    _expr.set_variable(None)
+                    _expr.set_numeric_literal(0)
+                    #print("Delta function: replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
+                    #import pdb;pdb.set_trace()
                 else:
                     ast_variable = ASTVariable(buffer_var)
                     ast_variable.set_source_position(_expr.get_source_position())
@@ -532,6 +572,7 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_block()
 
         if equations_block is not None:
+            delta_factors = self.get_delta_factors_(neuron, equations_block)
             shape_buffers = self.generate_shape_buffers_(neuron, equations_block)
             #print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
             self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
@@ -580,7 +621,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.update_symbol_table(neuron, shape_buffers)
 
             #print("NEST codegenerator step 6...")
-            spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver])
+            spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
             
 
         return spike_updates
@@ -1150,15 +1191,13 @@ class NESTCodeGenerator(CodeGenerator):
         return shape_spike_buf_names
 """
 
-    def get_spike_update_expressions(self, neuron, shape_buffers, solver_dicts):
+    def get_spike_update_expressions(self, neuron, shape_buffers, solver_dicts, delta_factors):
         """Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
-        For example, a resulting `assignment_string` could be "I_shape_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
+        For example, a resulting `assignment_str` could be "I_shape_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
 
         Note that for shapes, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
         """
-
-        #print("in get_spike_update_expressions")
 
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
@@ -1167,7 +1206,6 @@ class NESTCodeGenerator(CodeGenerator):
             buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 
             if is_delta_shape(shape):
-                # for delta functions, there is no state, so nothing needs to be updated
                 continue
 
             #    buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
@@ -1185,28 +1223,41 @@ class NESTCodeGenerator(CodeGenerator):
                         #print("\tzero")
                         continue    # skip adding the statement if we're only adding zero
 
-                    assignment_string = shape_spike_buf_name + " += "
-                    assignment_string += "(" + str(spike_input_port) + ")"
+                    assignment_str = shape_spike_buf_name + " += "
+                    assignment_str += "(" + str(spike_input_port) + ")"
                     if not expr in ["1.", "1.0", "1"]:
-                        assignment_string += " * (" + self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+                        assignment_str += " * (" + self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
 
                     if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
-                        assignment_string += " / (" + buffer_type.print_nestml_type() + ")"
+                        assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
 
-                    #print("\t\t\t--> assignment_string = " + str(assignment_string))
-                    #spike_updates.append(assignment_string + "\n")
+                    #print("\t\t\t--> assignment_str = " + str(assignment_str))
+                    #spike_updates.append(assignment_str + "\n")
                     #print("\t\tupdating scope to that of neuron " + str(neuron.get_name()) + ", scope = " + str(neuron.get_scope()))
-                    ast_assignment = ModelParser.parse_assignment(assignment_string)
+                    ast_assignment = ModelParser.parse_assignment(assignment_str)
                     ast_assignment.update_scope(neuron.get_scope())
                     ast_assignment.accept(ASTSymbolTableVisitor())
 
                     spike_updates.append(ast_assignment)
 
-        #print("spike_updates = " + str(spike_updates))
+        print("spike_updates = " + str(spike_updates))
+
+        for k, factor in delta_factors.items():
+            var = k[0]
+            inport = k[1]
+            assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
+            if not factor in ["1.", "1.0", "1"]:
+                assignment_str += "(" + self._printer.print_expression(ModelParser.parse_expression(factor)) + ") * "
+            assignment_str += str(inport)
+            ast_assignment = ModelParser.parse_assignment(assignment_str)
+            ast_assignment.update_scope(neuron.get_scope())
+            ast_assignment.accept(ASTSymbolTableVisitor())
+
+            spike_updates.append(ast_assignment)
+
+        print("spike_updates = " + ", ".join([str(s) for s in spike_updates]))
 
         return spike_updates
-        #for assignment in spike_updates:
-            #add_assignment_to_update_block(assignment, neuron)
 
 
 
