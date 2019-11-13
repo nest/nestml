@@ -97,3 +97,4 @@ jobs:
         - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_instantiability_test.py
         - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_integration_test.py
         - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_logarithmic_function_test.py
+        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_multisynapse_test.py
