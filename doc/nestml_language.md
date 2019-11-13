@@ -434,10 +434,10 @@ end
 For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
 ```
 equations:
-  shape I_shape = exp(-t / tau_syn1)
+  shape I_shape1 = exp(-t / tau_syn1)
   shape I_shape2 = exp(-t / tau_syn2)
   shape I_shape3 = -exp(-t / tau_syn3)
-  function I_syn pA = convolve(I_shape, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
+  function I_syn pA = convolve(I_shape1, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
   V_abs' = -V_abs/tau_m + I_syn / C_m
 end
 ```
@@ -454,22 +454,21 @@ nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
 
 sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
 nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+```
+Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
-mm = nest.Create('multimeter', params={'record_from': ['I_shape', 'I_shape2', 'I_shape3'], 'interval': 0.1})
+We furthermore wish to record the synaptic currents `I_shape1`, `I_shape2` and `I_shape3`. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded from are thus named as follows:
+
+```
+mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': .1})
 nest.Connect(mm, neuron)
-
-[...]
-
-nest.Simulate(200.)
 ```
 
-Please note that receptor ports are numbered starting from 1.
-
-The output shows the different time constants for each synapse:
+The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
 
 ![NESTML multisynapse example waveform traces](https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png)
 
-For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
+For a full example, please see `tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
 
 ### Output
 
