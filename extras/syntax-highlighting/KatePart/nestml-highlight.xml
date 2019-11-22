@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language name="nestml" version="1" kateversion="2.4" section="Sources" extensions="*.nml;*.nestml">
+  <highlighting>
+    <list name="structures">
+      <item>neuron</item>
+      <item>state</item>
+      <item>equations</item>
+      <item>parameters</item>
+      <item>input</item>
+      <item>update</item>
+    </list>
+    <list name="units">
+      <item>pF</item>
+      <item>ms</item>
+      <item>mV</item>
+      <item>pA</item>
+    </list>
+    <list name="commands">
+      <item>if</item>
+      <item>else</item>
+      <item>end</item>
+      <item>emit_spike</item>
+      <item>integrate_odes</item>
+      <item>exp</item>
+      <item>convolve</item>
+    </list>
+    <list name="types">
+      <item>spike</item>
+      <item>current</item>
+      <item>shape</item>
+    </list>
+
+    <contexts>
+      <context attribute="Normal Text" lineEndContext="#pop" name="Normal Text" >
+        <keyword attribute="ControlFlow" context="#stay" String="structures" />
+        <keyword attribute="Keyword" context="#stay" String="commands" />
+        <keyword attribute="Operator" context="#stay" String="units" />
+        <keyword attribute="DataType" context="#stay" String="types" />
+        <DetectChar attribute="String" context="string" char="&quot;" />
+        <RangeDetect attribute="Comment" context="#stay" char="#" char1="\n" />
+        <Float attribute="Float" context="#stay" />
+        <Int attribute="Int" context="#stay" />
+      </context>
+      <context attribute="String" lineEndContext="#stay" name="string" >
+        <DetectChar attribute="String" context="#pop" char="&quot;" />
+      </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal" />
+      <itemData name="Keyword" defStyleNum="dsKeyword" />
+      <itemData name="String" defStyleNum="dsString" />
+      <itemData name="Float" defStyleNum="dsFloat" />
+      <itemData name="Int" defStyleNum="dsDecVal" />
+      <itemData name="DataType" defStyleNum="dsDataType" />
+      <itemData name="Variable" defStyleNum="dsVariable" />
+      <itemData name="ControlFlow" defStyleNum="dsControlFlow" />
+      <itemData name="Operator" defStyleNum="dsOperator" />
+      <itemData name="BuiltIn" defStyleNum="dsBuiltIn" />
+      <itemData name="Comment" defStyleNum="dsComment" />
+    </itemDatas>
+  </highlighting>
+
+   <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+    </comments>
+    <keywords casesensitive="1"/>
+    <folding indentationsensitive="0"/>
+    <emptyLines>
+      <emptyLine regexpr="\s+"/>
+      <emptyLine regexpr="\s*#.*"/>
+    </emptyLines>
+  </general>
+</language>
+
