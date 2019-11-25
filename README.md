@@ -2,13 +2,13 @@
 
 # NESTML: The NEST Modelling Language
 
-NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain, written in Python, to compute an exact solution if possible or use an appropriate numeric solver otherwise.
+NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string in mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain, written in Python, to compute an exact solution if possible or use an appropriate numeric solver otherwise.
 
 <p align="center"><img width="215" height="66" src="doc/nestml-logo/nestml-logo.png"></p>
 
 For an in-depth introduction to the underlying modeling language NESTML, please refer to the [NESTML language documentation](doc/nestml_language.md).
 
-For those interested in the implementation of PyNESTML or the general structure of a DSL-processing toolchain, please refer to the [PyNESTML documentation](doc/pynestml/index.md).
+For those interested in contibuting to development of the language, please refer to the [PyNESTML toolchain documentation](doc/pynestml/index.md) for a description of the model processing, validation and code generation pipeline.
 
 ## Directory structure
 
