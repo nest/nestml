@@ -88,8 +88,8 @@ neuron iaf_psc_exp:
   equations:
     shape I_shape_in = exp(-t / tau_syn_in)
     shape I_shape_ex = exp(-t / tau_syn_ex)
-    function I_syn pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes)# + I_e + currents
-    V_abs' = -V_abs / tau_m + (I_e + currents + I_syn) / C_m
+    function I_syn pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e
+    V_abs' = -V_abs / tau_m + I_syn / C_m
   end
 
   parameters:
@@ -101,8 +101,7 @@ neuron iaf_psc_exp:
     E_L  mV = -70 mV      # Resting potential.
     function V_reset mV = -70 mV - E_L # reset value of the membrane potential
     function Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-                                   # I.e. the real threshold is (E_L_+V_th_)
-    I_e pA = 0 pA     # External current.
+                                       # I.e. the real threshold is (E_L_+V_th_)
   end
 
   internals:
@@ -112,7 +111,7 @@ neuron iaf_psc_exp:
   input:
     ex_spikes pA <- excitatory spike
     in_spikes pA <- inhibitory spike
-    currents pA <- current
+    I_e pA <- current
   end
 
   output: spike

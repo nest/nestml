@@ -80,7 +80,7 @@ neuron iaf_psc_delta:
 
   equations:
     shape G = delta(t, tau_m)
-    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, spikes) + I_e + currents)
+    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, spikes) + I_e)
   end
 
   parameters:
@@ -89,7 +89,6 @@ neuron iaf_psc_delta:
     t_ref   ms = 2 ms       # Duration of refractory period.
     tau_syn ms = 2 ms       # Time constant of synaptic current.
     E_L     mV = -70 mV     # Resting membrane potential.
-    I_e     pA = 0 pA       # Constant input current.
     function V_reset mV = -70 mV - E_L # Reset potential of the membrane.
     function Theta   mV = -55 mV - E_L # Spike threshold.
     V_min mV = -inf * 1 mV           # Absolute lower value for the membrane potential
@@ -103,7 +102,7 @@ neuron iaf_psc_delta:
 
   input:
     spikes pA <- spike
-    currents pA <- current
+    I_e pA <- current
   end
 
   output: spike

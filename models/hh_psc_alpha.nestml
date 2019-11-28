@@ -74,7 +74,7 @@ neuron hh_psc_alpha:
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_syn_inh + I_syn_exc ) / C_m
 
     # Act_n
     function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
@@ -103,7 +103,6 @@ neuron hh_psc_alpha:
     E_L mV = -54.402 mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0 pA           # Constant Current
   end
 
   internals:
@@ -113,7 +112,7 @@ neuron hh_psc_alpha:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
-      currents pA <- current
+      I_e pA <- current
   end
 
   output: spike
@@ -217,7 +216,7 @@ neuron hh_psc_alpha_implicit:
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_syn_inh + I_syn_exc ) / C_m
 
     # Act_n
     function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
@@ -246,7 +245,6 @@ neuron hh_psc_alpha_implicit:
     E_L mV = -54.402 mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0 pA           # Constant Current
   end
 
   internals:
@@ -256,7 +254,7 @@ neuron hh_psc_alpha_implicit:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
-      currents pA <- current
+      I_e pA <- current
   end
 
   output: spike

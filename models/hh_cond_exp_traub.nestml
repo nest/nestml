@@ -64,7 +64,7 @@ neuron hh_cond_exp_traub:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
-    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e ) / C_m
 
     # channel dynamics
     function V_rel mV = V_m - V_T
@@ -93,7 +93,6 @@ neuron hh_cond_exp_traub:
                               # parameters, V_T = -63 mV results in a threshold around -50 mV.
     tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
   end
@@ -105,7 +104,7 @@ neuron hh_cond_exp_traub:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
-      currents pA <- current
+      I_e pA <- current
   end
 
   output: spike
@@ -195,7 +194,7 @@ neuron hh_cond_exp_traub_implicit:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
-    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e ) / C_m
 
     # channel dynamics
     function V_rel mV = V_m - V_T
@@ -235,7 +234,7 @@ neuron hh_cond_exp_traub_implicit:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
-      currents pA <- current
+      I_e pA <- current
   end
 
   output: spike

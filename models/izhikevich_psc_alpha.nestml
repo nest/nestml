@@ -60,7 +60,6 @@ neuron izhikevich_psc_alpha:
     b nS = 9. nS               # sensitivity of recovery variable
     c mV = -65 mV              # after-spike reset value of V_m
     d pA = 60. pA              # after-spike reset value of U_m
-    I_e pA = 0. pA             # Constant input current. (R=1)
     V_peak mV = 0. mV          # Spike detection threashold (reset condition)
     tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse
@@ -74,7 +73,7 @@ neuron izhikevich_psc_alpha:
   input:
     spikesInh pA <- inhibitory spike
     spikesExc pA <- excitatory spike
-    currents pA <- current
+    I_e pA <- current
   end
 
   output: spike
@@ -166,7 +165,6 @@ neuron izhikevich_psc_alpha_implicit:
     b nS = 9. nS               # sensitivity of recovery variable
     c mV = -65 mV              # after-spike reset value of V_m
     d pA = 60. pA              # after-spike reset value of U_m
-    I_e pA = 0. pA             # Constant input current. (R=1)
     V_peak mV = 0. mV          # Spike detection threshold (reset condition)
     tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse
@@ -180,7 +178,7 @@ neuron izhikevich_psc_alpha_implicit:
   input:
     spikesInh pA <- inhibitory spike
     spikesExc pA <- excitatory spike
-    currents pA <- current
+    I_e pA <- current
   end
 
   output: spike

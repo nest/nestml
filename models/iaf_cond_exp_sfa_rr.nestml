@@ -61,7 +61,7 @@ neuron iaf_cond_exp_sfa_rr:
     function I_sfa pA = g_sfa * ( V_m - E_sfa )
     function I_rr pA = g_rr * ( V_m - E_rr )
 
-    V_m' = ( -I_L + currents + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -81,7 +81,6 @@ neuron iaf_cond_exp_sfa_rr:
     tau_rr ms = 1.97 ms     # Time constant of the relative refractory mechanism.
     E_sfa mV = -70.0 mV     # spike-frequency adaptation conductance reversal potential
     E_rr mV = -70.0 mV      # relative refractory mechanism conductance reversal potential
-    I_e pA = 0 pA           # Constant Current
   end
 
   internals:
@@ -91,7 +90,7 @@ neuron iaf_cond_exp_sfa_rr:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
-      currents pA <- current
+      I_e pA <- current
   end
 
   output: spike
@@ -178,7 +177,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     function I_sfa pA = g_sfa * ( V_m - E_sfa )
     function I_rr pA = g_rr * ( V_m - E_rr )
 
-    V_m' = ( -I_L + currents + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -198,7 +197,6 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     tau_rr ms = 1.97 ms     # Time constant of the relative refractory mechanism.
     E_sfa mV = -70.0 mV     # spike-frequency adaptation conductance reversal potential
     E_rr mV = -70.0 mV      # relative refractory mechanism conductance reversal potential
-    I_e pA = 0 pA           # Constant Current
   end
 
   internals:
@@ -208,7 +206,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
-      currents pA <- current
+      I_e pA <- current
   end
 
   output: spike
