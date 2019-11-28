@@ -1160,23 +1160,25 @@ class ASTVisitor(object):
         return
 
     def traverse_expression(self, node):
+        #print("ast_visitor.py::traverse_expression: node = " + str(node))
+        #if str(node) == "convolve(I_shape_in,in_spikes) + convolve(I_shape_ex,ex_spikes) + I_e + currents":
+        #  import pdb;pdb.set_trace()
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
         if node.get_unary_operator() is not None:
             node.get_unary_operator().accept(self.get_real_self())
+        if node.get_binary_operator() is not None:
+            node.get_binary_operator().accept(self.get_real_self())
         if node.get_lhs() is not None:
             node.get_lhs().accept(self.get_real_self())
         if node.get_rhs() is not None:
             node.get_rhs().accept(self.get_real_self())
-        if node.get_binary_operator() is not None:
-            node.get_binary_operator().accept(self.get_real_self())
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
         if node.get_if_true() is not None:
             node.get_if_true().accept(self.get_real_self())
         if node.get_if_not() is not None:
             node.get_if_not().accept(self.get_real_self())
-        return
 
     def traverse_for_stmt(self, node):
         if node.get_start_from() is not None:
@@ -1256,6 +1258,8 @@ class ASTVisitor(object):
         return
 
     def traverse_ode_function(self, node):
+        #print("traverse_ode_function: node = " + str(node))
+        #import pdb;pdb.set_trace()
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
@@ -1283,6 +1287,7 @@ class ASTVisitor(object):
         return
 
     def traverse_simple_expression(self, node):
+        #print("traverse_simple_expression: node = " + str(node))
         if node.get_function_call() is not None:
             node.get_function_call().accept(self.get_real_self())
         if node.get_variable() is not None:

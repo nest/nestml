@@ -347,12 +347,15 @@ void {{neuronName}}::handle(nest::SpikeEvent &e){
 void {{neuronName}}::handle(nest::CurrentEvent& e){
   assert(e.get_delay_steps() > 0);
 
-  const double current=e.get_current();
-  const double weight=e.get_weight();
+  const double current = e.get_current();		// we assume that in NEST, this returns a current in pA
+  const double weight = e.get_weight();
 
-  // add weighted current; HEP 2002-10-04
   {%- for buffer in neuron.get_current_buffers() %}
   get_{{buffer.get_symbol_name()}}().add_value(
+      {%- set conversion_factor = UnitTypeSymbol.get_conversion_factor(PredefinedUnits.get_unit("pA").unit, buffer.get_type_symbol().unit.unit) %}
+      {%- if not conversion_factor == 1 %}
+               {{ UnitTypeSymbol.get_conversion_factor(PredefinedUnits.get_unit("pA").unit, buffer.get_type_symbol().unit.unit) }} *  // convert  {{ buffer.get_type_symbol().unit.unit }} to {{ PredefinedUnits.get_unit("pA").unit }}
+      {%- endif %}
                e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                weight * current );
   {% endfor %}

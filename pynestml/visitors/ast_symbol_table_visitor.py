@@ -529,23 +529,29 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input line.
         :type node: ast_input_line
         """
-        if node.is_spike() and node.has_datatype():
-            node.get_datatype().update_scope(node.get_scope())
-        elif node.is_spike():
+        if not node.has_datatype():
+            #node.get_datatype().update_scope(node.get_scope())
+       # elif node.is_spike():
             code, message = Messages.get_buffer_type_not_defined(node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.WARNING)
+                               log_level=LoggingLevel.ERROR)
+        else:
+            node.get_datatype().update_scope(node.get_scope())
+
         for inputType in node.get_input_types():
             inputType.update_scope(node.get_scope())
 
     def endvisit_input_line(self, node):
         buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
-        if node.is_spike() and node.has_datatype():
-            type_symbol = node.get_datatype().get_type_symbol()
-        elif node.is_spike():
-            type_symbol = PredefinedTypes.get_type('nS')
-        else:
-            type_symbol = PredefinedTypes.get_type('pA')
+        if not node.has_datatype():
+            return
+        type_symbol = node.get_datatype().get_type_symbol()
+        #if node.is_spike() and node.has_datatype():
+        #    type_symbol = node.get_datatype().get_type_symbol()
+        #elif node.is_spike():
+        #    type_symbol = PredefinedTypes.get_type('nS')
+        #else:
+        #    type_symbol = PredefinedTypes.get_type('pA')
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=buffer_type, vector_parameter=node.get_index_parameter(),

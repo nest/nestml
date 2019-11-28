@@ -48,14 +48,14 @@ class ASTInputLine(ASTNode):
         signal_type = None
     """
 
-    def __init__(self, name=None, size_parameter=None, data_type=None, input_types=list(), signal_type=None,
+    def __init__(self, name=None, size_parameter=None, data_type=None, input_types=None, signal_type=None,
                  source_position=None):
         """
         Standard constructor.
         :param name: the name of the buffer
         :type name: str
         :param size_parameter: a parameter indicating the index in an array.
-        :type size_parameter:  str
+        :type size_parameter: str
         :param data_type: the data type of this buffer
         :type data_type: ASTDataType
         :param input_types: a list of input types specifying the buffer.
@@ -65,18 +65,19 @@ class ASTInputLine(ASTNode):
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        assert (name is not None and isinstance(name, str)), \
+        print("XXXXXXXXXXX INIT WITH TYPE = " + str(data_type))
+        assert name is not None and isinstance(name, str), \
             '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(name)
-        assert (signal_type is not None and isinstance(signal_type, ASTSignalType)), \
+        assert signal_type is not None and isinstance(signal_type, ASTSignalType), \
             '(PyNestML.AST.InputLine) No or wrong type of input signal type provided (%s)!' % type(signal_type)
-        assert (input_types is not None and isinstance(input_types, list)), \
+        assert input_types is not None and isinstance(input_types, list), \
             '(PyNestML.AST.InputLine) No or wrong type of input types provided (%s)!' % type(input_types)
         for typ in input_types:
-            assert (typ is not None and isinstance(typ, ASTInputType)), \
+            assert typ is not None and isinstance(typ, ASTInputType), \
                 '(PyNestML.AST.InputLine) No or wrong type of input type provided (%s)!' % type(typ)
-        assert (size_parameter is None or isinstance(size_parameter, str)), \
+        assert size_parameter is None or isinstance(size_parameter, str), \
             '(PyNestML.AST.InputLine) Wrong type of index parameter provided (%s)!' % type(size_parameter)
-        assert (data_type is None or isinstance(data_type, ASTDataType)), \
+        assert data_type is None or isinstance(data_type, ASTDataType), \
             '(PyNestML.AST.InputLine) Wrong type of data-type provided (%s)!' % type(data_type)
         super(ASTInputLine, self).__init__(source_position)
         self.signal_type = signal_type
@@ -151,8 +152,8 @@ class ASTInputLine(ASTNode):
         """
         if self.get_input_types() is not None and len(self.get_input_types()) == 0:
             return True
-        for typE in self.get_input_types():
-            if typE.is_excitatory:
+        for in_type in self.get_input_types():
+            if in_type.is_excitatory:
                 return True
         return False
 
@@ -165,8 +166,8 @@ class ASTInputLine(ASTNode):
         """
         if self.get_input_types() is not None and len(self.get_input_types()) == 0:
             return True
-        for typE in self.get_input_types():
-            if typE.is_inhibitory:
+        for in_type in self.get_input_types():
+            if in_type.is_inhibitory:
                 return True
         return False
 

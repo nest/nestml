@@ -1,5 +1,5 @@
 #
-# co_co_current_buffers_not_specified.py
+# co_co_odes_have_consistent_units.py
 #
 # This file is part of NEST.
 #
@@ -21,19 +21,12 @@ from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.symbols.symbol import SymbolKind
+from astropy import units
 
-
-class CoCoCurrentBuffersNotSpecified(CoCo):
+class CoCoOdeFunctionsHaveConsistentUnits(CoCo):
     """
-    This coco ensures that current buffers are not specified with a keyword.
-    Allowed:
-        input:
-            current <- current
-        end
-    Not allowed:
-        input:
-            current <- inhibitory current
-        end     
+    This coco ensures that whenever an ODE function is defined, the physical unit of the left-hand side variable matches that of the right-hand side expression.
     """
 
     @classmethod
@@ -43,17 +36,19 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(CurrentTypeSpecifiedVisitor())
+        node.accept(OdeFunctionConsistentUnitsVisitor())
 
 
-class CurrentTypeSpecifiedVisitor(ASTVisitor):
-    """
-    This visitor ensures that current buffers are not qualified with an `inputType`, e.g. excitatory, inhibitory.
-    """
+class OdeFunctionConsistentUnitsVisitor(ASTVisitor):
 
-    def visit_input_line(self, node):
-        if node.is_current() and node.has_input_types() and len(node.get_input_types()) > 0:
-            code, message = Messages.get_current_buffer_specified(node.get_name(),
-                                                                  list((str(buf) for buf in node.get_input_types())))
-            Logger.log_message(error_position=node.get_source_position(),
-                               code=code, message=message, log_level=LoggingLevel.ERROR)
+    def visit_ode_function(self, node):
+        """
+        Checks the coco.
+        :param node: A single ode equation.
+        :type node: ast_ode_equation
+        """
+        declared_type = node.get_data_type().type_symbol
+        expression_type = node.get_expression().type
+        if not expression_type.is_castable_to(declared_type):
+            code, message = Messages.get_ode_function_needs_consistent_units(node.get_variable_name(), declared_type, expression_type)
+            Logger.log_message(error_position=node.get_source_position(), code=code, message=message, log_level=LoggingLevel.ERROR)

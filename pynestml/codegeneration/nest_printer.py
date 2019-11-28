@@ -56,6 +56,7 @@ class NestPrinter(object):
         :return: the corresponding string representation
         :rtype: str
         """
+        print("print_expression: printing node " + str(node))
         return self.expression_pretty_printer.print_expression(node)
 
     def print_method_call(self, node):

@@ -61,6 +61,7 @@ class ExpressionsPrettyPrinter(object):
         s : str
             The expression string.
         """
+        print("expressions_pretty_printer: printing " + str(node))
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
         else:
@@ -69,6 +70,10 @@ class ExpressionsPrettyPrinter(object):
     def __do_print(self, node, prefix=''):
         # type: (ASTExpressionNode) -> str
         if isinstance(node, ASTSimpleExpression):
+            print("Printing node " + str(node) + ", numeric_literal = " + str(node.get_numeric_literal()))
+            if str(node) in [ "currents", "I_e"]:
+                print("\t--->" + str(self.reference_converter.convert_name_reference(node.get_variable())))
+                #import pdb;pdb.set_trace()
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \

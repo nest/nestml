@@ -20,7 +20,7 @@
 
 
 from pynestml.meta_model.ast_node import ASTNode
-
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 
 class ASTOdeFunction(ASTNode):
     """

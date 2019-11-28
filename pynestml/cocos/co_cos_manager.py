@@ -37,6 +37,7 @@ from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpac
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
+from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_only_spike_buffer_data_types import CoCoOnlySpikeBufferDataTypes
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
@@ -196,6 +197,15 @@ class CoCosManager(object):
         CoCoOdesHaveConsistentUnits.check_co_co(neuron)
 
     @classmethod
+    def check_ode_functions_have_consistent_units(cls, neuron):
+        """
+        Checks that all ODE function lhs and rhs have consistent units.
+        :param neuron: a single neuron object.
+        :type neuron: ast_neuron
+        """
+        CoCoOdeFunctionsHaveConsistentUnits.check_co_co(neuron)
+
+    @classmethod
     def check_buffer_types_are_correct(cls, neuron):
         """
         Checks that input buffers have specified the data type if required an no data type if not allowed.
@@ -308,6 +318,7 @@ class CoCosManager(object):
             cls.check_no_values_assigned_to_buffers(_neuron)
             cls.check_order_of_equations_correct(_neuron)
             cls.check_odes_have_consistent_units(_neuron)
+            cls.check_ode_functions_have_consistent_units(_neuron)
             cls.check_numerator_of_unit_is_one_if_numeric(_neuron)
             cls.check_no_nest_namespace_collisions(_neuron)
             cls.check_type_of_buffer_unique(_neuron)
@@ -343,6 +354,7 @@ class CoCosManager(object):
         cls.check_convolve_cond_curr_is_correct(neuron)
         if not after_ast_rewrite:
             cls.check_odes_have_consistent_units(neuron)        # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
+            cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
             cls.check_correct_usage_of_shapes(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)

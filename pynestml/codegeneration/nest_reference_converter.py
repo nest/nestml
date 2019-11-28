@@ -33,6 +33,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -160,6 +161,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a nest processable format.
         :rtype: str
         """
+        print("In nest_reference_converter: converting var " + str(variable))
         from pynestml.codegeneration.nest_printer import NestPrinter
         assert (variable is not None and isinstance(variable, ASTVariable)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
@@ -184,6 +186,8 @@ class NESTReferenceConverter(IReferenceConverter):
             return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_buffer():
+            # buffer type has already been converted to target platform units when an incoming spike is pushed to the buffer; see NeuronClass.jinja2
+            #conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
             return NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol) \
                    + ('[i]' if symbol.has_vector_parameter() else '')
 

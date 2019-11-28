@@ -70,6 +70,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         :param _node: a meta_model node.
         :type _node: AST_
         """
+        print("handle(): _node = " + str(_node))
         self.traverse(_node)
         self.get_real_self().visit(_node)
         self.get_real_self().endvisit(_node)
@@ -80,6 +81,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         :param node: a single node.
         :type node: ASTSimpleExpression
         """
+        print("ast_expression_type_visitor - traverse_simple_expression: node = " + str(node))
         assert (node is not None and isinstance(node, ASTSimpleExpression)), \
             '(PyNestML.ASTExpressionTypeVisitor) No or wrong type of simple-expression provided (%s)!' % type(node)
         # handle all simpleExpressions
@@ -109,6 +111,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             if node.is_string():
                 self.set_real_self(self.string_literal_visitor)
                 return
+            assert False
 
         return
 
@@ -118,6 +121,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
         :param _node: a single meta_model node
         :type _node: ASTExpression
         """
+        print("ast_expression_type_visitor - traverse_expression: node = " + str(_node))
         assert (_node is not None and isinstance(_node, ASTExpression)), \
             '(PyNestML.ASTExpressionTypeVisitor) No or wrong type of expression provided (%s)!' % type(_node)
         # Expr = unaryOperator term=expression
@@ -183,3 +187,5 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             _node.get_if_not().accept(self)
             self.set_real_self(self.condition_visitor)
             return
+
+        assert False

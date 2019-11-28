@@ -25,15 +25,15 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoOnlySpikeBufferDataTypes(CoCo):
     """
-    This coco ensures that all spike buffers have a data type and all current buffers no data type stated.
+    This coco ensures that all spike and current buffers have a data type stated.
     Allowed:
         input:
-            spikeIn integer <- inhibitory spike
+            spikeIn pA <- inhibitory spike
         end
-        
+
     Not allowed:
         input:
-            current integer <- current
+            current <- current
         end
     """
 
@@ -58,13 +58,7 @@ class BufferDatatypeVisitor(ASTVisitor):
         :param node: a single input line node.
         :type node: ast_input_line
         """
-        if node.is_spike() and not node.has_datatype():
+        if not node.has_datatype():
             code, message = Messages.get_data_type_not_specified(node.get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                code=code, message=message)
-        if node.is_current() and node.has_datatype():
-            code, message = Messages.get_not_type_allowed(node.get_name())
-            Logger.log_message(error_position=str(node.get_source_position()),
-                               code=code, message=message,
-                               log_level=LoggingLevel.ERROR)
-        return
