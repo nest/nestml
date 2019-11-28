@@ -1160,9 +1160,6 @@ class ASTVisitor(object):
         return
 
     def traverse_expression(self, node):
-        #print("ast_visitor.py::traverse_expression: node = " + str(node))
-        #if str(node) == "convolve(I_shape_in,in_spikes) + convolve(I_shape_ex,ex_spikes) + I_e + currents":
-        #  import pdb;pdb.set_trace()
         if node.get_expression() is not None:
             node.get_expression().accept(self.get_real_self())
         if node.get_unary_operator() is not None:
@@ -1258,8 +1255,6 @@ class ASTVisitor(object):
         return
 
     def traverse_ode_function(self, node):
-        #print("traverse_ode_function: node = " + str(node))
-        #import pdb;pdb.set_trace()
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
@@ -1287,7 +1282,6 @@ class ASTVisitor(object):
         return
 
     def traverse_simple_expression(self, node):
-        #print("traverse_simple_expression: node = " + str(node))
         if node.get_function_call() is not None:
             node.get_function_call().accept(self.get_real_self())
         if node.get_variable() is not None:

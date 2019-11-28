@@ -161,7 +161,6 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a nest processable format.
         :rtype: str
         """
-        print("In nest_reference_converter: converting var " + str(variable))
         from pynestml.codegeneration.nest_printer import NestPrinter
         assert (variable is not None and isinstance(variable, ASTVariable)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(

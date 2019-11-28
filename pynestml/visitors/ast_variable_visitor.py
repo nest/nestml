@@ -45,7 +45,6 @@ class ASTVariableVisitor(ASTVisitor):
         assert (node.get_scope() is not None), \
             '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
 
-        print("visit_simple_expression: node = " + str(node))
         scope = node.get_scope()
         var_name = node.get_variable().get_name()
         var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)

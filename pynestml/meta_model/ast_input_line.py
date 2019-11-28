@@ -65,7 +65,6 @@ class ASTInputLine(ASTNode):
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        print("XXXXXXXXXXX INIT WITH TYPE = " + str(data_type))
         assert name is not None and isinstance(name, str), \
             '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(name)
         assert signal_type is not None and isinstance(signal_type, ASTSignalType), \

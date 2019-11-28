@@ -19,14 +19,14 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_node import ASTNode
 
 class ASTOdeFunction(ASTNode):
     """
-    Stores a single declaration of a ode function, e.g., 
-        function v_init mV = V_m - 50mV.
-    Grammar:    
+    Stores a single declaration of a ode function, e.g.,
+        function v_init mV = V_m - 50 mV
+    Grammar:
         odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' rhs;
     Attributes:
         is_recordable = False
