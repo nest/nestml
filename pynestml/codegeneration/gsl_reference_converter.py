@@ -28,6 +28,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 
 
@@ -73,7 +74,19 @@ class GSLReferenceConverter(IReferenceConverter):
             return GSLNamesConverter.name(symbol)
 
         if symbol.is_buffer():
-            return 'node.B_.' + NestNamesConverter.buffer_value(symbol)
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += 'node.B_.' + NestNamesConverter.buffer_value(symbol)
+            if symbol.has_vector_parameter():
+                s += '[i]'
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
 
         if symbol.is_local() or symbol.is_function:
             return variable_name

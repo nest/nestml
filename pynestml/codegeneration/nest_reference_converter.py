@@ -186,10 +186,19 @@ class NESTReferenceConverter(IReferenceConverter):
             return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_buffer():
-            # buffer type has already been converted to target platform units when an incoming spike is pushed to the buffer; see NeuronClass.jinja2
-            #conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
-            return NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol) \
-                   + ('[i]' if symbol.has_vector_parameter() else '')
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol)
+            if symbol.has_vector_parameter():
+                s += '[i]'
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
 
         if symbol.is_function:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')

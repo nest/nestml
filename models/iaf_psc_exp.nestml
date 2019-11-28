@@ -102,7 +102,7 @@ neuron iaf_psc_exp:
     function V_reset mV = -70 mV - E_L # reset value of the membrane potential
     function Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
                                    # I.e. the real threshold is (E_L_+V_th_)
-    I_e     nA = 42 nA     # External current.
+    I_e pA = 0 pA     # External current.
   end
 
   internals:
@@ -112,7 +112,7 @@ neuron iaf_psc_exp:
   input:
     ex_spikes pA <- excitatory spike
     in_spikes pA <- inhibitory spike
-    currents real <- current
+    currents pA <- current
   end
 
   output: spike
