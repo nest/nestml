@@ -99,7 +99,7 @@ neuron aeif_cond_alpha:
   input:
     spikesInh nS  <- inhibitory spike
     spikesExc nS  <- excitatory spike
-    currents <- current
+    currents pA <- current
   end
 
   output: spike
@@ -218,7 +218,7 @@ neuron aeif_cond_alpha_implicit:
   input:
     spikesInh nS  <- inhibitory spike
     spikesExc nS  <- excitatory spike
-    currents <- current
+    currents pA <- current
   end
 
   output: spike

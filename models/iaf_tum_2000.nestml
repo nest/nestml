@@ -148,7 +148,7 @@ neuron iaf_tum_2000:
   input:
     ex_spikes nS <- excitatory spike
     in_spikes nS <- inhibitory spike
-    currents    <- current
+    currents pA <- current
   end
 
   output: spike

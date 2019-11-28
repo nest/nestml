@@ -62,7 +62,7 @@ neuron izhikevich:
 
   input:
     spikes mV <- spike
-    currents <- current
+    currents pA <- current
   end
 
   output: spike

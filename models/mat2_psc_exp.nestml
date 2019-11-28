@@ -109,7 +109,7 @@ neuron mat2_psc_exp:
   input:
     ex_spikes nS <- excitatory spike
     in_spikes nS <- inhibitory spike
-    currents    <- current
+    currents pA <- current
   end
 
   output: spike

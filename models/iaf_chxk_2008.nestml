@@ -76,7 +76,7 @@ neuron iaf_chxk_2008:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike
@@ -197,7 +197,7 @@ neuron iaf_chxk_2008_implicit:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike

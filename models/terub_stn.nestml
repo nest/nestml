@@ -163,7 +163,7 @@ neuron terub_stn:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike
@@ -356,7 +356,7 @@ neuron terub_stn_implicit:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike

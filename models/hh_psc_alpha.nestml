@@ -113,7 +113,7 @@ neuron hh_psc_alpha:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike
@@ -256,7 +256,7 @@ neuron hh_psc_alpha_implicit:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike

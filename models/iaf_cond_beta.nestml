@@ -79,7 +79,7 @@ neuron iaf_cond_beta:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike

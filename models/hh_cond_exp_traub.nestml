@@ -105,7 +105,7 @@ neuron hh_cond_exp_traub:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike
@@ -235,7 +235,7 @@ neuron hh_cond_exp_traub_implicit:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
-      currents <- current
+      currents pA <- current
   end
 
   output: spike
