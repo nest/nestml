@@ -222,7 +222,6 @@ neuron hh_cond_exp_traub_implicit:
                               # parameters, V_T = -63 mV results in a threshold around -50 mV.
     tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
   end

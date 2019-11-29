@@ -59,7 +59,6 @@ neuron aeif_cond_alpha:
     V_reset mV = -60.0 mV     # Reset Potential
     g_L nS = 30.0 nS          # Leak Conductance
     E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
-    I_e pA = 0 pA             # Constant Current
 
     # spike adaptation parameters
     a nS = 4 nS               # Subthreshold adaptation
@@ -188,7 +187,6 @@ neuron aeif_cond_alpha_implicit:
     V_reset mV = -60.0 mV     # Reset Potential
     g_L nS = 30.0 nS          # Leak Conductance
     E_L mV = -70.6 mV         # Leak reversal Potential (aka resting potential)
-    I_e pA = 0 pA             # Constant Current
 
     # spike adaptation parameters
     a nS = 4 nS               # Subthreshold adaptation
