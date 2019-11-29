@@ -29,7 +29,7 @@ neuron CoCoConvolveNotCorrectlyProvided:
 
     equations:
         shape test = 10
-        function testB pA = convolve(test, spikeExc) # convolve provided with a shape and a buffer, thus correct
+        function testB real = convolve(test, spikeExc) # convolve provided with a shape and a buffer, thus correct
     end
 
     update:

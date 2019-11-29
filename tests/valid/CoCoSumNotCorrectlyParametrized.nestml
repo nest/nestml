@@ -28,12 +28,12 @@
 neuron CoCoSumNotCorrectlyParametrized:
 
     initial_values:
-        V_m mV = 10mV
+        G real = 1.
     end
 
     equations:
-        shape V_m' = 20mV
-        function testB pA = convolve(V_m, spikeExc) # convolve aka. sum is now correctly parametrized
+        shape G' = -G
+        function testB pA = convolve(G, spikeExc) # convolve aka. sum is now correctly parametrized
     end
 
     update:
@@ -41,7 +41,7 @@ neuron CoCoSumNotCorrectlyParametrized:
     end
 
     input:
-        spikeExc integer  <- excitatory spike
+        spikeExc pA <- excitatory spike
     end
 
     output: spike

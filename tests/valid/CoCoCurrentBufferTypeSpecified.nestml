@@ -31,7 +31,7 @@ neuron CoCoCurrentBufferTypeSpecified:
     end
 
     input:
-        currents <- current # current buffer not specified with any type or keywords, thus correct
+        currents pA <- current # current buffer not specified with any keywords, thus correct
     end
 
     output: spike
