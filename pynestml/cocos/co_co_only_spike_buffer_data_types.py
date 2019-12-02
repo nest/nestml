@@ -28,11 +28,13 @@ class CoCoOnlySpikeBufferDataTypes(CoCo):
     This coco ensures that all spike and current buffers have a data type stated.
     Allowed:
         input:
-            spikeIn pA <- inhibitory spike
+            spikeIn integer <- inhibitory spike
+            current pA <- current
         end
 
     Not allowed:
         input:
+            spikeIn <- inhibitory spike
             current <- current
         end
     """
