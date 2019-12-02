@@ -69,6 +69,8 @@ class ASTInputLine(ASTNode):
             '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(name)
         assert signal_type is not None and isinstance(signal_type, ASTSignalType), \
             '(PyNestML.AST.InputLine) No or wrong type of input signal type provided (%s)!' % type(signal_type)
+        if input_types is None:
+            input_types = []
         assert input_types is not None and isinstance(input_types, list), \
             '(PyNestML.AST.InputLine) No or wrong type of input types provided (%s)!' % type(input_types)
         for typ in input_types:
