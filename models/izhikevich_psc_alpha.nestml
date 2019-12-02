@@ -47,13 +47,13 @@ neuron izhikevich_psc_alpha:
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
 
-    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_inj + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
   end
 
   parameters:
     C_m pF = 200. pF           # Membrane capacitance
-    k pF/mV/ms = 8. pF/mV/ms # Spiking slope
+    k pF/mV/ms = 8. pF/mV/ms   # Spiking slope
     V_r mV = -65. mV           # resting potential
     V_t mV = -45. mV           # threshold potential
     a 1/ms = 0.01 /ms          # describes time scale of recovery variable
@@ -63,7 +63,10 @@ neuron izhikevich_psc_alpha:
     V_peak mV = 0. mV          # Spike detection threashold (reset condition)
     tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse
-    t_ref ms = 2.0 ms      # Refractory period
+    t_ref ms = 2.0 ms          # Refractory period
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -73,7 +76,7 @@ neuron izhikevich_psc_alpha:
   input:
     spikesInh pA <- inhibitory spike
     spikesExc pA <- excitatory spike
-    I_e pA <- current
+    I_inj pA <- current
   end
 
   output: spike
@@ -152,7 +155,7 @@ neuron izhikevich_psc_alpha_implicit:
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
 
-    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_inj + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
   end
 
@@ -169,6 +172,9 @@ neuron izhikevich_psc_alpha_implicit:
     tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse
     t_ref ms = 2.0 ms          # Refractory period
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -178,7 +184,7 @@ neuron izhikevich_psc_alpha_implicit:
   input:
     spikesInh pA <- inhibitory spike
     spikesExc pA <- excitatory spike
-    I_e pA <- current
+    I_inj pA <- current
   end
 
   output: spike

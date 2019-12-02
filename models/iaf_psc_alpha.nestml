@@ -86,7 +86,7 @@ neuron iaf_psc_alpha:
   equations:
     shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
-    function I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e
+    function I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_inj
     V_abs' = -1/Tau * V_abs + 1/C_m * I
   end
 
@@ -99,6 +99,9 @@ neuron iaf_psc_alpha:
     E_L     mV = -70 mV   # Resting potential.
     function V_reset mV = -70 mV - E_L # Reset potential of the membrane.
     function Theta   mV = -55 mV - E_L # Spike threshold.
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -108,7 +111,7 @@ neuron iaf_psc_alpha:
   input:
     ex_spikes pA  <- excitatory spike
     in_spikes pA  <- inhibitory spike
-    I_e pA <- current
+    I_inj pA <- current
   end
 
   output: spike

@@ -27,7 +27,7 @@ modifications were mare:
  This is an approximation to the NMDA model used in [2].
 
 - Several apparent typographical errors in the descriptions of
-	 the intrinsic currents were fixed, hopefully in a meaningful
+ the intrinsic currents were fixed, hopefully in a meaningful
  way.
 
 I'd like to thank Sean Hill for giving me access to his
@@ -97,7 +97,7 @@ neuron hill_tononi:
     # The spike current is only activate immediately after a spike.
     function I_spike pA = (g_spike) ? -( V_m - E_K ) / Tau_spike / mV * ms * pA : 0 pA
 
-    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e ) / Tau_m + I_spike / (ms * mV) ) * s/nF
+    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_inj ) / Tau_m + I_spike / (ms * mV) ) * s/nF
 
     #############
     # Intrinsic currents
@@ -185,6 +185,9 @@ neuron hill_tononi:
     h_g_peak nS = 1.0 nS         # peak conductance for intrinsic current
     h_E_rev mV = -40.0 mV        # reversal potential for intrinsic current
     KNa_D_EQ pA = 0.001 pA
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -201,7 +204,7 @@ neuron hill_tononi:
       NMDA nS  <- spike
       GABA_A nS <- spike
       GABA_B nS <- spike
-      I_e pA <- current
+      I_inj pA <- current
   end
 
   output: spike
