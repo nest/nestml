@@ -97,7 +97,7 @@ neuron hill_tononi:
     # The spike current is only activate immediately after a spike.
     function I_spike pA = (g_spike) ? -( V_m - E_K ) / Tau_spike / mV * ms * pA : 0 pA
 
-    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_inj ) / Tau_m + I_spike / (ms * mV) ) * s/nF
+    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim ) / Tau_m + I_spike / (ms * mV) ) * s/nF
 
     #############
     # Intrinsic currents
@@ -204,7 +204,7 @@ neuron hill_tononi:
       NMDA nS  <- spike
       GABA_A nS <- spike
       GABA_B nS <- spike
-      I_inj pA <- current
+      I_stim pA <- current
   end
 
   output: spike

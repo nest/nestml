@@ -47,7 +47,7 @@ neuron izhikevich:
   end
 
   equations:
-    V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (I_e + I_inj) * GOhm ) ) / ms
+    V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (I_e + I_stim) * GOhm ) ) / ms
     U_m' = a*(b*V_m-U_m * mV) / (mV*ms)
   end
 
@@ -64,7 +64,7 @@ neuron izhikevich:
 
   input:
     spikes mV <- spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike

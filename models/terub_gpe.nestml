@@ -117,7 +117,7 @@ neuron terub_gpe:
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_inj + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -156,7 +156,7 @@ neuron terub_gpe:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike
@@ -302,7 +302,7 @@ neuron terub_gpe_implicit:
     shape g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_inj + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -341,7 +341,7 @@ neuron terub_gpe_implicit:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike

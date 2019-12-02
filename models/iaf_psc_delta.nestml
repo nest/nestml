@@ -80,7 +80,7 @@ neuron iaf_psc_delta:
 
   equations:
     shape G = delta(t, tau_m)
-    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, spikes) + I_e + I_inj)
+    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
   end
 
   parameters:
@@ -105,7 +105,7 @@ neuron iaf_psc_delta:
 
   input:
     spikes pA <- spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike

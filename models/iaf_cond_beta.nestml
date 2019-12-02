@@ -43,7 +43,7 @@ neuron iaf_cond_beta:
       function I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * ( V_m - E_ex )
       function I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * ( V_m - E_in )
       function I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
-      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_inj ) / C_m
+      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -81,7 +81,7 @@ neuron iaf_cond_beta:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike

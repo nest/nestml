@@ -61,7 +61,7 @@ neuron iaf_cond_exp_sfa_rr:
     function I_sfa pA = g_sfa * ( V_m - E_sfa )
     function I_rr pA = g_rr * ( V_m - E_rr )
 
-    V_m' = ( -I_L + I_e + I_inj - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -93,7 +93,7 @@ neuron iaf_cond_exp_sfa_rr:
   input:
     spikesInh nS <- inhibitory spike
     spikesExc nS <- excitatory spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike
@@ -180,7 +180,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     function I_sfa pA = g_sfa * ( V_m - E_sfa )
     function I_rr pA = g_rr * ( V_m - E_rr )
 
-    V_m' = ( -I_L + I_e + I_inj - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -212,7 +212,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
   input:
     spikesInh nS <- inhibitory spike
     spikesExc nS <- excitatory spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike

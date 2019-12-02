@@ -96,7 +96,7 @@ neuron iaf_tum_2000:
   equations:
     shape I_shape_in = exp(-1/tau_syn_in*t)
     shape I_shape_ex = exp(-1/tau_syn_ex*t)
-    function I_syn pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_inj
+    function I_syn pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_stim
     V_m' = -V_m / tau_m + I_syn / C_m
   end
 
@@ -143,7 +143,7 @@ neuron iaf_tum_2000:
   input:
     ex_spikes pA <- excitatory spike
     in_spikes pA <- inhibitory spike
-    I_inj pA <- current
+    I_stim pA <- current
   end
 
   output: spike
