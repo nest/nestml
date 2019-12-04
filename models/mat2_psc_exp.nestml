@@ -79,8 +79,8 @@ neuron mat2_psc_exp:
 
     # V_th_alpha_1' = -V_th_alpha_1/tau_1
     # V_th_alpha_2' = -V_th_alpha_2/tau_2
-    function I_syn pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_stim
-    V_abs' = -1/tau_m * V_abs + 1/C_m * I_syn
+    function I_syn pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes)
+    V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
   end
 
   parameters:
