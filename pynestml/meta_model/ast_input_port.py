@@ -71,10 +71,10 @@ class ASTInputPort(ASTNode):
         if input_qualifiers is None:
             input_qualifiers = []
         assert input_qualifiers is not None and isinstance(input_qualifiers, list), \
-            '(PyNestML.AST.InputPort) No or wrong type of input types provided (%s)!' % type(input_qualifiers)
-        for typ in input_qualifiers:
-            assert typ is not None and isinstance(typ, ASTInputQualifier), \
-                '(PyNestML.AST.InputPort) No or wrong type of input type provided (%s)!' % type(typ)
+            '(PyNestML.AST.InputPort) No or wrong type of input qualifiers provided (%s)!' % type(input_qualifiers)
+        for qual in input_qualifiers:
+            assert qual is not None and isinstance(qual, ASTInputQualifier), \
+                '(PyNestML.AST.InputPort) No or wrong type of input qualifier provided (%s)!' % type(qual)
         assert size_parameter is None or isinstance(size_parameter, str), \
             '(PyNestML.AST.InputPort) Wrong type of index parameter provided (%s)!' % type(size_parameter)
         assert data_type is None or isinstance(data_type, ASTDataType), \
@@ -113,16 +113,16 @@ class ASTInputPort(ASTNode):
 
     def has_input_qualifiers(self):
         """
-        Returns whether input types have been defined.
-        :return: True, if at least one input type has been defined.
+        Returns whether input qualifiers have been defined.
+        :return: True, if at least one input qualifier has been defined.
         :rtype: bool
         """
         return len(self.input_qualifiers) > 0
 
     def get_input_qualifiers(self):
         """
-        Returns the list of input types.
-        :return: a list of input types.
+        Returns the list of input qualifiers.
+        :return: a list of input qualifiers.
         :rtype: list(ASTInputQualifier)
         """
         return self.input_qualifiers
@@ -200,11 +200,11 @@ class ASTInputPort(ASTNode):
                 return self
             elif self.get_datatype().get_parent(ast) is not None:
                 return self.get_datatype().get_parent(ast)
-        for port in self.get_input_ports():
-            if port is ast:
+        for qual in self.get_input_qualifiers():
+            if qual is ast:
                 return self
-            elif port.get_parent(ast) is not None:
-                return port.get_parent(ast)
+            elif qual.get_parent(ast) is not None:
+                return qual.get_parent(ast)
         return None
 
     def equals(self, other):

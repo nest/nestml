@@ -1225,8 +1225,8 @@ class ASTVisitor(object):
         return
 
     def traverse_input_port(self, node):
-        if node.get_input_qualifier() is not None:
-            for sub_node in node.get_input_qualifier():
+        if node.get_input_qualifiers() is not None:
+            for sub_node in node.get_input_qualifiers():
                 sub_node.accept(self.get_real_self())
         return
 
