@@ -1,5 +1,5 @@
 #
-# ast_input_line.py
+# ast_input_port.py
 #
 # This file is part of NEST.
 #
@@ -17,72 +17,71 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_data_type import ASTDataType
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_signal_type import ASTSignalType
 
 
-class ASTInputLine(ASTNode):
+class ASTInputPort(ASTNode):
     """
-    This class is used to store a declaration of an input line.
-    ASTInputLine represents a single line form the input, e.g.:
-      spikeBuffer   <- inhibitory excitatory spike
+    This class is used to store a declaration of an input port.
+    ASTInputPort represents a single input port, e.g.:
+      spikeBuffer type <- excitatory spike
 
-    @attribute sizeParameter Optional parameter representing  multisynapse neuron.
-    @attribute sizeParameter Type of the inputchannel: e.g. inhibitory or excitatory (or both).
-    @attribute spike true iff the neuron is a spike.
-    @attribute current true iff. the neuron is a current.
+    @attribute name: The name of the input port.
+    @attribute sizeParameter: Optional size parameter for multisynapse neuron.
+    @attribute datatype: Optional data type of the buffer.
+    @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
+    @attribute isSpike: Indicates that this input port accepts spikes.
+    @attribute isCurrent: Indicates that this input port accepts current generator input.
+
     Grammar:
-          inputLine :
+        inputPort:
             name=NAME
-            ('[' sizeParameter=NAME ']')?
-            (datatype)?
-            '<-' inputType*
-            (is_current = 'current' | is_spike = 'spike');
-    Attributes:
-        name = None
-        size_parameter = None
-        data_type = None
-        input_types = None
-        signal_type = None
+            (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
+            (dataType)?
+            LEFT_ANGLE_MINUS inputQualifier*
+            (isCurrent = CURRENT_KEYWORD | isSpike = SPIKE_KEYWORD);
+
     """
 
-    def __init__(self, name=None, size_parameter=None, data_type=None, input_types=None, signal_type=None,
+    def __init__(self, name=None, size_parameter=None, data_type=None, input_qualifiers=None, signal_type=None,
                  source_position=None):
         """
         Standard constructor.
-        :param name: the name of the buffer
+        :param name: the name of the port
         :type name: str
         :param size_parameter: a parameter indicating the index in an array.
         :type size_parameter: str
         :param data_type: the data type of this buffer
         :type data_type: ASTDataType
-        :param input_types: a list of input types specifying the buffer.
-        :type input_types: list(ASTInputType)
+        :param input_qualifiers: a list of input qualifiers for this port.
+        :type input_qualifiers: list(ASTInputQualifier)
         :param signal_type: type of signal received, i.e., spikes or currents
         :type signal_type: SignalType
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
         assert name is not None and isinstance(name, str), \
-            '(PyNestML.AST.InputLine) No or wrong type of name provided (%s)!' % type(name)
+            '(PyNestML.AST.InputPort) No or wrong type of name provided (%s)!' % type(name)
         assert signal_type is not None and isinstance(signal_type, ASTSignalType), \
-            '(PyNestML.AST.InputLine) No or wrong type of input signal type provided (%s)!' % type(signal_type)
-        if input_types is None:
-            input_types = []
-        assert input_types is not None and isinstance(input_types, list), \
-            '(PyNestML.AST.InputLine) No or wrong type of input types provided (%s)!' % type(input_types)
-        for typ in input_types:
-            assert typ is not None and isinstance(typ, ASTInputType), \
-                '(PyNestML.AST.InputLine) No or wrong type of input type provided (%s)!' % type(typ)
+            '(PyNestML.AST.InputPort) No or wrong type of input signal type provided (%s)!' % type(signal_type)
+        if input_qualifiers is None:
+            input_qualifiers = []
+        assert input_qualifiers is not None and isinstance(input_qualifiers, list), \
+            '(PyNestML.AST.InputPort) No or wrong type of input types provided (%s)!' % type(input_qualifiers)
+        for typ in input_qualifiers:
+            assert typ is not None and isinstance(typ, ASTInputQualifier), \
+                '(PyNestML.AST.InputPort) No or wrong type of input type provided (%s)!' % type(typ)
         assert size_parameter is None or isinstance(size_parameter, str), \
-            '(PyNestML.AST.InputLine) Wrong type of index parameter provided (%s)!' % type(size_parameter)
+            '(PyNestML.AST.InputPort) Wrong type of index parameter provided (%s)!' % type(size_parameter)
         assert data_type is None or isinstance(data_type, ASTDataType), \
-            '(PyNestML.AST.InputLine) Wrong type of data-type provided (%s)!' % type(data_type)
-        super(ASTInputLine, self).__init__(source_position)
+            '(PyNestML.AST.InputPort) Wrong type of data-type provided (%s)!' % type(data_type)
+        super(ASTInputPort, self).__init__(source_position)
         self.signal_type = signal_type
-        self.input_types = input_types
+        self.input_qualifiers = input_qualifiers
         self.size_parameter = size_parameter
         self.name = name
         self.data_type = data_type
@@ -112,21 +111,21 @@ class ASTInputLine(ASTNode):
         """
         return self.size_parameter
 
-    def has_input_types(self):
+    def has_input_qualifiers(self):
         """
         Returns whether input types have been defined.
         :return: True, if at least one input type has been defined.
         :rtype: bool
         """
-        return len(self.input_types) > 0
+        return len(self.input_qualifiers) > 0
 
-    def get_input_types(self):
+    def get_input_qualifiers(self):
         """
         Returns the list of input types.
         :return: a list of input types.
-        :rtype: list(ASTInputType)
+        :rtype: list(ASTInputQualifier)
         """
-        return self.input_types
+        return self.input_qualifiers
 
     def is_spike(self):
         """
@@ -151,9 +150,9 @@ class ASTInputLine(ASTNode):
         :return: True if excitatory, False otherwise.
         :rtype: bool
         """
-        if self.get_input_types() is not None and len(self.get_input_types()) == 0:
+        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
             return True
-        for in_type in self.get_input_types():
+        for in_type in self.get_input_qualifiers():
             if in_type.is_excitatory:
                 return True
         return False
@@ -165,9 +164,9 @@ class ASTInputLine(ASTNode):
         :return: True if inhibitory, False otherwise.
         :rtype: bool
         """
-        if self.get_input_types() is not None and len(self.get_input_types()) == 0:
+        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
             return True
-        for in_type in self.get_input_types():
+        for in_type in self.get_input_qualifiers():
             if in_type.is_inhibitory:
                 return True
         return False
@@ -201,11 +200,11 @@ class ASTInputLine(ASTNode):
                 return self
             elif self.get_datatype().get_parent(ast) is not None:
                 return self.get_datatype().get_parent(ast)
-        for line in self.get_input_types():
-            if line is ast:
+        for port in self.get_input_ports():
+            if port is ast:
                 return self
-            elif line.get_parent(ast) is not None:
-                return line.get_parent(ast)
+            elif port.get_parent(ast) is not None:
+                return port.get_parent(ast)
         return None
 
     def equals(self, other):
@@ -216,24 +215,24 @@ class ASTInputLine(ASTNode):
         :return: True if equal,otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTInputLine):
+        if not isinstance(other, ASTInputPort):
             return False
         if self.get_name() != other.get_name():
             return False
         if self.has_index_parameter() + other.has_index_parameter() == 1:
             return False
         if (self.has_index_parameter() and other.has_index_parameter() and
-                self.get_input_types() != other.get_index_parameter()):
+                self.get_input_qualifiers() != other.get_index_parameter()):
             return False
         if self.has_datatype() + other.has_datatype() == 1:
             return False
         if self.has_datatype() and other.has_datatype() and not self.get_datatype().equals(other.get_datatype()):
             return False
-        if len(self.get_input_types()) != len(other.get_input_types()):
+        if len(self.get_input_qualifiers()) != len(other.get_input_qualifiers()):
             return False
-        my_input_types = self.get_input_types()
-        your_input_types = other.get_input_types()
-        for i in range(0, len(my_input_types)):
-            if not my_input_types[i].equals(your_input_types[i]):
+        my_input_qualifiers = self.get_input_qualifiers()
+        your_input_qualifiers = other.get_input_qualifiers()
+        for i in range(0, len(my_input_qualifiers)):
+            if not my_input_qualifiers[i].equals(your_input_qualifiers[i]):
                 return False
         return self.is_spike() == other.is_spike() and self.is_current() == other.is_current()

@@ -1,5 +1,5 @@
 #
-# co_co_only_spike_buffer_data_types.py
+# co_co_buffer_data_type.py
 #
 # This file is part of NEST.
 #
@@ -17,13 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoOnlySpikeBufferDataTypes(CoCo):
+class CoCoBufferDataType(CoCo):
     """
     This coco ensures that all spike and current buffers have a data type stated.
     Allowed:
@@ -54,11 +55,11 @@ class BufferDatatypeVisitor(ASTVisitor):
     This visitor checks if each buffer has a datatype selected according to the coco.
     """
 
-    def visit_input_line(self, node):
+    def visit_input_port(self, node):
         """
         Checks the coco on the current node.
-        :param node: a single input line node.
-        :type node: ast_input_line
+        :param node: a single input port node.
+        :type node: ASTInputPort
         """
         if not node.has_datatype():
             code, message = Messages.get_data_type_not_specified(node.get_name())

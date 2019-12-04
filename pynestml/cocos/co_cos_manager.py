@@ -38,11 +38,11 @@ from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExcept
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
-from pynestml.cocos.co_co_only_spike_buffer_data_types import CoCoOnlySpikeBufferDataTypes
+from pynestml.cocos.co_co_buffer_data_type import CoCoBufferDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
-from pynestml.cocos.co_co_type_of_buffer_unique import CoCoTypeOfBufferUnique
+from pynestml.cocos.co_co_buffer_qualifier_unique import CoCoBufferQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
@@ -161,13 +161,13 @@ class CoCosManager(object):
         CoCoNoNestNameSpaceCollision.check_co_co(neuron)
 
     @classmethod
-    def check_type_of_buffer_unique(cls, neuron):
+    def check_buffer_qualifier_unique(cls, neuron):
         """
         Checks that all spike buffers have a unique type, i.e., no buffer is defined with redundant keywords.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
-        CoCoTypeOfBufferUnique.check_co_co(neuron)
+        CoCoBufferQualifierUnique.check_co_co(neuron)
 
     @classmethod
     def check_parameters_not_assigned_outside_parameters_block(cls, neuron):
@@ -212,7 +212,7 @@ class CoCosManager(object):
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
-        CoCoOnlySpikeBufferDataTypes.check_co_co(neuron)
+        CoCoBufferDataType.check_co_co(neuron)
 
     @classmethod
     def check_init_vars_with_odes_provided(cls, neuron):
@@ -321,7 +321,7 @@ class CoCosManager(object):
             cls.check_ode_functions_have_consistent_units(_neuron)
             cls.check_numerator_of_unit_is_one_if_numeric(_neuron)
             cls.check_no_nest_namespace_collisions(_neuron)
-            cls.check_type_of_buffer_unique(_neuron)
+            cls.check_buffer_qualifier_unique(_neuron)
             cls.check_parameters_not_assigned_outside_parameters_block(_neuron)
             cls.check_current_buffers_no_keywords(_neuron)
             cls.check_buffer_types_are_correct(_neuron)
@@ -345,7 +345,7 @@ class CoCosManager(object):
         cls.check_order_of_equations_correct(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
-        cls.check_type_of_buffer_unique(neuron)
+        cls.check_buffer_qualifier_unique(neuron)
         cls.check_parameters_not_assigned_outside_parameters_block(neuron)
         cls.check_current_buffers_no_keywords(neuron)
         cls.check_buffer_types_are_correct(neuron)

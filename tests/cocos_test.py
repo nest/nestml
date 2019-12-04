@@ -294,7 +294,7 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoCurrentBufferTypeSpecified.nestml'))
+                         'CoCoCurrentBufferQualifierSpecified.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
@@ -302,7 +302,7 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoCurrentBufferTypeSpecified.nestml'))
+                         'CoCoCurrentBufferQualifierSpecified.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 

@@ -287,7 +287,7 @@ Given the fact that context conditions have the commonality of checking the cont
 
 -   *CoCoSumHasCorrectParameter*: Checks that *convolve* calls are not provided with complex expressions, but only variables.
 
--   *CoCoTypeOfBufferUnique*: Checks that no keyword is stated twice in an input buffer declaration, e.g., *inhibitory inhibitory spike*.
+-   *CoCoBufferQualifierUnique*: Checks that no qualifier is stated twice in an input buffer declaration, e.g., *inhibitory inhibitory spike*.
 
 -   *CoCoUserDeclaredFunctionCorrectlyDefined*: Checks that user-defined functions are correctly defined, i.e., only parameters of the function are used, and the return type is correctly stated.
 

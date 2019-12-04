@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoCurrentBufferTypeSpecified.nestml
+ *  CoCoCurrentBufferQualifierSpecified.nestml
  *
  *  This file is part of NEST.
  *
@@ -22,16 +22,16 @@
  *
  * This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
  * keywords.
- *
+ * Negative case.
 */
 
-neuron CoCoCurrentBufferTypeSpecified:
+neuron CoCoCurrentBufferQualifierSpecified:
     update:
         # required for creation of a correct ast
     end
 
     input:
-        currents pA <- current # current buffer not specified with any keywords, thus correct
+        currents pA <- inhibitory current   # qualifiers may not be specified for a current buffer
     end
 
     output: spike

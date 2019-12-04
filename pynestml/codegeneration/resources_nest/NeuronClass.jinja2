@@ -272,13 +272,13 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   {%- endif %}
 
   for ( long lag = from ; lag < to ; ++lag ) {
-    {% for inputLine in neuron.get_input_buffers() -%}
-    {% if inputLine.has_vector_parameter() %}
-    for (long i=0; i < P_.{{inputLine.get_vector_parameter()}}; i++){
-      B_.{{names.buffer_value(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value(lag);
+    {% for inputPort in neuron.get_input_buffers() -%}
+    {% if inputPort.has_vector_parameter() %}
+    for (long i=0; i < P_.{{inputPort.get_vector_parameter()}}; i++){
+      B_.{{names.buffer_value(inputPort)}}[i] = get_{{names.name(inputPort)}}()[i].get_value(lag);
     }
     {% else -%}
-    B_.{{names.buffer_value(inputLine)}} = get_{{names.name(inputLine)}}().get_value(lag);
+    B_.{{names.buffer_value(inputPort)}} = get_{{names.name(inputPort)}}().get_value(lag);
     {% endif -%}
     {%- endfor -%}
     {%- set dynamics = neuron.get_update_blocks() -%}
