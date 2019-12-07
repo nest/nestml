@@ -23,10 +23,19 @@ from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
+
+from astropy import units
+
 
 class VariableSymbol(Symbol):
     """
@@ -41,14 +50,14 @@ class VariableSymbol(Symbol):
         is_recordable        Indicates whether this symbol belongs to a recordable element. Type: bool
         type_symbol          The concrete type of this variable.
         ode_declaration      Used to store the corresponding ode declaration.
-        is_conductance_based  Indicates whether this buffer is used in a cond_sum rhs.
+        is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value        Indicates the initial value if such is declared.
         variable_type        The type of the variable, either a shape, or buffer or function. Type: VariableType
     """
 
     def __init__(self, element_reference=None, scope=None, name=None, block_type=None, vector_parameter=None,
                  declaring_expression=None, is_predefined=False, is_function=False, is_recordable=False,
-                 type_symbol=None, initial_value=None, variable_type=None, decorators=[], namespace_decorators={}):
+                 type_symbol=None, initial_value=None, variable_type=None):
         """
         Standard constructor.
         :param element_reference: a reference to the first element where this type has been used/defined
@@ -75,10 +84,6 @@ class VariableSymbol(Symbol):
         :type initial_value: ASTExpression
         :param variable_type: the type of the variable
         :type variable_type: VariableType
-        :param decorators: a list of decorator keywords
-        :type decorators list
-        :param namespace_decorators a list of namespace decorators
-        :type namespace_decorators list
         """
         super(VariableSymbol, self).__init__(element_reference=element_reference, scope=scope,
                                              name=name, symbol_kind=SymbolKind.VARIABLE)
@@ -91,30 +96,7 @@ class VariableSymbol(Symbol):
         self.type_symbol = type_symbol
         self.initial_value = initial_value
         self.variable_type = variable_type
-        self.ode_declaration = None
-        self.is_conductance_based = False
-        self.decorators = decorators
-        self.namespace_decorators = namespace_decorators
-
-    def is_homogeneous(self):
-        return PyNestMLLexer.DECORATOR_HOMOGENEOUS in self.decorators
-
-    def has_decorators(self):
-        return len(self.decorators) > 0
-
-    def get_decorators(self):
-        """
-        Returns PyNESTMLLexer static variable codes
-        """
-        return self.decorators
-
-    def get_namespace_decorators(self):
-        return self.namespace_decorators
-
-    def get_namespace_decorator(self, namespace):
-        if namespace in self.namespace_decorators:
-            return self.namespace_decorators[namespace]
-        return ''
+        self.ode_or_shape = None
 
     def has_vector_parameter(self):
         """
@@ -148,132 +130,116 @@ class VariableSymbol(Symbol):
         """
         return self.declaring_expression
 
-    def has_declaring_expression(self):
+    def has_declaring_expression(self) -> bool:
         """
         Indicates whether a declaring rhs is present.
         :return: True if present, otherwise False.
-        :rtype: bool
         """
         return self.declaring_expression is not None and (isinstance(self.declaring_expression, ASTSimpleExpression)
                                                           or isinstance(self.declaring_expression, ASTExpression))
 
-    def is_spike_buffer(self):
+    def is_spike_buffer(self) -> bool:
         """
         Returns whether this symbol represents a spike buffer.
         :return: True if spike buffer, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_spike()
 
-    def is_current_buffer(self):
+    def is_current_buffer(self) -> bool:
         """
         Returns whether this symbol represents a current buffer.
         :return: True if current buffer, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_current()
 
-    def is_excitatory(self):
+    def is_excitatory(self) -> bool:
         """
         Returns whether this symbol represents a buffer of type excitatory.
         :return: True if is excitatory, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_excitatory()
 
-    def is_inhibitory(self):
+    def is_inhibitory(self) -> bool:
         """
         Returns whether this symbol represents a buffer of type inhibitory.
         :return: True if is inhibitory, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_inhibitory()
 
-    def is_state(self):
+    def is_state(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a state block.
         :return: True if declared in a state block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.STATE
 
-    def is_parameters(self):
+    def is_parameters(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a parameters block.
         :return: True if declared in a parameters block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.PARAMETERS
 
-    def is_internals(self):
+    def is_internals(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a internals block.
         :return: True if declared in a internals block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INTERNALS
 
-    def is_equation(self):
+    def is_equation(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a equation block.
         :return: True if declared in a equation block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.EQUATION
 
-    def is_local(self):
+    def is_local(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a local (e.g., update) block.
         :return: True if declared in a local block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.LOCAL
 
-    def is_input_buffer_current(self):
+    def is_input_buffer_current(self) -> bool:
         """
         Returns whether this variable symbol has been declared as a input-buffer current element.
         :return: True if input-buffer current, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INPUT_BUFFER_CURRENT
 
-    def is_input_buffer_spike(self):
+    def is_input_buffer_spike(self) -> bool:
         """
         Returns whether this variable symbol has been declared as a input-buffer spike element.
         :return: True if input-buffer spike, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INPUT_BUFFER_SPIKE
 
-    def is_buffer(self):
+    def is_buffer(self) -> bool:
         """
         Returns whether this variable symbol represents a buffer or not.
         :return: True if buffer, otherwise False.
-        :rtype: bool
         """
         return self.variable_type == VariableType.BUFFER
 
-    def is_output(self):
+    def is_output(self) -> bool:
         """
         Returns whether this variable symbol has been declared as a output-buffer element.
         :return: True if output element, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.OUTPUT
 
-    def is_shape(self):
+    def is_shape(self) -> bool:
         """
         Returns whether this variable belongs to the definition of a shape.
         :return: True if part of a shape definition, otherwise False.
-        :rtype: bool
         """
         return self.variable_type == VariableType.SHAPE
 
-    def is_init_values(self):
+    def is_init_values(self) -> bool:
         """
         Returns whether this variable belongs to the definition of a initial value.
         :return: True if part of a initial value, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.INITIAL_VALUES
 
@@ -313,41 +279,43 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.ode_declaration is not None and (isinstance(self.ode_declaration, ASTExpression) or
-                                                     isinstance(self.ode_declaration, ASTSimpleExpression))
+        return self.ode_or_shape is not None and (isinstance(self.ode_or_shape, ASTExpression) or
+                                                     isinstance(self.ode_or_shape, ASTSimpleExpression) or
+                                                     isinstance(self.ode_or_shape, ASTOdeShape) or
+                                                     isinstance(self.ode_or_shape, ASTOdeEquation))
 
-    def get_ode_definition(self):
+    def get_ode_or_shape(self):
         """
-        Returns the ode defining the value of this variable symbol.
+        Returns the ODE or shape defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression
+        :rtype: ASTExpression or ASTSimpleExpression or ASTOdeShape
         """
-        return self.ode_declaration
+        return self.ode_or_shape
 
-    def set_ode_definition(self, expression):
+    def set_ode_or_shape(self, expression):
         """
         Updates the currently stored ode-definition to the handed-over one.
         :param expression: a single rhs object.
         :type expression: ASTExpression
         """
-        self.ode_declaration = expression
+        self.ode_or_shape = expression
 
     def is_conductance_based(self):
         """
-        Indicates whether this element is conductance based.
+        Indicates whether this element is conductance based, based on the physical units of the spike buffer. If the unit can be cast to Siemens, the function returns True, otherwise it returns False.
+        
         :return: True if conductance based, otherwise False.
         :rtype: bool
         """
-        # TODO it is a workaround. improve.
-        return self.is_conductance_based  # or self.type_symbol.print_symbol().startswith("nS")
-
-    def set_conductance_based(self, is_conductance_base):
-        """
-        Updates the information regarding the conductance property of this element.
-        :param is_conductance_base: the new status.
-        :type is_conductance_base: bool
-        """
-        self.is_conductance_based = is_conductance_base
+        is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))
+        is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
+        if is_cond_based == is_curr_based:
+            code, message = Messages.get_could_not_determine_cond_based(type_str=self.type_symbol.print_nestml_type(), name=self.name)
+            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING, error_position=ASTSourceLocation.get_added_source_position())
+            return False
+                        
+        #print("Units: " + str(self.type_symbol.unit.unit) + " -> condbased = " + str(is_cond_based))
+        return is_cond_based
 
     def get_variable_type(self):
         """

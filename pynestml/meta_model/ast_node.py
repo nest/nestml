@@ -98,7 +98,7 @@ class ASTNode(object):
         """
         Updates the source position of the element.
         :param new_position: a new source position
-        :type new_position: ASTSourcePosition
+        :type new_position: ASTSourceLocation
         :return: a source position object.
         :rtype: ASTSourceLocation
         """
@@ -119,6 +119,7 @@ class ASTNode(object):
         :param _scope: a scope object.
         :type _scope: Scope
         """
+        #print("~~~ Updating scope of node " + str(self) + " to " + str(_scope))
         self.scope = _scope
 
     def get_comment(self):

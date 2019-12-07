@@ -29,83 +29,33 @@ class OdeTransformer(object):
     """
     This class contains several methods as used to transform ODEs.
     """
-    functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE,
-                 PredefinedFunctions.BOUNDED_MAX, PredefinedFunctions.BOUNDED_MIN)
-    sum_functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE)
 
     @classmethod
-    def replace_functions(cls, _ast):
-        """
-        Replaces all self.function in the handed over node.
-        :param _ast: a single meta_model node.
-        :type _ast: AST_
-        """
-        working_copy = copy(_ast)
-        function_calls = cls.get_function_calls(working_copy, cls.functions)
-        for call in function_calls:
-            cls.replace_function_call_through_first_argument(working_copy, call)
-        return working_copy
-
-    @classmethod
-    def refactor_convolve_call(cls, _ast):
-        """
-        Replaces all `convolve` calls in the handed over node.
-        :param _ast: a single node
-        :type _ast: AST_
-        """
-
-        function_calls = cls.get_sum_function_calls(_ast)
-        for call in function_calls:
-            cls.replace_function_call_through_first_argument(_ast, call)
-
-    @classmethod
-    def replace_function_call_through_first_argument(cls, ast, function_name_to_replace):
-        """
-        Replaces all occurrences of the handed over function call by the first argument.
-        :param ast: a single ast node
-        :type ast: AST_
-        :param function_name_to_replace: the function to replace
-        :type function_name_to_replace: ASTFunctionCall
-        """
-
-        # we define a local collection operation
-        def replace_function_call_through_first_argument(_expr=None):
-            if _expr.is_function_call() and _expr.get_function_call() == function_name_to_replace:
-                first_arg = _expr.get_function_call().get_args()[0].get_variable()
-                _expr.set_function_call(None)
-                _expr.set_variable(first_arg)
-            return
-
-        func = (
-            lambda x: replace_function_call_through_first_argument(x) if isinstance(x, ASTSimpleExpression) else True)
-        ast.accept(ASTHigherOrderVisitor(func))
-
-    @classmethod
-    def get_sum_function_calls(cls, ast):
+    def get_convolve_function_calls(cls, ast):
         """
         Returns all sum function calls in the handed over meta_model node or one of its children.
         :param ast: a single meta_model node.
-        :type ast: AST_
+        :type ast: ASTNode
         """
-        return cls.get_function_calls(ast, cls.sum_functions)
+        return cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)
 
     @classmethod
-    def contains_sum_function_call(cls, ast):
+    def contains_convolve_function_call(cls, ast):
         """
         Indicates whether _ast or one of its child nodes contains a sum call.
         :param ast: a single meta_model
-        :type ast: AST_
+        :type ast: ASTNode
         :return: True if sum is contained, otherwise False.
         :rtype: bool
         """
-        return len(cls.get_function_calls(ast, cls.sum_functions)) > 0
+        return len(cls.get_function_calls(ast, PredefinedFunctions.CONVOLVE)) > 0
 
     @classmethod
     def get_function_calls(cls, ast_node, function_list):
         """
         For a handed over list of function names, this method retrieves all functions in the meta_model.
         :param ast_node: a single meta_model node
-        :type ast_node: AST_
+        :type ast_node: ASTNode
         :param function_list: a list of function names
         :type function_list: list(str)
         :return: a list of all functions in the meta_model
@@ -119,20 +69,3 @@ class OdeTransformer(object):
         ast_node.accept(vis)
         return res
 
-    @classmethod
-    def get_cond_sum_function_calls(cls, node):
-        """
-        Collects all cond_sum function calls in the meta_model.
-        :param node: a single meta_model node
-        :type node: AST_
-        :return: a list of all functions in the meta_model
-        :rtype: list(ASTFunctionCall)
-        """
-        res = list()
-
-        def loc_get_cond_sum(a_node):
-            if isinstance(a_node, ASTFunctionCall) and a_node.get_name() == PredefinedFunctions.COND_SUM:
-                res.append(a_node)
-
-        node.accept(ASTHigherOrderVisitor(loc_get_cond_sum))
-        return res

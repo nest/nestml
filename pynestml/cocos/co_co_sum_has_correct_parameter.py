@@ -27,7 +27,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoSumHasCorrectParameter(CoCo):
     """
-    This coco ensures that cur_sum,cond_sum and convolve get only simple variable references as inputs.
+    This coco ensures that convolve gets only simple variable references as inputs.
     Not allowed:
      V mV = convolve(g_in+g_ex,Buffer)
     """
@@ -47,7 +47,7 @@ class CoCoSumHasCorrectParameter(CoCo):
 
 class SumIsCorrectVisitor(ASTVisitor):
     """
-    This visitor ensures that sums/convolve are provided with a correct rhs.
+    This visitor ensures that convolve are provided with a correct rhs.
     """
 
     def visit_function_call(self, node):
@@ -57,8 +57,7 @@ class SumIsCorrectVisitor(ASTVisitor):
         :type node: ast_function_call
         """
         f_name = node.get_name()
-        if f_name == PredefinedFunctions.CURR_SUM or \
-                f_name == PredefinedFunctions.COND_SUM or f_name == PredefinedFunctions.CONVOLVE:
+        if f_name == PredefinedFunctions.CONVOLVE:
             for arg in node.get_args():
                 if not isinstance(arg, ASTSimpleExpression) or not arg.is_variable():
                     code, message = Messages.get_not_a_variable(str(arg))

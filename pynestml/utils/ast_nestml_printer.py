@@ -534,7 +534,13 @@ class ASTNestMLPrinter(object):
         # type: (ASTOdeShape) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent)
-        ret += 'shape ' + self.print_node(node.get_variable()) + ' = ' + self.print_node(node.get_expression())
+        ret += 'shape '
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            ret += self.print_node(var)
+            ret += ' = '
+            ret += self.print_node(expr)
+            ret += ', '
+        ret = ret[:-2]
         ret += print_sl_comment(node.in_comment) + '\n'
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret

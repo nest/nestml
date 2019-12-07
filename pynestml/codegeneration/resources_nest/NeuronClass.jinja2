@@ -77,20 +77,32 @@ namespace nest
   // for each quantity to be recorded.
   template <> void RecordablesMap<{{neuronName}}>::create(){
   // use standard names whereever you can for consistency!{% filter indent(2,True) %}
-  {%- for variable in neuron.get_state_symbols() %}
+  
+  // initial values for state variables not in ODE or shape
+  {%- for variable in neuron.get_state_non_alias_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
-  {%- for variable in neuron.get_initial_values_symbols() %}
-    {%- include "directives/RecordCallback.jinja2" %}
-  {%- endfor %}
+
+  // initial values for state variables in ODE or shape
+{%- for variable in neuron.get_initial_values_non_alias_symbols() %}
+{%-   if not is_delta_shape(neuron.get_shape_by_name(variable.name)) %}
+{%-     include "directives/RecordCallback.jinja2" %}
+{%-   endif %}
+{%- endfor %}
+  
+  // internals
   {%- for variable in neuron.get_internal_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
+  
+  // parameters
   {%- for variable in neuron.get_parameter_symbols() %}
     {%- include "directives/RecordCallback.jinja2" %}
   {%- endfor %}
-  {%- for odeAlias in neuron.get_ode_aliases() %}
-    {%- with variable = odeAlias %}
+
+  // function symbols
+  {%- for funcsym in neuron.get_function_symbols() %}
+    {%- with variable = funcsym %}
       {%- include "directives/RecordCallback.jinja2" %}
     {%- endwith %}
   {%- endfor %}{% endfilter %}
@@ -144,26 +156,32 @@ namespace nest
   recordablesMap_.create();
   {%- if useGSL %}
   // use a default `good` enough value for the absolute error.
-  // it cab be adjusted via `SetStatus`
+  // it can be adjusted via `SetStatus`
   P_.__gsl_error_tol = 1e-3;
   {%- endif %}
 
+  // initial values for parameters
   {%- for parameter in neuron.get_parameter_non_alias_symbols() -%}
   {%- with variable = parameter %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
+  // initial values for state variables not in ODE or shape
   {%- for state in neuron.get_state_non_alias_symbols() -%}
   {%- with variable = state %}
   {%- include "directives/MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
-  {%- for init in neuron.get_initial_values_symbols() -%}
+  // initial values for state variables in ODE or shape
+  {%- for init in neuron.get_initial_values_non_alias_symbols() -%}
+  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
   {%- with variable = init -%}
   {%- include "directives/MemberInitialization.jinja2" %}
-  {%- endwith %}{% endfor %}
+  {%- endwith %}
+  {%- endif %}
+  {%- endfor %}
 }
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
@@ -175,8 +193,10 @@ namespace nest
     S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
   {% endfor %}
   {% for init in neuron.get_initial_values_non_alias_symbols() -%}
+{%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
     S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
-  {% endfor %}
+{%- endif %}
+    {% endfor %}
   {% for internal in neuron.get_internal_non_alias_symbols() -%}
     V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
   {% endfor %}
@@ -335,8 +355,8 @@ void {{neuronName}}::handle(nest::SpikeEvent &e){
   if ( weight < 0.0 ){ // inhibitory
     get_{{buffer.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                      {% if buffer.is_conductance_based %} // ensure conductance is positive {% endif %}
-                      {% if buffer.is_conductance_based %} -1 * {% endif %} weight * multiplicity );
+                      {% if buffer.is_conductance_based() %} // ensure conductance is positive {% endif %}
+                      {% if buffer.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
   }
   {%- endif -%}
   {%- endfor %}

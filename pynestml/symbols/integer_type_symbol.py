@@ -34,9 +34,6 @@ class IntegerTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'integer'
 
-    def print_nest_type(self):
-        return 'long'
-
     def __mul__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
@@ -123,6 +120,8 @@ class IntegerTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('-', other)
 
     def is_castable_to(self, _other_type):
+        if super(IntegerTypeSymbol, self).is_castable_to(_other_type):
+            return True
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
         if _other_type.is_instance_of(RealTypeSymbol):
             return True

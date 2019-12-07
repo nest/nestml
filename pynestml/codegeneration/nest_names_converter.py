@@ -86,9 +86,8 @@ class NestNamesConverter(object):
     @classmethod
     def convert_to_cpp_name(cls, variable_name):
         """
-        Converts a handed over name to the corresponding nest / c++ naming guideline.
-        In concrete terms:
-            Converts names of the form g_in'' to a compilable C++ identifier: __DDX_g_in
+        Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp' += 1" will be converted into "G_ahp__d".
+        
         :param variable_name: a single name.
         :type variable_name: str
         :return: the corresponding transformed name.
@@ -96,6 +95,6 @@ class NestNamesConverter(object):
         """
         differential_order = variable_name.count('\'')
         if differential_order > 0:
-            return '__' + 'D' * differential_order + '_' + variable_name.replace('\'', '')
+            return variable_name.replace('\'', '').replace("$", "__DOLLAR") + '__' + 'd' * differential_order
         else:
-            return variable_name
+            return variable_name.replace("$", "__DOLLAR")

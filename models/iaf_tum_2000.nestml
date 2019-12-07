@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_tum_2000 - Leaky integrate-and-fire neuron model with exponential
                         PSCs.
 
@@ -68,7 +68,7 @@ Remarks:
 If tau_m is very close to tau_syn_ex or tau_syn_in, the model
 will numerically behave as if tau_m is equal to tau_syn_ex or
 tau_syn_in, respectively, to avoid numerical instabilities.
-For details, please see IAF_Neruons_Singularity.ipynb in
+For details, please see IAF_Neurons_Singularity.ipynb in
 the NEST source code (docs/model_details).
 
 References:
@@ -88,7 +88,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 FirstVersion: March 2006
 Author: Moritz Helias
-*/
+"""
 neuron iaf_tum_2000:
 
   state:
@@ -97,7 +97,7 @@ neuron iaf_tum_2000:
   end
 
   initial_values:
-    V_m mV = 0.0mV # Membrane potential
+    V_m mV = 0.0 mV # Membrane potential
   end
 
   equations:

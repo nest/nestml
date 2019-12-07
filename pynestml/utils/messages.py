@@ -1,6 +1,6 @@
 
 #
-# messages.py.py
+# messages.py
 #
 # This file is part of NEST.
 #
@@ -77,6 +77,11 @@ class Messages(object):
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
+    def get_could_not_determine_cond_based(cls, type_str, name):
+        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
+        return MessageCode.LEXER_ERROR, message
+
+    @classmethod
     def get_parser_error(cls):
         message = 'Error occurred during parsing: abort'
         return MessageCode.PARSER_ERROR, message
@@ -85,6 +90,11 @@ class Messages(object):
     def get_binary_operation_not_defined(cls, lhs, operator, rhs):
         message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message
+
+    @classmethod
+    def get_binary_operation_type_could_not_be_derived(cls, lhs, operator, rhs, lhs_type, rhs_type):
+        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (lhs, operator, rhs, lhs_type, rhs_type)
+        return MessageCode.TYPE_MISMATCH, message
 
     @classmethod
     def get_unary_operation_not_defined(cls, operator, term):
@@ -166,7 +176,7 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Implicit casting %s to %s!' % (rhs_type, lhs_type)
+        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -1010,15 +1020,34 @@ class Messages(object):
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
     @classmethod
+    def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE definition for \''
+        if differential_order > 1:
+            message += 'd^' + str(differential_order) + ' ' + name + ' / dt^' + str(differential_order) + '\''
+        if differential_order > 0:
+            message += 'd ' + name + ' / dt\''
+        else:
+            message += '\'' + str(name) + '\''
+        message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+        return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
     def get_variable_with_same_name_as_type(cls, name):
         """
         Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
         :param name: the name of the variable
         :type name: str
         :return: a tuple containing message code and message text
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'Variable \'%s\' has the same name as a physical unit!' % name
         return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
 
+    @classmethod
     def get_analysing_transforming_neuron(cls, name):
         """
         Indicates start of code generation
@@ -1031,6 +1060,46 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'Analysing/transforming neuron \'%s\'' % name
         return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+
+    @classmethod
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+        return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
+
+    @classmethod
+    def delta_function_cannot_be_mixed(cls):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this shape is used"
+        return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
+
+    @classmethod
+    def delta_function_one_arg(cls, deltafunc):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = "delta function takes exactly one argument (time *t*); instead found " + ", ".join([str(arg) for arg in deltafunc.get_args()])
+        return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
+
+
+
+
 
 class MessageCode(Enum):
     """
@@ -1107,3 +1176,8 @@ class MessageCode(Enum):
     UNKNOWN_TARGET = 62
     VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
     ANALYSING_TRANSFORMING_NEURON = 64
+    ODE_NEEDS_CONSISTENT_UNITS = 65
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 66
+    MODULE_NAME_INFO = 67
+    TARGET_PATH_INFO = 68
+    DELTA_FUNCTION_CANNOT_BE_MIXED = 69

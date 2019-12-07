@@ -60,11 +60,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
-        # before starting the work on the neuron, make everything which was implicit explicit
-        # but if we have a model without an equations block, just skip this step
-        if node.get_equations_blocks() is not None:
-            make_implicit_odes_explicit(node.get_equations_blocks())
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
+        #print("In ASTSymbolTableVisitor::visit_neuron(): neuron = " + node.get_name() + ", scope = " + str(scope))
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
@@ -80,7 +77,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node, skip_check_correct_usage_of_shapes=self.after_ast_rewrite_)
+        CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
         # the following part is done in order to mark conductance based buffers as such.
         if node.get_input_blocks() is not None and node.get_equations_blocks() is not None and \
                 len(node.get_equations_blocks().get_declarations()) > 0:
@@ -93,7 +90,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             # todo by KP: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
             #                    not isinstance(decl, ASTOdeShape))
-            mark_conductance_based_buffers(input_lines=buffers)
         # now update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
@@ -214,7 +210,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                         block_type=BlockType.LOCAL, is_predefined=False, is_function=False,
                                         is_recordable=False,
                                         type_symbol=PredefinedTypes.get_type(type_name),
-                                        variable_type=VariableType.VARIABLE)
+                                        variable_type=VariableType.VARIABLE)        # XXX FUNCTION??
             assert isinstance(scope, Scope)
             scope.add_symbol(var_symbol)
         if node.has_return_type():
@@ -224,6 +220,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         else:
             symbol.set_return_type(PredefinedTypes.get_void_type())
         self.block_type_stack.pop()  # before leaving update the type
+        node.get_scope().delete_scope(scope)    # delete function-local scope
 
     def visit_update_block(self, node):
         """
@@ -318,13 +315,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def visit_assignment(self, node):
         """
-        Private method: Used to visit a single node and update the its corresponding scope.
+        Private method: Used to visit a single node and update its corresponding scope.
         :param node: an node object.
         :type node: ast_assignment
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
         return
@@ -374,6 +370,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # now for each variable create a symbol and update the scope
         print("Creating VariableSymbol with decorators = " + str(decorators) + ", namespace_decorators = " + str(namespace_decorators))
         for var in node.get_variables():  # for all variables declared create a new symbol
+            #print("--> var = " +str(var))
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
             symbol = VariableSymbol(element_reference=node,
@@ -554,7 +551,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                 is_predefined=False, is_function=True,
                                 is_recordable=node.is_recordable,
                                 type_symbol=type_symbol,
-                                variable_type=VariableType.VARIABLE)
+                                variable_type=VariableType.VARIABLE)    # XXX: function?
         symbol.set_comment(node.get_comment())
         # now update the scopes
         node.get_scope().add_symbol(symbol)
@@ -567,20 +564,22 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single ode-shape.
         :type node: ast_ode_shape
         """
-        if node.get_variable().get_differential_order() == 0 and \
-                node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
-                                                   SymbolKind.VARIABLE) is None:
-            symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
-                                    name=node.get_variable().get_name(),
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            if var.get_differential_order() == 0 and \
+             node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
+                symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
+                                    name=var.get_name(),
                                     block_type=BlockType.EQUATION,
-                                    declaring_expression=node.get_expression(),
-                                    is_predefined=False, is_function=False,
+                                    declaring_expression=expr,
+                                    is_predefined=False,
+                                    is_function=False,
                                     is_recordable=True,
-                                    type_symbol=PredefinedTypes.get_real_type(), variable_type=VariableType.SHAPE)
-            symbol.set_comment(node.get_comment())
-            node.get_scope().add_symbol(symbol)
-        node.get_variable().update_scope(node.get_scope())
-        node.get_expression().update_scope(node.get_scope())
+                                    type_symbol=PredefinedTypes.get_real_type(),
+                                    variable_type=VariableType.SHAPE)
+                symbol.set_comment(node.get_comment())
+                node.get_scope().add_symbol(symbol)
+            var.update_scope(node.get_scope())
+            expr.update_scope(node.get_scope())
 
     def visit_ode_equation(self, node):
         """
@@ -603,6 +602,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
             BlockType.PARAMETERS if node.is_parameters else
             BlockType.INITIAL_VALUES)
         for decl in node.get_declarations():
+            #if node.is_internals:
+                #print("node = " + str(node) + ", decl = " + str(decl))
             decl.update_scope(node.get_scope())
         return
 
@@ -671,124 +672,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.compound_stmt.update_scope(node.get_scope())
 
 
-def make_trivial_assignment(var, order, equations_block, is_shape=False):
-    from pynestml.meta_model.ast_variable import ASTVariable
-    from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-    from pynestml.meta_model.ast_node import ASTNode
-    # type: (ASTVariable,int,ASTEquationsBlock,bool) -> ASTNode
-    lhs_variable = ASTNodeFactory.create_ast_variable(name=var.get_name(),
-                                                      differential_order=order + 1,
-                                                      source_position=ASTSourceLocation.
-                                                      get_added_source_position())
-    rhs_variable = ASTNodeFactory.create_ast_variable(name=convert_variable_name_to_generator_notation(var).get_name(),
-                                                      differential_order=order,
-                                                      source_position=ASTSourceLocation.
-                                                      get_added_source_position())
-    expression = ASTNodeFactory.create_ast_simple_expression(variable=rhs_variable,
-                                                             source_position=ASTSourceLocation.
-                                                             get_added_source_position())
-    source_loc = ASTSourceLocation.get_added_source_position()
-    if is_shape:
-        node = ASTNodeFactory.create_ast_ode_shape(lhs=lhs_variable, rhs=expression, source_position=source_loc)
-    else:
-        node = ASTNodeFactory.create_ast_ode_equation(lhs=lhs_variable, rhs=expression, source_position=source_loc)
-    equations_block.get_declarations().append(node)
-    return node
-
-
-def make_implicit_odes_explicit(equations_block):
-    """
-    This method inspects a handed over block of equations and makes all implicit declarations of odes explicit.
-    E.g. the declaration g_in'' implies that there have to be, either implicit or explicit, g_in' and g_in
-    stated somewhere. This method collects all non explicitly defined elements and adds them to the model.
-    :param equations_block: a single equations block
-    :type equations_block: ast_equations_block
-    """
-    from pynestml.meta_model.ast_ode_shape import ASTOdeShape
-    from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-    checked = list()  # used to avoid redundant checking
-    for declaration in equations_block.get_declarations():
-        if declaration in checked:
-            continue
-        if isinstance(declaration, ASTOdeShape) and declaration.get_variable().get_differential_order() > 0:
-            # now we found a variable with order > 0, thus check if all previous orders have been defined
-            order = declaration.get_variable().get_differential_order()
-            # check for each smaller order if it is defined
-            for i in range(1, order):
-                found = False
-                for eq in equations_block.get_ode_shapes():
-                    if eq.get_variable().get_name() == declaration.get_variable().get_name() and \
-                            eq.get_variable().get_differential_order() == i:
-                        found = True
-                        break
-                # now if we did not found the corresponding declaration, we have to add it by hand
-                if not found:
-                    checked.append(make_trivial_assignment(declaration.get_variable(), i,
-                                                           equations_block, True))
-            # the following code ensures that after g_in__d has been processed, we also check g_in
-            base_found = False
-            base_var = convert_variable_name_to_model_notation(declaration.get_variable())
-            base_var.differential_order = base_var.differential_order
-            if base_var.differential_order == 0:
-                continue
-            for eq in equations_block.get_ode_shapes():
-                if eq.get_variable().get_complete_name() == base_var.get_complete_name():
-                    base_found = True
-                    break
-            if not base_found:
-                checked.append(make_trivial_assignment(base_var, 0, equations_block, True))
-                base_var = None
-                base_found = False
-
-        if isinstance(declaration, ASTOdeEquation):
-            # now we found a variable with order > 0, thus check if all previous orders have been defined
-            order = declaration.get_lhs().get_differential_order()
-            # check for each smaller order if it is defined
-            for i in range(1, order):
-                found = False
-                for ode in equations_block.get_ode_equations():
-                    if (ode.get_lhs().get_name() == declaration.get_lhs().get_name() and
-                            ode.get_lhs().get_differential_order() == i):
-                        found = True
-                        break
-                # now if we did not found the corresponding declaration, we have to add it by hand
-                if not found:
-                    checked.append(make_trivial_assignment(declaration.get_lhs(), i, equations_block, True))
-            # the following code ensures that after g_in__d has been processed, we also check g_in
-            base_found = False
-            base_var = convert_variable_name_to_model_notation(declaration.get_lhs())
-            if base_var.differential_order == 0:
-                continue
-            for eq in equations_block.get_ode_equations():
-                if eq.get_lhs().get_complete_name() == base_var.get_complete_name():
-                    base_found = True
-                    break
-            if not base_found:
-                checked.append(make_trivial_assignment(base_var, 0, equations_block, False))
-                base_var = None
-                base_found = False
-
-        checked.append(declaration)
-    return
-
-
-def mark_conductance_based_buffers(input_lines):
-    """
-    Inspects all handed over buffer definitions and updates them to conductance based if they occur as part of
-    a cond_sum rhs.
-    :param input_lines: a set of input buffers.
-    :type input_lines: ast_input_line
-    """
-    # this is the updated version, where nS buffers are marked as conductance based
-    for bufferDeclaration in input_lines:
-        if bufferDeclaration.is_spike():
-            symbol = bufferDeclaration.get_scope().resolve_to_symbol(bufferDeclaration.get_name(),
-                                                                     SymbolKind.VARIABLE)
-            if symbol is not None and symbol.get_type_symbol().equals(PredefinedTypes.get_buffer_type_if_exists('nS')):
-                symbol.set_conductance_based(True)
-    return
-
-
 def assign_ode_to_variables(ode_block):
     """
     Adds for each variable symbol the corresponding ode declaration if present.
@@ -800,101 +683,65 @@ def assign_ode_to_variables(ode_block):
     for decl in ode_block.get_declarations():
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)
-        if isinstance(decl, ASTOdeShape):
+        elif isinstance(decl, ASTOdeShape):
             add_ode_shape_to_variable(decl)
-    return
 
 
 def add_ode_to_variable(ode_equation):
     """
-    Resolves to the corresponding symbol and updates the corresponding ode-declaration. In the case that
+    Resolves to the corresponding symbol and updates the corresponding ode-declaration.
     :param ode_equation: a single ode-equation
     :type ode_equation: ast_ode_equation
     """
+
     # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
-    diff_order = ode_equation.get_lhs().get_differential_order() - 1
+    #diff_order = ode_equation.get_lhs().get_differential_order() - 1
     # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-    existing_symbol = (ode_equation.get_scope().resolve_to_symbol(ode_equation.get_lhs().get_name() + '\'' * diff_order,
-                                                                  SymbolKind.VARIABLE))
-    if existing_symbol is not None:
-        existing_symbol.set_ode_definition(ode_equation.get_rhs())
-        # todo added on merge
+    #existing_symbol = (ode_equation.get_scope().resolve_to_symbol(ode_equation.get_lhs().get_name() + '\'' * diff_order,
+                                                                  #SymbolKind.VARIABLE))
+                                                                  
+    for diff_order in range(ode_equation.get_lhs().get_differential_order()):
+        var_name = ode_equation.get_lhs().get_name() + "'" * diff_order
+        existing_symbol = ode_equation.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+
+        if existing_symbol is None:
+            code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
+            Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
+            return
+
+        existing_symbol.set_ode_or_shape(ode_equation)
+
         ode_equation.get_scope().update_variable_symbol(existing_symbol)
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)
-    else:
-        code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
-        Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
-    return
 
 
-def add_ode_shape_to_variable(ode_shape):
+def add_ode_shape_to_variable(shape):
     """
     Adds the shape as the defining equation.
-    :param ode_shape: a single shape object.
-    :type ode_shape: ast_ode_shape
+    
+    If the definition of the shape is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their shape definition and variable type set.
+    
+    :param shape: a single shape object.
+    :type shape: ASTOdeShape
     """
-    if ode_shape.get_variable().get_differential_order() == 0:
-        # we only update those which define an ode
+    if len(shape.get_variables()) == 1 \
+     and shape.get_variables()[0].get_differential_order() == 0:
+        # we only update those which define an ODE; skip "direct function of time" specifications
         return
-    # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-    existing_symbol = ode_shape.get_scope().resolve_to_symbol(ode_shape.get_variable().get_name_of_lhs(),
-                                                              SymbolKind.VARIABLE)
-    if existing_symbol is not None:
-        existing_symbol.set_ode_definition(ode_shape.get_expression())
-        existing_symbol.set_variable_type(VariableType.SHAPE)
-        ode_shape.get_scope().update_variable_symbol(existing_symbol)
-        code, message = Messages.get_ode_updated(ode_shape.get_variable().get_name_of_lhs())
-        Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
-                           code=code, message=message, log_level=LoggingLevel.INFO)
-    else:
-        code, message = Messages.get_no_variable_found(ode_shape.get_variable().get_name_of_lhs())
-        Logger.log_message(code=code, message=message, error_position=ode_shape.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
-    return
+    
+    for var, expr in zip(shape.get_variables(), shape.get_expressions()):
+        for diff_order in range(var.get_differential_order()):
+            var_name = var.get_name() + "'" * diff_order
+            existing_symbol = shape.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
+            if existing_symbol is None:
+                code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
+                Logger.log_message(code=code, message=message, error_position=shape.get_source_position(), log_level=LoggingLevel.ERROR)
+                return
 
-def convert_variable_name_to_model_notation(variable):
-    """
-    This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
-    It is used to find all variables which have to provided with a ode declaration.
-    """
-    from pynestml.meta_model.ast_variable import ASTVariable
-    # type: ASTVariable -> str
-
-    name = variable.get_name()
-    diff_order = 0
-    while True:
-        if name.endswith('__d'):
-            diff_order += 1
-            name = name[:-3]
-            break
-        elif name.endswith('d'):
-            diff_order += 1
-            name = name[:-1]
-        else:
-            break
-    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
-
-
-def convert_variable_name_to_generator_notation(variable):
-    """
-    This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
-    one (e.g., g_in_d). It decreases the unsupported order by one.
-    """
-    from pynestml.meta_model.ast_variable import ASTVariable
-    # type: ASTVariable -> str
-
-    name = variable.get_name()
-    diff_order = variable.get_differential_order()
-    if diff_order > 0:
-        import re
-        pattern = re.compile('w*_((d)*)\b')
-        if pattern.match(name):
-            name += 'd'
-        else:
-            name += '__d'
-        diff_order -= 1
-    return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
+            existing_symbol.set_ode_or_shape(expr)
+            existing_symbol.set_variable_type(VariableType.SHAPE)
+            shape.get_scope().update_variable_symbol(existing_symbol)

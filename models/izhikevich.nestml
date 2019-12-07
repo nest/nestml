@@ -1,4 +1,4 @@
-/*
+"""
 Name: izhikevich - Izhikevich neuron model
 
 Description:
@@ -38,11 +38,11 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 FirstVersion: 2009
 Author: Hanuschkin, Morrison, Kunkel
 SeeAlso: iaf_psc_delta, mat2_psc_exp
-*/
+"""
 neuron izhikevich:
 
   initial_values:
-    V_m mV = -65mV # Membrane potential
+    V_m mV = -65 mV # Membrane potential
     U_m real = 0   # Membrane potential recovery variable
   end
 
@@ -76,7 +76,7 @@ neuron izhikevich:
     V_m = (V_m < V_min)? V_min : V_m
 
     # threshold crossing
-    if V_m >= 30mV:
+    if V_m >= 30 mV:
       V_m = c
       U_m += d
       emit_spike()

@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -276,34 +276,6 @@ class ASTUtils(object):
             return False
 
     @classmethod
-    def differs_in_magnitude(cls, type_a, type_b):
-        """
-        Indicates whether both type represent the same unit but with different magnitudes. This
-        case is still valid, e.g., mV can be assigned to volt.
-        :param type_a: a type
-        :type type_a:  TypeSymbol
-        :param type_b: a type
-        :type type_b: type_symbol
-        :return: True if both elements equal or differ in magnitude, otherwise False.
-        :rtype: bool
-        """
-        if type_a.equals(type_b):
-            return True
-        # in the case that we don't deal with units, there are no magnitudes
-        if not (type_a.is_unit() and type_b.is_unit()):
-            return False
-        # if it represents the same unit, if we disregard the prefix and simplify it
-        unit_a = type_a.get_unit().unit
-        unit_b = type_b.get_unit().unit
-        # if isinstance(unit_a,)
-        from astropy import units
-        # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unit_a, units.PrefixUnit) and isinstance(type_b, units.PrefixUnit) \
-                and unit_a.physical_type == unit_b.physical_type:
-            return True
-        return False
-
-    @classmethod
     def get_all(cls, ast, node_type):
         """
         Finds all meta_model which are part of the tree as spanned by the handed over meta_model.
@@ -410,6 +382,7 @@ class ASTUtils(object):
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
                                                                       ASTSourceLocation.get_added_source_position())
+            internal.update_scope(neuron.get_scope())
             neuron.get_body().get_body_elements().append(internal)
         return neuron
 
@@ -459,9 +432,7 @@ class ASTUtils(object):
             return False
         else:
             for func in variable.get_declaring_expression().get_function_calls():
-                if func.get_name() == PredefinedFunctions.CONVOLVE or \
-                        func.get_name() == PredefinedFunctions.CURR_SUM or \
-                        func.get_name() == PredefinedFunctions.COND_SUM:
+                if func.get_name() == PredefinedFunctions.CONVOLVE:
                     return True
         return False
 
@@ -479,48 +450,3 @@ class ASTUtils(object):
         neuron.get_state_blocks().get_declarations().append(declaration)
         return
 
-    @classmethod
-    def convert_variable_name_to_model_notation(cls, variable):
-        """
-        This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
-        It is used to find all variables which have to provided with a ode declaration.
-        """
-        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        from pynestml.meta_model.ast_variable import ASTVariable
-        # type: ASTVariable -> str
-
-        name = variable.get_name()
-        diff_order = 0
-        while True:
-            if name.endswith('__d'):
-                diff_order += 1
-                name = name[:-3]
-                break
-            elif name.endswith('d'):
-                diff_order += 1
-                name = name[:-1]
-            else:
-                break
-        return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
-
-    @classmethod
-    def convert_variable_name_to_generator_notation(cls, variable):
-        """
-        This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
-        one (e.g., g_in_d). It decreases the unsupported order by one.
-        """
-        from pynestml.meta_model.ast_variable import ASTVariable
-        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        # type: ASTVariable -> str
-
-        name = variable.get_name()
-        diff_order = variable.get_differental_order()
-        if diff_order > 0:
-            import re
-            pattern = re.compile('w*_((d)*)\b')
-            if pattern.match(name):
-                name += 'd'
-            else:
-                name += '__d'
-            diff_order -= 1
-        return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)

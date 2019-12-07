@@ -15,6 +15,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#unitTypeExponent.
+    def visitUnitTypeExponent(self, ctx):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#expression.
     def visitExpression(self, ctx):
         return self.visitChildren(ctx)

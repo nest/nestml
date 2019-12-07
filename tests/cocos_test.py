@@ -80,7 +80,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 4)
+                                                                            LoggingLevel.ERROR)), 5)
 
     def test_valid_element_not_defined_in_scope(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -202,7 +202,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoNoOrderOfEquations.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_order_of_equations_correct(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -218,7 +218,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 1)
+                                                                            LoggingLevel.ERROR)), 2)
 
     def test_valid_numerator_of_unit_one(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -392,7 +392,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 3)
+                                                                            LoggingLevel.ERROR)), 4)
 
     def test_valid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -465,3 +465,21 @@ class CoCosTest(unittest.TestCase):
                          'CoCoIllegalExpression.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_ode_correctly_typed(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoOdeIncorrectlyTyped.nestml'))
+        self.assertTrue(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
+                                                                            LoggingLevel.ERROR)) > 0)
+
+    def test_valid_ode_correctly_typed(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoOdeCorrectlyTyped.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+

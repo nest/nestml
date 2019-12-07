@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
@@ -29,6 +31,12 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
+def symbol_by_name(name, symbols):
+    """get a symbol from a list of symbols by the given name"""
+    for sym in symbols:
+        if sym.name == name:
+            return sym
+    return None
 
 class ASTNeuron(ASTNode):
     """
@@ -361,31 +369,19 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_ode_aliases(self):
+    def get_function_symbols(self):
         """
-        Returns a list of all equation function symbols defined in the model.
-        :return: a list of equation function  symbols.
+        Returns a list of all function symbols defined in the model.
+        :return: a list of function symbols.
         :rtype: list(VariableSymbol)
         """
         from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol,
-                          VariableSymbol) and symbol.block_type == BlockType.EQUATION and symbol.is_function:
-                ret.append(symbol)
-        return ret
-
-    def variables_defined_by_ode(self):
-        """
-        Returns a list of all variables which are defined by an ode.
-        :return: a list of variable symbols
-        :rtype: list(VariableSymbol)
-        """
-        symbols = self.get_scope().get_symbols_in_complete_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.is_ode_defined():
+            if isinstance(symbol, VariableSymbol) \
+             and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.INITIAL_VALUES) \
+             and symbol.is_function:
                 ret.append(symbol)
         return ret
 
@@ -485,18 +481,35 @@ class ASTNeuron(ASTNode):
 
     def get_initial_values_symbols(self):
         """
-        Returns a list of all initial values symbol defined in the model.
+        Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the order by which the symbols are defined in the model: this is important if a particular variable is defined in terms of another (earlier) variable.
+        
         :return: a list of initial values symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
+
+        """from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INITIAL_VALUES and \
-                    not symbol.is_predefined:
+            if isinstance(symbol, VariableSymbol) \
+             and symbol.block_type == BlockType.INITIAL_VALUES \
+             and not symbol.is_predefined:
                 ret.append(symbol)
-        return ret
+        return ret"""
+
+        iv_syms = []
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        
+        iv_blk = self.get_initial_values_blocks()
+        for decl in iv_blk.get_declarations():
+            for var in decl.get_variables():
+                iv_sym = symbol_by_name(var.get_complete_name(), symbols)
+                assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
+                iv_syms.append(iv_sym)
+        #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
+        return iv_syms
+                
+        
 
     def get_initial_values_blocks(self):
         """
@@ -549,39 +562,6 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_ode_defined_symbols(self):
-        """
-        Returns a list of all variable symbols which have been defined in th initial_values blocks
-        and are provided with an ode.
-        :return: a list of initial value variables with odes
-        :rtype: list(VariableSymbol)
-        """
-        from pynestml.symbols.variable_symbol import BlockType
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and \
-                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
-                    and not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
-
-    def get_state_symbols_without_ode(self):
-        """
-        Returns a list of all elements which have been defined in the state block.
-        :return: a list of of state variable symbols.
-        :rtype: list(VariableSymbol)
-        """
-        from pynestml.symbols.variable_symbol import BlockType
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and \
-                    symbol.block_type == BlockType.STATE and not symbol.is_ode_defined() \
-                    and not symbol.is_predefined:
-                ret.append(symbol)
-        return ret
-
     def is_array_buffer(self):
         """
         This method indicates whether this neuron uses buffers defined vector-wise.
@@ -615,7 +595,7 @@ class ASTNeuron(ASTNode):
                     ret.append(decl.get_invariant())
         return ret
 
-    def add_to_internal_block(self, declaration):
+    def add_to_internal_block(self, declaration, index=-1):
         # todo by KP: factor me out to utils
         """
         Adds the handed over declaration the internal block
@@ -624,8 +604,19 @@ class ASTNeuron(ASTNode):
         """
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
-        self.get_internals_blocks().get_declarations().append(declaration)
-        return
+        #print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
+        n_declarations = len(self.get_internals_blocks().get_declarations())
+        if n_declarations == 0:
+            index = 0
+        else:
+            index = 1 + (index % len(self.get_internals_blocks().get_declarations()))
+        self.get_internals_blocks().get_declarations().insert(index, declaration)
+        declaration.update_scope(self.get_internals_blocks().get_scope())
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        symtable_vistor = ASTSymbolTableVisitor()
+        symtable_vistor.block_type_stack.push(BlockType.INTERNALS)
+        declaration.accept(symtable_vistor)
+        symtable_vistor.block_type_stack.pop()
 
     def add_to_initial_values_block(self, declaration):
         # todo by KP: factor me out to utils
@@ -634,10 +625,22 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
+        #print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
-        return
+        declaration.update_scope(self.get_initial_blocks().get_scope())
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        #from pynestml.symbols.variable_symbol import BlockType
+
+        symtable_vistor = ASTSymbolTableVisitor()
+        symtable_vistor.block_type_stack.push(BlockType.INITIAL_VALUES)
+        declaration.accept(symtable_vistor)
+        symtable_vistor.block_type_stack.pop()
+        #self.get_initial_blocks().accept(symtable_vistor)
+        from pynestml.symbols.symbol import SymbolKind
+        assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
+        assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
 
     def add_shape(self, shape):
         # type: (ASTOdeShape) -> None
@@ -647,6 +650,7 @@ class ASTNeuron(ASTNode):
         """
         assert self.get_equations_block() is not None
         self.get_equations_block().get_declarations().append(shape)
+        shape.update_scope(self.get_equations_blocks().get_scope())
 
     """
     The following print methods are used by the backend and represent the comments as stored at the corresponding 
@@ -745,3 +749,40 @@ class ASTNeuron(ASTNode):
         if not isinstance(other, ASTNeuron):
             return False
         return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
+
+    def get_initial_value(self, variable_name):
+        assert type(variable_name) is str
+
+        for decl in self.get_initial_values_blocks().get_declarations():
+            for var in decl.variables:
+                if var.get_complete_name() == variable_name:
+                    return decl.get_expression()
+
+        return None
+
+    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
+        assert type(shape_name) is str
+        shape_name = shape_name.split("__X__")[0]
+
+        # check if defined as a direct function of time
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
+                #print("Is shape " + str(shape_name) + "? YES")
+                return decl
+
+        # check if defined for a higher order of differentiation
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                #print("Is shape " + str(shape_name) + "? YES2")
+                return decl
+
+        #print("Is shape " + str(shape_name) + "? NO")
+        return None
+
+
+    def get_all_shapes(self):
+        shapes = []
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape:
+                shapes.append(decl)
+        return shapes

@@ -1,0 +1,108 @@
+/* bi-exponential ("beta function") postsynaptic response */
+
+neuron biexp_postsynaptic_reponse:
+  state:
+    r integer             # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    g_in nS = 0 nS        # inputs from the inhibitory conductance
+    g_in$ nS/ms = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I) * nS
+
+    g_ex nS = 0 nS        # inputs from the excitatory conductance
+    h_ex nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+
+    g_GABA nS = 0 nS
+    g_GABA' nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+
+    # n.b. no initial value for shape that is a direct function of time
+
+    V_m mV = E_L          # membrane potential
+  end
+
+  equations:
+      shape g_ex' = -g_ex / tau_syn_decay_E + h_ex,
+            h_ex' = -h_ex / tau_syn_rise_E
+
+      shape g_in' = -g_in / tau_syn_decay_I + g_in$,
+            g_in$' = -g_in$ / tau_syn_rise_I
+
+      shape g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
+    
+      #shape g_alpha = (e / tau_syn_alpha) * t * exp(-t / tau_syn_alpha)
+
+      #shape g_GABA'' = g_gap_const * (exp(-t/tau_syn_decay_E) / tau_syn_decay_E**2 - exp(-t/tau_syn_rise_E) / tau_syn_rise_E**2)
+
+      shape g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
+      
+      function I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
+      function I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
+      function I_syn_gap pA = (F_I + convolve(g_gap, spikeGap)) * (V_m - E_gap)
+      function I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA)) * (V_m - E_gap)
+      function I_leak pA = g_L * (V_m - E_L)
+
+      V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_syn_gap - I_syn_GABA + currents + I_e) / C_m
+  end
+
+  parameters:
+    E_L mV = -70.0mV # Leak reversal Potential (aka resting potential)
+    C_m pF = 250.0pF # Capacity of the membrane
+    t_ref ms = 2.0ms # Refractory period
+    V_th mV = -55.0mV      # Threshold Potential
+    V_reset mV = -60.0mV   # Reset Potential
+    E_ex mV = 0mV          # Excitatory reversal Potential
+    E_in mV = -85.0mV      # Inhibitory reversal Potential
+    E_gap mV = -60.0mV      # Inhibitory reversal Potential
+    g_L nS = 16.6667nS     # Leak Conductance
+    tau_syn_rise_I ms = .2 ms    # Synaptic Time Constant Excitatory Synapse
+    tau_syn_decay_I ms = 2 ms   # Synaptic Time Constant for Inhibitory Synapse
+
+    tau_syn_rise_E ms = 2 ms    # Synaptic Time Constant Excitatory Synapse
+    tau_syn_decay_E ms = 5 ms   # Synaptic Time Constant for Inhibitory Synapse
+
+    tau_syn_rise_gap ms = 10 ms    # Synaptic Time Constant Excitatory Synapse
+    tau_syn_decay_gap ms = 11 ms   # Synaptic Time Constant for Inhibitory Synapse
+
+    #tau_syn_alpha ms = 1.5ms   # Synaptic Time Constant for Inhibitory Synapse
+
+    I_e pA = 0pA            # Constant Current
+    F_E nS = 0nS            # Constant External input conductance (excitatory).
+    F_I nS = 0nS            # Constant External input conductance (inhibitory).
+  end
+
+  internals:
+    # time of peak conductance excursion after spike arrival at t = 0
+    t_peak_gap  real = tau_syn_decay_gap * tau_syn_rise_gap / (tau_syn_decay_gap - tau_syn_rise_gap) * ln(tau_syn_decay_gap / tau_syn_rise_gap)
+    t_peak_E  real = tau_syn_decay_E * tau_syn_rise_E / (tau_syn_decay_E - tau_syn_rise_E) * ln(tau_syn_decay_E / tau_syn_rise_E)
+    t_peak_I real = tau_syn_decay_I * tau_syn_rise_I / (tau_syn_decay_I - tau_syn_rise_I) * ln(tau_syn_decay_I / tau_syn_rise_I)
+  
+    # normalisation constants to ensure arriving spike yields peak conductance of 1 nS
+    g_E_const real = 1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
+    g_I_const real = 1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
+    g_gap_const real = 1 / (exp(-t_peak_gap / tau_syn_decay_gap) - exp(-t_peak_gap / tau_syn_rise_gap))
+
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+  end
+
+  input:
+      spikeInh nS  <- spike
+      spikeExc nS  <- spike
+      spikeGap nS  <- spike
+      spikeGABA nS  <- spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+    integrate_odes()
+    if r != 0: # not refractory
+      r =  r - 1
+      V_m = V_reset # clamp potential
+    elif V_m >= V_th:
+      r = RefractoryCounts
+      V_m = V_reset # clamp potential
+      emit_spike()
+    end
+  end
+end

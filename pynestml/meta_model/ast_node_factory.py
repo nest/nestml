@@ -305,9 +305,9 @@ class ASTNodeFactory(object):
                               source_position=source_position, is_recordable=is_recordable, )
 
     @classmethod
-    def create_ast_ode_shape(cls, lhs=None, rhs=None, source_position=None):
+    def create_ast_ode_shape(cls, variables=None, expressions=None, source_position=None):
         # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTOdeShape
-        return ASTOdeShape(lhs, rhs, source_position)
+        return ASTOdeShape(variables, expressions, source_position)
 
     @classmethod
     def create_ast_output_block(cls, s_type, source_position):

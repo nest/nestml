@@ -28,13 +28,51 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
-
+from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
+from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_bit_operator import ASTBitOperator
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
+from pynestml.meta_model.ast_data_type import ASTDataType
+from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_elif_clause import ASTElifClause
+from pynestml.meta_model.ast_else_clause import ASTElseClause
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_for_stmt import ASTForStmt
+from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_if_clause import ASTIfClause
+from pynestml.meta_model.ast_if_stmt import ASTIfStmt
+from pynestml.meta_model.ast_input_block import ASTInputBlock
+from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
+from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_output_block import ASTOutputBlock
+from pynestml.meta_model.ast_parameter import ASTParameter
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
+from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
+from pynestml.meta_model.ast_unit_type import ASTUnitType
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 class NestPrinter(object):
     """
     This class contains all methods as required to transform
     """
-    
+
     def __init__(self, expression_pretty_printer, reference_convert=None):
         """
         The standard constructor.
@@ -47,7 +85,112 @@ class NestPrinter(object):
             self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
         return
 
-    def print_expression(self, node):
+    def print_node(self, node):
+        ret = ''
+        if isinstance(node, ASTArithmeticOperator):
+            ret = self.print_arithmetic_operator(node)
+        if isinstance(node, ASTAssignment):
+            ret = self.print_assignment(node)
+        if isinstance(node, ASTBitOperator):
+            ret = self.print_bit_operator(node)
+        if isinstance(node, ASTBlock):
+            ret = self.print_block(node)
+        if isinstance(node, ASTBlockWithVariables):
+            ret = self.print_block_with_variables(node)
+        if isinstance(node, ASTBody):
+            ret = self.print_body(node)
+        if isinstance(node, ASTComparisonOperator):
+            ret = self.print_comparison_operator(node)
+        if isinstance(node, ASTCompoundStmt):
+            ret = self.print_compound_stmt(node)
+        if isinstance(node, ASTDataType):
+            ret = self.print_data_type(node)
+        if isinstance(node, ASTDeclaration):
+            ret = self.print_declaration(node)
+        if isinstance(node, ASTElifClause):
+            ret = self.print_elif_clause(node)
+        if isinstance(node, ASTElseClause):
+            ret = self.print_else_clause(node)
+        if isinstance(node, ASTEquationsBlock):
+            ret = self.print_equations_block(node)
+        if isinstance(node, ASTExpression):
+            ret = self.print_expression(node)
+        if isinstance(node, ASTForStmt):
+            ret = self.print_for_stmt(node)
+        if isinstance(node, ASTFunction):
+            ret = self.print_function(node)
+        if isinstance(node, ASTFunctionCall):
+            ret = self.print_function_call(node)
+        if isinstance(node, ASTIfClause):
+            ret = self.print_if_clause(node)
+        if isinstance(node, ASTIfStmt):
+            ret = self.print_if_stmt(node)
+        if isinstance(node, ASTInputBlock):
+            ret = self.print_input_block(node)
+        if isinstance(node, ASTInputLine):
+            ret = self.print_input_line(node)
+        if isinstance(node, ASTInputType):
+            ret = self.print_input_type(node)
+        if isinstance(node, ASTLogicalOperator):
+            ret = self.print_logical_operator(node)
+        if isinstance(node, ASTNestMLCompilationUnit):
+            ret = self.print_compilation_unit(node)
+        if isinstance(node, ASTNeuron):
+            ret = self.print_neuron(node)
+        if isinstance(node, ASTOdeEquation):
+            ret = self.print_ode_equation(node)
+        if isinstance(node, ASTOdeFunction):
+            ret = self.print_ode_function(node)
+        if isinstance(node, ASTOdeShape):
+            ret = self.print_ode_shape(node)
+        if isinstance(node, ASTOutputBlock):
+            ret = self.print_output_block(node)
+        if isinstance(node, ASTParameter):
+            ret = self.print_parameter(node)
+        if isinstance(node, ASTReturnStmt):
+            ret = self.print_return_stmt(node)
+        if isinstance(node, ASTSimpleExpression):
+            ret = self.print_simple_expression(node)
+        if isinstance(node, ASTSmallStmt):
+            ret = self.print_small_stmt(node)
+        if isinstance(node, ASTUnaryOperator):
+            ret = self.print_unary_operator(node)
+        if isinstance(node, ASTUnitType):
+            ret = self.print_unit_type(node)
+        if isinstance(node, ASTUpdateBlock):
+            ret = self.print_update_block(node)
+        if isinstance(node, ASTVariable):
+            ret = self.print_variable(node)
+        if isinstance(node, ASTWhileStmt):
+            ret = self.print_while_stmt(node)
+        if isinstance(node, ASTStmt):
+            ret = self.print_stmt(node)
+        return ret
+    
+    def print_assignment(self, node, prefix=""):
+        # type: (ASTAssignment) -> str
+        ret = self.print_node(node.lhs) + ' '
+        if node.is_compound_quotient:
+            ret += '/='
+        elif node.is_compound_product:
+            ret += '*='
+        elif node.is_compound_minus:
+            ret += '-='
+        elif node.is_compound_sum:
+            ret += '+='
+        else:
+            ret += '='
+        ret += ' ' + self.print_node(node.rhs)
+        return ret        
+
+    def print_variable(self, node):
+        # type: (ASTVariable) -> str
+        ret = node.name
+        for i in range(1, node.differential_order + 1):
+            ret += "__d"
+        return ret
+
+    def print_expression(self, node, prefix=""):
         # type: (ASTExpressionNode) -> str
         """
         Pretty Prints the handed over rhs to a nest readable format.
@@ -56,7 +199,7 @@ class NestPrinter(object):
         :return: the corresponding string representation
         :rtype: str
         """
-        return self.expression_pretty_printer.print_expression(node)
+        return self.expression_pretty_printer.print_expression(node, prefix=prefix)
 
     def print_method_call(self, node):
         # type: (ASTFunctionCall) -> str
@@ -100,7 +243,7 @@ class NestPrinter(object):
         return for_stmt.get_step()
 
     @classmethod
-    def print_origin(cls, variable_symbol):
+    def print_origin(cls, variable_symbol, prefix=''):
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param variable_symbol: a single variable symbol.
@@ -111,25 +254,29 @@ class NestPrinter(object):
         assert isinstance(variable_symbol, VariableSymbol), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 variable_symbol)
+
         if variable_symbol.block_type == BlockType.STATE:
-            return 'S_.'
-        elif variable_symbol.block_type == BlockType.INITIAL_VALUES:
-            return 'S_.'
-        elif variable_symbol.block_type == BlockType.EQUATION:
-            return 'S_.'
-        elif variable_symbol.block_type == BlockType.PARAMETERS:
-            if variable_symbol.is_homogeneous():
-                return 'cp.'   # if the parameter is in a CommonProperties class -- N.B. this is from the perspective of the Synapse class
-            else:
-                return 'P_.'
-        elif variable_symbol.block_type == BlockType.INTERNALS:
-            return 'V_.'
-        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
-            return 'B_.'
-        elif variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
-            return 'B_.'
-        else:
-            return ''
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.INITIAL_VALUES:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.EQUATION:
+            return prefix + 'S_.'
+
+        if variable_symbol.block_type == BlockType.PARAMETERS:
+            return prefix + 'P_.'
+
+        if variable_symbol.block_type == BlockType.INTERNALS:
+            return prefix + 'V_.'
+
+        if variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
+            return prefix + 'B_.'
+
+        if variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
+            return prefix + 'B_.'
+
+        return ''
 
     @classmethod
     def print_output_event(cls, ast_body):
@@ -179,25 +326,24 @@ class NestPrinter(object):
         assert (ast_function is not None and isinstance(ast_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_function provided (%s)!' % type(ast_function)
         function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)
-        if function_symbol is not None:
-            declaration = ast_function.print_comment('//') + '\n'
-            declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
-            declaration += ' '
-            declaration += ast_function.get_name() + '('
-            for typeSym in function_symbol.get_parameter_types():
-                declaration += PyNestml2NestTypeConverter.convert(typeSym)
-                if function_symbol.get_parameter_types().index(typeSym) < len(
-                        function_symbol.get_parameter_types()) - 1:
-                    declaration += ', '
-            declaration += ')\n'
-            return declaration
-        else:
+        if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
+        declaration = ast_function.print_comment('//') + '\n'
+        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += ' '
+        declaration += ast_function.get_name() + '('
+        for typeSym in function_symbol.get_parameter_types():
+            declaration += PyNestml2NestTypeConverter.convert(typeSym)
+            if function_symbol.get_parameter_types().index(typeSym) < len(
+                    function_symbol.get_parameter_types()) - 1:
+                declaration += ', '
+        declaration += ') const\n'
+        return declaration
 
     @classmethod
     def print_function_definition(cls, ast_function, namespace):
         """
-        Returns a nest processable function definition, i.e. the part which appears in the .c file.
+        Returns a nest processable function definition, i.e. the part which appears in the .cpp file.
         :param ast_function: a single function.
         :type ast_function: ASTFunction
         :param namespace: the namespace in which this function is defined in
@@ -210,29 +356,28 @@ class NestPrinter(object):
         assert isinstance(namespace, str), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(namespace)
         function_symbol = ast_function.get_scope().resolve_to_symbol(ast_function.get_name(), SymbolKind.FUNCTION)
-        if function_symbol is not None:
-            # first collect all parameters
-            params = list()
-            for param in ast_function.get_parameters():
-                params.append(param.get_name())
-            declaration = ast_function.print_comment('//') + '\n'
-            declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
-            declaration += ' '
-            if namespace is not None:
-                declaration += namespace + '::'
-            declaration += ast_function.get_name() + '('
-            for typeSym in function_symbol.get_parameter_types():
-                # create the type name combination, e.g. double Tau
-                declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
-                               params[function_symbol.get_parameter_types().index(typeSym)]
-                # if not the last component, separate by ','
-                if function_symbol.get_parameter_types().index(typeSym) < \
-                        len(function_symbol.get_parameter_types()) - 1:
-                    declaration += ', '
-            declaration += ')\n'
-            return declaration
-        else:
+        if function_symbol is None:
             raise RuntimeError('Cannot resolve the method ' + ast_function.get_name())
+        # first collect all parameters
+        params = list()
+        for param in ast_function.get_parameters():
+            params.append(param.get_name())
+        declaration = ast_function.print_comment('//') + '\n'
+        declaration += PyNestml2NestTypeConverter.convert(function_symbol.get_return_type()).replace('.', '::')
+        declaration += ' '
+        if namespace is not None:
+            declaration += namespace + '::'
+        declaration += ast_function.get_name() + '('
+        for typeSym in function_symbol.get_parameter_types():
+            # create the type name combination, e.g. double Tau
+            declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
+                            params[function_symbol.get_parameter_types().index(typeSym)]
+            # if not the last component, separate by ','
+            if function_symbol.get_parameter_types().index(typeSym) < \
+                    len(function_symbol.get_parameter_types()) - 1:
+                declaration += ', '
+        declaration += ') const\n'
+        return declaration
 
     def print_buffer_array_getter(self, ast_buffer):
         """

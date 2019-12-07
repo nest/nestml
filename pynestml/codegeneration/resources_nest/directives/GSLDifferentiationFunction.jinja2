@@ -9,25 +9,29 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
+
   {%- for ode in neuron.get_equations_blocks().get_declarations() -%}
     {%- for function in utils.get_alias_symbols(ode) -%}
       {%- if not function.is_equation() -%}
         {% set declaringExpression = function.get_declaring_expression() -%}
-  double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression)}};
+  double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression, prefix="node.")}};
       {% endif -%}
     {% endfor -%}
   {% endfor %}
+
   {# todo by kp: this part is no longer required since we make all functions self contained
-  {% for function in neuron.get_ode_aliases() -%}
+  {% for function in neuron.get_function_symbols() -%}
     {% set declaringExpression = function.get_declaring_expression() -%}
-  double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression)}};
+  double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression, prefix="node.")}};
   {% endfor -%}
   #}
-  {%- for odeVariable in neuron.get_non_function_initial_values_symbols() -%}
-  {%- if odeVariable.is_ode_defined() %}
-  f[{{names.array_index(odeVariable)}}] = {{printerGSL.print_expression(odeVariable.get_ode_definition())}};
-  {%- endif -%}
-  {%- endfor %}
+
+{% for variable_name in numeric_state_variables: -%}
+{%   set update_expr = numeric_update_expressions[variable_name] -%}
+{%   set variable_sym = numeric_variable_symbols[variable_name] -%}
+  f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
+{% endfor -%}
+
   return GSL_SUCCESS;
 }
 

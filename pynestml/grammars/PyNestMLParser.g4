@@ -46,10 +46,13 @@ parser grammar PyNestMLParser;
     complex data type as 'mV/s'
   */
   unitType : leftParentheses=LEFT_PAREN compoundUnit=unitType rightParentheses=RIGHT_PAREN
-           | base=unitType powOp=STAR_STAR exponent=INTEGER
+           | base=unitType powOp=STAR_STAR exponent=unitTypeExponent
            | left=unitType (timesOp=STAR | divOp=FORWARD_SLASH) right=unitType
-           | unitlessLiteral=INTEGER divOp=FORWARD_SLASH right=unitType
+           | unitlessLiteral=UNSIGNED_INTEGER divOp=FORWARD_SLASH right=unitType
            | unit=NAME;
+
+  unitTypeExponent : ( PLUS | MINUS )? UNSIGNED_INTEGER;
+
 
   /*********************************************************************************************************************
   * Expressions-Language
@@ -84,7 +87,7 @@ parser grammar PyNestMLParser;
   */
   simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
-                   | (INTEGER|FLOAT) (variable)?
+                   | (UNSIGNED_INTEGER | FLOAT) (variable)?
                    | string=STRING_LITERAL
                    | isInf=INF_KEYWORD
                    | variable;
@@ -119,7 +122,7 @@ parser grammar PyNestMLParser;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  odeShape : SHAPE_KEYWORD lhs=variable EQUALS rhs=expression (SEMICOLON)?;
+  odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -194,7 +197,7 @@ parser grammar PyNestMLParser;
   elseClause : ELSE_KEYWORD COLON block;
 
   forStmt : FOR_KEYWORD var=NAME IN_KEYWORD start_from=expression ELLIPSIS end_at=expression STEP_KEYWORD
-            (negative=MINUS?) (INTEGER|FLOAT)
+            (negative=MINUS?) (UNSIGNED_INTEGER | FLOAT)
             COLON
              block
             END_KEYWORD;
@@ -309,6 +312,7 @@ parser grammar PyNestMLParser;
                    (odeFunction|odeEquation|odeShape|NEWLINE)*
                    END_KEYWORD;
 
+                   
   /** ASTInputBlock represents a single input block:
     input:
       spikeBuffer   <- inhibitory excitatory spike

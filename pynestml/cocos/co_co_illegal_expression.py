@@ -90,8 +90,13 @@ class CorrectExpressionVisitor(ASTVisitor):
 
     def handle_complex_assignment(self, node):
         rhs_expr = node.get_expression()
-        lhs_variable_symbol = node.resolve_lhs_variable_symbol()
+        lhs_variable_symbol = node.get_variable().resolve_in_own_scope()
         rhs_type_symbol = rhs_expr.type
+        
+        if lhs_variable_symbol is None:
+            code, message = Messages.get_equation_var_not_in_init_values_block(node.get_variable().get_complete_name())
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+            return
 
         if isinstance(rhs_type_symbol, ErrorTypeSymbol):
             LoggingHelper.drop_missing_type_error(node)

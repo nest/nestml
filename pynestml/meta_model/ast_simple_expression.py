@@ -30,7 +30,7 @@ class ASTSimpleExpression(ASTExpressionNode):
     Grammar:
     simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false ;
-                   | (INTEGER|FLOAT) (variable)?
+                   | (UNSIGNED_INTEGER | FLOAT) (variable)?
                    | isInf='inf'
                    | STRING_LITERAL
                    | variable;
@@ -126,6 +126,19 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.numeric_literal is not None
 
+    def get_boolean_literal(self):
+        """
+        Returns whether it is a numeric literal or not.
+        :return: True if numeric literal, otherwise False.
+        :rtype: bool
+        """
+        if self.is_boolean_true:
+            return True
+        elif self.is_boolean_false:
+            return False
+        else:
+            return None
+
     def get_numeric_literal(self):
         """
         Returns the value of the numeric literal.
@@ -133,6 +146,14 @@ class ASTSimpleExpression(ASTExpressionNode):
         :rtype: int/float
         """
         return self.numeric_literal
+
+    def set_numeric_literal(self, numeric_literal):
+        """
+        Updates the numeric literal attribute of this node.
+        :param numeric_literal: a single numeric literal
+        :type numeric_literal: int or float
+        """
+        self.numeric_literal = numeric_literal
 
     def is_variable(self):
         """

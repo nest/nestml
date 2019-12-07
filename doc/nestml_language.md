@@ -201,17 +201,33 @@ x = max(a*2, b/2)
 
 ##### Predefined functions
 
-The following set of functions is predefined in NestML and can be used out of the box:
+The following functions are predefined in NestML and can be used out of the box:
 
-||||
-|---|---|---|
-| resolution | steps | emit_spike |
-| print | println | pow |
-| exp | log | info |
-|warning|random|randomInt|
-|expm1|delta|max|min|
-|bounded\_max|bounded\_min|integrate_odes|
-|curr\_sum|cond\_sum|convolve|
+| Name | Parameters | Description |
+| --- | --- | ----------------------------------------------------------------- |
+| min | x, y | Returns the minimum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
+| max | x, y | Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
+| clip | x, y, z | Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type. |
+| exp | x | Returns the exponential of x. The type of x and the return type are Real. |
+| log10 | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
+| ln | x | Returns the base :math:`e` logarithm of x. The type of x and the return type are Real. |
+| expm1 | x | Returns the exponential of x minus 1. The type of x and the return type are Real. |
+| sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
+| cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
+| tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
+| random | | *Not yet implemented.* |
+| randomInt | | *Not yet implemented.* |
+| delta | t | A Dirac delta impulse function at time t. |
+| convolve | f, g | The convolution of shape f with spike train g (or vice versa). |
+| info | s | Log the string s with logging level "info". |
+| warning | s | Log the string s with logging level "warning". |
+| print | s | Print the string s to stdout (no line break at the end). |
+| println | s | Print the string s to stdout (with a line break at the end). |
+| integrate\_odes | | This function can be used to integrate all stated differential equations of the equations block. |
+| emit\_spike | | Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time. |
+| steps | t | Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information. |
+| resolution | | Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information. |
+
 
 #### Return statement
 
@@ -389,7 +405,7 @@ The following blocks are mandataroy: **input**, **output** and **update**
 
 ### Synaptic input
 
-A neuron model written in NestML can be configured to receive two distinct types of input, spikes, and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
+A neuron model written in NestML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 ```
 port_name <- inhibitory? excitatory? (spike | current)
 ```
@@ -405,7 +421,54 @@ end
 
 Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
 
-If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. In this case, a `receptor_types` entry is created in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types).
+If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three input ports as follows:
+```
+input:
+  spikes1 nS <- spike
+  spikes2 nS <- spike
+  spikes3 nS <- spike
+  currents <- current
+end
+```
+
+For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
+```
+equations:
+  shape I_shape1 = exp(-t / tau_syn1)
+  shape I_shape2 = exp(-t / tau_syn2)
+  shape I_shape3 = -exp(-t / tau_syn3)
+  function I_syn pA = convolve(I_shape1, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
+  V_abs' = -V_abs/tau_m + I_syn / C_m
+end
+```
+
+After generating and building the model code, a `receptor_type` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types):
+```
+neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+
+sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
+nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+
+sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
+nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+
+sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
+nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+```
+Note that in multisynapse neurons, receptor ports are numbered starting from 1.
+
+We furthermore wish to record the synaptic currents `I_shape1`, `I_shape2` and `I_shape3`. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded from are thus named as follows:
+
+```
+mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': .1})
+nest.Connect(mm, neuron)
+```
+
+The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
+
+![NESTML multisynapse example waveform traces](https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png)
+
+For a full example, please see `tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
 
 ### Output
 
@@ -418,18 +481,24 @@ Please note that this block is **not** terminated with the `end` keyword.
 
 ## Synaptic input
 
-NestML has two dedicated functions to ease the summation of synaptic input.
+Spikes arriving at the input port of a neuron can be written as a spike train *s(t)*:
 
-`curr_sum` is a function that has two arguments. The first is a function *I* of *t* which is either a `shape` function (see [Synaptic response](#synaptic-response)) or a function that is defined by an ODE plus initial values (see [Systems of ODEs](#systems-of-odes)). The second is a `spike` input buffer (see [Synaptic input](#synaptic-input)). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t\_i*. In mathematical terms, it thus performs the following operation:
+<!-- $\large s(t) = \sum_{i=1}^N \delta(t - t_i)$ -->
+![equation](https://latex.codecogs.com/gif.latex?%5Clarge%20s%28t%29%20%3D%20%5Csum_%7Bi%3D1%7D%5EN%20%5Cdelta%28t%20-%20t_i%29).
 
-<!-- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ -->
-![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w).
+To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha function (bi-exponential), decaying exponential, or a delta function. (See [Shape functions](#shape-functions) for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
 
-When the sum above is used to describe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit that the neural dynamics are based on synaptic conductances rather than currents.
+<!-- $\large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)$ -->
+![equation](https://latex.codecogs.com/gif.latex?%5Clarge%20%28f%20%5Cast%20s%29%28t%29%20%3D%20%5Csum_%7Bi%3D1%7D%5EN%20w_i%20%5Ccdot%20f%28t%20-%20t_i%29).
 
-For modeling postsynaptic responses with delta functions, `curr_sum` and `cond_sum` can be called with the keyword `delta` as first argument instead of a `shape` function.
+where *w_i* is the weight of spike *i*.
 
-For convenience reason, `curr_sum` and `cond_sum` are not required to be called (although possible). Instead, the `convolve` function can be used to perform the correct steps.
+For example, say there is a spiking input port defined named `spikes`. A decaying exponential with time constant `tau_syn` is defined as postsynaptic shape `G`. Integration into the membrane potential `V_m` can be expressed using the `convolve(f, g)` function, which takes a shape and input port as its arguments:
+
+```
+shape G = exp(-t/tau_syn)
+V_m' = -V_m/tau_m + convolve(G, spikes)
+```
 
 ## Handling of time
 
@@ -442,7 +511,7 @@ These functions can be used to implement custom buffer lookup logic but should b
 
 ## Equations
 
-### Synaptic response
+### Shape functions
 
 A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
 
@@ -465,15 +534,15 @@ The content of spike and current buffers can be used by just using their plain n
 
 ## Dynamics and time evolution
 
-`update:` inside this block, the current time can be accessed via the variable `t`
+Inside the `update` block, the current time can be accessed via the variable `t`.
 
 `integrate_odes`: this function can be used to integrate all stated differential equations of the `equations` block.
 
-`emit_spike()`: calling this function in the `update`-block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+`emit_spike`: calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
 ### Solver selection
 
-Currently, there is support for GSL and exact integration.
+Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `SetStatus` call. The default value of the `gsl_error_tol` is `1e-3`.
 

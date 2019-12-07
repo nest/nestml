@@ -88,7 +88,7 @@ class ASTExpressionTypeVisitor(ASTVisitor):
             if node.get_function_call() is not None:
                 self.set_real_self(self.function_call_visitor)
                 return
-            # simpleExpression =  (INTEGER|FLOAT) (variable)?
+            # simpleExpression =  (UNSIGNED_INTEGER | FLOAT) (variable)?
             if node.get_numeric_literal() is not None or \
                     (node.get_numeric_literal() is not None and node.get_variable() is not None):
                 self.set_real_self(self.numeric_literal_visitor)

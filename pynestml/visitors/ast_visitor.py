@@ -1375,10 +1375,9 @@ class ASTVisitor(object):
         return
 
     def traverse_ode_shape(self, node):
-        if node.get_variable() is not None:
-            node.get_variable().accept(self.get_real_self())
-        if node.get_expression() is not None:
-            node.get_expression().accept(self.get_real_self())
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            var.accept(self.get_real_self())
+            expr.accept(self.get_real_self())
         return
 
     def traverse_output_block(self, node):
