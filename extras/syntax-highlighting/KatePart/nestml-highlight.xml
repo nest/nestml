@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<language name="nestml" version="1" kateversion="2.4" section="Sources" extensions="*.nml;*.nestml">
+<language name="nestml" version="1" kateversion="2.4" section="Sources" extensions="*.nestml">
   <highlighting>
     <list name="structures">
       <item>neuron</item>
@@ -72,4 +72,3 @@
     </emptyLines>
   </general>
 </language>
-
