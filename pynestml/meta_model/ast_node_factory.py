@@ -33,7 +33,7 @@ from pynestml.meta_model.ast_pre_receive import ASTPreReceive
 from pynestml.meta_model.ast_post_receive import ASTPostReceive
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
@@ -53,10 +53,7 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_line import ASTInputLine
 from pynestml.meta_model.ast_input_type import ASTInputType
-from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -64,8 +61,11 @@ from pynestml.meta_model.ast_ode_function import ASTOdeFunction
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
-from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
+from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 
 
 class ASTNodeFactory(object):
@@ -124,13 +124,13 @@ class ASTNodeFactory(object):
         return ASTPostReceive(block, source_position)
 
     @classmethod
-    def create_ast_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTBody
-        return ASTBody(body_elements, source_position)
+    def create_ast_neuron_body(cls, body_elements, source_position):
+        # type: (list,ASTSourceLocation) -> ASTNeuronBody
+        return ASTNeuronBody(body_elements, source_position)
 
     @classmethod
     def create_ast_synapse_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTBody
+        # type: (list,ASTSourceLocation) -> ASTSynapseBody
         return ASTSynapseBody(body_elements, source_position)
 
     @classmethod
@@ -160,7 +160,7 @@ class ASTNodeFactory(object):
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                source_position=None,  # type: ASTSourceLocation
-                               decorators=[],  # type: list
+                               decorators=None,  # type: list
                                ):  # type: (...) -> ASTDeclaration
         return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
                               source_position, decorators)
@@ -285,12 +285,12 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_neuron(cls, name, body, source_position, artifact_name):
-        # type: (str,ASTBody,ASTSourceLocation,str) -> ASTNeuron
+        # type: (str,ASTNeuronBody,ASTSourceLocation,str) -> ASTNeuron
         return ASTNeuron(name, body, source_position, artifact_name)
 
     @classmethod
     def create_ast_synapse(cls, name, body, source_position, artifact_name):
-        # type: (str,ASTBody,ASTSourceLocation,str) -> ASTSynapse
+        # type: (str,ASTSynapseBody,ASTSourceLocation,str) -> ASTSynapse
         return ASTSynapse(name, body, source_position, artifact_name)
 
     @classmethod

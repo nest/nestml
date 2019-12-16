@@ -96,7 +96,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             assign_ode_to_variables(equation_block)
         if not self.after_ast_rewrite_:
             CoCosManager.post_ode_specification_checks(node)
-        Logger.set_current_neuron(None)
+        Logger.set_current_astnode(None)
         return
 
     def visit_body(self, node):
@@ -136,11 +136,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # now first, we add all predefined elements to the scope
         variables = PredefinedVariables.get_variables()
         functions = PredefinedFunctions.get_function_symbols()
+        types = PredefinedTypes.get_types()
         for symbol in variables.keys():
             node.get_scope().add_symbol(variables[symbol])
         for symbol in functions.keys():
             node.get_scope().add_symbol(functions[symbol])
-        return
+        for symbol in types.keys():
+            node.get_scope().add_symbol(types[symbol])
 
     def endvisit_synapse(self, node):
         # before following checks occur, we need to ensure several simple properties
@@ -350,13 +352,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
         visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(visitor)
         type_name = visitor.result
+
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable or
                          self.block_type_stack.top() == BlockType.STATE or
                          self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
-        
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []

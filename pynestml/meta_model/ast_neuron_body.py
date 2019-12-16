@@ -1,5 +1,5 @@
 #
-# ast_body.py
+# ast_neuron_body.py
 #
 # This file is part of NEST.
 #
@@ -20,10 +20,10 @@
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTBody(ASTNode):
+class ASTNeuronBody(ASTNode):
     """
     This class is used to store the body of a neuron, an object containing all the definitions.
-    ASTBody The body of the neuron, e.g. internal, state, parameter...
+    ASTNeuronBody The body of the neuron, e.g. internal, state, parameter...
     Grammar:
         body : BLOCK_OPEN
                (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
@@ -40,7 +40,7 @@ class ASTBody(ASTNode):
         :param source_position: the position of the element in the source model
         :rtype source_location: ASTSourceLocation
         """
-        super(ASTBody, self).__init__(source_position)
+        super(ASTNeuronBody, self).__init__(source_position)
         self.bodyElements = body_elements
 
     def get_body_elements(self):
@@ -195,7 +195,7 @@ class ASTBody(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTBody):
+        if not isinstance(other, ASTNeuronBody):
             return False
         if len(self.get_body_elements()) != len(other.get_body_elements()):
             return False

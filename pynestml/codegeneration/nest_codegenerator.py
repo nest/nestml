@@ -66,6 +66,7 @@ from pynestml.symbols.variable_symbol import BlockType
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
+from pynestml.visitors.ast_visitor import ASTVisitor
 #from pynestml.visitors.ast_symbol_table_visitor import assign_ode_to_variables
 
 
@@ -375,7 +376,8 @@ class NESTCodeGenerator(CodeGenerator):
         for synapse in synapses:
             if Logger.logging_level == LoggingLevel.INFO:
                 print("Analysing/transforming synapse {}.".format(synapse.get_name()))
-            self.analyse_synapse(synapse)
+            spike_updates = self.analyse_synapse(synapse)
+            synapse.spike_updates = spike_updates
             # now store the transformed model
             self.store_transformed_model(synapse)
 
@@ -648,6 +650,72 @@ class NESTCodeGenerator(CodeGenerator):
         return spike_updates
 
 
+    def analyse_synapse(self, synapse):
+        # type: (ASTsynapse) -> None
+        """
+        Analyse and transform a single synapse.
+        :param synapse: a single synapse.
+        """
+        code, message = Messages.get_start_processing_synapse(synapse.get_name())
+        Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
+
+        equations_block = synapse.get_equations_block()
+
+        if equations_block is not None:
+            delta_factors = self.get_delta_factors_(synapse, equations_block)
+            shape_buffers = self.generate_shape_buffers_(synapse, equations_block)
+            #print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
+            self.replace_convolve_calls_with_buffers_(synapse, equations_block, shape_buffers)
+            
+            #print("NEST codegenerator step 0...")
+            #self.mark_shape_variable_symbols(synapse, shape_buffers)
+            
+            #print("NEST codegenerator step 3...")
+            #self.update_symbol_table(synapse, shape_buffers)
+
+            #print("NEST codegenerator: replacing functions through defining expressions...")
+            self.make_functions_self_contained(equations_block.get_ode_functions())
+            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
+            #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
+
+            analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, shape_buffers)
+            self.analytic_solver[synapse.get_name()] = analytic_solver
+            self.numeric_solver[synapse.get_name()] = numeric_solver
+            
+            self.remove_initial_values_for_shapes(synapse)
+            shapes = self.remove_shape_definitions_from_equations_block(synapse)
+            self.remove_initial_values_for_odes(synapse, [analytic_solver, numeric_solver], shape_buffers, shapes)
+            self.remove_ode_definitions_from_equations_block(synapse)
+            self.create_initial_values_for_odetb_shapes(synapse, [analytic_solver, numeric_solver], shape_buffers, shapes)
+            self.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
+            self.add_timestep_symbol(synapse)
+            #self.update_symbol_table(synapse, shape_buffers)
+
+            #print("NEST codegenerator: Adding ode-toolbox processed shapes to AST...")
+            #self.add_shape_odes(synapse, [analytic_solver, numeric_solver], shape_buffers)
+            #self.replace_convolve_calls_with_buffers_(synapse, equations_block, shape_buffers)
+
+            if not self.analytic_solver[synapse.get_name()] is None:
+                #print("NEST codegenerator: Adding propagators...")
+                synapse = add_declarations_to_internals(synapse, self.analytic_solver[synapse.get_name()]["propagators"])
+
+            #self.update_symbol_table(synapse, shape_buffers)
+            #self.remove_shape_definitions_from_equations_block(synapse, self.analytic_solver["state_variables"])
+
+            #if not self.numeric_solver is None:
+            #    functional_shapes_to_odes(synapse, self.numeric_solver)
+
+            # update shape buffers in case direct functions of time have been replaced by higher-order differential
+
+            #print("NEST codegenerator step 5...")
+            self.update_symbol_table(synapse, shape_buffers)
+
+            #print("NEST codegenerator step 6...")
+            spike_updates = self.get_spike_update_expressions(synapse, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
+
+        return spike_updates
+
+
     def generate_neuron_code(self, neuron):
         # type: (ASTNeuron) -> None
         """
@@ -701,7 +769,7 @@ class NESTCodeGenerator(CodeGenerator):
         For a handed over neuron, this method generates the corresponding implementation file.
         :param neuron: a single neuron object.
         """
-        neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_generation_helpers(neuron))
+        neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_neuron_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
             f.write(str(neuron_cpp_file))
 
@@ -714,22 +782,23 @@ class NESTCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         gsl_converter = GSLReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(gsl_converter)
+        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
         # helper classes and objects
         converter = NESTReferenceConverter(False)
-        legacy_pretty_printer = LegacyExpressionPrinter(converter)
+        unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
 
         namespace['synapseName'] = synapse.get_name()
         namespace['synapse'] = synapse
+        namespace['astnode'] = synapse
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
-        namespace['printer'] = NestPrinter(legacy_pretty_printer)
+        namespace['printer'] = NestPrinter(unitless_pretty_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['idemPrinter'] = LegacyExpressionPrinter()
+        namespace['idemPrinter'] = UnitlessExpressionPrinter()
         # namespace['outputEvent'] = namespace['printer'].print_output_event(synapse.get_body())
         # namespace['is_spike_input'] = ASTUtils.is_spike_input(synapse.get_body())
         # namespace['is_current_input'] = ASTUtils.is_current_input(synapse.get_body())
@@ -737,11 +806,72 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
 
+
+        namespace['initial_values'] = {}
+        namespace['uses_analytic_solver'] = not self.analytic_solver[synapse.get_name()] is None
+        if namespace['uses_analytic_solver']:
+            namespace['analytic_state_variables'] = self.analytic_solver[synapse.get_name()]["state_variables"]
+            namespace['analytic_variable_symbols'] = { sym : synapse.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
+            namespace['update_expressions'] = {}
+            for sym, expr in self.analytic_solver[synapse.get_name()]["initial_values"].items():
+                namespace['initial_values'][sym] = expr
+            for sym in namespace['analytic_state_variables']:
+                expr_str = self.analytic_solver[synapse.get_name()]["update_expressions"][sym]
+                expr_ast = ModelParser.parse_expression(expr_str)
+                expr_ast.update_scope(synapse.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
+                expr_ast.accept(ASTSymbolTableVisitor())
+                namespace['update_expressions'][sym] = expr_ast
+
+#            namespace['update_expressions'] = { sym : ModelParser.parse_expression(expr) for sym, expr in self.analytic_solver["update_expressions"].items() }
+
+            #namespace['update_expressions'] = self.analytic_solver["update_expressions"]
+            namespace['propagators'] = self.analytic_solver[synapse.get_name()]["propagators"]
+
+        namespace['uses_numeric_solver'] = not self.numeric_solver[synapse.get_name()] is None
+        if namespace['uses_numeric_solver']:
+            namespace['numeric_state_variables'] = self.numeric_solver[synapse.get_name()]["state_variables"]
+            namespace['numeric_variable_symbols'] = { sym : synapse.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables'] }
+            assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
+            namespace['numeric_update_expressions'] = {}
+            for sym, expr in self.numeric_solver[synapse.get_name()]["initial_values"].items():
+                namespace['initial_values'][sym] = expr
+            for sym in namespace['numeric_state_variables']:
+                expr_str = self.numeric_solver[synapse.get_name()]["update_expressions"][sym]
+                expr_ast = ModelParser.parse_expression(expr_str)
+                expr_ast.update_scope(synapse.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
+                expr_ast.accept(ASTSymbolTableVisitor())
+                namespace['numeric_update_expressions'][sym] = expr_ast
+
+            namespace['useGSL'] = namespace['uses_numeric_solver']
+            namespace['names'] = GSLNamesConverter()
+            converter = NESTReferenceConverter(True)
+            unitless_pretty_printer = UnitlessExpressionPrinter(converter)
+            namespace['printer'] = NestPrinter(unitless_pretty_printer)        
+
+
         namespace["PyNestMLLexer"] = {}
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
         for kw in dir(PyNestMLLexer):
             if kw.isupper():
                 namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
+
+        namespace["spike_updates"] = synapse.spike_updates
+
+
+        #for parameter in synapse.get_parameter_non_alias_symbols():
+            
+            #class WeightParameterFinderVisitor(ASTVisitor):
+
+                #def visit_function_call(self, node):
+                    #func_name = node.get_name()
+                    #if func_name == 'deliver_spike':
+                        #import pdb;pdb.set_trace()
+                        #self.weightParameter = node
+
+            #weightParameterFinderVisitor = WeightParameterFinderVisitor()
+            #synapse.accept(weightParameterFinderVisitor)
+
+            #namespace["weight_parameter"] = weightParameterFinderVisitor.weightParameter
 
         # self.define_solver_type(synapse, namespace)
         return namespace
@@ -764,6 +894,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['neuronName'] = neuron.get_name()
         namespace['neuron'] = neuron
+        namespace['astnode'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         namespace['printer'] = NestPrinter(unitless_pretty_printer)
         namespace['assignments'] = NestAssignmentsHelper()
@@ -1285,22 +1416,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
-        for declaration in initial_values.get_declarations():
-            variable = declaration.get_variables()[0]
-            for shape in shape_to_buffers:
-                matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-                if re.match(matcher_computed_shape_odes, str(variable)):
-                    buffer_type = neuron.get_scope(). \
-                        resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
-                    assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
-                        shape] + '/' + buffer_type.print_nestml_type() + ") * " + \
-                                        self._printer.print_expression(declaration.get_expression())
-                    spike_updates.append(ModelParser.parse_assignment(assignment_string))
-                    # the IV is applied. can be reset
-                    declaration.set_expression(ModelParser.parse_expression("0"))
-        for assignment in spike_updates:
-            add_assignment_to_update_block(assignment, neuron)
-
         for shape, spike_input_port in shape_buffers:
             buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 

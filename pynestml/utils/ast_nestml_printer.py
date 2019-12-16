@@ -23,8 +23,6 @@ from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_body import ASTBody
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -44,7 +42,7 @@ from pynestml.meta_model.ast_input_type import ASTInputType
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_ode_function import ASTOdeFunction
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
@@ -54,6 +52,8 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -84,8 +84,8 @@ class ASTNestMLPrinter(object):
             ret = self.print_block(node)
         if isinstance(node, ASTBlockWithVariables):
             ret = self.print_block_with_variables(node)
-        if isinstance(node, ASTBody):
-            ret = self.print_body(node)
+        if isinstance(node, ASTNeuronBody):
+            ret = self.print_neuron_body(node)
         if isinstance(node, ASTSynapseBody):
             ret = self.print_synapse_body(node)
         if isinstance(node, ASTComparisonOperator):
@@ -264,8 +264,8 @@ class ASTNestMLPrinter(object):
         self.dec_indent()
         return ret
 
-    def print_body(self, node):
-        # type: (ASTBody) -> str
+    def print_neuron_body(self, node):
+        # type: (ASTNeuronBody) -> str
         ret = ''
         for elem in node.bodyElements:
             ret += self.print_node(elem)

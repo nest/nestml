@@ -134,14 +134,7 @@ void
   {% endfor %}
 
   {% for synapse in synapses %}
-  nest::kernel()
-    .model_manager
-    .register_connection_model< nest::{{synapse.get_name()}}< nest::TargetIdentifierPtrRport > >(
-      "{{synapse.get_name()}}" );
-  nest::kernel()
-    .model_manager
-    .register_connection_model< nest::{{synapse.get_name()}}< nest::TargetIdentifierIndex > >(
-      "{{synapse.get_name()}}_hpc");
+  nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
   {% endfor %}
 
 } // {{moduleName}}::init()

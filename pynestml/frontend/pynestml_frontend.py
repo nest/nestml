@@ -152,7 +152,8 @@ def process():
             compilation_units.append(parsed_unit)
     if len(compilation_units) > 0:
         # generate a list of all neurons
-        neurons = list()
+        neurons = []
+        synapses = []
         for compilationUnit in compilation_units:
             neurons.extend(compilationUnit.get_neuron_list())
             synapses.extend(compilationUnit.get_synapse_list())

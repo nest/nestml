@@ -53,8 +53,8 @@ class ASTDeclaration(ASTNode):
         invariant = None
     """
 
-    def __init__(self, is_recordable=False, is_function=False, _variables=list(), data_type=None, size_parameter=None,
-                 expression=None, invariant=None, source_position=None, decorators=[]):
+    def __init__(self, is_recordable=False, is_function=False, _variables=None, data_type=None, size_parameter=None,
+                 expression=None, invariant=None, source_position=None, decorators=None):
         """
         Standard constructor.
         :param is_recordable: is a recordable declaration.
@@ -75,6 +75,10 @@ class ASTDeclaration(ASTNode):
         :type source_position: ASTSourceLocation.
         """
         super(ASTDeclaration, self).__init__(source_position)
+        if _variables is None:
+            _variables = []
+        if decorators is None:
+            decorators = []
         self.is_recordable = is_recordable
         self.is_function = is_function
         self.variables = _variables
