@@ -54,9 +54,17 @@ nest.Install("nestmlmodule")
 resolution = 1.	 # [ms]
 delay = 1.  # [ms]
 
-pre_spike_times = [2., 5., 7., 8., 10., 11., 15., 17., 20., 21., 22., 23., 26., 28.]	  # [ms]
+#pre_spike_times = [6.]
+#post_spike_times = [1.,3.]
+
+pre_spike_times = [3.,11.]	  # [ms]
+post_spike_times = [6.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+
+pre_spike_times = [3., 5., 7., 11., 15., 17., 20., 21., 22., 23., 26., 28.]	  # [ms]
+post_spike_times = [6., 8., 10., 13.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+
 # pre_spike_times = 1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))	  # [ms]
-post_spike_times =  np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+
 
 print("Pre spike times: " + str(pre_spike_times))
 print("Post spike times: " + str(post_spike_times))
@@ -71,9 +79,8 @@ nest.SetKernelStatus({'resolution': resolution})
 wr = nest.Create('weight_recorder')
 wr_ref = nest.Create('weight_recorder')
 nest.CopyModel("stdp_connection_nestml", "stdp_connection_nestml_rec",
-			   {"weight_recorder": wr[0], "w": 1.9876, "the_delay" : 1.})
-nest.CopyModel("stdp_synapse", "stdp_connection_ref_rec",
-			   {"weight_recorder": wr[0]})
+			   {"weight_recorder": wr[0], "w": 1., "the_delay" : 1., "receptor_type" : 1})
+nest.CopyModel("stdp_synapse", "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type" : 1})
 
 # create spike_generators with these times
 pre_sg = nest.Create("spike_generator", 
@@ -106,7 +113,7 @@ nest.Connect(post_parrot, spikedet_post)
 syn = nest.GetConnections(source=pre_parrot, synapse_model="stdp_connection_nestml_rec")
 syn_ref = nest.GetConnections(source=pre_parrot_ref, synapse_model="stdp_connection_ref_rec")
 
-sim_time = np.amax(pre_spike_times) + 5 * delay
+sim_time = 20. #np.amax(pre_spike_times) + 5 * delay
 n_steps = int(np.ceil(sim_time / resolution)) + 1
 t = 0.
 t_hist = []

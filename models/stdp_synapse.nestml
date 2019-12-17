@@ -1,12 +1,9 @@
 /*
-Name: stdp_synapse - Synapse type for spike-timing dependent
-plasticity.
+Name: stdp_synapse - Synapse type for spike-timing dependent plasticity.
 
 Description:
 
-stdp_synapse is a connector to create synapses with spike time
-dependent plasticity (as defined in [1]). Here the weight dependence
-exponent can be set separately for potentiation and depression.
+stdp_synapse is a synapses with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression.
 
 Examples:
 
@@ -56,14 +53,14 @@ SeeAlso: synapsedict, tsodyks_synapse, static_synapse
 synapse stdp:
 
   initial_values:
-    w nS = 1 nS
-    Kplus real = 0.
+    w nS = 1.234 nS
+    #Kplus real = 0.
     # N.B. Kminus is in postsynaptic partner; using `get_post_trace()`
   end
 
   parameters:
-    delay ms = 1 ms
-    lambda real = 0.01
+    the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+    lambda real = .01
     tau_plus ms = 20 ms
     alpha real = 1.
     mu_plus real = 1.
@@ -76,27 +73,30 @@ synapse stdp:
     # Kplus: all-to-all trace
     #shape Kplus_kernel' = -Kplus_kernel / tau_plus
     shape Kplus_kernel = exp(-t / tau_plus)
-    function Kpluss real = convolve(Kplus_kernel, pre_spikes)
-    Kplus' = 1
+    function Kplus real = convolve(Kplus_kernel, pre_spikes)
+    #Kplus' = -Kplus / tau_plus
+  end
+
+  input:
+    pre_spikes nS <- spike
   end
 
   postReceive:
     # potentiate synapse
-    w_ nS = Wmax * (( w / Wmax ) + (lambda * pow( 1. - ( w / Wmax ), mu_plus ) * Kplus ))
-    w = min(Wmax, w + w_)
+    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * Kplus ))
+    w = min(Wmax, w_)
   end
 
   preReceive:
     # depress synapse
-    w_ nS = Wmax * (( w / Wmax ) - ( alpha * lambda * pow( w / Wmax, mu_minus ) * get_post_trace() ))
+    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * get_post_trace() ))
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner
-    deliver_spike(w, delay)
+    deliver_spike(w, the_delay)
   end
   
   update:
-    integrate_odes()
   end
 
 end

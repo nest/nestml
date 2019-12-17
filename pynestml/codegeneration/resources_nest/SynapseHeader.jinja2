@@ -458,7 +458,7 @@ assert(0);
 /*
   
   {{printer.print_origin(weight_parameter)}}{{names.name(weight_parameter)}} = w; // type: {{declarations.print_variable_type(weight_parameter)}}
-  
+
 {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
 {%-     set namespaceName = parameter.get_namespace_decorator('nest') %}
 {%-     if (namespaceName == 'weight') %}
@@ -756,7 +756,9 @@ template < typename targetidentifierT >
 void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
 {
 {%- for variable in synapse.get_internal_non_alias_symbols() %}
-{%-     include "directives/Calibrate.jinja2" %}
+{%-     if not variable.get_symbol_name() == "__h" %}
+{%-         include "directives/Calibrate.jinja2" %}
+{%-     endif %}
 {%- endfor %}
 }
 
@@ -774,7 +776,7 @@ template < typename targetidentifierT >
 {%-     endwith %}
 {%- endfor %}
 
-
+    V_.__h = nest::Time::get_resolution().get_ms();
     init_internals_block_symbols();
 
 
