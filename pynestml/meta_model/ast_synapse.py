@@ -121,3 +121,32 @@ class ASTSynapse(ASTNeuronOrSynapse):
         :rtype: ...
         """
         return self.get_body().get_post_receive()
+
+    def get_input_buffers(self):
+        """
+        Returns a list of all defined input buffers.
+        :return: a list of all input buffers.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.symbols.variable_symbol import BlockType
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
+                                                       symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+                ret.append(symbol)
+        return ret
+
+
+    def get_spike_buffers(self):
+        """
+        Returns a list of all spike input buffers defined in the model.
+        :return: a list of all spike input buffers.
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for BUFFER in self.get_input_buffers():
+            if BUFFER.is_spike_buffer():
+                ret.append(BUFFER)
+        return ret
+

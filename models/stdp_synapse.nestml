@@ -96,7 +96,7 @@ synapse stdp:
     deliver_spike(w, the_delay)
   end
   
-  update:
+  update:   # XXX: TODO: will be removed
   end
 
 end
