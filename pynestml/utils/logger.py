@@ -21,9 +21,6 @@ import json
 from collections import OrderedDict
 from enum import Enum
 
-# from pynestml.meta_model.ast_neuron import ASTNeuron
-# from pynestml.meta_model.ast_synapse import ASTSynapse
-
 
 class Logger(object):
     """

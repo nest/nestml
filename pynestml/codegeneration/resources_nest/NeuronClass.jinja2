@@ -260,17 +260,17 @@ void {{neuronName}}::init_buffers_(){
 
 void {{neuronName}}::calibrate(){
   B_.logger_.init();
-1
+
   {%- for variable in neuron.get_internal_non_alias_symbols() %}
   {% include "directives/Calibrate.jinja2" %}
   {%- endfor %}
-2
+
   {%- for variable in neuron.get_state_non_alias_symbols() -%}
   {%- if variable.has_vector_parameter() %}{% filter indent(2,True) %}
   {%- include "directives/Calibrate.jinja2" -%}{% endfilter -%}
   {%- endif -%}
   {%- endfor -%}
-3
+
   {%- for buffer in neuron.get_input_buffers() -%}
     {%- if buffer.has_vector_parameter() -%}
         B_.{{buffer.get_symbol_name()}}.resize(P_.{{buffer.get_vector_parameter()}});

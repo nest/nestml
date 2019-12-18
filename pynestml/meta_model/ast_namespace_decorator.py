@@ -32,7 +32,6 @@ class ASTNamespaceDecorator(ASTNode):
         super(ASTNamespaceDecorator, self).__init__(source_position)
         self.namespace = namespace
         self.name = name
-        print("*********** CREATD ASTNamespaceDecorator wth " + str(name) + ", namespace= " + str(namespace))
 
     def get_namespace(self):
         """

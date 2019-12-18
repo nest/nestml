@@ -1,5 +1,5 @@
 #
-# ast_body.py
+# ast_synapse_body.py
 #
 # This file is part of NEST.
 #
