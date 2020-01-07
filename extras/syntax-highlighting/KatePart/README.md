@@ -1,10 +1,9 @@
-This syntax file is for [KatePart][katepart], which is used in many KDE applications.
-It can also be used by `pandoc`.
+This syntax file is for [KatePart][katepart], which is used in many KDE applications, such as Kate and KDevelop. It can also be used by Pandoc.
 
-If you modify the `nestml-hightight.xml`, you can verify it by running
+If you modify `nestml-highlight.xml`, you can verify it by running
 
 ```bash
-xmllint --noout --schema language.xsd nestml-highlighting.xml
+xmllint --noout --schema language.xsd nestml-highlight.xml
 ```
 
 For using it with Pandoc you need to give the extra `--syntax-definition` option:
@@ -15,13 +14,12 @@ pandoc --standalone --syntax-definition nestml-highlight.xml \
        Presentation.md  -o Presentation.html
 ```
 
-with a file like
+You can then embed NESTML code with the usual Markdown syntax, e.g.:
+
 ```markdown
 # Section
 
 ## Slide
-
-You can do the following
 
 ```nestml
 neuron foo:
