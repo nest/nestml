@@ -1,5 +1,5 @@
 #
-# ast_input_type.py
+# ast_input_qualifier.py
 #
 # This file is part of NEST.
 #
@@ -22,14 +22,16 @@
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTInputType(ASTNode):
+class ASTInputQualifier(ASTNode):
     """
-    This class is used to store the type of a buffer.
-    ASTInputType represents the type of the input line e.g.: inhibitory or excitatory:
-    @attribute inhibitory true iff the neuron is a inhibitory.
-    @attribute excitatory true iff. the neuron is a excitatory.
+    This class is used to store the qualifier of a buffer.
+    ASTInputQualifier represents the qualifier of the input port. Only valid for spiking inputs.
+    @attribute inhibitory true Indicates that this spiking input port is inhibitory.
+    @attribute excitatory true Indicates that this spiking input port is excitatory.
+
     Grammar:
-        inputType : ('inhibitory' | 'excitatory');
+        inputQualifier : ('inhibitory' | 'excitatory');
+
     Attributes:
         is_inhibitory = False
         is_excitatory = False
@@ -45,7 +47,7 @@ class ASTInputType(ASTNode):
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        super(ASTInputType, self).__init__(source_position)
+        super(ASTInputQualifier, self).__init__(source_position)
         self.is_excitatory = is_excitatory
         self.is_inhibitory = is_inhibitory
 
@@ -67,6 +69,6 @@ class ASTInputType(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTInputType):
+        if not isinstance(other, ASTInputQualifier):
             return False
         return self.is_excitatory == other.is_excitatory and self.is_inhibitory == other.is_inhibitory

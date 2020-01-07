@@ -18,51 +18,53 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_node import ASTNode
 
 
 class ASTInputBlock(ASTNode):
     """
     This class is used to store blocks of input definitions.
-    ASTInputBlock represents the input block:
+    ASTInputBlock represents the input block, e.g.:
         input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
+          spikeBuffer pA <- excitatory spike
+          currentBuffer pA <- current
         end
 
-    @attribute inputLine set of input lines.
+    @attribute inputPort set of input ports.
     Grammar:
           inputBlock: 'input'
             BLOCK_OPEN
-              (inputLine | NEWLINE)*
+              (inputPort | NEWLINE)*
             BLOCK_CLOSE;
     Attributes:
         input_definitions = None
     """
 
-    def __init__(self, input_definitions=list(), source_position=None):
+    def __init__(self, input_definitions=None, source_position=None):
         """
         Standard constructor.
         :param input_definitions:
-        :type input_definitions: list(ASTInputLine)
+        :type input_definitions: list(ASTInputPort)
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
+        if input_definitions is None:
+            input_definitions = []
         assert (input_definitions is not None and isinstance(input_definitions, list)), \
             '(PyNestML.AST.Input) No or wrong type of input definitions provided (%s)!' % type(input_definitions)
         for definition in input_definitions:
-            assert (definition is not None and isinstance(definition, ASTInputLine)), \
+            assert (definition is not None and isinstance(definition, ASTInputPort)), \
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
         super(ASTInputBlock, self).__init__(source_position)
         self.input_definitions = input_definitions
         return
 
-    def get_input_lines(self):
+    def get_input_ports(self):
         """
-        Returns the list of input lines.
-        :return: a list of input lines
-        :rtype: list(ASTInputLine)
+        Returns the list of input ports.
+        :return: a list of input ports
+        :rtype: list(ASTInputPort)
         """
         return self.input_definitions
 
@@ -74,11 +76,11 @@ class ASTInputBlock(ASTNode):
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        for line in self.get_input_lines():
-            if line is ast:
+        for port in self.get_input_ports():
+            if port is ast:
                 return self
-            elif line.get_parent(ast) is not None:
-                return line.get_parent(ast)
+            elif port.get_parent(ast) is not None:
+                return port.get_parent(ast)
         return None
 
     def equals(self, other):
@@ -91,11 +93,11 @@ class ASTInputBlock(ASTNode):
         """
         if not isinstance(other, ASTInputBlock):
             return False
-        if len(self.get_input_lines()) != len(other.get_input_lines()):
+        if len(self.get_input_ports()) != len(other.get_input_ports()):
             return False
-        my_input_lines = self.get_input_lines()
-        your_input_lines = other.get_input_lines()
-        for i in range(0, len(my_input_lines)):
-            if not my_input_lines[i].equals(your_input_lines[i]):
+        my_input_ports = self.get_input_ports()
+        your_input_ports = other.get_input_ports()
+        for i in range(0, len(my_input_ports)):
+            if not my_input_ports[i].equals(your_input_ports[i]):
                 return False
         return True

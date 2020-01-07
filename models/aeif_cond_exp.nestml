@@ -12,7 +12,7 @@ adaptive step size to integrate the differential equation.
 
 The membrane potential is g_inven by the following differential equation:
 C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w +I_e
+                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
 
 and
 
@@ -62,7 +62,6 @@ neuron aeif_cond_exp:
     V_reset mV = -60.0 mV   # Reset Potential
     g_L nS = 30.0 nS        # Leak Conductance
     E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
-    I_e pA = 0 pA           # Constant Current
 
     # spike adaptation parameters
     a nS = 4 nS             # Subthreshold adaptation.
@@ -78,8 +77,8 @@ neuron aeif_cond_exp:
     E_in mV = -85.0 mV        # Inhibitory reversal Potential
     tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
 
-
-    I_stim pA = 0 pA
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -92,7 +91,7 @@ neuron aeif_cond_exp:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
-      currents <- current
+      I_stim pA <- current
   end
 
   output: spike
@@ -129,7 +128,7 @@ adaptive step size to integrate the differential equation.
 
 The membrane potential is g_inven by the following differential equation:
 C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w +I_e
+                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
 
 and
 
@@ -175,7 +174,7 @@ neuron aeif_cond_exp_implicit:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
 
-    V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
+    V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
   end
 
@@ -186,7 +185,6 @@ neuron aeif_cond_exp_implicit:
     V_reset mV = -60.0 mV   # Reset Potential
     g_L nS = 30.0 nS        # Leak Conductance
     E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
-    I_e pA = 0 pA           # Constant Current
 
     # spike adaptation parameters
     a nS = 4 nS             # Subthreshold adaptation.
@@ -201,6 +199,9 @@ neuron aeif_cond_exp_implicit:
     tau_syn_ex ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
     E_in mV = -85.0 mV        # Inhibitory reversal Potential
     tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -211,7 +212,7 @@ neuron aeif_cond_exp_implicit:
   input:
     spikeInh nS  <- inhibitory spike
     spikeExc nS  <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike

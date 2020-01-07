@@ -18,9 +18,9 @@ neuron logarithm_function_test:
   end
 
   input:
-      spikeInh nS  <- inhibitory spike
-      spikeExc nS  <- excitatory spike
-      currents <- current
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
+      currents pA <- current
   end
 
   output: spike

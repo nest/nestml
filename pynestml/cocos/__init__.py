@@ -20,11 +20,11 @@ __all__ = [
     'co_co_no_nest_name_space_collision.py',
     'co_co_no_shapes_except_in_convolve.py',
     'co_co_no_two_neurons_in_set_of_compilation_units.py',
-    'co_co_only_spike_buffer_data_types.py',
+    'co_co_buffer_data_type.py',
     'co_co_parameters_assigned_only_in_parameter_block.py',
     'co_cos_manager.py',
     'co_co_sum_has_correct_parameter.py',
-    'co_co_type_of_buffer_unique.py',
+    'co_co_buffer_qualifier_unique.py',
     'co_co_user_defined_function_correctly_defined.py',
     'co_co_variable_once_per_scope.py',
     'co_co_vector_variable_in_non_vector_declaration.py'

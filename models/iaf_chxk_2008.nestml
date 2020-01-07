@@ -41,7 +41,7 @@ neuron iaf_chxk_2008:
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -56,9 +56,10 @@ neuron iaf_chxk_2008:
     tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
     g_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
-    ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current
+    ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
 
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -74,9 +75,9 @@ neuron iaf_chxk_2008:
   end
 
   input:
-      spikesInh nS <- inhibitory spike
-      spikesExc nS <- excitatory spike
-      currents <- current
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -163,7 +164,7 @@ neuron iaf_chxk_2008_implicit:
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -178,8 +179,10 @@ neuron iaf_chxk_2008_implicit:
     tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
     g_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
-    ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current
+    ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -195,9 +198,9 @@ neuron iaf_chxk_2008_implicit:
   end
 
   input:
-      spikesInh nS <- inhibitory spike
-      spikesExc nS <- excitatory spike
-      currents <- current
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

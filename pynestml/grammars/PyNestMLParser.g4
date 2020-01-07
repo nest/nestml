@@ -259,38 +259,38 @@ parser grammar PyNestMLParser;
                    (odeFunction|odeEquation|odeShape|NEWLINE)*
                    END_KEYWORD;
 
-  /** ASTInputBlock represents a single input block:
+  /** ASTInputBlock represents a single input block, e.g.:
     input:
-      spikeBuffer   <- inhibitory excitatory spike
-      currentBuffer <- current
+      spikeBuffer <- excitatory spike
+      currentBuffer pA <- current
     end
-    @attribute inputLine: A list of input lines.
+    @attribute inputPort: A list of input ports.
   */
   inputBlock: INPUT_KEYWORD COLON
-              (inputLine | NEWLINE)*
+              (inputPort | NEWLINE)*
               END_KEYWORD;
 
-  /** ASTInputLine represents a single line form the input, e.g.:
-      spikeBuffer   <- inhibitory excitatory spike
-    @attribute name:   The name of the defined buffer, inSpike.
-    @attribute sizeParameter: Optional parameter representing  multisynapse neuron.
+  /** ASTInputPort represents a single input port, e.g.:
+      spikeBuffer type <- excitatory spike
+    @attribute name: The name of the input port.
+    @attribute sizeParameter: Optional size parameter for multisynapse neuron.
     @attribute datatype: Optional data type of the buffer.
-    @attribute inputType: The type of the inputchannel: e.g. inhibitory or excitatory (or both).
-    @attribute isSpike: True iff the neuron is a spike.
-    @attribute isCurrent: True iff. the neuron is a current.
+    @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
+    @attribute isSpike: Indicates that this input port accepts spikes.
+    @attribute isCurrent: Indicates that this input port accepts current generator input.
   */
-  inputLine:
+  inputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     (dataType)?
-    LEFT_ANGLE_MINUS inputType*
+    LEFT_ANGLE_MINUS inputQualifier*
     (isCurrent = CURRENT_KEYWORD | isSpike = SPIKE_KEYWORD);
 
-  /** ASTInputType represents the type of the inputLine e.g.: inhibitory or excitatory:
-    @attribute isInhibitory: true iff the neuron is a inhibitory.
-    @attribute isExcitatory: true iff. the neuron is a excitatory.
+  /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
+    @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
+    @attribute isExcitatory: Indicates that this spiking input port is excitatory.
   */
-  inputType : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
+  inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
   /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
         output: spike
