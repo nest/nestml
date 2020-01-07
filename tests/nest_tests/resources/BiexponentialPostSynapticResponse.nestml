@@ -35,11 +35,11 @@ neuron biexp_postsynaptic_reponse:
 
       shape g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
       
-      function I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
-      function I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
-      function I_syn_gap pA = (F_I + convolve(g_gap, spikeGap)) * (V_m - E_gap)
-      function I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA)) * (V_m - E_gap)
-      function I_leak pA = g_L * (V_m - E_L)
+      inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
+      inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
+      inline I_syn_gap pA = (F_I + convolve(g_gap, spikeGap)) * (V_m - E_gap)
+      inline I_syn_GABA pA = (F_I + convolve(g_GABA, spikeGABA)) * (V_m - E_gap)
+      inline I_leak pA = g_L * (V_m - E_L)
 
       V_m' = (-I_leak - I_syn_exc - I_syn_inh - I_syn_gap - I_syn_GABA + currents + I_e) / C_m
   end
@@ -72,13 +72,21 @@ neuron biexp_postsynaptic_reponse:
 
   internals:
     # time of peak conductance excursion after spike arrival at t = 0
-    t_peak_gap  real = tau_syn_decay_gap * tau_syn_rise_gap / (tau_syn_decay_gap - tau_syn_rise_gap) * ln(tau_syn_decay_gap / tau_syn_rise_gap)
-    t_peak_E  real = tau_syn_decay_E * tau_syn_rise_E / (tau_syn_decay_E - tau_syn_rise_E) * ln(tau_syn_decay_E / tau_syn_rise_E)
-    t_peak_I real = tau_syn_decay_I * tau_syn_rise_I / (tau_syn_decay_I - tau_syn_rise_I) * ln(tau_syn_decay_I / tau_syn_rise_I)
+    t_peak_E real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12
+                    ? tau_syn_decay_E
+                    : tau_syn_decay_E * tau_syn_rise_E * ln(tau_syn_decay_E / tau_syn_rise_E) / (tau_syn_decay_E - tau_syn_rise_E)
+    t_peak_I real = abs(tau_syn_decay_I - tau_syn_rise_I) < 1E-12
+                    ? tau_syn_decay_I
+                    : tau_syn_decay_I * tau_syn_rise_I * ln(tau_syn_decay_I / tau_syn_rise_I) / (tau_syn_decay_I - tau_syn_rise_I)
+    t_peak_gap real = tau_syn_decay_gap * tau_syn_rise_gap / (tau_syn_decay_gap - tau_syn_rise_gap) * ln(tau_syn_decay_gap / tau_syn_rise_gap)
   
     # normalisation constants to ensure arriving spike yields peak conductance of 1 nS
-    g_E_const real = 1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
-    g_I_const real = 1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
+    g_E_const real = abs(tau_syn_decay_E - tau_syn_rise_E) < 1E-12 ?
+                         exp(1) / tau_syn_decay_E :
+                         1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
+   g_I_const real = abs(tau_syn_decay_I - tau_syn_rise_I) < 1E-12 ?
+                         exp(1) / tau_syn_decay_I :
+                         1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
     g_gap_const real = 1 / (exp(-t_peak_gap / tau_syn_decay_gap) - exp(-t_peak_gap / tau_syn_rise_gap))
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps

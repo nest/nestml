@@ -35,10 +35,10 @@ neuron iaf_chxk_2008:
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
     g_ahp'' = -2 * g_ahp' / tau_ahp - g_ahp / tau_ahp**2
 
-    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-    function I_ahp pA = g_ahp * ( V_m - E_ahp )
-    function I_leak pA = g_L * ( V_m - E_L )
+    inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    inline I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+    inline I_ahp pA = g_ahp * ( V_m - E_ahp )
+    inline I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
   end
@@ -154,10 +154,10 @@ neuron iaf_chxk_2008_implicit:
     g_ahp' = g_ahp$ - g_ahp / tau_ahp
     g_ahp$' = -g_ahp$ / tau_ahp
 
-    function I_syn_inh pA = PSConInit_I * convolve(g_in, spikesInh) * (V_m - E_in)
-    function I_syn_exc pA = PSConInit_E * convolve(g_ex, spikesExc) * (V_m - E_ex)
-    function I_ahp pA = g_ahp * ( V_m - E_ahp )
-    function I_leak pA = g_L * ( V_m - E_L )
+    inline I_syn_inh pA = PSConInit_I * convolve(g_in, spikesInh) * (V_m - E_in)
+    inline I_syn_exc pA = PSConInit_E * convolve(g_ex, spikesExc) * (V_m - E_ex)
+    inline I_ahp pA = g_ahp * ( V_m - E_ahp )
+    inline I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
   end

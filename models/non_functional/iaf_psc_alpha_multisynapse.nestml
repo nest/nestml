@@ -36,7 +36,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
 
   initial_values:
     V_abs mV = 0 mV
-    function V_m mV = V_abs + E_L # Membrane potential.
+    inline V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:

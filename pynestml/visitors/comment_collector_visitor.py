@@ -47,7 +47,7 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
                 get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
-    def visitOdeFunction(self, ctx):
+    def visitInlineExpression(self, ctx):
         return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
                 get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 

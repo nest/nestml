@@ -181,14 +181,19 @@ Examples for valid assignments for a numeric variable `n` are
 
 #### Functions
 
-Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword `end`.
-```
+Functions can be used to write repeatedly used code blocks only once, or to improve legibility in a model description. They consist of the function name, the list of parameters followed by the function body. If the function returns a value to the caller, one or more `return` statements can be used inside of the `function` block. Depending on the return type (if any), it is followed by an expression of that type. The function declaration ends with the keyword `end`:
+
+```nestml
 function <name>(<list_of_arguments>) <return_type>?:
   <statements>
 end
+```
 
+For example:
+
+```nestml
 function divide(a real, b real) real:
-  return a/b
+  return a / b
 end
 ```
 
@@ -227,20 +232,6 @@ The following functions are predefined in NestML and can be used out of the box:
 | emit\_spike | | Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time. |
 | steps | t | Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information. |
 | resolution | | Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information. |
-
-
-#### Return statement
-
-The `return` keyword can only be used inside of the `function` block. Depending on the return type (if any), it is followed by an expression of that type.
-```
-return (<expression>)?
-
-if a > b:
-  return a
-else:
-  return b
-end
-```
 
 ### Control structures
 
@@ -531,6 +522,15 @@ V mV = 0mV
 has to be stated in the `initial_values` block. If the initial values are not defined in `initial_values` it is assumed that they are zero and unit checks are no longer possible, thus an error message is generated.
 
 The content of spike and current buffers can be used by just using their plain names. NestML takes care behind the scenes that the buffer location at the current simulation time step is used.
+
+### Inline expressions
+
+In the `equations` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or shape expressions. In the following example, the inline expression `h_inf_T` is defined, and then used in an ODE definition:
+
+```nestml
+inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
+IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
+```
 
 ## Dynamics and time evolution
 

@@ -54,7 +54,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -139,8 +139,8 @@ class NestPrinter(object):
             ret = self.print_neuron(node)
         if isinstance(node, ASTOdeEquation):
             ret = self.print_ode_equation(node)
-        if isinstance(node, ASTOdeFunction):
-            ret = self.print_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            ret = self.print_inline_expression(node)
         if isinstance(node, ASTOdeShape):
             ret = self.print_ode_shape(node)
         if isinstance(node, ASTOutputBlock):

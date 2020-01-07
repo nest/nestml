@@ -31,7 +31,7 @@ neuron CoCoSumNotCorrectlyParametrized:
     end
 
     equations:
-        function testB pA = convolve(V_m+V_m, spikeExc)
+        inline testB pA = convolve(V_m+V_m, spikeExc)
     end
 
     update:

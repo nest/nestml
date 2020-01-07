@@ -54,7 +54,7 @@ from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -268,9 +268,9 @@ class ASTNodeFactory(object):
         return ASTOdeEquation(lhs, rhs, source_position)
 
     @classmethod
-    def create_ast_ode_function(cls, variable_name, data_type, expression, source_position, is_recordable=False):
-        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTOdeFunction
-        return ASTOdeFunction(variable_name=variable_name, data_type=data_type, expression=expression,
+    def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
+        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
+        return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
                               source_position=source_position, is_recordable=is_recordable, )
 
     @classmethod

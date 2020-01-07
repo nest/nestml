@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 
 
@@ -36,7 +36,7 @@ class ASTEquationsBlock(ASTNode):
           equationsBlock:
             'equations'
             BLOCK_OPEN
-              (odeFunction|odeEquation|odeShape|NEWLINE)+
+              (inlineExpression | odeEquation | odeShape | NEWLINE)+
             BLOCK_CLOSE;
     Attributes:
         declarations = None
@@ -55,7 +55,7 @@ class ASTEquationsBlock(ASTNode):
         for decl in declarations:
             assert (decl is not None and (isinstance(decl, ASTOdeShape) or
                                           isinstance(decl, ASTOdeEquation) or
-                                          isinstance(decl, ASTOdeFunction))), \
+                                          isinstance(decl, ASTInlineExpression))), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(source_position)
         self.declarations = declarations
@@ -64,7 +64,7 @@ class ASTEquationsBlock(ASTNode):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: list(ASTOdeFunction|ASTOdeEquation|ASTOdeShape)
+        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTOdeShape)
         """
         return self.declarations
 
@@ -107,18 +107,18 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_ode_functions(self):
+    def get_inline_expressions(self):
         """
-        Returns a list of all ode functions in this block.
-        :return: a list of all ode shapes.
-        :rtype: list(ASTOdeShape)
+        Returns a list of all inline expressions in this block.
+        :return: a list of all inline expressions.
+        :rtype: list(ASTInlineExpression)
         """
         ret = list()
         for decl in self.get_declarations():
-            if isinstance(decl, ASTOdeFunction):
+            if isinstance(decl, ASTInlineExpression):
                 ret.append(decl)
         return ret
-    
+
 
     def clear(self):
         """

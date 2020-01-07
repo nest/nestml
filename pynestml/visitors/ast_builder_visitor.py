@@ -261,17 +261,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                                                        source_position=create_source_pos(ctx))
         return node
 
-    # Visit a parse tree produced by PyNESTMLParser#odeFunction.
-    def visitOdeFunction(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#inline.
+    def visitInlineExpression(self, ctx):
         is_recordable = (True if ctx.recordable is not None else False)
         variable_name = (str(ctx.variableName.text) if ctx.variableName is not None else None)
         data_type = (self.visit(ctx.dataType()) if ctx.dataType() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
-        ode_function = ASTNodeFactory.create_ast_ode_function(is_recordable=is_recordable, variable_name=variable_name,
+        inlineExpr = ASTNodeFactory.create_ast_inline_expression(is_recordable=is_recordable, variable_name=variable_name,
                                                               data_type=data_type, expression=expression,
                                                               source_position=create_source_pos(ctx))
-        update_node_comments(ode_function, self.__comments.visit(ctx))
-        return ode_function
+        update_node_comments(inlineExpr, self.__comments.visit(ctx))
+        return inlineExpr
 
     # Visit a parse tree produced by PyNESTMLParser#equation.
     def visitOdeEquation(self, ctx):
@@ -522,8 +522,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.odeShape() is not None:
             for shape in ctx.odeShape():
                 elements.append(shape)
-        if ctx.odeFunction() is not None:
-            for fun in ctx.odeFunction():
+        if ctx.inlineExpression() is not None:
+            for fun in ctx.inlineExpression():
                 elements.append(fun)
         ordered = list()
         while len(elements) > 0:

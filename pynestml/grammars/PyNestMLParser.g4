@@ -118,7 +118,7 @@ parser grammar PyNestMLParser;
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable=RECORDABLE_KEYWORD)? FUNCTION_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
+  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
@@ -251,12 +251,12 @@ parser grammar PyNestMLParser;
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
          V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
        end
-     @attribute odeFunction: A single ode function statement, e.g., function V_m mV = ...
+     @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
-     @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
+     @attribute odeShape: A single ode shape statement, e.g., shape V_m = ....
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   (odeFunction|odeEquation|odeShape|NEWLINE)*
+                   (inlineExpression | odeEquation | odeShape | NEWLINE)*
                    END_KEYWORD;
 
                    
@@ -300,7 +300,7 @@ parser grammar PyNestMLParser;
     */
   outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isCurrent=CURRENT_KEYWORD) ;
 
-  /** ASTFunction A single declaration of a user-defined function definition:
+  /** ASTFunction A single declaration of a user-defined function:
       function set_V_m(v mV):
         y3 = v - E_L
       end

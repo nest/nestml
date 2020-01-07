@@ -428,11 +428,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_variable().update_scope(node.get_scope())
         return
 
-    def visit_ode_function(self, node):
+    def visit_inline_expression(self, node):
         """
         Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
-        :param node: a single ode-function.
-        :type node: ast_ode_function
+        :param node: a single inline expression..
+        :type node: ASTInlineExpression
         """
         data_type_visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(data_type_visitor)

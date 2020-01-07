@@ -148,35 +148,33 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(
             len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_invalid_functions_have_rhs(self):
+    def test_invalid_inline_expressions_have_rhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoFunctionHasNoRhs.nestml'))
-        self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+                         'CoCoInlineExpressionHasNoRhs.nestml'))
+        assert model is None
 
-    def test_valid_functions_have_rhs(self):
+    def test_valid_inline_expressions_have_rhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoFunctionHasNoRhs.nestml'))
+                         'CoCoInlineExpressionHasNoRhs.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_invalid_function_has_several_lhs(self):
+    def test_invalid_inline_expression_has_several_lhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoFunctionWithSeveralLhs.nestml'))
-        self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+                         'CoCoInlineExpressionWithSeveralLhs.nestml'))
+        assert model is None
 
-    def test_valid_function_has_several_lhs(self):
+    def test_valid_inline_expression_has_several_lhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoFunctionWithSeveralLhs.nestml'))
+                         'CoCoInlineExpressionWithSeveralLhs.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 

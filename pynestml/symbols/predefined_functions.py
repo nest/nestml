@@ -46,7 +46,7 @@ class PredefinedFunctions(object):
         CLIP                  The callee name of the clip function.
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
-        INTEGRATE_ODES        The callee name of the integrate-ode function.
+        INTEGRATE_ODES        The callee name of the integrate_odes function.
         CONVOLVE              The callee name of the convolve function.
         name2function         A dict of function symbols as currently defined.
     """
