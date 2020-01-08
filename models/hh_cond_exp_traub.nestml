@@ -40,13 +40,6 @@ neuron hh_cond_exp_traub:
   initial_values:
     V_m mV = E_L #  Membrane potential
 
-    alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
-    beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
-    alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
-    beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
-    alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
-    beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
-
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
@@ -96,6 +89,13 @@ neuron hh_cond_exp_traub:
     I_e pA = 0 pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
+
+    alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - E_L) / ( exp( ( 15. mV - E_L) / 5. mV ) - 1. )
+    beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - E_L ) / 40. mV )
+    alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - E_L) / ( exp( ( 13. mV - E_L) / 4. mV ) - 1. )
+    beta_m_init 1/ms = 0.28/(ms* mV ) * ( E_L  - 40. mV ) / ( exp( ( E_L - 40. mV ) / 5. mV ) - 1. )
+    alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - E_L) / 18. mV )
+    beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - E_L ) / 5. mV) ) ) / ms
   end
 
   internals:
@@ -171,13 +171,6 @@ neuron hh_cond_exp_traub_implicit:
     g_in nS = 1 nS # Inhibitory synaptic conductance
     g_ex nS = 1 nS # Excitatory synaptic conductance
 
-    alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
-    beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
-    alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
-    beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
-    alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
-    beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
-
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
@@ -226,6 +219,13 @@ neuron hh_cond_exp_traub_implicit:
     I_e pA = 0 pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
+
+    alpha_n_init 1/ms = 0.032/(ms*mV) * ( 15. mV - E_L) / ( exp( ( 15. mV - E_L) / 5. mV ) - 1. )
+    beta_n_init 1/ms = 0.5/ms * exp( ( 10. mV - E_L ) / 40. mV )
+    alpha_m_init 1/ms = 0.32/(ms*mV) * ( 13. mV - E_L) / ( exp( ( 13. mV - E_L) / 4. mV ) - 1. )
+    beta_m_init 1/ms = 0.28/(ms*mV) * ( E_L  - 40. mV ) / ( exp( ( E_L - 40. mV ) / 5. mV ) - 1. )
+    alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - E_L) / 18. mV )
+    beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - E_L ) / 5. mV) ) ) / ms
   end
 
   internals:

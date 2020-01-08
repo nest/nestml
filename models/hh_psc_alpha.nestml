@@ -50,14 +50,7 @@ neuron hh_psc_alpha:
   end
 
   initial_values:
-    V_m mV = -65. mV # Membrane potential
-
-    alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
-    beta_n_init  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
-    alpha_m_init real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
-    beta_m_init  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
-    alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
-    beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+    V_m mV = V_m_init # Membrane potential
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -104,6 +97,14 @@ neuron hh_psc_alpha:
     tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
     I_e pA = 0 pA           # Constant Current
+
+    V_m_init mV = -65. mV # Initial membrane potential
+    alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )
+    beta_n_init  real = 0.125 * exp( -( V_m_init / mV + 65. ) / 80. )
+    alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )
+    beta_m_init  real = 4. * exp( -( V_m_init / mV + 65. ) / 18. )
+    alpha_h_init real = 0.07 * exp( -( V_m_init / mV + 65. ) / 20. )
+    beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
   end
 
   internals:
@@ -187,18 +188,12 @@ neuron hh_psc_alpha_implicit:
   end
 
   initial_values:
-    V_m mV = -65. mV # Membrane potential
+    V_m mV = V_m_init # Membrane potential
+
     I_syn_ex pA  = 0 pA # inputs from the exc spikes
     I_syn_ex' pA/ms = pA * e / tau_syn_ex  # inputs from the exc spikes
     I_syn_in pA = 0 pA  # inputs from the inh spikes
     I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh spikes
-
-    alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
-    beta_n_init  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
-    alpha_m_init real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
-    beta_m_init  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
-    alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
-    beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -247,6 +242,14 @@ neuron hh_psc_alpha_implicit:
     tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
     I_e pA = 0 pA           # Constant Current
+
+    V_m_init mV = -65. mV # Initial membrane potential
+    alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )
+    beta_n_init  real = 0.125 * exp( -( V_m_init / mV + 65. ) / 80. )
+    alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )
+    beta_m_init  real = 4. * exp( -( V_m_init / mV + 65. ) / 18. )
+    alpha_h_init real = 0.07 * exp( -( V_m_init / mV + 65. ) / 20. )
+    beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
   end
 
   internals:
