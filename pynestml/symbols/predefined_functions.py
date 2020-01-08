@@ -46,6 +46,7 @@ class PredefinedFunctions(object):
         CLIP                  The callee name of the clip function.
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
+        ABS                   The callee name of the abs function.
         INTEGRATE_ODES        The callee name of the integrate_odes function.
         CONVOLVE              The callee name of the convolve function.
         name2function         A dict of function symbols as currently defined.
@@ -70,6 +71,7 @@ class PredefinedFunctions(object):
     CLIP = 'clip'
     MAX = 'max'
     MIN = 'min'
+    ABS = 'abs'
     INTEGRATE_ODES = 'integrate_odes'
     CONVOLVE = 'convolve'
     name2function = {}  # a map dict from function-names to symbols
@@ -100,6 +102,7 @@ class PredefinedFunctions(object):
         cls.__register_clip_function()
         cls.__register_max_function()
         cls.__register_min_function()
+        cls.__register_abs_function()
         cls.__register_integrated_odes_function()
         cls.__register_convolve()
         return
@@ -341,6 +344,18 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MIN] = symbol
+
+    @classmethod
+    def __register_abs_function(cls):
+        """
+        Registers the absolute value function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.ABS, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ABS] = symbol
 
     @classmethod
     def __register_integrated_odes_function(cls):
