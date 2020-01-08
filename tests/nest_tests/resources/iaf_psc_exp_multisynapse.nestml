@@ -47,10 +47,10 @@ neuron iaf_psc_exp_multisynapse_neuron:
     tau_syn3 ms = 20ms     # Time constant of synaptic current.
     t_ref    ms = 2ms    # Refractory period.
     E_L      mV = -70mV    # Resting potential.
-    inline V_reset mV = -70.0 mV - E_L # Reset value of the membrane potential
+    V_reset mV = -70.0 mV - E_L # Reset value of the membrane potential
                                      # RELATIVE TO RESTING POTENTIAL(!).
                                      # I.e. the real threshold is (V_reset + E_L).
-    inline V_th   mV = -55.0 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
+    V_th   mV = -55.0 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
                                     # I.e. the real threshold is (E_L+V_th).
     I_e     pA = 0pA     # External current.
   end
