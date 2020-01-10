@@ -341,24 +341,24 @@ private:
     /** buffers and sums up incoming spikes/currents */
     std::vector< nest::RingBuffer > spike_inputs_;
 
-    {% for inputLine in neuron.get_spike_buffers() %}
-    {{printer.print_buffer_array_getter(inputLine)}}
-    {{printer.print_buffer_declaration_value(inputLine)}};
+    {% for inputPort in neuron.get_spike_buffers() %}
+    {{printer.print_buffer_array_getter(inputPort)}}
+    {{printer.print_buffer_declaration_value(inputPort)}};
     {% endfor %}
     {% else -%}
-    {% for inputLine in neuron.get_spike_buffers() %}
-    {{printer.print_buffer_getter(inputLine, true)}}
-    {{printer.print_buffer_declaration_header(inputLine)}}
-    {{printer.print_buffer_declaration(inputLine)}};
-    {{printer.print_buffer_declaration_value(inputLine)}};
+    {% for inputPort in neuron.get_spike_buffers() %}
+    {{printer.print_buffer_getter(inputPort, true)}}
+    {{printer.print_buffer_declaration_header(inputPort)}}
+    {{printer.print_buffer_declaration(inputPort)}};
+    {{printer.print_buffer_declaration_value(inputPort)}};
     {% endfor %}
     {% endif -%}
 
-    {% for inputLine in neuron.get_current_buffers() -%}
-    {{printer.print_buffer_declaration_header(inputLine)}}
-    {{printer.print_buffer_declaration(inputLine)}};
-    {{printer.print_buffer_getter(inputLine, true)}}
-    {{printer.print_buffer_declaration_value(inputLine)}};
+    {% for inputPort in neuron.get_current_buffers() -%}
+    {{printer.print_buffer_declaration_header(inputPort)}}
+    {{printer.print_buffer_declaration(inputPort)}};
+    {{printer.print_buffer_getter(inputPort, true)}}
+    {{printer.print_buffer_declaration_value(inputPort)}};
     {% endfor %}
 
     {%- if useGSL -%}

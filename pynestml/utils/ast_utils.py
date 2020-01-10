@@ -90,7 +90,7 @@ class ASTUtils(object):
         :rtype: bool
         """
         from pynestml.meta_model.ast_body import ASTBody
-        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_lines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
             if inputL.is_spike():
                 return True
@@ -105,7 +105,7 @@ class ASTUtils(object):
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """
-        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_lines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
             if inputL.is_current():
                 return True
@@ -239,34 +239,6 @@ class ASTUtils(object):
             return True
         else:
             return False
-
-    @classmethod
-    def differs_in_magnitude(cls, type_a, type_b):
-        """
-        Indicates whether both type represent the same unit but with different magnitudes. This
-        case is still valid, e.g., mV can be assigned to volt.
-        :param type_a: a type
-        :type type_a:  TypeSymbol
-        :param type_b: a type
-        :type type_b: type_symbol
-        :return: True if both elements equal or differ in magnitude, otherwise False.
-        :rtype: bool
-        """
-        if type_a.equals(type_b):
-            return True
-        # in the case that we don't deal with units, there are no magnitudes
-        if not (type_a.is_unit() and type_b.is_unit()):
-            return False
-        # if it represents the same unit, if we disregard the prefix and simplify it
-        unit_a = type_a.get_unit().unit
-        unit_b = type_b.get_unit().unit
-        # if isinstance(unit_a,)
-        from astropy import units
-        # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unit_a, units.PrefixUnit) and isinstance(type_b, units.PrefixUnit) \
-                and unit_a.physical_type == unit_b.physical_type:
-            return True
-        return False
 
     @classmethod
     def get_all(cls, ast, node_type):
@@ -476,7 +448,6 @@ class ASTUtils(object):
         """
         from pynestml.meta_model.ast_variable import ASTVariable
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        # type: ASTVariable -> str
 
         name = variable.get_name()
         diff_order = variable.get_differental_order()

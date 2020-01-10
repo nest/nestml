@@ -155,7 +155,7 @@ class TypeSymbol(Symbol):
             return self.is_buffer == other.is_buffer
         return False
 
-    def differs_only_in_magnitude_or_is_equal_to(self, other_type):
+    def differs_only_in_magnitude(self, other_type):
         """
         Indicates whether both type represent the same unit but with different magnitudes. This
         case is still valid, e.g., mV can be assigned to volt.
@@ -176,8 +176,7 @@ class TypeSymbol(Symbol):
         # if isinstance(unit_a,)
         from astropy import units
         # TODO: consider even more complex cases which can be resolved to the same unit?
-        if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a,
-                                                                                                 units.CompositeUnit)) \
+        if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a, units.CompositeUnit)) \
                 and (isinstance(unit_b, units.Unit) or isinstance(unit_b, units.PrefixUnit)
                      or isinstance(unit_b, units.CompositeUnit)) and unit_a.physical_type == unit_b.physical_type:
             return True
@@ -185,18 +184,21 @@ class TypeSymbol(Symbol):
 
     @abstractmethod
     def is_castable_to(self, _other_type):
-        """
-        Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
-        a unit where unit is expected is allowed.
+        """Test castability of this SymbolType to `_other_type`.
+
+        The implementation of this function in `TypeSymbol` takes care of casting to `TemplateTypeSymbol`s, hence, any children that override this function need to always call the parent implementation, before doing their own castability checks.
         :return: True if castable, otherwise False
         :rtype: bool
         """
-        pass
+        from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
+        if isinstance(_other_type, TemplateTypeSymbol):
+            return True
+        return False
 
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
-        code, message = Messages.get_binary_operation_not_defined(lhs=self, operator=_operator, rhs=_other)
+        code, message = Messages.get_binary_operation_not_defined(lhs=self.print_nestml_type(), operator=_operator, rhs=_other.print_nestml_type())
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
                            log_level=LoggingLevel.ERROR)
         return result
@@ -214,7 +216,7 @@ class TypeSymbol(Symbol):
     def inverse_of_unit(cls, other):
         """
         :param other: the unit to invert
-        :type other: unit_type_symbol
+        :type other: UnitTypeSymbol
         :return: UnitTypeSymbol
         """
         from pynestml.symbols.predefined_types import PredefinedTypes

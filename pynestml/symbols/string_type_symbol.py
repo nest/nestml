@@ -44,4 +44,6 @@ class StringTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
+        if super(StringTypeSymbol, self).is_castable_to(_other_type):
+            return True
         return False

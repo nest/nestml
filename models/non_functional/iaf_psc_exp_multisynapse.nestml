@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_psc_exp_multisynapse - Leaky integrate-and-fire neuron model with
                                  multiple ports.
 
@@ -19,7 +19,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author:  Plesser, adapted from iaf_psc_alpha_multisynapse
 SeeAlso: iaf_psc_alpha, iaf_psc_delta, iaf_psc_exp, iaf_cond_exp,
 iaf_psc_alpha_multisynapse
-*/
+"""
 neuron iaf_psc_exp_multisynapse_neuron:
   state:
     r integer                  # counts number of tick during the refractory period
@@ -39,17 +39,17 @@ neuron iaf_psc_exp_multisynapse_neuron:
 
   parameters:
     receptors integer  = 100
-    C_m     pF = 250pF  # Capacity of the membrane
-    tau_m     ms = 10ms # Membrane time constant.
-    tau_syn ms[receptors] = 2ms     # Time constant of synaptic current.
-    t_ref   ms = 2ms    # Refractory period.
-    E_L     mV = 0mV    # Resting potential.
-    function V_reset mV = -55.0mV - E_L # Reset value of the membrane potential
+    C_m     pF = 250 pF  # Capacity of the membrane
+    tau_m     ms = 10 ms # Membrane time constant.
+    tau_syn ms[receptors] = 2 ms     # Time constant of synaptic current.
+    t_ref   ms = 2 ms    # Refractory period.
+    E_L     mV = 0 mV    # Resting potential.
+    function V_reset mV = -55.0 mV - E_L # Reset value of the membrane potential
                                      # RELATIVE TO RESTING POTENTIAL(!).
                                      # I.e. the real threshold is (V_reset + E_L).
-    function V_th   mV = -70.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
+    function V_th   mV = -70.0 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
                                     # I.e. the real threshold is (E_L+V_th).
-    I_e     pA = 0pA     # External current.
+    I_e     pA = 0 pA     # External current.
   end
 
 

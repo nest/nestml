@@ -41,4 +41,6 @@ class NESTTimeTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
+        if super(NESTTimeTypeSymbol, self).is_castable_to(_other_type):
+            return True
         return False

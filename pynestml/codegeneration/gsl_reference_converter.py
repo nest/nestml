@@ -28,6 +28,8 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.ast_utils import ASTUtils
 
 
 class GSLReferenceConverter(IReferenceConverter):
@@ -53,57 +55,128 @@ class GSLReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         variable_name = NestNamesConverter.convert_to_cpp_name(ast_variable.get_name())
-        symbol = ast_variable.get_scope().resolve_to_symbol(ast_variable.get_complete_name(), SymbolKind.VARIABLE)
 
-        if PredefinedUnits.is_unit(ast_variable.get_complete_name()):
-            return str(
-                UnitConverter.get_factor(PredefinedUnits.get_unit(ast_variable.get_complete_name()).get_unit()))
+        if variable_name == PredefinedVariables.E_CONSTANT:
+            return 'numerics::e'
+
+        symbol = ast_variable.get_scope().resolve_to_symbol(ast_variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol is None:
+            # test if variable name can be resolved to a type
+            if PredefinedUnits.is_unit(ast_variable.get_complete_name()):
+                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(ast_variable.get_complete_name()).get_unit()))
+
+            code, message = Messages.get_could_not_resolve(variable_name)
+            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
+                              error_position=variable.get_source_position())
+            return ''
+
         if symbol.is_init_values():
             return GSLNamesConverter.name(symbol)
-        elif symbol.is_buffer():
-            return 'node.B_.' + NestNamesConverter.buffer_value(symbol)
-        elif variable_name == PredefinedVariables.E_CONSTANT:
-            return 'numerics::e'
-        elif symbol.is_local() or symbol.is_function:
-            return variable_name
-        elif symbol.has_vector_parameter():
-            return 'node.get_' + variable_name + '()[i]'
-        else:
-            return 'node.get_' + variable_name + '()'
 
-    def convert_function_call(self, function_call):
-        """
-        Converts a single function call to a gsl processable format.
-        :param function_call: a single function call
-        :type function_call: ASTFunctionCall
-        :return: a string representation
-        :rtype: str
+        if symbol.is_buffer():
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += 'node.B_.' + NestNamesConverter.buffer_value(symbol)
+            if symbol.has_vector_parameter():
+                s += '[i]'
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
+
+        if symbol.is_local() or symbol.is_function:
+            return variable_name
+
+        if symbol.has_vector_parameter():
+            return 'node.get_' + variable_name + '()[i]'
+
+        return 'node.get_' + variable_name + '()'
+
+    def convert_function_call(self, function_call, prefix=''):
+        """Convert a single function call to C++ GSL API syntax.
+
+        Parameters
+        ----------
+        function_call : ASTFunctionCall
+            The function call node to convert.
+        prefix : str
+            Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".
+
+            Predefined functions will not be prefixed.
+
+        Returns
+        -------
+        s : str
+            The function call string in C++ syntax.
         """
         function_name = function_call.get_name()
-        if function_name == 'resolution':
+
+        if function_name == PredefinedFunctions.TIME_RESOLUTION:
             return 'nest::Time::get_resolution().get_ms()'
-        if function_name == 'steps':
-            return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
-        if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
-        if function_name == PredefinedFunctions.LOG:
-            return 'std::log(%s)'
-        if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1(%s)'
+
+        if function_name == PredefinedFunctions.TIME_STEPS:
+            return 'nest::Time(nest::Time::ms((double) {!s})).get_steps()'
+
+        if function_name == PredefinedFunctions.MAX:
+            return 'std::max({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.MIN:
+            return 'std::min({!s}, {!s})'
+
+        if function_name == PredefinedFunctions.CLIP:
+            # warning: the arguments of this function have been swapped and
+            # are therefore [v_max, v_min, v], hence its structure
+            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
+
         if function_name == PredefinedFunctions.EXP:
             if self.is_upper_bound:
-                return 'std::exp(std::min(%s,' + str(self.maximal_exponent) + '))'
+                return 'std::exp(std::min({!s},' + str(self.maximal_exponent) + '))'
             else:
-                return 'std::exp(%s)'
-        if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
-            return 'std::max(%s, %s)'
-        if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
-            return 'std::min(%s, %s)'
+                return 'std::exp({!s})'
+
+        if function_name == PredefinedFunctions.COSH:
+            if self.is_upper_bound:
+                return 'std::cosh(std::min(std::abs({!s}),' + str(self.maximal_exponent) + '))'
+            else:
+                return 'std::cosh({!s})'
+
+        if function_name == PredefinedFunctions.SINH:
+            if self.is_upper_bound:
+                return 'std::sinh(({!s} > 0 ? 1 : -1)*std::min(std::abs({!s}),' + str(self.maximal_exponent) + '))'
+            else:
+                return 'std::sinh({!s})'
+
+        if function_name == PredefinedFunctions.TANH:
+            return 'std::tanh({!s})'
+
+        if function_name == PredefinedFunctions.LN:
+            return 'std::log({!s})'
+
+        if function_name == PredefinedFunctions.LOG10:
+            return 'std::log10({!s})'
+
+        if function_name == PredefinedFunctions.EXPM1:
+            return 'numerics::expm1({!s})'
+
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-        raise RuntimeError('Cannot map the function: "' + function_name + '".')
+
+        # suppress prefix for misc. predefined functions
+        function_is_predefined = PredefinedFunctions.get_function(function_name)  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        if function_is_predefined:
+            prefix = ''
+
+        if ASTUtils.needs_arguments(function_call):
+            n_args = len(function_call.get_args())
+            return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
+
+        return prefix + function_name + '()'
 
     def convert_constant(self, constant_name):
         """

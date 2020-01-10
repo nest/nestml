@@ -49,6 +49,10 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         """
         variable_name = node.get_lhs().get_name()
         variable_symbol = node.get_lhs().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if variable_symbol is None:
+            code, message = Messages.get_variable_not_defined(variable_name)
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR, error_position=node.get_source_position())
+            return
         variable_type = variable_symbol.type_symbol
         from pynestml.utils.unit_type import UnitType
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
