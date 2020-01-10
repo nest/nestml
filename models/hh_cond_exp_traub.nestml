@@ -93,13 +93,14 @@ neuron hh_cond_exp_traub:
                               # parameters, V_T = -63mV results in a threshold around -50mV.
     tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse
+    t_ref ms = 2.0 ms         # Refractory period
     I_e pA = 0pA              # Constant Current
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
   end
 
   internals:
-    RefractoryCounts integer = 20
+    RefractoryCounts integer = steps(t_ref) 
   end
 
   input:
@@ -221,6 +222,7 @@ neuron hh_cond_exp_traub_implicit:
     E_L mV = -60.mV           # Leak reversal Potential (aka resting potential)
     V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
                               # parameters, V_T = -63mV results in a threshold around -50mV.
+    t_ref ms = 2.0 ms         # Refractory period
     tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse
     I_e pA = 0pA              # Constant Current
@@ -229,7 +231,7 @@ neuron hh_cond_exp_traub_implicit:
   end
 
   internals:
-    RefractoryCounts integer = 20
+    RefractoryCounts integer = steps(t_ref)
   end
 
   input:
