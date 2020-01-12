@@ -30,7 +30,7 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
-
+from pynestml.utils.messages import Messages
 
 class GSLReferenceConverter(IReferenceConverter):
     """
