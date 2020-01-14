@@ -20,7 +20,13 @@
 
 import nest
 import numpy as np
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except:
+    TEST_PLOTS = False
 
 
 record_from = ['g_noise_ex', 'g_noise_in']
@@ -45,12 +51,12 @@ def simulate_OU_noise_neuron(resolution):
 	seed = np.random.randint(0, 2**32-1)
 	print('seed: {}'.format(seed))
 	nest.SetKernelStatus({'resolution': resolution, 'grng_seed': seed, 'rng_seeds': [seed+1]})
-	
-	nest.Install('models')
-	neuron = nest.Create('hh_cond_exp_destexhe')
-	
+
+	nest.Install('nestmlmodule')
+	neuron = nest.Create('hh_cond_exp_destexhe_nestml')
+
 	multi = nest.Create('multimeter', params={'withgid': True, 'withtime': True, 'record_from': record_from, 'interval': resolution})
-	
+
 	nest.Connect(multi, neuron)
 	nest.Simulate(500000)
 	return nest.GetStatus(multi)[0]['events'], neuron
@@ -72,19 +78,19 @@ def calc_statistics(state, neuron):
 
 	print('\n\n======== Noise Conductance Statistics ==============')
 	times = state['times']
-	
+
 	# excitatory noise
 	sigma_ex = nest.GetStatus(neuron, 'sigma_noise_ex')[0]
 	mean_ex = nest.GetStatus(neuron, 'g_noise_ex0')[0]
 	tau_ex = nest.GetStatus(neuron, 'tau_syn_ex')[0]
 	var_ex = sigma_ex**2 / (2 / tau_ex)
-	
+
 	# inhibitory noise
 	sigma_in = nest.GetStatus(neuron, 'sigma_noise_in')[0]
 	mean_in = nest.GetStatus(neuron, 'g_noise_in0')[0]
 	tau_in = nest.GetStatus(neuron, 'tau_syn_in')[0]
 	var_in = sigma_in**2 / (2 / tau_in)
-	
+
 	# variances
 	print('\n____variances_______________________________________')
 	vex = np.var(state['g_noise_ex'])
@@ -93,22 +99,26 @@ def calc_statistics(state, neuron):
 	vin_trgt = sigma_in**2
 	diff_perc_vex = np.abs(1 - vex / vex_trgt) * 100
 	diff_perc_vin = np.abs(1 - vin / vin_trgt) * 100
-	print('ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(vex, vex_trgt, np.abs(vex - vex_trgt), diff_perc_vex)) 
-	print('in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(vin, vin_trgt, np.abs(vin - vin_trgt), diff_perc_vin)) 
-	
+	print('ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(vex, vex_trgt, np.abs(vex - vex_trgt), diff_perc_vex))
+	print('in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(vin, vin_trgt, np.abs(vin - vin_trgt), diff_perc_vin))
+	assert diff_perc_vex < 1.
+	assert diff_perc_vin < 1.
+
 	# means
 	print('\n____means___________________________________________')
 	m_ex_data = np.mean(state['g_noise_ex'])
 	m_in_data = np.mean(state['g_noise_in'])
 	diff_perc_mex = np.abs(1 - m_ex_data / mean_ex) * 100
 	diff_perc_min = np.abs(1 - m_in_data / mean_in) * 100
-	print('ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(m_ex_data, mean_ex, np.abs(m_ex_data - mean_ex), diff_perc_mex)) 
-	print('in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)\n'.format(m_in_data, mean_in, np.abs(m_in_data - mean_in), diff_perc_min)) 
-	
+	print('ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(m_ex_data, mean_ex, np.abs(m_ex_data - mean_ex), diff_perc_mex))
+	print('in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)\n'.format(m_in_data, mean_in, np.abs(m_in_data - mean_in), diff_perc_min))
+	assert diff_perc_mex < 1.
+	assert diff_perc_min < 1.
+
 
 def plot_results(state):
 	''' Reproduces figures 2A and 2B from Destexhe et al. 2001.
-	
+
 	Produces a plot with the time courses of the total excitatory (top left)
 	and total inhibitory (bottom left) conductances during synaptic background
 	activity as subplots. The two other subplots consist of distributions of 
@@ -125,7 +135,7 @@ def plot_results(state):
 	for idx, rf in enumerate(record_from):
 			ax_cond = ax[idx][0]
 			ax_hist = ax[idx][1]
-	
+
 			if 'ex' in rf:
 				ax_cond.set_ylim(0, 0.04)
 				ax_cond.set_title('Excitatory Conductance')
@@ -134,20 +144,21 @@ def plot_results(state):
 				ax_cond.set_ylim(0.03, 0.08)
 				ax_cond.set_title('Inhibitory Conductance')
 				ax_hist.set_title('Conductance distribution (inhibitory)')
-	
+
 			ax_cond.plot(times[mask], state[rf][mask]/1000.)
 			ax_cond.set_xlabel('time (ms)')
 			ax_cond.set_ylabel('Conductance (\u03bcS)')
-	
+
 			ax_hist.set_ylim((0, 2800))
 			ax_hist.hist(state[rf][:19000]/1000., bins=100, range=(0, 0.1))
 			ax_hist.set_xlabel('Conductance (\u03bcS)')
-	
+
 	plt.savefig('figure2AB_destexhe2001.pdf')
 
 
 if __name__ == '__main__':
 	state, neuron = simulate_OU_noise_neuron(resolution=1.)
 	calc_statistics(state, neuron)
-	plot_results(state)
+	if TEST_PLOTS:
+		plot_results(state)
 
