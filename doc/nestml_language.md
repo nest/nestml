@@ -446,15 +446,21 @@ end
 After generating and building the model code, a `receptor_type` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types):
 ```
 neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+
 sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
 nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+
 sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
 nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+
 sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
 nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+
 mm = nest.Create('multimeter', params={'record_from': ['I_shape', 'I_shape2', 'I_shape3'], 'interval': 0.1})
 nest.Connect(mm, neuron)
+
 [...]
+
 nest.Simulate(200.)
 ```
 
