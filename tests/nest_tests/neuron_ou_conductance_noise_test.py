@@ -20,6 +20,8 @@
 
 import nest
 import numpy as np
+import os
+from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 try:
     import matplotlib
@@ -52,6 +54,18 @@ def simulate_OU_noise_neuron(resolution):
 	print('seed: {}'.format(seed))
 	nest.SetKernelStatus({'resolution': resolution, 'grng_seed': seed, 'rng_seeds': [seed+1]})
 
+	input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "models", "hh_cond_exp_destexhe.nestml")))
+	nest_path = "/home/travis/nest_install"
+	target_path = 'target'
+	logging_level = 'INFO'
+	module_name = 'nestmlmodule'
+	store_log = False
+	suffix = '_nestml'
+	dev = True
+	to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+	install_nest(target_path, nest_path)
+	nest.set_verbosity("M_ALL")
+
 	nest.Install('nestmlmodule')
 	neuron = nest.Create('hh_cond_exp_destexhe_nestml')
 
@@ -75,6 +89,9 @@ def calc_statistics(state, neuron):
 	neuron : tuple
 		Tuple with the NEST id of the neuron with the OU noise conductances
 	'''
+
+	MAX_VAR_DIFF_PERC = 5.
+	MAX_MEAN_DIFF_PERC = 1.
 
 	print('\n\n======== Noise Conductance Statistics ==============')
 	times = state['times']
@@ -101,8 +118,8 @@ def calc_statistics(state, neuron):
 	diff_perc_vin = np.abs(1 - vin / vin_trgt) * 100
 	print('ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(vex, vex_trgt, np.abs(vex - vex_trgt), diff_perc_vex))
 	print('in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(vin, vin_trgt, np.abs(vin - vin_trgt), diff_perc_vin))
-	assert diff_perc_vex < 1.
-	assert diff_perc_vin < 1.
+	assert 0. < diff_perc_vex < MAX_VAR_DIFF_PERC
+	assert 0. < diff_perc_vin < MAX_VAR_DIFF_PERC
 
 	# means
 	print('\n____means___________________________________________')
@@ -112,8 +129,8 @@ def calc_statistics(state, neuron):
 	diff_perc_min = np.abs(1 - m_in_data / mean_in) * 100
 	print('ex: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)'.format(m_ex_data, mean_ex, np.abs(m_ex_data - mean_ex), diff_perc_mex))
 	print('in: {:.2f}\ttarget = {:.2f}\tdiff = {:.2f} ({:.2f}%)\n'.format(m_in_data, mean_in, np.abs(m_in_data - mean_in), diff_perc_min))
-	assert diff_perc_mex < 1.
-	assert diff_perc_min < 1.
+	assert 0. < diff_perc_mex < MAX_MEAN_DIFF_PERC
+	assert 0. < diff_perc_min < MAX_MEAN_DIFF_PERC
 
 
 def plot_results(state):
