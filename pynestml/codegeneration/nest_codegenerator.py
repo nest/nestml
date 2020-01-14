@@ -232,6 +232,10 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
 
+        namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+
+
         self.define_solver_type(neuron, namespace)
         return namespace
 

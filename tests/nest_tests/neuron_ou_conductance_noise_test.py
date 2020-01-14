@@ -1,5 +1,5 @@
 #
-# nest_integration_test_for_models.py
+# neuron_ou_conductance_noise_test.py
 #
 # This file is part of NEST.
 #
