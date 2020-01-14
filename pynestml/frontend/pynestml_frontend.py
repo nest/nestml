@@ -38,29 +38,24 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 def to_nest(input_path, target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False):
-    '''
-    Translate NESTML files into their equivalent C++ code for the NEST
-    simulator.
+    '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
     ----------
     input_path : str
-        Path to the NESTML file or to a folder containing NESTML files to
-        convert to NEST code.
+        Path to the NESTML file or to a folder containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
     logging_level : str, optional (default: 'ERROR')
-        Sets which level of information should be displayed duing code
-        generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
+        Sets which level of information should be displayed duing code generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
     module_name : str, optional (default: "nestmlmodule")
-        Name of the module, which will be used to import the model in NEST via
-        ``nest.Install(module_name)``.
+        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
-        Suffix which will be appended to the model's name (internal use to
-        avoid naming conflicts with existing NEST models).
+        Suffix which will be appended to the model's name (internal use to avoid naming conflicts with existing NEST models).
     dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     '''
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
@@ -93,7 +88,8 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         args.append(qualifier_dev_arg)
 
     FrontendConfiguration.parse_config(args)
-    process()
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
 
 
 def install_nest(models_path, nest_path):
@@ -119,17 +115,27 @@ def install_nest(models_path, nest_path):
     nest_installer(models_path, nest_path)
 
 
-def main(args):
+def main():
+    """Returns the process exit code: 0 for success, > 0 for failure"""
     try:
-        FrontendConfiguration.parse_config(args)
+        FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
-        return
+        return 1
     # after all argument have been collected, start the actual processing
-    process()
+    return int(process())
 
 
 def process():
+    """
+    Returns
+    -------
+    errors_occurred : bool
+        Flag indicating whether errors occurred during processing
+    """
+
+    errors_occurred = False
+
     # init log dir
     create_report_dir()
     # The handed over parameters seem to be correct, proceed with the main routine
@@ -151,7 +157,7 @@ def process():
         # check if across two files two neurons with same name have been defined
         CoCosManager.check_not_two_neurons_across_units(compilation_units)
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev():
+        if not FrontendConfiguration.is_dev:
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())
@@ -159,12 +165,17 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
+                    errors_occurred = True
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
         _codeGenerator.generate_code(neurons)
+        for neuron in neurons:
+            if Logger.has_errors(neuron):
+                errors_occurred = True
+                break
     if FrontendConfiguration.store_log:
         store_log_to_file()
-    return
+    return errors_occurred
 
 
 def init_predefined():
@@ -184,7 +195,3 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
-
-
-if __name__ == '__main__':
-    main(sys.argv[1:])

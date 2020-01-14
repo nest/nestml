@@ -24,6 +24,7 @@ import re
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
+import pynestml
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
@@ -145,12 +146,12 @@ class NESTCodeGenerator(CodeGenerator):
         # get rid of convolve, store them and apply then at the end
         equations_block = neuron.get_equations_block()
         shape_to_buffers = {}
-        if neuron.get_equations_block() is not None:
+        if equations_block is not None:
             # extract function names and corresponding incoming buffers
             convolve_calls = OdeTransformer.get_sum_function_calls(equations_block)
             for convolve in convolve_calls:
                 shape_to_buffers[str(convolve.get_args()[0])] = str(convolve.get_args()[1])
-            OdeTransformer.refactor_convolve_call(neuron.get_equations_block())
+            OdeTransformer.refactor_convolve_call(equations_block)
             self.make_functions_self_contained(equations_block.get_ode_functions())
             self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
                                                            equations_block.get_ode_functions())
@@ -159,7 +160,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.apply_spikes_from_buffers(neuron, shape_to_buffers)
             # update the symbol table
             symbol_table_visitor = ASTSymbolTableVisitor()
-            symbol_table_visitor.after_ast_rewrite_ = True		# ODE block might have been removed entirely: suppress warnings
+            symbol_table_visitor.after_ast_rewrite_ = True		# suppress warnings due to AST rewrites
             neuron.accept(symbol_table_visitor)
 
 
@@ -212,7 +213,6 @@ class NESTCodeGenerator(CodeGenerator):
         converter = NESTReferenceConverter(False)
         legacy_pretty_printer = LegacyExpressionPrinter(converter)
 
-
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
@@ -230,6 +230,10 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
+        namespace['tracing'] = FrontendConfiguration.is_dev
+
+        namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
@@ -336,8 +340,8 @@ class NESTCodeGenerator(CodeGenerator):
         for declaration in initial_values.get_declarations():
             variable = declaration.get_variables()[0]
             for shape in shape_to_buffers:
-                matcher_computed_shape_odes = re.compile(shape + r"(__\d+)?")
-                if re.match(matcher_computed_shape_odes, str(variable)):
+                matcher_computed_shape_odes = re.compile(shape + r"(__d)*")
+                if re.fullmatch(matcher_computed_shape_odes, str(variable)):
                     buffer_type = neuron.get_scope(). \
                         resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
                     assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
@@ -346,6 +350,7 @@ class NESTCodeGenerator(CodeGenerator):
                     spike_updates.append(ModelParser.parse_assignment(assignment_string))
                     # the IV is applied. can be reset
                     declaration.set_expression(ModelParser.parse_expression("0"))
+                    break
         for assignment in spike_updates:
             add_assignment_to_update_block(assignment, neuron)
 
@@ -484,6 +489,8 @@ class NESTCodeGenerator(CodeGenerator):
                 target_definition = str(target.get_rhs())
                 target_definition = re.sub(matcher, "(" + str(fun.get_expression()) + ")", target_definition)
                 target.rhs = ModelParser.parse_expression(target_definition)
+                target.update_scope(fun.get_scope())
+                target.accept(ASTSymbolTableVisitor())
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():

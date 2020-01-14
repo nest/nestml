@@ -1,4 +1,4 @@
-/*
+"""
 Name: iaf_psc_alpha_multisynapse - Leaky integrate-and-fire neuron model with
                                    multiple ports.
 
@@ -27,7 +27,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author:  Schrader, adapted from iaf_psc_alpha
 SeeAlso: iaf_psc_alpha, iaf_psc_delta, iaf_psc_exp, iaf_cond_exp,
 iaf_psc_exp_multisynapse
-*/
+"""
 neuron iaf_psc_alpha_multisynapse_neuron:
 
   state:
@@ -35,7 +35,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
   end
 
   initial_values:
-    V_abs mV = 0mV
+    V_abs mV = 0 mV
     function V_m mV = V_abs + E_L # Membrane potential.
   end
 
@@ -46,14 +46,14 @@ neuron iaf_psc_alpha_multisynapse_neuron:
 
   parameters:
     receptors integer  = 100 # Number of receptors
-    C_m     pF = 250pF          # Capacity of the membrane
-    tau_m   ms = 10ms           # Membrane time constant.
-    tau_syn ms[receptors] = 2ms # Time constant of synaptic current.
-    t_ref   ms = 2ms            # Refractory period.
-    E_L     mV = -70mV          # Resting potential.
-    V_reset mV = 0mV            # Reset value of the membrane potential
-    V_th    mV = 15.0mV         # Threshold
-    I_e     pA = 0pA # External current.
+    C_m     pF = 250 pF          # Capacity of the membrane
+    tau_m   ms = 10 ms           # Membrane time constant.
+    tau_syn ms[receptors] = 2 ms # Time constant of synaptic current.
+    t_ref   ms = 2 ms            # Refractory period.
+    E_L     mV = -70 mV          # Resting potential.
+    V_reset mV = 0 mV            # Reset value of the membrane potential
+    V_th    mV = 15.0 mV         # Threshold
+    I_e     pA = 0 pA # External current.
   end
 
   internals:

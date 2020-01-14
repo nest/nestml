@@ -86,18 +86,18 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
         for arg_idx, arg_type in enumerate(method_symbol.param_types):
             if isinstance(arg_type, TemplateTypeSymbol):
                 actual_symbol = node.get_function_call().get_args()[arg_idx].type
-                if arg_type.i in template_symbol_to_actual_symbol.keys():
-                    if (not template_symbol_to_actual_symbol[arg_type.i].differs_only_in_magnitude(actual_symbol)) \
-                        and (not                             template_symbol_to_actual_symbol[arg_type.i].is_castable_to(actual_symbol)):
+                if arg_type._i in template_symbol_to_actual_symbol.keys():
+                    if (not template_symbol_to_actual_symbol[arg_type._i].differs_only_in_magnitude(actual_symbol)) \
+                        and (not                             template_symbol_to_actual_symbol[arg_type._i].is_castable_to(actual_symbol)):
                         # if the one cannot be cast into the other
-                        code, message = Messages.templated_arg_types_inconsistent(function_name, arg_idx, template_symbol_to_parameter_indices[arg_type.i], failing_arg_type_str=actual_symbol.print_nestml_type(), other_type_str=template_symbol_to_actual_symbol[arg_type.i].print_nestml_type())
+                        code, message = Messages.templated_arg_types_inconsistent(function_name, arg_idx, template_symbol_to_parameter_indices[arg_type._i], failing_arg_type_str=actual_symbol.print_nestml_type(), other_type_str=template_symbol_to_actual_symbol[arg_type._i].print_nestml_type())
                         Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
                         self._failure_occurred = True
                         return
 
-                    template_symbol_to_parameter_indices[arg_type.i] += [arg_idx]
+                    template_symbol_to_parameter_indices[arg_type._i] += [arg_idx]
 
                 else:
-                    template_symbol_to_actual_symbol[arg_type.i] = actual_symbol
-                    template_symbol_to_parameter_indices[arg_type.i] = [arg_idx]
+                    template_symbol_to_actual_symbol[arg_type._i] = actual_symbol
+                    template_symbol_to_parameter_indices[arg_type._i] = [arg_idx]
 

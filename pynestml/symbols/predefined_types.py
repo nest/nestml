@@ -229,7 +229,7 @@ class PredefinedTypes(object):
     @classmethod
     def get_template_type(cls, i):
         """
-        Returns a new type symbol for argument type templating. The templates are uniquely identified with an integer number `i`.
+        Returns a new type symbol for argument type templating. The template types are uniquely identified with an integer number `i` (see TemplateTypeSymbol).
         :return: a new integer symbol.
         :rtype: type_symbol
         """

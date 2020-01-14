@@ -1,4 +1,3 @@
-
 #
 # nest_reference_converter.py
 #
@@ -34,6 +33,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -104,25 +104,39 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'nest::Time::get_resolution().get_ms()'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
-            return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
+            return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
 
-        if function_name == PredefinedFunctions.POW:
-            return 'std::pow(%s, %s)'
+        if function_name == PredefinedFunctions.CLIP:
+            # warning: the arguments of this function must swapped and
+            # are therefore [v_max, v_min, v], hence its structure
+            return 'std::min({2!s}, std::max({1!s}, {0!s}))'
 
-        if function_name == PredefinedFunctions.MAX or function_name == PredefinedFunctions.BOUNDED_MAX:
-            return 'std::max(%s, %s)'
+        if function_name == PredefinedFunctions.MAX:
+            return 'std::max({!s}, {!s})'
 
-        if function_name == PredefinedFunctions.MIN or function_name == PredefinedFunctions.BOUNDED_MIN:
-            return 'std::min(%s, %s)'
+        if function_name == PredefinedFunctions.MIN:
+            return 'std::min({!s}, {!s})'
 
         if function_name == PredefinedFunctions.EXP:
-            return 'std::exp(%s)'
+            return 'std::exp({!s})'
 
-        if function_name == PredefinedFunctions.LOG:
-            return 'std::log(%s)'
+        if function_name == PredefinedFunctions.LN:
+            return 'std::log({!s})'
+
+        if function_name == PredefinedFunctions.LOG10:
+            return 'std::log10({!s})'
+
+        if function_name == PredefinedFunctions.COSH:
+              return 'std::cosh({!s})'
+
+        if function_name == PredefinedFunctions.SINH:
+              return 'std::sinh({!s})'
+
+        if function_name == PredefinedFunctions.TANH:
+            return 'std::tanh({!s})'
 
         if function_name == PredefinedFunctions.EXPM1:
-            return 'numerics::expm1(%s)'
+            return 'numerics::expm1({!s})'
 
         if function_name == PredefinedFunctions.RANDOM_NORM:
             return '((%s) + (%s) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
@@ -139,8 +153,7 @@ class NESTReferenceConverter(IReferenceConverter):
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
-            return prefix + function_name + '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
-
+            return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
     def convert_name_reference(self, variable):
@@ -159,39 +172,51 @@ class NESTReferenceConverter(IReferenceConverter):
 
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
-        else:
-            symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
-            if symbol is None:
-                # test if variable name can be resolved to a type
-                if PredefinedUnits.is_unit(variable.get_complete_name()):
-                    return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
 
-                code, message = Messages.get_could_not_resolve(variable_name)
-                Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                                   error_position=variable.get_source_position())
-                return ''
+        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if symbol is None:
+            # test if variable name can be resolved to a type
+            if PredefinedUnits.is_unit(variable.get_complete_name()):
+                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
+
+            code, message = Messages.get_could_not_resolve(variable_name)
+            Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
+                              error_position=variable.get_source_position())
+            return ''
+
+        if symbol.is_local():
+            return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
+
+        if symbol.is_buffer():
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
             else:
-                if symbol.is_local():
-                    return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
-                elif symbol.is_buffer():
-                    return NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol) \
-                           + ('[i]' if symbol.has_vector_parameter() else '')
-                else:
-                    if symbol.is_function:
-                        return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
-                    else:
-                        if symbol.is_init_values():
-                            temp = NestPrinter.print_origin(symbol)
-                            if self.uses_gsl:
-                                temp += GSLNamesConverter.name(symbol)
-                            else:
-                                temp += NestNamesConverter.name(symbol)
-                            temp += ('[i]' if symbol.has_vector_parameter() else '')
-                            return temp
-                        else:
-                            return NestPrinter.print_origin(symbol) + \
-                                   NestNamesConverter.name(symbol) + \
-                                   ('[i]' if symbol.has_vector_parameter() else '')
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol)
+            if symbol.has_vector_parameter():
+                s += '[i]'
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
+
+        if symbol.is_function:
+            return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
+
+        if symbol.is_init_values():
+            temp = NestPrinter.print_origin(symbol)
+            if self.uses_gsl:
+                temp += GSLNamesConverter.name(symbol)
+            else:
+                temp += NestNamesConverter.name(symbol)
+            temp += ('[i]' if symbol.has_vector_parameter() else '')
+            return temp
+
+        return NestPrinter.print_origin(symbol) + \
+               NestNamesConverter.name(symbol) + \
+               ('[i]' if symbol.has_vector_parameter() else '')
 
     @classmethod
     def convert_constant(cls, constant_name):
@@ -315,19 +340,18 @@ class NESTReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         if op.is_plus_op:
-            return '%s' + '+' + '%s'
+            return '%s' + ' + ' + '%s'
         if op.is_minus_op:
-            return '%s' + '-' + '%s'
+            return '%s' + ' - ' + '%s'
         if op.is_times_op:
-            return '%s' + '*' + '%s'
+            return '%s' + ' * ' + '%s'
         if op.is_div_op:
-            return '%s' + '/' + '%s'
+            return '%s' + ' / ' + '%s'
         if op.is_modulo_op:
-            return '%s' + '%' + '%s'
+            return '%s' + ' % ' + '%s'
         if op.is_pow_op:
-            return 'pow' + '(%s,%s)'
-        else:
-            raise RuntimeError('Cannot determine arithmetic operator!')
+            return 'pow' + '(%s, %s)'
+        raise RuntimeError('Cannot determine arithmetic operator!')
 
     @classmethod
     def convert_ternary_operator(cls):
@@ -336,4 +360,5 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
+        return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
+

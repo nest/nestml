@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoSumNotCorrectlyParametrized.nestml
+ *  CoCoConvolveNotCorrectlyParametrized.nestml
  *
  *  This file is part of NEST.
  *
@@ -22,16 +22,18 @@
  *
  * This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly
  * provided with a initial_block variable and a spike buffer.
- * Negative case.
+ * Positive case.
 */
 
-neuron CoCoSumNotCorrectlyParametrized:
+neuron CoCoConvolveNotCorrectlyParametrized:
+
     initial_values:
-        V_m mV = 10mV
+        G real = 1.
     end
 
     equations:
-        function testB pA = convolve(V_m+V_m, spikeExc)
+        shape G' = -G
+        function testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
     end
 
     update:
@@ -39,7 +41,7 @@ neuron CoCoSumNotCorrectlyParametrized:
     end
 
     input:
-        spikeExc integer  <- excitatory spike
+        spikeExc pA <- excitatory spike
     end
 
     output: spike

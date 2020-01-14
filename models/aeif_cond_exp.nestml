@@ -1,4 +1,4 @@
-/*
+"""
 Name: aeif_cond_exp -  Conductance based exponential integrate-and-fire neuron
                          model according to Brette and g_exrstner (2005).
 
@@ -7,12 +7,12 @@ aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron acc
 to Brette and g_exrstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4th order Rung_ex-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
 The membrane potential is g_inven by the following differential equation:
 C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w +I_e
+                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
 
 and
 
@@ -32,7 +32,7 @@ References: Brette R and g_exrstner W (2005) Adaptive Exponential
             Activity. J Neurophysiol 94:3637-3642
 
 SeeAlso: iaf_cond_alpha, aeif_cond_exp
-*/
+"""
 neuron aeif_cond_exp:
 
   initial_values:
@@ -41,7 +41,7 @@ neuron aeif_cond_exp:
   end
 
   equations:
-    function V_bounded mV = bounded_min(V_m, V_peak) # prevent exponential divergence
+    function V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
     shape g_in = exp(-1/tau_syn_in*t)
     shape g_ex = exp(-1/tau_syn_ex*t)
 
@@ -57,29 +57,28 @@ neuron aeif_cond_exp:
 
   parameters:
     # membrane parameters
-    C_m   pF = 281.0pF     # Membrane Capacitance
-    t_ref ms = 0.0ms       # Refractory period
-    V_reset mV = -60.0mV   # Reset Potential
-    g_L nS = 30.0nS        # Leak Conductance
-    E_L mV = -70.6mV       # Leak reversal Potential (aka resting potential)
-    I_e pA = 0pA           # Constant Current
+    C_m   pF = 281.0 pF     # Membrane Capacitance
+    t_ref ms = 0.0 ms       # Refractory period
+    V_reset mV = -60.0 mV   # Reset Potential
+    g_L nS = 30.0 nS        # Leak Conductance
+    E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
 
     # spike adaptation parameters
-    a nS = 4nS             # Subthreshold adaptation.
-    b pA = 80.5pA          # Spike-trigg_exred adaptation.
-    Delta_T mV = 2.0mV     # Slope factor
-    tau_w ms = 144.0ms     # Adaptation time constant
-    V_th mV = -50.4mV      # Threshold Potential
-    V_peak mV = 0mV        # Spike detection threshold.
+    a nS = 4 nS             # Subthreshold adaptation.
+    b pA = 80.5 pA          # Spike-trigg_exred adaptation.
+    Delta_T mV = 2.0 mV     # Slope factor
+    tau_w ms = 144.0 ms     # Adaptation time constant
+    V_th mV = -50.4 mV      # Threshold Potential
+    V_peak mV = 0 mV        # Spike detection threshold.
 
     # synaptic parameters
-    E_ex mV = 0mV            # Excitatory reversal Potential
-    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse
-    E_in mV = -85.0mV        # Inhibitory reversal Potential
-    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse
+    E_ex mV = 0 mV            # Excitatory reversal Potential
+    tau_syn_ex ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
+    E_in mV = -85.0 mV        # Inhibitory reversal Potential
+    tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
 
-
-    I_stim pA = 0pA
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -92,7 +91,7 @@ neuron aeif_cond_exp:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
-      currents <- current
+      I_stim pA <- current
   end
 
   output: spike
@@ -115,7 +114,7 @@ neuron aeif_cond_exp:
 
 end
 
-/*
+"""
 Name: aeif_cond_exp_implicit -  Conductance based exponential integrate-and-fire neuron
                          model according to Brette and g_exrstner (2005).
 
@@ -124,12 +123,12 @@ aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron acc
 to Brette and g_exrstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4th order Rung_ex-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
 The membrane potential is g_inven by the following differential equation:
 C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w +I_e
+                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
 
 and
 
@@ -149,7 +148,7 @@ References: Brette R and g_exrstner W (2005) Adaptive Exponential
             Activity. J Neurophysiol 94:3637-3642
 
 SeeAlso: iaf_cond_alpha, aeif_cond_exp
-*/
+"""
 neuron aeif_cond_exp_implicit:
 
   state:
@@ -158,9 +157,9 @@ neuron aeif_cond_exp_implicit:
 
   initial_values:
     V_m mV = E_L  # Membrane potential
-    w pA = 0pA    # Spike-adaptation current
-    g_in nS = 1nS # Inhibitory synaptic conductance
-    g_ex nS = 1nS # Excitatory synaptic conductance
+    w pA = 0 pA    # Spike-adaptation current
+    g_in nS = 1 nS # Inhibitory synaptic conductance
+    g_ex nS = 1 nS # Excitatory synaptic conductance
   end
 
   equations:
@@ -175,32 +174,34 @@ neuron aeif_cond_exp_implicit:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
 
-    V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
+    V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
   end
 
   parameters:
     # membrane parameters
-    C_m   pF = 281.0pF     # Membrane Capacitance
-    t_ref ms = 0.0ms       # Refractory period
-    V_reset mV = -60.0mV   # Reset Potential
-    g_L nS = 30.0nS        # Leak Conductance
-    E_L mV = -70.6mV       # Leak reversal Potential (aka resting potential)
-    I_e pA = 0pA           # Constant Current
+    C_m   pF = 281.0 pF     # Membrane Capacitance
+    t_ref ms = 0.0 ms       # Refractory period
+    V_reset mV = -60.0 mV   # Reset Potential
+    g_L nS = 30.0 nS        # Leak Conductance
+    E_L mV = -70.6 mV       # Leak reversal Potential (aka resting potential)
 
     # spike adaptation parameters
-    a nS = 4nS             # Subthreshold adaptation.
-    b pA = 80.5pA          # Spike-trigg_exred adaptation.
-    Delta_T mV = 2.0mV     # Slope factor
-    tau_w ms = 144.0ms     # Adaptation time constant
-    V_th mV = -50.4mV      # Threshold Potential
-    V_peak mV = 0mV        # Spike detection threshold.
+    a nS = 4 nS             # Subthreshold adaptation.
+    b pA = 80.5 pA          # Spike-trigg_exred adaptation.
+    Delta_T mV = 2.0 mV     # Slope factor
+    tau_w ms = 144.0 ms     # Adaptation time constant
+    V_th mV = -50.4 mV      # Threshold Potential
+    V_peak mV = 0 mV        # Spike detection threshold.
 
     # synaptic parameters
-    E_ex mV = 0mV            # Excitatory reversal Potential
-    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse
-    E_in mV = -85.0mV        # Inhibitory reversal Potential
-    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse
+    E_ex mV = 0 mV            # Excitatory reversal Potential
+    tau_syn_ex ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
+    E_in mV = -85.0 mV        # Inhibitory reversal Potential
+    tau_syn_in ms = 2.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -211,7 +212,7 @@ neuron aeif_cond_exp_implicit:
   input:
     spikeInh nS  <- inhibitory spike
     spikeExc nS  <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike

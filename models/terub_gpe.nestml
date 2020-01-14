@@ -1,4 +1,4 @@
-/*
+"""
 Name: terub_gpe - Terman Rubin neuron model.
 
 Description:
@@ -21,7 +21,7 @@ Problems/Todo:
   better spike detection
 
 References:
-  Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J.
+  Terman, D. and Rubin, J.E. and Yew, A. C. and Wilson, C.J.
   Activity Patterns in a Model for the Subthalamopallidal Network
   of the Basal Ganglia
   The Journal of Neuroscience, 22(7), 2963-2976 (2002)
@@ -37,7 +37,7 @@ Sends: SpikeEvent
 Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Author: Martin Ebert
-*/
+"""
 neuron terub_gpe:
   state:
     r integer # counts number of tick during the refractory period
@@ -54,30 +54,30 @@ neuron terub_gpe:
 
   equations:
     # Parameters for Terman Rubin GPe Neuron
-    function g_tau_n_0 ms = 0.05ms
-    function g_tau_n_1 ms = 0.27ms
-    function g_theta_n_tau mV = -40.0mV
-    function g_sigma_n_tau mV = -12.0mV
+    function g_tau_n_0 ms = 0.05 ms
+    function g_tau_n_1 ms = 0.27 ms
+    function g_theta_n_tau mV = -40.0 mV
+    function g_sigma_n_tau mV = -12.0 mV
 
-    function g_tau_h_0 ms = 0.05ms
-    function g_tau_h_1 ms = 0.27ms
-    function g_theta_h_tau mV = -40.0mV
-    function g_sigma_h_tau mV = -12.0mV
+    function g_tau_h_0 ms = 0.05 ms
+    function g_tau_h_1 ms = 0.27 ms
+    function g_theta_h_tau mV = -40.0 mV
+    function g_sigma_h_tau mV = -12.0 mV
     function g_tau_r ms = 30.0 ms
 
     # steady state values for gating variables
-    function g_theta_a mV = -57.0mV
-    function g_sigma_a mV =  2.0mV
-    function g_theta_h mV = -58.0mV
-    function g_sigma_h mV = -12.0mV
-    function g_theta_m mV = -37.0mV
-    function g_sigma_m mV = 10.0mV
-    function g_theta_n mV = -50.0mV
-    function g_sigma_n mV = 14.0mV
-    function g_theta_r mV = -70.0mV
-    function g_sigma_r mV = -2.0mV
-    function g_theta_s mV = -35.0mV
-    function g_sigma_s mV = 2.0mV
+    function g_theta_a mV = -57.0 mV
+    function g_sigma_a mV =  2.0 mV
+    function g_theta_h mV = -58.0 mV
+    function g_sigma_h mV = -12.0 mV
+    function g_theta_m mV = -37.0 mV
+    function g_sigma_m mV = 10.0 mV
+    function g_theta_n mV = -50.0 mV
+    function g_sigma_n mV = 14.0 mV
+    function g_theta_r mV = -70.0 mV
+    function g_sigma_r mV = -2.0 mV
+    function g_theta_s mV = -35.0 mV
+    function g_sigma_s mV = 2.0 mV
 
     # time evolvement of gating variables
     function g_phi_h real =  0.05
@@ -117,7 +117,7 @@ neuron terub_gpe:
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -129,22 +129,24 @@ neuron terub_gpe:
   end
 
   parameters:
-    E_L        mV = -55mV  # Resting membrane potential.
-    g_L        nS = 0.1nS  # Leak conductance.
+    E_L        mV = -55 mV  # Resting membrane potential.
+    g_L        nS = 0.1 nS  # Leak conductance.
     C_m        pF = 1.0 pF # Capacity of the membrane.
-    E_Na       mV = 55mV   # Sodium reversal potential.
+    E_Na       mV = 55 mV   # Sodium reversal potential.
     g_Na       nS = 120 nS # Sodium peak conductance.
-    E_K        mV = -80.0mV# Potassium reversal potential.
-    g_K        nS = 30.0nS # Potassium peak conductance.
-    E_Ca       mV = 120mV  # Calcium reversal potential.
-    g_Ca       nS = 0.15nS # Calcium peak conductance.
-    g_T        nS = 0.5nS  # T-type Calcium channel peak conductance.
-    g_ahp      nS = 30nS   # afterpolarization current peak conductance.
-    tau_syn_ex ms = 1.0ms  # Rise time of the excitatory synaptic alpha function.
-    tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function.
-    I_e        pA = 0pA    # Constant external input current.
-    E_gg       mV = -100mV # reversal potential for inhibitory input (from GPe)
-    t_ref      ms = 2ms    # refractory time
+    E_K        mV = -80.0 mV# Potassium reversal potential.
+    g_K        nS = 30.0 nS # Potassium peak conductance.
+    E_Ca       mV = 120 mV  # Calcium reversal potential.
+    g_Ca       nS = 0.15 nS # Calcium peak conductance.
+    g_T        nS = 0.5 nS  # T-type Calcium channel peak conductance.
+    g_ahp      nS = 30 nS   # afterpolarization current peak conductance.
+    tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
+    tau_syn_in ms = 12.5 ms # Rise time of the inhibitory synaptic alpha function.
+    E_gg       mV = -100 mV # reversal potential for inhibitory input (from GPe)
+    t_ref      ms = 2 ms    # refractory time
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -154,7 +156,7 @@ neuron terub_gpe:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike
@@ -166,7 +168,7 @@ neuron terub_gpe:
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
       r -= 1
-    elif V_m > 0mV and U_old > V_m:
+    elif V_m > 0 mV and U_old > V_m:
       r = refractory_counts
       emit_spike()
     end
@@ -175,7 +177,7 @@ neuron terub_gpe:
 
 end
 
-/*
+"""
 Name: terub_gpe_implicit - Terman Rubin neuron model.
 
 Description:
@@ -214,7 +216,7 @@ Sends: SpikeEvent
 Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Author: Martin Ebert
-*/
+"""
 neuron terub_gpe_implicit:
   state:
     r integer # counts number of tick during the refractory period
@@ -236,30 +238,30 @@ neuron terub_gpe_implicit:
 
   equations:
     # Parameters for Terman Rubin GPe Neuron
-    function g_tau_n_0 ms = 0.05ms
-    function g_tau_n_1 ms = 0.27ms
-    function g_theta_n_tau mV = -40.0mV
-    function g_sigma_n_tau mV = -12.0mV
+    function g_tau_n_0 ms = 0.05 ms
+    function g_tau_n_1 ms = 0.27 ms
+    function g_theta_n_tau mV = -40.0 mV
+    function g_sigma_n_tau mV = -12.0 mV
 
-    function g_tau_h_0 ms = 0.05ms
-    function g_tau_h_1 ms = 0.27ms
-    function g_theta_h_tau mV = -40.0mV
-    function g_sigma_h_tau mV = -12.0mV
+    function g_tau_h_0 ms = 0.05 ms
+    function g_tau_h_1 ms = 0.27 ms
+    function g_theta_h_tau mV = -40.0 mV
+    function g_sigma_h_tau mV = -12.0 mV
     function g_tau_r ms = 30.0 ms
 
     # steady state values for gating variables
-    function g_theta_a mV = -57.0mV
-    function g_sigma_a mV =  2.0mV
-    function g_theta_h mV = -58.0mV
-    function g_sigma_h mV = -12.0mV
-    function g_theta_m mV = -37.0mV
-    function g_sigma_m mV = 10.0mV
-    function g_theta_n mV = -50.0mV
-    function g_sigma_n mV = 14.0mV
-    function g_theta_r mV = -70.0mV
-    function g_sigma_r mV = -2.0mV
-    function g_theta_s mV = -35.0mV
-    function g_sigma_s mV = 2.0mV
+    function g_theta_a mV = -57.0 mV
+    function g_sigma_a mV =  2.0 mV
+    function g_theta_h mV = -58.0 mV
+    function g_sigma_h mV = -12.0 mV
+    function g_theta_m mV = -37.0 mV
+    function g_sigma_m mV = 10.0 mV
+    function g_theta_n mV = -50.0 mV
+    function g_sigma_n mV = 14.0 mV
+    function g_theta_r mV = -70.0 mV
+    function g_sigma_r mV = -2.0 mV
+    function g_theta_s mV = -35.0 mV
+    function g_sigma_s mV = 2.0 mV
 
     # time evolvement of gating variables
     function g_phi_h real =  0.05
@@ -300,7 +302,7 @@ neuron terub_gpe_implicit:
     shape g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -312,22 +314,24 @@ neuron terub_gpe_implicit:
   end
 
   parameters:
-    E_L        mV = -55mV  # Resting membrane potential.
-    g_L        nS = 0.1nS  # Leak conductance.
+    E_L        mV = -55 mV  # Resting membrane potential.
+    g_L        nS = 0.1 nS  # Leak conductance.
     C_m        pF = 1.0 pF # Capacity of the membrane.
-    E_Na       mV = 55mV   # Sodium reversal potential.
+    E_Na       mV = 55 mV   # Sodium reversal potential.
     g_Na       nS = 120 nS # Sodium peak conductance.
-    E_K        mV = -80.0mV# Potassium reversal potential.
-    g_K        nS = 30.0nS # Potassium peak conductance.
-    E_Ca       mV = 120mV  # Calcium reversal potential.
-    g_Ca       nS = 0.15nS # Calcium peak conductance.
-    g_T        nS = 0.5nS  # T-type Calcium channel peak conductance.
-    g_ahp      nS = 30nS   # afterpolarization current peak conductance.
-    tau_syn_ex ms = 1.0ms  # Rise time of the excitatory synaptic alpha function.
-    tau_syn_in ms = 12.5ms # Rise time of the inhibitory synaptic alpha function.
-    I_e        pA = 0pA    # Constant external input current.
-    E_gg       mV = -100mV # reversal potential for inhibitory input (from GPe)
-    t_ref      ms = 2ms    # refractory time
+    E_K        mV = -80.0 mV# Potassium reversal potential.
+    g_K        nS = 30.0 nS # Potassium peak conductance.
+    E_Ca       mV = 120 mV  # Calcium reversal potential.
+    g_Ca       nS = 0.15 nS # Calcium peak conductance.
+    g_T        nS = 0.5 nS  # T-type Calcium channel peak conductance.
+    g_ahp      nS = 30 nS   # afterpolarization current peak conductance.
+    tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
+    tau_syn_in ms = 12.5 ms # Rise time of the inhibitory synaptic alpha function.
+    E_gg       mV = -100 mV # reversal potential for inhibitory input (from GPe)
+    t_ref      ms = 2 ms    # refractory time
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -337,7 +341,7 @@ neuron terub_gpe_implicit:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike
@@ -349,7 +353,7 @@ neuron terub_gpe_implicit:
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
       r -= 1
-    elif V_m > 0mV and U_old > V_m:
+    elif V_m > 0 mV and U_old > V_m:
       r = refractory_counts
       emit_spike()
     end

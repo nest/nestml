@@ -78,20 +78,20 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.post_symbol_table_builder_checks(node, skip_check_correct_usage_of_shapes=self.after_ast_rewrite_)
+        CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
         # the following part is done in order to mark conductance based buffers as such.
         if node.get_input_blocks() is not None and node.get_equations_blocks() is not None and \
                 len(node.get_equations_blocks().get_declarations()) > 0:
             # this case should be prevented, since several input blocks result in  a incorrect model
             if isinstance(node.get_input_blocks(), list):
-                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_lines())
+                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_ports())
             else:
-                buffers = (buffer for buffer in node.get_input_blocks().get_input_lines())
+                buffers = (buffer for buffer in node.get_input_blocks().get_input_ports())
             from pynestml.meta_model.ast_ode_shape import ASTOdeShape
             # todo by KP: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
             #                    not isinstance(decl, ASTOdeShape))
-            mark_conductance_based_buffers(input_lines=buffers)
+            mark_conductance_based_buffers(input_ports=buffers)
         # now update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
@@ -520,32 +520,30 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input block.
         :type node: ast_input_block
         """
-        for line in node.get_input_lines():
-            line.update_scope(node.get_scope())
+        for port in node.get_input_ports():
+            port.update_scope(node.get_scope())
 
-    def visit_input_line(self, node):
+    def visit_input_port(self, node):
         """
-        Private method: Used to visit a single input line, create the corresponding symbol and update the scope.
-        :param node: a single input line.
-        :type node: ast_input_line
+        Private method: Used to visit a single input port, create the corresponding symbol and update the scope.
+        :param node: a single input port.
+        :type node: ASTInputPort
         """
-        if node.is_spike() and node.has_datatype():
-            node.get_datatype().update_scope(node.get_scope())
-        elif node.is_spike():
+        if not node.has_datatype():
             code, message = Messages.get_buffer_type_not_defined(node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.WARNING)
-        for inputType in node.get_input_types():
-            inputType.update_scope(node.get_scope())
-
-    def endvisit_input_line(self, node):
-        buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
-        if node.is_spike() and node.has_datatype():
-            type_symbol = node.get_datatype().get_type_symbol()
-        elif node.is_spike():
-            type_symbol = PredefinedTypes.get_type('nS')
+                               log_level=LoggingLevel.ERROR)
         else:
-            type_symbol = PredefinedTypes.get_type('pA')
+            node.get_datatype().update_scope(node.get_scope())
+
+        for qual in node.get_input_qualifiers():
+            qual.update_scope(node.get_scope())
+
+    def endvisit_input_port(self, node):
+        buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
+        if not node.has_datatype():
+            return
+        type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=buffer_type, vector_parameter=node.get_index_parameter(),
@@ -667,15 +665,15 @@ def make_implicit_odes_explicit(equations_block):
     return
 
 
-def mark_conductance_based_buffers(input_lines):
+def mark_conductance_based_buffers(input_ports):
     """
     Inspects all handed over buffer definitions and updates them to conductance based if they occur as part of
     a cond_sum rhs.
-    :param input_lines: a set of input buffers.
-    :type input_lines: ast_input_line
+    :param input_ports: a set of input buffers.
+    :type input_ports: ASTInputPort
     """
     # this is the updated version, where nS buffers are marked as conductance based
-    for bufferDeclaration in input_lines:
+    for bufferDeclaration in input_ports:
         if bufferDeclaration.is_spike():
             symbol = bufferDeclaration.get_scope().resolve_to_symbol(bufferDeclaration.get_name(),
                                                                      SymbolKind.VARIABLE)
