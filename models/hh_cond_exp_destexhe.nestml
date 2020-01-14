@@ -41,8 +41,8 @@ neuron hh_cond_exp_destexhe:
 
   state:
     r integer # counts number of tick during the refractory period
-	g_noise_ex uS = g_noise_ex0
-	g_noise_in uS = g_noise_in0
+    g_noise_ex uS = g_noise_ex0
+    g_noise_in uS = g_noise_in0
   end
 
   initial_values:
@@ -71,15 +71,15 @@ neuron hh_cond_exp_destexhe:
     shape g_in = exp(-1/tau_syn_in*t)
     shape g_ex = exp(-1/tau_syn_ex*t)
 
-	# Add aliases to simplify the equation definition of V_m
+    # Add aliases to simplify the equation definition of V_m
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
     
     function I_M pA = g_M * Noninact_p * (V_m - E_K)
-	function I_noise pA = (g_noise_ex * (V_m - E_ex) + g_noise_in * (V_m - E_in))
+    function I_noise pA = (g_noise_ex * (V_m - E_ex) + g_noise_in * (V_m - E_in))
     
-	function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
+    function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' =( -I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + currents + I_e - I_noise) / C_m
@@ -102,7 +102,6 @@ neuron hh_cond_exp_destexhe:
     Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n )
     
     Noninact_p' = ( alpha_p - ( alpha_p + beta_p ) * Noninact_p )
-	
   end
 
   parameters:
@@ -121,7 +120,7 @@ neuron hh_cond_exp_destexhe:
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -75.0mV         # Inhibitory synaptic reversal potential
     
-    g_M nS = 173.18 nS 		  # Conductance of non-inactivating K+ channel
+    g_M nS = 173.18 nS        # Conductance of non-inactivating K+ channel
 	
     # Conductance OU noise
     g_noise_ex0 uS = 0.012 uS		# Mean of the excitatory noise conductance
@@ -132,16 +131,16 @@ neuron hh_cond_exp_destexhe:
 
   internals:
     RefractoryCounts integer = 20
-    D_ex uS/ms = 2 * pow(sigma_noise_ex, 2) / tau_syn_ex
-    D_in uS/ms = 2 * pow(sigma_noise_in, 2) / tau_syn_in
-    A_ex uS = pow((D_ex * tau_syn_ex / 2) * (1 - exp(-2 * resolution() / tau_syn_ex )), 0.5)
-    A_in uS = pow((D_in * tau_syn_in / 2) * (1 - exp(-2 * resolution() / tau_syn_in )), 0.5)
+    D_ex uS**2/ms = 2 * sigma_noise_ex**2 / tau_syn_ex
+    D_in uS**2/ms = 2 * sigma_noise_in**2 / tau_syn_in
+    A_ex uS = ((D_ex * tau_syn_ex / 2) * (1 - exp(-2 * resolution() / tau_syn_ex )))**.5
+    A_in uS = ((D_in * tau_syn_in / 2) * (1 - exp(-2 * resolution() / tau_syn_in )))**.5
   end
 
   input:
-      spikeInh nS  <- inhibitory spike
-      spikeExc nS  <- excitatory spike
-      currents <- current
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
+      currents pA <- current
   end
 
   output: spike
@@ -150,8 +149,8 @@ neuron hh_cond_exp_destexhe:
     U_old mV = V_m
     integrate_odes()
 
-	g_noise_ex = g_noise_ex0 + (g_noise_ex - g_noise_ex0) * exp(-resolution() / tau_syn_ex) + A_ex * randomNorm(0, 1)	
-	g_noise_in = g_noise_in0 + (g_noise_in - g_noise_in0) * exp(-resolution() / tau_syn_in) + A_in * randomNorm(0, 1)	
+    g_noise_ex = g_noise_ex0 + (g_noise_ex - g_noise_ex0) * exp(-resolution() / tau_syn_ex) + A_ex * randomNorm(0, 1)	
+    g_noise_in = g_noise_in0 + (g_noise_in - g_noise_in0) * exp(-resolution() / tau_syn_in) + A_in * randomNorm(0, 1)	
 
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:

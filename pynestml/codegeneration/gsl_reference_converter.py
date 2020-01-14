@@ -163,7 +163,7 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'numerics::expm1({!s})'
 
         if function_name == PredefinedFunctions.RANDOM_NORM:
-            return '((%s) + (%s) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \

@@ -235,6 +235,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
 
+        rng_visitor = ASTRandomNumberGeneratorVisitor()
+        neuron.accept(rng_visitor)
+        namespace['norm_rng'] = rng_visitor._norm_rng_is_used
 
         self.define_solver_type(neuron, namespace)
         return namespace

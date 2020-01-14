@@ -19,7 +19,7 @@ neuron test_random:
   input:
     ex_spikes nS <- excitatory spike
     in_spikes nS <- inhibitory spike
-    currents    <- current
+    currents pA <- current
   end
 
   output: spike
