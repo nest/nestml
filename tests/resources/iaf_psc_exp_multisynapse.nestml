@@ -63,9 +63,9 @@ neuron iaf_psc_exp_multisynapse_neuron:
   end
 
   input:
-    spikes1 nS <- spike
-    spikes2 nS <- spike
-    spikes3 nS <- spike
+    spikes1 pA <- spike
+    spikes2 pA <- spike
+    spikes3 pA <- spike
     currents pA <- current
   end
 
