@@ -19,7 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import nest
+import os
 import unittest
+from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 try:
     import matplotlib
