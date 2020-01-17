@@ -27,7 +27,7 @@ import unittest
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 
-def NestLogarithmicFunctionTest(unittest.TestCase):
+class NestLogarithmicFunctionTest(unittest.TestCase):
 
     def test_logarithmic_function(self):
         MAX_SSE = 1E-12
