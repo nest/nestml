@@ -39,7 +39,8 @@ class PredefinedFunctions(object):
         TANH                  The callee name of the hyperbolic tangent.
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
-        RANDOM_NORM           The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         CLIP                  The callee name of the clip function.
@@ -64,7 +65,8 @@ class PredefinedFunctions(object):
     TANH = 'tanh'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
-    RANDOM_NORM = 'randomNorm'
+    RANDOM_NORMAL = 'random_normal'
+    RANDOM_UNIFORM = 'random_uniform'
     EXPM1 = 'expm1'
     DELTA = 'delta'
     CLIP = 'clip'
@@ -95,7 +97,8 @@ class PredefinedFunctions(object):
         cls.__register_tanh_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
-        cls.__register_random_norm_function()
+        cls.__register_random_normal_function()
+        cls.__register_random_uniform_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_clip_function()
@@ -249,14 +252,24 @@ class PredefinedFunctions(object):
         cls.name2function[cls.LOGGER_WARNING] = symbol
 
     @classmethod
-    def __register_random_norm_function(cls):
+    def __register_random_normal_function(cls):
         """
         Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
         """
-        symbol = FunctionSymbol(name=cls.RANDOM_NORM, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+        symbol = FunctionSymbol(name=cls.RANDOM_NORMAL, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
                                 return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM_NORM] = symbol
+        cls.name2function[cls.RANDOM_NORMAL] = symbol
+
+    @classmethod
+    def __register_random_uniform_function(cls):
+        """
+        Registers the random method as used to generate a random sample from a uniform distribution in the interval [offset, offset + scale).
+        """
+        symbol = FunctionSymbol(name=cls.RANDOM_UNIFORM, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.RANDOM_UNIFORM] = symbol
 
     @classmethod
     def __register_time_resolution_function(cls):

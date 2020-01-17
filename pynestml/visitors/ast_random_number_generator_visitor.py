@@ -60,6 +60,6 @@ class ASTRandomNumberGeneratorVisitor(ASTVisitor):
             node.type = ErrorTypeSymbol()
             return
 
-        if function_name == PredefinedFunctions.RANDOM_NORM:
+        if function_name == PredefinedFunctions.RANDOM_NORMAL:
             self._norm_rng_is_used = True
             return

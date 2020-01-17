@@ -149,8 +149,8 @@ neuron hh_cond_exp_destexhe:
     U_old mV = V_m
     integrate_odes()
 
-    g_noise_ex = g_noise_ex0 + (g_noise_ex - g_noise_ex0) * exp(-resolution() / tau_syn_ex) + A_ex * randomNorm(0, 1)	
-    g_noise_in = g_noise_in0 + (g_noise_in - g_noise_in0) * exp(-resolution() / tau_syn_in) + A_in * randomNorm(0, 1)	
+    g_noise_ex = g_noise_ex0 + (g_noise_ex - g_noise_ex0) * exp(-resolution() / tau_syn_ex) + A_ex * random_normal(0, 1)	
+    g_noise_in = g_noise_in0 + (g_noise_in - g_noise_in0) * exp(-resolution() / tau_syn_in) + A_in * random_normal(0, 1)	
 
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:

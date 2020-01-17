@@ -1,13 +1,15 @@
 neuron test_random:
 
   initial_values:
-    p mV = randomNorm(500 mV, 25 mV)
-    q real = randomNorm(500, 25)
+    p mV = random_normal(500 mV, 25 mV)
+    q real = random_normal(500, 25)
+    r real = random_uniform(0, 1)
   end
 
   equations:
-    p' = randomNorm(500 mV, 25 mV) / s
-    q' = randomNorm(500, 25) / s
+    p' = random_normal(500 mV, 25 mV) / s
+    q' = random_normal(500, 25) / s
+    r' = random_uniform(42, 123) / s
   end
 
   parameters:

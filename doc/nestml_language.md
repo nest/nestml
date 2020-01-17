@@ -215,7 +215,8 @@ The following functions are predefined in NestML and can be used out of the box:
 | sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
 | cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
 | tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
-| randomNorm | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
+| random_normal | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
+| random_uniform | offset, scale | Returns a sample from a uniform distribution in the interval [offset, offset + scale) |
 | delta | t | A Dirac delta impulse function at time t. |
 | curr\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
 | cond\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
