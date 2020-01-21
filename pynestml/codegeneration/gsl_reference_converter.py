@@ -28,6 +28,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -75,7 +76,19 @@ class GSLReferenceConverter(IReferenceConverter):
             return GSLNamesConverter.name(symbol)
 
         if symbol.is_buffer():
-            return prefix + 'B_.' + NestNamesConverter.buffer_value(symbol)
+            if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+                units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
+            else:
+                units_conversion_factor = 1
+            s = ""
+            if not units_conversion_factor == 1:
+                s += "(" + str(units_conversion_factor) + " * "
+            s += prefix + 'B_.' + NestNamesConverter.buffer_value(symbol)
+            if symbol.has_vector_parameter():
+                s += '[i]'
+            if not units_conversion_factor == 1:
+                s += ")"
+            return s
 
         if symbol.is_local() or symbol.is_function:
             return variable_name
@@ -150,6 +163,12 @@ class GSLReferenceConverter(IReferenceConverter):
 
         if function_name == PredefinedFunctions.EXPM1:
             return 'numerics::expm1({!s})'
+
+        if function_name == PredefinedFunctions.RANDOM_NORMAL:
+            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+
+        if function_name == PredefinedFunctions.RANDOM_UNIFORM:
+            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() )->drand())'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \

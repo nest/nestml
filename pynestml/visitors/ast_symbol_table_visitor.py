@@ -59,7 +59,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
-        #print("In ASTSymbolTableVisitor::visit_neuron(): neuron = " + node.get_name() + ", scope = " + str(scope))
         node.update_scope(scope)
         node.get_body().update_scope(scope)
         # now first, we add all predefined elements to the scope
@@ -81,9 +80,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 len(node.get_equations_blocks().get_declarations()) > 0:
             # this case should be prevented, since several input blocks result in  a incorrect model
             if isinstance(node.get_input_blocks(), list):
-                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_lines())
+                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_ports())
             else:
-                buffers = (buffer for buffer in node.get_input_blocks().get_input_lines())
+                buffers = (buffer for buffer in node.get_input_blocks().get_input_ports())
             from pynestml.meta_model.ast_ode_shape import ASTOdeShape
             # todo by KP: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
@@ -267,7 +266,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         vector_parameter = node.get_size_parameter()
         # now for each variable create a symbol and update the scope
         for var in node.get_variables():  # for all variables declared create a new symbol
-            #print("--> var = " +str(var))
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
             symbol = VariableSymbol(element_reference=node,
@@ -496,8 +494,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             BlockType.PARAMETERS if node.is_parameters else
             BlockType.INITIAL_VALUES)
         for decl in node.get_declarations():
-            #if node.is_internals:
-                #print("node = " + str(node) + ", decl = " + str(decl))
             decl.update_scope(node.get_scope())
         return
 
@@ -520,32 +516,30 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single input block.
         :type node: ast_input_block
         """
-        for line in node.get_input_lines():
-            line.update_scope(node.get_scope())
+        for port in node.get_input_ports():
+            port.update_scope(node.get_scope())
 
-    def visit_input_line(self, node):
+    def visit_input_port(self, node):
         """
-        Private method: Used to visit a single input line, create the corresponding symbol and update the scope.
-        :param node: a single input line.
-        :type node: ast_input_line
+        Private method: Used to visit a single input port, create the corresponding symbol and update the scope.
+        :param node: a single input port.
+        :type node: ASTInputPort
         """
-        if node.is_spike() and node.has_datatype():
-            node.get_datatype().update_scope(node.get_scope())
-        elif node.is_spike():
+        if not node.has_datatype():
             code, message = Messages.get_buffer_type_not_defined(node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.WARNING)
-        for inputType in node.get_input_types():
-            inputType.update_scope(node.get_scope())
-
-    def endvisit_input_line(self, node):
-        buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
-        if node.is_spike() and node.has_datatype():
-            type_symbol = node.get_datatype().get_type_symbol()
-        elif node.is_spike():
-            type_symbol = PredefinedTypes.get_type('nS')
+                               log_level=LoggingLevel.ERROR)
         else:
-            type_symbol = PredefinedTypes.get_type('pA')
+            node.get_datatype().update_scope(node.get_scope())
+
+        for qual in node.get_input_qualifiers():
+            qual.update_scope(node.get_scope())
+
+    def endvisit_input_port(self, node):
+        buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
+        if not node.has_datatype():
+            return
+        type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=buffer_type, vector_parameter=node.get_index_parameter(),
@@ -610,6 +604,11 @@ def add_ode_to_variable(ode_equation):
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)
+    else:
+        code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
+        Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
+                           log_level=LoggingLevel.ERROR)
+    return
 
 
 def add_ode_shape_to_variable(shape):

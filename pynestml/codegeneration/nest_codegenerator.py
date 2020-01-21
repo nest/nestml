@@ -29,6 +29,7 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
+import pynestml
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
@@ -67,6 +68,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 #from pynestml.visitors.ast_symbol_table_visitor import assign_ode_to_variables
+from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
 
 def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
@@ -569,6 +571,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         code, message = Messages.get_start_processing_neuron(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+
         equations_block = neuron.get_equations_block()
 
         if equations_block is not None:
@@ -696,6 +699,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
 
+        namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = not self.analytic_solver[neuron.get_name()] is None
         if namespace['uses_analytic_solver']:
@@ -738,6 +744,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['printer'] = NestPrinter(unitless_pretty_printer)        
 
         namespace["spike_updates"] = neuron.spike_updates
+
+        rng_visitor = ASTRandomNumberGeneratorVisitor()
+        neuron.accept(rng_visitor)
+        namespace['norm_rng'] = rng_visitor._norm_rng_is_used
 
         return namespace
 
@@ -1201,6 +1211,22 @@ class NESTCodeGenerator(CodeGenerator):
 
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
+        for declaration in initial_values.get_declarations():
+            variable = declaration.get_variables()[0]
+            for shape in shape_to_buffers:
+                matcher_computed_shape_odes = re.compile(shape + r"(__d)*")
+                if re.fullmatch(matcher_computed_shape_odes, str(variable)):
+                    buffer_type = neuron.get_scope(). \
+                        resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
+                    assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
+                        shape] + '/' + buffer_type.print_nestml_type() + ") * " + \
+                                        self._printer.print_expression(declaration.get_expression())
+                    spike_updates.append(ModelParser.parse_assignment(assignment_string))
+                    # the IV is applied. can be reset
+                    declaration.set_expression(ModelParser.parse_expression("0"))
+                    break
+        for assignment in spike_updates:
+            add_assignment_to_update_block(assignment, neuron)
 
         for shape, spike_input_port in shape_buffers:
             buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()

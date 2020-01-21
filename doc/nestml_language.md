@@ -221,8 +221,8 @@ The following functions are predefined in NestML and can be used out of the box:
 | sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
 | cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
 | tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
-| random | | *Not yet implemented.* |
-| randomInt | | *Not yet implemented.* |
+| random_normal | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
+| random_uniform | offset, scale | Returns a sample from a uniform distribution in the interval [offset, offset + scale) |
 | delta | t | A Dirac delta impulse function at time t. |
 | convolve | f, g | The convolution of shape f with spike train g (or vice versa). |
 | info | s | Log the string s with logging level "info". |

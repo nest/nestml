@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoSumNotCorrectlyParametrized.nestml
+ *  CoCoConvolveNotCorrectlyParametrized.nestml
  *
  *  This file is part of NEST.
  *
@@ -25,7 +25,7 @@
  * Negative case.
 */
 
-neuron CoCoSumNotCorrectlyParametrized:
+neuron CoCoConvolveNotCorrectlyParametrized:
     initial_values:
         V_m mV = 10mV
     end

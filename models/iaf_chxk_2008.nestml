@@ -84,7 +84,7 @@ neuron iaf_chxk_2008:
     inline I_ahp pA = g_ahp * ( V_m - E_ahp )
     inline I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -100,7 +100,9 @@ neuron iaf_chxk_2008:
     G_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
     ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -116,7 +118,7 @@ neuron iaf_chxk_2008:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
-      currents <- current
+      I_stim pA <- current
   end
 
   output: spike
@@ -246,7 +248,7 @@ neuron iaf_chxk_2008_implicit:
     inline I_ahp pA = g_ahp * ( V_m - E_ahp )
     inline I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -262,7 +264,9 @@ neuron iaf_chxk_2008_implicit:
     G_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
     ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -276,9 +280,9 @@ neuron iaf_chxk_2008_implicit:
   end
 
   input:
-      spikesInh nS <- inhibitory spike
-      spikesExc nS <- excitatory spike
-      currents <- current
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

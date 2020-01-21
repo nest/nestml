@@ -65,7 +65,7 @@ jobs:
     - stage: integration
       install:
         # install nest-simulator
-        - pip install cython
+        - pip install cython pytest-xdist
         - cd
         - git clone --depth=1 https://github.com/nest/nest-simulator
         - mkdir nest_install
@@ -94,7 +94,5 @@ jobs:
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - echo $PYNESTKERNEL_LOCATION
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_instantiability_test.py
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_integration_test.py
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_logarithmic_function_test.py
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_multisynapse_test.py
+        - pytest -s --forked $TRAVIS_BUILD_DIR/tests/nest_tests
+

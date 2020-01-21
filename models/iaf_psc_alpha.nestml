@@ -86,8 +86,8 @@ neuron iaf_psc_alpha:
     shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
     recordable inline V_m mV = V_abs + E_L # Membrane potential.
-    inline I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + currents
-    V_abs' = -1/Tau * V_abs + 1/C_m * I
+    inline I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_stim
+    V_abs' = -V_abs/Tau + I/C_m
   end
 
   parameters:
@@ -99,7 +99,9 @@ neuron iaf_psc_alpha:
     E_L     mV = -70 mV   # Resting potential
     V_reset mV = -70 mV - E_L # Reset potential of the membrane
     Theta   mV = -55 mV - E_L # Spike threshold
-    I_e     pA = 0 pA     # Constant external input current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -109,7 +111,7 @@ neuron iaf_psc_alpha:
   input:
     ex_spikes pA <- excitatory spike
     in_spikes pA <- inhibitory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike

@@ -49,7 +49,7 @@ neuron iaf_cond_beta:
       inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
       inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
       inline I_leak pA = g_L * (V_m - E_L)  # pA = nS * mV
-      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + currents + I_e) / C_m
+      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -65,10 +65,11 @@ neuron iaf_cond_beta:
     tau_syn_decay_I ms = 2. ms    # Synaptic time constant for inhibitory synapse
     tau_syn_rise_E ms = .2 ms     # Synaptic time constant excitatory synapse
     tau_syn_decay_E ms = 2. ms    # Synaptic time constant for inhibitory synapse
-    I_e pA = 0 pA                 # Constant current
     F_E nS = 0 nS                 # Constant external input conductance (excitatory).
     F_I nS = 0 nS                 # Constant external input conductance (inhibitory).
-  end
+
+    # constant external input current
+    I_e pA = 0 pA  end
 
   internals:
     # time of peak conductance excursion after spike arrival at t = 0
@@ -83,9 +84,9 @@ neuron iaf_cond_beta:
   end
 
   input:
-    spikeInh nS  <- inhibitory spike
-    spikeExc nS  <- excitatory spike
-    currents <- current
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

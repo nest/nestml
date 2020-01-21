@@ -117,7 +117,7 @@ neuron terub_gpe:
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -142,9 +142,11 @@ neuron terub_gpe:
     g_ahp      nS = 30 nS   # afterpolarization current peak conductance.
     tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
     tau_syn_in ms = 12.5 ms # Rise time of the inhibitory synaptic alpha function.
-    I_e        pA = 0 pA    # Constant external input current.
     E_gg       mV = -100 mV # reversal potential for inhibitory input (from GPe)
     t_ref      ms = 2 ms    # refractory time
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -154,7 +156,7 @@ neuron terub_gpe:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike
@@ -300,7 +302,7 @@ neuron terub_gpe_implicit:
     shape g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -325,9 +327,11 @@ neuron terub_gpe_implicit:
     g_ahp      nS = 30 nS   # afterpolarization current peak conductance.
     tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
     tau_syn_in ms = 12.5 ms # Rise time of the inhibitory synaptic alpha function.
-    I_e        pA = 0 pA    # Constant external input current.
     E_gg       mV = -100 mV # reversal potential for inhibitory input (from GPe)
     t_ref      ms = 2 ms    # refractory time
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -337,7 +341,7 @@ neuron terub_gpe_implicit:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike

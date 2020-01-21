@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -27,7 +28,7 @@ class ASTBody(ASTNode):
     Grammar:
         body : BLOCK_OPEN
                (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
-               BLOCK_CLOSE;        
+               BLOCK_CLOSE;
     Attributes:
         bodyElements = None
     """
@@ -174,15 +175,15 @@ class ASTBody(ASTNode):
         """
         Returns a list of all spike input buffers defined in the model.
         :return: a list of all spike input buffers
-        :rtype: list(ASTInputLine)
+        :rtype: list(ASTInputPort)
         """
         ret = list()
         blocks = self.get_input_blocks()
         if isinstance(blocks, list):
             for block in blocks:
-                for line in block.get_input_lines():
-                    if line.is_spike():
-                        ret.append(line)
+                for port in block.get_input_ports():
+                    if port.is_spike():
+                        ret.append(port)
             return ret
         else:
             return ret

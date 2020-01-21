@@ -28,11 +28,11 @@
 neuron CoCoSumNotCorrectlyParametrized:
 
     initial_values:
-        V_m mV = 10mV
+        V_m mV = 10 mV
     end
 
     equations:
-        shape V_m' = 20mV
+        shape V_m' = 20 mV
         inline testB pA = convolve(V_m, spikeExc) # convolve aka. sum is now correctly parametrized
     end
 

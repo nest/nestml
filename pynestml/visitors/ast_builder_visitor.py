@@ -537,23 +537,23 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
     def visitInputBlock(self, ctx):
-        input_lines = list()
-        if ctx.inputLine() is not None:
-            for line in ctx.inputLine():
-                input_lines.append(self.visit(line))
-        ret = ASTNodeFactory.create_ast_input_block(input_definitions=input_lines,
+        input_ports = []
+        if ctx.inputPort() is not None:
+            for port in ctx.inputPort():
+                input_ports.append(self.visit(port))
+        ret = ASTNodeFactory.create_ast_input_block(input_definitions=input_ports,
                                                     source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
-    # Visit a parse tree produced by PyNESTMLParser#inputLine.
-    def visitInputLine(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#inputPort.
+    def visitInputPort(self, ctx):
         name = str(ctx.name.text) if ctx.name is not None else None
         size_parameter = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
-        input_types = list()
-        if ctx.inputType() is not None:
-            for Type in ctx.inputType():
-                input_types.append(self.visit(Type))
+        input_qualifiers = []
+        if ctx.inputQualifier() is not None:
+            for qual in ctx.inputQualifier():
+                input_qualifiers.append(self.visit(qual))
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         if ctx.isCurrent:
             signal_type = ASTSignalType.CURRENT
@@ -561,18 +561,18 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             signal_type = ASTSignalType.SPIKE
         else:
             signal_type = None
-        ret = ASTNodeFactory.create_ast_input_line(name=name, size_parameter=size_parameter, data_type=data_type,
-                                                   input_types=input_types, signal_type=signal_type,
+        ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
+                                                   input_qualifiers=input_qualifiers, signal_type=signal_type,
                                                    source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
-    # Visit a parse tree produced by PyNESTMLParser#inputType.
-    def visitInputType(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#inputQualifier.
+    def visitInputQualifier(self, ctx):
         is_inhibitory = True if ctx.isInhibitory is not None else False
         is_excitatory = True if ctx.isExcitatory is not None else False
-        return ASTNodeFactory.create_ast_input_type(is_inhibitory=is_inhibitory, is_excitatory=is_excitatory,
-                                                    source_position=create_source_pos(ctx))
+        return ASTNodeFactory.create_ast_input_qualifier(is_inhibitory=is_inhibitory, is_excitatory=is_excitatory,
+                                                         source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):

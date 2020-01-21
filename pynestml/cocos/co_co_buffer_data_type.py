@@ -1,5 +1,5 @@
 #
-# co_co_only_spike_buffer_data_types.py
+# co_co_buffer_data_type.py
 #
 # This file is part of NEST.
 #
@@ -17,23 +17,26 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoOnlySpikeBufferDataTypes(CoCo):
+class CoCoBufferDataType(CoCo):
     """
-    This coco ensures that all spike buffers have a data type and all current buffers no data type stated.
+    This coco ensures that all spike and current buffers have a data type stated.
     Allowed:
         input:
             spikeIn integer <- inhibitory spike
+            current pA <- current
         end
-        
+
     Not allowed:
         input:
-            current integer <- current
+            spikeIn <- inhibitory spike
+            current <- current
         end
     """
 
@@ -52,19 +55,13 @@ class BufferDatatypeVisitor(ASTVisitor):
     This visitor checks if each buffer has a datatype selected according to the coco.
     """
 
-    def visit_input_line(self, node):
+    def visit_input_port(self, node):
         """
         Checks the coco on the current node.
-        :param node: a single input line node.
-        :type node: ast_input_line
+        :param node: a single input port node.
+        :type node: ASTInputPort
         """
-        if node.is_spike() and not node.has_datatype():
+        if not node.has_datatype():
             code, message = Messages.get_data_type_not_specified(node.get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                code=code, message=message)
-        if node.is_current() and node.has_datatype():
-            code, message = Messages.get_not_type_allowed(node.get_name())
-            Logger.log_message(error_position=str(node.get_source_position()),
-                               code=code, message=message,
-                               log_level=LoggingLevel.ERROR)
-        return

@@ -90,7 +90,7 @@ class ASTUtils(object):
         :rtype: bool
         """
         from pynestml.meta_model.ast_body import ASTBody
-        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_lines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
             if inputL.is_spike():
                 return True
@@ -105,7 +105,7 @@ class ASTUtils(object):
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """
-        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_lines())
+        inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
             if inputL.is_current():
                 return True

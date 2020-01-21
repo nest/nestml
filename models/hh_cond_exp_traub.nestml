@@ -57,7 +57,7 @@ neuron hh_cond_exp_traub:
     inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
-    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' = ( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
 
     # channel dynamics
     inline V_rel mV = V_m - V_T
@@ -71,7 +71,6 @@ neuron hh_cond_exp_traub:
     Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m )
     Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h )
     Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n )
-
   end
 
   parameters:
@@ -83,11 +82,10 @@ neuron hh_cond_exp_traub:
     E_K mV = -90. mV           # Potassium reversal potential
     E_L mV = -60. mV           # Leak reversal Potential (aka resting potential)
     V_T mV = -63.0 mV          # Voltage offset that controls dynamics. For default
-                              # parameters, V_T = -63 mV results in a threshold around -50 mV.
+                               # parameters, V_T = -63 mV results in a threshold around -50 mV.
     tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA              # Constant Current
-    E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
+    E_ex mV = 0.0 mV           # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
 
     alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - E_L) / ( exp( ( 15. mV - E_L) / 5. mV ) - 1. )
@@ -96,6 +94,9 @@ neuron hh_cond_exp_traub:
     beta_m_init 1/ms = 0.28/(ms* mV ) * ( E_L  - 40. mV ) / ( exp( ( E_L - 40. mV ) / 5. mV ) - 1. )
     alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - E_L) / 18. mV )
     beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - E_L ) / 5. mV) ) ) / ms
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -103,9 +104,9 @@ neuron hh_cond_exp_traub:
   end
 
   input:
-      spikeInh nS  <- inhibitory spike
-      spikeExc nS  <- excitatory spike
-      currents <- current
+    spikeInh nS  <- inhibitory spike
+    spikeExc nS  <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -188,7 +189,7 @@ neuron hh_cond_exp_traub_implicit:
     inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
-    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' = ( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
 
     # channel dynamics
     inline V_rel mV = V_m - V_T
@@ -213,11 +214,10 @@ neuron hh_cond_exp_traub_implicit:
     E_K mV = -90. mV           # Potassium reversal potential
     E_L mV = -60. mV           # Leak reversal Potential (aka resting potential)
     V_T mV = -63.0 mV          # Voltage offset that controls dynamics. For default
-                              # parameters, V_T = -63 mV results in a threshold around -50 mV.
+                               # parameters, V_T = -63 mV results in a threshold around -50 mV.
     tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA              # Constant Current
-    E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
+    E_ex mV = 0.0 mV           # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
 
     alpha_n_init 1/ms = 0.032/(ms*mV) * ( 15. mV - E_L) / ( exp( ( 15. mV - E_L) / 5. mV ) - 1. )
@@ -226,6 +226,9 @@ neuron hh_cond_exp_traub_implicit:
     beta_m_init 1/ms = 0.28/(ms*mV) * ( E_L  - 40. mV ) / ( exp( ( E_L - 40. mV ) / 5. mV ) - 1. )
     alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - E_L) / 18. mV )
     beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - E_L ) / 5. mV) ) ) / ms
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -233,9 +236,9 @@ neuron hh_cond_exp_traub_implicit:
   end
 
   input:
-      spikeInh nS  <- inhibitory spike
-      spikeExc nS  <- excitatory spike
-      currents <- current
+    spikeInh nS  <- inhibitory spike
+    spikeExc nS  <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
