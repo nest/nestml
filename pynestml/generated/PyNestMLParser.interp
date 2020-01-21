@@ -203,8 +203,8 @@ blockWithVariables
 updateBlock
 equationsBlock
 inputBlock
-inputLine
-inputType
+inputPort
+inputQualifier
 outputBlock
 function
 parameter

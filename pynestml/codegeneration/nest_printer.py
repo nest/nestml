@@ -48,8 +48,8 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_line import ASTInputLine
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -127,10 +127,10 @@ class NestPrinter(object):
             ret = self.print_if_stmt(node)
         if isinstance(node, ASTInputBlock):
             ret = self.print_input_block(node)
-        if isinstance(node, ASTInputLine):
-            ret = self.print_input_line(node)
-        if isinstance(node, ASTInputType):
-            ret = self.print_input_type(node)
+        if isinstance(node, ASTInputPort):
+            ret = self.print_input_port(node)
+        if isinstance(node, ASTInputQualifier):
+            ret = self.print_input_qualifier(node)
         if isinstance(node, ASTLogicalOperator):
             ret = self.print_logical_operator(node)
         if isinstance(node, ASTNestMLCompilationUnit):

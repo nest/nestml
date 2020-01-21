@@ -94,7 +94,8 @@ neuron iaf_psc_delta:
   end
 
   input:
-    spikes pA <- spike
+    ex_spikes pA <- excitatory spike
+    in_spikes pA <- inhibitory spike
     I_stim pA <- current
   end
 

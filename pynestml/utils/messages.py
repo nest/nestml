@@ -262,6 +262,7 @@ class Messages(object):
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
         message = 'No variable \'%s\' found!' % variable_name
+        import pdb;pdb.set_trace()
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
@@ -991,11 +992,7 @@ class Messages(object):
     @classmethod
     def delta_function_cannot_be_mixed(cls):
         """
-        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
-        :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
-        :rtype: (MessageCode,str)
+        Delta function cannot be mixed with expressions.
         """
         message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this shape is used"
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
@@ -1003,14 +1000,33 @@ class Messages(object):
     @classmethod
     def delta_function_one_arg(cls, deltafunc):
         """
-        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
-        :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
-        :rtype: (MessageCode,str)
+        Delta function takes exactly one argument.
+        :param deltafunc: the delta function node
+        :type name: ASTFunctionCall
         """
         message = "delta function takes exactly one argument (time *t*); instead found " + ", ".join([str(arg) for arg in deltafunc.get_args()])
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
+
+    @classmethod
+    def unknown_type(cls, provided_type_str):
+        """
+        Unknown type or unit literal.
+        :param provided_type_str: the provided type as a string
+        :type provided_type_str: str
+        """
+        message = "Unknown type or unit literal: " + provided_type_str
+        return MessageCode.UNKNOWN_TYPE, message
+
+
+    @classmethod
+    def astdatatype_type_symbol_could_not_be_derived(cls):
+        """
+        Unknown type or unit literal.
+        :param provided_type_str: the provided type as a string
+        :type provided_type_str: str
+        """
+        message = "ASTDataType type symbol could not be derived"
+        return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
 
 
 
@@ -1091,4 +1107,6 @@ class MessageCode(Enum):
     MODULE_NAME_INFO = 67
     TARGET_PATH_INFO = 68
     DELTA_FUNCTION_CANNOT_BE_MIXED = 69
+    UNKNOWN_TYPE = 70
+    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
 

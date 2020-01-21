@@ -145,7 +145,7 @@ class VariableSymbol(Symbol):
         :return: True if spike buffer, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_spike()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_spike()
 
     def is_current_buffer(self) -> bool:
         """
@@ -153,7 +153,7 @@ class VariableSymbol(Symbol):
         :return: True if current buffer, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_current()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_current()
 
     def is_excitatory(self) -> bool:
         """
@@ -161,7 +161,7 @@ class VariableSymbol(Symbol):
         :return: True if is excitatory, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_excitatory()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_excitatory()
 
     def is_inhibitory(self) -> bool:
         """
@@ -169,7 +169,7 @@ class VariableSymbol(Symbol):
         :return: True if is inhibitory, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_inhibitory()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
 
     def is_state(self) -> bool:
         """

@@ -604,10 +604,7 @@ def add_ode_to_variable(ode_equation):
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)
-    else:
-        code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
-        Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
+
     return
 
 
