@@ -784,7 +784,7 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         #print("Invoking ode-toolbox with JSON input:")
         #print(odetoolbox_indict)
-        solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False)
+        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True)
         #print("Got result from ode-toolbox:")
         #print(solver_result)
         analytic_solver = None
@@ -797,7 +797,7 @@ class NESTCodeGenerator(CodeGenerator):
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
-            solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False, disable_analytic_solver=True)
+            solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, disable_analytic_solver=True)
             #print("Got result from ode-toolbox:")
             #print(solver_result)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]

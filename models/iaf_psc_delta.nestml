@@ -78,7 +78,7 @@ neuron iaf_psc_delta:
 
   equations:
     shape G = delta(t)
-    inline V_m mV = V_abs + E_L # Membrane potential.
+    recordable inline V_m mV = V_abs + E_L # Membrane potential.
     V_abs' = -V_abs / tau_m + (mV / pA / ms) * (convolve(G, ex_spikes) + convolve(G, in_spikes)) + (I_e + currents) / C_m
   end
 
