@@ -48,16 +48,6 @@ neuron hh_cond_exp_destexhe:
   initial_values:
     V_m mV = E_L #  Membrane potential
 
-    alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
-    beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
-    alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
-    beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
-    alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
-    beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
-    
-    alpha_p_init 1/ms = 0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp(-(V_m + 30. mV) / 9. mV))
-    beta_p_init 1/ms = -0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp( (V_m + 30. mV) / 9. mV ))
-
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
@@ -124,6 +114,16 @@ neuron hh_cond_exp_destexhe:
     g_noise_in0 uS = 0.057 uS		# Mean of the inhibitory noise conductance
     sigma_noise_ex uS = 0.003 uS	# Standard deviation of the excitatory noise conductance
     sigma_noise_in uS = 0.0066 uS	# Standard deviation of the inhibitory noise conductance
+
+    alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
+    beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
+    alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
+    beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
+    alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
+    beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
+    
+    alpha_p_init 1/ms = 0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp(-(V_m + 30. mV) / 9. mV))
+    beta_p_init 1/ms = -0.0001/(ms * mV) * (V_m + 30. mV) / (1. - exp( (V_m + 30. mV) / 9. mV ))
 
     # constant external input current
     I_e pA = 0 pA
