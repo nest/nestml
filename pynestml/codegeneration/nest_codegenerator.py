@@ -1194,7 +1194,7 @@ class NESTCodeGenerator(CodeGenerator):
             # check whether other variables exist that belong to the same shape, e.g. "g_in$" for the shape named "g_in"
             for decl in neuron.get_equations_block().get_declarations():
                 if isinstance(decl, ASTOdeShape) \
-                 and re.compile(shape.get_variable().get_name() + "\$+").search(decl.get_variable().get_name()):
+                 and re.compile(shape.get_variable().get_name() + r"\$+").search(decl.get_variable().get_name()):
                     assert decl.get_variable().get_differential_order() == 1
                     shape_spike_buf_names.append(decl.get_variable().get_name().replace("$", "__DOLLAR") + "__X__" + str(spike_input_port))
 
