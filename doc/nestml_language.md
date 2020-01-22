@@ -460,7 +460,7 @@ The output shows the currents for each synapse (three bottom rows) and the net e
 
 ![NESTML multisynapse example waveform traces](https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png)
 
-For a full example, please see `tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
+For a full example, please see [tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml](tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml) for the full model and [tests/nest_tests/nest_multisynapse_test.py](tests/nest_tests/nest_multisynapse_test.py) for the corresponding test harness that produced the figure above.
 
 ### Output
 
