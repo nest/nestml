@@ -41,7 +41,7 @@ class NestInstantiabilityTest(unittest.TestCase):
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        nest.Install("nestml_allmodels")
+        nest.Install("nestml_allmodels_module")
 
         models = nest.Models(mtype="nodes")
         neuron_models = [m for m in models if str(nest.GetDefaults(m, "element_type")) == "neuron"]

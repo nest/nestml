@@ -39,7 +39,7 @@ class NestIntegrationTest(unittest.TestCase):
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        nest.Install("nestml_allmodels")
+        nest.Install("nestml_allmodels_module")
 
 
         models = []
