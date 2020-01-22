@@ -69,7 +69,8 @@ neuron iaf_cond_beta:
     F_I nS = 0 nS                 # Constant external input conductance (inhibitory).
 
     # constant external input current
-    I_e pA = 0 pA  end
+    I_e pA = 0 pA
+  end
 
   internals:
     # time of peak conductance excursion after spike arrival at t = 0
