@@ -20,7 +20,9 @@
 
 import nest
 import numpy as np
+import os
 import unittest
+from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 try:
     import matplotlib
@@ -33,8 +35,12 @@ except:
 class NestIntegrationTest(unittest.TestCase):
 
     def test_nest_integration(self):
+        # N.B. all models are assumed to have been already built (see .travis.yml)
+
+        nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        nest.Install("nestmlmodule")
+        nest.Install("nestml_allmodels")
+
 
         models = []
         models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))

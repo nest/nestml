@@ -27,7 +27,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        nest.Install(module_name)
 
         # network construction
 
