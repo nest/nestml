@@ -70,12 +70,32 @@ class NestIntegrationTest(unittest.TestCase):
         models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
         models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))"""
 
+        for model in models:
+            reference = model[0]
+            testant = model[1]
+            gsl_error_tol = model[2]
+            tolerance = model[3]
+            if len(model) > 4:
+                nest_ref_model_opts = model[4]
+            else:
+                nest_ref_model_opts = {}
+            if len(model) > 5:
+                custom_model_opts = model[5]
+            else:
+                custom_model_opts = {}
 
-        for reference, testant, gsl_error_tol, tollerance in models:
-            self._test_model(reference, testant, gsl_error_tol, tollerance)
+            self._test_model(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)
 
 
-    def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001):
+
+    def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
+
+        if nest_ref_model_opts is None:
+            nest_ref_model_opts = {}
+
+        if custom_model_opts is None:
+            custom_model_opts = {}
+
         spike_times = [100.0, 200.0]
         spike_weights = [1., -1.]
 
