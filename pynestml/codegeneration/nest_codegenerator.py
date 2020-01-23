@@ -677,9 +677,9 @@ class NESTCodeGenerator(CodeGenerator):
             #self.update_symbol_table(synapse, shape_buffers)
 
             #print("NEST codegenerator: replacing functions through defining expressions...")
-            self.make_functions_self_contained(equations_block.get_ode_functions())
-            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
-            #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
+            self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+            self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+            #self.replace_inline_expressions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_inline_expressions())
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, shape_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver

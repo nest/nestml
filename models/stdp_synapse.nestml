@@ -73,7 +73,7 @@ synapse stdp:
     # Kplus: all-to-all trace
     #shape Kplus_kernel' = -Kplus_kernel / tau_plus
     shape Kplus_kernel = exp(-t / tau_plus)
-    function Kplus real = convolve(Kplus_kernel, pre_spikes)
+    inline Kplus real = convolve(Kplus_kernel, pre_spikes)
     #Kplus' = -Kplus / tau_plus
   end
 

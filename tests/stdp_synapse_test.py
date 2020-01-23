@@ -38,16 +38,13 @@ import matplotlib.pyplot as plt
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-#to_nest(input_path="/home/archels/nestml-synapses/models/stdp_synapse.nestml", target_path="/tmp/nestml-target", suffix="_nestml", logging_level="INFO")
-#install_nest(models_path="/tmp/nestml-target", nest_path="/home/archels/nest-simulator-build")
+to_nest(input_path="/home/archels/nestml-fork-stdp-synapse/nestml/models/stdp_synapse.nestml", target_path="/tmp/nestml-target", suffix="_nestml", logging_level="INFO")
+install_nest(models_path="/tmp/nestml-target", nest_path="/home/archels/nest-simulator-build")
 
 nest.set_verbosity("M_ALL")
 #nest.set_debug(True)
 
 nest.Install("nestmlmodule")
-
-#nest.Simulate(1.)
-
 
 
 
