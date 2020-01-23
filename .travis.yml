@@ -60,12 +60,12 @@ stages:
 jobs:
   include:
     - stage: test
-      script: pytest -s -o norecursedirs='*' tests
+      script: pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests
 
     - stage: integration
       install:
         # install nest-simulator
-        - pip install cython
+        - pip install cython pytest-xdist
         - cd
         - git clone --depth=1 https://github.com/nest/nest-simulator
         - mkdir nest_install
@@ -84,7 +84,7 @@ jobs:
         - python setup.py install
 
       script:
-        - nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestmlmodule
+        - nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
         - cd target
         - cmake -Dwith-nest=/home/travis/nest_install/bin/nest-config .
         - make && make install
@@ -94,7 +94,5 @@ jobs:
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - echo $PYNESTKERNEL_LOCATION
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_instantiability_test.py
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_integration_test.py
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_logarithmic_function_test.py
-        - python $TRAVIS_BUILD_DIR/tests/nest_tests/nest_multisynapse_test.py
+        - pytest -s  -o log_cli=true -o log_cli_level="DEBUG" --forked $TRAVIS_BUILD_DIR/tests/nest_tests
+

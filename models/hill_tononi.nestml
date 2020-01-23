@@ -74,58 +74,58 @@ neuron hill_tononi:
     # V_m
     #############
     
-    function I_syn_ampa pA = -convolve(g_AMPA, AMPA) * ( V_m - AMPA_E_rev )
-    function I_syn_nmda pA = -convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-    function I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
-    function I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
-    function I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+    inline I_syn_ampa pA = -convolve(g_AMPA, AMPA) * ( V_m - AMPA_E_rev )
+    inline I_syn_nmda pA = -convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+    inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
+    inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
+    inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
-    function I_Na pA = -g_NaL * ( V_m - E_Na )
-    function I_K pA = -g_KL * ( V_m - E_K )
+    inline I_Na pA = -g_NaL * ( V_m - E_Na )
+    inline I_K pA = -g_KL * ( V_m - E_K )
 
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
-    function INaP_thresh mV = -55.7 mV
-    function INaP_slope mV = 7.7 mV
-    function m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
+    inline INaP_thresh mV = -55.7 mV
+    inline INaP_slope mV = 7.7 mV
+    inline m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
     # Persistent Na current; member only to allow recording
-    recordable function I_NaP pA = -NaP_g_peak * m_inf_NaP**3 * ( V_m - NaP_E_rev )
+    recordable inline I_NaP pA = -NaP_g_peak * m_inf_NaP**3 * ( V_m - NaP_E_rev )
 
-    function d_half real = 0.25
-    function m_inf_KNa real = 1.0 / ( 1.0 + ( d_half / ( IKNa_D / nS ) )**3.5 )
+    inline d_half real = 0.25
+    inline m_inf_KNa real = 1.0 / ( 1.0 + ( d_half / ( IKNa_D / nS ) )**3.5 )
     # Depol act. K current; member only to allow recording
-    recordable function I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+    recordable inline I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
 
     # Low-thresh Ca current; member only to allow recording
-    recordable function I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+    recordable inline I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
 
-    recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
+    recordable inline I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
-    function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
-    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + currents ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
+    inline I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
+    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
 
     #############
     # Intrinsic currents
     #############
     # I_T
-    function m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m / mV + 59.0 ) / 6.2 ) )
-    function h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m / mV + 83.0 ) / 4 ) )
-    function tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m / mV ) + exp( -1.87 + 0.0701 * V_m / mV ) )
+    inline m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m / mV + 59.0 ) / 6.2 ) )
+    inline h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m / mV + 83.0 ) / 4 ) )
+    inline tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m / mV ) + exp( -1.87 + 0.0701 * V_m / mV ) )
     # I_KNa
-    function D_influx_peak real = 0.025
-    function tau_D real = 1250.0 # yes, 1.25 s
-    function D_thresh mV = -10.0
-    function D_slope mV = 5.0
-    function D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
+    inline D_influx_peak real = 0.025
+    inline tau_D real = 1250.0 # yes, 1.25 s
+    inline D_thresh mV = -10.0
+    inline D_slope mV = 5.0
+    inline D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
 
     Theta' = -( Theta - Theta_eq ) / Tau_theta
 
     # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
     # be converging to equilibrium otherwise
     IKNa_D' = ( D_influx_peak * D_influx * nS - ( IKNa_D  - KNa_D_EQ / mV ) / tau_D ) / ms
-    function tau_m_T real = 0.22 / ( exp( -( V_m / mV + 132.0 ) / 16.7 ) + exp( ( V_m / mV + 16.8 ) / 18.2 ) ) + 0.13
-    function tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m / mV + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m / mV + 86.0 ) / 3.2 ) )
-    function I_h_Vthreshold real = -75.0
-    function m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m / mV - I_h_Vthreshold ) / 5.5 ) )
+    inline tau_m_T real = 0.22 / ( exp( -( V_m / mV + 132.0 ) / 16.7 ) + exp( ( V_m / mV + 16.8 ) / 18.2 ) ) + 0.13
+    inline tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m / mV + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m / mV + 86.0 ) / 3.2 ) )
+    inline I_h_Vthreshold real = -75.0
+    inline m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m / mV - I_h_Vthreshold ) / 5.5 ) )
     IT_m' = ( m_inf_T * nS - IT_m ) / tau_m_T / ms
     IT_h' = ( h_inf_T * nS - IT_h ) / tau_h_T / ms
     Ih_m' = ( m_inf_h * nS - Ih_m ) / tau_m_h / ms
@@ -187,6 +187,9 @@ neuron hill_tononi:
     h_g_peak nS = 1.0 nS         # peak conductance for intrinsic current
     h_E_rev mV = -40.0 mV        # reversal potential for intrinsic current
     KNa_D_EQ pA = 0.001 pA
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -203,7 +206,7 @@ neuron hill_tononi:
       NMDA nS  <- spike
       GABA_A nS <- spike
       GABA_B nS <- spike
-      currents <- current
+      I_stim pA <- current
   end
 
   output: spike

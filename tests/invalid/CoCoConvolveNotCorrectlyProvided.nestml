@@ -37,8 +37,8 @@ neuron CoCoConvolveNotCorrectlyProvided:
 
     equations:
         shape test = 10
-        function testB pA = convolve(g_ex, g_ex) + test
-        V_m' = 20mV
+        inline testB pA = convolve(g_ex, g_ex) + test
+        V_m' = 20 mV/ms
     end
 
     update:

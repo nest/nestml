@@ -37,14 +37,14 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_line import ASTInputLine
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -323,11 +323,11 @@ class ASTVisitor(object):
         """
         return
 
-    def visit_ode_function(self, node):
+    def visit_inline_expression(self, node):
         """
-        Used to visit a single ode-function.
-        :param node: a single ode-function.
-        :type node: ASTOdeFunction
+        Used to visit a single inline expression.
+        :param node: a single inline expression.
+        :type node: ASTInlineExpression
         """
         return
 
@@ -379,19 +379,19 @@ class ASTVisitor(object):
         """
         return
 
-    def visit_input_line(self, node):
+    def visit_input_port(self, node):
         """
-        Used to visit a single input line.
-        :param node: a single input line.
-        :type node: ASTInputLine
+        Used to visit a single input port.
+        :param node: a single input port.
+        :type node: ASTInputPort
         """
         return
 
-    def visit_input_type(self, node):
+    def visit_input_qualifier(self, node):
         """
-        Used to visit a single input type.
-        :param node: a single input-type.
-        :type node: ASTInputType
+        Used to visit a single input port qualifier.
+        :param node: a single input port qualifier node.
+        :type node: ASTInputQualifier
         """
         return
 
@@ -658,11 +658,11 @@ class ASTVisitor(object):
         """
         return
 
-    def endvisit_ode_function(self, node):
+    def endvisit_inline_expression(self, node):
         """
-        Used to endvisit a single ode-function.
-        :param node: a single ode-function.
-        :type node: ASTOdeFunction
+        Used to endvisit a single inline expression.
+        :param node: a single inline expression
+        :type node: ASTInlineExpression
         """
         return
 
@@ -714,19 +714,19 @@ class ASTVisitor(object):
         """
         return
 
-    def endvisit_input_line(self, node):
+    def endvisit_input_port(self, node):
         """
-        Used to endvisit a single input line.
-        :param node: a single input line.
-        :type node: ASTInputLine
+        Used to endvisit a single input port.
+        :param node: a single input port.
+        :type node: ASTInputPort
         """
         return
 
-    def endvisit_input_type(self, node):
+    def endvisit_input_qualifier(self, node):
         """
-        Used to endvisit a single input type.
-        :param node: a single input-type.
-        :type node: ASTInputType
+        Used to endvisit a single input port qualifier.
+        :param node: a single input port qualifier node.
+        :type node: ASTInputQualifer
         """
         return
 
@@ -837,11 +837,11 @@ class ASTVisitor(object):
         if isinstance(node, ASTInputBlock):
             self.visit_input_block(node)
             return
-        if isinstance(node, ASTInputLine):
-            self.visit_input_line(node)
+        if isinstance(node, ASTInputPort):
+            self.visit_input_port(node)
             return
-        if isinstance(node, ASTInputType):
-            self.visit_input_type(node)
+        if isinstance(node, ASTInputQualifier):
+            self.visit_input_qualifier(node)
             return
         if isinstance(node, ASTLogicalOperator):
             self.visit_logical_operator(node)
@@ -858,8 +858,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTOdeEquation):
             self.visit_ode_equation(node)
             return
-        if isinstance(node, ASTOdeFunction):
-            self.visit_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            self.visit_inline_expression(node)
             return
         if isinstance(node, ASTOdeShape):
             self.visit_ode_shape(node)
@@ -974,11 +974,11 @@ class ASTVisitor(object):
         if isinstance(node, ASTInputBlock):
             self.traverse_input_block(node)
             return
-        if isinstance(node, ASTInputLine):
-            self.traverse_input_line(node)
+        if isinstance(node, ASTInputPort):
+            self.traverse_input_port(node)
             return
-        if isinstance(node, ASTInputType):
-            self.traverse_input_type(node)
+        if isinstance(node, ASTInputQualifier):
+            self.traverse_input_qualifier(node)
             return
         if isinstance(node, ASTLogicalOperator):
             self.traverse_logical_operator(node)
@@ -995,8 +995,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTOdeEquation):
             self.traverse_ode_equation(node)
             return
-        if isinstance(node, ASTOdeFunction):
-            self.traverse_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            self.traverse_inline_expression(node)
             return
         if isinstance(node, ASTOdeShape):
             self.traverse_ode_shape(node)
@@ -1111,11 +1111,11 @@ class ASTVisitor(object):
         if isinstance(node, ASTInputBlock):
             self.endvisit_input_block(node)
             return
-        if isinstance(node, ASTInputLine):
-            self.endvisit_input_line(node)
+        if isinstance(node, ASTInputPort):
+            self.endvisit_input_port(node)
             return
-        if isinstance(node, ASTInputType):
-            self.endvisit_input_type(node)
+        if isinstance(node, ASTInputQualifier):
+            self.endvisit_input_qualifier(node)
             return
         if isinstance(node, ASTLogicalOperator):
             self.endvisit_logical_operator(node)
@@ -1132,8 +1132,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTOdeEquation):
             self.endvisit_ode_equation(node)
             return
-        if isinstance(node, ASTOdeFunction):
-            self.endvisit_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            self.endvisit_inline_expression(node)
             return
         if isinstance(node, ASTOdeShape):
             self.endvisit_ode_shape(node)
@@ -1268,19 +1268,18 @@ class ASTVisitor(object):
             node.get_expression().accept(self.get_real_self())
         if node.get_unary_operator() is not None:
             node.get_unary_operator().accept(self.get_real_self())
+        if node.get_binary_operator() is not None:
+            node.get_binary_operator().accept(self.get_real_self())
         if node.get_lhs() is not None:
             node.get_lhs().accept(self.get_real_self())
         if node.get_rhs() is not None:
             node.get_rhs().accept(self.get_real_self())
-        if node.get_binary_operator() is not None:
-            node.get_binary_operator().accept(self.get_real_self())
         if node.get_condition() is not None:
             node.get_condition().accept(self.get_real_self())
         if node.get_if_true() is not None:
             node.get_if_true().accept(self.get_real_self())
         if node.get_if_not() is not None:
             node.get_if_not().accept(self.get_real_self())
-        return
 
     def traverse_for_stmt(self, node):
         if node.get_start_from() is not None:
@@ -1324,18 +1323,18 @@ class ASTVisitor(object):
         return
 
     def traverse_input_block(self, node):
-        if node.get_input_lines() is not None:
-            for sub_node in node.get_input_lines():
+        if node.get_input_ports() is not None:
+            for sub_node in node.get_input_ports():
                 sub_node.accept(self.get_real_self())
         return
 
-    def traverse_input_line(self, node):
-        if node.get_input_types() is not None:
-            for sub_node in node.get_input_types():
+    def traverse_input_port(self, node):
+        if node.get_input_qualifiers() is not None:
+            for sub_node in node.get_input_qualifiers():
                 sub_node.accept(self.get_real_self())
         return
 
-    def traverse_input_type(self, node):
+    def traverse_input_qualifier(self, node):
         return
 
     def traverse_logical_operator(self, node):
@@ -1367,7 +1366,7 @@ class ASTVisitor(object):
             node.get_rhs().accept(self.get_real_self())
         return
 
-    def traverse_ode_function(self, node):
+    def traverse_inline_expression(self, node):
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:

@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoFunctionHasNoRhs.nestml
+ *  CoCoCurrentBufferQualifierSpecified.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,21 +20,18 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
- * a function (aka. alias) does not a rhs.
- * Positive case.
+ * This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
+ * keywords.
+ * Negative case.
 */
-neuron CoCoFunctionHasNoRhs:
-    state:
-        function V_rest mV  = 10mV # a rhs is defined, thus everything is correct
-    end
 
+neuron CoCoCurrentBufferQualifierSpecified:
     update:
         # required for creation of a correct ast
     end
 
     input:
-        # required for creation of a correct ast
+        currents pA <- inhibitory current   # qualifiers may not be specified for a current buffer
     end
 
     output: spike

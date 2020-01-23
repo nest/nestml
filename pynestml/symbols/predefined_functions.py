@@ -39,15 +39,15 @@ class PredefinedFunctions(object):
         TANH                  The callee name of the hyperbolic tangent.
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
-        RANDOM                The callee name of the random function.
-        RANDOM_INT            The callee name of the random int function.
+        RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
         CLIP                  The callee name of the clip function.
         MAX                   The callee name of the max function.
         MIN                   The callee name of the min function.
-        INTEGRATE_ODES        The callee name of the integrate-ode function.
-        GET_POST_TRACE        The callee name of the function that obtains the synaptic trace value from the postsynaptic neuron.
+        ABS                   The callee name of the abs function.
+        INTEGRATE_ODES        The callee name of the integrate_odes function.
         CONVOLVE              The callee name of the convolve function.
         name2function         A dict of function symbols as currently defined.
     """
@@ -64,13 +64,14 @@ class PredefinedFunctions(object):
     TANH = 'tanh'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
-    RANDOM = 'random'
-    RANDOM_INT = 'randomInt'
+    RANDOM_NORMAL = 'random_normal'
+    RANDOM_UNIFORM = 'random_uniform'
     EXPM1 = 'expm1'
     DELTA = 'delta'
     CLIP = 'clip'
     MAX = 'max'
     MIN = 'min'
+    ABS = 'abs'
     INTEGRATE_ODES = 'integrate_odes'
     GET_POST_TRACE = 'get_post_trace'
     CONVOLVE = 'convolve'
@@ -96,13 +97,14 @@ class PredefinedFunctions(object):
         cls.__register_tanh_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
-        cls.__register_random_function()
-        cls.__register_random_int_function()
+        cls.__register_random_normal_function()
+        cls.__register_random_uniform_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
         cls.__register_clip_function()
         cls.__register_max_function()
         cls.__register_min_function()
+        cls.__register_abs_function()
         cls.__register_integrated_odes_function()
         cls.__register_get_post_trace_function()
         cls.__register_convolve()
@@ -258,24 +260,24 @@ class PredefinedFunctions(object):
         cls.name2function[cls.LOGGER_WARNING] = symbol
 
     @classmethod
-    def __register_random_function(cls):
+    def __register_random_normal_function(cls):
         """
-        Registers the random method as used to generate a random real-typed value.
+        Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
         """
-        symbol = FunctionSymbol(name=cls.RANDOM, param_types=list(),
-                                return_type=PredefinedTypes.get_real_type(),
+        symbol = FunctionSymbol(name=cls.RANDOM_NORMAL, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM] = symbol
+        cls.name2function[cls.RANDOM_NORMAL] = symbol
 
     @classmethod
-    def __register_random_int_function(cls):
+    def __register_random_uniform_function(cls):
         """
-        Registers the random method as used to generate a random integer-typed value.
+        Registers the random method as used to generate a random sample from a uniform distribution in the interval [offset, offset + scale).
         """
-        symbol = FunctionSymbol(name=cls.RANDOM_INT, param_types=list(),
-                                return_type=PredefinedTypes.get_integer_type(),
+        symbol = FunctionSymbol(name=cls.RANDOM_UNIFORM, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM_INT] = symbol
+        cls.name2function[cls.RANDOM_UNIFORM] = symbol
 
     @classmethod
     def __register_time_resolution_function(cls):
@@ -355,6 +357,18 @@ class PredefinedFunctions(object):
         cls.name2function[cls.MIN] = symbol
 
     @classmethod
+    def __register_abs_function(cls):
+        """
+        Registers the absolute value function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_template_type(0))
+        symbol = FunctionSymbol(name=cls.ABS, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.ABS] = symbol
+
+    @classmethod
     def __register_integrated_odes_function(cls):
         """
         Registers the integrate-odes function.
@@ -377,19 +391,6 @@ class PredefinedFunctions(object):
         cls.name2function[cls.GET_POST_TRACE] = symbol
 
     @classmethod
-    def __register_convolve(cls):
-        """
-        Registers the convolve function into the system.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.CONVOLVE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.CONVOLVE] = symbol
-
-    @classmethod
     def __register_deliver_spike(cls):
         """
         Registers the deliver-spike function.
@@ -401,6 +402,19 @@ class PredefinedFunctions(object):
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.DELIVER_SPIKE] = symbol
+
+    @classmethod
+    def __register_convolve(cls):
+        """
+        Registers the convolve function into the system.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_real_type())
+        symbol = FunctionSymbol(name=cls.CONVOLVE, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.CONVOLVE] = symbol
 
     @classmethod
     def get_function_symbols(cls):

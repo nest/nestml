@@ -21,12 +21,15 @@
 from astropy import units
 
 from pynestml.meta_model.ast_unit_type import ASTUnitType
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
+from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
-
 
 class ASTDataTypeVisitor(ASTVisitor):
     """
@@ -64,12 +67,14 @@ class ASTDataTypeVisitor(ASTVisitor):
             node.set_type_symbol(self.symbol)
 
     def endvisit_data_type(self, node):
-        if node.is_unit_type():
+        if node.is_unit_type() and not node.get_unit_type().get_type_symbol() is None:
             node.set_type_symbol(node.get_unit_type().get_type_symbol())
         if self.symbol is not None:
             self.result = self.symbol.get_symbol_name()
         else:
-            raise RuntimeError('ASTDataType type symbol could not be derived!')
+            code, message = Messages.astdatatype_type_symbol_could_not_be_derived()
+            Logger.log_message(None, code, message, node.get_source_position(), LoggingLevel.ERROR)
+            return
 
     def visit_unit_type(self, node):
         """
@@ -83,10 +88,12 @@ class ASTDataTypeVisitor(ASTVisitor):
         if node.is_simple_unit():
             type_s = PredefinedTypes.get_type(node.unit)
             if type_s is None:
-                raise RuntimeError('Unknown atomic unit %s.' % node.unit)
-            else:
-                node.set_type_symbol(type_s)
-                self.symbol = type_s
+                code, message = Messages.unknown_type(str(node.unit))
+                Logger.log_message(None, code, message, node.get_source_position(), LoggingLevel.ERROR)
+                return
+                
+            node.set_type_symbol(type_s)
+            self.symbol = type_s
 
     def endvisit_unit_type(self, node):
         if node.is_encapsulated:
@@ -110,6 +117,9 @@ class ASTDataTypeVisitor(ASTVisitor):
             self.symbol = res
         elif node.is_times:
             if isinstance(node.get_lhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
+                if node.get_lhs().get_type_symbol() is None or isinstance(node.get_lhs().get_type_symbol(), ErrorTypeSymbol):
+                    node.set_type_symbol(ErrorTypeSymbol())
+                    return
                 lhs = node.get_lhs().get_type_symbol().astropy_unit
             else:
                 lhs = node.get_lhs()

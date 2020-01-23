@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoFunctionWithSeveralLhs.nestml
+ *  CoCoSumNotCorrectlyParametrized.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,21 +20,28 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
- * a function with several lhs is detected.
- * Negative case.
+ * This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly
+ * provided with a initial_block variable and a spike buffer.
+ * Positive case.
 */
-neuron CoCoFunctionWithSeveralLhs:
-    state:
-        function V_rest,V_reset mV  = 10mV  # several lhs's should be detected
+
+neuron CoCoSumNotCorrectlyParametrized:
+
+    initial_values:
+        V_m mV = 10 mV
+    end
+
+    equations:
+        shape V_m' = 20 mV
+        inline testB pA = convolve(V_m, spikeExc) # convolve aka. sum is now correctly parametrized
     end
 
     update:
-        # required for construction of a correct ast
+        # required for creation of a correct ast
     end
 
     input:
-        # required for construction of a correct ast
+        spikeExc integer  <- excitatory spike
     end
 
     output: spike

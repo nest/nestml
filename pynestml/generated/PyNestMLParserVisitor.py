@@ -60,8 +60,8 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#odeFunction.
-    def visitOdeFunction(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#inlineExpression.
+    def visitInlineExpression(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -210,13 +210,13 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#inputLine.
-    def visitInputLine(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#inputPort.
+    def visitInputPort(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#inputType.
-    def visitInputType(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#inputQualifier.
+    def visitInputQualifier(self, ctx):
         return self.visitChildren(ctx)
 
 

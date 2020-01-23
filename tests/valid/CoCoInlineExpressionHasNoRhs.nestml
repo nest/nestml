@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoCurrentBufferTypeSpecified.nestml
+ *  CoCoInlineExpressionHasNoRhs.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,18 +20,21 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
- * keywords.
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if a inline does not a rhs.
  *
+ * Positive case.
 */
+neuron CoCoInlineExpressionHasNoRhs:
+    equations:
+        inline V_rest mV  = 10mV # a rhs is defined, thus everything is correct
+    end
 
-neuron CoCoCurrentBufferTypeSpecified:
     update:
         # required for creation of a correct ast
     end
 
     input:
-        currents <- current # current buffer not specified with any type or keywords, thus correct
+        # required for creation of a correct ast
     end
 
     output: spike

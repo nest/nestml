@@ -262,6 +262,7 @@ class Messages(object):
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
         message = 'No variable \'%s\' found!' % variable_name
+        import pdb;pdb.set_trace()
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
@@ -276,8 +277,7 @@ class Messages(object):
         assert (buffer_name is not None and isinstance(buffer_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (buffer_name, PredefinedTypes.get_type('nS').print_symbol())
+        message = 'No buffer type declared of \'%s\'!' % buffer_name
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -1034,6 +1034,13 @@ class Messages(object):
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
+    def get_ode_function_needs_consistent_units(cls, name, declared_type, expression_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+        return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
     def get_variable_with_same_name_as_type(cls, name):
         """
         Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
@@ -1076,11 +1083,7 @@ class Messages(object):
     @classmethod
     def delta_function_cannot_be_mixed(cls):
         """
-        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
-        :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
-        :rtype: (MessageCode,str)
+        Delta function cannot be mixed with expressions.
         """
         message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this shape is used"
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
@@ -1088,14 +1091,33 @@ class Messages(object):
     @classmethod
     def delta_function_one_arg(cls, deltafunc):
         """
-        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
-        :param name: the name of the neuron model
-        :type name: ASTNeuron
-        :return: a nes code,message tuple
-        :rtype: (MessageCode,str)
+        Delta function takes exactly one argument.
+        :param deltafunc: the delta function node
+        :type name: ASTFunctionCall
         """
         message = "delta function takes exactly one argument (time *t*); instead found " + ", ".join([str(arg) for arg in deltafunc.get_args()])
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
+
+    @classmethod
+    def unknown_type(cls, provided_type_str):
+        """
+        Unknown type or unit literal.
+        :param provided_type_str: the provided type as a string
+        :type provided_type_str: str
+        """
+        message = "Unknown type or unit literal: " + provided_type_str
+        return MessageCode.UNKNOWN_TYPE, message
+
+
+    @classmethod
+    def astdatatype_type_symbol_could_not_be_derived(cls):
+        """
+        Unknown type or unit literal.
+        :param provided_type_str: the provided type as a string
+        :type provided_type_str: str
+        """
+        message = "ASTDataType type symbol could not be derived"
+        return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
 
 
 
@@ -1181,3 +1203,6 @@ class MessageCode(Enum):
     MODULE_NAME_INFO = 67
     TARGET_PATH_INFO = 68
     DELTA_FUNCTION_CANNOT_BE_MIXED = 69
+    UNKNOWN_TYPE = 70
+    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
+

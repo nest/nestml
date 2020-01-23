@@ -1,5 +1,5 @@
 #
-# ast_ode_function.py
+# ast_inline_expression.py
 #
 # This file is part of NEST.
 #
@@ -22,12 +22,12 @@
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTOdeFunction(ASTNode):
+class ASTInlineExpression(ASTNode):
     """
-    Stores a single declaration of a ode function, e.g., 
-        function v_init mV = V_m - 50mV.
-    Grammar:    
-        odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' rhs;
+    Stores a single declaration of an inline expression, e.g.,
+        inline v_init mV = V_m - 50mV.
+    Grammar:
+        inline : (recordable='recordable')? INLINE_KEYWORD variableName=NAME datatype '=' rhs;
     Attributes:
         is_recordable = False
         variable_name = None
@@ -49,7 +49,7 @@ class ASTOdeFunction(ASTNode):
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        super(ASTOdeFunction, self).__init__(source_position)
+        super(ASTInlineExpression, self).__init__(source_position)
         self.is_recordable = is_recordable
         self.variable_name = variable_name
         self.data_type = data_type
@@ -105,7 +105,7 @@ class ASTOdeFunction(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTOdeFunction):
+        if not isinstance(other, ASTInlineExpression):
             return False
         if self.is_recordable != other.is_recordable:
             return False

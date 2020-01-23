@@ -50,6 +50,7 @@ lexer grammar PyNestMLLexer;
   BOOLEAN_KEYWORD : 'boolean';
   VOID_KEYWORD : 'void';  
   FUNCTION_KEYWORD : 'function';
+  INLINE_KEYWORD : 'inline';
   RETURN_KEYWORD : 'return';
   IF_KEYWORD : 'if';
   ELIF_KEYWORD : 'elif';

@@ -3,16 +3,60 @@ Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
                       used in Casti et al 2008.
 
 Description:
+
 iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the
-addition of after hyper-polarization current instead of a membrane potential
-reset. Incoming spike events induce a post-synaptic change of conductance
-modeled by an alpha function. The alpha function is normalized such that an
-event of weight 1.0 results in a peak current of 1 nS at t = tau_syn.
+conductance-based synapses [1]. A spike is emitted when the membrane potential
+is crossed from below. After a spike, an afterhyperpolarizing (AHP) conductance
+is activated which repolarizes the neuron over time. Membrane potential is not
+reset explicitly and the model also has no explicit refractory time.
+
+The AHP conductance and excitatory and inhibitory synaptic input conductances
+follow alpha-function time courses as in the iaf_cond_alpha model.
+
+Parameters:
+
+The following parameters can be set in the status dictionary.
+
+\verbatim embed:rst
+========  ======= ===========================================================
+ V_m      mV      Membrane potential
+ E_L      mV      Leak reversal potential
+ C_m      pF      Capacity of the membrane
+ V_th     mV      Spike threshold
+ E_ex     mV      Excitatory reversal potential
+ E_in     mV      Inhibitory reversal potential
+ g_L      nS      Leak conductance
+ tau_ex   ms      Rise time of the excitatory synaptic alpha function
+ tau_in   ms      Rise time of the inhibitory synaptic alpha function
+ I_e      pA      Constant input current
+ tau_ahp  ms      Afterhyperpolarization (AHP) time constant
+ E_ahp    mV      AHP potential
+ g_ahp    nS      AHP conductance
+ ahp_bug  boolean Defaults to false. If true, behaves like original
+                  model implementation
+========  ======= ===========================================================
+\endverbatim
+
+Remarks:
+- In accordance with the original Fortran implementation of the model used
+  in [1], the activation time point for the AHP following a spike is
+  determined by linear interpolation within the time step during which the
+  threshold was crossed.
+- iaf_chxk_2008 neurons therefore emit spikes with precise spike time
+  information, but they ignore precise spike times when handling synaptic
+  input.
+- In the original Fortran implementation underlying [1], all previous AHP
+  activation was discarded when a new spike occurred, leading to reduced AHP
+  currents in particular during periods of high spiking activity. Set
+  `ahp_bug` to `true` to obtain this behavior in the model.
 
 References:
-[1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN
-transmission. J Comput Neurosci 24:235-252.
+
+\verbatim embed:rst
+.. [1] Casti A, Hayot F, Xiao Y, Kaplan E (2008) A simple model of retina-LGN
+       transmission. Journal of Computational Neuroscience 24:235-252.
+       DOI: https://doi.org/10.1007/s10827-007-0053-7
+\endverbatim
 
 Sends: SpikeEvent
 
@@ -35,12 +79,12 @@ neuron iaf_chxk_2008:
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
     g_ahp'' = -2 * g_ahp' / tau_ahp - g_ahp / tau_ahp**2
 
-    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-    function I_ahp pA = g_ahp * ( V_m - E_ahp )
-    function I_leak pA = g_L * ( V_m - E_L )
+    inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    inline I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+    inline I_ahp pA = g_ahp * ( V_m - E_ahp )
+    inline I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -55,17 +99,17 @@ neuron iaf_chxk_2008:
     tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
     G_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
-    ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current
+    ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude conductance excursion.
     PSConInit_E nS/ms = nS * e / tau_syn_ex
 
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion.
     PSConInit_I nS/ms = nS * e / tau_syn_in
 
     PSConInit_AHP real = G_ahp * e / tau_ahp * (ms/nS)
@@ -74,7 +118,7 @@ neuron iaf_chxk_2008:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
-      currents <- current
+      I_stim pA <- current
   end
 
   output: spike
@@ -83,7 +127,7 @@ neuron iaf_chxk_2008:
     vm_prev mV = V_m
     integrate_odes()
     if vm_prev < V_th and V_m >= V_th:
-      # neuron is not absolute refractory
+      # Neuron is not absolute refractory
 
       # Find precise spike time using linear interpolation
       sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev ) / ms
@@ -98,6 +142,7 @@ neuron iaf_chxk_2008:
         g_ahp  = delta_g_ahp * nS
         g_ahp' = delta_dg_ahp * nS/ms
       else:
+        # Correct implementation adds initial values for new AHP to AHP history
         g_ahp  += delta_g_ahp * nS
         g_ahp' += delta_dg_ahp * nS/ms
       end
@@ -115,16 +160,60 @@ Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
                       used in Casti et al 2008.
 
 Description:
+
 iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the
-addition of after hyper-polarization current instead of a membrane potential
-reset. Incoming spike events induce a post-synaptic change of conductance
-modeled by an alpha function. The alpha function is normalized such that an
-event of weight 1.0 results in a peak current of 1 nS at t = tau_syn.
+conductance-based synapses [1]. A spike is emitted when the membrane potential
+is crossed from below. After a spike, an afterhyperpolarizing (AHP) conductance
+is activated which repolarizes the neuron over time. Membrane potential is not
+reset explicitly and the model also has no explicit refractory time.
+
+The AHP conductance and excitatory and inhibitory synaptic input conductances
+follow alpha-function time courses as in the iaf_cond_alpha model.
+
+Parameters:
+
+The following parameters can be set in the status dictionary.
+
+\verbatim embed:rst
+========  ======= ===========================================================
+ V_m      mV      Membrane potential
+ E_L      mV      Leak reversal potential
+ C_m      pF      Capacity of the membrane
+ V_th     mV      Spike threshold
+ E_ex     mV      Excitatory reversal potential
+ E_in     mV      Inhibitory reversal potential
+ g_L      nS      Leak conductance
+ tau_ex   ms      Rise time of the excitatory synaptic alpha function
+ tau_in   ms      Rise time of the inhibitory synaptic alpha function
+ I_e      pA      Constant input current
+ tau_ahp  ms      Afterhyperpolarization (AHP) time constant
+ E_ahp    mV      AHP potential
+ g_ahp    nS      AHP conductance
+ ahp_bug  boolean Defaults to false. If true, behaves like original
+                  model implementation
+========  ======= ===========================================================
+\endverbatim
+
+Remarks:
+- In accordance with the original Fortran implementation of the model used
+  in [1], the activation time point for the AHP following a spike is
+  determined by linear interpolation within the time step during which the
+  threshold was crossed.
+- iaf_chxk_2008 neurons therefore emit spikes with precise spike time
+  information, but they ignore precise spike times when handling synaptic
+  input.
+- In the original Fortran implementation underlying [1], all previous AHP
+  activation was discarded when a new spike occurred, leading to reduced AHP
+  currents in particular during periods of high spiking activity. Set
+  `ahp_bug` to `true` to obtain this behavior in the model.
 
 References:
-[1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN
-transmission. J Comput Neurosci 24:235-252.
+
+\verbatim embed:rst
+.. [1] Casti A, Hayot F, Xiao Y, Kaplan E (2008) A simple model of retina-LGN
+       transmission. Journal of Computational Neuroscience 24:235-252.
+       DOI: https://doi.org/10.1007/s10827-007-0053-7
+\endverbatim
 
 Sends: SpikeEvent
 
@@ -137,7 +226,7 @@ SeeAlso: iaf_cond_alpha
 neuron iaf_chxk_2008_implicit:
 
   initial_values:
-    V_m mV       = E_L   # membrane potential
+    V_m mV       = E_L       # membrane potential
     g_in nS      = 0 nS      # inputs from the inh conductance
     g_in' nS/ms  = 1 nS/ms   # inputs from the inh conductance
     g_ex nS      = 0 nS      # inputs from the exc conductance
@@ -154,12 +243,12 @@ neuron iaf_chxk_2008_implicit:
     g_ahp' = g_ahp$ - g_ahp / tau_ahp
     g_ahp$' = -g_ahp$ / tau_ahp
 
-    function I_syn_inh pA = PSConInit_I * convolve(g_in, spikesInh) * (V_m - E_in)
-    function I_syn_exc pA = PSConInit_E * convolve(g_ex, spikesExc) * (V_m - E_ex)
-    function I_ahp pA = g_ahp * ( V_m - E_ahp )
-    function I_leak pA = g_L * ( V_m - E_L )
+    inline I_syn_inh pA = PSConInit_I * convolve(g_in, spikesInh) * (V_m - E_in)
+    inline I_syn_exc pA = PSConInit_E * convolve(g_ex, spikesExc) * (V_m - E_ex)
+    inline I_ahp pA = g_ahp * ( V_m - E_ahp )
+    inline I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -174,36 +263,35 @@ neuron iaf_chxk_2008_implicit:
     tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
     G_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
-    ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-    I_e pA = 0 pA            # Constant Current
+    ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude conductance excursion.
     PSConInit_E 1/ms = e / tau_syn_ex
 
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion.
     PSConInit_I 1/ms = e / tau_syn_in
 
     PSConInit_AHP real = G_ahp * e / tau_ahp * (ms/nS)
   end
 
   input:
-      spikesInh nS <- inhibitory spike
-      spikesExc nS <- excitatory spike
-      currents <- current
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
 
   update:
-
     vm_prev mV = V_m
     integrate_odes()
     if vm_prev < V_th and V_m >= V_th:
-      # neuron is not absolute refractory
+      # Neuron is not absolute refractory
 
       # Find precise spike time using linear interpolation
       sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev ) / ms
@@ -218,6 +306,7 @@ neuron iaf_chxk_2008_implicit:
         g_ahp = delta_g_ahp * nS
         g_ahp$ = delta_dg_ahp * nS/ms
       else:
+        # Correct implementation adds initial values for new AHP to AHP history
         g_ahp += delta_g_ahp * nS
         g_ahp$ += delta_dg_ahp * nS/ms
       end

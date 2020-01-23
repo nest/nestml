@@ -29,6 +29,7 @@ from typing import Optional
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
+import pynestml
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
@@ -68,6 +69,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 #from pynestml.visitors.ast_symbol_table_visitor import assign_ode_to_variables
+from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
 
 def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
@@ -592,6 +594,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         code, message = Messages.get_start_processing_neuron(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+
         equations_block = neuron.get_equations_block()
 
         if equations_block is not None:
@@ -607,9 +610,9 @@ class NESTCodeGenerator(CodeGenerator):
             #self.update_symbol_table(neuron, shape_buffers)
 
             #print("NEST codegenerator: replacing functions through defining expressions...")
-            self.make_functions_self_contained(equations_block.get_ode_functions())
-            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_ode_functions())
-            #self.replace_functions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_ode_functions())
+            self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+            self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+            #self.replace_inline_expressions_through_defining_expressions2([analytic_solver, numeric_solver], equations_block.get_inline_expressions())
 
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
             self.analytic_solver[neuron.get_name()] = analytic_solver
@@ -910,6 +913,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
 
+        namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
+        namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = not self.analytic_solver[neuron.get_name()] is None
         if namespace['uses_analytic_solver']:
@@ -952,6 +958,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['printer'] = NestPrinter(unitless_pretty_printer)        
 
         namespace["spike_updates"] = neuron.spike_updates
+
+        rng_visitor = ASTRandomNumberGeneratorVisitor()
+        neuron.accept(rng_visitor)
+        namespace['norm_rng'] = rng_visitor._norm_rng_is_used
 
         return namespace
 
@@ -998,7 +1008,7 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
         #print("Invoking ode-toolbox with JSON input:")
         #print(odetoolbox_indict)
-        solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False)
+        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True)
         #print("Got result from ode-toolbox:")
         #print(solver_result)
         analytic_solver = None
@@ -1011,7 +1021,7 @@ class NESTCodeGenerator(CodeGenerator):
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
-            solver_result = analysis(odetoolbox_indict, enable_stiffness_check=False, disable_analytic_solver=True)
+            solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, disable_analytic_solver=True)
             #print("Got result from ode-toolbox:")
             #print(solver_result)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
@@ -1399,7 +1409,7 @@ class NESTCodeGenerator(CodeGenerator):
             # check whether other variables exist that belong to the same shape, e.g. "g_in$" for the shape named "g_in"
             for decl in neuron.get_equations_block().get_declarations():
                 if isinstance(decl, ASTOdeShape) \
-                 and re.compile(shape.get_variable().get_name() + "\$+").search(decl.get_variable().get_name()):
+                 and re.compile(shape.get_variable().get_name() + r"\$+").search(decl.get_variable().get_name()):
                     assert decl.get_variable().get_differential_order() == 1
                     shape_spike_buf_names.append(decl.get_variable().get_name().replace("$", "__DOLLAR") + "__X__" + str(spike_input_port))
 
@@ -1417,6 +1427,9 @@ class NESTCodeGenerator(CodeGenerator):
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
         for shape, spike_input_port in shape_buffers:
+            if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+                continue
+            
             buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 
             if is_delta_shape(shape):
@@ -1598,21 +1611,21 @@ class NESTCodeGenerator(CodeGenerator):
         return odetoolbox_indict
 
 
-    def make_functions_self_contained(self, functions):
-        # type: (list(ASTOdeFunction)) -> list(ASTOdeFunction)
+    def make_inline_expressions_self_contained(self, inline_expressions):
+        # type: (list(ASTInlineExpression)) -> list(ASTInlineExpression)
         """
-        Make function definition self contained, i.e. without any references to other functions.
+        Make inline_expressions self contained, i.e. without any references to other inline_expressions.
 
-        TODO: it should be a method inside of the ASTOdeFunction
+        TODO: it should be a method inside of the ASTInlineExpression
         TODO by KP: this should be done by means of a visitor
 
-        :param functions: A sorted list with entries ASTOdeFunction.
-        :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.
+        :param inline_expressions: A sorted list with entries ASTInlineExpression.
+        :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
         """
-        for source in functions:
+        for source in inline_expressions:
             source_position = source.get_source_position()
-            #print("In make_functions_self_contained(): source = " + str(source))
-            for target in functions:
+            #print("In make_inline_expressions_self_contained(): source = " + str(source))
+            for target in inline_expressions:
                 matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
@@ -1630,32 +1643,28 @@ class NESTCodeGenerator(CodeGenerator):
 
                 #print("\t -> updating scope to " + str(source.get_scope()))
 
-        return functions
+        return inline_expressions
 
 
-    def replace_functions_through_defining_expressions(self, definitions, functions):
-        # type: (list(ASTOdeEquation), list(ASTOdeFunction)) -> list(ASTOdeFunction)
+    def replace_inline_expressions_through_defining_expressions(self, definitions, inline_expressions):
+        # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
         """
-        Refactors symbols from `functions` in `definitions` with corresponding defining expressions from `functions`.
-        
-        Note that this only touches "ode functions", i.e. one-liner function definitions without an `end` keyword.
+        Refactors symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 
-        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made
-        free from.
-        :param functions: A sorted list with entries {"symbol": "name", "definition": "expression"} with functions which
-        must be replaced in `definitions`.
-        :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
+        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made free from.
+        :param inline_expressions: A sorted list with entries {"symbol": "name", "definition": "expression"} with inline_expressions which must be replaced in `definitions`.
+        :return: A list with definitions. Expressions in `definitions` don't depend on inline_expressions from `inline_expressions`.
         """
-        for fun in functions:
-            #print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
-            source_position = fun.get_source_position()
+        for m in inline_expressions:
+            #print("In replace_inline_expressions_through_defining_expressions(): m = " + str(m))
+            source_position = m.get_source_position()
             for target in definitions:
                 #print("\ttarget = " + str(target))
-                matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
+                matcher = re.compile(self._variable_matching_template.format(m.get_variable_name()))
                 target_definition = str(target.get_rhs())
-                target_definition = re.sub(matcher, "(" + str(fun.get_expression()) + ")", target_definition)
+                target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
                 target.rhs = ModelParser.parse_expression(target_definition)
-                target.update_scope(fun.get_scope())
+                target.update_scope(m.get_scope())
                 target.accept(ASTSymbolTableVisitor())
 
                 def log_set_source_position(node):
@@ -1664,27 +1673,27 @@ class NESTCodeGenerator(CodeGenerator):
 
                 target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
-                #print("\t updating scope to " + str(fun.get_scope()))
+                #print("\t updating scope to " + str(m.get_scope()))
 
         return definitions
 
-    def replace_functions_through_defining_expressions2(self, solver_dicts, functions):
-        # type: (list(ASTOdeEquation), list(ASTOdeFunction)) -> list(ASTOdeFunction)
+    def replace_inline_expressions_through_defining_expressions2(self, solver_dicts, inline_expressions):
+        # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
         """
-        Refactors symbols form `functions` in `definitions` with corresponding defining expressions from `functions`.
+        Refactors symbols form `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 
         :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made
         free from.
-        :param functions: A sorted list with entries {"symbol": "name", "definition": "expression"} with functions which
+        :param inline_expressions: A sorted list with entries {"symbol": "name", "definition": "expression"} with inline_expressions which
         must be replaced in `definitions`.
-        :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
+        :return: A list with definitions. Expressions in `definitions` don't depend on inline_expressions from `inline_expressions`.
         """
 
-        def replace_func_by_def_in_expr(expr, functions):
-            for fun in functions:
-                #print("In replace_functions_through_defining_expressions(): fun = " + str(fun))
-                matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
-                expr = re.sub(matcher, "(" + str(fun.get_expression()) + ")", expr)
+        def replace_func_by_def_in_expr(expr, inline_expressions):
+            for m in inline_expressions:
+                #print("In replace_inline_expressions_through_defining_expressions(): m = " + str(m))
+                matcher = re.compile(self._variable_matching_template.format(m.get_variable_name()))
+                expr = re.sub(matcher, "(" + str(m.get_expression()) + ")", expr)
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
                 target.expression = ModelParser.parse_expression(target_definition)
@@ -1707,11 +1716,11 @@ class NESTCodeGenerator(CodeGenerator):
                 continue
             
             for var, expr in solver_dict["update_expressions"].items():
-                solver_dict["update_expressions"][var] = replace_func_by_def_in_expr(expr, functions)
+                solver_dict["update_expressions"][var] = replace_func_by_def_in_expr(expr, inline_expressions)
 
             if "propagators" in solver_dict.keys():
                 for var, expr in solver_dict["propagators"].items():
-                    solver_dict["propagators"][var] = replace_func_by_def_in_expr(expr, functions)
+                    solver_dict["propagators"][var] = replace_func_by_def_in_expr(expr, inline_expressions)
 
 
 

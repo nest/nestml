@@ -22,7 +22,7 @@ from copy import copy
 from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_source_location import ASTSourceLocation
@@ -165,6 +165,7 @@ class VariableSymbol(Symbol):
         """
         Indicates whether a declaring rhs is present.
         :return: True if present, otherwise False.
+        :rtype: bool
         """
         return self.declaring_expression is not None and (isinstance(self.declaring_expression, ASTSimpleExpression)
                                                           or isinstance(self.declaring_expression, ASTExpression))
@@ -173,34 +174,39 @@ class VariableSymbol(Symbol):
         """
         Returns whether this symbol represents a spike buffer.
         :return: True if spike buffer, otherwise False.
+        :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_spike()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_spike()
 
     def is_current_buffer(self) -> bool:
         """
         Returns whether this symbol represents a current buffer.
         :return: True if current buffer, otherwise False.
+        :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_current()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_current()
 
     def is_excitatory(self) -> bool:
         """
         Returns whether this symbol represents a buffer of type excitatory.
         :return: True if is excitatory, otherwise False.
+        :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_excitatory()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_excitatory()
 
     def is_inhibitory(self) -> bool:
         """
         Returns whether this symbol represents a buffer of type inhibitory.
         :return: True if is inhibitory, otherwise False.
+        :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_inhibitory()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
 
     def is_state(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a state block.
         :return: True if declared in a state block, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.STATE
 
@@ -208,6 +214,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared in a parameters block.
         :return: True if declared in a parameters block, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.PARAMETERS
 
@@ -215,6 +222,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared in a internals block.
         :return: True if declared in a internals block, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.INTERNALS
 
@@ -222,6 +230,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared in a equation block.
         :return: True if declared in a equation block, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.EQUATION
 
@@ -229,6 +238,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared in a local (e.g., update) block.
         :return: True if declared in a local block, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.LOCAL
 
@@ -236,6 +246,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared as a input-buffer current element.
         :return: True if input-buffer current, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.INPUT_BUFFER_CURRENT
 
@@ -243,6 +254,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared as a input-buffer spike element.
         :return: True if input-buffer spike, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.INPUT_BUFFER_SPIKE
 
@@ -250,6 +262,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol represents a buffer or not.
         :return: True if buffer, otherwise False.
+        :rtype: bool
         """
         return self.variable_type == VariableType.BUFFER
 
@@ -257,6 +270,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared as a output-buffer element.
         :return: True if output element, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.OUTPUT
 
@@ -264,6 +278,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable belongs to the definition of a shape.
         :return: True if part of a shape definition, otherwise False.
+        :rtype: bool
         """
         return self.variable_type == VariableType.SHAPE
 
@@ -271,6 +286,7 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable belongs to the definition of a initial value.
         :return: True if part of a initial value, otherwise False.
+        :rtype: bool
         """
         return self.block_type == BlockType.INITIAL_VALUES
 

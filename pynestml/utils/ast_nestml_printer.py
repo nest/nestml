@@ -37,14 +37,14 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_line import ASTInputLine
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -116,10 +116,10 @@ class ASTNestMLPrinter(object):
             ret = self.print_if_stmt(node)
         if isinstance(node, ASTInputBlock):
             ret = self.print_input_block(node)
-        if isinstance(node, ASTInputLine):
-            ret = self.print_input_line(node)
-        if isinstance(node, ASTInputType):
-            ret = self.print_input_type(node)
+        if isinstance(node, ASTInputPort):
+            ret = self.print_input_port(node)
+        if isinstance(node, ASTInputQualifier):
+            ret = self.print_input_qualifier(node)
         if isinstance(node, ASTLogicalOperator):
             ret = self.print_logical_operator(node)
         if isinstance(node, ASTNestMLCompilationUnit):
@@ -130,8 +130,8 @@ class ASTNestMLPrinter(object):
             ret = self.print_synapse(node)
         if isinstance(node, ASTOdeEquation):
             ret = self.print_ode_equation(node)
-        if isinstance(node, ASTOdeFunction):
-            ret = self.print_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            ret = self.print_inline_expression(node)
         if isinstance(node, ASTOdeShape):
             ret = self.print_ode_shape(node)
         if isinstance(node, ASTOutputBlock):
@@ -458,16 +458,16 @@ class ASTNestMLPrinter(object):
         self.inc_indent()
         ret = print_ml_comments(node.pre_comments, temp_indent, False)
         ret += print_n_spaces(temp_indent) + 'input:\n'
-        if node.get_input_lines() is not None:
-            for inputDef in node.get_input_lines():
+        if node.get_input_ports() is not None:
+            for inputDef in node.get_input_ports():
                 ret += self.print_node(inputDef)
         ret += print_n_spaces(temp_indent) + 'end\n'
         ret += print_ml_comments(node.post_comments, temp_indent, True)
         self.dec_indent()
         return ret
 
-    def print_input_line(self, node):
-        # type: (ASTInputLine) -> str
+    def print_input_port(self, node):
+        # type: (ASTInputPort) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent) + node.get_name()
         if node.has_datatype():
@@ -475,9 +475,9 @@ class ASTNestMLPrinter(object):
         if node.has_index_parameter():
             ret += '[' + node.get_index_parameter() + ']'
         ret += '<-'
-        if node.has_input_types():
-            for iType in node.get_input_types():
-                ret += self.print_node(iType) + ' '
+        if node.has_input_qualifiers():
+            for qual in node.get_input_qualifiers():
+                ret += self.print_node(qual) + ' '
         if node.is_spike():
             ret += 'spike'
         else:
@@ -487,8 +487,8 @@ class ASTNestMLPrinter(object):
         return ret
 
     @classmethod
-    def print_input_type(cls, node):
-        # type: (ASTInputType) -> str
+    def print_input_qualifier(cls, node):
+        # type: (ASTInputQualifier) -> str
         if node.is_inhibitory:
             return 'inhibitory'
         else:
@@ -519,12 +519,12 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_ode_function(self, node):
-        # type: (ASTOdeFunction) -> str
+    def print_inline_expression(self, node):
+        # type: (ASTInlineExpression) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         if node.is_recordable:
             ret += 'recordable'
-        ret += (print_n_spaces(self.indent) + 'function ' +
+        ret += (print_n_spaces(self.indent) + 'inline ' +
                 str(node.get_variable_name()) + ' ' + self.print_node(node.get_data_type()) +
                 ' = ' + self.print_node(node.get_expression()) + print_sl_comment(node.in_comment) + '\n')
         ret += print_ml_comments(node.post_comments, self.indent, True)

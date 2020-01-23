@@ -55,13 +55,13 @@ neuron iaf_cond_exp_sfa_rr:
     g_sfa' = -g_sfa / tau_sfa
     g_rr' = -g_rr / tau_rr
 
-    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-    function I_L pA = g_L * ( V_m - E_L )
-    function I_sfa pA = g_sfa * ( V_m - E_sfa )
-    function I_rr pA = g_rr * ( V_m - E_rr )
+    inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    inline I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+    inline I_L pA = g_L * ( V_m - E_L )
+    inline I_sfa pA = g_sfa * ( V_m - E_sfa )
+    inline I_rr pA = g_rr * ( V_m - E_rr )
 
-    V_m' = ( -I_L + currents + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -70,7 +70,7 @@ neuron iaf_cond_exp_sfa_rr:
     t_ref ms = 0.5 ms       # Refractory period
     g_L nS = 28.95 nS       # Leak Conductance
     C_m pF = 289.5 pF       # Membrane Capacitance
-    E_ex mV = 0 mV         # Excitatory reversal Potential
+    E_ex mV = 0 mV          # Excitatory reversal Potential
     E_in mV = -75.0 mV      # Inhibitory reversal Potential
     E_L mV = -70.0 mV       # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 1.5 ms  # Synaptic Time Constant Excitatory Synapse
@@ -81,7 +81,9 @@ neuron iaf_cond_exp_sfa_rr:
     tau_rr ms = 1.97 ms     # Time constant of the relative refractory mechanism.
     E_sfa mV = -70.0 mV     # spike-frequency adaptation conductance reversal potential
     E_rr mV = -70.0 mV      # relative refractory mechanism conductance reversal potential
-    I_e pA = 0 pA           # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -89,9 +91,9 @@ neuron iaf_cond_exp_sfa_rr:
   end
 
   input:
-      spikesInh nS <- inhibitory spike
-      spikesExc nS <- excitatory spike
-      currents <- current
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -172,13 +174,13 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     g_sfa' = -g_sfa / tau_sfa
     g_rr' = -g_rr / tau_rr
 
-    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-    function I_L pA = g_L * ( V_m - E_L )
-    function I_sfa pA = g_sfa * ( V_m - E_sfa )
-    function I_rr pA = g_rr * ( V_m - E_rr )
+    inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    inline I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+    inline I_L pA = g_L * ( V_m - E_L )
+    inline I_sfa pA = g_sfa * ( V_m - E_sfa )
+    inline I_rr pA = g_rr * ( V_m - E_rr )
 
-    V_m' = ( -I_L + currents + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + I_e + I_stim - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -198,7 +200,9 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     tau_rr ms = 1.97 ms     # Time constant of the relative refractory mechanism.
     E_sfa mV = -70.0 mV     # spike-frequency adaptation conductance reversal potential
     E_rr mV = -70.0 mV      # relative refractory mechanism conductance reversal potential
-    I_e pA = 0 pA           # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -206,9 +210,9 @@ neuron iaf_cond_exp_sfa_rr_implicit:
   end
 
   input:
-      spikesInh nS <- inhibitory spike
-      spikesExc nS <- excitatory spike
-      currents <- current
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

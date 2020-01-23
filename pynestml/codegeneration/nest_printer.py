@@ -41,14 +41,14 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_line import ASTInputLine
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -125,10 +125,10 @@ class NestPrinter(object):
             ret = self.print_if_stmt(node)
         if isinstance(node, ASTInputBlock):
             ret = self.print_input_block(node)
-        if isinstance(node, ASTInputLine):
-            ret = self.print_input_line(node)
-        if isinstance(node, ASTInputType):
-            ret = self.print_input_type(node)
+        if isinstance(node, ASTInputPort):
+            ret = self.print_input_port(node)
+        if isinstance(node, ASTInputQualifier):
+            ret = self.print_input_qualifier(node)
         if isinstance(node, ASTLogicalOperator):
             ret = self.print_logical_operator(node)
         if isinstance(node, ASTNestMLCompilationUnit):
@@ -137,8 +137,8 @@ class NestPrinter(object):
             ret = self.print_neuron(node)
         if isinstance(node, ASTOdeEquation):
             ret = self.print_ode_equation(node)
-        if isinstance(node, ASTOdeFunction):
-            ret = self.print_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            ret = self.print_inline_expression(node)
         if isinstance(node, ASTOdeShape):
             ret = self.print_ode_shape(node)
         if isinstance(node, ASTOutputBlock):

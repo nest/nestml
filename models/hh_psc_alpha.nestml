@@ -50,14 +50,7 @@ neuron hh_psc_alpha:
   end
 
   initial_values:
-    V_m mV = -65. mV # Membrane potential
-
-    function alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
-    function beta_n_init  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
-    function alpha_m_init real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
-    function beta_m_init  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
-    function alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
-    function beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+    V_m mV = V_m_init # Membrane potential
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -69,27 +62,28 @@ neuron hh_psc_alpha:
     shape I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
-    function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
-    function I_syn_inh pA = convolve(I_syn_in, spikeInh)
-    function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
-    function I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
-    function I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+    inline I_syn_exc pA = convolve(I_syn_ex, spikeExc)
+    inline I_syn_inh pA = convolve(I_syn_in, spikeInh)
+    inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
+    inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+    inline I_L   pA = g_L * ( V_m - E_L )
 
     # Act_n
-    function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
-    function beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+    inline alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+    inline beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
     Act_n' = ( alpha_n * ( 1 - Act_n ) - beta_n * Act_n ) / ms # n-variable
 
     # Act_m
-    function alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
-    function beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+    inline alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+    inline beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
     Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / ms # m-variable
 
     # Inact_h'
-    function alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
-    function beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+    inline alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+    inline beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
     Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
+
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
   end
 
   parameters:
@@ -103,7 +97,16 @@ neuron hh_psc_alpha:
     E_L mV = -54.402 mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0 pA           # Constant Current
+    V_m_init mV = -65. mV   # Initial membrane potential
+    alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )
+    beta_n_init  real = 0.125 * exp( -( V_m_init / mV + 65. ) / 80. )
+    alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )
+    beta_m_init  real = 4. * exp( -( V_m_init / mV + 65. ) / 18. )
+    alpha_h_init real = 0.07 * exp( -( V_m_init / mV + 65. ) / 20. )
+    beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -111,9 +114,9 @@ neuron hh_psc_alpha:
   end
 
   input:
-      spikeInh pA <- inhibitory spike
-      spikeExc pA <- excitatory spike
-      currents <- current
+    spikeInh pA <- inhibitory spike
+    spikeExc pA <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -187,18 +190,12 @@ neuron hh_psc_alpha_implicit:
   end
 
   initial_values:
-    V_m mV = -65. mV # Membrane potential
+    V_m mV = V_m_init # Membrane potential
+
     I_syn_ex pA  = 0 pA # inputs from the exc spikes
     I_syn_ex' pA/ms = pA * e / tau_syn_ex  # inputs from the exc spikes
     I_syn_in pA = 0 pA  # inputs from the inh spikes
     I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh spikes
-
-    function alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
-    function beta_n_init  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
-    function alpha_m_init real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
-    function beta_m_init  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
-    function alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
-    function beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m for Na
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
@@ -212,27 +209,28 @@ neuron hh_psc_alpha_implicit:
     ## alpha function for the g_ex
     shape I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
 
-    function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
-    function I_syn_inh pA = convolve(I_syn_in, spikeInh)
-    function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
-    function I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
-    function I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+    inline I_syn_exc pA = convolve(I_syn_ex, spikeExc)
+    inline I_syn_inh pA = convolve(I_syn_in, spikeInh)
+    inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
+    inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+    inline I_L   pA = g_L * ( V_m - E_L )
 
     # Act_n
-    function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
-    function beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+    inline alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+    inline beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
     Act_n' = ( alpha_n * ( 1 - Act_n ) - beta_n * Act_n ) / ms # n-variable
 
     # Act_m
-    function alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
-    function beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+    inline alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+    inline beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
     Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / ms # m-variable
 
     # Inact_h'
-    function alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
-    function beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+    inline alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+    inline beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
     Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
+
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
   end
 
   parameters:
@@ -246,7 +244,16 @@ neuron hh_psc_alpha_implicit:
     E_L mV = -54.402 mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
     tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0 pA           # Constant Current
+    V_m_init mV = -65. mV   # Initial membrane potential
+    alpha_n_init real = ( 0.01 * ( V_m_init / mV + 55. ) ) / ( 1. - exp( -( V_m_init / mV + 55. ) / 10. ) )
+    beta_n_init  real = 0.125 * exp( -( V_m_init / mV + 65. ) / 80. )
+    alpha_m_init real = ( 0.1 * ( V_m_init / mV + 40. ) ) / ( 1. - exp( -( V_m_init / mV + 40. ) / 10. ) )
+    beta_m_init  real = 4. * exp( -( V_m_init / mV + 65. ) / 18. )
+    alpha_h_init real = 0.07 * exp( -( V_m_init / mV + 65. ) / 20. )
+    beta_h_init  real = 1. / ( 1. + exp( -( V_m_init / mV + 35. ) / 10. ) )
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -254,9 +261,9 @@ neuron hh_psc_alpha_implicit:
   end
 
   input:
-      spikeInh pA <- inhibitory spike
-      spikeExc pA <- excitatory spike
-      currents <- current
+    spikeInh pA <- inhibitory spike
+    spikeExc pA <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

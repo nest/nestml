@@ -181,14 +181,19 @@ Examples for valid assignments for a numeric variable `n` are
 
 #### Functions
 
-Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword `end`.
-```
+Functions can be used to write repeatedly used code blocks only once, or to improve legibility in a model description. They consist of the function name, the list of parameters followed by the function body. If the function returns a value to the caller, one or more `return` statements can be used inside of the `function` block. Depending on the return type (if any), it is followed by an expression of that type. The function declaration ends with the keyword `end`:
+
+```nestml
 function <name>(<list_of_arguments>) <return_type>?:
   <statements>
 end
+```
 
+For example:
+
+```nestml
 function divide(a real, b real) real:
-  return a/b
+  return a / b
 end
 ```
 
@@ -205,6 +210,7 @@ The following functions are predefined in NestML and can be used out of the box:
 
 | Name | Parameters | Description |
 | --- | --- | ----------------------------------------------------------------- |
+| abs | x | Returns the absolute value of x. The return type is equal to the type of the parameter. |
 | min | x, y | Returns the minimum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
 | max | x, y | Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
 | clip | x, y, z | Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type. |
@@ -215,8 +221,8 @@ The following functions are predefined in NestML and can be used out of the box:
 | sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
 | cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
 | tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
-| random | | *Not yet implemented.* |
-| randomInt | | *Not yet implemented.* |
+| random_normal | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
+| random_uniform | offset, scale | Returns a sample from a uniform distribution in the interval [offset, offset + scale) |
 | delta | t | A Dirac delta impulse function at time t. |
 | convolve | f, g | The convolution of shape f with spike train g (or vice versa). |
 | info | s | Log the string s with logging level "info". |
@@ -227,20 +233,6 @@ The following functions are predefined in NestML and can be used out of the box:
 | emit\_spike | | Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time. |
 | steps | t | Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information. |
 | resolution | | Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information. |
-
-
-#### Return statement
-
-The `return` keyword can only be used inside of the `function` block. Depending on the return type (if any), it is followed by an expression of that type.
-```
-return (<expression>)?
-
-if a > b:
-  return a
-else:
-  return b
-end
-```
 
 ### Control structures
 
@@ -468,7 +460,7 @@ The output shows the currents for each synapse (three bottom rows) and the net e
 
 ![NESTML multisynapse example waveform traces](https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png)
 
-For a full example, please see `tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
+For a full example, please see [tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml](tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml) for the full model and [tests/nest_tests/nest_multisynapse_test.py](tests/nest_tests/nest_multisynapse_test.py) for the corresponding test harness that produced the figure above.
 
 ### Output
 
@@ -531,6 +523,15 @@ V mV = 0mV
 has to be stated in the `initial_values` block. If the initial values are not defined in `initial_values` it is assumed that they are zero and unit checks are no longer possible, thus an error message is generated.
 
 The content of spike and current buffers can be used by just using their plain names. NestML takes care behind the scenes that the buffer location at the current simulation time step is used.
+
+### Inline expressions
+
+In the `equations` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or shape expressions. In the following example, the inline expression `h_inf_T` is defined, and then used in an ODE definition:
+
+```nestml
+inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
+IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
+```
 
 ## Dynamics and time evolution
 

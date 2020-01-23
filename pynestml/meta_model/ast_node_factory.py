@@ -29,12 +29,9 @@ from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_block import ASTBlock
-from pynestml.meta_model.ast_pre_receive import ASTPreReceive
-from pynestml.meta_model.ast_post_receive import ASTPostReceive
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
+from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
@@ -51,13 +48,14 @@ from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_line import ASTInputLine
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -66,6 +64,7 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
+from pynestml.meta_model.ast_stmt import ASTStmt
 
 
 class ASTNodeFactory(object):
@@ -254,19 +253,19 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_input_block(cls, input_definitions, source_position):
-        # type: (list(ASTInputLine), ASTSourceLocation) -> ASTInputBlock
+        # type: (list(ASTInputPort), ASTSourceLocation) -> ASTInputBlock
         return ASTInputBlock(input_definitions, source_position)
 
     @classmethod
-    def create_ast_input_line(cls, name, size_parameter, data_type, input_types, signal_type, source_position):
-        # type:(str,str,(None|ASTDataType),list(ASTInputType),ASTSignalType,ASTSourceLocation) -> ASTInputLine
-        return ASTInputLine(name=name, size_parameter=size_parameter, data_type=data_type, input_types=input_types,
+    def create_ast_input_port(cls, name, size_parameter, data_type, input_qualifiers, signal_type, source_position):
+        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),ASTSignalType,ASTSourceLocation) -> ASTInputPort
+        return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type, input_qualifiers=input_qualifiers,
                             signal_type=signal_type, source_position=source_position)
 
     @classmethod
-    def create_ast_input_type(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
-        # type: (bool,bool,ASTSourceLocation) -> ASTInputType
-        return ASTInputType(is_inhibitory, is_excitatory, source_position)
+    def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
+        # type: (bool,bool,ASTSourceLocation) -> ASTInputQualifier
+        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):
@@ -299,9 +298,9 @@ class ASTNodeFactory(object):
         return ASTOdeEquation(lhs, rhs, source_position)
 
     @classmethod
-    def create_ast_ode_function(cls, variable_name, data_type, expression, source_position, is_recordable=False):
-        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTOdeFunction
-        return ASTOdeFunction(variable_name=variable_name, data_type=data_type, expression=expression,
+    def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
+        # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
+        return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
                               source_position=source_position, is_recordable=is_recordable, )
 
     @classmethod

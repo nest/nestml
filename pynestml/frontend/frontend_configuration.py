@@ -102,7 +102,7 @@ appropriate numeric solver otherwise.
         if parsed_args.module_name is not None:
             if not parsed_args.module_name.endswith('module'):
                 raise Exception('Invalid module name specified ("' + parsed_args.module_name + '"): the module name should end with the word "module"')
-            if not re.match('[a-zA-Z_][a-zA-Z0-9_]*\Z', parsed_args.module_name):
+            if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', parsed_args.module_name):
                 raise Exception('The specified module name ("' + parsed_args.module_name + '") cannot be parsed as a C variable name')
             cls.module_name = parsed_args.module_name
         elif os.path.isfile(parsed_args.input_path):
@@ -110,7 +110,7 @@ appropriate numeric solver otherwise.
             Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
         elif os.path.isdir(parsed_args.input_path):
             cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path))
-            if not re.match('[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
+            if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
                 raise Exception('No module name specified; tried to use the input directory name ("' + cls.module_name + '"), but it cannot be parsed as a C variable name')
             if not cls.module_name.endswith('module'):
                 cls.module_name += 'module'

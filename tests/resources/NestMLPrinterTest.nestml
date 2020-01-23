@@ -43,9 +43,9 @@ neuron aeif_cond_alpha_implicit:
   /*eq pre*/
   equations: # eq in
 
-    /*function pre*/
-    function V_bounded mV = min(0,1) # function in
-    /*function post*/
+    /*inline pre*/
+    inline V_bounded mV = min(0,1) # inline in
+    /*inline post*/
 
     /*shape pre*/
     shape V_M'' = 1 # shape in

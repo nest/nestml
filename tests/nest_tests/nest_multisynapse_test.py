@@ -20,7 +20,6 @@
 
 import nest
 import os
-import numpy as np
 import unittest
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
@@ -32,15 +31,12 @@ except:
     TEST_PLOTS = False
 
 
-class NESTMultiSynapseTest(unittest.TestCase):
-    def test(self):
-        #
-        #   generate and build multisynapse NESTML test model
-        #
+class NestMultiSynapseTest(unittest.TestCase):
 
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
-        input_path = os.path.join(input_path, "iaf_psc_exp_multisynapse.nestml")
+    def test_multisynapse(self):
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
         nest_path = "/home/travis/nest_install"
+        nest_path = "/home/archels/nest-simulator-build"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
@@ -52,11 +48,9 @@ class NESTMultiSynapseTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
-        nest.Install("nestmlmodule")
+        nest.Install(module_name)
 
-        #
-        #   network creation
-        #
+        # network construction
 
         neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
@@ -69,40 +63,38 @@ class NESTMultiSynapseTest(unittest.TestCase):
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
         nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500., "delay": 0.1})
 
-        i_1 = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': 0.1})
-        nest.Connect(i_1, neuron)
+        mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': 0.1})
+        nest.Connect(mm, neuron)
 
         vm_1 = nest.Create('voltmeter')
         nest.Connect(vm_1, neuron)
 
-
-        #
-        #   simulate
-        #
+        # simulate
 
         nest.Simulate(125.)
 
-        #
-        #   analysis
-        #
-
-        vm_1 = nest.GetStatus(vm_1)[0]["events"]
-        i_1 = nest.GetStatus(i_1)[0]["events"]
+        # analysis
+        V_m_timevec = nest.GetStatus(vm_1)[0]["events"]["times"]
+        V_m = nest.GetStatus(vm_1)[0]["events"]["V_m"]
+        mm = nest.GetStatus(mm)[0]["events"]
+        MAX_ABS_ERROR = 1E-6
+        print("Final V_m = " + str(V_m[-1]))
+        assert abs(V_m[-1] - -72.89041451202348) < MAX_ABS_ERROR
 
         if TEST_PLOTS:
 
             fig, ax = plt.subplots(nrows=4)
 
-            ax[0].plot(vm_1["times"], vm_1["V_m"], label="V_m")
+            ax[0].plot(V_m_timevec, V_m, label="V_m")
             ax[0].set_ylabel("voltage")
 
-            ax[1].plot(i_1["times"], i_1["I_shape1__X__spikes1"], label="I_shape1")
+            ax[1].plot(mm["times"], mm["I_shape1__X__spikes1"], label="I_shape1")
             ax[1].set_ylabel("current")
 
-            ax[2].plot(i_1["times"], i_1["I_shape2__X__spikes2"], label="I_shape2")
+            ax[2].plot(mm["times"], mm["I_shape2__X__spikes2"], label="I_shape2")
             ax[2].set_ylabel("current")
 
-            ax[3].plot(i_1["times"], i_1["I_shape3__X__spikes3"], label="I_shape3")
+            ax[3].plot(mm["times"], mm["I_shape3__X__spikes3"], label="I_shape3")
             ax[3].set_ylabel("current")
 
             for _ax in ax:
@@ -115,18 +107,4 @@ class NESTMultiSynapseTest(unittest.TestCase):
 
             ax[-1].set_xlabel("time")
 
-            fig.savefig("/tmp/nestml_multisynapse_test.png", dpi=150)
-
-        print("Sampled values: ")
-        print("\tI_shape1__X__spikes1 = " + str(i_1["I_shape1__X__spikes1"][220]))
-        print("\tI_shape2__X__spikes2 = " + str(i_1["I_shape2__X__spikes2"][620]))
-        print("\tI_shape3__X__spikes3 = " + str(i_1["I_shape3__X__spikes3"][400]))
-
-        print("Checking for numerical match...")
-        assert(np.abs(i_1["I_shape1__X__spikes1"][220] - 0.04539992976248486) < 1E-9)
-        assert(np.abs(i_1["I_shape2__X__spikes2"][620] - 367.8961428722326) < 1E-9)
-        assert(np.abs(i_1["I_shape3__X__spikes3"][400] - -303.265329856317) < 1E-9)
-
-
-if __name__ == '__main__':
-    unittest.main()
+            plt.show()
