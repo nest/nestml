@@ -65,7 +65,16 @@
 {{ synapse.print_comment() }}
 **/
 
-#define get_post_trace()    (__target->get_K_value( __t_spike - __dendritic_delay ))
+#define get_post_trace()    ( __target->get_K_value( __t_spike - __dendritic_delay ) )
+#define get_nn_post_trace()    ( get_nn_post_trace_( __target, __t_spike - __dendritic_delay ) )
+
+inline double get_nn_post_trace_( nest::Node* __target, double t )
+{
+    double tmp, nn_Kminus;
+    __target->get_K_values( t, tmp, nn_Kminus, tmp );
+    return nn_Kminus;
+}
+
 
 namespace nest
 {

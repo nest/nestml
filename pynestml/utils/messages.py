@@ -1,4 +1,3 @@
-
 #
 # messages.py
 #
@@ -214,12 +213,16 @@ class Messages(object):
         :rtype: (MessageCode,str)
         """
         from pynestml.symbols.type_symbol import TypeSymbol
-        assert (expected_type is not None and isinstance(expected_type, TypeSymbol)), \
-            '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(expected_type)
-        assert (got_type is not None and isinstance(got_type, TypeSymbol)), \
-            '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(got_type)
+        if expected_type is None or not isinstance(expected_type, TypeSymbol):
+            expected_type_str = '(no type symbol provided)'
+        else:
+            expected_type_str = expected_type.print_symbol()
+        if got_type is None or not isinstance(got_type, TypeSymbol):
+            got_type_str = '(no type symbol provided)'
+        else:
+            got_type_str = got_type.print_symbol()
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
-            expected_type.print_symbol(), got_type.print_symbol())
+            expected_type_str, got_type_str)
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
 
     @classmethod

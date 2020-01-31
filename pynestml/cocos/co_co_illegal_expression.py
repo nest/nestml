@@ -109,6 +109,8 @@ class CorrectExpressionVisitor(ASTVisitor):
 
     @staticmethod
     def __types_do_not_match(lhs_type_symbol, rhs_type_symbol):
+        if lhs_type_symbol is None:
+            return True
         return not lhs_type_symbol.equals(rhs_type_symbol)
 
     def handle_simple_assignment(self, node):

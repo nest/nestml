@@ -44,6 +44,9 @@ class BooleanTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('+', other)
 
     def is_castable_to(self, _other_type):
+        if _other_type is None:
+            return False
+
         if super(BooleanTypeSymbol, self).is_castable_to(_other_type):
             return True
         from pynestml.symbols.real_type_symbol import RealTypeSymbol
