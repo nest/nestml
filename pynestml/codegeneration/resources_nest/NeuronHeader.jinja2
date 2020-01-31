@@ -49,6 +49,11 @@
 
 #include "config.h"
 
+{% if norm_rng -%}
+// Includes from librandom:
+#include "normal_randomdev.h"
+{% endif -%}
+
 {% if useGSL %}
 #ifdef HAVE_GSL
 
@@ -436,6 +441,11 @@ private:
   {% if useGSL -%}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
   {% endif %}
+
+  {%- if norm_rng -%}
+  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+  {% endif %}
+
 /** @} */
 }; /* neuron {{neuronName}} */
 
