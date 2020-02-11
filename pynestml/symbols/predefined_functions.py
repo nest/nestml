@@ -24,26 +24,28 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 class PredefinedFunctions(object):
     """
     This class is used to represent all predefined functions of NESTML.
-    
+
     Attributes:
         TIME_RESOLUTION       The callee name of the resolution function.
         TIME_STEPS            The callee name of the time-steps function.
         EMIT_SPIKE            The callee name of the emit-spike function.
         PRINT                 The callee name of the print function.
         PRINTLN               The callee name of the println function.
-        POW                   The callee name of the power function.
         EXP                   The callee name of the exponent function.
-        LOG                   The callee name of the logarithm function.
+        LN                    The callee name of the natural logarithm function, i.e. the logarithm function of base :math:`e`.
+        LOG10                 The callee name of the logarithm function of base 10.
+        COSH                  The callee name of the hyperbolic cosine.
+        SINH                  The callee name of the hyperbolic sine.
+        TANH                  The callee name of the hyperbolic tangent.
         LOGGER_INFO           The callee name of the logger-info function.
         LOGGER_WARNING        The callee name of the logger-warning function.
-        RANDOM                The callee name of the random function.
-        RANDOM_INT            The callee name of the random int function.
+        RANDOM_NORMAL         The callee name of the function used to generate a random normal (Gaussian) distributed variable with parameters `mean` and `var` (variance).
+        RANDOM_UNIFORM        The callee name of the function used to generate a random sample from a uniform distribution in the interval `[offset, offset + scale)`.
         EXPM1                 The callee name of the exponent (alternative) function.
         DELTA                 The callee name of the delta function.
+        CLIP                  The callee name of the clip function.
         MAX                   The callee name of the max function.
-        BOUNDED_MAX           The callee name of the bounded-max function.
         MIN                   The callee name of the min function.
-        BOUNDED_MIN           The callee name of the bounded-min function.
         INTEGRATE_ODES        The callee name of the integrate-ode function.
         CURR_SUM              The callee name of the curr-sum function.
         COND_SUM              The callee name of the cond-sum function.
@@ -55,19 +57,21 @@ class PredefinedFunctions(object):
     EMIT_SPIKE = 'emit_spike'
     PRINT = 'print'
     PRINTLN = 'println'
-    POW = 'pow'
     EXP = 'exp'
-    LOG = 'log'
+    LN = 'ln'
+    LOG10 = 'log10'
+    COSH = 'cosh'
+    SINH = 'sinh'
+    TANH = 'tanh'
     LOGGER_INFO = 'info'
     LOGGER_WARNING = 'warning'
-    RANDOM = 'random'
-    RANDOM_INT = 'randomInt'
+    RANDOM_NORMAL = 'random_normal'
+    RANDOM_UNIFORM = 'random_uniform'
     EXPM1 = 'expm1'
     DELTA = 'delta'
+    CLIP = 'clip'
     MAX = 'max'
-    BOUNDED_MAX = 'bounded_max'
     MIN = 'min'
-    BOUNDED_MIN = 'bounded_min'
     INTEGRATE_ODES = 'integrate_odes'
     CURR_SUM = 'curr_sum'
     COND_SUM = 'cond_sum'
@@ -85,19 +89,21 @@ class PredefinedFunctions(object):
         cls.__register_emit_spike_function()
         cls.__register_print_function()
         cls.__register_print_ln_function()
-        cls.__register_power_function()
         cls.__register_exponent_function()
-        cls.__register_log_function()
+        cls.__register_ln_function()
+        cls.__register_log10_function()
+        cls.__register_cosh_function()
+        cls.__register_sinh_function()
+        cls.__register_tanh_function()
         cls.__register_logger_info_function()
         cls.__register_logger_warning_function()
-        cls.__register_random_function()
-        cls.__register_random_int_function()
+        cls.__register_random_normal_function()
+        cls.__register_random_uniform_function()
         cls.__register_exp1_function()
         cls.__register_delta_function()
+        cls.__register_clip_function()
         cls.__register_max_function()
-        cls.__register_max_bounded_function()
         cls.__register_min_function()
-        cls.__register_min_bounded_function()
         cls.__register_integrated_odes_function()
         cls.__register_curr_sum_function()
         cls.__register_cond_sum_function()
@@ -150,19 +156,6 @@ class PredefinedFunctions(object):
         cls.name2function[cls.PRINTLN] = symbol
 
     @classmethod
-    def __register_power_function(cls):
-        """
-        Registers the power function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())  # the base type
-        params.append(PredefinedTypes.get_real_type())  # the exponent type
-        symbol = FunctionSymbol(name=cls.POW, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.POW] = symbol
-
-    @classmethod
     def __register_exponent_function(cls):
         """
         Registers the exponent (e(X)) function.
@@ -175,16 +168,64 @@ class PredefinedFunctions(object):
         cls.name2function[cls.EXP] = symbol
 
     @classmethod
-    def __register_log_function(cls):
+    def __register_ln_function(cls):
         """
-        Registers the logarithm function (to base 10).
+        Registers the natural logarithm function, i.e. the logarithm function of base :math:`e`.
         """
         params = list()
         params.append(PredefinedTypes.get_real_type())  # the argument
-        symbol = FunctionSymbol(name=cls.LOG, param_types=params,
+        symbol = FunctionSymbol(name=cls.LN, param_types=params,
                                 return_type=PredefinedTypes.get_real_type(),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.LOG] = symbol
+        cls.name2function[cls.LN] = symbol
+
+    @classmethod
+    def __register_log10_function(cls):
+        """
+        Registers the logarithm function of base 10.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.LOG10, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.LOG10] = symbol
+
+    @classmethod
+    def __register_cosh_function(cls):
+        """
+        Registers the hyperbolic cosine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.COSH, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.COSH] = symbol
+
+    @classmethod
+    def __register_sinh_function(cls):
+        """
+        Registers the hyperbolic sine function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.SINH, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.SINH] = symbol
+
+    @classmethod
+    def __register_tanh_function(cls):
+        """
+        Registers the hyperbolic tangent function.
+        """
+        params = list()
+        params.append(PredefinedTypes.get_real_type())  # the argument
+        symbol = FunctionSymbol(name=cls.TANH, param_types=params,
+                                return_type=PredefinedTypes.get_real_type(),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.TANH] = symbol
 
     @classmethod
     def __register_logger_info_function(cls):
@@ -211,24 +252,24 @@ class PredefinedFunctions(object):
         cls.name2function[cls.LOGGER_WARNING] = symbol
 
     @classmethod
-    def __register_random_function(cls):
+    def __register_random_normal_function(cls):
         """
-        Registers the random method as used to generate a random real-typed value.
+        Registers the random method as used to generate a random normal (Gaussian) distributed variable with first parameter "mean" and second parameter "standard deviation".
         """
-        symbol = FunctionSymbol(name=cls.RANDOM, param_types=list(),
-                                return_type=PredefinedTypes.get_real_type(),
+        symbol = FunctionSymbol(name=cls.RANDOM_NORMAL, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM] = symbol
+        cls.name2function[cls.RANDOM_NORMAL] = symbol
 
     @classmethod
-    def __register_random_int_function(cls):
+    def __register_random_uniform_function(cls):
         """
-        Registers the random method as used to generate a random integer-typed value.
+        Registers the random method as used to generate a random sample from a uniform distribution in the interval [offset, offset + scale).
         """
-        symbol = FunctionSymbol(name=cls.RANDOM_INT, param_types=list(),
-                                return_type=PredefinedTypes.get_integer_type(),
+        symbol = FunctionSymbol(name=cls.RANDOM_UNIFORM, param_types=[PredefinedTypes.get_template_type(0), PredefinedTypes.get_template_type(0)],
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
-        cls.name2function[cls.RANDOM_INT] = symbol
+        cls.name2function[cls.RANDOM_UNIFORM] = symbol
 
     @classmethod
     def __register_time_resolution_function(cls):
@@ -266,30 +307,34 @@ class PredefinedFunctions(object):
         cls.name2function[cls.DELTA] = symbol
 
     @classmethod
+    def __register_clip_function(cls):
+        """
+        Registers the clip function (bound a number between a minimum and a
+        maximum value).
+        """
+        params = list()
+
+        params.append(PredefinedTypes.get_template_type(0)) # value
+        params.append(PredefinedTypes.get_template_type(0)) # min
+        params.append(PredefinedTypes.get_template_type(0)) # max
+
+        symbol = FunctionSymbol(name=cls.CLIP, param_types=params,
+                                return_type=PredefinedTypes.get_template_type(0),
+                                element_reference=None, is_predefined=True)
+        cls.name2function[cls.CLIP] = symbol
+
+    @classmethod
     def __register_max_function(cls):
         """
         Registers the maximum function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_template_type(0))
+        params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.MAX, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+								return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MAX] = symbol
-
-    @classmethod
-    def __register_max_bounded_function(cls):
-        """
-        Registers the maximum (bounded) function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.BOUNDED_MAX, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.BOUNDED_MAX] = symbol
 
     @classmethod
     def __register_min_function(cls):
@@ -297,25 +342,12 @@ class PredefinedFunctions(object):
         Registers the minimum function.
         """
         params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
+        params.append(PredefinedTypes.get_template_type(0))
+        params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.MIN, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MIN] = symbol
-
-    @classmethod
-    def __register_min_bounded_function(cls):
-        """
-        Registers the minimum (bounded) function.
-        """
-        params = list()
-        params.append(PredefinedTypes.get_real_type())
-        params.append(PredefinedTypes.get_real_type())
-        symbol = FunctionSymbol(name=cls.BOUNDED_MIN, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.BOUNDED_MIN] = symbol
 
     @classmethod
     def __register_integrated_odes_function(cls):

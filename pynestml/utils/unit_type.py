@@ -23,12 +23,12 @@ from astropy.units.quantity import Quantity
 
 class UnitType(object):
     """
-    This class is used to encapsulate the functionality of sympy in a new layer which provided additional functionality
-    as required during context checks.
-    
-    Attributes:
-        name  The name of this unit. type: str
-        unit  The corresponding sympy unit. type: sympy.physics.unit.quantities.Quantity
+    This class is used to encapsulate the functionality of astropy.units in a new layer which provided additional functionality as required during context checks.
+
+    :attr name: The name of this unit.
+    :type name: str
+    :attr unit: The corresponding astropy Unit.
+    :type unit: astropy.units.core.Unit
     """
 
     def __init__(self, name, unit):
@@ -36,8 +36,8 @@ class UnitType(object):
         Standard constructor.
         :param name: the name of this unit.
         :type name: str
-        :param unit: a single unit object from astropy.unit
-        :type unit: Unit
+        :param unit: an astropy Unit object
+        :type unit: astropy.units.core.Unit
         """
         assert isinstance(name, str), \
             '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(name)
@@ -60,9 +60,9 @@ class UnitType(object):
 
     def get_unit(self):
         """
-        Returns the sympy unit of this unit.
-        :return: a single unit quantity
-        :rtype: astropy.unit
+        Returns the astropy unit of this unit.
+        :return: the astropy unit
+        :rtype: astropy.units.core.Unit
         """
         return self.unit
 
@@ -76,7 +76,7 @@ class UnitType(object):
 
     def equals(self, _obj=None):
         """
-        Compares this to the handed object and checks if their semantically equal.
+        Compares this to the handed object and checks if they are semantically equal.
         :param _obj: a single object
         :type _obj: object
         :return: True if equal, otherwise false.
@@ -84,4 +84,5 @@ class UnitType(object):
         """
         if not isinstance(_obj, UnitType):
             return False
-        return self.get_name() == _obj.get_name() and self.get_unit() is _obj.get_unit()
+        # defer comparison to astropy
+        return self.get_name() == _obj.get_name() and self.get_unit() == _obj.get_unit()

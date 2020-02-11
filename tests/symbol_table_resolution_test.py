@@ -32,7 +32,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.model_parser import ModelParser
 
 # minor setup steps required
-Logger.init_logger(LoggingLevel.NO)
+Logger.init_logger(LoggingLevel.INFO)
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
 PredefinedUnits.register_units()
 PredefinedTypes.register_types()
@@ -55,11 +55,11 @@ class SymbolTableResolutionTest(unittest.TestCase):
         res2 = scope.resolve_to_all_scopes('testNot', SymbolKind.VARIABLE)
         self.assertTrue(res2 is None)
         res3 = scope.resolve_to_all_scopes('test2', SymbolKind.VARIABLE)
-        self.assertTrue(res3 is not None and res3.get_scope_type() == ScopeType.FUNCTION)
+        self.assertTrue(res3 is None)
         res4 = scope.resolve_to_all_scopes('arg1', SymbolKind.VARIABLE)
-        self.assertTrue(res4 is not None and res4.get_scope_type() == ScopeType.FUNCTION)
+        self.assertTrue(res4 is None)
         res5 = scope.resolve_to_all_scopes('test3', SymbolKind.VARIABLE)
-        self.assertTrue(res5 is not None and res5.get_scope_type() == ScopeType.FUNCTION)
+        self.assertTrue(res5 is None)
         res6 = scope.resolve_to_all_scopes('test1', SymbolKind.FUNCTION)
         self.assertTrue(res6 is not None and res6.get_scope_type() == ScopeType.GLOBAL)
         res7 = scope.resolve_to_all_scopes('test6', SymbolKind.VARIABLE)

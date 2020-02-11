@@ -22,6 +22,9 @@
 rhs : left=rhs (plusOp='+'  | minusOp='-') right=rhs
 """
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
+from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class ASTLineOperatorVisitor(ASTVisitor):
@@ -43,9 +46,13 @@ class ASTLineOperatorVisitor(ASTVisitor):
         lhs_type.referenced_object = node.get_lhs()
         rhs_type.referenced_object = node.get_rhs()
 
+        node.type = ErrorTypeSymbol()
         if arith_op.is_plus_op:
             node.type = lhs_type + rhs_type
-            return
         elif arith_op.is_minus_op:
             node.type = lhs_type - rhs_type
-            return
+
+        if isinstance(node.type, ErrorTypeSymbol):
+            code, message = Messages.get_binary_operation_type_could_not_be_derived(lhs=str(node.get_lhs()), operator=str(arith_op), rhs=str(node.get_rhs()), lhs_type=str(lhs_type.print_nestml_type()), rhs_type=str(rhs_type.print_nestml_type()))
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+

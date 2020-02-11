@@ -51,7 +51,8 @@ class ExpressionTestVisitor(ASTVisitor):
 
         var_symbol = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
-        _equals = var_symbol.get_type_symbol().equals(_expr.type)
+        _equals = var_symbol.get_type_symbol().equals(_expr.type) \
+         or var_symbol.get_type_symbol().differs_only_in_magnitude(_expr.type)
 
         message = 'line ' + str(_expr.get_source_position()) + ' : LHS = ' + \
                   var_symbol.get_type_symbol().get_symbol_name() + \
@@ -80,7 +81,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
 
     # TODO: this test needs to be refactored.
     def test(self):
-        Logger.init_logger(LoggingLevel.NO)
+        Logger.init_logger(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))

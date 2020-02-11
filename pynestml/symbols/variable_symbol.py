@@ -22,7 +22,7 @@ from copy import copy
 from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_input_line import ASTInputLine
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import Symbol
 from pynestml.symbols.symbol import SymbolKind
@@ -98,6 +98,14 @@ class VariableSymbol(Symbol):
         """
         return self.vector_parameter is not None and type(self.vector_parameter) == str
 
+    def get_block_type(self):
+        """
+        Returns the block type
+        :return: the block type
+        :rtype: BlockType
+        """
+        return self.block_type
+
     def get_vector_parameter(self):
         """
         Returns the vector parameter of this symbol if any available, e.g., spike[12]
@@ -129,7 +137,7 @@ class VariableSymbol(Symbol):
         :return: True if spike buffer, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_spike()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_spike()
 
     def is_current_buffer(self):
         """
@@ -137,7 +145,7 @@ class VariableSymbol(Symbol):
         :return: True if current buffer, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_current()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_current()
 
     def is_excitatory(self):
         """
@@ -145,7 +153,7 @@ class VariableSymbol(Symbol):
         :return: True if is excitatory, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_excitatory()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_excitatory()
 
     def is_inhibitory(self):
         """
@@ -153,7 +161,7 @@ class VariableSymbol(Symbol):
         :return: True if is inhibitory, otherwise False.
         :rtype: bool
         """
-        return isinstance(self.get_referenced_object(), ASTInputLine) and self.get_referenced_object().is_inhibitory()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
 
     def is_state(self):
         """
@@ -368,7 +376,7 @@ class VariableSymbol(Symbol):
                 self.get_referenced_object() == other.get_referenced_object() and
                 self.get_symbol_name() == other.get_symbol_name() and
                 self.get_corresponding_scope() == other.get_corresponding_scope() and
-                self.block_type == other.getBlockType() and
+                self.block_type == other.get_block_type() and
                 self.get_vector_parameter() == other.get_vector_parameter() and
                 self.declaring_expression == other.declaring_expression and
                 self.is_predefined == other.is_predefined and
@@ -401,6 +409,7 @@ class VariableType(Enum):
     VARIABLE = 1
     BUFFER = 2
     EQUATION = 3
+    TYPE = 4
 
 
 class BlockType(Enum):

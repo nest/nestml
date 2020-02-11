@@ -1,3 +1,4 @@
+
 #
 # messages.py.py
 #
@@ -51,9 +52,44 @@ class Messages(object):
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
+    def get_input_path_not_found(cls, path):
+        message = 'Input path ("%s") not found!' % (path)
+        return MessageCode.INPUT_PATH_NOT_FOUND, message
+
+    @classmethod
+    def get_unknown_target(cls, target):
+        message = 'Unknown target ("%s")' % (target)
+        return MessageCode.UNKNOWN_TARGET, message
+
+    @classmethod
+    def get_no_code_generated(cls):
+        """
+        Returns a message indicating that no code will be generated on this run.
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        message = 'No target specified: no code will be generated'
+        return MessageCode.NO_CODE_GENERATED, message
+
+    @classmethod
+    def get_lexer_error(cls):
+        message = 'Error occurred during lexing: abort'
+        return MessageCode.LEXER_ERROR, message
+
+    @classmethod
+    def get_parser_error(cls):
+        message = 'Error occurred during parsing: abort'
+        return MessageCode.PARSER_ERROR, message
+
+    @classmethod
     def get_binary_operation_not_defined(cls, lhs, operator, rhs):
         message = 'Operation %s %s %s is not defined!' % (lhs, operator, rhs)
         return MessageCode.OPERATION_NOT_DEFINED, message
+
+    @classmethod
+    def get_binary_operation_type_could_not_be_derived(cls, lhs, operator, rhs, lhs_type, rhs_type):
+        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (lhs, operator, rhs, lhs_type, rhs_type)
+        return MessageCode.TYPE_MISMATCH, message
 
     @classmethod
     def get_unary_operation_not_defined(cls, operator, term):
@@ -135,7 +171,7 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Implicit casting %s to %s!' % (rhs_type, lhs_type)
+        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -235,8 +271,7 @@ class Messages(object):
         assert (buffer_name is not None and isinstance(buffer_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (buffer_name, PredefinedTypes.get_type('nS').print_symbol())
+        message = 'No buffer type declared of \'%s\'!' % buffer_name
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -298,16 +333,6 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
         message = 'Successfully generated NEST module code in \'' + path + '\' !'
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
-
-    @classmethod
-    def get_dry_run(cls):
-        """
-        Returns a message indicating that a dry run is performed.
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        message = 'Dry mode selected with -dry parameter, no models generated!'
-        return MessageCode.DRY_RUN, message
 
     @classmethod
     def get_variable_used_before_declaration(cls, variable_name):
@@ -897,6 +922,67 @@ class Messages(object):
         message = 'Not convertible unit \'%s\' used, 1 assumed as factor!' % name
         return MessageCode.NOT_NEUROSCIENCE_UNIT, message
 
+    @classmethod
+    def get_ode_needs_consistent_units(cls, name, differential_order, lhs_type, rhs_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE definition for \''
+        if differential_order > 1:
+            message += 'd^' + str(differential_order) + ' ' + name + ' / dt^' + str(differential_order) + '\''
+        if differential_order > 0:
+            message += 'd ' + name + ' / dt\''
+        else:
+            message += '\'' + str(name) + '\''
+        message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+        return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
+    def get_ode_function_needs_consistent_units(cls, name, declared_type, expression_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+        return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
+    def get_variable_with_same_name_as_type(cls, name):
+        """
+        Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
+        :param name: the name of the variable
+        :type name: str
+        :return: a tuple containing message code and message text
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Variable \'%s\' has the same name as a physical unit!' % name
+        return MessageCode.VARIABLE_WITH_SAME_NAME_AS_UNIT, message
+
+    @classmethod
+    def get_analysing_transforming_neuron(cls, name):
+        """
+        Indicates start of code generation
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'Analysing/transforming neuron \'%s\'' % name
+        return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+
+    @classmethod
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+        return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
+
 
 class MessageCode(Enum):
     """
@@ -919,7 +1005,7 @@ class MessageCode(Enum):
     START_PROCESSING_NEURON = 14
     CODE_SUCCESSFULLY_GENERATED = 15
     MODULE_SUCCESSFULLY_GENERATED = 16
-    DRY_RUN = 17
+    NO_CODE_GENERATED = 17
     VARIABLE_USED_BEFORE_DECLARATION = 18
     VARIABLE_DEFINED_RECURSIVELY = 19
     VALUE_ASSIGNED_TO_BUFFER = 20
@@ -962,3 +1048,14 @@ class MessageCode(Enum):
     INTERNAL_WARNING = 56
     OPERATION_NOT_DEFINED = 57
     CONVOLVE_NEEDS_BUFFER_PARAMETER = 58
+    INPUT_PATH_NOT_FOUND = 59
+    LEXER_ERROR = 60
+    PARSER_ERROR = 61
+    UNKNOWN_TARGET = 62
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
+    ANALYSING_TRANSFORMING_NEURON = 64
+    ODE_NEEDS_CONSISTENT_UNITS = 65
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 66
+    MODULE_NAME_INFO = 67
+    TARGET_PATH_INFO = 68
+    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 69

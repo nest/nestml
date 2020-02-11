@@ -37,7 +37,7 @@ class ASTArithmeticOperator(ASTNode):
     """
 
     def __init__(self, is_times_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op, source_position):
-        # type:(bool,bool,bool,bool,bool,bool,ASTSourcePosition) -> None
+        # type:(bool,bool,bool,bool,bool,bool,ASTSourceLocation) -> None
         assert ((is_times_op + is_div_op + is_modulo_op + is_plus_op + is_minus_op + is_pow_op) == 1), \
             '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified!'
         super(ASTArithmeticOperator, self).__init__(source_position)

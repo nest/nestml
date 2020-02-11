@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableType
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
@@ -49,24 +50,26 @@ class CoCoVariableOncePerScope(CoCo):
         """
         checked = list()
         for sym1 in scope.get_symbols_in_this_scope():
-            for sym2 in scope.get_symbols_in_this_scope():
-                if (sym1 is not sym2 and sym1.get_symbol_name() == sym2.get_symbol_name() and
-                        sym1.get_symbol_kind() == sym2.get_symbol_kind() and
-                        sym1.get_symbol_kind() == SymbolKind.VARIABLE and
-                        sym2 not in checked):
-                    if sym1.is_predefined:
-                        code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
-                        Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
-                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
-                    elif sym2.is_predefined:
-                        code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
+            if sym1.get_symbol_kind() != SymbolKind.VARIABLE or sym1.is_predefined:
+                continue
+            for sym2 in scope.get_symbols_in_complete_scope():
+                if sym1 is not sym2 \
+                 and sym1.get_symbol_name() == sym2.get_symbol_name() \
+                 and sym2 not in checked:
+                    if sym2.get_symbol_kind() == SymbolKind.TYPE:
+                        code, message = Messages.get_variable_with_same_name_as_type(sym1.get_symbol_name())
                         Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),
-                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
-                    elif sym1.get_referenced_object().get_source_position().before(
-                            sym2.get_referenced_object().get_source_position()):
-                        code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), False)
-                        Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
-                                           neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                                           neuron=neuron, log_level=LoggingLevel.WARNING, code=code, message=message)
+                    elif sym1.get_symbol_kind() == sym2.get_symbol_kind():
+                        if sym2.is_predefined:
+                            code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), True)
+                            Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),
+                                               neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
+                        elif sym1.get_referenced_object().get_source_position().before(
+                                sym2.get_referenced_object().get_source_position()):
+                            code, message = Messages.get_variable_redeclared(sym1.get_symbol_name(), False)
+                            Logger.log_message(error_position=sym2.get_referenced_object().get_source_position(),
+                                               neuron=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
             checked.append(sym1)
         for scope in scope.get_scopes():
             cls.__check_scope(neuron, scope)

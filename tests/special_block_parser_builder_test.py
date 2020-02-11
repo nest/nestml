@@ -41,7 +41,7 @@ PredefinedTypes.register_types()
 PredefinedFunctions.register_functions()
 PredefinedVariables.register_variables()
 SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-Logger.init_logger(LoggingLevel.NO)
+Logger.init_logger(LoggingLevel.INFO)
 
 
 class SpecialBlockParserBuilderTest(unittest.TestCase):

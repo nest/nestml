@@ -34,9 +34,6 @@ class RealTypeSymbol(TypeSymbol):
     def print_nestml_type(self):
         return 'real'
 
-    def print_nest_type(self):
-        return 'double'
-
     def __mul__(self, other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
@@ -108,11 +105,13 @@ class RealTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('-', other)
 
     def is_castable_to(self, _other_type):
+        if super(RealTypeSymbol, self).is_castable_to(_other_type):
+            return True
         from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
         from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
-        if _other_type.is_instance_of(BooleanTypeSymbol):
-            return True
-        elif _other_type.is_instance_of(IntegerTypeSymbol):
+        if _other_type.is_instance_of(BooleanTypeSymbol) \
+         or _other_type.is_instance_of(IntegerTypeSymbol) \
+         or _other_type.is_instance_of(RealTypeSymbol):
             return True
         else:
             return False

@@ -220,19 +220,6 @@ class ErrorStrings(object):
         return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
 
     @classmethod
-    def message_type_mismatch(cls, origin, mismatch_text):
-        """
-        construct an error message indicating that an expected int value was not found
-        :param origin: the class reporting the error
-        :param mismatch_text: the operation with mismatched types printed in plain text
-        :type mismatch_text: str
-        :return: the error message
-        :rtype: str
-        """
-        error_msg_format = "Operation not defined: " + mismatch_text
-        return cls.code(origin) + cls.SEPARATOR + error_msg_format
-
-    @classmethod
     def message_add_sub_type_mismatch(cls, origin, lhs_type_text,
                                       rhs_type_text, result_type_text,
                                       source_position):

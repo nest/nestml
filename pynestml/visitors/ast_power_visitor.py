@@ -70,10 +70,11 @@ class ASTPowerVisitor(ASTVisitor):
         :rtype: Either
         """
         # TODO write tests for this by PTraeder
-        if isinstance(expr, ASTExpression) and expr.is_encapsulated():
+        if isinstance(expr, ASTExpression) and expr.is_encapsulated:
             return self.calculate_numeric_value(expr.get_expression())
         elif isinstance(expr, ASTSimpleExpression) and expr.get_numeric_literal() is not None:
-            if isinstance(expr.get_numeric_literal(), int):
+            if isinstance(expr.get_numeric_literal(), int) \
+             or isinstance(expr.get_numeric_literal(), float):
                 literal = expr.get_numeric_literal()
                 return Either.value(literal)
             else:

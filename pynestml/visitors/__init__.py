@@ -17,6 +17,7 @@ __all__ = [
     'ast_parent_aware_visitor.py',
     'ast_parentheses_visitor.py',
     'ast_power_visitor.py',
+    'ast_random_number_generator_visitor.py',
     'ast_string_literal_visitor.py',
     'ast_symbol_table_visitor.py',
     'ast_unary_visitor.py',
