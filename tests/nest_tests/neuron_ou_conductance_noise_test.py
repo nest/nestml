@@ -70,7 +70,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         nest.Install('nestmlmodule')
         neuron = nest.Create('hh_cond_exp_destexhe_nestml')
 
-        multi = nest.Create('multimeter', params={'withgid': True, 'withtime': True, 'record_from': self.record_from, 'interval': resolution})
+        multi = nest.Create('multimeter', params={'record_from': self.record_from, 'interval': resolution})
 
         nest.Connect(multi, neuron)
         nest.Simulate(500000)

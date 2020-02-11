@@ -22,8 +22,8 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     multimeter2 = nest.Create('multimeter')
 
     V_m_specifier = 'V_m'  # 'delta_V_m'
-    nest.SetStatus(multimeter1, {"withtime": True, "record_from": [V_m_specifier]})
-    nest.SetStatus(multimeter2, {"withtime": True, "record_from": [V_m_specifier]})
+    nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
+    nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
 
     nest.Connect(multimeter1, neuron1)
     nest.Connect(multimeter2, neuron2)
