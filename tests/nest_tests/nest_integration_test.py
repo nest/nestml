@@ -56,7 +56,7 @@ class NestIntegrationTest(unittest.TestCase):
         models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
         models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
         models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
-        models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
+        models.append(("iaf_psc_exp_htum", "iaf_tum_2000_nestml", None, 0.01))
         models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
         models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
