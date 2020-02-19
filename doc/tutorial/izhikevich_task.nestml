@@ -19,7 +19,7 @@ neuron izhikevich_tutorial:
 
   input:
     spikes mV <- spike
-    I_ext <- current
+    I_ext pA <- current
   end
 
   output: spike

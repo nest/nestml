@@ -20,81 +20,75 @@
 
 """Sanity test for the predefined logarithmic functions ln() and log10()"""
 
-import os
 import nest
 import numpy as np
+import os
+import unittest
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-try:
-    import matplotlib
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except:
-    TEST_PLOTS = False
 
+class NestLogarithmicFunctionTest(unittest.TestCase):
 
+    def test_logarithmic_function(self):
+        MAX_SSE = 1E-12
 
-if __name__ == "__main__":
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
+        nest_path = "/home/travis/nest_install"
+        target_path = 'target'
+        logging_level = 'INFO'
+        module_name = 'nestmlmodule'
+        store_log = False
+        suffix = '_nestml'
+        dev = True
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+        install_nest(target_path, nest_path)
+        nest.set_verbosity("M_ALL")
 
-    MAX_SSE = 1E-12
+        nest.ResetKernel()
+        nest.Install("nestmlmodule")
 
-    input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
-    nest_path = "/home/travis/nest_install"
-    target_path = 'target'
-    logging_level = 'INFO'
-    module_name = 'nestmlmodule'
-    store_log = False
-    suffix = '_nestml'
-    dev = True
-    to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-    install_nest(target_path, nest_path)
-    nest.set_verbosity("M_ALL")
+        nrn = nest.Create("logarithm_function_test_nestml")
+        mm = nest.Create('multimeter')
 
-    nest.ResetKernel()
-    nest.Install("nestmlmodule")
+        ln_state_specifier = 'ln_state'
+        log10_state_specifier = 'log10_state'
+        nest.SetStatus(mm, {"withtime": True, "record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
-    nrn = nest.Create("logarithm_function_test_nestml")
-    mm = nest.Create('multimeter')
+        nest.Connect(mm, nrn)
 
-    ln_state_specifier = 'ln_state'
-    log10_state_specifier = 'log10_state'
-    nest.SetStatus(mm, {"withtime": True, "record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        nest.Simulate(100.0)
 
-    nest.Connect(mm, nrn)
+        dmm = nest.GetStatus(mm)[0]
+        timevec = dmm["events"]["x"]
+        ln_state_ts = dmm["events"][ln_state_specifier]
+        log10_state_ts = dmm["events"][log10_state_specifier]
+        ref_ln_state_ts = np.log(timevec - 1)
+        ref_log10_state_ts = np.log10(timevec - 1)
 
-    nest.Simulate(100.0)
+        assert np.all((ln_state_ts - ref_ln_state_ts)**2 < MAX_SSE)
+        assert np.all((log10_state_ts - ref_log10_state_ts)**2 < MAX_SSE)
 
-    dmm = nest.GetStatus(mm)[0]
-    timevec = dmm["events"]["x"]
-    ln_state_ts = dmm["events"][ln_state_specifier]
-    log10_state_ts = dmm["events"][log10_state_specifier]
-    ref_ln_state_ts = np.log(timevec - 1)
-    ref_log10_state_ts = np.log10(timevec - 1)
+        # test that expected failure occurs
 
-    assert np.all((ln_state_ts - ref_ln_state_ts)**2 < MAX_SSE)
-    assert np.all((log10_state_ts - ref_log10_state_ts)**2 < MAX_SSE)
+        nest.ResetKernel()
+        nrn = nest.Create("logarithm_function_test_invalid_nestml")
 
-    # test that expected failure occurs
+        mm = nest.Create('multimeter')
 
-    nest.ResetKernel()
-    nrn = nest.Create("logarithm_function_test_invalid_nestml")
+        ln_state_specifier = 'ln_state'
+        log10_state_specifier = 'log10_state'
+        nest.SetStatus(mm, {"withtime": True, "record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
-    mm = nest.Create('multimeter')
+        nest.Connect(mm, nrn)
 
-    ln_state_specifier = 'ln_state'
-    log10_state_specifier = 'log10_state'
-    nest.SetStatus(mm, {"withtime": True, "record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        nest.Simulate(100.0)
 
-    nest.Connect(mm, nrn)
+        dmm = nest.GetStatus(mm)[0]
+        timevec = dmm["events"]["x"]
+        ln_state_ts = dmm["events"][ln_state_specifier]
+        log10_state_ts = dmm["events"][log10_state_specifier]
+        ref_ln_state_ts = np.log(timevec - 1)
+        ref_log10_state_ts = np.log10(timevec - 1)
 
-    nest.Simulate(100.0)
-
-    dmm = nest.GetStatus(mm)[0]
-    timevec = dmm["events"]["x"]
-    ln_state_ts = dmm["events"][ln_state_specifier]
-    log10_state_ts = dmm["events"][log10_state_specifier]
-    ref_ln_state_ts = np.log(timevec - 1)
-    ref_log10_state_ts = np.log10(timevec - 1)
-
-    assert not np.all((ln_state_ts - ref_ln_state_ts)**2 < MAX_SSE)
-    assert not np.all((log10_state_ts - ref_log10_state_ts)**2 < MAX_SSE)
+        assert not np.all((ln_state_ts - ref_ln_state_ts)**2 < MAX_SSE)
+        assert not np.all((log10_state_ts - ref_log10_state_ts)**2 < MAX_SSE)

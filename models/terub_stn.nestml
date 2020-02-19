@@ -97,12 +97,12 @@ neuron terub_stn:
     function k_Ca real = 22.5
     function k1 real = 15.0
 
-    function I_ex_mod pA = -convolve(g_ex,spikeExc)*V_m
-    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -convolve(g_ex, spikeExc) * V_m
+    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m - E_gs)
 
-    function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
-    function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
-    function tau_r mV = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
+    function tau_n ms = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
+    function tau_h ms = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
+    function tau_r ms = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
 
     function a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
     function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
@@ -120,12 +120,12 @@ neuron terub_stn:
     function I_ahp pA =  g_ahp * (Ca_con / (Ca_con + k1))    * (V_m - E_K )
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + currents + I_e + I_ex_mod + I_in_mod) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_ex_mod + I_in_mod) / C_m
 
     #channel dynamics
-    gate_h' = phi_h *((h_inf-gate_h) / tau_h) * mV/ms  # h-variable
-    gate_n' = phi_n *((n_inf-gate_n) / tau_n) * mV/ms # n-variable
-    gate_r' = phi_r *((r_inf-gate_r) / tau_r) * mV/ms # r-variable
+    gate_h' = phi_h *((h_inf-gate_h) / tau_h)  # h-variable
+    gate_n' = phi_n *((n_inf-gate_n) / tau_n)  # n-variable
+    gate_r' = phi_r *((r_inf-gate_r) / tau_r)  # r-variable
 
     #Calcium concentration
     Ca_con' = epsilon*( (-I_Ca  - I_T ) / pA - k_Ca * Ca_con)
@@ -151,9 +151,11 @@ neuron terub_stn:
     g_ahp      nS = 9 nS    # afterpolarization current peak conductance.
     tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
     tau_syn_in ms = 0.08 ms # Rise time of the inhibitory synaptic alpha function.
-    I_e        pA = 0 pA    # Constant external input current.
     E_gs       mV = -85.0 mV# reversal potential for inhibitory input (from GPe)
     t_ref      ms = 2 ms    # refractory time
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -161,9 +163,9 @@ neuron terub_stn:
   end
 
   input:
-      spikeInh pA <- inhibitory spike
-      spikeExc pA <- excitatory spike
-      currents <- current
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -289,12 +291,12 @@ neuron terub_stn_implicit:
     function k_Ca real = 22.5
     function k1 real = 15.0
 
-    function I_ex_mod pA = -convolve(g_ex,spikeExc)*V_m
-    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -convolve(g_ex, spikeExc) * V_m
+    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m - E_gs)
 
-    function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
-    function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
-    function tau_r mV = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
+    function tau_n ms = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
+    function tau_h ms = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
+    function tau_r ms = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
 
     function a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
     function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
@@ -312,12 +314,12 @@ neuron terub_stn_implicit:
     function I_ahp pA =  g_ahp * (Ca_con / (Ca_con + k1))    * (V_m - E_K )
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + currents + I_e + I_ex_mod + I_in_mod) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_ex_mod + I_in_mod) / C_m
 
     #channel dynamics
-    gate_h' = phi_h *((h_inf-gate_h) / tau_h) * mV/ms  # h-variable
-    gate_n' = phi_n *((n_inf-gate_n) / tau_n) * mV/ms # n-variable
-    gate_r' = phi_r *((r_inf-gate_r) / tau_r) * mV/ms # r-variable
+    gate_h' = phi_h *((h_inf-gate_h) / tau_h)  # h-variable
+    gate_n' = phi_n *((n_inf-gate_n) / tau_n)  # n-variable
+    gate_r' = phi_r *((r_inf-gate_r) / tau_r)  # r-variable
 
     #Calcium concentration
     Ca_con' = epsilon*( (-I_Ca  - I_T ) / pA - k_Ca * Ca_con)
@@ -344,9 +346,11 @@ neuron terub_stn_implicit:
     g_ahp      nS = 9 nS    # afterpolarization current peak conductance.
     tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
     tau_syn_in ms = 0.08 ms # Rise time of the inhibitory synaptic alpha function.
-    I_e        pA = 0 pA    # Constant external input current.
     E_gs       mV = -85.0 mV# reversal potential for inhibitory input (from GPe)
     t_ref      ms = 2 ms    # refractory time
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -354,9 +358,9 @@ neuron terub_stn_implicit:
   end
 
   input:
-      spikeInh pA <- inhibitory spike
-      spikeExc pA <- excitatory spike
-      currents <- current
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

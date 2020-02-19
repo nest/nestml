@@ -49,7 +49,7 @@ neuron iaf_cond_alpha:
     function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -63,7 +63,9 @@ neuron iaf_cond_alpha:
     E_L mV = -70.0 mV     # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms  # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms  # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA           # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -71,9 +73,9 @@ neuron iaf_cond_alpha:
   end
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents <- current
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -147,7 +149,7 @@ neuron iaf_cond_alpha_implicit:
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
@@ -161,7 +163,9 @@ neuron iaf_cond_alpha_implicit:
     E_L mV = -70.0 mV      # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA          # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -171,7 +175,7 @@ neuron iaf_cond_alpha_implicit:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    currents <- current
+    I_stim pA <- current
   end
 
   output: spike

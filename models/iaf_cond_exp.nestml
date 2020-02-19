@@ -40,21 +40,23 @@ neuron iaf_cond_exp:
     function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
     V_th mV = -55.0 mV     # Threshold Potential
     V_reset mV = -60.0 mV  # Reset Potential
-    t_ref ms = 2.0 ms     # Refractory period
+    t_ref ms = 2.0 ms      # Refractory period
     g_L nS = 16.6667 nS    # Leak Conductance
-    C_m pF = 250.0 pF     # Membrane Capacitance
+    C_m pF = 250.0 pF      # Membrane Capacitance
     E_ex mV = 0 mV         # Excitatory reversal Potential
     E_in mV = -85.0 mV     # Inhibitory reversal Potential
     E_L mV = -70.0 mV      # Leak reversal Potential (aka resting potential)
     tau_syn_ex ms = 0.2 ms # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 2.0 ms # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA          # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -62,9 +64,9 @@ neuron iaf_cond_exp:
   end
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents <- current
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -127,21 +129,23 @@ neuron iaf_cond_exp_implicit:
     function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
   end
 
   parameters:
     V_th mV = -55.0 mV    # Threshold Potential
     V_reset mV = -60.0 mV # Reset Potential
-    t_ref ms = 2.0 ms    # Refractory period
+    t_ref ms = 2.0 ms     # Refractory period
     g_L nS = 16.6667 nS   # Leak Conductance
-    C_m pF = 250.0 pF    # Membrane Capacitance
+    C_m pF = 250.0 pF     # Membrane Capacitance
     E_ex mV = 0 mV        # Excitatory reversal Potential
     E_in mV = -85.0 mV    # Inhibitory reversal Potential
     E_L mV = -70.0 mV     # Leak reversal Potential (aka resting potential)
     tau_synE ms = 0.2 ms  # Synaptic Time Constant Excitatory Synapse
     tau_synI ms = 2.0 ms  # Synaptic Time Constant for Inhibitory Synapse
-    I_e pA = 0 pA         # Constant Current
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -149,9 +153,9 @@ neuron iaf_cond_exp_implicit:
   end
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
-      currents <- current
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

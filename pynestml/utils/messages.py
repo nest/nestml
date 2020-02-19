@@ -271,8 +271,7 @@ class Messages(object):
         assert (buffer_name is not None and isinstance(buffer_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (buffer_name, PredefinedTypes.get_type('nS').print_symbol())
+        message = 'No buffer type declared of \'%s\'!' % buffer_name
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -938,6 +937,13 @@ class Messages(object):
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
+    def get_ode_function_needs_consistent_units(cls, name, declared_type, expression_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+        return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
     def get_variable_with_same_name_as_type(cls, name):
         """
         Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
@@ -1052,3 +1058,4 @@ class MessageCode(Enum):
     TEMPLATED_ARG_TYPES_INCONSISTENT = 66
     MODULE_NAME_INFO = 67
     TARGET_PATH_INFO = 68
+    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 69
