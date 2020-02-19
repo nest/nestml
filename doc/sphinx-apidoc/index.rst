@@ -11,7 +11,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :maxdepth: 1
 
    nestml_language
-   models_library
+   models_library/index
    pynestml_toolchain/index
 
 
