@@ -25,15 +25,15 @@ from enum import Enum
 
 class Logger(object):
     """
-    This class represents a logger which can be used to print messages to the screen depending on the logging 
+    This class represents a logger which can be used to print messages to the screen depending on the logging
     level.
         LEVELS:
             INFO         Print all received messages.
             WARNING     Print all received warning.
             ERROR       Print all received errors.
             NO          Print no messages
-    Hereby, errors are the most specific level, thus no warnings and non critical messages are shown. If logging 
-    level is set to WARNING, only warnings and errors are printed. Only if level is set to ALL, all messages 
+    Hereby, errors are the most specific level, thus no warnings and non critical messages are shown. If logging
+    level is set to WARNING, only warnings and errors are printed. Only if level is set to ALL, all messages
     are printed.
     Attributes:
         log       Stores all messages as received during the execution. Map from id (int) to neuron,type,message
@@ -81,7 +81,7 @@ class Logger(object):
     @classmethod
     def log_message(cls, neuron=None, code=None, message=None, error_position=None, log_level=None):
         """
-        Logs the handed over message on the handed over. If the current logging is appropriate, the 
+        Logs the handed over message on the handed over. If the current logging is appropriate, the
         message is also printed.
         :param neuron: the neuron in which the error occurred
         :type neuron: ast_neuron
@@ -138,7 +138,7 @@ class Logger(object):
             return LoggingLevel.WARNING
         elif string == 'ERROR' or string == 'ERRORS':
             return LoggingLevel.ERROR
-        elif string == 'NO':
+        elif string == 'NO' or string == 'NONE':
             return LoggingLevel.NO
         else:
             return LoggingLevel.ERROR
@@ -247,11 +247,12 @@ class Logger(object):
                    '"neuronName":"' + \
                    (neuron.get_name() if neuron is not None else 'GLOBAL') + '", ' + \
                    '"severity":"' \
-                   + str(logLevel.name) + '", ' \
-                   + '"code":"' \
-                   + code.name + \
-                   '", ' + \
-                   '"row":"' + \
+                   + str(logLevel.name) + '", '
+            if not code is None:
+                ret += '"code":"' + \
+                       code.name + \
+                       '", '
+            ret += '"row":"' + \
                    (str(errorPosition.get_start_line()) if errorPosition is not None else '') + \
                    '", ' + \
                    '"col":"' \

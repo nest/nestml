@@ -1,11 +1,28 @@
 language: python
 
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
+sudo: true
+
+python: "3.6"
+
+addons:
+  apt:
+    packages:
+      - build-essential
+      - cmake
+      - libltdl7-dev
+      - libgsl0-dev
+      - libncurses5-dev
+      - libreadline6-dev
+      - pkg-config
+      - python-all-dev
+      - python-matplotlib
+      - python-numpy
+      - python-scipy
 
 before_install:
+  # in before_install, we install all the NESTML dependencies
+
+  # install antrl4
   - sudo apt install openjdk-8-jre
   - wget http://www.antlr.org/download/antlr-4.7.1-complete.jar
   - echo \#\!/bin/bash > antlr4
@@ -13,42 +30,68 @@ before_install:
   - echo >> antlr4
   - chmod +x antlr4
   - export PATH=$PATH:`pwd`
-  - pip install --upgrade pip enum34 pytest
-  - pip install -r requirements.txt
- 
-  # gsl library to support ode-toolbox stiffness testing
-  - wget http://ftp.wrz.de/pub/gnu/gsl/gsl-2.5.tar.gz
-  - tar -xvzf gsl-2.5.tar.gz
-  - cd gsl-2.5
-  - ./configure && make && sudo make install
-  - cd ..
-  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-  - pip install pygsl
 
-  #- pip install matplotlib
-  #- cd ~ && git clone https://github.com/nest/nest-simulator nest_source
-  #- mkdir nest_install
-  #- cd nest_source && mkdir build && cd build
-  #- cmake -DCMAKE_INSTALL_PREFIX=~/nest_install .. && make && make install
-  #- cd $TRAVIS_BUILD_DIR
+  # install Python module dependencies
+  - pip install --upgrade pip pytest
+  - pip install -r requirements.txt
+
+  # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
+  - pip uninstall --yes odetoolbox
   - pip install git+https://github.com/nest/ode-toolbox.git
 
 install:
-  - find pynestml/generated -not -name __init__.py -a -not -name generated -delete
-  - cd pynestml/grammars
-  - ./generate_lexer_parser
-  - cd ../..
+  # in install, we install NESTML itself
   - export PYTHONPATH=$PYTHONPATH:`pwd`
   - echo $PYTHONPATH
   - python setup.py install
 
-  #- python PyNestML.py -path models -target target
-  #- cd ../target && mkdir build && cd build
-  #- cmake -Dwith-nest=~/nest_install/bin/nest-config .. && make && make install
-  #- cd $TRAVIS_BUILD_DIR
-  #- source $TRAVIS_BUILD_DIR/nest_install/bin/nest_vars.sh
+before_script:
+  # use antlr4 to re-generate lexer+parser
+  - cd $TRAVIS_BUILD_DIR
+  - find pynestml/generated -not -name __init__.py -a -not -name generated -delete
+  - cd pynestml/grammars
+  - ./generate_lexer_parser
+  - cd ../..
 
-sudo: true
+stages:
+  - test
+  - integration
 
-script:
-  - pytest -s tests
+jobs:
+  include:
+    - stage: test
+      script: pytest -s -o norecursedirs='*' tests
+
+    - stage: integration
+      install:
+        # install nest-simulator
+        - pip install cython pytest-xdist
+        - cd
+        - git clone --depth=1 https://github.com/nest/nest-simulator
+        - mkdir nest_install
+        - cd nest_install
+        - export PYTHON_INCLUDE_DIR=`python3 -c "from sysconfig import get_paths; info = get_paths(); print(info['include'])"`
+        - echo $PYTHON_INCLUDE_DIR
+        - export PYTHON_LIB_DIR=`find /usr/lib/x86_64-linux-gnu -name "libpython3*.so"`
+        - echo $PYTHON_LIB_DIR
+        - cmake -DCMAKE_INSTALL_PREFIX=~/nest_install -Dwith-python=3 -DPYTHON_LIBRARY=$PYTHON_LIB_DIR -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR ~/nest-simulator
+        - make && make install 
+
+        # install NESTML itself
+        - cd $TRAVIS_BUILD_DIR
+        - export PYTHONPATH=$PYTHONPATH:/home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages
+        - echo $PYTHONPATH
+        - python setup.py install
+
+      script:
+        - nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestmlmodule
+        - cd target
+        - cmake -Dwith-nest=/home/travis/nest_install/bin/nest-config .
+        - make && make install
+        - cd ..
+        - export PYNESTKERNEL_LOCATION=`find /home/travis/nest_install/lib -name pynestkernel.so`
+        - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
+        - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
+        - echo $PYNESTKERNEL_LOCATION
+        - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
+        - pytest -s --forked $TRAVIS_BUILD_DIR/tests/nest_tests

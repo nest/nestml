@@ -1,5 +1,5 @@
 #
-# __init__.py.py
+# __init__.py
 #
 # This file is part of NEST.
 #
@@ -19,3 +19,15 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 __version__ = "3.0-post-dev"
+
+__all__ = ['cocos',
+           'codegeneration',
+           'exceptions',
+           'frontend',
+           'generated',
+           'meta_model',
+           'solver',
+           'symbols',
+           'symbol_table',
+           'utils',
+           'visitors']

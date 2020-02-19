@@ -44,8 +44,8 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_input_block import ASTInputBlock
-from pynestml.meta_model.ast_input_line import ASTInputLine
-from pynestml.meta_model.ast_input_type import ASTInputType
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -329,18 +329,18 @@ class ModelParser(object):
         return ret
 
     @classmethod
-    def parse_input_line(cls, string):
-        # type: (str) -> ASTInputLine
+    def parse_input_port(cls, string):
+        # type: (str) -> ASTInputPort
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.inputLine())
+        ret = builder.visit(parser.inputPort())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
     @classmethod
-    def parse_input_type(cls, string):
-        # type: (str) -> ASTInputType
+    def parse_input_qualifier(cls, string):
+        # type: (str) -> ASTInputQualifier
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.inputType())
+        ret = builder.visit(parser.inputQualifier())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

@@ -33,15 +33,4 @@ class LoggingHelper(object):
                            error_position=_assignment.get_expression().get_source_position(),
                            log_level=LoggingLevel.ERROR)
 
-    @staticmethod
-    def drop_incompatible_types_error(containing_expression, lhs_type_symbol, rhs_type_symbol):
-        code, message = Messages.get_type_different_from_expected(lhs_type_symbol, rhs_type_symbol)
-        Logger.log_message(error_position=containing_expression.get_source_position(),
-                           code=code, message=message, log_level=LoggingLevel.ERROR)
-
-    @staticmethod
-    def drop_implicit_cast_warning(source_position, lhs_type_symbol, rhs_type_symbol):
-        code, message = Messages.get_implicit_cast_rhs_to_lhs(rhs_type_symbol.print_symbol(),
-                                                              lhs_type_symbol.print_symbol())
-        Logger.log_message(error_position=source_position,
-                           code=code, message=message, log_level=LoggingLevel.WARNING)
+  

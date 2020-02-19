@@ -87,6 +87,11 @@ class Messages(object):
         return MessageCode.OPERATION_NOT_DEFINED, message
 
     @classmethod
+    def get_binary_operation_type_could_not_be_derived(cls, lhs, operator, rhs, lhs_type, rhs_type):
+        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (lhs, operator, rhs, lhs_type, rhs_type)
+        return MessageCode.TYPE_MISMATCH, message
+
+    @classmethod
     def get_unary_operation_not_defined(cls, operator, term):
         message = 'Operation %s%s is not defined!' % (operator, term)
         return MessageCode.OPERATION_NOT_DEFINED, message
@@ -166,7 +171,7 @@ class Messages(object):
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Implicit casting %s to %s!' % (rhs_type, lhs_type)
+        message = 'Implicit casting from (compatible) type \'%s\' to \'%s\'.' % (rhs_type, lhs_type)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -266,8 +271,7 @@ class Messages(object):
         assert (buffer_name is not None and isinstance(buffer_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (buffer_name, PredefinedTypes.get_type('nS').print_symbol())
+        message = 'No buffer type declared of \'%s\'!' % buffer_name
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
@@ -933,6 +937,13 @@ class Messages(object):
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
+    def get_ode_function_needs_consistent_units(cls, name, declared_type, expression_type):
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+        return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
+
+    @classmethod
     def get_variable_with_same_name_as_type(cls, name):
         """
         Indicates that a variable has been declared with the same name as a physical unit, e.g. "V mV"
@@ -959,6 +970,19 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'Analysing/transforming neuron \'%s\'' % name
         return MessageCode.ANALYSING_TRANSFORMING_NEURON, message
+
+    @classmethod
+    def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
+        """
+        For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
+        :param name: the name of the neuron model
+        :type name: ASTNeuron
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+        return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
+
 
 class MessageCode(Enum):
     """
@@ -1031,3 +1055,7 @@ class MessageCode(Enum):
     VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
     ANALYSING_TRANSFORMING_NEURON = 64
     ODE_NEEDS_CONSISTENT_UNITS = 65
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 66
+    MODULE_NAME_INFO = 67
+    TARGET_PATH_INFO = 68
+    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 69

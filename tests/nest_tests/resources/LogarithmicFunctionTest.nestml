@@ -1,0 +1,33 @@
+neuron logarithm_function_test:
+  state:
+  end
+
+  initial_values:
+    x real = 0.
+    ln_state real = 0.
+    log10_state real = 0.
+  end
+
+  equations:
+  end
+
+  parameters:
+  end
+
+  internals:
+  end
+
+  input:
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
+      currents pA <- current
+  end
+
+  output: spike
+
+  update:
+    ln_state = ln(x)
+    log10_state = log10(x)
+    x = x + 1.
+  end
+end

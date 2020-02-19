@@ -336,8 +336,8 @@ class PyNestMLParser ( Parser ):
     RULE_updateBlock = 31
     RULE_equationsBlock = 32
     RULE_inputBlock = 33
-    RULE_inputLine = 34
-    RULE_inputType = 35
+    RULE_inputPort = 34
+    RULE_inputQualifier = 35
     RULE_outputBlock = 36
     RULE_function = 37
     RULE_parameter = 38
@@ -350,8 +350,8 @@ class PyNestMLParser ( Parser ):
                    u"declaration", u"returnStmt", u"ifStmt", u"ifClause", 
                    u"elifClause", u"elseClause", u"forStmt", u"whileStmt", 
                    u"nestMLCompilationUnit", u"neuron", u"body", u"blockWithVariables", 
-                   u"updateBlock", u"equationsBlock", u"inputBlock", u"inputLine", 
-                   u"inputType", u"outputBlock", u"function", u"parameter" ]
+                   u"updateBlock", u"equationsBlock", u"inputBlock", u"inputPort", 
+                   u"inputQualifier", u"outputBlock", u"function", u"parameter" ]
 
     EOF = Token.EOF
     SL_COMMENT=1
@@ -3272,11 +3272,11 @@ class PyNestMLParser ( Parser ):
         def END_KEYWORD(self):
             return self.getToken(PyNestMLParser.END_KEYWORD, 0)
 
-        def inputLine(self, i=None):
+        def inputPort(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.InputLineContext)
+                return self.getTypedRuleContexts(PyNestMLParser.InputPortContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.InputLineContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.InputPortContext,i)
 
 
         def NEWLINE(self, i=None):
@@ -3317,7 +3317,7 @@ class PyNestMLParser ( Parser ):
                 token = self._input.LA(1)
                 if token in [PyNestMLParser.NAME]:
                     self.state = 421
-                    self.inputLine()
+                    self.inputPort()
                     pass
                 elif token in [PyNestMLParser.NEWLINE]:
                     self.state = 422
@@ -3340,10 +3340,10 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-    class InputLineContext(ParserRuleContext):
+    class InputPortContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
-            super(PyNestMLParser.InputLineContext, self).__init__(parent, invokingState)
+            super(PyNestMLParser.InputPortContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.name = None # Token
             self.sizeParameter = None # Token
@@ -3369,11 +3369,11 @@ class PyNestMLParser ( Parser ):
             return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
 
 
-        def inputType(self, i=None):
+        def inputQualifier(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.InputTypeContext)
+                return self.getTypedRuleContexts(PyNestMLParser.InputQualifierContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.InputTypeContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.InputQualifierContext,i)
 
 
         def CURRENT_KEYWORD(self):
@@ -3383,21 +3383,21 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_inputLine
+            return PyNestMLParser.RULE_inputPort
 
         def accept(self, visitor):
-            if hasattr(visitor, "visitInputLine"):
-                return visitor.visitInputLine(self)
+            if hasattr(visitor, "visitInputPort"):
+                return visitor.visitInputPort(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def inputLine(self):
+    def inputPort(self):
 
-        localctx = PyNestMLParser.InputLineContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 68, self.RULE_inputLine)
+        localctx = PyNestMLParser.InputPortContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 68, self.RULE_inputPort)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -3430,7 +3430,7 @@ class PyNestMLParser ( Parser ):
             _la = self._input.LA(1)
             while _la==PyNestMLParser.INHIBITORY_KEYWORD or _la==PyNestMLParser.EXCITATORY_KEYWORD:
                 self.state = 440
-                self.inputType()
+                self.inputQualifier()
                 self.state = 445
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -3457,10 +3457,10 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-    class InputTypeContext(ParserRuleContext):
+    class InputQualifierContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
-            super(PyNestMLParser.InputTypeContext, self).__init__(parent, invokingState)
+            super(PyNestMLParser.InputQualifierContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.isInhibitory = None # Token
             self.isExcitatory = None # Token
@@ -3472,21 +3472,21 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.EXCITATORY_KEYWORD, 0)
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_inputType
+            return PyNestMLParser.RULE_inputQualifier
 
         def accept(self, visitor):
-            if hasattr(visitor, "visitInputType"):
-                return visitor.visitInputType(self)
+            if hasattr(visitor, "visitInputQualifier"):
+                return visitor.visitInputQualifier(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def inputType(self):
+    def inputQualifier(self):
 
-        localctx = PyNestMLParser.InputTypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 70, self.RULE_inputType)
+        localctx = PyNestMLParser.InputQualifierContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 70, self.RULE_inputQualifier)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 452

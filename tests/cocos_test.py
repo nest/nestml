@@ -80,7 +80,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 4)
+                                                                            LoggingLevel.ERROR)), 5)
 
     def test_valid_element_not_defined_in_scope(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -218,7 +218,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 1)
+                                                                            LoggingLevel.ERROR)), 2)
 
     def test_valid_numerator_of_unit_one(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -294,7 +294,7 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoCurrentBufferTypeSpecified.nestml'))
+                         'CoCoCurrentBufferQualifierSpecified.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
@@ -302,7 +302,7 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoCurrentBufferTypeSpecified.nestml'))
+                         'CoCoCurrentBufferQualifierSpecified.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -312,7 +312,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSpikeBufferWithoutType.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_spike_buffer_without_datatype(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -422,15 +422,15 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoSumNotCorrectlyParametrized.nestml'))
+                         'CoCoConvolveNotCorrectlyParametrized.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_sum_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoSumNotCorrectlyParametrized.nestml'))
+                         'CoCoConvolveNotCorrectlyParametrized.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 0)
 

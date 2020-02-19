@@ -24,6 +24,7 @@ from astropy.units.quantity import Quantity
 
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
+from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.type_dictionary import TypeDictionary
@@ -224,6 +225,15 @@ class PredefinedTypes(object):
         :rtype: type_symbol
         """
         return cls.name2type[cls.INTEGER_TYPE]
+
+    @classmethod
+    def get_template_type(cls, i):
+        """
+        Returns a new type symbol for argument type templating. The template types are uniquely identified with an integer number `i` (see TemplateTypeSymbol).
+        :return: a new integer symbol.
+        :rtype: type_symbol
+        """
+        return TemplateTypeSymbol(i)
 
     @classmethod
     def register_type(cls, symbol):
