@@ -85,6 +85,7 @@ neuron hh_cond_exp_traub:
                                # parameters, V_T = -63 mV results in a threshold around -50 mV.
     tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+    t_ref ms = 2.0 ms         # Refractory period
     E_ex mV = 0.0 mV           # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
 
@@ -100,7 +101,7 @@ neuron hh_cond_exp_traub:
   end
 
   internals:
-    RefractoryCounts integer = 20
+    RefractoryCounts integer = steps(t_ref) 
   end
 
   input:
@@ -149,7 +150,7 @@ Only the channel variables m,h,n are implemented. The original
 contains variables called y,s,r,q and \chi.
 References:
 
-Traub, R. D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
+Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
 Cambridge University Press, Cambridge UK.
 
 Sends: SpikeEvent
@@ -217,6 +218,7 @@ neuron hh_cond_exp_traub_implicit:
                                # parameters, V_T = -63 mV results in a threshold around -50 mV.
     tau_syn_ex ms = 5.0 ms     # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 10.0 ms    # Synaptic Time Constant for Inhibitory Synapse
+    t_ref ms = 2.0 ms         # Refractory period
     E_ex mV = 0.0 mV           # Excitatory synaptic reversal potential
     E_in mV = -80.0 mV         # Inhibitory synaptic reversal potential
 
@@ -232,7 +234,7 @@ neuron hh_cond_exp_traub_implicit:
   end
 
   internals:
-    RefractoryCounts integer = 20
+    RefractoryCounts integer = steps(t_ref)
   end
 
   input:

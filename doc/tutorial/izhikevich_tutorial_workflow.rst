@@ -45,7 +45,7 @@ In the same Python session, continue entering the following code. This performs 
    neuron = nest.Create("izhikevich_tutorial")
    voltmeter = nest.Create("voltmeter")
 
-   nest.SetStatus(voltmeter, [{"withgid": True, "record_from" : [nest.GetStatus(neuron)[0]["recordables"][1]]}])
+   nest.SetStatus(voltmeter, [{"record_from" : [nest.GetStatus(neuron)[0]["recordables"][1]]}])
    nest.Connect(voltmeter, neuron)
 
    cgs = nest.Create('dc_generator')
