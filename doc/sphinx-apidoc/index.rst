@@ -32,7 +32,7 @@ Summary of language features and syntax.
 :doc:`Models library <models_library/index>`
 ============================================
 
-NESTML comes packaged with over 20 models, from standard integrate-and-fire 
+Out of the box, use any of over 20 models that come packaged with NESTML, from the standard integrate-and-fire family to a variety of biophysical, Hodgkin-Huxley type neurons.
 
 
 Tutorials
