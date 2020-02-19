@@ -15,7 +15,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
    pynestml_toolchain/index
 
 
-.. figure:: doc/nestml-logo/nestml-logo.png
+.. figure:: nestml-logo/nestml-logo.png
    :scale: 30 %
    :align: center
 
