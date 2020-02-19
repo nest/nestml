@@ -3,7 +3,9 @@ Models library
 
 iaf_psc_delta
 ~~~~~~~~~~~~~
-:doc:`iaf_psc_delta <iaf_psc_delta_nestml>`
+
+:doc:`iaf_psc_delta <models_library/iaf_psc_delta_nestml>`
+
 `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_psc_delta.nestml>`_
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_nest_integration_test_[iaf_psc_delta]_[iaf_psc_delta_nestml].png
