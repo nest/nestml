@@ -34,7 +34,7 @@ Summary of language features and syntax
 Models library
 ##############
 
-Out of the box, use any of `over 20 models <models_library/index>` that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
+Out of the box, use any of `over 20 models <models_library/index>`_ that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
 
 
 Tutorials
