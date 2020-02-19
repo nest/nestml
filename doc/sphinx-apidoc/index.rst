@@ -20,6 +20,12 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :align: center
 
 
+:doc:`Foobar <models_library>`
+
+:doc:`Foobob <models_library/index>`
+
+:doc:`Foozzy <models_library/index.rst>`
+
 
 The NESTML language
 ===================
