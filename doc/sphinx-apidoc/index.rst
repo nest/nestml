@@ -1,8 +1,6 @@
 Welcome to the NESTML documentation
 ===================================
 
-Welcome to the documentation for NESTML and PyNESTML. 
-
 NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain, written in Python, to compute an exact solution if possible or use an appropriate numeric solver otherwise.
 
 .. toctree::
@@ -12,7 +10,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
 
    nestml_language
    installation
-   running_nestml
+   running
    models_library/index
    pynestml_toolchain/index
    getting_help
