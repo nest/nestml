@@ -1,0 +1,292 @@
+iaf_psc_alpha_nestml
+====================
+
+
+Name: iaf_psc_alpha - Leaky integrate-and-fire neuron model.
+
+Description:
+
+  iaf_psc_alpha is an implementation of a leaky integrate-and-fire model
+  with alpha-function shaped synaptic currents. Thus, synaptic currents
+  and the resulting post-synaptic potentials have a finite rise time.
+
+  The threshold crossing is followed by an absolute refractory period
+  during which the membrane potential is clamped to the resting potential.
+
+  The linear subthresold dynamics is integrated by the Exact
+  Integration scheme [1]. The neuron dynamics is solved on the time
+  grid given by the computation step size. Incoming as well as emitted
+  spikes are forced to that grid.
+
+  An additional state variable and the corresponding differential
+  equation represents a piecewise constant external current.
+
+  The general framework for the consistent formulation of systems with
+  neuron like dynamics interacting by point events is described in
+  [1].  A flow chart can be found in [2].
+
+  Critical tests for the formulation of the neuron model are the
+  comparisons of simulation results for different computation step
+  sizes. sli/testsuite/nest contains a number of such tests.
+
+  The iaf_psc_alpha is the standard model used to check the consistency
+  of the nest simulation kernel because it is at the same time complex
+  enough to exhibit non-trivial dynamics and simple enough compute
+  relevant measures analytically.
+
+Remarks:
+
+  The present implementation uses individual variables for the
+  components of the state vector and the non-zero matrix elements of
+  the propagator.  Because the propagator is a lower triangular matrix
+  no full matrix multiplication needs to be carried out and the
+  computation can be done "in place" i.e. no temporary state vector
+  object is required.
+
+  The template support of recent C++ compilers enables a more succinct
+  formulation without loss of runtime performance already at minimal
+  optimization levels. A future version of iaf_psc_alpha will probably
+  address the problem of efficient usage of appropriate vector and
+  matrix objects.
+
+Remarks:
+
+  If tau_m is very close to tau_syn_ex or tau_syn_in, the model
+  will numerically behave as if tau_m is equal to tau_syn_ex or
+  tau_syn_in, respectively, to avoid numerical instabilities.
+  For details, please see IAF_Neurons_Singularity.ipynb in
+  the NEST source code (docs/model_details).
+
+References:
+  [1] Rotter S & Diesmann M (1999) Exact simulation of time-invariant linear
+      systems with applications to neuronal modeling. Biologial Cybernetics
+      81:381-402.
+  [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State space
+      analysis of synchronous spiking in cortical neural networks.
+      Neurocomputing 38-40:565-571.
+  [3] Morrison A, Straube S, Plesser H E, & Diesmann M (2006) Exact subthreshold
+      integration with continuous spike times in discrete time neural network
+      simulations. Neural Computation, in press
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+FirstVersion: September 1999
+Author:  Diesmann, Gewaltig
+SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+
+
+
+
+Parameters
+----------
+
+
+
+.. csv-table::
+    :header: "Name", "Physical unit", "Default value", "Description"
+    :widths: auto
+
+    
+    "C_m", "pF", "250pF", "
+     Capacity of the membrane"    
+    "Tau", "ms", "10ms", "
+     Membrane time constant."    
+    "tau_syn_in", "ms", "2ms", "
+     Time constant of synaptic current."    
+    "tau_syn_ex", "ms", "2ms", "
+     Time constant of synaptic current."    
+    "t_ref", "ms", "2ms", "
+     Duration of refractory period."    
+    "E_L", "mV", "-70mV", "
+     Resting potential."    
+    "V_reset", "mV", "-70mV - E_L", "
+     Reset potential of the membrane."    
+    "Theta", "mV", "-55mV - E_L", "
+     Spike threshold."    
+    "I_e", "pA", "0pA", "
+     constant external input current
+    None"
+
+
+
+
+State variables
+---------------
+
+.. csv-table::
+    :header: "Name", "Physical unit", "Default value", "Description"
+    :widths: auto
+
+    
+    "V_abs", "mV", "0mV", "
+    None"    
+    "V_m", "mV", "V_abs + E_L", "
+     Membrane potential."
+
+
+
+
+Equations
+---------
+
+
+
+
+.. math::
+   \frac{ dV_abs } { dt }= \frac{ -1 } { \Tau } \cdot V_{abs} + \frac{ 1 } { C_{m} } \cdot I
+
+
+
+
+
+Source code
+-----------
+
+.. code:: nestml
+
+   """
+   Name: iaf_psc_alpha - Leaky integrate-and-fire neuron model.
+
+   Description:
+
+     iaf_psc_alpha is an implementation of a leaky integrate-and-fire model
+     with alpha-function shaped synaptic currents. Thus, synaptic currents
+     and the resulting post-synaptic potentials have a finite rise time.
+
+     The threshold crossing is followed by an absolute refractory period
+     during which the membrane potential is clamped to the resting potential.
+
+     The linear subthresold dynamics is integrated by the Exact
+     Integration scheme [1]. The neuron dynamics is solved on the time
+     grid given by the computation step size. Incoming as well as emitted
+     spikes are forced to that grid.
+
+     An additional state variable and the corresponding differential
+     equation represents a piecewise constant external current.
+
+     The general framework for the consistent formulation of systems with
+     neuron like dynamics interacting by point events is described in
+     [1].  A flow chart can be found in [2].
+
+     Critical tests for the formulation of the neuron model are the
+     comparisons of simulation results for different computation step
+     sizes. sli/testsuite/nest contains a number of such tests.
+
+     The iaf_psc_alpha is the standard model used to check the consistency
+     of the nest simulation kernel because it is at the same time complex
+     enough to exhibit non-trivial dynamics and simple enough compute
+     relevant measures analytically.
+
+   Remarks:
+
+     The present implementation uses individual variables for the
+     components of the state vector and the non-zero matrix elements of
+     the propagator.  Because the propagator is a lower triangular matrix
+     no full matrix multiplication needs to be carried out and the
+     computation can be done "in place" i.e. no temporary state vector
+     object is required.
+
+     The template support of recent C++ compilers enables a more succinct
+     formulation without loss of runtime performance already at minimal
+     optimization levels. A future version of iaf_psc_alpha will probably
+     address the problem of efficient usage of appropriate vector and
+     matrix objects.
+
+   Remarks:
+
+     If tau_m is very close to tau_syn_ex or tau_syn_in, the model
+     will numerically behave as if tau_m is equal to tau_syn_ex or
+     tau_syn_in, respectively, to avoid numerical instabilities.
+     For details, please see IAF_Neurons_Singularity.ipynb in
+     the NEST source code (docs/model_details).
+
+   References:
+     [1] Rotter S & Diesmann M (1999) Exact simulation of time-invariant linear
+         systems with applications to neuronal modeling. Biologial Cybernetics
+         81:381-402.
+     [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State space
+         analysis of synchronous spiking in cortical neural networks.
+         Neurocomputing 38-40:565-571.
+     [3] Morrison A, Straube S, Plesser H E, & Diesmann M (2006) Exact subthreshold
+         integration with continuous spike times in discrete time neural network
+         simulations. Neural Computation, in press
+
+   Sends: SpikeEvent
+
+   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+   FirstVersion: September 1999
+   Author:  Diesmann, Gewaltig
+   SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+   """
+   neuron iaf_psc_alpha:
+
+     state:
+       r integer                     # counts number of tick during the refractory period
+     end
+
+     initial_values:
+       V_abs mV = 0 mV
+       function V_m mV = V_abs + E_L # Membrane potential.
+     end
+
+     equations:
+       shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+       shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+       function I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_stim
+       V_abs' = -1/Tau * V_abs + 1/C_m * I
+     end
+
+     parameters:
+       C_m     pF = 250 pF   # Capacity of the membrane
+       Tau     ms = 10 ms    # Membrane time constant.
+       tau_syn_in ms = 2 ms  # Time constant of synaptic current.
+       tau_syn_ex ms = 2 ms  # Time constant of synaptic current.
+       t_ref   ms = 2 ms     # Duration of refractory period.
+       E_L     mV = -70 mV   # Resting potential.
+       function V_reset mV = -70 mV - E_L # Reset potential of the membrane.
+       function Theta   mV = -55 mV - E_L # Spike threshold.
+
+       # constant external input current
+       I_e pA = 0 pA
+     end
+
+     internals:
+       RefractoryCounts integer = steps(t_ref) # refractory time in steps
+     end
+
+     input:
+       ex_spikes pA  <- excitatory spike
+       in_spikes pA  <- inhibitory spike
+       I_stim pA <- current
+     end
+
+     output: spike
+
+     update:
+       if r == 0: # neuron not refractory
+         integrate_odes()
+       else: # neuron is absolute refractory
+         r = r - 1
+       end
+
+       if V_abs >= Theta: # threshold crossing
+         # A supra-threshold membrane potential should never be observable.
+         # The reset at the time of threshold crossing enables accurate
+         # integration independent of the computation step size, see [2,3] for
+         # details.
+         r = RefractoryCounts
+         V_abs = V_reset
+         emit_spike()
+       end
+
+     end
+
+   end
+
+
+
+
+.. footer::
+
+   Generated at 2020-02-19 19:50:18.003095
