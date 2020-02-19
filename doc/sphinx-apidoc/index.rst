@@ -22,40 +22,37 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :scale: 30 %
    :align: center
 
+Model development with NESTML
+=============================
+
+Summary of language features and syntax
+#######################################
 
 :doc:`The NESTML language <nestml_language>`
-============================================
-
-Summary of language features and syntax.
 
 
 :doc:`Models library <models_library/index>`
-============================================
+############################################
 
-Out of the box, use any of over 20 models that come packaged with NESTML, from the standard integrate-and-fire family to a variety of biophysical, Hodgkin-Huxley type neurons.
+Out of the box, use any of over 20 models that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
 
 
 Tutorials
-=========
+#########
 
-:doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* :doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial>`
 
-Learn how to finish a partial Izhikevich spiking neuron model.
-
-
-:doc:`The PyNESTML toolchain <pynestml_toolchain/index>`
-========================================================
-
-PyNESTML is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation.
+  Learn how to finish a partial Izhikevich spiking neuron model.
 
 
-API documentation: :mod:`pynestml` module index
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NESTML language and toolchain development
+=========================================
 
-This documentation is automatically generated from the toolchain source code in `pynestml`.
+:doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms.
 
 
-.. include:: installation.rst
+API documentation is automatically generated from source code: :mod:`pynestml` module index
+
+
 
 .. include:: getting_help.rst
