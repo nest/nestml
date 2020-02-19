@@ -11,11 +11,11 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :maxdepth: 1
 
    nestml_language
-   installing_nestml
+   installation
    running_nestml
    models_library/index
    pynestml_toolchain/index
-   index#getting_help
+   getting_help
    citing_nestml
    license
 
@@ -58,19 +58,6 @@ API documentation: :mod:`pynestml` module index
 This documentation is automatically generated from the toolchain source code in `pynestml`.
 
 
-Getting help
-============
+.. include installation.rst
 
-Report bugs and request features
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-NEST draws its strength from the many people that use and improve it. We are happy to consider your contributions (e.g., new models, bug or documentation fixes) for addition to the official version of NEST.
-
-If you find an error in the code or documentaton or want to suggest a feature, submit an issue on GitHub at `<https://github.com/nest/nestml>`_.
-
-Make sure to check that your issue has not already been reported there before creating a new one.
-
-Mailing list
-~~~~~~~~~~~~
-
-Installation, running PyNESTML: see the :doc:`readme`.
+.. include getting_help.rst
