@@ -108,6 +108,15 @@ Equations
 .. math::
    \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \color{grey}\mathrm{mV}\color{black}) } { (\color{grey}\mathrm{mV}\color{black} \cdot \color{grey}\mathrm{ms}\color{black}) }
 
+.. math::
+
+   \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \color{grey}\mathrm{mV}\color{black}) } { (\color{grey}\mathrm{mV}\color{black} \cdot \color{grey}\mathrm{ms}\color{black}) }
+
+.. math::
+   \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
+
+.. math::
+   \frac{ dU_m } { dt } = \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot ) } { (\cdot) }
 
 
 
