@@ -48,6 +48,9 @@ iaf_cond_exp_implicit
 .. figure:: https://www.github.com/clinssen/nestml/tree/nestml-apidoc/doc/models_library/nestml_nest_integration_test_[iaf_cond_exp]_[iaf_cond_exp_implicit_nestml].png
    :alt: iaf_cond_exp_implicit_nestml
 
+.. figure:: "models_library/nestml_nest_integration_test_[iaf_cond_exp]_[iaf_cond_exp_implicit_nestml].png"
+   :alt: iaf_cond_exp_implicit_nestml
+
 .. figure:: models_library/nestml_nest_integration_test_[iaf_cond_exp]_[iaf_cond_exp_implicit_nestml].png
    :alt: iaf_cond_exp_implicit_nestml
 
