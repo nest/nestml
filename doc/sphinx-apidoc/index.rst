@@ -56,6 +56,6 @@ API documentation: :mod:`pynestml` module index
 This documentation is automatically generated from the toolchain source code in `pynestml`.
 
 
-.. include installation.rst
+.. include:: installation.rst
 
-.. include getting_help.rst
+.. include:: getting_help.rst
