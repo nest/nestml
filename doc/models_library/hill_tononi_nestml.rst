@@ -192,7 +192,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { \color{grey}\mathrm{nF}\color{black} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} } { (\color{grey}\mathrm{ms}\color{black} \cdot \color{grey}\mathrm{mV}\color{black}) }) \cdot \color{grey}\mathrm{s}\color{black} } \right) 
+   \frac{ dV_m } { dt }= \frac 1 { \mathrm{nF} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} } { (\mathrm{ms} \cdot \mathrm{mV}) }) \cdot \mathrm{s} } \right) 
 
 
 .. math::
@@ -200,7 +200,7 @@ Equations
 
 
 .. math::
-   \frac{ dIKNa_D } { dt }= \frac 1 { \color{grey}\mathrm{ms}\color{black} } \left( { (D_{influx,peak} \cdot D_{influx} \cdot \color{grey}\mathrm{nS}\color{black} - \frac 1 { \tau_{D} } \left( { (IKNa_{D} - \frac{ KNa_{D,EQ} } { \color{grey}\mathrm{mV}\color{black} }) } \right) ) } \right) 
+   \frac{ dIKNa_D } { dt }= \frac 1 { \mathrm{ms} } \left( { (D_{influx,peak} \cdot D_{influx} \cdot \mathrm{nS} - \frac 1 { \tau_{D} } \left( { (IKNa_{D} - \frac{ KNa_{D,EQ} } { \mathrm{mV} }) } \right) ) } \right) 
 
 
 .. math::
@@ -521,4 +521,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 19:50:18.321608
+   Generated at 2020-02-19 20:31:21.602301

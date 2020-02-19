@@ -130,15 +130,15 @@ Equations
 
 
 .. math::
-   \frac{ dAct_n } { dt }= \frac{ (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } { \color{grey}\mathrm{ms}\color{black} }
+   \frac{ dAct_n } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } \right) 
 
 
 .. math::
-   \frac{ dAct_m } { dt }= \frac{ (\alpha_{m} \cdot (1 - Act_{m}) - \beta_{m} \cdot Act_{m}) } { \color{grey}\mathrm{ms}\color{black} }
+   \frac{ dAct_m } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{m} \cdot (1 - Act_{m}) - \beta_{m} \cdot Act_{m}) } \right) 
 
 
 .. math::
-   \frac{ dInact_h } { dt }= \frac{ (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h}) } { \color{grey}\mathrm{ms}\color{black} }
+   \frac{ dInact_h } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h}) } \right) 
 
 
 
@@ -436,4 +436,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 19:50:17.918431
+   Generated at 2020-02-19 20:31:21.277281

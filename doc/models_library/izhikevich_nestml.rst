@@ -102,21 +102,12 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { \color{grey}\mathrm{ms}\color{black} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \color{grey}\mathrm{mV}\color{black} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \color{grey}\mathrm{mV}\color{black} + ((I_{e} + I_{stim}) \cdot \color{grey}\mathrm{GOhm}\color{black})) } \right) 
+   \frac{ dV_m } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right) 
 
-
-.. math::
-   \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \color{grey}\mathrm{mV}\color{black}) } { (\color{grey}\mathrm{mV}\color{black} \cdot \color{grey}\mathrm{ms}\color{black}) }
-
-.. math::
-
-   \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \color{grey}\mathrm{mV}\color{black}) } { (\color{grey}\mathrm{mV}\color{black} \cdot \color{grey}\mathrm{ms}\color{black}) }
 
 .. math::
    \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
 
-.. math::
-   \frac{ dU_m } { dt } = \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot ) } { (\cdot) }
 
 
 
@@ -228,4 +219,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 19:50:17.889496
+   Generated at 2020-02-19 20:31:21.250108

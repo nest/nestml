@@ -136,7 +136,7 @@ Equations
 
 
 .. math::
-   \frac{ dCa_con } { dt }= \epsilon \cdot (\frac{ (-I_{Ca} - I_{T}) } { \color{grey}\mathrm{pA}\color{black} } - k_{Ca} \cdot Ca_{con})
+   \frac{ dCa_con } { dt }= \epsilon \cdot (\frac{ (-I_{Ca} - I_{T}) } { \mathrm{pA} } - k_{Ca} \cdot Ca_{con})
 
 
 
@@ -535,4 +535,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 19:50:18.211310
+   Generated at 2020-02-19 20:31:21.517028

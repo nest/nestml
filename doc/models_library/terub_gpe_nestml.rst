@@ -120,19 +120,19 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \color{grey}\mathrm{pA}\color{black} + I_{e} + I_{stim} + I_{ex,mod} \cdot \color{grey}\mathrm{pA}\color{black} + I_{in,mod} \cdot \color{grey}\mathrm{pA}\color{black}) } \right) 
+   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{ex,mod} \cdot \mathrm{pA} + I_{in,mod} \cdot \mathrm{pA}) } \right) 
 
 
 .. math::
-   \frac{ dgate_h } { dt }= \frac{ g_{\phi,h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} }) } { \color{grey}\mathrm{ms}\color{black} }
+   \frac{ dgate_h } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} }) } \right) 
 
 
 .. math::
-   \frac{ dgate_n } { dt }= \frac{ g_{\phi,n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} }) } { \color{grey}\mathrm{ms}\color{black} }
+   \frac{ dgate_n } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} }) } \right) 
 
 
 .. math::
-   \frac{ dgate_r } { dt }= \frac{ g_{\phi,r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} }) } { \color{grey}\mathrm{ms}\color{black} }
+   \frac{ dgate_r } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} }) } \right) 
 
 
 .. math::
@@ -516,4 +516,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 19:50:18.015999
+   Generated at 2020-02-19 20:31:21.358103
