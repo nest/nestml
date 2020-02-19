@@ -4,7 +4,18 @@ Models library
 iaf_psc_delta
 ~~~~~~~~~~~~~
 
+:doc:`iaf_psc_delta <iaf_psc_delta_nestml>`
+
 :doc:`iaf_psc_delta <models_library/iaf_psc_delta_nestml>`
+
+:doc:`iaf_psc_delta_nestml <models_library/iaf_psc_delta_nestml>`
+
+:doc:`iaf_psc_delta_nestml <models_library/iaf_psc_delta_nestml.rst>`
+
+:doc:`iaf_psc_delta_nestml <iaf_psc_delta_nestml.rst>`
+
+`iaf_psc_delta_nestml <models_library/iaf_psc_delta_nestml.html>`_
+
 
 `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_psc_delta.nestml>`_
 
