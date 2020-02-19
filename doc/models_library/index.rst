@@ -1,5 +1,5 @@
 Models library
---------------
+==============
 
 
 :doc:`iaf_psc_delta <iaf_psc_delta_nestml>`
