@@ -20,39 +20,39 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :align: center
 
 
-:doc:`Foobar <models_library>`
+:doc:`The NESTML language <nestml_language>`
+============================================
 
-:doc:`Foobob <models_library/index>`
-
-:doc:`Foozzy <models_library/index.rst>`
-
-
-The NESTML language
-===================
-
- * :doc:`The NESTML language <nestml_language>`
-
-   Summary of language features and syntax.
-
- * :doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial.rst>`
-
-   Learn how to finish a partial Izhikevich spiking neuron model.
+Summary of language features and syntax.
 
 
+:doc:`Models library <models_library/index>`
+============================================
+
+NESTML comes packaged with over 20 models, from standard integrate-and-fire 
+
+
+:doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial.rst>`
+=============================================================
+
+Learn how to finish a partial Izhikevich spiking neuron model.
 
 
 The PyNESTML toolchain
 ======================
 
-PyNESTML is the Python-based toolchain for the NESTML language: it parses the model and invokes ode-toolbox to perform symbolic analysis of dynamics and solver selection, results which are used during code generation.
+PyNESTML is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation.
 
- * :doc:`Design documentation <pynestml_toolchain/index>`
 
-   Detailed description of the design and operation of PyNESTML, the NESTML language toolchain.
+:doc:`Design documentation <pynestml_toolchain/index>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- * API documentation: :mod:`pynestml` module index
+Detailed description of the design and operation of PyNESTML, the NESTML language toolchain.
 
-   This documentation is automatically generated from the toolchain source code in `pynestml`.
+API documentation: :mod:`pynestml` module index
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This documentation is automatically generated from the toolchain source code in `pynestml`.
 
 
 Resources
