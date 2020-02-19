@@ -34,7 +34,7 @@ Summary of language features and syntax
 Models library
 ##############
 
-Out of the box, use any of `over 20 models <models_library/index>`_ that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
+Out of the box, use any of :doc:`over 20 models <models_library/index>` that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
 
 
 Tutorials
@@ -48,7 +48,7 @@ Tutorials
 NESTML language and toolchain development
 =========================================
 
-**:doc:`PyNESTML <pynestml_toolchain/index>`** is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms.
+:doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms.
 
 
 API documentation is automatically generated from source code: :mod:`pynestml` **module index**
