@@ -1,0 +1,25 @@
+{
+    "name": "nestml",
+    "displayName": "NESTML",
+    "description": "A concise modeling language and flexible code generator for spiking neuron and synapse models",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.35.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "nestml",
+            "aliases": ["NESTML", "nestml"],
+            "extensions": [".nestml"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "nestml",
+            "scopeName": "source.nestml",
+            "path": "./syntaxes/nestml.tmLanguage.json"
+        }]
+    }
+}

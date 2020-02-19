@@ -1,4 +1,4 @@
-/*
+"""
 Name: hh_psc_alpha - Hodgkin Huxley neuron model.
 
 Description:
@@ -43,7 +43,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Authors: Schrader
 SeeAlso: hh_cond_exp_traub
-*/
+"""
 neuron hh_psc_alpha:
   state:
     r integer # number of steps in the current refractory phase
@@ -74,7 +74,7 @@ neuron hh_psc_alpha:
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
 
     # Act_n
     function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
@@ -94,16 +94,18 @@ neuron hh_psc_alpha:
 
   parameters:
     t_ref ms = 2.0 ms      # Refractory period
-    g_Na nS = 12000.0nS    # Sodium peak conductance
-    g_K nS = 3600.0nS      # Potassium peak conductance
-    g_L nS = 30nS          # Leak conductance
-    C_m pF = 100.0pF       # Membrane Capacitance
-    E_Na mV = 50mV         # Sodium reversal potential
-    E_K mV = -77.mV        # Potassium reversal potentia
-    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential)
-    tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
-    tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0pA           # Constant Current
+    g_Na nS = 12000.0 nS    # Sodium peak conductance
+    g_K nS = 3600.0 nS      # Potassium peak conductance
+    g_L nS = 30 nS          # Leak conductance
+    C_m pF = 100.0 pF       # Membrane Capacitance
+    E_Na mV = 50 mV         # Sodium reversal potential
+    E_K mV = -77. mV        # Potassium reversal potentia
+    E_L mV = -54.402 mV     # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
+    tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -111,9 +113,9 @@ neuron hh_psc_alpha:
   end
 
   input:
-      spikeInh pA <- inhibitory spike
-      spikeExc pA <- excitatory spike
-      currents <- current
+    spikeInh pA <- inhibitory spike
+    spikeExc pA <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike
@@ -134,7 +136,7 @@ neuron hh_psc_alpha:
 end
 
 
-/*
+"""
 Name: hh_psc_alpha_implicit - Hodgkin Huxley neuron model.
 
 Description:
@@ -179,7 +181,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Authors: Schrader
 SeeAlso: hh_cond_exp_traub
-*/
+"""
 neuron hh_psc_alpha_implicit:
 
   state:
@@ -188,9 +190,9 @@ neuron hh_psc_alpha_implicit:
 
   initial_values:
     V_m mV = -65. mV # Membrane potential
-    I_syn_ex pA  = 0pA # inputs from the exc spikes
+    I_syn_ex pA  = 0 pA # inputs from the exc spikes
     I_syn_ex' pA/ms = pA * e / tau_syn_ex  # inputs from the exc spikes
-    I_syn_in pA = 0pA  # inputs from the inh spikes
+    I_syn_in pA = 0 pA  # inputs from the inh spikes
     I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh spikes
 
     function alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
@@ -217,7 +219,7 @@ neuron hh_psc_alpha_implicit:
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
 
     # Act_n
     function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
@@ -237,16 +239,18 @@ neuron hh_psc_alpha_implicit:
 
   parameters:
     t_ref ms = 2.0 ms      # Refractory period
-    g_Na nS = 12000.0nS    # Sodium peak conductance
-    g_K nS = 3600.0nS      # Potassium peak conductance
-    g_L nS = 30nS          # Leak conductance
-    C_m pF = 100.0pF       # Membrane Capacitance
-    E_Na mV = 50mV         # Sodium reversal potential
-    E_K mV = -77.mV        # Potassium reversal potentia
-    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential)
-    tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
-    tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0pA           # Constant Current
+    g_Na nS = 12000.0 nS    # Sodium peak conductance
+    g_K nS = 3600.0 nS      # Potassium peak conductance
+    g_L nS = 30 nS          # Leak conductance
+    C_m pF = 100.0 pF       # Membrane Capacitance
+    E_Na mV = 50 mV         # Sodium reversal potential
+    E_K mV = -77. mV        # Potassium reversal potentia
+    E_L mV = -54.402 mV     # Leak reversal Potential (aka resting potential)
+    tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
+    tau_syn_in ms = 2.0 ms  # Rise time of the inhibitory synaptic alpha function
+
+    # constant external input current
+    I_e pA = 0 pA
   end
 
   internals:
@@ -254,9 +258,9 @@ neuron hh_psc_alpha_implicit:
   end
 
   input:
-      spikeInh pA <- inhibitory spike
-      spikeExc pA <- excitatory spike
-      currents <- current
+    spikeInh pA <- inhibitory spike
+    spikeExc pA <- excitatory spike
+    I_stim pA <- current
   end
 
   output: spike

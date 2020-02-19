@@ -209,13 +209,14 @@ The following functions are predefined in NestML and can be used out of the box:
 | max | x, y | Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters. |
 | clip | x, y, z | Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type. |
 | exp | x | Returns the exponential of x. The type of x and the return type are Real. |
-| log | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
+| log10 | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
+| ln | x | Returns the base :math:`e` logarithm of x. The type of x and the return type are Real. |
 | expm1 | x | Returns the exponential of x minus 1. The type of x and the return type are Real. |
 | sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
 | cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
 | tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
-| random | | *Not yet implemented.* |
-| randomInt | | *Not yet implemented.* |
+| random_normal | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
+| random_uniform | offset, scale | Returns a sample from a uniform distribution in the interval [offset, offset + scale) |
 | delta | t | A Dirac delta impulse function at time t. |
 | curr\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
 | cond\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
@@ -422,7 +423,55 @@ end
 
 Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
 
-If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. In this case, a `receptor_types` entry is created in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types).
+If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three input ports as follows:
+```
+input:
+  spikes1 nS <- spike
+  spikes2 nS <- spike
+  spikes3 nS <- spike
+  currents <- current
+end
+```
+
+For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
+```
+equations:
+  shape I_shape = exp(-t / tau_syn1)
+  shape I_shape2 = exp(-t / tau_syn2)
+  shape I_shape3 = -exp(-t / tau_syn3)
+  function I_syn pA = convolve(I_shape, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
+  V_abs' = -V_abs/tau_m + I_syn / C_m
+end
+```
+
+After generating and building the model code, a `receptor_type` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during [connection setup](http://nest-simulator.org/connection_management/#receptor-types):
+```
+neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+
+sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
+nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+
+sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
+nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+
+sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
+nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+
+mm = nest.Create('multimeter', params={'record_from': ['I_shape', 'I_shape2', 'I_shape3'], 'interval': 0.1})
+nest.Connect(mm, neuron)
+
+[...]
+
+nest.Simulate(200.)
+```
+
+Please note that receptor ports are numbered starting from 1.
+
+The output shows the different time constants for each synapse:
+
+![NESTML multisynapse example waveform traces](https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png)
+
+For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml` for the full model and `tests/nest_tests/nest_multisynapse_test.py` for the corresponding test harness that produced the figure above.
 
 ### Output
 
