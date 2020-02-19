@@ -10,7 +10,7 @@ Implementation of the simple spiking neuron model introduced by Izhikevich [1]_.
 
 .. math::
 
-   &\text{if\ } v \geq V_th:\\
+   &\text{if~} v \geq V_th:\\
    &\;\;\;\; v \text{ is set to } c\\
    &\;\;\;\; u \text{ is incremented by } d\\
    &v \text{ jumps on each spike arrival by the weight of the spike}
