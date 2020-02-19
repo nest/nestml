@@ -11,9 +11,12 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :maxdepth: 1
 
    nestml_language
+   installing_nestml
+   running_nestml
    models_library/index
    pynestml_toolchain/index
    index#getting_help
+   citing_nestml
    license
 
 
@@ -34,22 +37,20 @@ Summary of language features and syntax.
 NESTML comes packaged with over 20 models, from standard integrate-and-fire 
 
 
-:doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial.rst>`
-=============================================================
+Tutorials
+=========
+
+:doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial>`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Learn how to finish a partial Izhikevich spiking neuron model.
 
 
-The PyNESTML toolchain
-======================
+:doc:`The PyNESTML toolchain <pynestml_toolchain/index>`
+========================================================
 
 PyNESTML is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation.
 
-
-:doc:`Design documentation <pynestml_toolchain/index>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Detailed description of the design and operation of PyNESTML, the NESTML language toolchain.
 
 API documentation: :mod:`pynestml` module index
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,6 +61,16 @@ This documentation is automatically generated from the toolchain source code in 
 Getting help
 ============
 
- * The official NESTML GitHub repository: `<https://github.com/nest/nestml>`_.
+Report bugs and request features
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- * Installation, running PyNESTML: see the :doc:`readme`.
+NEST draws its strength from the many people that use and improve it. We are happy to consider your contributions (e.g., new models, bug or documentation fixes) for addition to the official version of NEST.
+
+If you find an error in the code or documentaton or want to suggest a feature, submit an issue on GitHub at `<https://github.com/nest/nestml>`_.
+
+Make sure to check that your issue has not already been reported there before creating a new one.
+
+Mailing list
+~~~~~~~~~~~~
+
+Installation, running PyNESTML: see the :doc:`readme`.
