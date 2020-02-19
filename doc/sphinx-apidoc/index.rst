@@ -16,7 +16,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
    models_library/index
    pynestml_toolchain/index
    getting_help
-   citing_nestml
+   citing
    license
 
 
