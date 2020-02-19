@@ -13,6 +13,8 @@ NESTML is a domain-specific language that supports the specification of neuron m
    nestml_language
    models_library/index
    pynestml_toolchain/index
+   index#getting_help
+   license
 
 
 .. figure:: nestml-logo/nestml-logo.png
@@ -55,8 +57,8 @@ API documentation: :mod:`pynestml` module index
 This documentation is automatically generated from the toolchain source code in `pynestml`.
 
 
-Resources
-=========
+Getting help
+============
 
  * The official NESTML GitHub repository: `<https://github.com/nest/nestml>`_.
 
