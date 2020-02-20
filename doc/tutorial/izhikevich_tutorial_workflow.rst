@@ -45,16 +45,16 @@ In the same Python session, continue entering the following code. This performs 
    neuron = nest.Create("izhikevich_tutorial")
    voltmeter = nest.Create("voltmeter")
 
-   nest.SetStatus(voltmeter, [{"record_from" : [nest.GetStatus(neuron)[0]["recordables"][1]]}])
+   voltmeter.set({"record_from" : ["v"]})
    nest.Connect(voltmeter, neuron)
 
    cgs = nest.Create('dc_generator')
-   nest.SetStatus(cgs, "amplitude", 25.)
+   cgs.set({"amplitude" : 25.})
    nest.Connect(cgs, neuron)
 
    nest.Simulate(250.)
 
-   plt.plot(nest.GetStatus(voltmeter)[0]["events"]["times"], nest.GetStatus(voltmeter)[0]["events"]["v"])
+   plt.plot(voltmeter.get("events")["times"], voltmeter.get("events")["v"])
    plt.show()
 
 

@@ -11,7 +11,7 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     neuron2 = nest.Create(testant)
 
     if not (gsl_error_tol is None):
-        nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+        neuron2.set({"gsl_error_tol": gsl_error_tol})
 
     spikegenerator = nest.Create('spike_generator',
                                  params={'spike_times': [100.0, 200.0], 'spike_weights': [1.0, -1.0]})
@@ -22,23 +22,21 @@ def test(referenceModel, testant, gsl_error_tol, tolerance=0.000001):
     multimeter2 = nest.Create('multimeter')
 
     V_m_specifier = 'V_m'  # 'delta_V_m'
-    nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
-    nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
+    multimeter1.set({"record_from": [V_m_specifier]})
+    multimeter2.set({"record_from": [V_m_specifier]})
 
     nest.Connect(multimeter1, neuron1)
     nest.Connect(multimeter2, neuron2)
 
     nest.Simulate(400.0)
-    dmm1 = nest.GetStatus(multimeter1)[0]
-    Vms1 = dmm1["events"][V_m_specifier]
-    ts1 = dmm1["events"]["times"]
+    Vms1 = multimeter1.get("events")[V_m_specifier]
+    ts1 = multimeter1.get("events")["times"]
 
-    events1 = dmm1["events"]
+    events1 = multimeter1.get("events")
     pylab.figure(1)
 
-    dmm2 = nest.GetStatus(multimeter2)[0]
-    Vms2 = dmm2["events"][V_m_specifier]
-    ts2 = dmm2["events"]["times"]
+    Vms2 = multimeter2.get("events")[V_m_specifier]
+    ts2 = multimeter2.get("events")["times"]
 
     # pylab.plot(ts1, Vms1, label = "Reference " + referenceModel)
     # pylab.plot(ts2, Vms2, label = "Testant " + testant)
@@ -69,30 +67,25 @@ def test_multysinapse():
     nest.Connect(spikegenerator, neuron2, syn_spec=syn_dict)
     nest.Connect(spikegenerator, neuron1, syn_spec=syn_dict)
 
-    # nest.SetStatus(neuron1, {"I_e": 376.0})
-    # nest.SetStatus(neuron2, {"I_e": 376.0})
-
     multimeter1 = nest.Create('multimeter')
     multimeter2 = nest.Create('multimeter')
 
     V_m_specifier = 'V_m'  # 'delta_V_m'
-    nest.SetStatus(multimeter1, {"withtime": True, "record_from": [V_m_specifier]})
-    nest.SetStatus(multimeter2, {"withtime": True, "record_from": [V_m_specifier]})
+    multimeter1.set({"record_from" : [V_m_specifier]})
+    multimeter2.set({"record_from": [V_m_specifier]})
 
     nest.Connect(multimeter1, neuron1)
     nest.Connect(multimeter2, neuron2)
 
     nest.Simulate(400.0)
-    dmm1 = nest.GetStatus(multimeter1)[0]
-    Vms1 = dmm1["events"][V_m_specifier]
-    ts1 = dmm1["events"]["times"]
+    Vms1 = multimeter1.get("events")[V_m_specifier]
+    ts1 = multimeter1.get("events")["times"]
 
-    events1 = dmm1["events"]
+    events1 = multimeter1.get("events")
     pylab.figure(1)
 
-    dmm2 = nest.GetStatus(multimeter2)[0]
-    Vms2 = dmm2["events"][V_m_specifier]
-    ts2 = dmm2["events"]["times"]
+    Vms2 = multimeter2.get("events")[V_m_specifier]
+    ts2 = multimeter2.get("events")["times"]
 
     pylab.plot(ts1, Vms1)
     pylab.plot(ts2, Vms2)
