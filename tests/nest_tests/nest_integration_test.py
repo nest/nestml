@@ -73,7 +73,7 @@ class NestIntegrationTest(unittest.TestCase):
         neuron2 = nest.Create(testant)
 
         if not (gsl_error_tol is None):
-            neuron2.set{"gsl_error_tol": gsl_error_tol})
+            neuron2.set({"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',
                                      params={'spike_times': spike_times, 'spike_weights': spike_weights})
