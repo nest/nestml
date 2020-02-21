@@ -51,15 +51,18 @@ class LatexReferenceConverter(IReferenceConverter):
         :return: the same string
         :rtype: str
         """
-        var_name = ast_variable.get_complete_name()
-        print("Converting name reference: " + str(var_name))
-        if not ast_variable.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE) \
-         and PredefinedUnits.is_unit(var_name):
-            var_name = "\color{grey}\mathrm{" + var_name + "}\color{black}"
+        var_name = ast_variable.get_name()
+        var_complete_name = ast_variable.get_complete_name()
+        print("Converting name reference: " + str(var_complete_name))
+        if not ast_variable.get_scope().resolve_to_symbol(var_complete_name, SymbolKind.VARIABLE) \
+         and PredefinedUnits.is_unit(var_complete_name):
+            # convert a unit (e.g. ms, pA)
+            #var_name = "\color{grey}\mathrm{" + var_name + "}\color{black}"	# readthedocs does not support \color!
+            var_name = "\mathrm{" + var_name + "}"
         # convert first underscore
         usc_idx = var_name.find("_")
         if usc_idx > 0:
-            var_name = var_name[:usc_idx] + "_{" + var_name[usc_idx+1:].replace("_", ",") + "}"
+            var_name = var_name[:usc_idx] + "_{" + var_name[usc_idx+1:].replace("_", ",") + "}" + "'" * ast_variable.get_differential_order()
         symbols = {
             "inf" : r"\\infty",
             "alpha" : r"\\alpha",
@@ -131,11 +134,20 @@ class LatexReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         result = function_call.get_name()
+
+        symbols = {
+            "convolve" : r"\\text{convolve}"
+        }
+
+        for symbol_find, symbol_replace in symbols.items():
+            result = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])", symbol_replace, result)	# "whole word" match
+
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())
             result += '(' + ', '.join(['%s' for _ in range(n_args)]) + ')'
         else:
             result += '()'
+
         return result
 
     def convert_binary_op(self, ast_binary_operator, wide=False):

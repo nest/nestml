@@ -22,6 +22,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 
 
@@ -49,7 +50,10 @@ class LatexExpressionPrinter(object):
 
     def __do_print(self, node):
         # type: (ASTExpressionNode) -> str
-        if isinstance(node, ASTSimpleExpression):
+        if isinstance(node, ASTVariable):
+            print("Printing node: " + str(node) + " as " + str(self.reference_converter.convert_name_reference(node)))
+            return self.reference_converter.convert_name_reference(node)
+        elif isinstance(node, ASTSimpleExpression):
             print("Printing node: " + str(node))
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete

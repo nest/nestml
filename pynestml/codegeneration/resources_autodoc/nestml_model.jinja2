@@ -1,11 +1,11 @@
 {{ neuronName }}
-{% for i in range(neuronName | length) %}={%- endfor %}
+{% for i in range(neuronName | length) %}#{%- endfor %}
 
 {{ neuron.print_comment() }}
 
 
 Parameters
-----------
+++++++++++
 
 {{ neuron.print_parameter_comment() }}
 
@@ -16,7 +16,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 {% with block = neuron.get_initial_blocks() %}
 {%- include "block_decl_table.jinja2" %}
@@ -25,16 +25,16 @@ State variables
 
 
 Equations
----------
++++++++++
 
 {% with block = neuron.get_equations_block() %}
 {% for eq in block.get_ode_equations() %}
 
 .. math::
 {%- if eq.get_lhs().differential_order == 1 %}
-   \frac{ d{{ eq.get_lhs().get_name() }} } { dt }
+   \frac{ d{{ printer.print_expression(eq.get_lhs()) }} } { dt }
 {%- elif eq.get_lhs().differential_order > 1 %}
-   \frac{ d^{{ eq.get_lhs().differential_order }} {{ eq.get_lhs().get_name() }} } { dt^{{ eq.get_lhs().differential_order }} }
+   \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print_expression(eq.get_lhs()) }} } { dt^{{ eq.get_lhs().differential_order }} }
 {%- else %} {# differential_order == 0 #}
    {{ eq.get_lhs().get_name() }}
 {%- endif -%}
@@ -45,7 +45,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 

@@ -2,16 +2,16 @@
     :header: "Name", "Physical unit", "Default value", "Description"
     :widths: auto
 
-{% macro comments(decl) -%}
+{% macro comments(decl) %}
 {%- for pre_comment in decl.pre_comments %}
-{%-   if pre_comment %}
+{%-   if pre_comment -%}
 {{ pre_comment }}
 {%-   endif %}
 {%- endfor %}
+{%- if decl.in_comment -%}
 {{ decl.in_comment }}
+{%- endif %}
 {%- endmacro %}
-
-   
 
 {%- for decl in block.get_declarations() %}
 {%- for v in decl.get_variables() %}

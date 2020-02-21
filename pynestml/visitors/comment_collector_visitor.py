@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import re
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 
 
@@ -288,6 +290,12 @@ def replace_delimiters(comment):
     Returns the raw comment, i.e., without the comment-tags /* ..*/, \""" ""\" and #
     """
     ret = comment
-    ret = ret.replace('/*', '').replace('*/', '')
-    ret = ret.replace('"""', '')
-    return ret.replace('#', '')
+
+    start = re.search(r'\A[\s\n(""")(/\*)#]*', ret)	# whitespace and comment start characters at beginning of string
+    if start:
+        ret = ret[start.end():]
+    end = re.search(r'[\s\n(""")(\*/)]*\Z', ret)
+    if end:
+        ret = ret[:end.start()]
+
+    return ret

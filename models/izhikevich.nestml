@@ -1,4 +1,7 @@
 /*
+izhikevich - Izhikevich neuron model
+####################################
+
 Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by:
 
 .. math::
@@ -24,25 +27,20 @@ This model offers both forms of integration, they can be selected using the bool
 
 
 First Version
--------------
++++++++++++++
 
 2009
 
 
 Author(s)
----------
++++++++++
 
 Hanuschkin, Morrison, Kunkel
 
 
-See also
---------
-
-iaf_psc_delta, mat2_psc_exp
-
 
 References
-----------
+++++++++++
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 */
