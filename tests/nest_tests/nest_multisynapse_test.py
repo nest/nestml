@@ -75,8 +75,8 @@ class NestMultiSynapseTest(unittest.TestCase):
         # analysis
 
         if TEST_PLOTS:
-            vm_1 = nest.GetStatus(vm_1)[0]["events"]
-            i_1 = nest.GetStatus(i_1)[0]["events"]
+            vm_1 = vm_1.get("events")
+            i_1 = i_1.get("events")
 
             fig, ax = plt.subplots(nrows=4)
 
