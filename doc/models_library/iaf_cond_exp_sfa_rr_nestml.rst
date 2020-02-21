@@ -1,12 +1,47 @@
 iaf_cond_exp_sfa_rr_nestml
-==========================
+##########################
 
-Name: iaf_cond_exp_sfa_rr - Simple conductance based leaky integrate-and-fire neuron model. Description: iaf_cond_exp_sfa_rr is an iaf_cond_exp_sfa_rr i.e. an implementation of a spiking neuron using IAF dynamics with conductance-based synapses, with additional spike-frequency adaptation and relative refractory mechanisms as described in Dayan+Abbott, 2001, page 166. As for the iaf_cond_exp_sfa_rr, Incoming spike events induce a post-synaptic change of conductance modelled by an exponential function. The exponential function is normalised such that an event of weight 1.0 results in a peak current of 1 nS. Outgoing spike events induce a change of the adaptation and relative refractory conductances by q_sfa and q_rr, respectively. Otherwise these conductances decay exponentially with time constants tau_sfa and tau_rr, respectively. Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest References: Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical model for the large, fluctuating synaptic conductance state typical of neocortical neurons in vivo. J. Comput. Neurosci., 16, 159-175. Dayan, P. and Abbott, L. F. (2001). Theoretical Neuroscience, MIT Press (p166) Author: Sven Schrader, Eilif Muller SeeAlso: iaf_cond_exp_sfa_rr, aeif_cond_alpha, iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
+Name: iaf_cond_exp_sfa_rr - Simple conductance based leaky integrate-and-fire
+                            neuron model.
+
+Description:
+iaf_cond_exp_sfa_rr is an iaf_cond_exp_sfa_rr i.e. an implementation of a
+spiking neuron using IAF dynamics with conductance-based synapses,
+with additional spike-frequency adaptation and relative refractory
+mechanisms as described in Dayan+Abbott, 2001, page 166.
+
+As for the iaf_cond_exp_sfa_rr, Incoming spike events induce a post-synaptic
+change  of  conductance  modelled  by an  exponential  function.  The
+exponential function is  normalised such that an event  of weight 1.0
+results in a peak current of 1 nS.
+
+Outgoing spike events induce a change of the adaptation and relative
+refractory conductances by q_sfa and q_rr, respectively.  Otherwise
+these conductances decay exponentially with time constants tau_sfa
+and tau_rr, respectively.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+
+References:
+
+Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
+model for the large, fluctuating synaptic conductance state typical of
+neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+
+Dayan, P. and Abbott, L. F. (2001). Theoretical Neuroscience, MIT Press (p166)
+
+Author: Sven Schrader, Eilif Muller
+
+SeeAlso: iaf_cond_exp_sfa_rr, aeif_cond_alpha, iaf_psc_delta, iaf_psc_exp,
+iaf_cond_alpha
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -20,7 +55,7 @@ Parameters
     "C_m", "pF", "289.5pF", "Membrane Capacitance"    
     "E_ex", "mV", "0mV", "Excitatory reversal Potential"    
     "E_in", "mV", "-75.0mV", "Inhibitory reversal Potential"    
-    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential)"    
+    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential"    
     "tau_syn_ex", "ms", "1.5ms", "Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "q_sfa", "nS", "14.48nS", "Outgoing spike activated quantal spike-frequency adaptation conductance increase"    
@@ -35,7 +70,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -48,7 +83,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -69,7 +104,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -314,4 +349,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:40.888319
+   Generated at 2020-02-21 11:18:26.298341

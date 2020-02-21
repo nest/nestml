@@ -1,12 +1,42 @@
 hh_cond_exp_traub_nestml
-========================
+########################
 
-Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified. Description: hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model (1) Post-synaptic currents Incoming spike events induce a post-synaptic change of conductance modeled by an exponential function. The exponential function is normalized such that an event of weight 1.0 results in a peak current of 1 nS. (2) Spike Detection Spike detection is done by a combined threshold-and-local-maximum search: if there is a local maximum above a certain threshold of the membrane potential, it is considered a spike. Problems/Todo: Only the channel variables m,h,n are implemented. The original contains variables called y,s,r,q and \chi. References: Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK. Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest Author: Schrader SeeAlso: hh_psc_alpha
+Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+
+Description:
+
+ hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model
+
+ (1) Post-synaptic currents
+ Incoming spike events induce a post-synaptic change of conductance modeled
+ by an exponential function. The exponential function is normalized such that an
+ event of weight 1.0 results in a peak current of 1 nS.
+
+ (2) Spike Detection
+ Spike detection is done by a combined threshold-and-local-maximum search: if
+ there is a local maximum above a certain threshold of the membrane potential,
+ it is considered a spike.
+
+Problems/Todo:
+Only the channel variables m,h,n are implemented. The original
+contains variables called y,s,r,q and \chi.
+References:
+
+Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
+Cambridge University Press, Cambridge UK.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+Author: Schrader
+
+SeeAlso: hh_psc_alpha
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -19,7 +49,7 @@ Parameters
     "C_m", "pF", "200.0pF", "Membrane Capacitance"    
     "E_Na", "mV", "50mV", "Reversal potentials"    
     "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
-    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
+    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential"    
     "V_T", "mV", "-63.0mV", "Voltage offset that controls dynamics. For default"    
     "tau_syn_ex", "ms", "5.0ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
@@ -32,7 +62,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -52,7 +82,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -77,7 +107,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -348,4 +378,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:40.768999
+   Generated at 2020-02-21 11:18:26.172720

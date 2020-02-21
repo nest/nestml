@@ -1,11 +1,11 @@
 izhikevich_psc_alpha_implicit_nestml
-====================================
+####################################
 
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -20,7 +20,7 @@ Parameters
     "b", "nS", "9.0nS", "sensitivity of recovery variable"    
     "c", "mV", "-65mV", "after-spike reset value of V_m"    
     "d", "pA", "60.0pA", "after-spike reset value of U_m"    
-    "V_peak", "mV", "0.0mV", "Spike detection threshold (reset condition)"    
+    "V_peak", "mV", "0.0mV", "Spike detection threshold (reset condition"    
     "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "t_ref", "ms", "2.0ms", "Refractory period"    
@@ -30,7 +30,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -46,7 +46,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -63,7 +63,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -280,4 +280,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:40.716999
+   Generated at 2020-02-21 11:18:26.110536

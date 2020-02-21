@@ -1,12 +1,59 @@
 hill_tononi_nestml
-==================
+##################
 
-Name: hill_tononi - Neuron model after Hill & Tononi (2005) Description: This model neuron implements a slightly modified version of the neuron model described in [1]. The most important properties are: - Integrate-and-fire with threshold that is increased on spiking and decays back to an equilibrium value. - No hard reset, but repolarizing potassium current. - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with beta-function (difference of two exponentials) time course. - Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium), I_Na(p) (persistent sodium), and I_KNa (depolarization-activated potassium). In comparison to the model described in the paper, the following modifications were mare: - NMDA conductance is given by g(t) = g_peak * m(V), where m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) ) This is an approximation to the NMDA model used in [2]. - Several apparent typographical errors in the descriptions of the intrinsic currents were fixed, hopefully in a meaningful way. I'd like to thank Sean Hill for giving me access to his simulator source code. See examples/hilltononi for usage examples. Warning: THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY! Author: Hans Ekkehard Plesser FirstVersion: October 2009 References: [1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698. [2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227. SeeAlso: ht_synapse
+Name: hill_tononi - Neuron model after Hill & Tononi (2005)
+
+Description:
+
+This model neuron implements a slightly modified version of the
+neuron model described in [1].
+
+The most important properties are:
+
+- Integrate-and-fire with threshold that is increased on spiking
+ and decays back to an equilibrium value.
+- No hard reset, but repolarizing potassium current.
+- AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+ beta-function (difference of two exponentials) time course.
+- Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium),
+ I_Na(p) (persistent sodium), and I_KNa (depolarization-activated
+ potassium).
+
+In comparison to the model described in the paper, the following
+modifications were mare:
+
+- NMDA conductance is given by g(t) = g_peak * m(V), where
+
+   m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) )
+
+ This is an approximation to the NMDA model used in [2].
+
+- Several apparent typographical errors in the descriptions of
+ the intrinsic currents were fixed, hopefully in a meaningful
+ way.
+
+I'd like to thank Sean Hill for giving me access to his
+simulator source code.
+
+See examples/hilltononi for usage examples.
+
+Warning:
+THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
+
+Author: Hans Ekkehard Plesser
+
+FirstVersion: October 2009
+
+References:
+[1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698.
+[2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227.
+
+SeeAlso: ht_synapse
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -17,7 +64,7 @@ Parameters
     "E_K", "mV", "-90.0mV", ""    
     "g_NaL", "nS", "0.2nS", ""    
     "g_KL", "nS", "1.0nS", "1.0 - 1.85"    
-    "Tau_m", "ms", "16.0ms", "membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])"    
+    "Tau_m", "ms", "16.0ms", "membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677]"    
     "Theta_eq", "mV", "-51.0mV", "equilibrium value"    
     "Tau_theta", "ms", "2.0ms", "time constant"    
     "Tau_spike", "ms", "1.75ms", "membrane time constant applying to repolarizing K-current"    
@@ -55,7 +102,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -79,7 +126,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -144,7 +191,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -414,4 +461,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:41.592147
+   Generated at 2020-02-21 11:18:26.980211

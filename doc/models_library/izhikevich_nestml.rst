@@ -1,12 +1,55 @@
 izhikevich_nestml
-=================
+#################
 
-Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by: .. math:: dv/dt = 0.04 v^2 + 5 v + 140 - u + I du/dt = a (b v - u) .. math:: &\text{if~} v \geq V_th:\\ &\;\;\;\; v \text{ is set to } c\\ &\;\;\;\; u \text{ is incremented by } d\\ &v \text{ jumps on each spike arrival by the weight of the spike} As published in [1]_, the numerics differs from the standard forward Euler technique in two ways: 1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value 2) the variable :math:`v` is updated using a time step half the size of that used to update variable :math:`u`. This model offers both forms of integration, they can be selected using the boolean parameter ``consistent_integration``. To reproduce some results published on the basis of this model, it is necessary to use the published form of the dynamics. In this case, ``consistent_integration`` must be set to false. For all other purposes, it is recommended to use the standard technique for forward Euler integration. In this case, ``consistent_integration`` must be set to true (default). First Version ------------- 2009 Author(s) --------- Hanuschkin, Morrison, Kunkel See also -------- iaf_psc_delta, mat2_psc_exp References ---------- .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+izhikevich - Izhikevich neuron model
+####################################
+
+Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by:
+
+.. math::
+
+   dv/dt = 0.04 v^2 + 5 v + 140 - u + I
+
+   du/dt = a (b v - u)
+
+
+.. math::
+
+   &\text{if~} v \geq V_th:\\
+   &\;\;\;\; v \text{ is set to } c\\
+   &\;\;\;\; u \text{ is incremented by } d\\
+   &v \text{ jumps on each spike arrival by the weight of the spike}
+
+As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
+
+1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value
+2) the variable :math:`v` is updated using a time step half the size of that used to update variable :math:`u`.
+
+This model offers both forms of integration, they can be selected using the boolean parameter ``consistent_integration``. To reproduce some results published on the basis of this model, it is necessary to use the published form of the dynamics. In this case, ``consistent_integration`` must be set to false. For all other purposes, it is recommended to use the standard technique for forward Euler integration. In this case, ``consistent_integration`` must be set to true (default).
+
+
+First Version
++++++++++++++
+
+2009
+
+
+Author(s)
++++++++++
+
+Hanuschkin, Morrison, Kunkel
+
+
+
+References
+++++++++++
+
+.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -24,7 +67,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -36,7 +79,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -53,11 +96,14 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
    /*
+   izhikevich - Izhikevich neuron model
+   ####################################
+
    Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by:
 
    .. math::
@@ -83,25 +129,20 @@ Source code
 
 
    First Version
-   -------------
+   +++++++++++++
 
    2009
 
 
    Author(s)
-   ---------
+   +++++++++
 
    Hanuschkin, Morrison, Kunkel
 
 
-   See also
-   --------
-
-   iaf_psc_delta, mat2_psc_exp
-
 
    References
-   ----------
+   ++++++++++
 
    .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
    */
@@ -159,4 +200,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:41.041991
+   Generated at 2020-02-21 11:18:26.445936

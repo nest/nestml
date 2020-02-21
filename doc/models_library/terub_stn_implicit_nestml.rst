@@ -1,12 +1,49 @@
 terub_stn_implicit_nestml
-=========================
+#########################
 
-Name: terub_stn_implicit - Terman Rubin neuron model. Description: terub_stn_implicit is an implementation of a spiking neuron using the Terman Rubin model based on the Hodgkin-Huxley formalism. (1) Post-syaptic currents Incoming spike events induce a post-synaptic change of current modelled by an alpha function. The alpha function is normalised such that an event of weight 1.0 results in a peak current of 1 pA. (2) Spike Detection Spike detection is done by a combined threshold-and-local-maximum search: if there is a local maximum above a certain threshold of the membrane potential, it is considered a spike. Problems/Todo: better spike detection References: Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J. Activity Patterns in a Model for the Subthalamopallidal Network of the Basal Ganglia The Journal of Neuroscience, 22(7), 2963-2976 (2002) Rubin, J.E. and Terman, D. High Frequency Stimulation of the Subthalamic Nucleus Eliminates Pathological Thalamic Rhythmicity in a Computational Model Journal of Computational Neuroscience, 16, 211-235 (2004) Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest Author: Martin Ebert
+Name: terub_stn_implicit - Terman Rubin neuron model.
+
+Description:
+
+  terub_stn_implicit is an implementation of a spiking neuron using the Terman Rubin model
+  based on the Hodgkin-Huxley formalism.
+
+  (1) Post-syaptic currents
+  Incoming spike events induce a post-synaptic change of current modelled
+  by an alpha function. The alpha function is normalised such that an event of
+  weight 1.0 results in a peak current of 1 pA.
+
+
+  (2) Spike Detection
+  Spike detection is done by a combined threshold-and-local-maximum search: if there
+  is a local maximum above a certain threshold of the membrane potential, it is considered a spike.
+
+Problems/Todo:
+
+  better spike detection
+
+References:
+  Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J.
+  Activity Patterns in a Model for the Subthalamopallidal Network
+  of the Basal Ganglia
+  The Journal of Neuroscience, 22(7), 2963-2976 (2002)
+
+  Rubin, J.E. and Terman, D.
+  High Frequency Stimulation of the Subthalamic Nucleus Eliminates
+  Pathological Thalamic Rhythmicity in a Computational Model
+  Journal of Computational Neuroscience, 16, 211-235 (2004)
+
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+Author: Martin Ebert
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -26,7 +63,7 @@ Parameters
     "g_ahp", "nS", "9nS", "afterpolarization current peak conductance."    
     "tau_syn_ex", "ms", "1.0ms", "Rise time of the excitatory synaptic alpha function."    
     "tau_syn_in", "ms", "0.08ms", "Rise time of the inhibitory synaptic alpha function."    
-    "E_gs", "mV", "-85.0mV", "reversal potential for inhibitory input (from GPe)"    
+    "E_gs", "mV", "-85.0mV", "reversal potential for inhibitory input (from GPe"    
     "t_ref", "ms", "2ms", "refractory time"    
     "I_e", "pA", "0pA", "constant external input current"
 
@@ -34,7 +71,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -53,7 +90,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -82,7 +119,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -474,4 +511,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:41.525141
+   Generated at 2020-02-21 11:18:26.914732

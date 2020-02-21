@@ -1,12 +1,44 @@
 aeif_cond_exp_implicit_nestml
-=============================
+#############################
 
-Name: aeif_cond_exp_implicit - Conductance based exponential integrate-and-fire neuron model according to Brette and g_exrstner (2005). Description: aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron according to Brette and g_exrstner (2005). Synaptic conductances are modelled as alpha-functions. This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with adaptive step size to integrate the differential equation. The membrane potential is g_inven by the following differential equation: C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e) -g_i(t)(V-E_i)-w + I_e + I_stim and tau_w * dw/dt= a(V-E_L) -W Parameters: The following parameters can be set in the status dictionary. Author: Marc-Oliver Gewaltig Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLogg_inngRequest References: Brette R and g_exrstner W (2005) Adaptive Exponential Integrate-and-Fire Model as an Effective Description of Neuronal Activity. J Neurophysiol 94:3637-3642 SeeAlso: iaf_cond_alpha, aeif_cond_exp
+Name: aeif_cond_exp_implicit -  Conductance based exponential integrate-and-fire neuron
+                         model according to Brette and g_exrstner (2005).
+
+Description:
+aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron according
+to Brette and g_exrstner (2005).
+Synaptic conductances are modelled as alpha-functions.
+
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
+adaptive step size to integrate the differential equation.
+
+The membrane potential is g_inven by the following differential equation:
+C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
+                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
+
+and
+
+tau_w * dw/dt= a(V-E_L) -W
+
+Parameters:
+The following parameters can be set in the status dictionary.
+
+Author: Marc-Oliver Gewaltig
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLogg_inngRequest
+
+References: Brette R and g_exrstner W (2005) Adaptive Exponential
+            Integrate-and-Fire Model as an Effective Description of Neuronal
+            Activity. J Neurophysiol 94:3637-3642
+
+SeeAlso: iaf_cond_alpha, aeif_cond_exp
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -17,7 +49,7 @@ Parameters
     "t_ref", "ms", "0.0ms", "Refractory period"    
     "V_reset", "mV", "-60.0mV", "Reset Potential"    
     "g_L", "nS", "30.0nS", "Leak Conductance"    
-    "E_L", "mV", "-70.6mV", "Leak reversal Potential (aka resting potential)"    
+    "E_L", "mV", "-70.6mV", "Leak reversal Potential (aka resting potential"    
     "a", "nS", "4nS", "spike adaptation parametersSubthreshold adaptation."    
     "b", "pA", "80.5pA", "Spike-trigg_exred adaptation."    
     "Delta_T", "mV", "2.0mV", "Slope factor"    
@@ -34,7 +66,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -48,7 +80,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -65,7 +97,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -310,4 +342,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:41.420284
+   Generated at 2020-02-21 11:18:26.808500

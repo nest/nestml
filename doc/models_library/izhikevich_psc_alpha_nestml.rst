@@ -1,12 +1,38 @@
 izhikevich_psc_alpha_nestml
-===========================
+###########################
 
-Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped post-synaptic current. Description: Implementation of the simple spiking neuron model introduced by Izhikevich [1]. The dynamics are given by: C_m dV_m/dt = k (V-V_t)(V-V_t) - u + I + I_syn_ex + I_syn_in dU_m/dt = a*(b*(V_m-E_L) - U_m) if v >= V_th: V_m is set to c U_m is incremented by d On each spike arrival, the membrane potential feels an alpha-shaped current of the form: I_syn = I_0 * t * exp(-t/tau_syn) / tau_syn. References: [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572 Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest FirstVersion: 2009 Author: Hanuschkin, Morrison, Kunkel SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
+Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped
+                             post-synaptic current.
+
+Description:
+Implementation of the simple spiking neuron model introduced by Izhikevich
+[1]. The dynamics are given by:
+   C_m dV_m/dt = k (V-V_t)(V-V_t) - u + I + I_syn_ex + I_syn_in
+   dU_m/dt = a*(b*(V_m-E_L) - U_m)
+
+   if v >= V_th:
+     V_m is set to c
+     U_m is incremented by d
+
+   On each spike arrival, the membrane potential feels an alpha-shaped current
+   of the form:
+     I_syn = I_0 * t * exp(-t/tau_syn) / tau_syn.
+
+References:
+[1] Izhikevich, Simple Model of Spiking Neurons,
+IEEE Transactions on Neural Networks (2003) 14:1569-1572
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+FirstVersion: 2009
+Author: Hanuschkin, Morrison, Kunkel
+SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
 
 
 
 Parameters
-----------
+++++++++++
 
 
 
@@ -21,7 +47,7 @@ Parameters
     "b", "nS", "9.0nS", "sensitivity of recovery variable"    
     "c", "mV", "-65mV", "after-spike reset value of V_m"    
     "d", "pA", "60.0pA", "after-spike reset value of U_m"    
-    "V_peak", "mV", "0.0mV", "Spike detection threashold (reset condition)"    
+    "V_peak", "mV", "0.0mV", "Spike detection threashold (reset condition"    
     "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "t_ref", "ms", "2.0ms", "Refractory period"    
@@ -31,7 +57,7 @@ Parameters
 
 
 State variables
----------------
++++++++++++++++
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
@@ -43,7 +69,7 @@ State variables
 
 
 Equations
----------
++++++++++
 
 
 
@@ -60,7 +86,7 @@ Equations
 
 
 Source code
------------
++++++++++++
 
 .. code:: nestml
 
@@ -277,4 +303,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 10:47:40.681533
+   Generated at 2020-02-21 11:18:26.068990
