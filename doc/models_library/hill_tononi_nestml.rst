@@ -1,56 +1,7 @@
 hill_tononi_nestml
 ==================
 
-
-Name: hill_tononi - Neuron model after Hill & Tononi (2005)
-
-Description:
-
-This model neuron implements a slightly modified version of the
-neuron model described in [1].
-
-The most important properties are:
-
-- Integrate-and-fire with threshold that is increased on spiking
- and decays back to an equilibrium value.
-- No hard reset, but repolarizing potassium current.
-- AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
- beta-function (difference of two exponentials) time course.
-- Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium),
- I_Na(p) (persistent sodium), and I_KNa (depolarization-activated
- potassium).
-
-In comparison to the model described in the paper, the following
-modifications were mare:
-
-- NMDA conductance is given by g(t) = g_peak * m(V), where
-
-   m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) )
-
- This is an approximation to the NMDA model used in [2].
-
-- Several apparent typographical errors in the descriptions of
- the intrinsic currents were fixed, hopefully in a meaningful
- way.
-
-I'd like to thank Sean Hill for giving me access to his
-simulator source code.
-
-See examples/hilltononi for usage examples.
-
-Warning:
-THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
-
-Author: Hans Ekkehard Plesser
-
-FirstVersion: October 2009
-
-References:
-[1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698.
-[2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227.
-
-SeeAlso: ht_synapse
-
+Name: hill_tononi - Neuron model after Hill & Tononi (2005) Description: This model neuron implements a slightly modified version of the neuron model described in [1]. The most important properties are: - Integrate-and-fire with threshold that is increased on spiking and decays back to an equilibrium value. - No hard reset, but repolarizing potassium current. - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with beta-function (difference of two exponentials) time course. - Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium), I_Na(p) (persistent sodium), and I_KNa (depolarization-activated potassium). In comparison to the model described in the paper, the following modifications were mare: - NMDA conductance is given by g(t) = g_peak * m(V), where m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) ) This is an approximation to the NMDA model used in [2]. - Several apparent typographical errors in the descriptions of the intrinsic currents were fixed, hopefully in a meaningful way. I'd like to thank Sean Hill for giving me access to his simulator source code. See examples/hilltononi for usage examples. Warning: THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY! Author: Hans Ekkehard Plesser FirstVersion: October 2009 References: [1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698. [2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227. SeeAlso: ht_synapse
 
 
 
@@ -61,86 +12,44 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "E_Na", "mV", "30.0mV", "
-    None"    
-    "E_K", "mV", "-90.0mV", "
-    None"    
-    "g_NaL", "nS", "0.2nS", "
-    None"    
-    "g_KL", "nS", "1.0nS", "
-     1.0 - 1.85"    
-    "Tau_m", "ms", "16.0ms", "
-     membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])"    
-    "Theta_eq", "mV", "-51.0mV", "
-     equilibrium value"    
-    "Tau_theta", "ms", "2.0ms", "
-     time constant"    
-    "Tau_spike", "ms", "1.75ms", "
-     membrane time constant applying to repolarizing K-current"    
-    "t_spike", "ms", "2.0ms", "
-     duration of re-polarizing potassium current"    
-    "AMPA_g_peak", "nS", "0.1nS", "
-     Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
-     peak conductance"    
-    "AMPA_E_rev", "mV", "0.0mV", "
-     reversal potential"    
-    "AMPA_Tau_1", "ms", "0.5ms", "
-     rise time"    
-    "AMPA_Tau_2", "ms", "2.4ms", "
-     decay time, Tau_1 < Tau_2"    
-    "NMDA_g_peak", "nS", "0.075nS", "
-     peak conductance"    
-    "NMDA_Tau_1", "ms", "4.0ms", "
-     rise time"    
-    "NMDA_Tau_2", "ms", "40.0ms", "
-     decay time, Tau_1 < Tau_2"    
-    "NMDA_E_rev", "mV", "0.0mV", "
-     reversal potential"    
-    "NMDA_Vact", "mV", "-58.0mV", "
-     inactive for V << Vact, inflection of sigmoid"    
-    "NMDA_Sact", "mV", "2.5mV", "
-     scale of inactivation"    
-    "GABA_A_g_peak", "nS", "0.33nS", "
-     peak conductance"    
-    "GABA_A_Tau_1", "ms", "1.0ms", "
-     rise time"    
-    "GABA_A_Tau_2", "ms", "7.0ms", "
-     decay time, Tau_1 < Tau_2"    
-    "GABA_A_E_rev", "mV", "-70.0mV", "
-     reversal potential"    
-    "GABA_B_g_peak", "nS", "0.0132nS", "
-     peak conductance"    
-    "GABA_B_Tau_1", "ms", "60.0ms", "
-     rise time"    
-    "GABA_B_Tau_2", "ms", "200.0ms", "
-     decay time, Tau_1 < Tau_2"    
-    "GABA_B_E_rev", "mV", "-90.0mV", "
-     reversal potential for intrinsic current"    
-    "NaP_g_peak", "nS", "1.0nS", "
-     parameters for intrinsic currents
-     peak conductance for intrinsic current"    
-    "NaP_E_rev", "mV", "30.0mV", "
-     reversal potential for intrinsic current"    
-    "KNa_g_peak", "nS", "1.0nS", "
-     peak conductance for intrinsic current"    
-    "KNa_E_rev", "mV", "-90.0mV", "
-     reversal potential for intrinsic current"    
-    "T_g_peak", "nS", "1.0nS", "
-     peak conductance for intrinsic current"    
-    "T_E_rev", "mV", "0.0mV", "
-     reversal potential for intrinsic current"    
-    "h_g_peak", "nS", "1.0nS", "
-     peak conductance for intrinsic current"    
-    "h_E_rev", "mV", "-40.0mV", "
-     reversal potential for intrinsic current"    
-    "KNa_D_EQ", "pA", "0.001pA", "
-    None"    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "E_Na", "mV", "30.0mV", ""    
+    "E_K", "mV", "-90.0mV", ""    
+    "g_NaL", "nS", "0.2nS", ""    
+    "g_KL", "nS", "1.0nS", "1.0 - 1.85"    
+    "Tau_m", "ms", "16.0ms", "membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])"    
+    "Theta_eq", "mV", "-51.0mV", "equilibrium value"    
+    "Tau_theta", "ms", "2.0ms", "time constant"    
+    "Tau_spike", "ms", "1.75ms", "membrane time constant applying to repolarizing K-current"    
+    "t_spike", "ms", "2.0ms", "duration of re-polarizing potassium current"    
+    "AMPA_g_peak", "nS", "0.1nS", "Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDApeak conductance"    
+    "AMPA_E_rev", "mV", "0.0mV", "reversal potential"    
+    "AMPA_Tau_1", "ms", "0.5ms", "rise time"    
+    "AMPA_Tau_2", "ms", "2.4ms", "decay time, Tau_1 < Tau_2"    
+    "NMDA_g_peak", "nS", "0.075nS", "peak conductance"    
+    "NMDA_Tau_1", "ms", "4.0ms", "rise time"    
+    "NMDA_Tau_2", "ms", "40.0ms", "decay time, Tau_1 < Tau_2"    
+    "NMDA_E_rev", "mV", "0.0mV", "reversal potential"    
+    "NMDA_Vact", "mV", "-58.0mV", "inactive for V << Vact, inflection of sigmoid"    
+    "NMDA_Sact", "mV", "2.5mV", "scale of inactivation"    
+    "GABA_A_g_peak", "nS", "0.33nS", "peak conductance"    
+    "GABA_A_Tau_1", "ms", "1.0ms", "rise time"    
+    "GABA_A_Tau_2", "ms", "7.0ms", "decay time, Tau_1 < Tau_2"    
+    "GABA_A_E_rev", "mV", "-70.0mV", "reversal potential"    
+    "GABA_B_g_peak", "nS", "0.0132nS", "peak conductance"    
+    "GABA_B_Tau_1", "ms", "60.0ms", "rise time"    
+    "GABA_B_Tau_2", "ms", "200.0ms", "decay time, Tau_1 < Tau_2"    
+    "GABA_B_E_rev", "mV", "-90.0mV", "reversal potential for intrinsic current"    
+    "NaP_g_peak", "nS", "1.0nS", "parameters for intrinsic currentspeak conductance for intrinsic current"    
+    "NaP_E_rev", "mV", "30.0mV", "reversal potential for intrinsic current"    
+    "KNa_g_peak", "nS", "1.0nS", "peak conductance for intrinsic current"    
+    "KNa_E_rev", "mV", "-90.0mV", "reversal potential for intrinsic current"    
+    "T_g_peak", "nS", "1.0nS", "peak conductance for intrinsic current"    
+    "T_E_rev", "mV", "0.0mV", "reversal potential for intrinsic current"    
+    "h_g_peak", "nS", "1.0nS", "peak conductance for intrinsic current"    
+    "h_E_rev", "mV", "-40.0mV", "reversal potential for intrinsic current"    
+    "KNa_D_EQ", "pA", "0.001pA", ""    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -150,37 +59,21 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "(g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL)", "
-     membrane potential"    
-    "Theta", "mV", "Theta_eq", "
-     Threshold"    
-    "g_AMPA", "nS", "0.0nS", "
-    None"    
-    "g_NMDA", "nS", "0.0nS", "
-    None"    
-    "g_GABAA", "nS", "0.0nS", "
-    None"    
-    "g_GABAB", "nS", "0.0nS", "
-    None"    
-    "IKNa_D", "nS", "0.0nS", "
-    None"    
-    "g_AMPA__d", "nS / ms", "0.0nS / ms", "
-    None"    
-    "g_NMDA__d", "nS / ms", "0.0nS / ms", "
-    None"    
-    "g_GABAA__d", "nS / ms", "0.0nS / ms", "
-    None"    
-    "g_GABAB__d", "nS / ms", "0.0nS / ms", "
-    None"    
-    "IT_m", "real", "0.0", "
-    None"    
-    "IT_h", "real", "0.0", "
-    None"    
-    "Ih_m", "real", "0.0", "
-    None"
+    :widths: auto    
+    "V_m", "mV", "(g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL)", "membrane potential"    
+    "Theta", "mV", "Theta_eq", "Threshold"    
+    "g_AMPA", "nS", "0.0nS", ""    
+    "g_NMDA", "nS", "0.0nS", ""    
+    "g_GABAA", "nS", "0.0nS", ""    
+    "g_GABAB", "nS", "0.0nS", ""    
+    "IKNa_D", "nS", "0.0nS", ""    
+    "g_AMPA__d", "nS / ms", "0.0nS / ms", ""    
+    "g_NMDA__d", "nS / ms", "0.0nS / ms", ""    
+    "g_GABAA__d", "nS / ms", "0.0nS / ms", ""    
+    "g_GABAB__d", "nS / ms", "0.0nS / ms", ""    
+    "IT_m", "real", "0.0", ""    
+    "IT_h", "real", "0.0", ""    
+    "Ih_m", "real", "0.0", ""
 
 
 
@@ -192,59 +85,59 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { \mathrm{nF} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} } { (\mathrm{ms} \cdot \mathrm{mV}) }) \cdot \mathrm{s} } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { \mathrm{nF} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} } { (\mathrm{ms} \cdot \mathrm{mV}) }) \cdot \mathrm{s} } \right) 
 
 
 .. math::
-   \frac{ dTheta } { dt }= \frac{ -(\Theta - \Theta_{eq}) } { \Tau_{\theta} }
+   \frac{ d\Theta } { dt }= \frac{ -(\Theta - \Theta_{eq}) } { \Tau_{\theta} }
 
 
 .. math::
-   \frac{ dIKNa_D } { dt }= \frac 1 { \mathrm{ms} } \left( { (D_{influx,peak} \cdot D_{influx} \cdot \mathrm{nS} - \frac 1 { \tau_{D} } \left( { (IKNa_{D} - \frac{ KNa_{D,EQ} } { \mathrm{mV} }) } \right) ) } \right) 
+   \frac{ dIKNa_{D}' } { dt }= \frac 1 { \mathrm{ms} } \left( { (D_{influx,peak} \cdot D_{influx} \cdot \mathrm{nS} - \frac 1 { \tau_{D} } \left( { (IKNa_{D} - \frac{ KNa_{D,EQ} } { \mathrm{mV} }) } \right) ) } \right) 
 
 
 .. math::
-   \frac{ dIT_m } { dt }= \frac{ (m_{\infty,T} - IT_{m}) } { \tau_{m,T} }
+   \frac{ dIT_{m}' } { dt }= \frac{ (m_{\infty,T} - IT_{m}) } { \tau_{m,T} }
 
 
 .. math::
-   \frac{ dIT_h } { dt }= \frac{ (h_{\infty,T} - IT_{h}) } { \tau_{h,T} }
+   \frac{ dIT_{h}' } { dt }= \frac{ (h_{\infty,T} - IT_{h}) } { \tau_{h,T} }
 
 
 .. math::
-   \frac{ dIh_m } { dt }= \frac{ (m_{\infty,h} - Ih_{m}) } { \tau_{m,h} }
+   \frac{ dIh_{m}' } { dt }= \frac{ (m_{\infty,h} - Ih_{m}) } { \tau_{m,h} }
 
 
 .. math::
-   \frac{ dg_AMPA__d } { dt }= \frac{ -g_{AMPA,,d} } { AMPA_{\Tau,1} }
+   \frac{ dg_{AMPA,,d}' } { dt }= \frac{ -g_{AMPA,,d} } { AMPA_{\Tau,1} }
 
 
 .. math::
-   \frac{ dg_AMPA } { dt }= g_{AMPA,,d} - \frac{ g_{AMPA} } { AMPA_{\Tau,2} }
+   \frac{ dg_{AMPA}' } { dt }= g_{AMPA,,d} - \frac{ g_{AMPA} } { AMPA_{\Tau,2} }
 
 
 .. math::
-   \frac{ dg_NMDA__d } { dt }= \frac{ -g_{NMDA,,d} } { NMDA_{\Tau,1} }
+   \frac{ dg_{NMDA,,d}' } { dt }= \frac{ -g_{NMDA,,d} } { NMDA_{\Tau,1} }
 
 
 .. math::
-   \frac{ dg_NMDA } { dt }= g_{NMDA,,d} - \frac{ g_{NMDA} } { NMDA_{\Tau,2} }
+   \frac{ dg_{NMDA}' } { dt }= g_{NMDA,,d} - \frac{ g_{NMDA} } { NMDA_{\Tau,2} }
 
 
 .. math::
-   \frac{ dg_GABAA__d } { dt }= \frac{ -g_{GABAA,,d} } { GABA_{A,\Tau,1} }
+   \frac{ dg_{GABAA,,d}' } { dt }= \frac{ -g_{GABAA,,d} } { GABA_{A,\Tau,1} }
 
 
 .. math::
-   \frac{ dg_GABAA } { dt }= g_{GABAA,,d} - \frac{ g_{GABAA} } { GABA_{A,\Tau,2} }
+   \frac{ dg_{GABAA}' } { dt }= g_{GABAA,,d} - \frac{ g_{GABAA} } { GABA_{A,\Tau,2} }
 
 
 .. math::
-   \frac{ dg_GABAB__d } { dt }= \frac{ -g_{GABAB,,d} } { GABA_{B,\Tau,1} }
+   \frac{ dg_{GABAB,,d}' } { dt }= \frac{ -g_{GABAB,,d} } { GABA_{B,\Tau,1} }
 
 
 .. math::
-   \frac{ dg_GABAB } { dt }= g_{GABAB,,d} - \frac{ g_{GABAB} } { GABA_{B,\Tau,2} }
+   \frac{ dg_{GABAB}' } { dt }= g_{GABAB,,d} - \frac{ g_{GABAB} } { GABA_{B,\Tau,2} }
 
 
 
@@ -521,4 +414,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:21.602301
+   Generated at 2020-02-21 10:47:41.592147

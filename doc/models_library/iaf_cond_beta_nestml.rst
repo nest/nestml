@@ -1,27 +1,7 @@
 iaf_cond_beta_nestml
 ====================
 
- Name: iaf_cond_beta - Simple conductance based leaky integrate-and-fire neuron model.
-
-Description:
-iaf_cond_beta is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses. Incoming spike events induce a post-synaptic change
-of conductance modelled by an beta function. The beta function
-is normalised such that an event of weight 1.0 results in a peak current of 1 nS
-at t = tau_syn.
-
-References:
-Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
-model for the large, fluctuating synaptic conductance state typical of
-neocortical neurons in vivo				. J.  Comput. Neurosci., 16, 159-175.
-Bernander, O ., Douglas, R. J., Martin, K. A. C., & Koch, C. (1991).
-Synaptic background activity influences spatiotemporal integration in
-single pyramidal cells.  Proc. Natl. Acad. Sci. USA, 88(24),
-11569-11573.
-Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in
-the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
-Author: Schrader, Plesser
-SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha 
+Name: iaf_cond_beta - Simple conductance based leaky integrate-and-fire neuron model. Description: iaf_cond_beta is an implementation of a spiking neuron using IAF dynamics with conductance-based synapses. Incoming spike events induce a post-synaptic change of conductance modelled by an beta function. The beta function is normalised such that an event of weight 1.0 results in a peak current of 1 nS at t = tau_syn. References: Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical model for the large, fluctuating synaptic conductance state typical of neocortical neurons in vivo . J. Comput. Neurosci., 16, 159-175. Bernander, O ., Douglas, R. J., Martin, K. A. C., & Koch, C. (1991). Synaptic background activity influences spatiotemporal integration in single pyramidal cells. Proc. Natl. Acad. Sci. USA, 88(24), 11569-11573. Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356 Author: Schrader, Plesser SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha
 
 
 
@@ -32,40 +12,22 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "E_L", "mV", "-85.0mV", "
-     Leak reversal Potential (aka resting potential)"    
-    "C_m", "pF", "250.0pF", "
-     Capacity of the membrane"    
-    "t_ref", "ms", "2.0ms", "
-     Refractory period"    
-    "V_th", "mV", "-55.0mV", "
-     Threshold Potential"    
-    "V_reset", "mV", "-60.0mV", "
-     Reset Potential"    
-    "E_ex", "mV", "0mV", "
-     Excitatory reversal Potential"    
-    "E_in", "mV", "-85.0mV", "
-     Inhibitory reversal Potential"    
-    "g_L", "nS", "16.6667nS", "
-     Leak Conductance"    
-    "tau_syn_rise_I", "ms", "0.2ms", "
-     Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_decay_I", "ms", "2.0ms", "
-     Synaptic Time Constant for Inhibitory Synapse"    
-    "tau_syn_rise_E", "ms", "0.2ms", "
-     Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_decay_E", "ms", "2.0ms", "
-     Synaptic Time Constant for Inhibitory Synapse"    
-    "F_E", "nS", "0nS", "
-     Constant External input conductance (excitatory)."    
-    "F_I", "nS", "0nS", "
-     Constant External input conductance (inhibitory)."    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "E_L", "mV", "-85.0mV", "Leak reversal Potential (aka resting potential)"    
+    "C_m", "pF", "250.0pF", "Capacity of the membrane"    
+    "t_ref", "ms", "2.0ms", "Refractory period"    
+    "V_th", "mV", "-55.0mV", "Threshold Potential"    
+    "V_reset", "mV", "-60.0mV", "Reset Potential"    
+    "E_ex", "mV", "0mV", "Excitatory reversal Potential"    
+    "E_in", "mV", "-85.0mV", "Inhibitory reversal Potential"    
+    "g_L", "nS", "16.6667nS", "Leak Conductance"    
+    "tau_syn_rise_I", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_decay_I", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "tau_syn_rise_E", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_decay_E", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "F_E", "nS", "0nS", "Constant External input conductance (excitatory)."    
+    "F_I", "nS", "0nS", "Constant External input conductance (inhibitory)."    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -75,19 +37,12 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "E_L", "
-     membrane potential"    
-    "g_in", "nS", "0nS", "
-     inputs from the inh conductance"    
-    "g_in__d", "nS / ms", "0nS / ms", "
-     inputs from the inh conductance"    
-    "g_ex", "nS", "0nS", "
-     inputs from the exc conductance"    
-    "g_ex__d", "nS / ms", "0nS / ms", "
-     inputs from the exc conductance"
+    :widths: auto    
+    "V_m", "mV", "E_L", "membrane potential"    
+    "g_in", "nS", "0nS", "inputs from the inh conductance"    
+    "g_in__d", "nS / ms", "0nS / ms", "inputs from the inh conductance"    
+    "g_ex", "nS", "0nS", "inputs from the exc conductance"    
+    "g_ex__d", "nS / ms", "0nS / ms", "inputs from the exc conductance"
 
 
 
@@ -99,23 +54,23 @@ Equations
 
 
 .. math::
-   \frac{ dg_in__d } { dt }= \frac{ -g_{in,,d} } { \tau_{syn,rise,I} }
+   \frac{ dg_{in,,d}' } { dt }= \frac{ -g_{in,,d} } { \tau_{syn,rise,I} }
 
 
 .. math::
-   \frac{ dg_in } { dt }= g_{in,,d} - \frac{ g_{in} } { \tau_{syn,decay,I} }
+   \frac{ dg_{in}' } { dt }= g_{in,,d} - \frac{ g_{in} } { \tau_{syn,decay,I} }
 
 
 .. math::
-   \frac{ dg_ex__d } { dt }= \frac{ -g_{ex,,d} } { \tau_{syn,rise,E} }
+   \frac{ dg_{ex,,d}' } { dt }= \frac{ -g_{ex,,d} } { \tau_{syn,rise,E} }
 
 
 .. math::
-   \frac{ dg_ex } { dt }= g_{ex,,d} - \frac{ g_{ex} } { \tau_{syn,decay,E} }
+   \frac{ dg_{ex}' } { dt }= g_{ex,,d} - \frac{ g_{ex} } { \tau_{syn,decay,E} }
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -239,4 +194,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:21.199891
+   Generated at 2020-02-21 10:47:40.961270

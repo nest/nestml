@@ -1,30 +1,7 @@
 iaf_chxk_2008_nestml
 ====================
 
-
-Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
-                      used in Casti et al 2008.
-
-Description:
-iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the
-addition of after hyper-polarization current instead of a membrane potential
-reset. Incoming spike events induce a post-synaptic change of conductance
-modeled by an alpha function. The alpha function is normalized such that an
-event of weight 1.0 results in a peak current of 1 nS at t = tau_syn.
-
-References:
-[1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN
-transmission. J Comput Neurosci 24:235-252.
-
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent
-
-Author: Heiberg
-
-SeeAlso: iaf_cond_alpha
-
+Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model used in Casti et al 2008. Description: iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the addition of after hyper-polarization current instead of a membrane potential reset. Incoming spike events induce a post-synaptic change of conductance modeled by an alpha function. The alpha function is normalized such that an event of weight 1.0 results in a peak current of 1 nS at t = tau_syn. References: [1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN transmission. J Comput Neurosci 24:235-252. Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent Author: Heiberg SeeAlso: iaf_cond_alpha
 
 
 
@@ -35,36 +12,20 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_th", "mV", "-45.0mV", "
-     Threshold Potential"    
-    "E_ex", "mV", "20mV", "
-     Excitatory reversal potential"    
-    "E_in", "mV", "-90mV", "
-     Inhibitory reversal potential"    
-    "g_L", "nS", "100nS", "
-     Leak Conductance"    
-    "C_m", "pF", "1000.0pF", "
-     Membrane Capacitance"    
-    "E_L", "mV", "-60.0mV", "
-     Leak reversal Potential (aka resting potential)"    
-    "tau_syn_ex", "ms", "1ms", "
-     Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "1ms", "
-     Synaptic Time Constant for Inhibitory Synapse"    
-    "tau_ahp", "ms", "0.5ms", "
-     Afterhyperpolarization (AHP) time constant"    
-    "g_ahp", "nS", "443.8nS", "
-     AHP conductance"    
-    "E_ahp", "mV", "-95mV", "
-     AHP potential"    
-    "ahp_bug", "boolean", "false", "
-     If true, discard AHP conductance value from previous spikes"    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "V_th", "mV", "-45.0mV", "Threshold Potential"    
+    "E_ex", "mV", "20mV", "Excitatory reversal potential"    
+    "E_in", "mV", "-90mV", "Inhibitory reversal potential"    
+    "g_L", "nS", "100nS", "Leak Conductance"    
+    "C_m", "pF", "1000.0pF", "Membrane Capacitance"    
+    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
+    "tau_syn_ex", "ms", "1ms", "Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_in", "ms", "1ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "tau_ahp", "ms", "0.5ms", "Afterhyperpolarization (AHP) time constant"    
+    "g_ahp", "nS", "443.8nS", "AHP conductance"    
+    "E_ahp", "mV", "-95mV", "AHP potential"    
+    "ahp_bug", "boolean", "false", "If true, discard AHP conductance value from previous spikes"    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -74,15 +35,10 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "E_L", "
-     membrane potential"    
-    "G_ahp", "nS", "0nS", "
-     AHP conductance"    
-    "G_ahp__d", "nS / ms", "0nS / ms", "
-     AHP conductance"
+    :widths: auto    
+    "V_m", "mV", "E_L", "membrane potential"    
+    "G_ahp", "nS", "0nS", "AHP conductance"    
+    "G_ahp__d", "nS / ms", "0nS / ms", "AHP conductance"
 
 
 
@@ -94,15 +50,15 @@ Equations
 
 
 .. math::
-   \frac{ dG_ahp__d } { dt }= (\frac{ -2 } { \tau_{ahp} }) \cdot G_{ahp,,d} - (\frac{ 1 } { \tau_{ahp} ** 2 }) \cdot G_{ahp}
+   \frac{ dG_{ahp,,d}' } { dt }= (\frac{ -2 } { \tau_{ahp} }) \cdot G_{ahp,,d} - (\frac{ 1 } { \tau_{ahp} ** 2 }) \cdot G_{ahp}
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} - I_{ahp} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} - I_{ahp} + I_{e} + I_{stim}) } \right) 
 
 
 .. math::
-   \frac{ dG_ahp } { dt }= G_{ahp,,d}
+   \frac{ dG_{ahp}' } { dt }= G_{ahp,,d}
 
 
 
@@ -358,4 +314,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:20.924365
+   Generated at 2020-02-21 10:47:40.518128

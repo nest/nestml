@@ -1,54 +1,7 @@
 izhikevich_nestml
 =================
 
-
-Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by:
-
-.. math::
-
-   dv/dt = 0.04 v^2 + 5 v + 140 - u + I
-
-   du/dt = a (b v - u)
-
-
-.. math::
-
-   &\text{if\ } v \geq V_th:\\
-   &\;\;\;\; v \text{ is set to } c\\
-   &\;\;\;\; u \text{ is incremented by } d\\
-   &v \text{ jumps on each spike arrival by the weight of the spike}
-
-As published in [1]_, the numerics differs from the standard forward Euler technique in two ways:
-
-1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value
-2) the variable :math:`v` is updated using a time step half the size of that used to update variable :math:`u`.
-
-This model offers both forms of integration, they can be selected using the boolean parameter ``consistent_integration``. To reproduce some results published on the basis of this model, it is necessary to use the published form of the dynamics. In this case, ``consistent_integration`` must be set to false. For all other purposes, it is recommended to use the standard technique for forward Euler integration. In this case, ``consistent_integration`` must be set to true (default).
-
-
-First Version
--------------
-
-2009
-
-
-Author(s)
----------
-
-Hanuschkin, Morrison, Kunkel
-
-
-See also
---------
-
-iaf_psc_delta, mat2_psc_exp
-
-
-References
-----------
-
-.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
-
+Implementation of the simple spiking neuron model introduced by Izhikevich [1]_. The dynamics are given by: .. math:: dv/dt = 0.04 v^2 + 5 v + 140 - u + I du/dt = a (b v - u) .. math:: &\text{if~} v \geq V_th:\\ &\;\;\;\; v \text{ is set to } c\\ &\;\;\;\; u \text{ is incremented by } d\\ &v \text{ jumps on each spike arrival by the weight of the spike} As published in [1]_, the numerics differs from the standard forward Euler technique in two ways: 1) the new value of :math:`u` is calculated based on the new value of :math:`v`, rather than the previous value 2) the variable :math:`v` is updated using a time step half the size of that used to update variable :math:`u`. This model offers both forms of integration, they can be selected using the boolean parameter ``consistent_integration``. To reproduce some results published on the basis of this model, it is necessary to use the published form of the dynamics. In this case, ``consistent_integration`` must be set to false. For all other purposes, it is recommended to use the standard technique for forward Euler integration. In this case, ``consistent_integration`` must be set to true (default). First Version ------------- 2009 Author(s) --------- Hanuschkin, Morrison, Kunkel See also -------- iaf_psc_delta, mat2_psc_exp References ---------- .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
 
 
 
@@ -59,22 +12,13 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "a", "real", "0.02", "
-     time scale of recovery variable"    
-    "b", "real", "0.2", "
-     sensitivity of recovery variable"    
-    "c", "mV", "-65mV", "
-     after-spike reset value of V_m"    
-    "d", "real", "8.0", "
-     after-spike reset value of U_m"    
-    "V_min", "mV", "-inf * mV", "
-     Absolute lower value for the membrane potential."    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "a", "real", "0.02", "time scale of recovery variable"    
+    "b", "real", "0.2", "sensitivity of recovery variable"    
+    "c", "mV", "-65mV", "after-spike reset value of V_m"    
+    "d", "real", "8.0", "after-spike reset value of U_m"    
+    "V_min", "mV", "-inf * mV", "Absolute lower value for the membrane potential."    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -84,13 +28,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "-65mV", "
-     Membrane potential"    
-    "U_m", "real", "0", "
-     Membrane potential recovery variable"
+    :widths: auto    
+    "V_m", "mV", "-65mV", "Membrane potential"    
+    "U_m", "real", "0", "Membrane potential recovery variable"
 
 
 
@@ -102,11 +42,11 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right) 
 
 
 .. math::
-   \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
+   \frac{ dU_{m}' } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
 
 
 
@@ -129,7 +69,7 @@ Source code
 
    .. math::
 
-      &\text{if\ } v \geq V_th:\\
+      &\text{if~} v \geq V_th:\\
       &\;\;\;\; v \text{ is set to } c\\
       &\;\;\;\; u \text{ is incremented by } d\\
       &v \text{ jumps on each spike arrival by the weight of the spike}
@@ -219,4 +159,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:21.250108
+   Generated at 2020-02-21 10:47:41.041991

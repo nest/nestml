@@ -1,39 +1,7 @@
 hh_cond_exp_traub_implicit_nestml
 =================================
 
-
-Name: hh_cond_exp_traub_implicit - Hodgin Huxley based model, Traub modified.
-
-Description:
-
- hh_cond_exp_traub_implicit is an implementation of a modified Hodkin-Huxley model
-
- (1) Post-synaptic currents
- Incoming spike events induce a post-synaptic change of conductance modeled
- by an exponential function. The exponential function is normalized such that an
- event of weight 1.0 results in a peak current of 1 nS.
-
- (2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
-
-Problems/Todo:
-Only the channel variables m,h,n are implemented. The original
-contains variables called y,s,r,q and \chi.
-References:
-
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-Cambridge University Press, Cambridge UK.
-
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-Author: Schrader
-
-SeeAlso: hh_psc_alpha
-
+Name: hh_cond_exp_traub_implicit - Hodgin Huxley based model, Traub modified. Description: hh_cond_exp_traub_implicit is an implementation of a modified Hodkin-Huxley model (1) Post-synaptic currents Incoming spike events induce a post-synaptic change of conductance modeled by an exponential function. The exponential function is normalized such that an event of weight 1.0 results in a peak current of 1 nS. (2) Spike Detection Spike detection is done by a combined threshold-and-local-maximum search: if there is a local maximum above a certain threshold of the membrane potential, it is considered a spike. Problems/Todo: Only the channel variables m,h,n are implemented. The original contains variables called y,s,r,q and \chi. References: Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK. Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest Author: Schrader SeeAlso: hh_psc_alpha
 
 
 
@@ -44,39 +12,21 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "g_Na", "nS", "20000.0nS", "
-     Na Conductance"    
-    "g_K", "nS", "6000.0nS", "
-     K Conductance"    
-    "g_L", "nS", "10nS", "
-     Leak Conductance"    
-    "C_m", "pF", "200.0pF", "
-     Membrane Capacitance"    
-    "E_Na", "mV", "50mV", "
-     Reversal potentials"    
-    "E_K", "mV", "-90.0mV", "
-     Potassium reversal potential"    
-    "E_L", "mV", "-60.0mV", "
-     Leak reversal Potential (aka resting potential)"    
-    "V_T", "mV", "-63.0mV", "
-     Voltage offset that controls dynamics. For default"    
-    "tau_syn_ex", "ms", "5.0ms", "
-     parameters, V_T = -63 mV results in a threshold around -50 mV.
-     Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "10.0ms", "
-     Synaptic Time Constant for Inhibitory Synapse"    
-    "t_ref", "ms", "2.0ms", "
-     Refractory period"    
-    "E_ex", "mV", "0.0mV", "
-     Excitatory synaptic reversal potential"    
-    "E_in", "mV", "-80.0mV", "
-     Inhibitory synaptic reversal potential"    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "g_Na", "nS", "20000.0nS", "Na Conductance"    
+    "g_K", "nS", "6000.0nS", "K Conductance"    
+    "g_L", "nS", "10nS", "Leak Conductance"    
+    "C_m", "pF", "200.0pF", "Membrane Capacitance"    
+    "E_Na", "mV", "50mV", "Reversal potentials"    
+    "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
+    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
+    "V_T", "mV", "-63.0mV", "Voltage offset that controls dynamics. For default"    
+    "tau_syn_ex", "ms", "5.0ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "t_ref", "ms", "2.0ms", "Refractory period"    
+    "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
+    "E_in", "mV", "-80.0mV", "Inhibitory synaptic reversal potential"    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -86,33 +36,19 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "E_L", "
-      Membrane potential"    
-    "g_in", "nS", "1nS", "
-     Inhibitory synaptic conductance"    
-    "g_ex", "nS", "1nS", "
-     Excitatory synaptic conductance"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", "
-    None"    
-    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", "
-    None"    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", "
-    None"    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", "
-    None"    
-    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", "
-    None"    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", "
-    None"    
-    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", "
-    None"    
-    "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "
-    None"    
-    "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "
-    None"
+    :widths: auto    
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "g_in", "nS", "1nS", "Inhibitory synaptic conductance"    
+    "g_ex", "nS", "1nS", "Excitatory synaptic conductance"    
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
+    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", ""    
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", ""    
+    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", ""    
+    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", ""    
+    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
+    "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
+    "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""
 
 
 
@@ -124,19 +60,19 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
 
 
 .. math::
-   \frac{ dAct_m } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
+   \frac{ dAct_{m}' } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
 
 
 .. math::
-   \frac{ dAct_h } { dt }= (\alpha_{h} - (\alpha_{h} + \beta_{h}) \cdot Act_{h})
+   \frac{ dAct_{h}' } { dt }= (\alpha_{h} - (\alpha_{h} + \beta_{h}) \cdot Act_{h})
 
 
 .. math::
-   \frac{ dInact_n } { dt }= (\alpha_{n} - (\alpha_{n} + \beta_{n}) \cdot Inact_{n})
+   \frac{ dInact_{n}' } { dt }= (\alpha_{n} - (\alpha_{n} + \beta_{n}) \cdot Inact_{n})
 
 
 
@@ -414,4 +350,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:21.116210
+   Generated at 2020-02-21 10:47:40.821266

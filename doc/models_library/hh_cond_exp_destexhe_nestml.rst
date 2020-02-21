@@ -1,45 +1,7 @@
 hh_cond_exp_destexhe_nestml
 ===========================
 
-
-Name: hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified.
-
-Description:
-
- hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is
- based on the hh_cond_exp_traub model.
-
- Differences to hh_cond_exp_traub:
-
- (1) Additional background noise
- A background current whose conductances were modeled as an Ornstein-Uhlenbeck process
- is injected into the neuron.
-
- (2) Additional non-inactivating K+ current
- A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
-
-References:
-
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-Cambridge University Press, Cambridge UK.
-
-Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo
-Journal of Neurophysiology
-
-A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons
-Neuroscience
-
-Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons
-Neuron
-
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-Author: Tobias Schulte to Brinke
-
-SeeAlso: hh_cond_exp_traub
-
+Name: hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified. Description: hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is based on the hh_cond_exp_traub model. Differences to hh_cond_exp_traub: (1) Additional background noise A background current whose conductances were modeled as an Ornstein-Uhlenbeck process is injected into the neuron. (2) Additional non-inactivating K+ current A non-inactivating K+ current was included, which is responsible for spike frequency adaptation. References: Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK. Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo Journal of Neurophysiology A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons Neuroscience Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons Neuron Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest Author: Tobias Schulte to Brinke SeeAlso: hh_cond_exp_traub
 
 
 
@@ -50,47 +12,25 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "g_Na", "nS", "17318.0nS", "
-     Na Conductance"    
-    "g_K", "nS", "3463.6nS", "
-     K Conductance"    
-    "g_L", "nS", "15.5862nS", "
-     Leak Conductance"    
-    "C_m", "pF", "346.36pF", "
-     Membrane Capacitance"    
-    "E_Na", "mV", "60mV", "
-     Reversal potentials"    
-    "E_K", "mV", "-90.0mV", "
-     Potassium reversal potential"    
-    "E_L", "mV", "-80.0mV", "
-     Leak reversal Potential (aka resting potential)"    
-    "V_T", "mV", "-58.0mV", "
-     Voltage offset that controls dynamics. For default"    
-    "tau_syn_ex", "ms", "2.7ms", "
-     parameters, V_T = -63mV results in a threshold around -50mV.
-     Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "10.5ms", "
-     Synaptic Time Constant for Inhibitory Synapse"    
-    "I_e", "pA", "0pA", "
-     Constant Current"    
-    "E_ex", "mV", "0.0mV", "
-     Excitatory synaptic reversal potential"    
-    "E_in", "mV", "-75.0mV", "
-     Inhibitory synaptic reversal potential"    
-    "g_M", "nS", "173.18nS", "
-     Conductance of non-inactivating K+ channel"    
-    "g_noise_ex0", "uS", "0.012uS", "
-     Conductance OU noise
-     Mean of the excitatory noise conductance"    
-    "g_noise_in0", "uS", "0.057uS", "
-     Mean of the inhibitory noise conductance"    
-    "sigma_noise_ex", "uS", "0.003uS", "
-     Standard deviation of the excitatory noise conductance"    
-    "sigma_noise_in", "uS", "0.0066uS", "
-     Standard deviation of the inhibitory noise conductance"
+    :widths: auto    
+    "g_Na", "nS", "17318.0nS", "Na Conductance"    
+    "g_K", "nS", "3463.6nS", "K Conductance"    
+    "g_L", "nS", "15.5862nS", "Leak Conductance"    
+    "C_m", "pF", "346.36pF", "Membrane Capacitance"    
+    "E_Na", "mV", "60mV", "Reversal potentials"    
+    "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
+    "E_L", "mV", "-80.0mV", "Leak reversal Potential (aka resting potential)"    
+    "V_T", "mV", "-58.0mV", "Voltage offset that controls dynamics. For default"    
+    "tau_syn_ex", "ms", "2.7ms", "parameters, V_T = -63mV results in a threshold around -50mV.Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_in", "ms", "10.5ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "I_e", "pA", "0pA", "Constant Current"    
+    "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
+    "E_in", "mV", "-75.0mV", "Inhibitory synaptic reversal potential"    
+    "g_M", "nS", "173.18nS", "Conductance of non-inactivating K+ channel"    
+    "g_noise_ex0", "uS", "0.012uS", "Conductance OU noiseMean of the excitatory noise conductance"    
+    "g_noise_in0", "uS", "0.057uS", "Mean of the inhibitory noise conductance"    
+    "sigma_noise_ex", "uS", "0.003uS", "Standard deviation of the excitatory noise conductance"    
+    "sigma_noise_in", "uS", "0.0066uS", "Standard deviation of the inhibitory noise conductance"
 
 
 
@@ -100,35 +40,20 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "E_L", "
-      Membrane potential"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", "
-    None"    
-    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", "
-    None"    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", "
-    None"    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", "
-    None"    
-    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", "
-    None"    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", "
-    None"    
-    "alpha_p_init", "1 / ms", "0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp(-(V_m + 30.0mV) / 9.0mV))", "
-    None"    
-    "beta_p_init", "1 / ms", "-0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp((V_m + 30.0mV) / 9.0mV))", "
-    None"    
-    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", "
-    None"    
-    "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "
-    None"    
-    "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "
-    None"    
-    "Noninact_p", "real", "alpha_p_init / (alpha_p_init + beta_p_init)", "
-    None"
+    :widths: auto    
+    "V_m", "mV", "E_L", "Membrane potential"    
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
+    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", ""    
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", ""    
+    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", ""    
+    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", ""    
+    "alpha_p_init", "1 / ms", "0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp(-(V_m + 30.0mV) / 9.0mV))", ""    
+    "beta_p_init", "1 / ms", "-0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp((V_m + 30.0mV) / 9.0mV))", ""    
+    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
+    "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
+    "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""    
+    "Noninact_p", "real", "alpha_p_init / (alpha_p_init + beta_p_init)", ""
 
 
 
@@ -140,23 +65,23 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{M} - I_{L} - I_{syn,exc} - I_{syn,inh} + currents + I_{e} - I_{noise}) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{M} - I_{L} - I_{syn,exc} - I_{syn,inh} + currents + I_{e} - I_{noise}) } \right) 
 
 
 .. math::
-   \frac{ dAct_m } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
+   \frac{ dAct_{m}' } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
 
 
 .. math::
-   \frac{ dAct_h } { dt }= (\alpha_{h} - (\alpha_{h} + \beta_{h}) \cdot Act_{h})
+   \frac{ dAct_{h}' } { dt }= (\alpha_{h} - (\alpha_{h} + \beta_{h}) \cdot Act_{h})
 
 
 .. math::
-   \frac{ dInact_n } { dt }= (\alpha_{n} - (\alpha_{n} + \beta_{n}) \cdot Inact_{n})
+   \frac{ dInact_{n}' } { dt }= (\alpha_{n} - (\alpha_{n} + \beta_{n}) \cdot Inact_{n})
 
 
 .. math::
-   \frac{ dNoninact_p } { dt }= (\alpha_{p} - (\alpha_{p} + \beta_{p}) \cdot Noninact_{p})
+   \frac{ dNoninact_{p}' } { dt }= (\alpha_{p} - (\alpha_{p} + \beta_{p}) \cdot Noninact_{p})
 
 
 
@@ -338,4 +263,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:20.883228
+   Generated at 2020-02-21 10:47:40.459824

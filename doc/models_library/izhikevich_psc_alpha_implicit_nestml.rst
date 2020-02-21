@@ -11,36 +11,20 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "C_m", "pF", "200.0pF", "
-     Membrane capacitance"    
-    "k", "pF / (ms mV)", "8.0pF / mV / ms", "
-     Spiking slope"    
-    "V_r", "mV", "-65.0mV", "
-     resting potential"    
-    "V_t", "mV", "-45.0mV", "
-     threshold potential"    
-    "a", "1 / ms", "0.01 / ms", "
-     describes time scale of recovery variable"    
-    "b", "nS", "9.0nS", "
-     sensitivity of recovery variable"    
-    "c", "mV", "-65mV", "
-     after-spike reset value of V_m"    
-    "d", "pA", "60.0pA", "
-     after-spike reset value of U_m"    
-    "V_peak", "mV", "0.0mV", "
-     Spike detection threshold (reset condition)"    
-    "tau_syn_ex", "ms", "0.2ms", "
-     Synaptic Time Constant Excitatory Synapse"    
-    "tau_syn_in", "ms", "2.0ms", "
-     Synaptic Time Constant for Inhibitory Synapse"    
-    "t_ref", "ms", "2.0ms", "
-     Refractory period"    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "C_m", "pF", "200.0pF", "Membrane capacitance"    
+    "k", "pF / (ms mV)", "8.0pF / mV / ms", "Spiking slope"    
+    "V_r", "mV", "-65.0mV", "resting potential"    
+    "V_t", "mV", "-45.0mV", "threshold potential"    
+    "a", "1 / ms", "0.01 / ms", "describes time scale of recovery variable"    
+    "b", "nS", "9.0nS", "sensitivity of recovery variable"    
+    "c", "mV", "-65mV", "after-spike reset value of V_m"    
+    "d", "pA", "60.0pA", "after-spike reset value of U_m"    
+    "V_peak", "mV", "0.0mV", "Spike detection threshold (reset condition)"    
+    "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
+    "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
+    "t_ref", "ms", "2.0ms", "Refractory period"    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -50,21 +34,13 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "-65mV", "
-     Membrane potential"    
-    "U_m", "pA", "0pA", "
-     Membrane potential recovery variable"    
-    "I_syn_ex", "pA", "0.0pA", "
-     inputs from the exc conductance"    
-    "I_syn_ex__d", "pA / ms", "pA * e / tau_syn_in", "
-     inputs from the exc conductance"    
-    "I_syn_in", "pA", "0pA", "
-     inputs from the inh conductance"    
-    "I_syn_in__d", "pA / ms", "pA * e / tau_syn_in", "
-     inputs from the inh conductance"
+    :widths: auto    
+    "V_m", "mV", "-65mV", "Membrane potential"    
+    "U_m", "pA", "0pA", "Membrane potential recovery variable"    
+    "I_syn_ex", "pA", "0.0pA", "inputs from the exc conductance"    
+    "I_syn_ex__d", "pA / ms", "pA * e / tau_syn_in", "inputs from the exc conductance"    
+    "I_syn_in", "pA", "0pA", "inputs from the inh conductance"    
+    "I_syn_in__d", "pA / ms", "pA * e / tau_syn_in", "inputs from the inh conductance"
 
 
 
@@ -76,11 +52,11 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
 
 
 .. math::
-   \frac{ dU_m } { dt }= a \cdot (b \cdot (V_{m} - V_{r}) - U_{m})
+   \frac{ dU_{m}' } { dt }= a \cdot (b \cdot (V_{m} - V_{r}) - U_{m})
 
 
 
@@ -304,4 +280,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:21.046840
+   Generated at 2020-02-21 10:47:40.716999

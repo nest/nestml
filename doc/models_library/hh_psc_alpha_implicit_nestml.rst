@@ -1,52 +1,7 @@
 hh_psc_alpha_implicit_nestml
 ============================
 
-
-Name: hh_psc_alpha_implicit - Hodgkin Huxley neuron model.
-
-Description:
-
- hh_psc_alpha is an implementation of a spiking neuron using the Hodkin-Huxley
- formalism.
-
- (1) Post-syaptic currents
- Incoming spike events induce a post-synaptic change of current modelled
- by an alpha function. The alpha function is normalised such that an event of
- weight 1.0 results in a peak current of 1 pA.
-
-
- (2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
-
-Problems/Todo:
-
- better spike detection
- initial wavelet/spike at simulation onset
-
-References:
-
- Spiking Neuron Models:
- Single Neurons, Populations, Plasticity
- Wulfram Gerstner, Werner Kistler,  Cambridge University Press
-
- Theoretical Neuroscience:
- Computational and Mathematical Modeling of Neural Systems
- Peter Dayan, L. F. Abbott, MIT Press (parameters taken from here)
-
- Hodgkin, A. L. and Huxley, A. F.,
- A Quantitative Description of Membrane Current
- and Its Application to Conduction and Excitation in Nerve,
- Journal of Physiology, 117, 500-544 (1952)
-
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-Authors: Schrader
-SeeAlso: hh_cond_exp_traub
-
+Name: hh_psc_alpha_implicit - Hodgkin Huxley neuron model. Description: hh_psc_alpha is an implementation of a spiking neuron using the Hodkin-Huxley formalism. (1) Post-syaptic currents Incoming spike events induce a post-synaptic change of current modelled by an alpha function. The alpha function is normalised such that an event of weight 1.0 results in a peak current of 1 pA. (2) Spike Detection Spike detection is done by a combined threshold-and-local-maximum search: if there is a local maximum above a certain threshold of the membrane potential, it is considered a spike. Problems/Todo: better spike detection initial wavelet/spike at simulation onset References: Spiking Neuron Models: Single Neurons, Populations, Plasticity Wulfram Gerstner, Werner Kistler, Cambridge University Press Theoretical Neuroscience: Computational and Mathematical Modeling of Neural Systems Peter Dayan, L. F. Abbott, MIT Press (parameters taken from here) Hodgkin, A. L. and Huxley, A. F., A Quantitative Description of Membrane Current and Its Application to Conduction and Excitation in Nerve, Journal of Physiology, 117, 500-544 (1952) Sends: SpikeEvent Receives: SpikeEvent, CurrentEvent, DataLoggingRequest Authors: Schrader SeeAlso: hh_cond_exp_traub
 
 
 
@@ -57,32 +12,18 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "t_ref", "ms", "2.0ms", "
-     Refractory period"    
-    "g_Na", "nS", "12000.0nS", "
-     Sodium peak conductance"    
-    "g_K", "nS", "3600.0nS", "
-     Potassium peak conductance"    
-    "g_L", "nS", "30nS", "
-     Leak conductance"    
-    "C_m", "pF", "100.0pF", "
-     Membrane Capacitance"    
-    "E_Na", "mV", "50mV", "
-     Sodium reversal potential"    
-    "E_K", "mV", "-77.0mV", "
-     Potassium reversal potentia"    
-    "E_L", "mV", "-54.402mV", "
-     Leak reversal Potential (aka resting potential)"    
-    "tau_syn_ex", "ms", "0.2ms", "
-     Rise time of the excitatory synaptic alpha function i"    
-    "tau_syn_in", "ms", "2.0ms", "
-     Rise time of the inhibitory synaptic alpha function"    
-    "I_e", "pA", "0pA", "
-     constant external input current
-    None"
+    :widths: auto    
+    "t_ref", "ms", "2.0ms", "Refractory period"    
+    "g_Na", "nS", "12000.0nS", "Sodium peak conductance"    
+    "g_K", "nS", "3600.0nS", "Potassium peak conductance"    
+    "g_L", "nS", "30nS", "Leak conductance"    
+    "C_m", "pF", "100.0pF", "Membrane Capacitance"    
+    "E_Na", "mV", "50mV", "Sodium reversal potential"    
+    "E_K", "mV", "-77.0mV", "Potassium reversal potentia"    
+    "E_L", "mV", "-54.402mV", "Leak reversal Potential (aka resting potential)"    
+    "tau_syn_ex", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function i"    
+    "tau_syn_in", "ms", "2.0ms", "Rise time of the inhibitory synaptic alpha function"    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -92,37 +33,21 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto
-
-    
-    "V_m", "mV", "-65.0mV", "
-     Membrane potential"    
-    "I_syn_ex", "pA", "0pA", "
-     inputs from the exc spikes"    
-    "I_syn_ex__d", "pA / ms", "pA * e / tau_syn_ex", "
-     inputs from the exc spikes"    
-    "I_syn_in", "pA", "0pA", "
-     inputs from the inh spikes"    
-    "I_syn_in__d", "pA / ms", "pA * e / tau_syn_in", "
-     inputs from the inh spikes"    
-    "alpha_n_init", "real", "(0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0))", "
-    None"    
-    "beta_n_init", "real", "0.125 * exp(-(V_m / mV + 65.0) / 80.0)", "
-    None"    
-    "alpha_m_init", "real", "(0.1 * (V_m / mV + 40.0)) / (1.0 - exp(-(V_m / mV + 40.0) / 10.0))", "
-    None"    
-    "beta_m_init", "real", "4.0 * exp(-(V_m / mV + 65.0) / 18.0)", "
-    None"    
-    "alpha_h_init", "real", "0.07 * exp(-(V_m / mV + 65.0) / 20.0)", "
-    None"    
-    "beta_h_init", "real", "1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0))", "
-    None"    
-    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", "
-     Activation variable m for Na"    
-    "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "
-     Inactivation variable h for Na"    
-    "Act_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "
-     Activation variable n for K"
+    :widths: auto    
+    "V_m", "mV", "-65.0mV", "Membrane potential"    
+    "I_syn_ex", "pA", "0pA", "inputs from the exc spikes"    
+    "I_syn_ex__d", "pA / ms", "pA * e / tau_syn_ex", "inputs from the exc spikes"    
+    "I_syn_in", "pA", "0pA", "inputs from the inh spikes"    
+    "I_syn_in__d", "pA / ms", "pA * e / tau_syn_in", "inputs from the inh spikes"    
+    "alpha_n_init", "real", "(0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0))", ""    
+    "beta_n_init", "real", "0.125 * exp(-(V_m / mV + 65.0) / 80.0)", ""    
+    "alpha_m_init", "real", "(0.1 * (V_m / mV + 40.0)) / (1.0 - exp(-(V_m / mV + 40.0) / 10.0))", ""    
+    "beta_m_init", "real", "4.0 * exp(-(V_m / mV + 65.0) / 18.0)", ""    
+    "alpha_h_init", "real", "0.07 * exp(-(V_m / mV + 65.0) / 20.0)", ""    
+    "beta_h_init", "real", "1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0))", ""    
+    "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", "Activation variable m for Na"    
+    "Inact_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", "Inactivation variable h for Na"    
+    "Act_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", "Activation variable n for K"
 
 
 
@@ -134,19 +59,19 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m}' } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
 
 
 .. math::
-   \frac{ dAct_n } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } \right) 
+   \frac{ dAct_{n}' } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } \right) 
 
 
 .. math::
-   \frac{ dAct_m } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{m} \cdot (1 - Act_{m}) - \beta_{m} \cdot Act_{m}) } \right) 
+   \frac{ dAct_{m}' } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{m} \cdot (1 - Act_{m}) - \beta_{m} \cdot Act_{m}) } \right) 
 
 
 .. math::
-   \frac{ dInact_h } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h}) } \right) 
+   \frac{ dInact_{h}' } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h}) } \right) 
 
 
 
@@ -444,4 +369,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-19 20:31:21.313875
+   Generated at 2020-02-21 10:47:41.137936
