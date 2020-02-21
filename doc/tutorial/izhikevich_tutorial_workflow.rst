@@ -45,11 +45,11 @@ In the same Python session, continue entering the following code. This performs 
    neuron = nest.Create("izhikevich_tutorial")
    voltmeter = nest.Create("voltmeter")
 
-   voltmeter.set({"record_from" : ["v"]})
+   voltmeter.set({"record_from": ["v"]})
    nest.Connect(voltmeter, neuron)
 
    cgs = nest.Create('dc_generator')
-   cgs.set({"amplitude" : 25.})
+   cgs.set({"amplitude": 25.})
    nest.Connect(cgs, neuron)
 
    nest.Simulate(250.)

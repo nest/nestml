@@ -52,7 +52,7 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         ln_state_specifier = 'ln_state'
         log10_state_specifier = 'log10_state'
-        mm.set({"record_from" : [ln_state_specifier, log10_state_specifier, "x"]})
+        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
@@ -76,7 +76,7 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         ln_state_specifier = 'ln_state'
         log10_state_specifier = 'log10_state'
-        mm.set({"record_from" : [ln_state_specifier, log10_state_specifier, "x"]})
+        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
