@@ -33,7 +33,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_th", "mV", "-45.0mV", "Threshold Potential"    
     "E_ex", "mV", "20mV", "Excitatory reversal potential"    
     "E_in", "mV", "-90mV", "Inhibitory reversal potential"    
@@ -56,7 +58,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "membrane potential"    
     "g_in", "nS", "0nS", "inputs from the inh conductance"    
     "g_in__d", "nS / ms", "0nS / ms", "inputs from the inh conductance"    
@@ -355,4 +359,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:25.850338
+   Generated at 2020-02-21 11:32:58.248219

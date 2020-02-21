@@ -59,7 +59,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "E_Na", "mV", "30.0mV", ""    
     "E_K", "mV", "-90.0mV", ""    
     "g_NaL", "nS", "0.2nS", ""    
@@ -106,7 +108,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "(g_NaL * E_Na + g_KL * E_K) / (g_NaL + g_KL)", "membrane potential"    
     "Theta", "mV", "Theta_eq", "Threshold"    
     "g_AMPA", "nS", "0.0nS", ""    
@@ -461,4 +465,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.980211
+   Generated at 2020-02-21 11:32:59.340798

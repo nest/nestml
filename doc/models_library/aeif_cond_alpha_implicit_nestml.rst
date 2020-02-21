@@ -41,7 +41,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "C_m", "pF", "281.0pF", "membrane parametersMembrane Capacitance"    
     "t_ref", "ms", "0.0ms", "Refractory period"    
     "V_reset", "mV", "-60.0mV", "Reset Potential"    
@@ -67,7 +69,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "Membrane potential"    
     "w", "pA", "0pA", "Spike-adaptation current"    
     "g_in", "nS", "0nS", "Excitatory synaptic conductance"    
@@ -346,4 +350,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:25.999964
+   Generated at 2020-02-21 11:32:58.343689

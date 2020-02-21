@@ -55,7 +55,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "a", "real", "0.02", "time scale of recovery variable"    
     "b", "real", "0.2", "sensitivity of recovery variable"    
     "c", "mV", "-65mV", "after-spike reset value of V_m"    
@@ -71,7 +73,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "-65mV", "Membrane potential"    
     "U_m", "real", "0", "Membrane potential recovery variable"
 
@@ -200,4 +204,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.445936
+   Generated at 2020-02-21 11:32:58.762659

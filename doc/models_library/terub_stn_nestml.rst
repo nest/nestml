@@ -49,7 +49,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "E_L", "mV", "-60mV", "Resting membrane potential."    
     "g_L", "nS", "2.25nS", "Leak conductance."    
     "C_m", "pF", "1.0pF", "Capacity of the membrane."    
@@ -75,7 +77,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "Membrane potential"    
     "gate_h", "real", "0.0", "gating variable h"    
     "gate_n", "real", "0.0", "gating variable n"    
@@ -507,4 +511,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.844553
+   Generated at 2020-02-21 11:32:59.194757

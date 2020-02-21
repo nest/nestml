@@ -49,7 +49,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "E_L", "mV", "-60mV", "Resting membrane potential."    
     "g_L", "nS", "2.25nS", "Leak conductance."    
     "C_m", "pF", "1.0pF", "Capacity of the membrane."    
@@ -75,7 +77,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "Membrane potential"    
     "g_in", "pA", "0pA", "Inhibitory synaptic conductance"    
     "g_in__d", "pA / ms", "pA * e / tau_syn_in", "Inhibitory synaptic conductance"    
@@ -511,4 +515,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.914732
+   Generated at 2020-02-21 11:32:59.265723

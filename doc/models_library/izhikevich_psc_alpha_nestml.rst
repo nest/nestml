@@ -38,7 +38,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "C_m", "pF", "200.0pF", "Membrane capacitance"    
     "k", "pF / (ms mV)", "8.0pF / mV / ms", "Spiking slope"    
     "V_r", "mV", "-65.0mV", "resting potential"    
@@ -61,7 +63,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "-65mV", "Membrane potential"    
     "U_m", "pA", "0pA", "Membrane potential recovery variable"
 
@@ -303,4 +307,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.068990
+   Generated at 2020-02-21 11:32:58.380834

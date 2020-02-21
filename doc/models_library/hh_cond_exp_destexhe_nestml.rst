@@ -48,7 +48,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "g_Na", "nS", "17318.0nS", "Na Conductance"    
     "g_K", "nS", "3463.6nS", "K Conductance"    
     "g_L", "nS", "15.5862nS", "Leak Conductance"    
@@ -76,7 +78,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "Membrane potential"    
     "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
     "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
@@ -299,4 +303,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:25.754640
+   Generated at 2020-02-21 11:32:58.156687

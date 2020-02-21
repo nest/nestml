@@ -55,7 +55,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "t_ref", "ms", "2.0ms", "Refractory period"    
     "g_Na", "nS", "12000.0nS", "Sodium peak conductance"    
     "g_K", "nS", "3600.0nS", "Potassium peak conductance"    
@@ -76,7 +78,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "-65.0mV", "Membrane potential"    
     "alpha_n_init", "real", "(0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0))", ""    
     "beta_n_init", "real", "0.125 * exp(-(V_m / mV + 65.0) / 80.0)", ""    
@@ -408,4 +412,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.484956
+   Generated at 2020-02-21 11:32:58.802668

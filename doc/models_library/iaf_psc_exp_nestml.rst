@@ -85,7 +85,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "C_m", "pF", "250pF", "Capacity of the membrane"    
     "tau_m", "ms", "10ms", "Membrane time constant."    
     "tau_syn_in", "ms", "2ms", "Time constant of synaptic current."    
@@ -104,7 +106,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_abs", "mV", "0mV", ""    
     "V_m", "mV", "V_abs + E_L", "Membrane potential."
 
@@ -272,4 +276,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.150467
+   Generated at 2020-02-21 11:32:58.457418

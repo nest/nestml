@@ -32,7 +32,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "E_L", "mV", "-85.0mV", "Leak reversal Potential (aka resting potential"    
     "C_m", "pF", "250.0pF", "Capacity of the membrane"    
     "t_ref", "ms", "2.0ms", "Refractory period"    
@@ -57,7 +59,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "membrane potential"    
     "g_in", "nS", "0nS", "inputs from the inh conductance"    
     "g_in__d", "nS / ms", "0nS / ms", "inputs from the inh conductance"    
@@ -214,4 +218,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.364214
+   Generated at 2020-02-21 11:32:58.674869

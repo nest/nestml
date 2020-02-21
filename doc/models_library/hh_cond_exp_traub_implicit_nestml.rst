@@ -42,7 +42,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "g_Na", "nS", "20000.0nS", "Na Conductance"    
     "g_K", "nS", "6000.0nS", "K Conductance"    
     "g_L", "nS", "10nS", "Leak Conductance"    
@@ -66,7 +68,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "Membrane potential"    
     "g_in", "nS", "1nS", "Inhibitory synaptic conductance"    
     "g_ex", "nS", "1nS", "Excitatory synaptic conductance"    
@@ -380,4 +384,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.226745
+   Generated at 2020-02-21 11:32:58.528530

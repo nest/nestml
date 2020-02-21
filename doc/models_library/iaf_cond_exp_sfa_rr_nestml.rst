@@ -47,7 +47,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_th", "mV", "-57.0mV", "Threshold Potential"    
     "V_reset", "mV", "-70.0mV", "Reset Potential"    
     "t_ref", "ms", "0.5ms", "Refractory period"    
@@ -74,7 +76,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "membrane potential"    
     "g_sfa", "nS", "0nS", "inputs from the sfa conductance"    
     "g_rr", "nS", "0nS", "inputs from the rr conductance"
@@ -349,4 +353,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.298341
+   Generated at 2020-02-21 11:32:58.600455

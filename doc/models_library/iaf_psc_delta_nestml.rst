@@ -77,7 +77,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "tau_m", "ms", "10ms", "Membrane time constant."    
     "C_m", "pF", "250pF", "Capacity of the membrane"    
     "t_ref", "ms", "2ms", "Duration of refractory period."    
@@ -97,7 +99,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_abs", "mV", "0mV", ""    
     "V_m", "mV", "V_abs + E_L", "Membrane potential."
 
@@ -273,4 +277,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:22:20.801311
+   Generated at 2020-02-21 11:32:59.096289

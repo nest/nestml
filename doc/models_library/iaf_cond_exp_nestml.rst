@@ -34,7 +34,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_th", "mV", "-55.0mV", "Threshold Potential"    
     "V_reset", "mV", "-60.0mV", "Reset Potential"    
     "t_ref", "ms", "2.0ms", "Refractory period"    
@@ -55,7 +57,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "E_L", "membrane potential"
 
 
@@ -261,4 +265,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.410768
+   Generated at 2020-02-21 11:32:58.725124

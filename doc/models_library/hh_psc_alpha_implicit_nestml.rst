@@ -55,7 +55,9 @@ Parameters
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "t_ref", "ms", "2.0ms", "Refractory period"    
     "g_Na", "nS", "12000.0nS", "Sodium peak conductance"    
     "g_K", "nS", "3600.0nS", "Potassium peak conductance"    
@@ -76,7 +78,9 @@ State variables
 
 .. csv-table::
     :header: "Name", "Physical unit", "Default value", "Description"
-    :widths: auto    
+    :widths: auto
+
+    
     "V_m", "mV", "-65.0mV", "Membrane potential"    
     "I_syn_ex", "pA", "0pA", "inputs from the exc spikes"    
     "I_syn_ex__d", "pA / ms", "pA * e / tau_syn_ex", "inputs from the exc spikes"    
@@ -412,4 +416,4 @@ Source code
 
 .. footer::
 
-   Generated at 2020-02-21 11:18:26.541694
+   Generated at 2020-02-21 11:32:58.861713
