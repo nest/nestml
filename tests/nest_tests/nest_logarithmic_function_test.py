@@ -52,16 +52,15 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         ln_state_specifier = 'ln_state'
         log10_state_specifier = 'log10_state'
-        nest.SetStatus(mm, {"withtime": True, "record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
-        dmm = nest.GetStatus(mm)[0]
-        timevec = dmm["events"]["x"]
-        ln_state_ts = dmm["events"][ln_state_specifier]
-        log10_state_ts = dmm["events"][log10_state_specifier]
+        timevec = mm.get("events")["x"]
+        ln_state_ts = mm.get("events")[ln_state_specifier]
+        log10_state_ts = mm.get("events")[log10_state_specifier]
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
 
@@ -77,16 +76,15 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
 
         ln_state_specifier = 'ln_state'
         log10_state_specifier = 'log10_state'
-        nest.SetStatus(mm, {"withtime": True, "record_from": [ln_state_specifier, log10_state_specifier, "x"]})
+        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "x"]})
 
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
-        dmm = nest.GetStatus(mm)[0]
-        timevec = dmm["events"]["x"]
-        ln_state_ts = dmm["events"][ln_state_specifier]
-        log10_state_ts = dmm["events"][log10_state_specifier]
+        timevec = mm.get("events")["x"]
+        ln_state_ts = mm.get("events")[ln_state_specifier]
+        log10_state_ts = mm.get("events")[log10_state_specifier]
         ref_ln_state_ts = np.log(timevec - 1)
         ref_log10_state_ts = np.log10(timevec - 1)
 

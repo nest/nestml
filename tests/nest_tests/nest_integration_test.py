@@ -56,7 +56,7 @@ class NestIntegrationTest(unittest.TestCase):
         models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
         models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
         models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
-        models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
+        models.append(("iaf_psc_exp_htum", "iaf_tum_2000_nestml", None, 0.01))
         models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
         models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
@@ -73,7 +73,7 @@ class NestIntegrationTest(unittest.TestCase):
         neuron2 = nest.Create(testant)
 
         if not (gsl_error_tol is None):
-            nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+            neuron2.set({"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',
                                      params={'spike_times': spike_times, 'spike_weights': spike_weights})
@@ -85,20 +85,18 @@ class NestIntegrationTest(unittest.TestCase):
         multimeter2 = nest.Create('multimeter')
 
         V_m_specifier = 'V_m'  # 'delta_V_m'
-        nest.SetStatus(multimeter1, {"withtime": True, "record_from": [V_m_specifier]})
-        nest.SetStatus(multimeter2, {"withtime": True, "record_from": [V_m_specifier]})
+        multimeter1.set({"record_from": [V_m_specifier]})
+        multimeter2.set({"record_from": [V_m_specifier]})
 
         nest.Connect(multimeter1, neuron1)
         nest.Connect(multimeter2, neuron2)
 
         nest.Simulate(400.0)
-        dmm1 = nest.GetStatus(multimeter1)[0]
-        Vms1 = dmm1["events"][V_m_specifier]
-        ts1 = dmm1["events"]["times"]
+        Vms1 = multimeter1.get("events")[V_m_specifier]
+        ts1 = multimeter1.get("events")["times"]
 
-        dmm2 = nest.GetStatus(multimeter2)[0]
-        Vms2 = dmm2["events"][V_m_specifier]
-        ts2 = dmm2["events"]["times"]
+        Vms2 = multimeter2.get("events")[V_m_specifier]
+        ts2 = multimeter2.get("events")["times"]
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)
