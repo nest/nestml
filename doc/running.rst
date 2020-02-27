@@ -65,7 +65,7 @@ This operation expects the same set of arguments as in the case of command line 
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 30
+   :widths: 10 10 10
 
    * - Argument
      - Type
@@ -81,7 +81,7 @@ This operation expects the same set of arguments as in the case of command line 
      - 'ERROR'
    * - module_name
      - string
-     - `nestmlmodule`
+     - ``nestmlmodule``
    * - store_log
      - boolean
      - False
