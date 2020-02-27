@@ -7,23 +7,23 @@ After the installation, the toolchain can be executed by the following command.
 
    nestml ARGUMENTS
 
-where arguments are:<a name="table_args"></a>
+where arguments are:
 
-=============== ===========
-Command         Description
---------------- -----------
--h or --help    Print help message.
---input_path    Path to the source file or directory containing the model.
---target_path   (Optional) Path to target directory where generated code will be written into. Default is `target`, which will be created in the current working directory if it does not yet exist.
---target        (Optional) The name of the target platform to generate code for. Default is NEST.
---logging_level (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO]
---module_name   (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`.
---store_log     (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.
---suffix        (Optional) A suffix string that will be appended to the name of all generated models.
---dev           (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
-=============== ===========
+--------------------- -----------
+Command               Description
+===================== ===========
+``-h`` or ``--help``  Print help message.
+``--input_path``      Path to the source file or directory containing the model.
+``--target_path``     (Optional) Path to target directory where generated code will be written into. Default is `target`, which will be created in the current working directory if it does not yet exist.
+``--target``          (Optional) The name of the target platform to generate code for. Default is NEST.
+``--logging_level``   (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO]
+``--module_name``     (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`.
+``--store_log``       (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.
+``--suffix``          (Optional) A suffix string that will be appended to the name of all generated models.
+``--dev``             (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
+--------------------- -----------
 
-Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
+Generated artifacts are copied to the selected target directory (default is ``target``). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 
 .. code:: bash
 
@@ -31,7 +31,7 @@ Generated artifacts are copied to the selected target directory (default is `tar
    make all
    make install
 
-where `<nest_install_dir>` is the installation directory of NEST (e.g. `/home/nest/work/nest-install`). Subsequently, the module can either be linked into NEST (see [Writing an extension module](https://nest.github.io/nest-simulator/extension_modules)), or loaded dynamically using the `Install` API function. For example, to dynamically load a module with `module_name` = `nestmlmodule` in PyNEST:
+where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home/nest/work/nest-install``). Subsequently, the module can either be linked into NEST (see `Writing an extension module <https://nest.github.io/nest-simulator/extension_modules>`_), or loaded dynamically using the ``Install`` API call. For example, to dynamically load a module with ``module_name`` equal to ``nestmlmodule`` in PyNEST:
 
 .. code:: bash
 
@@ -49,18 +49,18 @@ Subsequently, it is possible to call PyNESTML from other Python tools and script
 
    to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
 
-This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for `logging_level` are the same as before ('INFO', 'WARNING', 'ERROR', 'NO'). Note that only the `path` argument is mandatory:
+This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
 
-============== ======== ==============
-Argument       Type      Default
 -------------- -------- --------------
-input_path     string   _no default_
+Argument       Type      Default
+============== ======== ==============
+input_path     string   *no default*
 target_path    string   None
 logging_level  string   'ERROR'
 module_name    string   `nestmlmodule`
 store_log      boolean  False
 dev            boolean  False
-============== ======== ==============
+-------------- -------- --------------
 
 If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
 
@@ -68,9 +68,9 @@ If no errors occur, the output will be generated into the specified target direc
 
    install_nest(models_path, nest_path)
 
-Here, `models_path` should be set to the `target` directory of `to_nest()`, and `nest_path` points to the directory where NEST is installed (e.g., `/home/nest/work/nest-install`).
+Here, ``models_path`` should be set to the ``target`` directory of ``to_nest()``, and ``nest_path`` points to the directory where NEST is installed (e.g., ``/home/nest/work/nest-install``).
 
-A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is _nestmlmodule_.
+A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is ``nestmlmodule``.
 
 .. code:: Python
 
@@ -82,4 +82,4 @@ A typical script, therefore, could look like the following. For this example, we
 
    nest.Install("nestmlmodule")
    # ...
-   nest.Simulate(400.0)
+   nest.Simulate(400.)
