@@ -1,5 +1,5 @@
-iaf_psc_exp_nestml
-##################
+iaf_psc_exp
+###########
 
 Name: iaf_psc_exp - Leaky integrate-and-fire neuron model with exponential
                    PSCs.
@@ -273,7 +273,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: iaf_psc_exp_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:58.457418
+   Generated at 2020-02-27 14:02:12.672666

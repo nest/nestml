@@ -1,5 +1,5 @@
-hill_tononi_nestml
-##################
+hill_tononi
+###########
 
 Name: hill_tononi - Neuron model after Hill & Tononi (2005)
 
@@ -462,7 +462,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: hill_tononi_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:59.340798
+   Generated at 2020-02-27 14:02:13.115293

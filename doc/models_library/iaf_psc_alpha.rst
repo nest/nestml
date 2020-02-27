@@ -1,5 +1,5 @@
-iaf_psc_alpha_nestml
-####################
+iaf_psc_alpha
+#############
 
 Name: iaf_psc_alpha - Leaky integrate-and-fire neuron model.
 
@@ -270,9 +270,14 @@ Source code
 
    end
 
+
+
+Characterisation
+++++++++++++++++
+
 .. include:: iaf_psc_alpha_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:58.920014
+   Generated at 2020-02-27 14:02:12.926522

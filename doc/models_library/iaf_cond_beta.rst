@@ -1,5 +1,5 @@
-iaf_cond_beta_nestml
-####################
+iaf_cond_beta
+#############
 
 Name: iaf_cond_beta - Simple conductance based leaky integrate-and-fire neuron model.
 
@@ -215,7 +215,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: iaf_cond_beta_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:58.674869
+   Generated at 2020-02-27 14:02:12.781973

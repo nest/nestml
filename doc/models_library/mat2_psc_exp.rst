@@ -1,5 +1,5 @@
-mat2_psc_exp_nestml
-###################
+mat2_psc_exp
+############
 
 Name: mat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model with
 exponential PSCs and adaptive threshold.
@@ -266,7 +266,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: mat2_psc_exp_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:59.493493
+   Generated at 2020-02-27 14:02:13.233589

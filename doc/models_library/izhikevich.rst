@@ -1,5 +1,5 @@
-izhikevich_nestml
-#################
+izhikevich
+##########
 
 izhikevich - Izhikevich neuron model
 ####################################
@@ -201,7 +201,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: izhikevich_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:58.762659
+   Generated at 2020-02-27 14:02:12.840325

@@ -1,5 +1,5 @@
-iaf_tum_2000_nestml
-###################
+iaf_tum_2000
+############
 
 Name: iaf_tum_2000 - Leaky integrate-and-fire neuron model with exponential
                         PSCs.
@@ -315,7 +315,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: iaf_tum_2000_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:58.584281
+   Generated at 2020-02-27 14:02:12.735014

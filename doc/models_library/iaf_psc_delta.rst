@@ -1,5 +1,5 @@
-iaf_psc_delta_nestml
-####################
+iaf_psc_delta
+#############
 
 Name: iaf_psc_delta - Leaky integrate-and-fire neuron with delta-shaped PSCs.
 
@@ -274,7 +274,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: iaf_psc_delta_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:59.096289
+   Generated at 2020-02-27 14:02:13.005701

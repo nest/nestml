@@ -1,5 +1,5 @@
-hh_cond_exp_destexhe_nestml
-###########################
+hh_cond_exp_destexhe
+####################
 
 Name: hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified.
 
@@ -300,7 +300,12 @@ Source code
 
 
 
+Characterisation
+++++++++++++++++
+
+.. include:: hh_cond_exp_destexhe_characterisation.rst
+
 
 .. footer::
 
-   Generated at 2020-02-21 11:32:58.156687
+   Generated at 2020-02-27 14:02:12.522530
