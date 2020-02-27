@@ -39,7 +39,7 @@ class NestIntegrationTest(unittest.TestCase):
         models = list()
         models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
         models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
-        models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
+        """models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
         models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 0.001))
         models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 0.001))
         models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 0.001))
@@ -58,10 +58,11 @@ class NestIntegrationTest(unittest.TestCase):
         models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
         models.append(("iaf_psc_exp_htum", "iaf_tum_2000_nestml", None, 0.01))
         models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
-        models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
+        models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))"""
 
         for reference, testant, gsl_error_tol, tollerance in models:
-            self._test_model(reference, testant, gsl_error_tol, tollerance)
+            #self._test_model(reference, testant, gsl_error_tol, tollerance)
+            self._test_model2(reference, testant, gsl_error_tol, tollerance)
 
 
     def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001):
@@ -106,6 +107,57 @@ class NestIntegrationTest(unittest.TestCase):
                 _ax.legend(loc='upper right')
                 _ax.grid()
             plt.savefig("/tmp/nestml_nest_integration_test_[" + referenceModel + "]_[" + testant + "].png")
+
+        for index in range(0, len(Vms1)):
+            if abs(Vms1[index] - Vms2[index]) > tolerance \
+             or np.isnan(Vms1[index]) \
+             or np.isnan(Vms2[index]):
+                print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
+                raise Exception(testant + ": TEST FAILED")
+
+        print(testant + " PASSED")
+
+
+    def _test_model2(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001):
+        I_stim = 1E-9
+
+        nest.ResetKernel()
+        neuron1 = nest.Create(referenceModel)
+        neuron2 = nest.Create(testant)
+
+        if not (gsl_error_tol is None):
+            neuron2.set({"gsl_error_tol": gsl_error_tol})
+
+        dc = nest.Create("dc_generator", params={"amplitude": I_stim * 1E12}) # 1E12: convert A to pA
+
+        nest.Connect(dc, neuron1)
+        nest.Connect(dc, neuron2)
+
+        multimeter1 = nest.Create('multimeter')
+        multimeter2 = nest.Create('multimeter')
+
+        V_m_specifier = 'V_m'  # 'delta_V_m'
+        multimeter1.set({"record_from": [V_m_specifier]})
+        multimeter2.set({"record_from": [V_m_specifier]})
+
+        nest.Connect(multimeter1, neuron1)
+        nest.Connect(multimeter2, neuron2)
+
+        nest.Simulate(400.0)
+        Vms1 = multimeter1.get("events")[V_m_specifier]
+        ts1 = multimeter1.get("events")["times"]
+
+        Vms2 = multimeter2.get("events")[V_m_specifier]
+        ts2 = multimeter2.get("events")["times"]
+
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(2, 1)
+            ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
+            ax[1].plot(ts2, Vms2, label = "Testant " + testant)
+            for _ax in ax:
+                _ax.legend(loc='upper right')
+                _ax.grid()
+            plt.savefig("/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "].png")
 
         for index in range(0, len(Vms1)):
             if abs(Vms1[index] - Vms2[index]) > tolerance \

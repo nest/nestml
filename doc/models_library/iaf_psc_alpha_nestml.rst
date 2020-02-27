@@ -270,7 +270,7 @@ Source code
 
    end
 
-
+.. include:: iaf_psc_alpha_characterisation.rst
 
 
 .. footer::
