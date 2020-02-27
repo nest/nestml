@@ -3,7 +3,7 @@ Models library
 
 
 :doc:`iaf_psc_delta <iaf_psc_delta>`
--------------------------------------------
+------------------------------------
 
 Source file: `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_psc_delta.nestml>`_
 
@@ -17,7 +17,7 @@ Source file: `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 
 :doc:`iaf_psc_exp <iaf_psc_exp>`
----------------------------------------
+--------------------------------
 
 Source file: `iaf_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_psc_exp.nestml>`_
 
@@ -31,7 +31,7 @@ Source file: `iaf_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master
 
 
 :doc:`iaf_psc_alpha <iaf_psc_alpha>`
--------------------------------------------
+------------------------------------
 
 Source file: `iaf_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_psc_alpha.nestml>`_
 
@@ -45,7 +45,7 @@ Source file: `iaf_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/mast
 
 
 :doc:`iaf_cond_exp <iaf_cond_exp>`
------------------------------------------
+----------------------------------
 
 Source file: `iaf_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_cond_exp.nestml>`_
 
@@ -59,7 +59,7 @@ Source file: `iaf_cond_exp.nestml <https://www.github.com/nest/nestml/blob/maste
 
 
 :doc:`iaf_cond_alpha <iaf_cond_alpha>`
----------------------------------------------
+--------------------------------------
 
 Source file: `iaf_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_cond_alpha.nestml>`_
 
@@ -73,7 +73,7 @@ Source file: `iaf_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/mas
 
 
 :doc:`iaf_cond_beta <iaf_cond_beta>`
--------------------------------------------
+------------------------------------
 
 Source file: `iaf_cond_beta.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_cond_beta.nestml>`_
 
@@ -87,7 +87,7 @@ Source file: `iaf_cond_beta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 
 :doc:`izhikevich <izhikevich>`
--------------------------------------
+------------------------------
 
 Source file: `izhikevich.nestml <https://www.github.com/nest/nestml/blob/master/models/izhikevich.nestml>`_
 
@@ -101,7 +101,7 @@ Source file: `izhikevich.nestml <https://www.github.com/nest/nestml/blob/master/
 
 
 :doc:`hh_psc_alpha <hh_psc_alpha>`
------------------------------------------
+----------------------------------
 
 Source file: `hh_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_psc_alpha.nestml>`_
 
@@ -115,7 +115,7 @@ Source file: `hh_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/maste
 
 
 :doc:`iaf_chxk_2008 <iaf_chxk_2008>`
--------------------------------------------
+------------------------------------
 
 Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
 
@@ -128,74 +128,74 @@ Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/mast
           :alt: iaf_chxk_2008
 
 
-:doc:`hh_cond_exp_destexhe <hh_cond_exp_destexhe>`
+:doc:`hh_cond_exp_destexhe <hh_cond_exp_destexhe_nestml>`
 ---------------------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `hh_cond_exp_destexhe.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_cond_exp_destexhe.nestml>`_
 
 
-:doc:`aeif_cond_alpha <aeif_cond_alpha>`
+:doc:`aeif_cond_alpha <aeif_cond_alpha_nestml>`
 -----------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `aeif_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/aeif_cond_alpha.nestml>`_
 
 
-:doc:`izhikevich_psc_alpha <izhikevich_psc_alpha>`
+:doc:`izhikevich_psc_alpha <izhikevich_psc_alpha_nestml>`
 ---------------------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `izhikevich_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/izhikevich_psc_alpha.nestml>`_
 
 
-:doc:`hh_cond_exp_traub <hh_cond_exp_traub>`
+:doc:`hh_cond_exp_traub <hh_cond_exp_traub_nestml>`
 ---------------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `hh_cond_exp_traub.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_cond_exp_traub.nestml>`_
 
 
-:doc:`lorenz_attractor <lorenz_attractor>`
+:doc:`lorenz_attractor <lorenz_attractor_nestml>`
 -------------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `lorenz_attractor.nestml <https://www.github.com/nest/nestml/blob/master/models/lorenz_attractor.nestml>`_
 
 
-:doc:`iaf_tum_2000 <iaf_tum_2000>`
+:doc:`iaf_tum_2000 <iaf_tum_2000_nestml>`
 -----------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `iaf_tum_2000.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_tum_2000.nestml>`_
 
 
-:doc:`iaf_cond_exp_sfa_rr <iaf_cond_exp_sfa_rr>`
+:doc:`iaf_cond_exp_sfa_rr <iaf_cond_exp_sfa_rr_nestml>`
 -------------------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `iaf_cond_exp_sfa_rr.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_cond_exp_sfa_rr.nestml>`_
 
 
-:doc:`terub_gpe <terub_gpe>`
+:doc:`terub_gpe <terub_gpe_nestml>`
 -----------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `terub_gpe.nestml <https://www.github.com/nest/nestml/blob/master/models/terub_gpe.nestml>`_
 
 
-:doc:`aeif_cond_exp <aeif_cond_exp>`
+:doc:`aeif_cond_exp <aeif_cond_exp_nestml>`
 -------------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `aeif_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/aeif_cond_exp.nestml>`_
 
 
-:doc:`terub_stn <terub_stn>`
+:doc:`terub_stn <terub_stn_nestml>`
 -----------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `terub_stn.nestml <https://www.github.com/nest/nestml/blob/master/models/terub_stn.nestml>`_
 
 
-:doc:`hill_tononi <hill_tononi>`
+:doc:`hill_tononi <hill_tononi_nestml>`
 ---------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `hill_tononi.nestml <https://www.github.com/nest/nestml/blob/master/models/hill_tononi.nestml>`_
 
 
-:doc:`mat2_psc_exp <mat2_psc_exp>`
+:doc:`mat2_psc_exp <mat2_psc_exp_nestml>`
 -----------------------------------------
 
-Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_chxk_2008.nestml>`_
+Source file: `mat2_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/mat2_psc_exp.nestml>`_
 
