@@ -112,68 +112,68 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - sr
      - solid angle
      - 
-     - m\ :sup:`2`\ ⋅ m\ :sup:`−2`
-   * - hertz
+     - m\ :sup:`2`\ ⋅m\ :sup:`−2`
+   * - Hertz
      - Hz
      - frequency
      -
      - s\ :sup:`−1`
-   * - newton      
+   * - Newton      
      - N        
      - force, weight                                
      -
-     - kg⋅m⋅ s\ :sup:`−2`
-   * - pascal      
+     - kg⋅m⋅s\ :sup:`−2`
+   * - Pascal      
      - Pa       
      - pressure, stress                             
      - N/m\ :sup:`2`                                                                                                        
      - kg⋅m\ :sup:`−1`\ ⋅s\ :sup:`−2`
-   * - joule       
+   * - Joule       
      - J        
      - energy, work, heat                           
      - N⋅m=Pa⋅m\ :sup:`3`
      - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−2`                                                                       
-   * - watt        
+   * - Watt        
      - W        
      - power, radiant flux                          
      - J/s                                                                                                         
      - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`                                                                                         
-   * - coulomb     
+   * - Coulomb     
      - C        
      - electric charge or quantity of electricity   
      -                                                                                                             
      - s⋅A                                                                                                    
-   * - volt        
+   * - Volt        
      - V        
      - voltage (electrical potential), emf          
      - W/A                                                                                                         
      - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`\ ⋅ A\ :sup:`−1`
-   * - farad
+   * - Farad
      - F
      - capacitance
      - C/V
      - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
-   * - ohm         
+   * - Ohm         
      - Ω        
      - resistance, impedance, reactance             
      - V/A                                                                                                         
      - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )                                                                           
-   * - siemens     
+   * - Siemens     
      - S        
      - electrical conductance                       
-     - Ω:sup:`−1`
+     - Ω\ :sup:`−1`
      - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
-   * - weber       
+   * - Weber       
      - Wb       
      - magnetic flux                                
      - V⋅s                                                                                                         
      - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )                                                                         
-   * - tesla       
+   * - Tesla       
      - T        
      - magnetic flux density                        
      - Wb/m\ :sup:`2`
-     - kg⋅(s\ :sup:`−2`\ ) ⋅(A:sup:`−1`)
-   * - henry
+     - kg⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )
+   * - Henry
      - H
      - inductance
      - Wb/A
@@ -188,17 +188,17 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - illuminance
      - lm/m\ :sup:`2`
      - m\ :sup:`−2`\ ⋅ cd                                                 
-   * - becquerel   
+   * - Becquerel   
      - Bq       
      - radioactivity (decays per unit time)         
      -                                                                                                             
      - s\ :sup:`−1`
-   * - gray        
+   * - Gray        
      - Gy       
      - absorbed dose (of ionizing radiation)        
      - J/kg                                                                                                        
      - (m\ :sup:`2`\ )⋅(s\ :sup:`−2`\ )                                                                                      
-   * - sievert     
+   * - Sievert     
      - Sv       
      - equivalent dose (of ionizing radiation)      
      - J/kg                                                                                                        
