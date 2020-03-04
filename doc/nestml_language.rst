@@ -96,7 +96,7 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 10 30
+   :widths: 10 5 20 20 20
 
    * - Name
      - Symbol
@@ -111,6 +111,7 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
    * - steradian
      - sr
      - solid angle
+     - 
      - m^2 \* m:sup:`−2`
    * - hertz
      - Hz
@@ -182,7 +183,7 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - luminous flux                                
      - cd\*sr
      - cd
-     - lux
+   * - lux
      - lx
      - illuminance
      - lm/m^2
@@ -347,7 +348,7 @@ The following functions are predefined in NESTML and can be used out of the box:
 
 .. list-table::
    :header-rows: 1
-   :widths: 10 10 10 30
+   :widths: 10 10 30
 
    * - Name
      - Parameters
@@ -361,27 +362,68 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``clip``
      - x, y, z
      - Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type.
-| exp | x | Returns the exponential of x. The type of x and the return type are Real. |
-| log10 | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
-| ln | x | Returns the base :math:`e` logarithm of x. The type of x and the return type are Real. |
-| expm1 | x | Returns the exponential of x minus 1. The type of x and the return type are Real. |
-| sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
-| cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
-| tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
-| random_normal | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
-| random_uniform | offset, scale | Returns a sample from a uniform distribution in the interval [offset, offset + scale) |
-| delta | t | A Dirac delta impulse function at time t. |
-| curr\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
-| cond\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
-| convolve | f, g | The convolution of function f with function g. |
-| info | s | Log the string s with logging level "info". |
-| warning | s | Log the string s with logging level "warning". |
-| print | s | Print the string s to stdout (no line break at the end). |
-| println | s | Print the string s to stdout (with a line break at the end). |
-| integrate\_odes | | This function can be used to integrate all stated differential equations of the equations block. |
-| emit\_spike | | Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time. |
-| steps | t | Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information. |
-| resolution | | Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information. |
+   * - ``exp``
+     - x
+     - Returns the exponential of x. The type of x and the return type are Real.
+   * - log10
+     - x
+     - Returns the base 10 logarithm of x. The type of x and the return type are Real.
+   * - ``ln``
+     - x
+     - Returns the base :math:`e` logarithm of x. The type of x and the return type are Real.
+   * - ``expm1``
+     - x
+     - Returns the exponential of x minus 1. The type of x and the return type are Real.
+   * - ``sinh``
+     - x
+     - Returns the hyperbolic sine of x. The type of x and the return type are Real.
+   * - ``cosh``
+     - x
+     - Returns the hyperbolic cosine of x. The type of x and the return type are Real.
+   * - ``tanh``
+     - x
+     - Returns the hyperbolic tangent of x. The type of x and the return type are Real.
+   * - ``random_normal``
+     - mean, std
+     - Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation"
+   * - ``random_uniform``
+     - offset, scale
+     - Returns a sample from a uniform distribution in the interval [offset, offset + scale)
+   * - ``delta``
+     - t
+     - A Dirac delta impulse function at time t.
+   * - ``curr\_sum``
+     - I, buf
+     - Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details.
+   * - ``cond\_sum``
+     - I, buf
+     - Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details.
+   * - ``convolve``
+     - f, g
+     - The convolution of function f with function g.
+   * - ``info``
+     - s
+     - Log the string s with logging level "info".
+   * - ``warning``
+     - s
+     - Log the string s with logging level "warning".
+   * - ``print``
+     - s
+     - Print the string s to stdout (no line break at the end).
+   * - ``println``
+     - s
+     - Print the string s to stdout (with a line break at the end).
+   * - ``integrate\_odes``
+     -
+     - This function can be used to integrate all stated differential equations of the equations block.
+   * - ``emit\_spike``
+     - Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+   * - ``steps``
+     - t
+     - Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information.
+   * - ``resolution``
+     -
+     - Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information.
 
 Return statement
 ^^^^^^^^^^^^^^^^
