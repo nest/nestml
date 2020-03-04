@@ -18,9 +18,9 @@ NESTML is a domain-specific language that supports the specification of neuron m
    license
 
 
-.. figure:: nestml-logo/nestml-logo.png
-   :scale: 30 %
-   :align: center
+.. .. figure:: nestml-logo/nestml-logo.png
+      :scale: 30 %
+      :align: center
 
 Model development with NESTML
 =============================
