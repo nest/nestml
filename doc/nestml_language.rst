@@ -417,6 +417,7 @@ The following functions are predefined in NESTML and can be used out of the box:
      -
      - This function can be used to integrate all stated differential equations of the equations block.
    * - ``emit\_spike``
+     -
      - Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
    * - ``steps``
      - t
