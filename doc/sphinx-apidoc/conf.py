@@ -65,6 +65,7 @@ import fnmatch
 import os
 
 static_docs_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print("Searching in: " + str(static_docs_dir))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc"))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/pynestml_toolchain"))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/"))
@@ -197,7 +198,7 @@ html_logo = "nestml-logo.png"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static', 'nestml-logo']
+html_static_path = ['_static']
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -245,7 +246,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'NESTML-doc.tex', u'NESTML documentation',
-     u'NEST Developer Community', 'manual'),
+     u'NESTML documentation', 'manual'),
 ]
 
 
