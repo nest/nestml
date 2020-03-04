@@ -1,57 +1,32 @@
-NestML language documentation
+NESTML language documentation
 =============================
 
-NestML is a domain specific language for the specification of models for
-the neuronal simulator `NEST <http://www.nest-simulator.org>`__. It has
-a concise syntax based on that of Python which avoids clutter in the
-form of semicolons, curly braces or tags as known from other programming
-and description languages. Instead, it concentrates on domain concepts
-that help to efficiently write neuron models and their equations.
+NESTML is a domain specific language for the specification of models for the neuronal simulator `NEST <http://www.nest-simulator.org>`__. It has a concise syntax based on that of Python which avoids clutter in the form of semicolons, curly braces or tags as known from other programming and description languages. Instead, it concentrates on domain concepts that help to efficiently write neuron models and their equations.
 
-NestML files are expected to have the filename extension ``.nestml``.
-Each file may contain one or more neuron models. This means that there
-is no forced direct correspondence between model and file name. Models
-that shall be compiled into one extension module for NEST have to reside
-in the same directory. The name of the directory will be used as the
-name of the corresponding module.
+NESTML files are expected to have the filename extension ``.nestml``. Each file may contain one or more neuron models. This means that there is no forced direct correspondence between model and file name. Models that shall be compiled into one extension module for NEST have to reside in the same directory. The name of the directory will be used as the name of the corresponding module.
 
-In order to give users complete freedom in implementing neuron model
-dynamics, NestML has a full procedural programming language built in.
-This programming language is used to define the model's time update and
-functions.
+In order to give users complete freedom in implementing neuron model dynamics, NESTML has a full procedural programming language built in. This programming language is used to define the model's time update and functions.
 
 Data types and physical units
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Data types define types of variables as well as parameters and return
-values of functions. NestML provides the following primitive types and
-physical data types:
+Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
 
 Primitive data types
 ^^^^^^^^^^^^^^^^^^^^
 
--  ``real`` corresponds to the ``double`` data type in C++. Example
-   literals are: ``42.0``, ``-0.42``, ``.44``
--  ``integer`` corresponds to the ``long`` data type in C++. Example
-   literals are: ``42``, ``-7``
--  ``boolean`` corresponds to the ``bool`` data type in C++. Its only
-   literals are ``true`` and ``false``
--  ``string`` corresponds to the ``std::string`` data type in C++.
-   Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
--  ``void`` corresponds to the ``void`` data type in C++. No literals
-   are possible and this can only be used in the declaration of a
-   function without a return value.
+-  ``real`` corresponds to the ``double`` data type in C++. Example literals are: ``42.0``, ``-0.42``, ``.44``
+-  ``integer`` corresponds to the ``long`` data type in C++. Example literals are: ``42``, ``-7``
+-  ``boolean`` corresponds to the ``bool`` data type in C++. Its only literals are ``true`` and ``false``
+-  ``string`` corresponds to the ``std::string`` data type in C++. Example literals are: ``"Bob"``, ``""``, ``"Hello World!"``
+-  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
 
 Physical units
 ^^^^^^^^^^^^^^
 
-A physical unit in NestML can be either a simple physical unit or a
-complex physical unit. A simple physical unit is composed of an optional
-magnitude prefix and the name of the unit.
+A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
 
-The following table lists seven base units, which can be used to specify
-any physical unit. This idea is based on `the SI
-units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
+The following table lists seven base units, which can be used to specify any physical unit. This idea is based on `the SI units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 
 +-----------------------+-------------+------------------+
 | Quantity              | Unit Name   | NESTML/SI unit   |
@@ -71,16 +46,12 @@ units <https://en.wikipedia.org/wiki/International_System_of_Units>`__.
 | luminous intensity    | candela     | cd               |
 +-----------------------+-------------+------------------+
 
-Any other physical unit can be expressed as a combination of these seven
-units. These other units are called derived units. NestML provides a
-concept for the derivation of new physical units, i.e., by combining
-simple units (consisting of a prefix and an SI unit), the user is able
-to create arbitrary physical units.
+Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides a concept for the derivation of new physical units, i.e., by combining simple units (consisting of a prefix and an SI unit), the user is able to create arbitrary physical units.
 
 Units can have at most one of the following magnitude prefixes:
 
 +----------+-----------+-----------------+----------+-----------+-----------------+
-| Factor   | SI Name   | NestML prefix   | Factor   | SI Name   | NestML prefix   |
+| Factor   | SI Name   | NESTML prefix   | Factor   | SI Name   | NESTML prefix   |
 +==========+===========+=================+==========+===========+=================+
 | 10^-1    | deci      | d               | 10^1     | deca      | da              |
 +----------+-----------+-----------------+----------+-----------+-----------------+
@@ -103,16 +74,13 @@ Units can have at most one of the following magnitude prefixes:
 | 10^-24   | yocto     | y               | 10^24    | yotta     | Y               |
 +----------+-----------+-----------------+----------+-----------+-----------------+
 
-Simple physical units can be combined to complex units. For this, the
-operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and
-``()`` (parenthesis) can be used. An example could be
+Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
 
 ::
 
     mV*mV*nS**2/(mS*pA)
 
-Units of the form ``<unit> ** -1`` can also be expressed as
-``1/<unit>``. For example
+Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
 
 ::
 
@@ -124,47 +92,124 @@ is equivalent to
 
     1/(ms*mV)
 
-NestML also supports the usage of named derived-units such as newton,
-henry or lux:
+NESTML also supports the usage of named derived-units such as Newton, Henry or lux:
 
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| Name        | Symbol   | Quantity                                     | In other SI units                                                                                           | In base SI units                                                                                       |
-+=============+==========+==============================================+=============================================================================================================+========================================================================================================+
-| radian      | rad      | angle                                        |                                                                                                             | (m*m^-1)\| \|steradian \| sr\|solid angle\|\|(m^2 *\ m\ :sup:`−2)\| \|hertz\|Hz\|frequency\|\|s`\ −1   |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| newton      | N        | force, weight                                |                                                                                                             | kg\*m\* s^−2                                                                                           |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| pascal      | Pa       | pressure, stress                             | N/m2                                                                                                        | kg⋅m−1⋅s−2                                                                                             |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| joule       | J        | energy, work, heat                           | N\*m=Pa\*m\ :sup:`3\|kg\*m`\ 2 \*s^−2                                                                       |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| watt        | W        | power, radiant flux                          | J/s                                                                                                         | kg\*m^2 \*s^−3                                                                                         |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| coulomb     | C        | electric charge or quantity of electricity   |                                                                                                             | s⋅A                                                                                                    |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| volt        | V        | voltage (electrical potential), emf          | W/A                                                                                                         | kg\*m^2 \*s^−3 \* A\ :sup:`−1 \|farad\|F\|capacitance\|C/V\|kg`\ −1 \* m^−2 \* s^4 \*A^2               |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| ohm         | Ω        | resistance, impedance, reactance             | V/A                                                                                                         | kg\*(m^2) \* (s^−3) \*(A^−2)                                                                           |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| siemens     | S        | electrical conductance                       | Ω\ :sup:`−1\|(kg`\ −1) \*(m^−2) \*(s^3) \* A^2                                                              |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| weber       | Wb       | magnetic flux                                | V⋅s                                                                                                         | kg\*(m^2) \*(s^−2) \*(A^−1)                                                                            |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| tesla       | T        | magnetic flux density                        | Wb/m\ :sup:`2\|kg\*(s`\ −2) \*(A\ :sup:`−1)\| \|henry\|H\|inductance\|Wb/A\|kg\*(m`\ 2) \*(s^−2) \*(A^−2)   |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| lumen       | lm       | luminous flux                                | cd\ *sr\|cd\| \|lux\|lx\|illuminance\|lm/m2\|(m^−2)*\ cd                                                    |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| becquerel   | Bq       | radioactivity (decays per unit time)         |                                                                                                             | s^−1                                                                                                   |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| gray        | Gy       | absorbed dose (of ionizing radiation)        | J/kg                                                                                                        | (m^2 )\*(s^−2)                                                                                         |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| sievert     | Sv       | equivalent dose (of ionizing radiation)      | J/kg                                                                                                        | (m^2)\* (s^−2)                                                                                         |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
-| katal       | kat      | catalytic activity                           |                                                                                                             | mol\*(s^−1)                                                                                            |
-+-------------+----------+----------------------------------------------+-------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 10 10 30
 
-Here, except for Ohm, the symbol of the unit has to be used in the
-model, e.g.:
+   * - Name
+     - Symbol
+     - Quantity
+     - In other SI units
+     - In base SI units
+   * - radian
+     - rad
+     - angle
+     - 
+     - m*m^-1
+   * - steradian
+     - sr
+     - solid angle
+     - m^2 \* m:sup:`−2`
+   * - hertz
+     - Hz
+     - frequency
+     -
+     - s^−1
+   * - newton      
+     - N        
+     - force, weight                                
+     -
+     - kg\*m\* s^−2
+   * - pascal      
+     - Pa       
+     - pressure, stress                             
+     - N/m^2                                                                                                        
+     - kg⋅m^−1⋅s^−2                                                                                             
+   * - joule       
+     - J        
+     - energy, work, heat                           
+     - N\*m=Pa\*m\ :sup:`3`
+     - kg\*m^2\*s^−2                                                                       
+   * - watt        
+     - W        
+     - power, radiant flux                          
+     - J/s                                                                                                         
+     - kg\*m^2 \*s^−3                                                                                         
+   * - coulomb     
+     - C        
+     - electric charge or quantity of electricity   
+     -                                                                                                             
+     - s⋅A                                                                                                    
+   * - volt        
+     - V        
+     - voltage (electrical potential), emf          
+     - W/A                                                                                                         
+     - kg\*m^2 \*s^−3 \* A\ :sup:`−1`
+   * - farad
+     - F
+     - capacitance
+     - C/V
+     - kg^−1 \* m^−2 \* s^4 \* A^2               
+   * - ohm         
+     - Ω        
+     - resistance, impedance, reactance             
+     - V/A                                                                                                         
+     - kg\*(m^2) \* (s^−3) \*(A^−2)                                                                           
+   * - siemens     
+     - S        
+     - electrical conductance                       
+     - Ω:sup:`−1`
+     - (kg^−1) \*(m^−2) \*(s^3) \* A^2                                                              
+   * - weber       
+     - Wb       
+     - magnetic flux                                
+     - V⋅s                                                                                                         
+     - kg\*(m^2) \*(s^−2) \*(A^−1)                                                                         
+   * - tesla       
+     - T        
+     - magnetic flux density                        
+     - Wb/m:sup:`2`
+     - kg\*(s^−2) \*(A:sup:`−1`)
+   * - henry
+     - H
+     - inductance
+     - Wb/A
+     - kg\*(m^2) \*(s^−2) \*(A^−2)
+   * - lumen       
+     - lm       
+     - luminous flux                                
+     - cd\*sr
+     - cd
+     - lux
+     - lx
+     - illuminance
+     - lm/m^2
+     - m^−2 \* cd                                                 
+   * - becquerel   
+     - Bq       
+     - radioactivity (decays per unit time)         
+     -                                                                                                             
+     - s^−1                                                                                                
+   * - gray        
+     - Gy       
+     - absorbed dose (of ionizing radiation)        
+     - J/kg                                                                                                        
+     - (m^2 )\*(s^−2)                                                                                      
+   * - sievert     
+     - Sv       
+     - equivalent dose (of ionizing radiation)      
+     - J/kg                                                                                                        
+     - (m^2)\* (s^−2)                                                                                      
+   * - katal       
+     - kat      
+     - catalytic activity                           
+     -                                                                                                             
+     - mol\*(s^−1)                                                                                            
+
+
+Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
 
 ::
 
@@ -173,16 +218,14 @@ model, e.g.:
 Physical unit literals
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Simple unit literals are composed of a number and a type name (with or
-without a whitespace inbetween the two):
+Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two):
 
 ::
 
     <number> <unit_type>
     e.g.: V_m mV = 1mV
 
-Complex unit literals can be composed according to the common arithmetic
-rules, i.e., by using operators to combine simple units:
+Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
 
 ::
 
@@ -191,37 +234,23 @@ rules, i.e., by using operators to combine simple units:
 Type and unit checks
 ^^^^^^^^^^^^^^^^^^^^
 
-NestML checks type correctness of all expressions. This also applies to
-assignments, declarations with an initialization and function calls.
-NestML supports conversion of ``integer``\ s to ``real``\ s. A
-conversion between ``unit``-typed and ``real``-typed variables is also
-possible. However, these conversions are reported as warnings. Finally,
-there is no conversion between numeric types and boolean or string
-types.
+NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
 
 Basic elements of the embedded programming language
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The basic elements of the language are declarations, assignments,
-function calls and return statements.
+The basic elements of the language are declarations, assignments, function calls and return statements.
 
 Declarations
 ^^^^^^^^^^^^
 
-Declarations are composed of a non-empty list of comma separated names.
-A valid name starts with a letter, an underscore or the dollar
-character. Furthermore, it can contain an arbitrary number of letters,
-numbers, underscores and dollar characters. Formally, a valid name
-satisfies the following regular expression:
+Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
 
 ::
 
     ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*
 
-Names of functions and input ports must also satisfy this pattern. The
-type of the declaration can be any of the valid NestML types. The type
-of the initialization expression must be compatible with the type of the
-declaration.
+Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
 
 ::
 
@@ -236,10 +265,7 @@ declaration.
 Documentation strings
 '''''''''''''''''''''
 
-Declarations can be enriched with special comments which are then taken
-into generated NEST code. To do so, ``#`` is used to introduce a single
-line comment. For multi-line comments, Python style comments ( """
-...""") or Java-style comments (/\* ... \*/) can be used.
+Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments ( """...""") or Java-style comments (/\* ... \*/) can be used.
 
 ::
 
@@ -254,11 +280,7 @@ line comment. For multi-line comments, Python style comments ( """
       This is a multiline comment in Python syntax.
     """
 
-To enable NestML to recognize the commented element uniquely, the
-following approach has to be used: The comment and its target do not
-have to be separated by a white line, i.e., a white line between a model
-element and a comment indicates, that the comment does not belong to
-this element, e.g.:
+To enable NESTML to recognize the commented element uniquely, the following approach has to be used: The comment and its target do not have to be separated by a white line, i.e., a white line between a model element and a comment indicates, that the comment does not belong to this element, e.g.:
 
 ::
 
@@ -266,8 +288,7 @@ this element, e.g.:
 
     /* I am not a comment of the membrane potential. A white line separates us. */ 
 
-If a comment shall be attached to an element, no white lines are
-allowed.
+If a comment shall be attached to an element, no white lines are allowed.
 
 ::
 
@@ -287,25 +308,19 @@ Whitelines are therefore used to separate comment targets:
 Assignments
 ^^^^^^^^^^^
 
-NestML supports simple or compound assignments. The left-hand side of
-the assignment is always a variable. The right-hand side can be an
-arbitrary expression of a type which is compatible with the left-hand
-side.
+NESTML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
 
-Examples for valid assignments for a numeric variable ``n`` are \*
-simple assignment: ``n = 10`` \* compound sum: ``n += 10`` which
-corresponds to ``n = n + 10`` \* compound difference: ``n -= 10`` which
-corresponds to ``n = n - 10`` \* compound product: ``n *= 10`` which
-corresponds to ``n = n * 10`` \* compound quotient: ``n /= 10`` which
-corresponds to ``n = n / 10``
+Examples for valid assignments for a numeric variable ``n`` are
+* simple assignment: ``n = 10`` 
+* compound sum: ``n += 10`` which corresponds to ``n = n + 10`` 
+* compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
+* compound product: ``n *= 10`` which corresponds to ``n = n * 10``
+* compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
 
 Functions
 ^^^^^^^^^
 
-Functions can be used to write repeatedly used code blocks only once.
-They consist of the function name, the list of parameters and an
-optional return type, if the function returns a value to the caller. The
-function declaration ends with the keyword ``end``.
+Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword ``end``.
 
 ::
 
@@ -317,10 +332,7 @@ function declaration ends with the keyword ``end``.
       return a/b
     end
 
-To use a function, it has to be called. A function call is composed of
-the function name and the list of required parameters. The returned
-value (if any) can be directly assigned to a variable of the
-corresponding type.
+To use a function, it has to be called. A function call is composed of the function name and the list of required parameters. The returned value (if any) can be directly assigned to a variable of the corresponding type.
 
 ::
 
@@ -331,24 +343,45 @@ corresponding type.
 Predefined functions
 ''''''''''''''''''''
 
-The following set of functions is predefined in NestML and can be used
-out of the box:
+The following functions are predefined in NESTML and can be used out of the box:
 
-+----------------+----------------+-------------------+-------+
-| resolution     | steps          | emit\_spike       |
-+----------------+----------------+-------------------+-------+
-| print          | println        | pow               |
-+----------------+----------------+-------------------+-------+
-| exp            | log            | info              |
-+----------------+----------------+-------------------+-------+
-| warning        | random         | randomInt         |
-+----------------+----------------+-------------------+-------+
-| expm1          | delta          | max               | min   |
-+----------------+----------------+-------------------+-------+
-| bounded\_max   | bounded\_min   | integrate\_odes   |
-+----------------+----------------+-------------------+-------+
-| curr\_sum      | cond\_sum      | convolve          |
-+----------------+----------------+-------------------+-------+
+.. list-table::
+   :header-rows: 1
+   :widths: 10 10 10 30
+
+   * - Name
+     - Parameters
+     - Description
+   * - ``min``
+     - x, y
+     - Returns the minimum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters.
+   * - ``max``
+     - x, y
+     - Returns the maximum of x and y. Both parameters should be of the same type. The return type is equal to the type of the parameters.
+   * - ``clip``
+     - x, y, z
+     - Returns x if it is in [y, z], y if x < y and z if x > z. All parameter types should be the same and equal to the return type.
+| exp | x | Returns the exponential of x. The type of x and the return type are Real. |
+| log10 | x | Returns the base 10 logarithm of x. The type of x and the return type are Real. |
+| ln | x | Returns the base :math:`e` logarithm of x. The type of x and the return type are Real. |
+| expm1 | x | Returns the exponential of x minus 1. The type of x and the return type are Real. |
+| sinh | x | Returns the hyperbolic sine of x. The type of x and the return type are Real. |
+| cosh | x | Returns the hyperbolic cosine of x. The type of x and the return type are Real. |
+| tanh | x | Returns the hyperbolic tangent of x. The type of x and the return type are Real. |
+| random_normal | mean, std | Returns a sample from a normal (Gaussian) distribution with parameters "mean" and "standard deviation" |
+| random_uniform | offset, scale | Returns a sample from a uniform distribution in the interval [offset, offset + scale) |
+| delta | t | A Dirac delta impulse function at time t. |
+| curr\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
+| cond\_sum | I, buf | Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details. |
+| convolve | f, g | The convolution of function f with function g. |
+| info | s | Log the string s with logging level "info". |
+| warning | s | Log the string s with logging level "warning". |
+| print | s | Print the string s to stdout (no line break at the end). |
+| println | s | Print the string s to stdout (with a line break at the end). |
+| integrate\_odes | | This function can be used to integrate all stated differential equations of the equations block. |
+| emit\_spike | | Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time. |
+| steps | t | Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information. |
+| resolution | | Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information. |
 
 Return statement
 ^^^^^^^^^^^^^^^^
@@ -370,7 +403,7 @@ expression of that type.
 Control structures
 ~~~~~~~~~~~~~~~~~~
 
-To control the flow of execution, NestML supports loops and
+To control the flow of execution, NESTML supports loops and
 conditionals.
 
 Loops
@@ -433,7 +466,7 @@ to be the same.
 Conditionals
 ^^^^^^^^^^^^
 
-NestML supports different variants of the if-else conditional. The first
+NESTML supports different variants of the if-else conditional. The first
 example shows the ``if`` conditional composed of a single ``if`` block:
 
 ::
@@ -465,7 +498,7 @@ the ``else_statements`` else.
     end
 
 In order to allow grouping a sequence of related ``if`` conditions,
-NestML also supports the ``elif``-conditionals. An ``if`` condition can
+NESTML also supports the ``elif``-conditionals. An ``if`` condition can
 be followed by an arbitrary number of ``elif`` conditions. Optionally,
 this variant also supports the ``else`` keyword for a catch-all
 statement. The whole conditional always concludes with an ``end``
@@ -509,7 +542,7 @@ Conditionals can also be nested inside of each other.
 Expressions and operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Expressions in NestML can be specified in a recursive fashion.
+Expressions in NESTML can be specified in a recursive fashion.
 
 Terms:
 ^^^^^^
@@ -551,7 +584,7 @@ operators produce valid expressions.
 Blocks
 ------
 
-To structure NestML files, all content is structured in blocks. Blocks
+To structure NESTML files, all content is structured in blocks. Blocks
 begin with a keyword specifying the type of the block followed by a
 colon. They are closed with the keyword ``end``. Indentation inside a
 block is not mandatory but recommended for better readability. Each of
@@ -616,7 +649,7 @@ Neuronal interactions
 Synaptic input
 ~~~~~~~~~~~~~~
 
-A neuron model written in NestML can be configured to receive two
+A neuron model written in NESTML can be configured to receive two
 distinct types of input, spikes, and currents. For either of them, the
 modeler has to decide if inhibitory and excitatory inputs are lumped
 together into a single named buffer, or if they should be separated into
@@ -670,7 +703,7 @@ keyword.
 Synaptic input
 --------------
 
-NestML has two dedicated functions to ease the summation of synaptic
+NESTML has two dedicated functions to ease the summation of synaptic
 input.
 
 ``curr_sum`` is a function that has two arguments. The first is a
@@ -707,7 +740,7 @@ Handling of time
 ----------------
 
 To retrieve some fundamental simulation parameters, two special
-functions are built into NestML:
+functions are built into NESTML:
 
 -  ``resolution`` returns the current resolution of the simulation in
    ms. This can be set by the user using the PyNEST function
@@ -763,7 +796,7 @@ and unit checks are no longer possible, thus an error message is
 generated.
 
 The content of spike and current buffers can be used by just using their
-plain names. NestML takes care behind the scenes that the buffer
+plain names. NESTML takes care behind the scenes that the buffer
 location at the current simulation time step is used.
 
 Dynamics and time evolution
@@ -827,9 +860,9 @@ Setting and retrieving model properties
    blocks are added to the status dictionary of the neuron.
 -  Values can be set using
    ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>``
-   is the name of the corresponding NestML variable.
+   is the name of the corresponding NESTML variable.
 -  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This
-   call will return the value of the corresponding NestML variable.
+   call will return the value of the corresponding NESTML variable.
 
 Recording values with devices
 -----------------------------
