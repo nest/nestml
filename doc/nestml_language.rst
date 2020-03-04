@@ -107,37 +107,37 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - rad
      - angle
      - 
-     - m*m^-1
+     - m⋅m\ :sup:`-1`
    * - steradian
      - sr
      - solid angle
      - 
-     - m^2 \* m:sup:`−2`
+     - m\ :sup:`2`\ ⋅ m\ :sup:`−2`
    * - hertz
      - Hz
      - frequency
      -
-     - s^−1
+     - s\ :sup:`−1`
    * - newton      
      - N        
      - force, weight                                
      -
-     - kg\*m\* s^−2
+     - kg⋅m⋅ s\ :sup:`−2`
    * - pascal      
      - Pa       
      - pressure, stress                             
-     - N/m^2                                                                                                        
-     - kg⋅m^−1⋅s^−2                                                                                             
+     - N/m\ :sup:`2`                                                                                                        
+     - kg⋅m\ :sup:`−1`\ ⋅s\ :sup:`−2`
    * - joule       
      - J        
      - energy, work, heat                           
-     - N\*m=Pa\*m\ :sup:`3`
-     - kg\*m^2\*s^−2                                                                       
+     - N⋅m=Pa⋅m\ :sup:`3`
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−2`                                                                       
    * - watt        
      - W        
      - power, radiant flux                          
      - J/s                                                                                                         
-     - kg\*m^2 \*s^−3                                                                                         
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`                                                                                         
    * - coulomb     
      - C        
      - electric charge or quantity of electricity   
@@ -147,67 +147,67 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
      - V        
      - voltage (electrical potential), emf          
      - W/A                                                                                                         
-     - kg\*m^2 \*s^−3 \* A\ :sup:`−1`
+     - kg⋅m\ :sup:`2`\ ⋅s\ :sup:`−3`\ ⋅ A\ :sup:`−1`
    * - farad
      - F
      - capacitance
      - C/V
-     - kg^−1 \* m^−2 \* s^4 \* A^2               
+     - kg\ :sup:`−1`\ ⋅ m\ :sup:`−2`\ ⋅ s\ :sup:`4`\ ⋅ A\ :sup:`2`
    * - ohm         
      - Ω        
      - resistance, impedance, reactance             
      - V/A                                                                                                         
-     - kg\*(m^2) \* (s^−3) \*(A^−2)                                                                           
+     - kg⋅(m\ :sup:`2`\ ) ⋅ (s\ :sup:`−3`\ ) ⋅(A\ :sup:`−2`\ )                                                                           
    * - siemens     
      - S        
      - electrical conductance                       
      - Ω:sup:`−1`
-     - (kg^−1) \*(m^−2) \*(s^3) \* A^2                                                              
+     - (kg\ :sup:`−1`\ ) ⋅(m\ :sup:`−2`\ ) ⋅(s\ :sup:`3`\ ) ⋅ A\ :sup:`2`
    * - weber       
      - Wb       
      - magnetic flux                                
      - V⋅s                                                                                                         
-     - kg\*(m^2) \*(s^−2) \*(A^−1)                                                                         
+     - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−1`\ )                                                                         
    * - tesla       
      - T        
      - magnetic flux density                        
-     - Wb/m:sup:`2`
-     - kg\*(s^−2) \*(A:sup:`−1`)
+     - Wb/m\ :sup:`2`
+     - kg⋅(s\ :sup:`−2`\ ) ⋅(A:sup:`−1`)
    * - henry
      - H
      - inductance
      - Wb/A
-     - kg\*(m^2) \*(s^−2) \*(A^−2)
+     - kg⋅(m\ :sup:`2`\ ) ⋅(s\ :sup:`−2`\ ) ⋅(A\ :sup:`−2`\ )
    * - lumen       
      - lm       
      - luminous flux                                
-     - cd\*sr
+     - cd⋅sr
      - cd
    * - lux
      - lx
      - illuminance
-     - lm/m^2
-     - m^−2 \* cd                                                 
+     - lm/m\ :sup:`2`
+     - m\ :sup:`−2`\ ⋅ cd                                                 
    * - becquerel   
      - Bq       
      - radioactivity (decays per unit time)         
      -                                                                                                             
-     - s^−1                                                                                                
+     - s\ :sup:`−1`
    * - gray        
      - Gy       
      - absorbed dose (of ionizing radiation)        
      - J/kg                                                                                                        
-     - (m^2 )\*(s^−2)                                                                                      
+     - (m\ :sup:`2`\ )⋅(s\ :sup:`−2`\ )                                                                                      
    * - sievert     
      - Sv       
      - equivalent dose (of ionizing radiation)      
      - J/kg                                                                                                        
-     - (m^2)\* (s^−2)                                                                                      
+     - (m\ :sup:`2`\ )⋅ (s\ :sup:`−2`\ )                                                                                      
    * - katal       
      - kat      
      - catalytic activity                           
      -                                                                                                             
-     - mol\*(s^−1)                                                                                            
+     - mol⋅(s\ :sup:`−1`\ )                                                                                            
 
 
 Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
