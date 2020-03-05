@@ -9,7 +9,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 3
   git log v3.0..HEAD | grep Author\: | sort | uniq
   ```
 
-- Ensure copyright transferal agreement is obtained from each author (contact: @heplesser).
+- Ensure copyright transferal agreement is obtained from each author (contact: @heplesser). Obtain affiliation one-liner for each author.
 
 - Edit `setup.py` and enter the right version number. Edit `pynestml/__init__.py` and enter the right version number. Push to a new branch called `release-v3.1`.
 
@@ -22,7 +22,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 3
   - For release notes, write something starting with "\[NESTML 3.1\](https://dx.doi.org/10.5281/zenodo.3697733)" so that the Zenodo publication is linked. Look at the previous release note for further inspiration.
   - Download the generated .tar.gz file.
 
-- Extract the tarball locally and double-check that everything looks OK! E.g. no `.git` directory, version numbers.
+- Extract the tarball locally and double-check that everything looks OK! E.g. no `.git` directory, version numbers. Sanity check the filesize.
 
 - Go back to Zenodo and enter remaining information.
   - Upload the .tar.gz file from GitHub
