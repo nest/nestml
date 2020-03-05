@@ -18,35 +18,46 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from setuptools import setup, find_packages
+import os
 import sys
+from setuptools import setup, find_packages
 
 assert sys.version_info.major >= 3, "Python 3 is required to run PyNESTML"
 
-with open('requirements.txt') as f:
+with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
+data_files = []
+for dir_to_include in ["doc", "models", "extras"]:
+    for dirname, dirnames, filenames in os.walk(dir_to_include):
+        fileslist = []
+        for filename in filenames:
+            fullname = os.path.join(dirname, filename)
+            fileslist.append(fullname)
+        data_files.append((dirname, fileslist))
+
 setup(
-    name='NESTML',
-    version='3.0-post-dev',
-    description='NESTML is a domain specific language that supports the specification of neuron models in a'
-                ' precise and concise syntax, based on the syntax of Python. Model equations can either be given'
-                ' as a simple string of mathematical notation or as an algorithm written in the built-in procedural'
-                ' language. The equations are analyzed by NESTML to compute an exact solution if possible or use an '
-                ' appropriate numeric solver otherwise.',
-    license='GNU General Public License v2.0',
-    url='https://github.com/nest/nestml',
+    name="NESTML",
+    version="3.1-post-dev",
+    description="NESTML is a domain specific language that supports the specification of neuron models in a"
+                " precise and concise syntax, based on the syntax of Python. Model equations can either be given"
+                " as a simple string of mathematical notation or as an algorithm written in the built-in procedural"
+                " language. The equations are analyzed by NESTML to compute an exact solution if possible or use an "
+                " appropriate numeric solver otherwise.",
+    license="GNU General Public License v2.0",
+    url="https://github.com/nest/nestml",
     packages=find_packages(),
-     package_data={'pynestml': ['codegeneration/resources_nest/*.jinja2',
-                                'codegeneration/resources_nest/setup/*.jinja2',
-                                'codegeneration/resources_nest/directives/*.jinja2']},
+    package_data={"pynestml": ["codegeneration/resources_nest/*.jinja2",
+                               "codegeneration/resources_nest/setup/*.jinja2",
+                               "codegeneration/resources_nest/directives/*.jinja2"]},
+    data_files = data_files,
     entry_points = {
-        'console_scripts': [
-            'nestml = pynestml.frontend.pynestml_frontend:main',
+        "console_scripts": [
+            "nestml = pynestml.frontend.pynestml_frontend:main",
         ],
     },
 
     install_requires=requirements,
-    test_suite='tests',
+    test_suite="tests",
 )
 
