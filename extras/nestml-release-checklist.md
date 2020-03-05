@@ -9,33 +9,44 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 3
   git log v3.0..HEAD | grep Author\: | sort | uniq
   ```
 
-- Ensure copyright transferal agreement is obtained from each author (contact: HEP).
+- Ensure copyright transferal agreement is obtained from each author (contact: @heplesser).
 
-- Edit `setup.py` and enter the right version number.
+- Edit `setup.py` and enter the right version number. Edit `pynestml/__init__.py` and enter the right version number. Push to a new branch called `release-v3.1`.
 
-- Add a tag to the repository. Since v3.0 we're adding the "v" prefix.
+- Log in to Zenodo, and create a new upload. Press the "Reserve DOI" button.
 
-  ```bash
-  git tag -a v3.1
-  ```
+- Go back to GitHub and create a new release from the web interface. 
+  - Select the right branch, e.g. `release-v3.1`
+  - Under version tag, enter the new version number. Since v3.0 we're adding the "v" prefix (e.g. "v3.1").
+  - For release title, use "NESTML" + version number, e.g. "NESTML 3.1".
+  - For release notes, write something starting with "[NESTML 3.1](https://dx.doi.org/10.5281/zenodo.3697733)" so that the Zenodo publication is linked. Look at the previous release note for further inspiration.
+  - Download the generated .tar.gz file.
 
-  It is recommended to write some release notes at this point. Check formatting by looking at the release notes of the currently-out version.
+- Extract the tarball locally and double-check that everything looks OK! E.g. no `.git` directory, version numbers.
 
-  ```bash
-  git push origin v3.1
-  ```
+- Go back to Zenodo and enter remaining information.
+  - Upload the .tar.gz file from GitHub
+  - Upload type: software
+  - For title: "NESTML 3.1"
+  - Enter authors
+  - For description: copy release notes from GitHub, but remove hyperlink to doi.org. Append "For further information, please visit https://github.com/nest/nestml"
+  - Select "Open Access"
+  - Enter "GNU GPL v2.0 only" as a licence
+  - Click Save, then click Publish
 
-- Perform a corresponding release on PyPi
+- Perform a corresponding release on PyPi. From the `release-v3.1` branch:
 
   ```bash
   python setup.py sdist
   twine upload dist/*
   ```
 
-- Edit `setup.py` and add suffix to version number, e.g. `version='3.1-post-dev'`, to distinguish master branch version from release version.
+- Update version number on master branch: edit `setup.py` and add suffix to version number, e.g. `version='3.1-post-dev'`, to distinguish master branch version from release version. Do the same for `pynestml/__init__.py`.
 
   ```bash
   git add setup.py
   git commit -m "add -post-dev suffix to version number to distinguish master branch version from release version"
   git push -u origin master
   ```
+
+- Delete the release branch (in this example, `release-v3.1`).
