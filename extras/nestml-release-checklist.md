@@ -19,7 +19,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 3
   - Select the right branch, e.g. `release-v3.1`
   - Under version tag, enter the new version number. Since v3.0 we're adding the "v" prefix (e.g. "v3.1").
   - For release title, use "NESTML" + version number, e.g. "NESTML 3.1".
-  - For release notes, write something starting with "[NESTML 3.1](https://dx.doi.org/10.5281/zenodo.3697733)" so that the Zenodo publication is linked. Look at the previous release note for further inspiration.
+  - For release notes, write something starting with "\[NESTML 3.1\](https://dx.doi.org/10.5281/zenodo.3697733)" so that the Zenodo publication is linked. Look at the previous release note for further inspiration.
   - Download the generated .tar.gz file.
 
 - Extract the tarball locally and double-check that everything looks OK! E.g. no `.git` directory, version numbers.
