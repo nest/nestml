@@ -65,6 +65,7 @@ import fnmatch
 import os
 
 static_docs_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print("Searching in: " + str(static_docs_dir))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc"))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/pynestml_toolchain"))
 sys.path.insert(0, os.path.join(static_docs_dir, "sphinx-apidoc/"))
@@ -184,19 +185,20 @@ numfig_format = {'figure': 'Figure %s', 'table': 'Table %s',
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
+
 html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {}
+
+html_theme_options = {'logo_only': True}
+html_logo = "nestml-logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static', 'nestml-logo']
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -244,7 +246,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'NESTML-doc.tex', u'NESTML documentation',
-     u'NEST Developer Community', 'manual'),
+     u'NESTML documentation', 'manual'),
 ]
 
 
