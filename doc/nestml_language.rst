@@ -808,7 +808,7 @@ Equations
 Shape functions
 ~~~~~~~~~~~~~~~
 
-A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
+A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function :math:`I_{shape}(t)` with which incoming spike weights :math:`w` are multiplied to compose the synaptic input :math:`I_{syn}`:
 
 .. math::
 
@@ -817,7 +817,7 @@ A `shape` is a function of *t* (which represents the current time of the system)
 Systems of ODEs
 ^^^^^^^^^^^^^^^
 
-In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on. If an equation contains a derivative of order *n*, for example, *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must be defined in the ``state`` block. For example, if stating
+In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say ``V``, one must write: ``V'``. It is then assumed that ``V'`` is the first time derivate of ``V``. The second time derivative of ``V`` is ``V''``, and so on. If an equation contains a derivative of order :math:`n`, for example, :math:`V^{(n)}`, all initial values of :math:`V` up to order :math:`n-1` must be defined in the ``state`` block. For example, if stating
 
 .. code-block:: nestml
 
