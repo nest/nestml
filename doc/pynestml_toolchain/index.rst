@@ -18,7 +18,7 @@ Engineering of domain-specific languages (DSL) such as NESTML represents a proce
 
 .. _fig-arch-dsl:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/dsl_archi_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/pynestml/pic/dsl_archi_cropped.png
    :alt: The architecture of a DSL
 
    The architecture of a DSL [1]_ : The model-processing toolchain consists of three major subsystems and several assisting components. A given model is handed over to the *model-processing frontend* which parses it and creates an internal representation, the *Abstract Syntax Tree* (AST). This representation is then further analyzed and refined by the *transformation and function library*, a collection of components which ensure the overall correctness of the given model and employ subroutines for further modifications and transformations, generating an *output AST*. The processed AST is finally handed over to the *backend* subsystem which generates code in a format as specified in a set of *templates*. The overall process is orchestrated by a *workflow execution* unit whose behavior and individual steps can be customized by a *control script*. The result of the overall process is a set of generated *code*, *reports* and other artifacts.

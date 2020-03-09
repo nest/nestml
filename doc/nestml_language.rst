@@ -8,12 +8,12 @@ NESTML files are expected to have the filename extension ``.nestml``. Each file 
 In order to give users complete freedom in implementing neuron model dynamics, NESTML has a full procedural programming language built in. This programming language is used to define the model's time update and functions.
 
 Data types and physical units
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 Data types define types of variables as well as parameters and return values of functions. NESTML provides the following primitive types and physical data types:
 
 Primitive data types
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~
 
 -  ``real`` corresponds to the ``double`` data type in C++. Example literals are: ``42.0``, ``-0.42``, ``.44``
 -  ``integer`` corresponds to the ``long`` data type in C++. Example literals are: ``42``, ``-7``
@@ -22,7 +22,7 @@ Primitive data types
 -  ``void`` corresponds to the ``void`` data type in C++. No literals are possible and this can only be used in the declaration of a function without a return value.
 
 Physical units
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 A physical unit in NESTML can be either a simple physical unit or a complex physical unit. A simple physical unit is composed of an optional magnitude prefix and the name of the unit.
 
@@ -76,21 +76,21 @@ Units can have at most one of the following magnitude prefixes:
 
 Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
 
-::
+.. code-block:: nestml
 
-    mV*mV*nS**2/(mS*pA)
+   mV*mV*nS**2/(mS*pA)
 
 Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
 
-::
+.. code-block:: nestml
 
-    (ms*mV)**-1
+   (ms*mV)**-1
 
 is equivalent to
 
-::
+.. code-block:: nestml
 
-    1/(ms*mV)
+   1/(ms*mV)
 
 NESTML also supports the usage of named derived-units such as Newton, Henry or lux:
 
@@ -212,38 +212,43 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
 
 Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
 
-::
+.. code-block:: nestml
 
-    x = 10N * 22Ohm / 0.5V
+   x = 10 N * 22 Ohm / 0.5 V
 
 Physical unit literals
-^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
 
 Simple unit literals are composed of a number and a type name (with or without a whitespace inbetween the two):
 
 ::
 
-    <number> <unit_type>
-    e.g.: V_m mV = 1mV
+   <number> <unit_type>
+
+e.g.:
+
+.. code-block:: nestml
+
+   V_m mV = 1 mV
 
 Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
 
-::
+.. code-block:: nestml
 
-    V_rest = -55 mV/s**2
+   V_rest = -55 mV/s**2
 
 Type and unit checks
-^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~
 
 NESTML checks type correctness of all expressions. This also applies to assignments, declarations with an initialization and function calls. NESTML supports conversion of ``integer``\ s to ``real``\ s. A conversion between ``unit``-typed and ``real``-typed variables is also possible. However, these conversions are reported as warnings. Finally, there is no conversion between numeric types and boolean or string types.
 
 Basic elements of the embedded programming language
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
 The basic elements of the language are declarations, assignments, function calls and return statements.
 
 Declarations
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
 
@@ -253,61 +258,64 @@ Declarations are composed of a non-empty list of comma separated names. A valid 
 
 Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
 
+
 ::
 
     <list_of_comma_separated_names> <type> (= initialization_expression)?
+
+.. code-block:: nestml
 
     a, b, c real = -0.42
     d integer = 1
     n integer # default value is 0
     e string = "foo"
-    f mV = -2e12mV
+    f mV = -2e12 mV
 
 Documentation strings
-'''''''''''''''''''''
+~~~~~~~~~~~~~~~~~~~~~
 
 Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments ( """...""") or Java-style comments (/\* ... \*/) can be used.
 
-::
+.. code-block:: nestml
 
-    var1 real # single line comment
+   var1 real # single line comment
 
-    /* This is 
-    *  a comment
-    *  over several lines.
-    */
-    var2 real
-    """
-      This is a multiline comment in Python syntax.
-    """
+   /* This is 
+   *  a comment
+   *  over several lines.
+   */
+   var2 real
+   """
+   This is a multiline comment in Python syntax.
+   """
 
 To enable NESTML to recognize the commented element uniquely, the following approach has to be used: The comment and its target do not have to be separated by a white line, i.e., a white line between a model element and a comment indicates, that the comment does not belong to this element, e.g.:
 
-::
+.. code-block:: nestml
 
-    V_m mV = -55mV # I am a comment of the membrane potential
+   V_m mV = -55 mV # I am a comment of the membrane potential
 
-    /* I am not a comment of the membrane potential. A white line separates us. */ 
+   /* I am not a comment of the membrane potential. A white line separates us. */ 
 
 If a comment shall be attached to an element, no white lines are allowed.
 
-::
+.. code-block:: nestml
 
-    V_m mV = -55mV # I am a comment of the membrane potential
-    /* I am a comment of the membrane potential.*/ 
+   V_m mV = -55mV # I am a comment of the membrane potential
+   /* I am a comment of the membrane potential.*/ 
 
 Whitelines are therefore used to separate comment targets:
 
-::
+.. code-block:: nestml
 
-    V_m mV = -55mV
-    /* I am a comment of the membrane potential.*/ 
+   V_m mV = -55mV
+   /* I am a comment of the membrane potential.*/ 
 
-    /* I am a comment of the resting potential.*/
-    V_rest mV = -60mV
+   /* I am a comment of the resting potential.*/
+   V_rest mV = -60mV
 
 Assignments
-^^^^^^^^^^^
+~~~~~~~~~~~
 
 NESTML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
 
@@ -319,7 +327,7 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
 
 Functions
-^^^^^^^^^
+~~~~~~~~~
 
 Functions can be used to write repeatedly used code blocks only once. They consist of the function name, the list of parameters and an optional return type, if the function returns a value to the caller. The function declaration ends with the keyword ``end``.
 
@@ -329,9 +337,13 @@ Functions can be used to write repeatedly used code blocks only once. They consi
       <statements>
     end
 
-    function divide(a real, b real) real:
-      return a/b
-    end
+e.g.:
+
+.. code-block:: nestml
+
+   function divide(a real, b real) real:
+     return a/b
+   end
 
 To use a function, it has to be called. A function call is composed of the function name and the list of required parameters. The returned value (if any) can be directly assigned to a variable of the corresponding type.
 
@@ -339,10 +351,14 @@ To use a function, it has to be called. A function call is composed of the funct
 
     <function_name>(<list_of_arguments>)
 
-    x = max(a*2, b/2)
+e.g.
+
+.. code-block:: nestml
+
+   x = max(a*2, b/2)
 
 Predefined functions
-''''''''''''''''''''
+^^^^^^^^^^^^^^^^^^^^
 
 The following functions are predefined in NESTML and can be used out of the box:
 
@@ -435,11 +451,15 @@ The ``return`` keyword can only be used inside of the ``function`` block. Depend
 
     return (<expression>)?
 
-    if a > b:
-      return a
-    else:
-      return b
-    end
+e.g.
+
+.. code-block:: nestml
+
+   if a > b:
+     return a
+   else:
+     return b
+   end
 
 Control structures
 ~~~~~~~~~~~~~~~~~~
@@ -457,10 +477,14 @@ The start of the ``while`` loop is composed of the keyword ``while`` followed by
       <statements>
     end
 
-    x integer = 0
-    while x <= 10:
-      y = max(3, x)
-    end
+e.g.:
+
+.. code-block:: nestml
+
+   x integer = 0
+   while x <= 10:
+     y = max(3, x)
+   end
 
 The ``for`` loop starts with the keyword ``for`` followed by the name of a previously defined variable of type ``integer`` or ``real``. The fist variant uses an ``integer`` stepper variable which iterates over the half-open interval [``lower_bound``, ``upper_bound``) in steps of 1.
 
@@ -470,10 +494,14 @@ The ``for`` loop starts with the keyword ``for`` followed by the name of a previ
       <statements>
     end
 
-    x integer = 0
-    for x in 1 ... 5:
-      <statements>
-    end
+e.g.:
+
+.. code-block:: nestml
+
+   x integer = 0
+   for x in 1 ... 5:
+     <statements>
+   end
 
 The second variant uses an ``integer`` or ``real`` iterator variable and iterates over the half-open interval ``[lower_bound, upper_bound)`` with a positive ``integer`` or ``real`` step of size ``step``. It is advisable to chose the type of the iterator variable and the step size to be the same.
 
@@ -483,15 +511,19 @@ The second variant uses an ``integer`` or ``real`` iterator variable and iterate
       <statements>
     end
 
-    x integer
-    for x in 1 ... 5 step 2:
-      <statements>
-    end
+e.g.:
 
-    x real
-    for x in 0.1 ... 0.5 step 0.1:
-      Statements
-    end
+.. code-block:: nestml
+
+   x integer
+   for x in 1 ... 5 step 2:
+     # <statements>
+   end
+
+   x real
+   for x in 0.1 ... 0.5 step 0.1:
+     # <statements>
+   end
 
 Conditionals
 ^^^^^^^^^^^^
@@ -504,9 +536,13 @@ NESTML supports different variants of the if-else conditional. The first example
       <statements>
     end
 
-    if 2 < 3:
-      <statements>
-    end
+e.g.:
+
+.. code-block:: nestml
+
+   if 2 < 3:
+     # <statements>
+   end
 
 The second example shows an if-else block, which executes the ``if_statements`` in case the boolean expression evaluates to true and the ``else_statements`` else.
 
@@ -518,11 +554,15 @@ The second example shows an if-else block, which executes the ``if_statements`` 
       <else_statements>
     end
 
-    if 2 < 3:
-      <if_statements>
-    else:
-      <else_statements>
-    end
+e.g.:
+
+.. code-block:: nestml
+
+   if 2 < 3:
+     <if_statements>
+   else:
+     <else_statements>
+   end
 
 In order to allow grouping a sequence of related ``if`` conditions, NESTML also supports the ``elif``-conditionals. An ``if`` condition can be followed by an arbitrary number of ``elif`` conditions. Optionally, this variant also supports the ``else`` keyword for a catch-all statement. The whole conditional always concludes with an ``end`` keyword.
 
@@ -536,43 +576,47 @@ In order to allow grouping a sequence of related ``if`` conditions, NESTML also 
       <else_statements>
     end
 
-    if 2 < 3:
-      <if_statements>
-    elif 4>6:
-      <elif_statements>
-    else:
-      <else_statements>
-    end
+e.g.:
 
-    if 2 < 3:
-      <if_statements>
-    elif 4>6:
-      <elif_statements>
-    end
+.. code-block:: nestml
+
+   if 2 < 3:
+     # <if_statements>
+   elif 4>6:
+     # <elif_statements>
+   else:
+     # <else_statements>
+   end
+
+   if 2 < 3:
+     # <if_statements>
+   elif 4>6:
+     # <elif_statements>
+   end
 
 Conditionals can also be nested inside of each other.
 
-::
+.. code-block:: nestml
 
-    if 1 < 4:
-      <statements>
-      if 2 < 3:
-        <statements>
-      end
-    end
+   if 1 < 4:
+     # <statements>
+     if 2 < 3:
+       # <statements>
+     end
+   end
 
 Expressions and operators
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Expressions in NESTML can be specified in a recursive fashion.
 
-Terms:
-^^^^^^
+Terms
+~~~~~
 
 All variables, literals, and function calls are valid terms. Variables are names of user-defined or predefined variables (``t``, ``e``)
 
 List of operators
-^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~
 
 For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ ``c1``,\ ``c2``, and an integer expression ``n`` the following operators produce valid expressions.
 
@@ -630,8 +674,8 @@ The following blocks are mandataroy: **input**, **output** and **update**
 Neuronal interactions
 ---------------------
 
-Synaptic input
-~~~~~~~~~~~~~~
+Input
+~~~~~
 
 A neuron model written in NestML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 
@@ -641,82 +685,28 @@ A neuron model written in NestML can be configured to receive two distinct types
 
 This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following `input` block would be appropriate:
 
-::
+.. code-block:: nestml
 
-    input:
-      currents <- current
-      inh_spikes <- inhibitory spike
-      exc_spikes <- excitatory spike
-    end
+   input:
+     I_ext pA <- current
+     inh_spikes <- inhibitory spike
+     exc_spikes <- excitatory spike
+   end
 
 Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
 
-If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three input ports as follows:
+Integrating current input
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-::
-    input:
-      spikes1 nS <- spike
-      spikes2 nS <- spike
-      spikes3 nS <- spike
-      currents <- current
-    end
+The current port symbol (here, `I_ext`) is available as a variable and can be used in expressions, e.g.:
 
-For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
+.. code-block:: nestml
 
-::
-
-    equations:
-      shape I_shape1 = exp(-t / tau_syn1)
-      shape I_shape2 = exp(-t / tau_syn2)
-      shape I_shape3 = -exp(-t / tau_syn3)
-      function I_syn pA = convolve(I_shape1, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
-      V_abs' = -V_abs/tau_m + I_syn / C_m
-    end
-
-After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
-
-::
-    neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
-
-    sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-    nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
-
-    sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-    nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
-
-    sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-    nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
-
-Note that in multisynapse neurons, receptor ports are numbered starting from 1.
-
-We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded from are thus named as follows:
-
-::
-
-   mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': .1})
-   nest.Connect(mm, neuron)
-
-The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
-
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
-   :alt: NESTML multisynapse example waveform traces
-
-For a full example, please see `tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml <https://raw.githubusercontent.com/nest/nestml/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://raw.githubusercontent.com/nest/nestml/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
+   V_m' = -V_m/tau_m + ... + I_ext
 
 
-Output
-~~~~~~
-
-Each neuron model can only send a single type of event. The type of the event has to be given in the ``output`` block. Currently, however, only spike output is supported.
-
-::
-
-    output: spike
-
-Please note that this block is **not** terminated with the ``end`` keyword.
-
-Synaptic input
---------------
+Integrating spiking input
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Spikes arriving at the input port of a neuron can be written as a spike train *s(t)*:
 
@@ -734,28 +724,95 @@ where *w_i* is the weight of spike *i*.
 
 For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic shape ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a shape and input port as its arguments:
 
-::
+.. code-block:: nestml
 
-    shape G = exp(-t/tau_syn)
-    V_m' = -V_m/tau_m + convolve(G, spikes)
+   shape G = exp(-t/tau_syn)
+   V_m' = -V_m/tau_m + convolve(G, spikes)
 
+
+Multiple input synapses
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three input ports as follows:
+
+.. code-block:: nestml
+
+   input:
+     spikes1 nS <- spike
+     spikes2 nS <- spike
+     spikes3 nS <- spike
+   end
+
+For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
+
+.. code-block:: nestml
+
+   equations:
+     shape I_shape1 = exp(-t / tau_syn1)
+     shape I_shape2 = exp(-t / tau_syn2)
+     shape I_shape3 = -exp(-t / tau_syn3)
+     function I_syn pA = convolve(I_shape1, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
+     V_abs' = -V_abs/tau_m + I_syn / C_m
+   end
+
+After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
+
+.. code-block:: python
+
+   neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+
+   sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
+   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+
+   sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
+   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+
+   sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
+   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+
+Note that in multisynapse neurons, receptor ports are numbered starting from 1.
+
+We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded from are thus named as follows:
+
+.. code-block:: python
+
+   mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': .1})
+   nest.Connect(mm, neuron)
+
+The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
+   :alt: NESTML multisynapse example waveform traces
+
+For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
+
+
+Output
+~~~~~~
+
+Each neuron model can only send a single type of event. The type of the event has to be given in the ``output`` block. Currently, however, only spike output is supported.
+
+.. code-block:: nestml
+
+   output: spike
+
+Please note that this block is **not** terminated with the ``end`` keyword.
 
 Handling of time
-~~~~~~~~~~~~~~~~
+----------------
 
 To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
 
--  ``resolution`` returns the current resolution of the simulation in
-   ms. This can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
+-  ``resolution`` returns the current resolution of the simulation in ms. This can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
 -  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
 
 These functions can be used to implement custom buffer lookup logic but should be used with care.
 
 Equations
-~~~~~~~~~
+---------
 
 Shape functions
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
 
 A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
 
@@ -768,13 +825,13 @@ Systems of ODEs
 
 In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on. If an equation contains a derivative of order *n*, for example, *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must be defined in the ``state`` block. For example, if stating
 
-::
+.. code-block:: nestml
 
    V' = a * V
 
 in the ``equations`` block,
 
-::
+.. code-block:: nestml
 
    V mV = 0 mV
 
@@ -787,7 +844,7 @@ Inline expressions
 
 In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or shape expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
 
-::
+.. code-block:: nestml
 
    inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
    IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
@@ -804,36 +861,36 @@ Inside the ``update`` block, the current time can be accessed via the variable `
 
 
 Solver selection
-~~~~~~~~~~~~~~~~
+----------------
 
 Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of the ``gsl_error_tol`` is ``1e-3``.
 
 Concepts for refractoriness
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
 
-::
+.. code-block:: nestml
 
-    parameters:
-      t_ref ms = 5 ms
-    end
+   parameters:
+     t_ref ms = 5 ms
+   end
 
-    internals:
-      ref_counts  = 0
-    end
+   internals:
+     ref_counts = 0
+   end
 
-    update:
-      if ref_count == 0: # neuron is in non-refractory state
-        if <refractoriness_condition>:
-          ref_counts = steps(t_ref) # make neuron refractory for 5 ms
-        end
-      else:
-        ref_counts  -= 1 # neuron is refractory
-      end
-    end
+   update:
+     if ref_count == 0: # neuron is in non-refractory state
+       if <refractoriness_condition>:
+         ref_counts = steps(t_ref) # make neuron refractory for 5 ms
+       end
+     else:
+       ref_counts -= 1 # neuron is refractory
+     end
+   end
 
 Setting and retrieving model properties
 ---------------------------------------
@@ -848,24 +905,23 @@ Recording values with devices
 -  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 -  The ``recordable`` keyword can be used to also make variables in other blocks (``parameters, internals``) available to recording devices.
 
-   ::
+.. code-block:: nestml
 
-       parameters:
-         recordable t_ref ms = 5ms
-       end
+   parameters:
+     recordable t_ref ms = 5 ms
+   end
 
 Guards
 ------
 
 Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through  guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
 
-::
+.. code-block:: nestml
 
-    block:
-      <declaration> [[<boolean_expression>]]
-    end
+   block:
+     <declaration> [[<boolean_expression>]]
+   end
 
-    parameters:
-      t_ref ms = 5ms [[t_ref >= 0ms]] # refractory period cannot be negative
-    end
-
+   parameters:
+     t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
+   end
