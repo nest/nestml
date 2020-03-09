@@ -408,12 +408,6 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``delta``
      - t
      - A Dirac delta impulse function at time t.
-   * - ``curr\_sum``
-     - I, buf
-     - Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details.
-   * - ``cond\_sum``
-     - I, buf
-     - Synaptic input summation function. See the section [Synaptic input](#synaptic-input) for more details.
    * - ``convolve``
      - f, g
      - The convolution of function f with function g.
@@ -429,18 +423,18 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``println``
      - s
      - Print the string s to stdout (with a line break at the end).
-   * - ``integrate\_odes``
+   * - ``integrate_odes``
      -
      - This function can be used to integrate all stated differential equations of the equations block.
-   * - ``emit\_spike``
+   * - ``emit_spike``
      -
      - Calling this function in the `update` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
    * - ``steps``
      - t
-     - Convert a time into a number of simulation steps. See the section [Handling of time](#handling-of-time) for more information.
+     - Convert a time into a number of simulation steps. See the section :ref:`Handling of time` for more information.
    * - ``resolution``
      -
-     - Returns the current resolution of the simulation in ms. See the section [Handling of time](#handling-of-time) for more information.
+     - Returns the current resolution of the simulation in ms. See the section :ref:`Handling of time` for more information.
 
 Return statement
 ^^^^^^^^^^^^^^^^
