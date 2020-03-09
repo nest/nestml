@@ -152,12 +152,6 @@ Source file: `izhikevich_psc_alpha.nestml <https://www.github.com/nest/nestml/bl
 Source file: `hh_cond_exp_traub.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_cond_exp_traub.nestml>`_
 
 
-:doc:`lorenz_attractor <lorenz_attractor>`
-------------------------------------------
-
-Source file: `lorenz_attractor.nestml <https://www.github.com/nest/nestml/blob/master/models/lorenz_attractor.nestml>`_
-
-
 :doc:`iaf_tum_2000 <iaf_tum_2000>`
 ----------------------------------
 

@@ -429,9 +429,7 @@ The following functions are predefined in NESTML and can be used out of the box:
 Return statement
 ^^^^^^^^^^^^^^^^
 
-The ``return`` keyword can only be used inside of the ``function``
-block. Depending on the return type (if any), it is followed by an
-expression of that type.
+The ``return`` keyword can only be used inside of the ``function`` block. Depending on the return type (if any), it is followed by an expression of that type.
 
 ::
 
@@ -446,16 +444,12 @@ expression of that type.
 Control structures
 ~~~~~~~~~~~~~~~~~~
 
-To control the flow of execution, NESTML supports loops and
-conditionals.
+To control the flow of execution, NESTML supports loops and conditionals.
 
 Loops
 ^^^^^
 
-The start of the ``while`` loop is composed of the keyword ``while``
-followed by a boolean condition and a colon. It is closed with the
-keyword ``end``. It executes the statements inside the block as long as
-the given boolean expression evaluates to ``true``.
+The start of the ``while`` loop is composed of the keyword ``while`` followed by a boolean condition and a colon. It is closed with the keyword ``end``. It executes the statements inside the block as long as the given boolean expression evaluates to ``true``.
 
 ::
 
@@ -468,10 +462,7 @@ the given boolean expression evaluates to ``true``.
       y = max(3, x)
     end
 
-The ``for`` loop starts with the keyword ``for`` followed by the name of
-a previously defined variable of type ``integer`` or ``real``. The fist
-variant uses an ``integer`` stepper variable which iterates over the
-half-open interval [``lower_bound``, ``upper_bound``) in steps of 1.
+The ``for`` loop starts with the keyword ``for`` followed by the name of a previously defined variable of type ``integer`` or ``real``. The fist variant uses an ``integer`` stepper variable which iterates over the half-open interval [``lower_bound``, ``upper_bound``) in steps of 1.
 
 ::
 
@@ -484,11 +475,7 @@ half-open interval [``lower_bound``, ``upper_bound``) in steps of 1.
       <statements>
     end
 
-The second variant uses an ``integer`` or ``real`` iterator variable and
-iterates over the half-open interval ``[lower_bound, upper_bound)`` with
-a positive ``integer`` or ``real`` step of size ``step``. It is
-advisable to chose the type of the iterator variable and the step size
-to be the same.
+The second variant uses an ``integer`` or ``real`` iterator variable and iterates over the half-open interval ``[lower_bound, upper_bound)`` with a positive ``integer`` or ``real`` step of size ``step``. It is advisable to chose the type of the iterator variable and the step size to be the same.
 
 ::
 
@@ -509,8 +496,7 @@ to be the same.
 Conditionals
 ^^^^^^^^^^^^
 
-NESTML supports different variants of the if-else conditional. The first
-example shows the ``if`` conditional composed of a single ``if`` block:
+NESTML supports different variants of the if-else conditional. The first example shows the ``if`` conditional composed of a single ``if`` block:
 
 ::
 
@@ -522,9 +508,7 @@ example shows the ``if`` conditional composed of a single ``if`` block:
       <statements>
     end
 
-The second example shows an if-else block, which executes the
-``if_statements`` in case the boolean expression evaluates to true and
-the ``else_statements`` else.
+The second example shows an if-else block, which executes the ``if_statements`` in case the boolean expression evaluates to true and the ``else_statements`` else.
 
 ::
 
@@ -540,12 +524,7 @@ the ``else_statements`` else.
       <else_statements>
     end
 
-In order to allow grouping a sequence of related ``if`` conditions,
-NESTML also supports the ``elif``-conditionals. An ``if`` condition can
-be followed by an arbitrary number of ``elif`` conditions. Optionally,
-this variant also supports the ``else`` keyword for a catch-all
-statement. The whole conditional always concludes with an ``end``
-keyword.
+In order to allow grouping a sequence of related ``if`` conditions, NESTML also supports the ``elif``-conditionals. An ``if`` condition can be followed by an arbitrary number of ``elif`` conditions. Optionally, this variant also supports the ``else`` keyword for a catch-all statement. The whole conditional always concludes with an ``end`` keyword.
 
 ::
 
@@ -590,15 +569,12 @@ Expressions in NESTML can be specified in a recursive fashion.
 Terms:
 ^^^^^^
 
-All variables, literals, and function calls are valid terms. Variables
-are names of user-defined or predefined variables (``t``, ``e``)
+All variables, literals, and function calls are valid terms. Variables are names of user-defined or predefined variables (``t``, ``e``)
 
 List of operators
 ^^^^^^^^^^^^^^^^^
 
-For any two valid numeric expressions ``a``, ``b``, boolean expressions
-``c``,\ ``c1``,\ ``c2``, and an integer expression ``n`` the following
-operators produce valid expressions.
+For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ ``c1``,\ ``c2``, and an integer expression ``n`` the following operators produce valid expressions.
 
 +------------------------------------------------+--------------------------------------------------------------------+---------------------------+
 | Operator                                       | Description                                                        | Examples                  |
@@ -627,13 +603,7 @@ operators produce valid expressions.
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks
-begin with a keyword specifying the type of the block followed by a
-colon. They are closed with the keyword ``end``. Indentation inside a
-block is not mandatory but recommended for better readability. Each of
-the following blocks must only occur at most once on each level. Some of
-the blocks are required to occur in every neuron model. The general
-syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. They are closed with the keyword ``end``. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
 
 ::
 
@@ -644,47 +614,18 @@ syntax looks like this:
 Block types
 ~~~~~~~~~~~
 
--  ``neuron`` *``<name>``* - The top-level block of a neuron model
-   called ``<name>``. The content will be translated into a single
-   neuron model that can be instantiated in PyNEST using
-   ``nest.Create(<name>)``. All following blocks are contained in this
-   block.
--  ``parameters`` - This block is composed of a list of variable
-   declarations that are supposed to contain all variables which remain
-   constant during the simulation, but can vary among different
-   simulations or instantiations of the same neuron. These variables can
-   be set and read by the user using
-   ``nest.SetStatus(<gid>, <variable>, <value>)`` and
-   ``nest.GetStatus(<gid>, <variable>)``.
--  ``state`` - This block is composed of a list of variable declarations
-   that are supposed to describe parts of the neuron which may change
-   over time.
--  ``initial_values`` - This block describes the initial values of all
-   stated differential equations. Only variables from this block can be
-   further defined with differential equations. The variables in this
-   block can be recorded using a ``multimeter``.
--  ``internals`` - This block is composed of a list of
-   implementation-dependent helper variables that supposed to be
-   constant during the simulation run. Therefore, their initialization
-   expression can only reference parameters or other internal variables.
--  ``equations`` - This block contains shape definitions and
-   differential equations. It will be explained in further detail `later
-   on in the manual <#equations>`__.
--  ``input`` - This block is composed of one or more input ports. It
-   will be explained in further detail `later on in the
-   manual <#input>`__.
--  ``output`` *``<event_type>``* - Defines which type of event the
-   neuron can send. Currently, only ``spike`` is supported. No ``end``
-   is necessary at the end of this block.
--  ``update`` - Inside this block arbitrary code can be implemented
-   using the internal programming language. The ``update`` block defines
-   the runtime behavior of the neuron. It contains the logic for state
-   and equation `updates <#equations>`__ and
-   `refractoriness <#concepts-for-refractoriness>`__. This block is
-   translated into the ``update`` method in NEST.
+-  ``neuron`` *``<name>``* - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create(<name>)``. All following blocks are contained in this block.
+-  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all variables which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
+-  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
+-  ``initial_values`` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a ``multimeter``.
+-  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
+-  ``equations`` - This block contains shape definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
+-  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
+-  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported. No ``end`` is necessary at the end of this block.
+-  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language. The ``update`` block defines the runtime behavior of the neuron. It contains the logic for state
+   and equation `updates <#equations>`__ and `refractoriness <#concepts-for-refractoriness>`__. This block is translated into the ``update`` method in NEST.
 
-The following blocks are mandataroy: **input**, **output** and
-**update**
+The following blocks are mandataroy: **input**, **output** and **update**
 
 Neuronal interactions
 ---------------------
@@ -692,22 +633,13 @@ Neuronal interactions
 Synaptic input
 ~~~~~~~~~~~~~~
 
-A neuron model written in NESTML can be configured to receive two
-distinct types of input, spikes, and currents. For either of them, the
-modeler has to decide if inhibitory and excitatory inputs are lumped
-together into a single named buffer, or if they should be separated into
-differently named buffers based on their sign. The ``input`` block is
-composed of one or more lines to express the exact combinations desired.
-Each line has the following general form:
+A neuron model written in NestML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 
 ::
 
     port_name <- inhibitory? excitatory? (spike | current)
 
-This way, a flexible combination of the inputs is possible. If, for
-example, current input should be lumped together, but spike input should
-be separated for inhibitory and excitatory incoming spikes, the
-following ``input`` block would be appropriate:
+This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following `input` block would be appropriate:
 
 ::
 
@@ -717,204 +649,204 @@ following ``input`` block would be appropriate:
       exc_spikes <- excitatory spike
     end
 
-Please note that it is equivalent if either both ``inhibitory`` and
-``excitatory`` are given or none of them at all. If only a single one of
-them is given, another line has to be present and specify the inverse
-keyword. Failure to do so will result in a translation error.
+Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
 
-If there is more than one line specifying a ``spike`` or ``current``
-port with the same sign, a neuron with multiple receptor types is
-created. In this case, a ``receptor_types`` entry is created in the
-status dictionary, which maps port names to numeric port indices in
-NEST. The receptor type can then be selected in NEST during `connection
-setup <http://nest-simulator.org/connection_management/#receptor-types>`__.
+If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three input ports as follows:
+
+::
+    input:
+      spikes1 nS <- spike
+      spikes2 nS <- spike
+      spikes3 nS <- spike
+      currents <- current
+    end
+
+For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
+
+::
+
+    equations:
+      shape I_shape1 = exp(-t / tau_syn1)
+      shape I_shape2 = exp(-t / tau_syn2)
+      shape I_shape3 = -exp(-t / tau_syn3)
+      function I_syn pA = convolve(I_shape1, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
+      V_abs' = -V_abs/tau_m + I_syn / C_m
+    end
+
+After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
+
+::
+    neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
+
+    sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
+    nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
+
+    sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
+    nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
+
+    sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
+    nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
+
+Note that in multisynapse neurons, receptor ports are numbered starting from 1.
+
+We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded from are thus named as follows:
+
+::
+
+   mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': .1})
+   nest.Connect(mm, neuron)
+
+The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
+   :alt: NESTML multisynapse example waveform traces
+
+For a full example, please see `tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml <https://raw.githubusercontent.com/nest/nestml/master/tests/nest_tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://raw.githubusercontent.com/nest/nestml/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
+
 
 Output
 ~~~~~~
 
-Each neuron model can only send a single type of event. The type of the
-event has to be given in the ``output`` block. Currently, however, only
-spike output is supported.
+Each neuron model can only send a single type of event. The type of the event has to be given in the ``output`` block. Currently, however, only spike output is supported.
 
 ::
 
     output: spike
 
-Please note that this block is **not** terminated with the ``end``
-keyword.
+Please note that this block is **not** terminated with the ``end`` keyword.
 
 Synaptic input
 --------------
 
-NESTML has two dedicated functions to ease the summation of synaptic
-input.
+Spikes arriving at the input port of a neuron can be written as a spike train *s(t)*:
 
-``curr_sum`` is a function that has two arguments. The first is a
-function *I* of *t* which is either a ``shape`` function (see `Synaptic
-response <#synaptic-response>`__) or a function that is defined by an
-ODE plus initial values (see `Systems of ODEs <#systems-of-odes>`__).
-The second is a ``spike`` input buffer (see `Synaptic
-input <#synaptic-input>`__). ``curr_sum`` takes every weight in the
-``spike`` buffer and multiplies it with the ``shape`` function
-*I*\ shape shifted by it's respective spike time *t\_i*. In mathematical
-terms, it thus performs the following operation:
+.. math::
 
-.. raw:: html
+   \large s(t) = \sum_{i=1}^N \delta(t - t_i)
 
-   <!-- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ -->
+To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha function (bi-exponential), decaying exponential, or a delta function. (See `Shape functions <#shape-functions>`_ for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
 
-|equation|.
+.. math::
 
-When the sum above is used to describe conductances instead of currents,
-the function ``cond_sum`` can be used. It does exactly the same as
-``curr_sum`` and can be used in exactly the same way and in the same
-cases, but makes explicit that the neural dynamics are based on synaptic
-conductances rather than currents.
+   \large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)
 
-For modeling postsynaptic responses with delta functions, ``curr_sum``
-and ``cond_sum`` can be called with the keyword ``delta`` as first
-argument instead of a ``shape`` function.
+where *w_i* is the weight of spike *i*.
 
-For convenience reason, ``curr_sum`` and ``cond_sum`` are not required
-to be called (although possible). Instead, the ``convolve`` function can
-be used to perform the correct steps.
-
-Handling of time
-----------------
-
-To retrieve some fundamental simulation parameters, two special
-functions are built into NESTML:
-
--  ``resolution`` returns the current resolution of the simulation in
-   ms. This can be set by the user using the PyNEST function
-   ``nest.SetKernelStatus({"resolution": ...})``.
--  ``steps`` takes one parameter of type ``ms`` and returns the number
-   of simulation steps in the current simulation resolution.
-
-These functions can be used to implement custom buffer lookup logic but
-should be used with care.
-
-Equations
----------
-
-Synaptic response
-~~~~~~~~~~~~~~~~~
-
-A ``shape`` is a function of *t* (which represents the current time of
-the system), that corresponds to the shape of a postsynaptic response,
-i.e. the function *I*\ shape(*t*) with which incoming spike weights *w*
-are multiplied to compose the synaptic input *I*\ syn:
-
-.. raw:: html
-
-   <!--- $\large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)$ --->
-
-|equation|.
-
-Systems of ODEs
-~~~~~~~~~~~~~~~
-
-In the ``equations`` block one can define a system of differential
-equations with an arbitrary amount of equations that contain derivatives
-of arbitrary order. When using a derivative of a variable, say *V*, one
-must write: *V*'. It is then assumed that *V*' is the first time
-derivate of *V*. The second time derivative of *V* is *V*'', and so on.
-If an equation contains a derivative of order *n*, for example,
-*V*\ (*n*), all initial values of *V* up to order *n*-1 must be defined
-in the ``state`` block. For example, if stating
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic shape ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a shape and input port as its arguments:
 
 ::
 
-    V' = a * V
+    shape G = exp(-t/tau_syn)
+    V_m' = -V_m/tau_m + convolve(G, spikes)
+
+
+Handling of time
+~~~~~~~~~~~~~~~~
+
+To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
+
+-  ``resolution`` returns the current resolution of the simulation in
+   ms. This can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
+-  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+
+These functions can be used to implement custom buffer lookup logic but should be used with care.
+
+Equations
+~~~~~~~~~
+
+Shape functions
+^^^^^^^^^^^^^^^
+
+A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
+
+.. math::
+
+   \large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)
+
+Systems of ODEs
+^^^^^^^^^^^^^^^
+
+In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on. If an equation contains a derivative of order *n*, for example, *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must be defined in the ``state`` block. For example, if stating
+
+::
+
+   V' = a * V
 
 in the ``equations`` block,
 
 ::
 
-    V mV = 0mV
+   V mV = 0 mV
 
-has to be stated in the ``initial_values`` block. If the initial values
-are not defined in ``initial_values`` it is assumed that they are zero
-and unit checks are no longer possible, thus an error message is
-generated.
+has to be stated in the ``initial_values`` block. If the initial values are not defined in ``initial_values`` it is assumed that they are zero and unit checks are no longer possible, thus an error message is generated.
 
-The content of spike and current buffers can be used by just using their
-plain names. NESTML takes care behind the scenes that the buffer
-location at the current simulation time step is used.
+The content of spike and current buffers can be used by just using their plain names. NestML takes care behind the scenes that the buffer location at the current simulation time step is used.
+
+Inline expressions
+^^^^^^^^^^^^^^^^^^
+
+In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or shape expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
+
+::
+
+   inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
+   IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
+
 
 Dynamics and time evolution
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``update:`` inside this block, the current time can be accessed via the
-variable ``t``
+Inside the ``update`` block, the current time can be accessed via the variable ``t``.
 
-``integrate_odes``: this function can be used to integrate all stated
-differential equations of the ``equations`` block.
+``integrate_odes``: this function can be used to integrate all stated differential equations of the ``equations`` block.
 
-``emit_spike()``: calling this function in the ``update``-block results
-in firing a spike to all target neurons and devices time stamped with
-the current simulation time.
+``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+
 
 Solver selection
 ~~~~~~~~~~~~~~~~
 
-Currently, there is support for GSL and exact integration.
+Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
-In the case that the model is solved with the GSL integrator, desired
-absolute error of an integration step can be adjusted with the
-``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value
-of the ``gsl_error_tol`` is ``1e-3``.
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of the ``gsl_error_tol`` is ``1e-3``.
 
 Concepts for refractoriness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to model refractory and non-refractory states, two variables
-are necessary. The first variable (``t_ref``) defines the duration of
-the refractory period. The second variable (``ref_counts``) specifies
-the time of the refractory period that has already passed. It is
-initialized with 0 (the neuron is non-refractory) and set to the
-refractory offset every time the refractoriness condition holds. Else,
-the refractory offset is decremented.
+In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
 
 ::
 
     parameters:
-      t_ref ms = 5ms
+      t_ref ms = 5 ms
     end
+
     internals:
       ref_counts  = 0
     end
-    update:
 
+    update:
       if ref_count == 0: # neuron is in non-refractory state
         if <refractoriness_condition>:
-          ref_counts = steps(t_ref) # make neuron refractory for 5ms
+          ref_counts = steps(t_ref) # make neuron refractory for 5 ms
         end
       else:
         ref_counts  -= 1 # neuron is refractory
       end
-
     end
 
 Setting and retrieving model properties
 ---------------------------------------
 
--  All variables in the ``state``, ``parameters`` and ``initial_values``
-   blocks are added to the status dictionary of the neuron.
--  Values can be set using
-   ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>``
-   is the name of the corresponding NESTML variable.
--  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This
-   call will return the value of the corresponding NESTML variable.
+-  All variables in the ``state``, ``parameters`` and ``initial_values`` blocks are added to the status dictionary of the neuron.
+-  Values can be set using ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>`` is the name of the corresponding NESTML variable.
+-  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This call will return the value of the corresponding NESTML variable.
 
 Recording values with devices
 -----------------------------
 
--  All values in the ``state`` block are recordable by a ``multimeter``
-   in NEST.
--  The ``recordable`` keyword can be used to also make variables in
-   other blocks (``parameters, internals``) available to recording
-   devices.
+-  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
+-  The ``recordable`` keyword can be used to also make variables in other blocks (``parameters, internals``) available to recording devices.
 
    ::
 
@@ -925,9 +857,7 @@ Recording values with devices
 Guards
 ------
 
-Variables which are defined in the ``state`` and ``parameters`` blocks
-can optionally be secured through guards. These guards are checked
-during the call to ``nest.SetStatus()`` in NEST.
+Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through  guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
 
 ::
 
@@ -939,5 +869,3 @@ during the call to ``nest.SetStatus()`` in NEST.
       t_ref ms = 5ms [[t_ref >= 0ms]] # refractory period cannot be negative
     end
 
-.. |equation| image:: https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w
-.. |equation| image:: https://latex.codecogs.com/svg.latex?%5Clarge%20I_%7B%5Ctext%7Bsyn%7D%7D%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29

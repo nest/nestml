@@ -1,7 +1,7 @@
 Section 2: Assisting Classes 
 ============================
 
-As opposed to a typical DSL architecture, where semantical checks, as well as model transformations, are seen as a part of the *function library*, PyNestML implements a slightly different structuring of the components. In the previous section, checks for semantical correctness of a given model were already included in the model-processing frontend
+As opposed to a typical DSL architecture, where semantical checks, as well as model transformations, are seen as a part of the *function library*, PyNESTML implements a slightly different structuring of the components. In the previous section, checks for semantical correctness of a given model were already included in the model-processing frontend
 instead of characterizing this component as an element of the subsystem
 sitting between the frontend and the code generator. We, therefore,
 decided to factor out the functionality normally contained in the
@@ -15,7 +15,7 @@ necessary to implement several model transformations. As illustrated in
 `Figure 2.1 <#fig2.1>`__, it may be beneficial to regard model
 transformations as a part of the target-format generating backend and
 encapsulate all components required for a specific target in a single
-subsystem. Following these principles, the overall PyNestML architecture
+subsystem. Following these principles, the overall PyNESTML architecture
 has been implemented in the following way: A rich and powerful frontend
 is followed by a small collection of workflow governing and assisting
 components, which are in turn concluded by several, independent code
@@ -25,11 +25,11 @@ providing assisting functionality. Although not crucial, these elements
 are often required to provide a straightforward tooling as well as
 certain quality standards.
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/pynestml/pic/mid_overview_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/mid_overview_cropped.png
    :alt: reStructuredText, the markup syntax
 
-   Figure 2.1: Overview of assisting components: The *PyNestMLFrontend*
-   represents an orchestrating component, governing PyNestML’s workflow.
+   Figure 2.1: Overview of assisting components: The *PyNESTMLFrontend*
+   represents an orchestrating component, governing PyNESTML’s workflow.
    Parameters handed over by the user are stored in the
    *FrontendConfiguration*, while the *Logger* and *Messages* classes take
    care of logging. For the modification and creation of ASTs, the
@@ -43,14 +43,14 @@ However, transforming the model to an equivalent AST is only the first
 step in the overall processing. The `introduction <index.md>`__ showed
 which other steps have to follow and therefore to be chained and
 governed by an orchestrating component. This task is handled by the
-*PyNestMLFrontend* class, a component which represents the *workflow
+*PyNESTMLFrontend* class, a component which represents the *workflow
 execution unit* and hides the model transforming process behind a
 clearly defined interface.
 
 Before the actual processing of the model can be started, it is
 necessary to handle all parameters as handed over by the user, e.g., the
 path to the models. These parameters tend to change frequently whenever
-new concepts and specifications are added. PyNestML, therefore,
+new concepts and specifications are added. PyNESTML, therefore,
 delegates the task of arguments handling to the *FrontendConfiguration*
 class. By utilizing the standard functionality of Python’s
 *argparse*\ \ `1 <#1>`__\  module, the frontend configuration is able to
@@ -76,13 +76,13 @@ operation, while the remaining framework remains untouched.
    <p>
 
 Figure 2.2: The model-processing routine as orchestrated by the
-*PyNestMLFrontend*
+*PyNESTMLFrontend*
 
 .. raw:: html
 
    </p>
 
-All arguments as handed over to the *PyNestMLFrontend* class are
+All arguments as handed over to the *PyNESTMLFrontend* class are
 therefore first delegated to the *FrontendConfiguration* class where all
 settings are parsed. Only if a valid set of arguments is available, the
 system proceeds. First, the *predefined* subsystem of the previous
@@ -92,7 +92,7 @@ executed for all handed over artifacts, with the result being a
 collection of neuron models represented by ASTs. After all models have
 been parsed, it remains to check a context condition which is only
 available whenever several artifacts are processed, namely
-*CoCoNoTwoNeuronsInSetOfCompilationUnits*. PyNestML checks in the list
+*CoCoNoTwoNeuronsInSetOfCompilationUnits*. PyNESTML checks in the list
 of all processed artifacts whether two neurons with equal names are
 present. Although not directly semantically incorrect, this property
 still has to be ensured. Otherwise, a generated C++ implementation of
@@ -100,17 +100,17 @@ the respective neuron would overwrite a different one, leading to
 unexpected results. The corresponding context condition is hereby
 directly invoked on the *CoCosManager*. All errors are reported and
 logged by means of the *Logger* class. If the developer mode is off,
-PyNestML inspects the log and removes all neurons from the current
+PyNESTML inspects the log and removes all neurons from the current
 collection which have at least one found error. The adjusted collection
 is then handed over to the code generating backend. After all models
 have been processed, the overall log is inspected and stored in a file
-if required. In conclusion, the *PyNestMLFrontend* class represents the
+if required. In conclusion, the *PyNESTMLFrontend* class represents the
 overall *workflow execution unit*, and combines the model-processing
 frontend and the code-generating backend. `Figure 2.2 <#fig2.2>`__
 subsumes the presented procedure.
 
 The *Logger* represents an assisting class which is used in almost all
-parts of the PyNestML framework. Errors during the parsing and
+parts of the PyNESTML framework. Errors during the parsing and
 semantical checks as well as all complications arising in the code
 generators are reported by means of this component. Often identical
 errors can occur in several parts of the toolchain, e.g., an underivable
@@ -153,7 +153,7 @@ messages of a specified logging level, while *getAllMessagesOfNeuron*
 returns all issues reported for a specific neuron model. The *hasErrors*
 method checks whether a neuron does or does not contain errors. The
 final operation of this class is the *printToJSON* method. As introduced
-in the *PyNestMLFrontend* class, it is possible to store the overall log
+in the *PyNESTMLFrontend* class, it is possible to store the overall log
 in a single file. For this purpose, first, it is necessary to create a
 sufficient representation of the log in JSON format. This task is handed
 over to the aforementioned method, which inspects the log and returns a
@@ -288,7 +288,7 @@ sub-classing, where only a single operation is redefined.
 
    </p>
 
-Especially in the case of PyNestML and its semantics-checking subsystem
+Especially in the case of PyNESTML and its semantics-checking subsystem
 many visitors had to be written. In order to avoid the above-mentioned
 problems, the concept of the *higher-order visitor* was developed.
 Analogously to the (generated) base visitor, this class implements a
@@ -337,7 +337,7 @@ framework:
 -  *FrontendConfiguration*: A configuration class used to store handed
    over parameters.
 
--  *PyNestMLFrontend*: A class providing a simple interface to PyNestML.
+-  *PyNESTMLFrontend*: A class providing a simple interface to PyNESTML.
 
 -  *Logger* and *Messages*: A logger with a set of corresponding
    messages for precise and easy to filter logs.
@@ -352,7 +352,7 @@ framework:
    then executed on each node in the AST. Makes inheritance for simple
    visitors no longer necessary.
 
-All these components make PyNestML easier to maintain and ensure basic
+All these components make PyNESTML easier to maintain and ensure basic
 qualities of a software, namely data abstraction, separation of concerns
 and single responsibility. As we will see in `Section
 4 <extensions.md>`__, all these characteristics are highly anticipated

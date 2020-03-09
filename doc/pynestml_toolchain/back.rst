@@ -6,7 +6,7 @@ of a DSL-processing framework and enables the validation of the modeled
 concepts. The transformation of a textual model to an executable
 representation by means of a DSL framework prevents a manual,
 error-prone mapping of models to target platforms. In the case of
-PyNestML, the NEST simulator\ `1 <#1>`__\  was selected as the first
+PyNESTML, the NEST simulator\ `1 <#1>`__\  was selected as the first
 major platform for code generation. NEST represents a powerful
 simulation environment for biological neural networks and is implemented
 in C++. In this section, we will demonstrate how the code-generating
@@ -126,7 +126,7 @@ support for certain concepts, also an optimization of declared models is
 often of interest. Transformations, therefore, enable a DSL framework to
 adjust models to specific targets and generate efficient code.
 
-In the case of PyNestML, all transformations of neuron models are
+In the case of PyNESTML, all transformations of neuron models are
 focused on the *equations* block, where, depending on the stated
 declarations, models are restructured and definitions transformed to a
 more efficient and easy to generate form. The target simulation
@@ -165,7 +165,7 @@ ODE-toolbox can be used, it is therefore first necessary to create a
 representation of a model’s properties in JSON format. Such a handling
 makes the used ODE-toolbox an exchangeable component, where only the
 wrapper converting and exchanging data has to be adjusted whenever a
-different toolbox is used. PyNestML delegates the interaction with the
+different toolbox is used. PyNESTML delegates the interaction with the
 toolbox to the *SymPySolver* class. Summarizing, the overall process as
 employed in this component can be described as follows: Given an
 *equations* block, print its specifications to an equivalent JSON
@@ -207,7 +207,7 @@ the *transformers* and integrated into the AST.
 
    <p>
 
-Figure 3.5: From NestML to JSON: In order to interact with the
+Figure 3.5: From NESTML to JSON: In order to interact with the
 ODE-toolbox, all declarations contained in the *equations* block are
 converted to JSON format.
 
@@ -226,7 +226,7 @@ expressions are first printed by means of the *ExpressionPrettyPrinter*
 class to a Python-processable format. By exchanging strings instead of
 objects, a better control and comprehension of all side effects is
 achieved. For all three types of declarations in the *equations* block,
-PyNestML implements an additional printing routine: The *printEquation*
+PyNESTML implements an additional printing routine: The *printEquation*
 function retrieves the name of the left-hand side variable together with
 the differential order and combines it with the right-hand side
 expression printed by the *ExpressionPrettyPrinter*. This procedure is
@@ -261,7 +261,7 @@ definitions and integrated into the model.
    </p>
 
 Having a representation of the equations block in an appropriate string
-format, PyNestML starts to interact with the ODE-toolbox. The concrete
+format, PyNESTML starts to interact with the ODE-toolbox. The concrete
 communication is hereby delegated to the orchestrating *SymPySolver*
 class. This component represents a wrapper for the ODE-toolbox and
 executes all steps as required to communicate with the toolbox and
@@ -275,7 +275,7 @@ ODEs and initial values. Analogously to the input, the output as
 returned by the toolbox is also represented by means of a string in JSON
 format. It is, therefore, necessary to parse the modified declarations
 and inject them into the currently processed AST. In order to make the
-overall processing modular and easy to maintain, PyNestML implements the
+overall processing modular and easy to maintain, PyNESTML implements the
 *OutputJSON* function which is solely used to de-construct a JSON string
 to a collection of individual elements. The actual processing and
 injection of computed ODE declarations into ASTs is delegated to the
@@ -291,10 +291,10 @@ which can be added by the ODE-toolbox, e.g., new state variables and
 differential equations. The decomposed output as stored in the
 dictionary can now be used to perform an AST-to-AST transformation.
 
-Having an optimized structure of the *equations* block, PyNestML starts
+Having an optimized structure of the *equations* block, PyNESTML starts
 to transform the AST. Here, depending on the type of the returned
 solution, a different handling is required. However, which handling is
-concretely executed should not be a concern of PyNestML, but rather
+concretely executed should not be a concern of PyNESTML, but rather
 selected according to the toolbox output. This routine is therefore
 implemented in the *EquationsBlockProcessor* class which encapsulates
 all steps of the transformation in a single method. Consequently,
@@ -390,7 +390,7 @@ class, it is required to create a dictionary mapping a unique identifier
 to an *ASTUtils* class reference. This identifier can then be used in
 the context of the template to interact with the corresponding object.
 Before the code generation is invoked, it is therefore first necessary
-to set up a generation context. In the case of PyNestML, this context
+to set up a generation context. In the case of PyNESTML, this context
 consists of several processed objects as well as assisting classes, cf.
 `Figure 3.8 <#fig3.8>`__. For the sake of modularity, the creation of an
 appropriate context is delegated to the *setupStandardNamespace*
@@ -420,7 +420,7 @@ code generation by invoking the *render* operation on the further on
 introduced templates, with the result being a set of generated C++
 artifacts as illustrated in `Figure 3.9 <#fig3.9>`__. In order to enable
 an easy to achieve integration of the generated C++ code into the NEST
-infrastructure, PyNestML implements a concept for the generation of
+infrastructure, PyNESTML implements a concept for the generation of
 setup files. By utilizing predefined extension points of NEST, new
 neuron models can be integrated into the simulation environment by means
 of a corresponding module file. The task of generating these artifacts
@@ -428,7 +428,7 @@ is delegated to the *generateModuleCode* procedure. Except for a
 different set of templates, this method behaves analogously to the
 above-introduced *generateModelCode* procedure. After all model-specific
 as well as setup artifacts have been generated, the control is returned
-to the PyNestML workflow unit.
+to the PyNESTML workflow unit.
 
 .. raw:: html
 
@@ -506,14 +506,14 @@ their usage can become inconvenient whenever many cases have to be
 regarded and conditional branching occurs. This problem becomes more
 apparent when dealing with expressions: While the overall form of the
 AST is restructured to be more NEST affine, individual elements remain
-untouched and are still represented in PyNestML syntax. However, certain
+untouched and are still represented in PyNESTML syntax. However, certain
 details such as the used physical units are not supported by NEST. It is
 therefore required to transform atomic elements such as variables and
 constants to an appropriate representation in NEST. Moreover, in a
 single model it may be necessary to represent a certain element in
 different ways, cf. `Figure 3.11 <#fig3.11>`__. Consequently, it is not
 possible to simply modify the AST to use appropriate references and
-definitions. PyNestML solves this problem by using an ad-hoc solution as
+definitions. PyNESTML solves this problem by using an ad-hoc solution as
 implemented in the *ExpressionPrettyPrinter* class. Mostly used whenever
 expressions have to be printed, this class is able to generate a handed
 over AST object in a specified syntax. Similar to the type deriving
@@ -572,7 +572,7 @@ routine becomes composable, where the implemented pretty printer can be
 independently combined with different reference converters.
 
 The *NESTReferenceConverter* is the first concrete implementation of the
-*IReferenceConverter* class and is used whenever concepts of NestML have
+*IReferenceConverter* class and is used whenever concepts of NESTML have
 to be converted to those in NEST. Being used in almost all parts of the
 provided templates, this class features a conversion of operators and
 constants to their equivalents of the NEST library. As illustrated in
@@ -608,10 +608,10 @@ Figure 3.13: Adaption of syntax by the *convertToCPPName* method.
 C++ as well as many other languages does not support the apostrophe as a
 valid part of an identifier. Consequently, variables stated together
 with their differential order cannot be directly generated as C++ code.
-PyNestML solves this problem by implementing an on-demand transformation
+PyNESTML solves this problem by implementing an on-demand transformation
 of names, executed whenever a variable is processed during code
 generation. In the case that the name of a generated element contains an
-invalid literal, PyNestML employs the *convertToCPPName* operation which
+invalid literal, PyNESTML employs the *convertToCPPName* operation which
 prefixes a variable for each stated order by the letter *D*, cf. `Figure
 3.13 <#fig3.13>`__, resulting in a valid C++ syntax. Moreover, as
 illustrated in `Figure 3.10 <#fig3.10>`__, generated code features
@@ -635,7 +635,7 @@ generation and the usage of the *ExpressionPrettyPrinter* class.
 
    <p>
 
-Figure 3.14: Mapping of NestML types to NEST.
+Figure 3.14: Mapping of NESTML types to NEST.
 
 .. raw:: html
 
@@ -652,9 +652,9 @@ the fact, that all attributes in the generated code are stored in
 element’s name by a reference to its structure, the correctness of
 generated code is preserved.
 
-The *NESTML2NestTypeConverter* class provides a mapping from NestML
+The *NESTML2NestTypeConverter* class provides a mapping from NESTML
 types to appropriate types in C++, cf. `Figure 3.14 <#fig3.14>`__. It
-should be noted that NestML buffers represent variables and consequently
+should be noted that NESTML buffers represent variables and consequently
 have to be declared with a respective type. For this purpose, NEST’s
 implementation of the *RingBuffer* is used as the corresponding counter
 piece. Whenever an element is generated, the functionality contained in
@@ -687,7 +687,7 @@ variable utilizes a physical unit, the corresponding C++ code is
 generated without any units and only the numeric part is regarded.
 Nonetheless, to preserve semantical equivalence of the generated code
 and the source model, the scalar of a unit is derived in the following
-manner: In the case that an atomic unit is given, e.g., *mV*, PyNestML
+manner: In the case that an atomic unit is given, e.g., *mV*, PyNESTML
 checks whether it is a common neuroscientific unit or not. If so, the
 neutral scalar *1* is returned. Otherwise, the value is scaled in
 relation to its common neuroscientific unit, e.g., *V* is converted to
@@ -712,7 +712,7 @@ initial model and the generated code.
 
    <p>
 
-Figure 3.16: The conversion of physical units from PyNestML to NEST.
+Figure 3.16: The conversion of physical units from PyNESTML to NEST.
 
 .. raw:: html
 
@@ -727,11 +727,11 @@ clear. This problem is solved by the *IdempotentReferenceConverter*
 class, a component which implements a simple *identity mapping*, i.e.,
 all elements are converted to themselves. This class is used during the
 generation of a model’s documentation where all variables, types, as
-well as references, are generated in plain NestML syntax.
+well as references, are generated in plain NESTML syntax.
 
 Together with the above-presented set of assisting classes, the
 functionality as implemented in the *ExpressionPrettyPrinter* class
-enables PyNestML to print complex expressions and other declarations
+enables PyNESTML to print complex expressions and other declarations
 without utilizing templates with cascaded branching and sub-templates
 for the generation of atomic parts, e.g., function calls. The result is
 an easy to maintain set of components, where complexity is distributed
@@ -754,12 +754,12 @@ toolbox, we implemented the *EquationsBlockProcessor* and its assisting
 classes. Together, these two components yield a more efficient
 definition of a model. Subsequently, we highlighted a set of templates
 used to depict the general structure of generated C++ code. In order to
-reduce the complexity in the used templates, PyNestML delegated the task
+reduce the complexity in the used templates, PyNESTML delegated the task
 of generating expressions to the *ExpressionPrettyPrinter* class.
 Together, these components implement a process which achieves a *model
 to text* transformation on textual models.
 
-PyNestML has been developed with the intent to provide a base for future
+PyNESTML has been developed with the intent to provide a base for future
 development and extensions. As we demonstrated in `Section
 3.1 <#chap:main:backend:codegeneration>`__, the transformation used to
 construct NEST-affine and efficient code has been called from within the

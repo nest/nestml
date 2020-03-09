@@ -1,12 +1,12 @@
-Section 4: Extending PyNestML 
+Section 4: Extending PyNESTML 
 ------------------------------
 
 As typical for all types of software, requirements of the implementation
-often change. PyNestML was implemented with the aim to provide a modular
+often change. PyNESTML was implemented with the aim to provide a modular
 and easy to extend framework which can be adjusted and reconfigured by
 exchanging components, e.g., context conditions and reference
 converters. In this section, we will briefly demonstrate how extensions
-to PyNestML can be implemented. Representing components which are often
+to PyNESTML can be implemented. Representing components which are often
 adapted, the following use cases are introduced:
 
 -  Grammar: How can the grammar artifacts be extended and in consequence
@@ -26,7 +26,7 @@ The following (hypothetical) use case illustrates the extension of the
 grammar: A new type of block shall be introduced. Declaring constraints
 which have to hold in each simulation step, this block contains boolean
 expressions representing invariants of the neuron model. It is therefore
-first necessary to extend PyNestML’s grammar to support a new type of
+first necessary to extend PyNESTML’s grammar to support a new type of
 blocks. `Figure 4.1 <#fig4.1>`__ illustrates how a new grammar rule is
 introduced to support this use case.
 
@@ -79,8 +79,8 @@ invariant block consists of a set of expressions. Consequently, the
 modification operations, this class represents a data structure which is
 able to hold all invariants of a neuron model.
 
-Having a modified metamodel, it remains to adapt PyNestML to retrieve
-invariants from the parse tree. PyNestML delegates the initialization of
+Having a modified metamodel, it remains to adapt PyNESTML to retrieve
+invariants from the parse tree. PyNESTML delegates the initialization of
 an AST to the *ASTBuilderVisitor* class, cf. `Section 1 <front.md>`__.
 `Figure 4.2 <#fig4.2>`__ illustrates how the AST-building routine has to
 be adapted to regard the new *invariant* block. Here, it is also
@@ -168,7 +168,7 @@ method.
 
    </p>
 
-Together, these steps enable PyNestML to parse a model containing the
+Together, these steps enable PyNESTML to parse a model containing the
 new *invariant* block, construct the respective AST and populate the
 symbol table with all required details.
 
@@ -218,7 +218,7 @@ check the context.
 
    </p>
 
-PyNestML delegates the task of checking models for semantical
+PyNESTML delegates the task of checking models for semantical
 correctness to the orchestrating *CoCosManager* class. Storing
 references to all implemented context conditions, this class
 encapsulates all implemented semantical checks. It is, therefore,
@@ -270,8 +270,8 @@ components:
 As illustrated in `Figure 4.7 <#fig4.7>`__, the existing *NeuronClass*
 template is extended by a new *invariant* function which checks all
 stated invariants during the execution of the simulation. JinJa2 as the
-underlying generator engine of PyNestML features concepts for template
-inclusion and therefore enables an easy extension of PyNestML’s code
+underlying generator engine of PyNESTML features concepts for template
+inclusion and therefore enables an easy extension of PyNESTML’s code
 generator. The referenced template is hereby implemented as a new
 artifact.
 
