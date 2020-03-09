@@ -6,7 +6,7 @@ Please note that only Python 3 is supported. The instructions below assume that 
 Installing the latest release from PyPI
 ---------------------------------------
 
-The easiest way to install NESTML is to use the `Python Package Index (PyPI)<https://pypi.org>`_. This requires the Python package management system ``pip`` to be installed. In Ubuntu, Mint and Debian Linux you can install ``pip`` as follows:
+The easiest way to install NESTML is to use the `Python Package Index (PyPI) <https://pypi.org>`_. This requires the Python package management system ``pip`` to be installed. In Ubuntu, Mint and Debian Linux you can install ``pip`` as follows:
 
 .. code:: bash
 

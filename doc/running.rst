@@ -20,7 +20,7 @@ where arguments are:
    * - ``--input_path``
      - Path to the source file or directory containing the model.
    * - ``--target_path``
-     - (Optional) Path to target directory where generated code will be written into. Default is ``target`, which will be created in the current working directory if it does not yet exist.
+     - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
    * - ``--target``
      - (Optional) The name of the target platform to generate code for. Default is NEST.
    * - ``--logging_level``

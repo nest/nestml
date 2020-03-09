@@ -274,7 +274,7 @@ Names of functions and input ports must also satisfy this pattern. The type of t
 Documentation strings
 ~~~~~~~~~~~~~~~~~~~~~
 
-Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments ( """...""") or Java-style comments (/\* ... \*/) can be used.
+Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments (``"""..."""``) or Java-style comments (``/* ... */``) can be used.
 
 .. code-block:: nestml
 
@@ -320,6 +320,7 @@ Assignments
 NESTML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
 
 Examples for valid assignments for a numeric variable ``n`` are
+
 * simple assignment: ``n = 10`` 
 * compound sum: ``n += 10`` which corresponds to ``n = n + 10`` 
 * compound difference: ``n -= 10`` which corresponds to ``n = n - 10``
@@ -381,7 +382,7 @@ The following functions are predefined in NESTML and can be used out of the box:
    * - ``exp``
      - x
      - Returns the exponential of x. The type of x and the return type are Real.
-   * - log10
+   * - ``log10``
      - x
      - Returns the base 10 logarithm of x. The type of x and the return type are Real.
    * - ``ln``
@@ -497,7 +498,7 @@ e.g.:
      <statements>
    end
 
-The second variant uses an ``integer`` or ``real`` iterator variable and iterates over the half-open interval ``[lower_bound, upper_bound)`` with a positive ``integer`` or ``real`` step of size ``step``. It is advisable to chose the type of the iterator variable and the step size to be the same.
+The second variant uses an ``integer`` or ``real`` iterator variable and iterates over the half-open interval ``[lower_bound, upper_bound)`` with a positive ``integer`` or ``real`` step of size ``step``. It is advisable to choose the type of the iterator variable and the step size to be the same.
 
 ::
 
@@ -553,9 +554,9 @@ e.g.:
 .. code-block:: nestml
 
    if 2 < 3:
-     <if_statements>
+     # <if_statements>
    else:
-     <else_statements>
+     # <else_statements>
    end
 
 In order to allow grouping a sequence of related ``if`` conditions, NESTML also supports the ``elif``-conditionals. An ``if`` condition can be followed by an arbitrary number of ``elif`` conditions. Optionally, this variant also supports the ``else`` keyword for a catch-all statement. The whole conditional always concludes with an ``end`` keyword.
@@ -576,7 +577,7 @@ e.g.:
 
    if 2 < 3:
      # <if_statements>
-   elif 4>6:
+   elif 4 > 6:
      # <elif_statements>
    else:
      # <else_statements>
@@ -607,7 +608,7 @@ Expressions in NESTML can be specified in a recursive fashion.
 Terms
 ~~~~~
 
-All variables, literals, and function calls are valid terms. Variables are names of user-defined or predefined variables (``t``, ``e``)
+All variables, literals, and function calls are valid terms. Variables are names of user-defined or predefined variables (``t``, ``e``).
 
 List of operators
 ~~~~~~~~~~~~~~~~~
@@ -652,7 +653,7 @@ To structure NESTML files, all content is structured in blocks. Blocks begin wit
 Block types
 ~~~~~~~~~~~
 
--  ``neuron`` *``<name>``* - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create(<name>)``. All following blocks are contained in this block.
+-  ``neuron <name>`` - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create("<name>")``. All following blocks are contained in this block.
 -  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all variables which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
 -  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
 -  ``initial_values`` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a ``multimeter``.
@@ -671,7 +672,7 @@ Neuronal interactions
 Input
 ~~~~~
 
-A neuron model written in NestML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
+A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 
 ::
 
@@ -708,13 +709,13 @@ Spikes arriving at the input port of a neuron can be written as a spike train *s
 
    \large s(t) = \sum_{i=1}^N \delta(t - t_i)
 
-To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha function (bi-exponential), decaying exponential, or a delta function. (See `Shape functions <#shape-functions>`_ for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
+To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha function (bi-exponential), decaying exponential, or a delta function. (See :ref:`Shape functions` for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
 
 .. math::
 
    \large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)
 
-where *w_i* is the weight of spike *i*.
+where :math:`w_i` is the weight of spike :math:`i`.
 
 For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic shape ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a shape and input port as its arguments:
 
@@ -727,7 +728,7 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three input ports as follows:
+If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
 
 .. code-block:: nestml
 
@@ -766,11 +767,14 @@ After generating and building the model code, a ``receptor_type`` entry is avail
 
 Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
-We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded from are thus named as follows:
+We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
 
 .. code-block:: python
 
-   mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': .1})
+   mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1',
+                                                          'I_shape2__X__spikes2',
+                                                          'I_shape3__X__spikes3'],
+                                          'interval': .1})
    nest.Connect(mm, neuron)
 
 The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
@@ -812,7 +816,7 @@ A `shape` is a function of *t* (which represents the current time of the system)
 
 .. math::
 
-   \large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)
+   \large I_{\text{syn}}=\sum_{t_i\le t,~i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)
 
 Systems of ODEs
 ^^^^^^^^^^^^^^^
@@ -831,7 +835,7 @@ in the ``equations`` block,
 
 has to be stated in the ``initial_values`` block. If the initial values are not defined in ``initial_values`` it is assumed that they are zero and unit checks are no longer possible, thus an error message is generated.
 
-The content of spike and current buffers can be used by just using their plain names. NestML takes care behind the scenes that the buffer location at the current simulation time step is used.
+The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
 Inline expressions
 ^^^^^^^^^^^^^^^^^^
