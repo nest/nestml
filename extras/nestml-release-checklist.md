@@ -32,7 +32,10 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 3
   - For description: copy release notes from GitHub, but remove hyperlink to doi.org. Append "For further information, please visit https://github.com/nest/nestml"
   - Select "Open Access"
   - Enter "GNU GPL v2.0 only" as a licence
+  - Under "Related/alternate identifiers", enter a reference to the Zenodo entry of the previous NESTML version (here, v3.0) by entering the DOI of the v3.0 entry.
   - Click Save, then click Publish
+
+- Go to the Zenodo entry of the previous NESTML version (here, v3.0), and add a reference to the Zenodo entry of the NESTML version currently being released, under "Related/alternate identifiers". Use the DOI of the new Zenodo entry.
 
 - Perform a corresponding release on PyPi. From the `release-v3.1` branch:
 
