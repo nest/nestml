@@ -79,7 +79,7 @@ class NESTMLLexer(RegexLexer):
             (r'[]{}:(),;[]', Punctuation),
             (r'\\\n', Text),
             (r'\\', Text),
-            (r'!=|==|<<|>>|+=|-=|/=|\\*=|[-~+/*%=<>&^|.]', Operator),
+            (r'!=|[-~+/*%=<>&^|.]', Operator),
             include('keywords'),
             include('builtins'),
             ('([rR]|[uUbB][rR]|[rR][uUbB])(""")',
