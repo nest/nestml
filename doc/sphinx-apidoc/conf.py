@@ -48,6 +48,8 @@ from sphinx.highlighting import lexers
 
 sys.path.append('../../extras/syntax-highlighting/pygments')
 
+from pygments_nestml import NESTMLLexer
+
 lexers["NESTML"] = NESTMLLexer(startinline=True)
 lexers["nestml"] = NESTMLLexer(startinline=True)
 
