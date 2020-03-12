@@ -531,6 +531,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {% endfilter -%}{% endwith -%}
   {%- endfor -%}
 
+  Archiving_Node::get_status( __d );
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
