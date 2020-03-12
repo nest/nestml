@@ -43,6 +43,25 @@ import subprocess
 # import shlex
 
 from subprocess import check_output, CalledProcessError
+from pygments.lexer import RegexLexer
+from pygments import token
+from sphinx.highlighting import lexers
+
+class NESTMLLexer(RegexLexer):
+    name = "NESTML"
+    tokens = {
+        "root": [
+            (r"equations", token.Keyword),
+            (r"input", token.Keyword),
+            (r"output", token.Keyword),
+            (r"[a-zA-Z]", token.Name),
+            (r"\s", token.Text)
+        ]
+    }
+
+lexers["NESTML"] = NESTMLLexer(startinline=True)
+lexers["nestml"] = NESTMLLexer(startinline=True)
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
