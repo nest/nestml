@@ -84,12 +84,8 @@ class NESTMLLexer(RegexLexer):
             include('builtins'),
             ('([rR]|[uUbB][rR]|[rR][uUbB])(""")',
              bygroups(String.Affix, String.Double), 'tdqs'),
-            ("([rR]|[uUbB][rR]|[rR][uUbB])(''')",
-             bygroups(String.Affix, String.Single), 'tsqs'),
             ('([rR]|[uUbB][rR]|[rR][uUbB])(")',
              bygroups(String.Affix, String.Double), 'dqs'),
-            ("([rR]|[uUbB][rR]|[rR][uUbB])(')",
-             bygroups(String.Affix, String.Single), 'sqs'),
             ('([uUbB]?)(""")', bygroups(String.Affix, String.Double),
              combined('stringescape', 'tdqs')),
             ('([uUbB]?)(")', bygroups(String.Affix, String.Double),
@@ -123,7 +119,6 @@ class NESTMLLexer(RegexLexer):
             (r'\\([\\abfnrtv"\']|\n|N\{.*?\}|u[a-fA-F0-9]{4}|'
              r'U[a-fA-F0-9]{8}|x[a-fA-F0-9]{2}|[0-7]{1,3})', String.Escape)
         ],
-        'strings-single': innerstring_rules(String.Single),
         'strings-double': innerstring_rules(String.Double),
         'dqs': [
             (r'"', String.Double, '#pop'),
