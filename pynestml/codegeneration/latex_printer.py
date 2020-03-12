@@ -1,5 +1,5 @@
 #
-# nest_printer.py
+# latex_printer.py
 #
 # This file is part of NEST.
 #
@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
@@ -34,7 +35,7 @@ class NestPrinter(object):
     """
     This class contains all methods as required to transform
     """
-    
+
     def __init__(self, expression_pretty_printer, reference_convert=None):
         """
         The standard constructor.
