@@ -74,6 +74,7 @@ class NESTMLLexer(RegexLexer):
             (r'[]{}:(),;[]', Punctuation),
             (r'\\\n', Text),
             (r'\\', Text),
+            (r'!=|==|<<|>>|+=|-=|/=|\*=|[-~+/*%=<>&^|.]', Operator),
             include('keywords'),
             include('builtins'),
             ('([rR]|[uUbB][rR]|[rR][uUbB])(""")',
@@ -86,12 +87,8 @@ class NESTMLLexer(RegexLexer):
              bygroups(String.Affix, String.Single), 'sqs'),
             ('([uUbB]?)(""")', bygroups(String.Affix, String.Double),
              combined('stringescape', 'tdqs')),
-            ("([uUbB]?)(''')", bygroups(String.Affix, String.Single),
-             combined('stringescape', 'tsqs')),
             ('([uUbB]?)(")', bygroups(String.Affix, String.Double),
              combined('stringescape', 'dqs')),
-            ("([uUbB]?)(')", bygroups(String.Affix, String.Single),
-             combined('stringescape', 'sqs')),
             include('name'),
             include('numbers'),
         ],
@@ -128,20 +125,10 @@ class NESTMLLexer(RegexLexer):
             (r'\\\\|\\"|\\\n', String.Escape),  # included here for raw strings
             include('strings-double')
         ],
-        'sqs': [
-            (r"'", String.Single, '#pop'),
-            (r"\\\\|\\'|\\\n", String.Escape),  # included here for raw strings
-            include('strings-single')
-        ],
         'tdqs': [
             (r'"""', String.Double, '#pop'),
             include('strings-double'),
             (r'\n', String.Double)
-        ],
-        'tsqs': [
-            (r"'''", String.Single, '#pop'),
-            include('strings-single'),
-            (r'\n', String.Single)
         ],
     }
 
