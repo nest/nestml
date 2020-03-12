@@ -29,8 +29,7 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 
 class LatexReferenceConverter(IReferenceConverter):
     """
-    Returns the same input as output, i.e., an identity mapping of elements is preformed. This converter is used
-    whenever comments have to be printed, in order to preserve the initial PyNestML syntax.
+    LaTeX reference converter
     """
 
     def convert_unary_op(self, ast_unary_operator):
@@ -53,7 +52,6 @@ class LatexReferenceConverter(IReferenceConverter):
         """
         var_name = ast_variable.get_name()
         var_complete_name = ast_variable.get_complete_name()
-        print("Converting name reference: " + str(var_complete_name))
         if not ast_variable.get_scope().resolve_to_symbol(var_complete_name, SymbolKind.VARIABLE) \
          and PredefinedUnits.is_unit(var_complete_name):
             # convert a unit (e.g. ms, pA)
@@ -120,9 +118,6 @@ class LatexReferenceConverter(IReferenceConverter):
             before = var_name
             var_name = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])", symbol_replace, var_name)	# "whole word" match
             after = var_name
-            if before != after:
-                print("before: " + before + ", after = " + after + ", symbol = " + symbol_find +", replace = " + symbol_replace)
-        print("\treturning " + str(var_name))
         return var_name
 
     def convert_function_call(self, function_call):

@@ -1,5 +1,5 @@
 #
-# nest_codegeneration.py
+# autodoc_codegeneration.py
 #
 # This file is part of NEST.
 #

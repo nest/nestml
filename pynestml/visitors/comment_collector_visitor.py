@@ -290,12 +290,6 @@ def replace_delimiters(comment):
     Returns the raw comment, i.e., without the comment-tags /* ..*/, \""" ""\" and #
     """
     ret = comment
-
-    start = re.search(r'\A[\s\n(""")(/\*)#]*', ret)	# whitespace and comment start characters at beginning of string
-    if start:
-        ret = ret[start.end():]
-    end = re.search(r'[\s\n(""")(\*/)]*\Z', ret)
-    if end:
-        ret = ret[:end.start()]
-
-    return ret
+    ret = ret.replace('/*', '').replace('*/', '')
+    ret = ret.replace('"""', '')
+    return ret.replace('#', '')

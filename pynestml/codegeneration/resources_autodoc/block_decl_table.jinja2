@@ -5,11 +5,11 @@
 {% macro comments(decl) %}
 {%- for pre_comment in decl.pre_comments %}
 {%-   if pre_comment -%}
-{{ pre_comment }}
+{{ pre_comment | trim }}
 {%-   endif %}
 {%- endfor %}
 {%- if decl.in_comment -%}
-{{ decl.in_comment }}
+{{ decl.in_comment | trim }}
 {%- endif %}
 {%- endmacro %}
 
