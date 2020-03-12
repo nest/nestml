@@ -51,10 +51,8 @@ class LatexExpressionPrinter(object):
     def __do_print(self, node):
         # type: (ASTExpressionNode) -> str
         if isinstance(node, ASTVariable):
-            print("Printing node: " + str(node) + " as " + str(self.reference_converter.convert_name_reference(node)))
             return self.reference_converter.convert_name_reference(node)
         elif isinstance(node, ASTSimpleExpression):
-            print("Printing node: " + str(node))
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 s = ""
