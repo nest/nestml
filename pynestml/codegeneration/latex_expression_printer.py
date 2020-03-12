@@ -1,5 +1,5 @@
 #
-# expressions_pretty_printer.py
+# latex_expression_printer.py
 #
 # This file is part of NEST.
 #
