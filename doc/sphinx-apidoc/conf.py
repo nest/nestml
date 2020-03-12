@@ -28,25 +28,30 @@ sphinx-build -c ../extras/help_generator -b html . _build/html
 
 """
 
-import sys
 import os
-
-
 import pip
+import sys
 
 # pip.main(['install', 'Sphinx==1.5.6'])
 # pip.main(['install', 'sphinx-gallery'])
 
-# import sphinx_gallery
 import subprocess
 
-# import shlex
-
 from subprocess import check_output, CalledProcessError
+from sphinx.highlighting import lexers
+
+#
+#   register NESTML custom syntax highlighting
+#
+
+#sys.path.append('../../extras/syntax-highlighting/pygments')
+
+
+
+
 from pygments.lexer import RegexLexer, include, bygroups, using, this, inherit, default, combined, words
 from pygments import token
 from pygments.token import Text, Comment, Operator, Keyword, Name, String, Number, Punctuation, Error
-from sphinx.highlighting import lexers
 
 class NESTMLLexer(RegexLexer):
     
@@ -74,7 +79,7 @@ class NESTMLLexer(RegexLexer):
             (r'[]{}:(),;[]', Punctuation),
             (r'\\\n', Text),
             (r'\\', Text),
-            (r'!=|==|<<|>>|+=|-=|/=|\*=|[-~+/*%=<>&^|.]', Operator),
+            (r'!=|==|<<|>>|+=|-=|/=|\\*=|[-~+/*%=<>&^|.]', Operator),
             include('keywords'),
             include('builtins'),
             ('([rR]|[uUbB][rR]|[rR][uUbB])(""")',
@@ -131,6 +136,15 @@ class NESTMLLexer(RegexLexer):
             (r'\n', String.Double)
         ],
     }
+
+
+
+
+
+
+
+
+
 
 
 lexers["NESTML"] = NESTMLLexer(startinline=True)
