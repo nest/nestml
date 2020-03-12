@@ -914,11 +914,16 @@ Guards
 
 Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through  guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
 
-.. code-block:: nestml
+::
 
    block:
      <declaration> [[<boolean_expression>]]
    end
+
+
+e.g.:
+
+.. code-block:: nestml
 
    parameters:
      t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative
