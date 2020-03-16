@@ -14,7 +14,7 @@ All three scenarios represent use cases which often occur when new types of supp
 Section 4.1: Modifying the Grammar 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following (hypothetical) use case illustrates the extension of the grammar: A new type of block shall be introduced. Declaring constraints which have to hold in each simulation step, this block contains boolean expressions representing invariants of the neuron model. It is therefore first necessary to extend PyNESTML’s grammar to support a new type of blocks. :numref:`fig_new_grammar_rules` illustrates how a new grammar rule is introduced to support this use case.
+The following (hypothetical) use case illustrates the extension of the grammar: A new type of block shall be introduced. Declaring constraints which have to hold in each simulation step, this block contains boolean expressions representing invariants of the neuron model. It is therefore first necessary to extend PyNESTML's grammar to support a new type of blocks. :numref:`fig_new_grammar_rules` illustrates how a new grammar rule is introduced to support this use case.
 
 .. _fig_new_grammar_rules:
 
@@ -102,14 +102,14 @@ With the introduction of new concepts to the model-processing frontend, it is al
 
 -  The governing templates in order to include the extensions.
 
-As illustrated in :numref:`fig_inclusion_new_templates`, the existing *NeuronClass* template is extended by a new *invariant* function which checks all stated invariants during the execution of the simulation. JinJa2 as the underlying generator engine of PyNESTML features concepts for template inclusion and therefore enables an easy extension of PyNESTML’s code generator. The referenced template is hereby implemented as a new artifact.
+As illustrated in :numref:`fig_inclusion_new_templates`, the existing *NeuronClass* template is extended by a new *invariant* function which checks all stated invariants during the execution of the simulation. JinJa2 as the underlying generator engine of PyNESTML features concepts for template inclusion and therefore enables an easy extension of PyNESTML's code generator. The referenced template is hereby implemented as a new artifact.
 
 .. _fig_inclusion_new_templates:
 
 .. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_back_temp_cropped.jpg
    :alt: Inclusion of new templates.
 
-   Figure 4.7: Inclusion of new templates: The existing set of templates is modified to include additional templates. For the sake of modularity, each extension should be implemented in an individual artifact.
+   Inclusion of new templates: The existing set of templates is modified to include additional templates. For the sake of modularity, each extension should be implemented in an individual artifact.
 
 
 In conclusion, it is sufficient to implement all extensions in individual templates and include them by the above-demonstrated mechanism.
