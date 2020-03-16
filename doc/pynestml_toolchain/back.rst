@@ -40,7 +40,7 @@ In order to compute these optimizations, the ODE-toolbox as introduced by Blunde
 
 .. _fig_model_transformation_subsystem:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/pic/back_proc_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_proc_cropped.png
    :alt: The model transformation subsystem
 
    The model transformation subsystem: The *EquationsBlockProcessor* receives a neuron model. The *equations* block is extracted and handed over to the ODE-toolbox by means of the *SymPySolver* wrapper class. The returned result is finally processed by the *transformers* and integrated into the AST.
