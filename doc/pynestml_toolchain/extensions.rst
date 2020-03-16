@@ -1,7 +1,7 @@
-Section 4: Extending PyNestML 
+Section 4: Extending PyNESTML 
 ------------------------------
 
-As typical for all types of software, requirements of the implementation often change. PyNestML was implemented with the aim to provide a modular and easy to extend framework which can be adjusted and reconfigured by exchanging components, e.g., context conditions and reference converters. In this section, we will briefly demonstrate how extensions to PyNestML can be implemented. Representing components which are often adapted, the following use cases are introduced:
+As typical for all types of software, requirements of the implementation often change. PyNESTML was implemented with the aim to provide a modular and easy to extend framework which can be adjusted and reconfigured by exchanging components, e.g., context conditions and reference converters. In this section, we will briefly demonstrate how extensions to PyNESTML can be implemented. Representing components which are often adapted, the following use cases are introduced:
 
 -  Grammar: How can the grammar artifacts be extended and in consequence which components have to be adapted?
 
@@ -14,11 +14,11 @@ All three scenarios represent use cases which often occur when new types of supp
 Section 4.1: Modifying the Grammar 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following (hypothetical) use case illustrates the extension of the grammar: A new type of block shall be introduced. Declaring constraints which have to hold in each simulation step, this block contains boolean expressions representing invariants of the neuron model. It is therefore first necessary to extend PyNestML’s grammar to support a new type of blocks. :numref:`fig_new_grammar_rules` illustrates how a new grammar rule is introduced to support this use case.
+The following (hypothetical) use case illustrates the extension of the grammar: A new type of block shall be introduced. Declaring constraints which have to hold in each simulation step, this block contains boolean expressions representing invariants of the neuron model. It is therefore first necessary to extend PyNESTML’s grammar to support a new type of blocks. :numref:`fig_new_grammar_rules` illustrates how a new grammar rule is introduced to support this use case.
 
 .. _fig_new_grammar_rules:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_front_gram_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_gram_cropped.jpg
    :alt: New grammar rules.
 
    New grammar rules: In order to include a new grammar rule, the existing *body* production is extended by a reference to the extension. The *invariantBlock* production encapsulates the added concept.
@@ -35,11 +35,11 @@ The grammar artifacts represent the starting point of each DSL. Consequently, al
 
 In `Section 1 <front.md>`__ we introduced how a manual implementation process of the lexer and parser can be avoided by utilizing Antlr. By executing Antlr on the modified grammar artifact, an implementation of the lexer and parser adapted to the extensions is generated. Together, these components are used to create the parse tree representation of a model. Proceeding, it is now necessary to provide a mutable data structure which is able to hold details retrieved from the parse tree. A new *ASTInvariantBlock* class is therefore implemented which holds all details of the new rule. As shown in :numref:`fig_new_grammar_rules`, each invariant block consists of a set of expressions. Consequently, the *ASTInvariantBlock* class features an attribute which stores lists of *ASTExpression* objects. Together with a set of data retrieval and modification operations, this class represents a data structure which is able to hold all invariants of a neuron model.
 
-Having a modified metamodel, it remains to adapt PyNestML to retrieve invariants from the parse tree. PyNestML delegates the initialization of an AST to the *ASTBuilderVisitor* class, cf. `Section 1 <front.md>`__. :numref:`fig_modifying_ast_builder` illustrates how the AST-building routine has to be adapted to regard the new *invariant* block. Here, it is also necessary to extend the existing *visitASTBody* rule to include the instantiation of *ASTInvariantBlock* nodes.
+Having a modified metamodel, it remains to adapt PyNESTML to retrieve invariants from the parse tree. PyNESTML delegates the initialization of an AST to the *ASTBuilderVisitor* class, cf. `Section 1 <front.md>`__. :numref:`fig_modifying_ast_builder` illustrates how the AST-building routine has to be adapted to regard the new *invariant* block. Here, it is also necessary to extend the existing *visitASTBody* rule to include the instantiation of *ASTInvariantBlock* nodes.
 
 .. _fig_modifying_ast_builder:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_front_astB_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_astB_cropped.jpg
    :alt: Modifying the AST builder.
 
    Modifying the AST builder: In order to initialize an AST according to the new grammar, the *ASTBuilderVisitor* is extended by an *ASTInvariantBlock*-node building method. An adaptation of the existing *visitASTBody* method includes the new rule.
@@ -48,7 +48,7 @@ With the modified structure of an AST where a new type of node has been added, i
 
 .. _fig_modifying_ast_visitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_front_astVisitor_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_astVisitor_cropped.jpg
    :alt: Modifying the AST visitor.
 
    Modifying the AST visitor: The *ASTVisitor* class is adapted to support the new type of AST node. The dispatcher functions are adapted, while new monomorphic hook methods are added.
@@ -57,13 +57,13 @@ An initialized AST represents a base for further checks and modifications. `Sect
 
 .. _fig_adapting_astsymboltablevisitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_front_symbolVisitor_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_symbolVisitor_cropped.jpg
    :alt: Adapting the *ASTSymbolTableVisitor*.
 
    Adapting the *ASTSymbolTableVisitor*: The *traverseASTBody* method is extended to regard the new type of block, while the actual handling of the block is delegated to the *visitASTInvariantBlock* method.
 
 
-Together, these steps enable PyNestML to parse a model containing the new *invariant* block, construct the respective AST and populate the symbol table with all required details.
+Together, these steps enable PyNESTML to parse a model containing the new *invariant* block, construct the respective AST and populate the symbol table with all required details.
 
 Section 4.2: Adding Context Conditions 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,17 +77,17 @@ In order to achieve modularity, each context condition is encapsulated in an ind
 
 .. _fig_adding_context_conditions:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_front_context_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_context_cropped.jpg
    :alt: Adding context conditions.
 
    Adding context conditions: Each context condition is implemented in a self-contained class with all required functionality to check the context.
 
 
-PyNestML delegates the task of checking models for semantical correctness to the orchestrating *CoCosManager* class. Storing references to all implemented context conditions, this class encapsulates all implemented semantical checks. It is, therefore, necessary to extend this class by a reference to the above-introduced *CoCoInvariantBlockCorrectlyTyped*. Whenever a processed model is checked, all context conditions are consecutively invoked on the AST and errors are reported. :numref:`fig_extending_cocosmanager` illustrates how the *CoCosManager* class has to be extended to regard a new context condition.
+PyNESTML delegates the task of checking models for semantical correctness to the orchestrating *CoCosManager* class. Storing references to all implemented context conditions, this class encapsulates all implemented semantical checks. It is, therefore, necessary to extend this class by a reference to the above-introduced *CoCoInvariantBlockCorrectlyTyped*. Whenever a processed model is checked, all context conditions are consecutively invoked on the AST and errors are reported. :numref:`fig_extending_cocosmanager` illustrates how the *CoCosManager* class has to be extended to regard a new context condition.
 
 .. _fig_extending_cocosmanager:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_front_cocos_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_cocos_cropped.jpg
    :alt: Extending the *CoCosManager*.
 
    Extending the *CoCosManager*: New context conditions have to be made known to the managing *CoCosManager* class.
@@ -102,11 +102,11 @@ With the introduction of new concepts to the model-processing frontend, it is al
 
 -  The governing templates in order to include the extensions.
 
-As illustrated in :numref:`fig_inclusion_new_templates`, the existing *NeuronClass* template is extended by a new *invariant* function which checks all stated invariants during the execution of the simulation. JinJa2 as the underlying generator engine of PyNestML features concepts for template inclusion and therefore enables an easy extension of PyNestML’s code generator. The referenced template is hereby implemented as a new artifact.
+As illustrated in :numref:`fig_inclusion_new_templates`, the existing *NeuronClass* template is extended by a new *invariant* function which checks all stated invariants during the execution of the simulation. JinJa2 as the underlying generator engine of PyNESTML features concepts for template inclusion and therefore enables an easy extension of PyNESTML’s code generator. The referenced template is hereby implemented as a new artifact.
 
 .. _fig_inclusion_new_templates:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pyNESTML/pic/ext_back_temp_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_back_temp_cropped.jpg
    :alt: Inclusion of new templates.
 
    Figure 4.7: Inclusion of new templates: The existing set of templates is modified to include additional templates. For the sake of modularity, each extension should be implemented in an individual artifact.
