@@ -33,9 +33,9 @@ The grammar artifacts represent the starting point of each DSL. Consequently, al
 
 -  The symbol table building visitor as encapsulated in the *ASTSymbolTableVisitor*.
 
-In `Section 1 <front.md>`__ we introduced how a manual implementation process of the lexer and parser can be avoided by utilizing Antlr. By executing Antlr on the modified grammar artifact, an implementation of the lexer and parser adapted to the extensions is generated. Together, these components are used to create the parse tree representation of a model. Proceeding, it is now necessary to provide a mutable data structure which is able to hold details retrieved from the parse tree. A new *ASTInvariantBlock* class is therefore implemented which holds all details of the new rule. As shown in :numref:`fig_new_grammar_rules`, each invariant block consists of a set of expressions. Consequently, the *ASTInvariantBlock* class features an attribute which stores lists of *ASTExpression* objects. Together with a set of data retrieval and modification operations, this class represents a data structure which is able to hold all invariants of a neuron model.
+In :ref:`Section 1: The model-processing Frontend` we introduced how a manual implementation process of the lexer and parser can be avoided by utilizing Antlr. By executing Antlr on the modified grammar artifact, an implementation of the lexer and parser adapted to the extensions is generated. Together, these components are used to create the parse tree representation of a model. Proceeding, it is now necessary to provide a mutable data structure which is able to hold details retrieved from the parse tree. A new *ASTInvariantBlock* class is therefore implemented which holds all details of the new rule. As shown in :numref:`fig_new_grammar_rules`, each invariant block consists of a set of expressions. Consequently, the *ASTInvariantBlock* class features an attribute which stores lists of *ASTExpression* objects. Together with a set of data retrieval and modification operations, this class represents a data structure which is able to hold all invariants of a neuron model.
 
-Having a modified metamodel, it remains to adapt PyNESTML to retrieve invariants from the parse tree. PyNESTML delegates the initialization of an AST to the *ASTBuilderVisitor* class, cf. `Section 1 <front.md>`__. :numref:`fig_modifying_ast_builder` illustrates how the AST-building routine has to be adapted to regard the new *invariant* block. Here, it is also necessary to extend the existing *visitASTBody* rule to include the instantiation of *ASTInvariantBlock* nodes.
+Having a modified metamodel, it remains to adapt PyNESTML to retrieve invariants from the parse tree. PyNESTML delegates the initialization of an AST to the *ASTBuilderVisitor* class, cf. :ref:`Section 1: The model-processing Frontend. :numref:`fig_modifying_ast_builder` illustrates how the AST-building routine has to be adapted to regard the new *invariant* block. Here, it is also necessary to extend the existing *visitASTBody* rule to include the instantiation of *ASTInvariantBlock* nodes.
 
 .. _fig_modifying_ast_builder:
 
@@ -53,7 +53,7 @@ With the modified structure of an AST where a new type of node has been added, i
 
    Modifying the AST visitor: The *ASTVisitor* class is adapted to support the new type of AST node. The dispatcher functions are adapted, while new monomorphic hook methods are added.
 
-An initialized AST represents a base for further checks and modifications. `Section 1 <front.md>`__ illustrated how semantical checks are implemented by means of a symbol table and a set of context conditions. With a new type of block, it is, therefore, necessary to adapt the symbol table building routine. Extending the *ASTVisitor* class, all modifications are focused in the *ASTSymbolTableVisitor*. :numref:`fig_adapting_astsymboltablevisitor` illustrates how the symbol table construction routine has to be adapted.
+An initialized AST represents a base for further checks and modifications. :ref:`Section 1: The model-processing Frontend` illustrated how semantical checks are implemented by means of a symbol table and a set of context conditions. With a new type of block, it is, therefore, necessary to adapt the symbol table building routine. Extending the *ASTVisitor* class, all modifications are focused in the *ASTSymbolTableVisitor*. :numref:`fig_adapting_astsymboltablevisitor` illustrates how the symbol table construction routine has to be adapted.
 
 .. _fig_adapting_astsymboltablevisitor:
 
@@ -73,7 +73,7 @@ Whenever a DSL is extended by new concepts, it also becomes necessary to regard 
 -  A new context condition implementing all required context checks.
 -  A modification of the coordinating *CoCosManager* class.
 
-In order to achieve modularity, each context condition is encapsulated in an individual class. The new *CoCoInvariantBlockCorrectlyTyped* class, therefore, implements all processes as required to check the handed over AST for correctness. Concrete checks are delegated to the *InvariantTypeCheckVisitor* class. Extending the *ASTVisitor*, this class implements a routine which visits the *ASTInvariantBlock* node of a given AST and iterates over all stated expressions. `Section 1 <front.md>`__ illustrated a preprocessing of the AST where the types of all expressions have been derived. It therefore only remains to check whether a boolean expression has been stated. :numref:`fig_adding_context_conditions` outlines how these modifications are implemented.
+In order to achieve modularity, each context condition is encapsulated in an individual class. The new *CoCoInvariantBlockCorrectlyTyped* class, therefore, implements all processes as required to check the handed over AST for correctness. Concrete checks are delegated to the *InvariantTypeCheckVisitor* class. Extending the *ASTVisitor*, this class implements a routine which visits the *ASTInvariantBlock* node of a given AST and iterates over all stated expressions. :ref:`Section 1: The model-processing Frontend` illustrated a preprocessing of the AST where the types of all expressions have been derived. It therefore only remains to check whether a boolean expression has been stated. :numref:`fig_adding_context_conditions` outlines how these modifications are implemented.
 
 .. _fig_adding_context_conditions:
 
@@ -114,4 +114,4 @@ As illustrated in :numref:`fig_inclusion_new_templates`, the existing *NeuronCla
 
 In conclusion, it is sufficient to implement all extensions in individual templates and include them by the above-demonstrated mechanism.
 
-Back to `overview <index.md>`__.
+Back to :ref:`overview <PyNESTML - NESTML Toolchain in Python>`.
