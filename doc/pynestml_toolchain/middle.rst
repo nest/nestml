@@ -81,8 +81,8 @@ All these components make PyNESTML easier to maintain and ensure basic qualities
 Go to :ref:`Section 3: The Generating Backend`.
 
 
-.. [1]: https://docs.python.org/3/library/argparse.html
+.. [1] https://docs.python.org/3/library/argparse.html
 
-.. [2]: Design patterns: Elements of reusable object-oriented software, Gamma, Erich, 1995.
+.. [2] Design patterns: Elements of reusable object-oriented software, Gamma, Erich, 1995.
 
-.. [3]: Katrin Hoelldobler, Bernhard Rumpe. MontiCore 5 Language Workbench Edition 2017.
+.. [3] Katrin Hoelldobler, Bernhard Rumpe. MontiCore 5 Language Workbench Edition 2017.
