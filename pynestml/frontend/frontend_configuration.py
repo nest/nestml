@@ -171,12 +171,14 @@ appropriate numeric solver otherwise.
         """
         return cls.is_dev
 
-    def handle_codegen_opts(self, codegen_opts_fn):
+    @classmethod
+    def handle_codegen_opts(cls, codegen_opts_fn):
         if codegen_opts_fn and not os.path.isfile(codegen_opts_fn):
             raise Exception('The specified code generator options file ("' + codegen_opts_fn + '") cannot be found')
-        self.codegen_opts_fn = codegen_opts_fn
+        cls.codegen_opts_fn = codegen_opts_fn
 
-    def handle_module_name(self, module_name, input_path):
+    @classmethod
+    def handle_module_name(cls, module_name, input_path):
         # parse or compose the module name
         if module_name is not None:
             if not module_name.endswith('module'):
