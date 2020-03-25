@@ -25,10 +25,10 @@ from pynestml.utils.messages import Messages
 
 class CodeGenerator(object):
 
-    def __init__(self, target):
+    def __init__(self, target, options=None):
         assert target in self.get_known_targets()
         self._target = target
-
+        self._options = options
 
     def generate_neurons(self, neurons):
         # type: (list(ASTNeuron)) -> None
@@ -48,12 +48,11 @@ class CodeGenerator(object):
     def get_known_targets():
         return ["NEST", ""]     # include the empty string here to represent "no code generated"
 
-
     def generate_code(self, neurons):
         if self._target == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
             _codeGenerator = NESTCodeGenerator()
-            _codeGenerator.generate_code(neurons)
+            _codeGenerator.generate_code(neurons, options=self._options)
         elif self._target == "":
             # dummy/null target: user requested to not generate any code
             code, message = Messages.get_no_code_generated()

@@ -279,8 +279,11 @@ def get_delta_shape_prefactor_expr(shape):
 class NESTCodeGenerator(CodeGenerator):
 
     _variable_matching_template = r'(\b)({})(\b)'
+    _options = {}
 
-    def __init__(self):
+    def __init__(self, options=None):
+        if options:
+            self.options = options
         self.analytic_solver = {}
         self.numeric_solver = {}
         # setup the template environment

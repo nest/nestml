@@ -25,7 +25,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
-    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, qualifier_dev_arg
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, qualifier_dev_arg, qualifier_codegen_opts_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -37,7 +37,7 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 
 def to_nest(input_path, target_path=None, logging_level='ERROR',
-            module_name=None, store_log=False, suffix="", dev=False):
+            module_name=None, store_log=False, suffix='', dev=False, codegen_opts=''):
     '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
@@ -56,6 +56,8 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         Suffix which will be appended to the model's name (internal use to avoid naming conflicts with existing NEST models).
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : str, optional
+        Path to a JSON file containing additional options for the target code generator.
     '''
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
@@ -87,6 +89,10 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     if dev:
         args.append(qualifier_dev_arg)
 
+    if codegen_opts:
+        args.append(qualifier_codegen_opts_arg)
+        args.append(codegen_opts)
+
     FrontendConfiguration.parse_config(args)
     if not process() == 0:
         raise Exception("Error(s) occurred while processing the model")
@@ -116,14 +122,19 @@ def install_nest(models_path, nest_path):
 
 
 def main():
-    """Returns the process exit code: 0 for success, > 0 for failure"""
+    """
+    Entry point for the command-line application.
+
+    Returns
+    -------
+    The process exit code: 0 for success, > 0 for failure
+    """
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return 1
     # after all argument have been collected, start the actual processing
-    sys.setrecursionlimit(10000)
     return int(process())
 
 
@@ -136,6 +147,8 @@ def process():
     """
 
     errors_occurred = False
+
+    sys.setrecursionlimit(10000)
 
     # init log dir
     create_report_dir()
@@ -167,8 +180,14 @@ def process():
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
                     errors_occurred = True
+        # load optional code generator options from JSON
+        if FrontendConfiguration.codegen_opts_fn:
+            with open(FrontendConfiguration.codegen_opts_fn) as json_file:
+                codegen_opts = json.load(json_file)
+        else:
+            codegen_opts = None
         # perform code generation
-        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
+        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target(), options=codegen_opts)
         _codeGenerator.generate_code(neurons)
         for neuron in neurons:
             if Logger.has_errors(neuron):
