@@ -25,10 +25,10 @@ from pynestml.utils.messages import Messages
 
 class CodeGenerator(object):
 
-    def __init__(self, target):
+    def __init__(self, target, options=None):
         assert target in self.get_known_targets()
         self._target = target
-
+        self._options = options
 
     def generate_neurons(self, neurons):
         # type: (list(ASTNeuron)) -> None

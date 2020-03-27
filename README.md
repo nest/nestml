@@ -76,6 +76,7 @@ where arguments are:<a name="table_args"></a>
 | --store_log    | (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.|
 | --suffix       | (Optional) A suffix string that will be appended to the name of all generated models.|
 | --dev          | (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.|
+| --codegen_opts | (Optional) Path to a JSON file containing additional options for the target code generator.|
 
 Generated artifacts are copied to the selected target directory (default is `target`). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 

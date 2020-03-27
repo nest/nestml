@@ -281,7 +281,8 @@ class NESTCodeGenerator(CodeGenerator):
 
     _variable_matching_template = r'(\b)({})(\b)'
 
-    def __init__(self):
+    def __init__(self, options=None):
+        super().__init__("NEST", options)
         self.analytic_solver = {}
         self.numeric_solver = {}
         # setup the template environment
