@@ -138,7 +138,7 @@ class ASTUtils(object):
 
     @classmethod
     def is_spike_input(cls, body):
-        # type: (ASTNeuronBody) -> bool
+        # type: (ASTNeuronBody or ASTSynapseeBody) -> bool
         """
         Checks if the handed over neuron contains a spike input buffer.
         :param body: a single body element.
@@ -146,7 +146,6 @@ class ASTUtils(object):
         :return: True if spike buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.meta_model.ast_body import ASTNeuronBody
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
             if inputL.is_spike():

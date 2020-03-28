@@ -165,8 +165,8 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#body.
-    def visitBody(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#neuronBody.
+    def visitNeuronBody(self, ctx):
         return self.visitChildren(ctx)
 
 

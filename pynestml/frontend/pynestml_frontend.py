@@ -61,7 +61,7 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     codegen_opts : str, optional
         Path to a JSON file containing additional options for the target code generator.
     '''
->>>>>>>>> Temporary merge branch 2
+
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
@@ -84,17 +84,11 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
 
     if store_log:
         args.append(qualifier_store_log_arg)
-<<<<<<<<< Temporary merge branch 1
-    if len(suffix) > 0:
-        args.append(qualifier_suffix)
-        args.append(suffix)
-=========
 
     if suffix:
         args.append(qualifier_suffix_arg)
         args.append(suffix)
 
->>>>>>>>> Temporary merge branch 2
     if dev:
         args.append(qualifier_dev_arg)
 
@@ -104,16 +98,6 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
 
 def install_nest(models_path, nest_path):
     # type: (str,str) -> None
-<<<<<<<<< Temporary merge branch 1
-    """
-    This procedure can be used to install generate models into the NEST simulator.
-    :param models_path: the path to the generated models, should contain the cmake file (automatically generated).
-    :param nest_path: the path to the NEST installation, should point to the dir where nest is installed, a.k.a.
-            the -Dwith-nest argument of the make command. The postfix /bin/nest-config is automatically attached.
-    :return:
-    """
-    nest_installer(models_path=models_path, nest_path=nest_path)
-=========
     '''
     This procedure can be used to install generated models into the NEST
     simulator.
@@ -133,7 +117,6 @@ def install_nest(models_path, nest_path):
         will be automatically attached to `nest_path`.
     '''
     nest_installer(models_path, nest_path)
->>>>>>>>> Temporary merge branch 2
 
 
 def main(args):
@@ -179,7 +162,7 @@ def process():
             CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
 
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev():
+        if not FrontendConfiguration.is_dev:
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())

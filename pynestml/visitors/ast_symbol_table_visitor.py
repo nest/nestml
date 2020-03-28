@@ -98,7 +98,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         Logger.set_current_astnode(None)
         return
 
-    def visit_body(self, node):
+    def visit_neuron_body(self, node):
         """
         Private method: Used to visit a single neuron body and create the corresponding scope.
         :param node: a single body element.
@@ -107,11 +107,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
         return
-
-
-
-
-
 
 
     def visit_synapse(self, node):
@@ -150,7 +145,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
 
     def endvisit_synapse_body(self, node):
-       
         return
 
     def visit_synapse_body(self, node):
@@ -159,7 +153,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single body element.
         :type node: ast_body
         """
-        for synapseBodyElement in node.get_synapse_body_elements():
+        for synapseBodyElement in node.get_body_elements():
             synapseBodyElement.update_scope(node.get_scope())
         return
 
@@ -356,7 +350,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
                          self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
-        
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []

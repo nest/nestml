@@ -20,7 +20,8 @@
 import ntpath
 import re
 
-from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -458,7 +459,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitNeuron(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        body = self.visit(ctx.body()) if ctx.body() is not None else None
+        body = self.visit(ctx.neuronBody()) if ctx.neuronBody() is not None else None
         # after we have constructed the meta_model of the neuron,
         # we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
@@ -473,7 +474,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_astnode(neuron)
-        CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
+        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=neuron)
         Logger.set_current_astnode(neuron)
         # now the meta_model seems to be correct, return it
         return neuron
@@ -533,14 +534,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_astnode(synapse)
-        # CoCoEachBlockUniqueAndDefined.check_co_co(node=synapse) # XXX: TODO
-        # Logger.set_current_astnode(synapse)
+        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(node=synapse)
         # now the meta_model seems to be correct, return it
+        Logger.set_current_astnode(synapse)
 
         return synapse
 
-    # Visit a parse tree produced by PyNESTMLParser#body.
-    def visitBody(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#neuronBody.
+    def visitNeuronBody(self, ctx):
         """
         Here, in order to ensure that the correct order of elements is kept, we use a method which inspects
         a list of elements and returns the one with the smallest source line.
@@ -570,7 +571,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             elem = get_next(body_elements)
             elements.append(self.visit(elem))
             body_elements.remove(elem)
-        body = ASTNodeFactory.create_ast_body(elements, create_source_pos(ctx))
+        body = ASTNodeFactory.create_ast_neuron_body(elements, create_source_pos(ctx))
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#synapseBody.
@@ -589,9 +590,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.blockWithVariables() is not None:
             for child in ctx.blockWithVariables():
                 body_elements.append(child)
-        if ctx.updateBlock() is not None:
+        """if ctx.updateBlock() is not None:
             for child in ctx.updateBlock():
-                body_elements.append(child)
+                body_elements.append(child)"""
         if ctx.equationsBlock() is not None:
             for child in ctx.equationsBlock():
                 body_elements.append(child)

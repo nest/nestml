@@ -1204,7 +1204,7 @@ class ASTVisitor(object):
                 sub_node.accept(self.get_real_self())
         return
 
-    def traverse_body(self, node):
+    def traverse_neuron_body(self, node):
         if node.get_body_elements() is not None:
             for sub_node in node.get_body_elements():
                 sub_node.accept(self.get_real_self())

@@ -310,12 +310,21 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._printer = ExpressionsPrettyPrinter()
 
+    def process_neuron_synapse_dyads(self, neurons, synapses):
+        if not "neuron_synapse_dyads" in self._options:
+            return neurons, synapses
+
+        for neuron_synapse_dyad in self._options["neuron_synapse_dyads"]:
+            #neuron = 
+            import pdb;pdb.set_trace()
 
     def generate_code(self, neurons, synapses):
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
+        if self._options and "neuron_synapse_dyads" in self._options:
+            neurons, synapses = self.process_neuron_synapse_dyads(neurons, synapses)
         self.generate_module_code(neurons, synapses)
 
     def generate_module_code(self, neurons, synapses):

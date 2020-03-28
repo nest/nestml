@@ -221,7 +221,7 @@ parser grammar PyNestMLParser;
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
     @attribute body:    The body of the neuron consisting of several sub-blocks.
   */
-  neuron : NEURON_KEYWORD NAME body;
+  neuron : NEURON_KEYWORD NAME neuronBody;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -231,7 +231,7 @@ parser grammar PyNestMLParser;
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
   */
-  body: COLON
+  neuronBody: COLON
          (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
          END_KEYWORD;
 

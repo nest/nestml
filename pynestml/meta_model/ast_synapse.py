@@ -120,6 +120,24 @@ class ASTSynapse(ASTNeuronOrSynapse):
         """
         return self.get_body().get_post_receive()
 
+    def get_input_blocks(self):
+        """
+        Returns a list of all input-blocks defined.
+        :return: a list of defined input-blocks.
+        :rtype: list(ASTInputBlock)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_input_block import ASTInputBlock
+        for elem in self.get_body().get_body_elements():
+            if isinstance(elem, ASTInputBlock):
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
+
     def get_input_buffers(self):
         """
         Returns a list of all defined input buffers.

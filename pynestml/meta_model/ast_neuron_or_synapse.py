@@ -58,7 +58,7 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         assert isinstance(name, str), \
             '(PyNestML.AST.ASTNeuronOrSynapse) No  or wrong type of neuron name provided (%s)!' % type(name)
-        assert isinstance(body, ASTSynapseBody or ASTNeuronBody), \
+        assert isinstance(body, ASTSynapseBody) or isinstance(body, ASTNeuronBody), \
             '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)

@@ -24,6 +24,7 @@ from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorO
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_current_buffers_not_specified import CoCoCurrentBuffersNotSpecified
 from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
 from pynestml.cocos.co_co_function_have_rhs import CoCoFunctionHaveRhs
@@ -36,7 +37,6 @@ from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
-from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
@@ -65,11 +65,20 @@ class CoCosManager(object):
     @classmethod
     def check_each_neuron_block_unique_and_defined(cls, neuron):
         """
-        Checks if in the handed over neuron each block ist defined at most once and mandatory blocks are defined.
+        Checks if in the handed over neuron each block is defined at most once and mandatory blocks are defined.
         :param neuron: a single neuron instance
         :type neuron: ast_neuron
         """
         CoCoEachNeuronBlockUniqueAndDefined.check_co_co(neuron)
+
+    @classmethod
+    def check_each_synapse_block_unique_and_defined(cls, neuron):
+        """
+        Checks if in the handed over neuron each block is defined at most once and mandatory blocks are defined.
+        :param neuron: a single neuron instance
+        :type neuron: ast_neuron
+        """
+        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(neuron)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, neuron):
