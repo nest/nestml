@@ -3,12 +3,12 @@ synapse static:
   parameters:
     w nS = 900 pS  @nest::weight @homogeneous
     d ms = .9 ms  @nest::delay @heterogeneous
-    foo ms = 42 ms  @nest::a @homogeneous
-    bar pF = 100. pF  @nest::b @homogeneous
+    a real = 3.141592653589793  @nest::a @homogeneous
+    b real = 100.  @nest::b @heterogeneous
   end
 
   preReceive:
-    deliver_spike(w, d)
+    deliver_spike(3.18E-3 * a * b * w, d)
   end
 
 end

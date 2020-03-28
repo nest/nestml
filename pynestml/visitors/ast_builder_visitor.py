@@ -20,7 +20,7 @@
 import ntpath
 import re
 
-from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -473,7 +473,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_astnode(neuron)
-        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=neuron)
+        CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
         Logger.set_current_astnode(neuron)
         # now the meta_model seems to be correct, return it
         return neuron
@@ -512,7 +512,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
-        print("Creating ASTSynapse...")
         synapse = ASTNodeFactory.create_ast_synapse(name=name, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
 
@@ -534,7 +533,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_astnode(synapse)
-        # CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=synapse) # XXX: TODO
+        # CoCoEachBlockUniqueAndDefined.check_co_co(node=synapse) # XXX: TODO
         # Logger.set_current_astnode(synapse)
         # now the meta_model seems to be correct, return it
 

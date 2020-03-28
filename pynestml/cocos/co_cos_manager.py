@@ -36,6 +36,7 @@ from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
+from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
@@ -62,13 +63,13 @@ class CoCosManager(object):
         CoCoFunctionUnique.check_co_co(neuron)
 
     @classmethod
-    def check_each_block_unique_and_defined(cls, neuron):
+    def check_each_neuron_block_unique_and_defined(cls, neuron):
         """
         Checks if in the handed over neuron each block ist defined at most once and mandatory blocks are defined.
         :param neuron: a single neuron instance
         :type neuron: ast_neuron
         """
-        CoCoEachBlockUniqueAndDefined.check_co_co(neuron)
+        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(neuron)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, neuron):
@@ -348,6 +349,7 @@ class CoCosManager(object):
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)
         cls.check_order_of_equations_correct(neuron)
+        cls.check_odes_have_consistent_units(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
         cls.check_buffer_qualifier_unique(neuron)

@@ -66,7 +66,7 @@ class CodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_model(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list(), compilation_unit.get_synapse_list())
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -85,7 +85,7 @@ class CodeGeneratorTest(unittest.TestCase):
         compilation_unit = ModelParser.parse_model(input_path)
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list(), compilation_unit.get_synapse_list())
 
     def test_iaf_cond_alpha_implicit(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -106,7 +106,7 @@ class CodeGeneratorTest(unittest.TestCase):
         iaf_cond_alpha_implicit.append(compilation_unit.get_neuron_list()[1])
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(iaf_cond_alpha_implicit)
+        nestCodeGenerator.generate_code(iaf_cond_alpha_implicit, [])
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
@@ -127,7 +127,7 @@ class CodeGeneratorTest(unittest.TestCase):
         iaf_cond_alpha_functional.append(compilation_unit.get_neuron_list()[0])
 
         nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(iaf_cond_alpha_functional)
+        nestCodeGenerator.generate_code(iaf_cond_alpha_functional, [])
 
     def tearDown(self):
         import shutil

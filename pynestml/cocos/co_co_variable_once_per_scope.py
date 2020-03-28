@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableType
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 

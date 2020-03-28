@@ -146,13 +146,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def endvisit_synapse(self, node):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.post_symbol_table_builder_checks(node)
-        # the following part is done in order to mark conductance based buffers as such.
-        # Logger.set_current_synapse(None)
-        return
+        Logger.set_current_astnode(None)
 
 
     def endvisit_synapse_body(self, node):
-        
+       
         return
 
     def visit_synapse_body(self, node):
@@ -161,7 +159,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :param node: a single body element.
         :type node: ast_body
         """
-        for synapseBodyElement in node.get_body_elements():
+        for synapseBodyElement in node.get_synapse_body_elements():
             synapseBodyElement.update_scope(node.get_scope())
         return
 
@@ -322,6 +320,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
+
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
         return
@@ -351,13 +350,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
         visitor = ASTDataTypeVisitor()
         node.get_data_type().accept(visitor)
         type_name = visitor.result
-
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable or
                          self.block_type_stack.top() == BlockType.STATE or
                          self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
+        
 
         # split the decorators in the AST up into namespace decorators and other decorators
         decorators = []
@@ -689,7 +688,6 @@ def add_ode_to_variable(ode_equation):
     :param ode_equation: a single ode-equation
     :type ode_equation: ast_ode_equation
     """
-
     # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
     #diff_order = ode_equation.get_lhs().get_differential_order() - 1
     # we check if the corresponding symbol already exists, e.g. V_m' has already been declared

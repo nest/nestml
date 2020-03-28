@@ -39,7 +39,8 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 def to_nest(input_path, target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix='', dev=False, codegen_opts=''):
-    '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
+    '''
+    Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
     ----------
@@ -60,6 +61,7 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     codegen_opts : str, optional
         Path to a JSON file containing additional options for the target code generator.
     '''
+>>>>>>>>> Temporary merge branch 2
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
@@ -82,25 +84,36 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
 
     if store_log:
         args.append(qualifier_store_log_arg)
+<<<<<<<<< Temporary merge branch 1
+    if len(suffix) > 0:
+        args.append(qualifier_suffix)
+        args.append(suffix)
+=========
 
     if suffix:
         args.append(qualifier_suffix_arg)
         args.append(suffix)
 
+>>>>>>>>> Temporary merge branch 2
     if dev:
         args.append(qualifier_dev_arg)
 
-    if codegen_opts:
-        args.append(qualifier_codegen_opts_arg)
-        args.append(codegen_opts)
-
     FrontendConfiguration.parse_config(args)
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
+    process()
 
 
 def install_nest(models_path, nest_path):
     # type: (str,str) -> None
+<<<<<<<<< Temporary merge branch 1
+    """
+    This procedure can be used to install generate models into the NEST simulator.
+    :param models_path: the path to the generated models, should contain the cmake file (automatically generated).
+    :param nest_path: the path to the NEST installation, should point to the dir where nest is installed, a.k.a.
+            the -Dwith-nest argument of the make command. The postfix /bin/nest-config is automatically attached.
+    :return:
+    """
+    nest_installer(models_path=models_path, nest_path=nest_path)
+=========
     '''
     This procedure can be used to install generated models into the NEST
     simulator.
@@ -120,41 +133,27 @@ def install_nest(models_path, nest_path):
         will be automatically attached to `nest_path`.
     '''
     nest_installer(models_path, nest_path)
+>>>>>>>>> Temporary merge branch 2
 
 
-def main():
-    """
-    Entry point for the command-line application.
-
-    Returns
-    -------
-    The process exit code: 0 for success, > 0 for failure
-    """
+def main(args):
     try:
-        FrontendConfiguration.parse_config(sys.argv[1:])
+        FrontendConfiguration.parse_config(args)
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
-        return 1
+        return
     # after all argument have been collected, start the actual processing
-    return int(process())
+    process()
 
 
 def process():
-    """
-    Returns
-    -------
-    errors_occurred : bool
-        Flag indicating whether errors occurred during processing
-    """
-
-    errors_occurred = False
-
-    sys.setrecursionlimit(10000)
-
+    
     # init log dir
     create_report_dir()
+    
     # The handed over parameters seem to be correct, proceed with the main routine
     init_predefined()
+    
     # now proceed to parse all models
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
@@ -164,10 +163,11 @@ def process():
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
+
     if len(compilation_units) > 0:
-        # generate a list of all neurons
-        neurons = []
-        synapses = []
+        # generate a list of all compilation units (neurons + synapses)
+        neurons = list()
+        synapses = list()
         for compilationUnit in compilation_units:
             neurons.extend(compilationUnit.get_neuron_list())
             synapses.extend(compilationUnit.get_synapse_list())
@@ -179,7 +179,7 @@ def process():
             CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
 
         # now exclude those which are broken, i.e. have errors.
-        if not FrontendConfiguration.is_dev:
+        if not FrontendConfiguration.is_dev():
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())
@@ -187,7 +187,7 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
-                    errors_occurred = True
+
 
             for synapse in synapses:
                 if Logger.has_errors(synapse):
@@ -196,18 +196,15 @@ def process():
                                        error_position=synapse.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     synapses.remove(synapse)
-                    errors_occurred = True
 
         # perform code generation
         _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
         _codeGenerator.generate_code(neurons, synapses)
-        for neuron in neurons + synapses:
-            if Logger.has_errors(neuron):
-                errors_occurred = True
-                break
+
     if FrontendConfiguration.store_log:
         store_log_to_file()
-    return errors_occurred
+
+    return
 
 
 def init_predefined():
@@ -227,3 +224,7 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

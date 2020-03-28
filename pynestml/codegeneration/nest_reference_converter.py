@@ -186,6 +186,9 @@ e();
                 variable)
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
+        if PredefinedUnits.is_unit(variable.get_complete_name()):
+            return str(
+                UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
 
