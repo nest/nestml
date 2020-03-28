@@ -135,31 +135,31 @@ class ASTSynapseBody(ASTNode):
                 ret.append(elem)
         return ret
 
-    # def get_input_blocks(self):
-    #     """
-    #     Returns a list of all input-blocks defined.
-    #     :return: a list of defined input-blocks.
-    #     :rtype: list(ASTInputBlock)
-    #     """
-    #     ret = list()
-    #     from pynestml.meta_model.ast_input_block import ASTInputBlock
-    #     for elem in self.get_body_elements():
-    #         if isinstance(elem, ASTInputBlock):
-    #             ret.append(elem)
-    #     return ret
+    def get_input_blocks(self):
+        """
+        Returns a list of all input-blocks defined.
+        :return: a list of defined input-blocks.
+        :rtype: list(ASTInputBlock)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_input_block import ASTInputBlock
+        for elem in self.get_body_elements():
+            if isinstance(elem, ASTInputBlock):
+                ret.append(elem)
+        return ret
 
-    # def get_output_blocks(self):
-    #     """
-    #     Returns a list of all output-blocks defined.
-    #     :return: a list of defined output-blocks.
-    #     :rtype: list(ASTOutputBlock)
-    #     """
-    #     ret = list()
-    #     from pynestml.meta_model.ast_output_block import ASTOutputBlock
-    #     for elem in self.get_body_elements():
-    #         if isinstance(elem, ASTOutputBlock):
-    #             ret.append(elem)
-    #     return ret
+    def get_output_blocks(self):
+        """
+        Returns a list of all output-blocks defined.
+        :return: a list of defined output-blocks.
+        :rtype: list(ASTOutputBlock)
+        """
+        ret = list()
+        from pynestml.meta_model.ast_output_block import ASTOutputBlock
+        for elem in self.get_body_elements():
+            if isinstance(elem, ASTOutputBlock):
+                ret.append(elem)
+        return ret
 
     def get_parent(self, ast=None):
         """

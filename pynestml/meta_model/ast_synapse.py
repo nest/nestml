@@ -153,7 +153,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
                 ret.append(symbol)
         return ret
 
-
     def get_spike_buffers(self):
         """
         Returns a list of all spike input buffers defined in the model.

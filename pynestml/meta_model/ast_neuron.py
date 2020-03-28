@@ -192,24 +192,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(symbol)
         return ret
 
-    def get_output_blocks(self):
-        """
-        Returns a list of all output-blocks defined.
-        :return: a list of defined output-blocks.
-        :rtype: list(ASTOutputBlock)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_output_block import ASTOutputBlock
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTOutputBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
-            return None
-        else:
-            return ret
-
     def is_multisynapse_spikes(self):
         """
         Returns whether this neuron uses multi-synapse spikes.

@@ -831,7 +831,7 @@ class NESTCodeGenerator(CodeGenerator):
             for sym in namespace['analytic_state_variables']:
                 expr_str = self.analytic_solver[synapse.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
-                expr_ast.update_scope(synapse.get_update_blocks().get_scope()) # pretend that update expressions are in "update" block
+                expr_ast.update_scope(synapse.get_internals_blocks().get_scope()) # pretend that update expressions are in "update" block
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['update_expressions'][sym] = expr_ast
 

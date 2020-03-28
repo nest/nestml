@@ -228,7 +228,7 @@ def serializedATN():
         buf.write(u"\u01b5\7\37\2\2\u01b5\u01b6\7Y\2\2\u01b6\u01b7\7S\2\2")
         buf.write(u"\u01b7\u01b8\5F$\2\u01b8E\3\2\2\2\u01b9\u01c2\7\5\2\2")
         buf.write(u"\u01ba\u01c2\5L\'\2\u01bb\u01c2\5P)\2\u01bc\u01c2\5R")
-        buf.write(u"*\2\u01bd\u01c2\5N(\2\u01be\u01c2\5Z.\2\u01bf\u01c2\5")
+        buf.write(u"*\2\u01bd\u01c2\5X-\2\u01be\u01c2\5Z.\2\u01bf\u01c2\5")
         buf.write(u"H%\2\u01c0\u01c2\5J&\2\u01c1\u01b9\3\2\2\2\u01c1\u01ba")
         buf.write(u"\3\2\2\2\u01c1\u01bb\3\2\2\2\u01c1\u01bc\3\2\2\2\u01c1")
         buf.write(u"\u01bd\3\2\2\2\u01c1\u01be\3\2\2\2\u01c1\u01bf\3\2\2")
@@ -3362,11 +3362,11 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.InputBlockContext,i)
 
 
-        def updateBlock(self, i=None):
+        def outputBlock(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.UpdateBlockContext)
+                return self.getTypedRuleContexts(PyNestMLParser.OutputBlockContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.UpdateBlockContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.OutputBlockContext,i)
 
 
         def function(self, i=None):
@@ -3412,7 +3412,7 @@ class PyNestMLParser ( Parser ):
             self.state = 449
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.INITIAL_VALUES_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.PRE_RECEIVE_KEYWORD) | (1 << PyNestMLParser.POST_RECEIVE_KEYWORD))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.INITIAL_VALUES_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD) | (1 << PyNestMLParser.PRE_RECEIVE_KEYWORD) | (1 << PyNestMLParser.POST_RECEIVE_KEYWORD))) != 0):
                 self.state = 447
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -3432,9 +3432,9 @@ class PyNestMLParser ( Parser ):
                     self.state = 442
                     self.inputBlock()
                     pass
-                elif token in [PyNestMLParser.UPDATE_KEYWORD]:
+                elif token in [PyNestMLParser.OUTPUT_KEYWORD]:
                     self.state = 443
-                    self.updateBlock()
+                    self.outputBlock()
                     pass
                 elif token in [PyNestMLParser.FUNCTION_KEYWORD]:
                     self.state = 444
