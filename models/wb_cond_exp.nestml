@@ -1,4 +1,23 @@
 """
+Name: wb_cond_exp - Wang buzsaki model
+
+Description:
+
+wb_cond_exp is an implementation of a modified Hodkin-Huxley model
+(1) Post-synaptic currents
+ Incoming spike events induce a post-synaptic change of conductance modeled
+ by an exponential function.
+
+(2) Spike Detection
+ Spike detection is done by a combined threshold-and-local-maximum search: if
+ there is a local maximum above a certain threshold of the membrane potential,
+ it is considered a spike.
+
+References:
+
+Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic inhibition in a hippocampal interneuronal network model. Journal of neuroscience, 16(20), pp.6402-6413.
+
+
 SeeAlso: hh_cond_exp_traub
 """
 neuron wb_cond_exp:
@@ -50,19 +69,19 @@ neuron wb_cond_exp:
   end
 
   parameters:
-    t_ref ms = 2.0 ms      # Refractory period 2.0
-    g_Na nS = 3500.0 nS    # Sodium peak conductance
-    g_K nS = 900.0 nS      # Potassium peak conductance
-    g_L nS = 10 nS          # Leak conductance
-    C_m pF = 100.0 pF       # Membrane Capacitance
-    E_Na mV = 55.0 mV         # Sodium reversal potential
-    E_K mV = -90.0 mV        # Potassium reversal potentia
-    E_L mV = -65.0 mV     # Leak reversal Potential (aka resting potential)
-    V_Tr mV = -55.0 mV        # Spike Threshold
-    tau_syn_ex ms = 0.2 ms  # Rise time of the excitatory synaptic alpha function i
-    tau_syn_in ms = 10.0 ms  # Rise time of the inhibitory synaptic alpha function
-    E_ex mV = 0.0 mV           # Excitatory synaptic reversal potential
-    E_in mV = -75.0 mV         # Inhibitory synaptic reversal potential
+    t_ref ms = 2.0 ms           # Refractory period
+    g_Na nS = 3500.0 nS         # Sodium peak conductance
+    g_K nS = 900.0 nS           # Potassium peak conductance
+    g_L nS = 10 nS              # Leak conductance
+    C_m pF = 100.0 pF           # Membrane Capacitance
+    E_Na mV = 55.0 mV           # Sodium reversal potential
+    E_K mV = -90.0 mV           # Potassium reversal potentia
+    E_L mV = -65.0 mV           # Leak reversal Potential (aka resting potential)
+    V_Tr mV = -55.0 mV          # Spike Threshold
+    tau_syn_ex ms = 0.2 ms      # Rise time of the excitatory synaptic alpha function i
+    tau_syn_in ms = 10.0 ms     # Rise time of the inhibitory synaptic alpha function
+    E_ex mV = 0.0 mV            # Excitatory synaptic reversal potential
+    E_in mV = -75.0 mV          # Inhibitory synaptic reversal potential
 
     # constant external input current
     I_e pA = 0 pA

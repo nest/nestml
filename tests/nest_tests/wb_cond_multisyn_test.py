@@ -1,5 +1,5 @@
 """
-wb_cond_exp_test.py
+wb_cond_multisyn_test.py
 """
 
 import os
@@ -19,13 +19,13 @@ except:
 
 class NestWBCondExpTest(unittest.TestCase):
     
-    def test_wb_cond_exp(self):
+    def test_wb_cond_multisyn(self):
 
         if not os.path.exists("target"):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "resources", "wb_cond_exp.nestml")))
+        os.path.dirname(__file__), "resources", "wb_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
@@ -40,7 +40,7 @@ class NestWBCondExpTest(unittest.TestCase):
         install_nest(target_path, nest_path)
 
         nest.Install("nestmlmodule")
-        model = "wb_cond_exp_nestml"
+        model = "wb_cond_multisyn_nestml"
 
         dt = 0.01
         t_simulation = 1000.0
@@ -94,7 +94,7 @@ class NestWBCondExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/wb_cond_exp.png")
+            plt.savefig("resources/wb_cond_multisyn.png")
             # plt.show()
 
 if __name__ == "__main__":
