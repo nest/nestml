@@ -5,7 +5,7 @@ wb_cond_exp_test.py
 import os
 import nest
 import unittest
-import numpy as np 
+import numpy as np
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 try:
@@ -16,16 +16,15 @@ except:
     TEST_PLOTS = False
 
 
-
 class NestWBCondExpTest(unittest.TestCase):
-    
+
     def test_wb_cond_exp(self):
 
         if not os.path.exists("target"):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "resources", "wb_cond_exp.nestml")))
+            os.path.dirname(__file__), "../../models", "wb_cond_exp.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
@@ -64,7 +63,7 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spikedetector)
         nest.Simulate(t_simulation)
-        
+
         dmm = nest.GetStatus(multimeter)[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
@@ -75,10 +74,9 @@ class NestWBCondExpTest(unittest.TestCase):
         firing_rate = len(spikes) / t_simulation * 1000
         print("firing rate is ", firing_rate)
         expected_value = np.abs(firing_rate - 50)
-        tolerance_value = 5  # Hz 
+        tolerance_value = 5  # Hz
 
         self.assertLessEqual(expected_value, tolerance_value)
-
 
         if TEST_PLOTS:
 
@@ -96,6 +94,7 @@ class NestWBCondExpTest(unittest.TestCase):
 
             plt.savefig("resources/wb_cond_exp.png")
             # plt.show()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,19 +24,19 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "resources", "traub_cond_multisyn.nestml")))
+        os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
         suffix = '_nestml'
 
-        # to_nest(input_path=input_path,
-        #         target_path=target_path,
-        #         logging_level="INFO",
-        #         suffix=suffix,
-        #         module_name=module_name)
+        to_nest(input_path=input_path,
+                target_path=target_path,
+                logging_level="INFO",
+                suffix=suffix,
+                module_name=module_name)
 
-        # install_nest(target_path, nest_path)
+        install_nest(target_path, nest_path)
 
         nest.Install("nestmlmodule")
         model = "traub_cond_multisyn_nestml"
@@ -62,8 +62,8 @@ class NestWBCondExpTest(unittest.TestCase):
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
 
         nest.SetStatus([multimeter[1]], {"withtime": True,
-                                 "record_from": record_from,
-                                 "interval": dt})
+                                         "record_from": record_from,
+                                         "interval": dt})
         #! {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
         # nest.Connect(neuron1, neuron2)
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
@@ -79,7 +79,6 @@ class NestWBCondExpTest(unittest.TestCase):
                                             "withtime": True})
         nest.Connect(neuron1, spikedetector)
         nest.Simulate(t_simulation)
-
 
         dmm = nest.GetStatus(multimeter)[1]
         Voltages = dmm["events"]["V_m"]
@@ -106,7 +105,7 @@ class NestWBCondExpTest(unittest.TestCase):
                 g = dmm["events"][i]
                 ax[1].plot(tv, g, lw=2, label=labels[j])
                 j += 1
-            
+
             ax[2].plot(ts, spikes, 'k.')
             ax[2].set_xlabel("Time [ms]")
             ax[2].set_xlim(0, t_simulation)

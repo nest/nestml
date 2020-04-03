@@ -25,7 +25,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "resources", "traub_psc_alpha.nestml")))
+        os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
