@@ -97,7 +97,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoVariableWithSameNameAsUnit.nestml'))
         self.assertEqual(
-            len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)),
+            len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.WARNING)),
             1)
 
     def test_invalid_variable_redeclaration(self):
@@ -161,7 +161,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInlineExpressionHasNoRhs.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
     def test_invalid_inline_expression_has_several_lhs(self):
         Logger.set_logging_level(LoggingLevel.INFO)

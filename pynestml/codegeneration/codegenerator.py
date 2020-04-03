@@ -67,7 +67,7 @@ class CodeGenerator(object):
     def generate_code(self, neurons, synapses):
         if self._target == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
-            _codeGenerator = NESTCodeGenerator()
+            _codeGenerator = NESTCodeGenerator(options=self._options)
             _codeGenerator.generate_code(neurons, synapses)
         elif self._target == "":
             # dummy/null target: user requested to not generate any code

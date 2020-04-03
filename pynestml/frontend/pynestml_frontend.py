@@ -92,6 +92,10 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     if dev:
         args.append(qualifier_dev_arg)
 
+    if codegen_opts:
+        args.append(qualifier_codegen_opts_arg)
+        args.append(codegen_opts)
+
     FrontendConfiguration.parse_config(args)
     process()
 
@@ -120,6 +124,13 @@ def install_nest(models_path, nest_path):
 
 
 def main(args):
+    """
+    Entry point for the command-line application.
+
+    Returns
+    -------
+    The process exit code: 0 for success, > 0 for failure
+    """
     try:
         FrontendConfiguration.parse_config(args)
     except InvalidPathException:
@@ -130,13 +141,15 @@ def main(args):
 
 
 def process():
-    
+
+    errors_occurred = False
+
     # init log dir
     create_report_dir()
-    
+
     # The handed over parameters seem to be correct, proceed with the main routine
     init_predefined()
-    
+
     # now proceed to parse all models
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
@@ -170,7 +183,7 @@ def process():
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
-
+                    errors_occurred = True
 
             for synapse in synapses:
                 if Logger.has_errors(synapse):
@@ -179,15 +192,28 @@ def process():
                                        error_position=synapse.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     synapses.remove(synapse)
+                    errors_occurred = True
+
+        # load optional code generator options from JSON
+        if FrontendConfiguration.codegen_opts_fn:
+            with open(FrontendConfiguration.codegen_opts_fn) as json_file:
+                codegen_opts = json.load(json_file)
+        else:
+            codegen_opts = None
 
         # perform code generation
-        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
+        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target(), options=codegen_opts)
         _codeGenerator.generate_code(neurons, synapses)
+
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
+                errors_occurred = True
+                break
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
 
-    return
+    return errors_occurred
 
 
 def init_predefined():

@@ -97,7 +97,7 @@ class STDPSynapseTest(unittest.TestCase):
         post_parrot = nest.Create("parrot_neuron")
         pre_parrot_ref = nest.Create("parrot_neuron")
         post_parrot_ref = nest.Create("parrot_neuron")
-        #mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1, 'withtime': True })
+        #mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1 })
         spikedet_pre = nest.Create("spike_detector", params={'precise_times': True})
         spikedet_post = nest.Create("spike_detector", params={'precise_times': True})
 

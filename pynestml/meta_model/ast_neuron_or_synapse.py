@@ -77,6 +77,13 @@ class ASTNeuronOrSynapse(ASTNode):
         return self.name
 
 
+    def set_name(self, name):
+        """
+        Set the name of the node.
+        """
+        self.name = name
+
+
     def get_body(self):
         """
         Return the body of the neuron.

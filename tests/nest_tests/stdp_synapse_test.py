@@ -35,9 +35,34 @@ except:
 
 class STDPSynapseTest(unittest.TestCase):
 
-    def test_stdp_synapse(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "models", "stdp_synapse.nestml")))
+    def test_stdp_synapses(self):
+        # pre_spike_times = 1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))	  # [ms]
+
+        #pre_spike_times = [3.,11.]	  # [ms]
+        #post_spike_times = [6.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+
+        pre_spike_times = [3., 5., 7., 11., 15., 17., 20., 21., 22., 23., 26., 28.]	  # [ms]
+        post_spike_times = [6., 8., 10., 13.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+
+        models = [("stdp_synapse.nestml", "stdp_connection_nestml", "stdp_synapse", "_[pairing=all-to-all]"),
+                  ("stdp_synapse_nn.nestml", "stdp_nn_restr_symm_connection_nestml", "stdp_nn_restr_synapse", "_[pairing=nn-restr-symm]")]
+        
+        for (nestml_model_fn, nestml_model_name, nest_model_name, fname_snip) in models:
+            self._test_stdp_synapse(pre_spike_times, post_spike_times, nestml_model_fn, nestml_model_name, nest_model_name, fname_snip)
+
+        
+    def _test_stdp_synapse(self, pre_spike_times, post_spike_times, nestml_model_fn, nestml_model_name, nest_model_name, fname_snip):
+        """
+        Parameters
+        ----------
+        nestml_model_name
+            The model under test.
+        nest_model_name
+            The reference (known-good) model.
+        """
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "models", nestml_model_fn)))
         nest_path = "/home/travis/nest_install"
+        nest_path = "/home/archels/nest-simulator-build"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
@@ -51,21 +76,9 @@ class STDPSynapseTest(unittest.TestCase):
         nest.ResetKernel()
         nest.Install(module_name)
 
-        # simulate
+        # simulation parameters
         resolution = 1.	 # [ms]
         delay = 1.  # [ms]
-
-        #pre_spike_times = [6.]
-        #post_spike_times = [1.,3.]
-
-        pre_spike_times = [3.,11.]	  # [ms]
-        post_spike_times = [6.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
-
-        pre_spike_times = [3., 5., 7., 11., 15., 17., 20., 21., 22., 23., 26., 28.]	  # [ms]
-        post_spike_times = [6., 8., 10., 13.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
-
-        # pre_spike_times = 1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))	  # [ms]
-
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -79,17 +92,16 @@ class STDPSynapseTest(unittest.TestCase):
 
         wr = nest.Create('weight_recorder')
         wr_ref = nest.Create('weight_recorder')
-        nest.CopyModel("stdp_connection_nestml", "stdp_connection_nestml_rec",
+        nest.CopyModel(nestml_model_name, "stdp_connection_nestml_rec",
                     {"weight_recorder": wr[0], "w": 1., "the_delay" : 1., "receptor_type" : 1})
-        nest.CopyModel("stdp_synapse", "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type" : 1})
+        nest.CopyModel(nest_model_name, "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type" : 1})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator", 
-                            params={"spike_times": pre_spike_times,
-                                    'allow_offgrid_spikes': True})
+                            params={"spike_times": pre_spike_times})
         post_sg = nest.Create("spike_generator", 
                             params={"spike_times": post_spike_times,
-                                    'allow_offgrid_spikes': True})
+                                    'allow_offgrid_times': True})
 
         # create parrot neurons and connect spike_generators
         pre_parrot = nest.Create("parrot_neuron")
@@ -164,7 +176,7 @@ class STDPSynapseTest(unittest.TestCase):
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
                 _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
-            fig.savefig("/tmp/stdp_synapse_test.png")
+            fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png")
 
 
 

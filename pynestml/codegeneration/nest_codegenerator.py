@@ -315,8 +315,100 @@ class NESTCodeGenerator(CodeGenerator):
             return neurons, synapses
 
         for neuron_synapse_dyad in self._options["neuron_synapse_dyads"]:
-            #neuron = 
+            neuron_names = [neuron.get_name() for neuron in neurons]
+            neuron_name = neuron_synapse_dyad[0]
+            if not neuron_name in neuron_names:
+                raise Exeption("Neuron name used in dyad ('" + neuron_name + "') not found") # XXX: log error
+                return neurons, synapses
+            neuron = neurons[neuron_names.index(neuron_name)]
+            new_neuron = neuron#copy.deepcopy(neuron) # XXX cannot deepcopy an ANTLR AST!
+
+            neurons.append(neuron)
+
+            synapse_names = [synapse.get_name() for synapse in synapses]
+            synapse_name = neuron_synapse_dyad[1]
+            if not synapse_name in synapse_names:
+                raise Exception("Synapse name used in dyad ('" + synapse_name + "') not found") # XXX: log error
+                return neurons, synapses
+            synapse = synapses[synapse_name.index(synapse_name)]
+            new_synapse = synapse # XXX cannot deepcopy an ANTLR AST!
+
+            synapses.append(synapse)
+
+
+            #
+            # 	determine which variables and dynamics in synapse can be transferred to neuron
+            #
+
+            #
+            #   make a list of all variables in the model
+            #
+
+            class ASTVariablesFinderVisitor(ASTVisitor):
+                _variables = []
+
+                def __init__(self, synapse):
+                    super(ASTVariablesFinderVisitor, self).__init__()
+                    self.synapse = synapse
+
+
+                def visit_declaration(self, node):
+                    symbol = node.get_scope().resolve_to_symbol(node.get_variables()[0].get_complete_name(),
+                                                                SymbolKind.VARIABLE)
+                    if symbol is None:
+                        code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                        log_level=LoggingLevel.ERROR, astnode=self.neuron)
+                        return
+
+                    self._variables.append(symbol)
+
+            all_variables = []
+            if synapse.get_initial_values_blocks():
+                visitor = ASTVariablesFinderVisitor(synapse)
+                synapse.get_initial_values_blocks().accept(visitor)
+                all_variables.extend(visitor._variables)
+                visitor._variables = []
+            if synapse.get_state_blocks():
+                visitor = ASTVariablesFinderVisitor(synapse)
+                synapse.get_state_blocks().accept(visitor)
+                all_variables.extend(visitor._variables)
+                visitor._variables = []
+            print("All variables: " + str(all_variables))
+
+            # for each variable:
+            #		if variable is assigned to in the `preReceive` block, is put in the "strictly synaptic" list
+
+            # for each variable:
+            #		If this variable occurs in a convolution, and it is not with a "spike post" port, remove it from list
+            # 		if this variable occurs in an expression in preReceive block, remove it from list
+            #		for all assignments to this variable in the postReceive and equations blocks:
+            #			if any of the "strictly synaptic" variables occur in the rhs, remove variable from list; break inner loop
+
+
+            #
+            # 	edit neuron
+            #
+
+            name_separator_str = "__with_"
+
+            new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
+            self.analytic_solver[new_neuron_name] = self.analytic_solver[neuron.get_name()]
+            self.numeric_solver[new_neuron_name] = self.numeric_solver[neuron.get_name()]
+            neuron.set_name(new_neuron_name)
+
+            new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
+            self.analytic_solver[new_synapse_name] = self.analytic_solver[synapse.get_name()]
+            self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
+            synapse.set_name(new_synapse_name)
+
+            self.generate_neuron_code(new_neuron)
+            self.generate_synapse_code(new_synapse)
+
+            synapse_name = neuron_synapse_dyad[0]
             import pdb;pdb.set_trace()
+
+        return neurons, synapses
 
     def generate_code(self, neurons, synapses):
         self.analyse_transform_neurons(neurons)
@@ -326,6 +418,7 @@ class NESTCodeGenerator(CodeGenerator):
         if self._options and "neuron_synapse_dyads" in self._options:
             neurons, synapses = self.process_neuron_synapse_dyads(neurons, synapses)
         self.generate_module_code(neurons, synapses)
+
 
     def generate_module_code(self, neurons, synapses):
         # type: (list(ASTNeuron)) -> None
@@ -526,7 +619,6 @@ class NESTCodeGenerator(CodeGenerator):
                     _expr.set_variable(None)
                     _expr.set_numeric_literal(0)
                     #print("Delta function: replacing convolve call " + str(convolve) + " with var " + str(buffer_var))
-                    #import pdb;pdb.set_trace()
                 else:
                     ast_variable = ASTVariable(buffer_var)
                     ast_variable.set_source_position(_expr.get_source_position())
