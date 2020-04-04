@@ -50,9 +50,9 @@ NESTML language and toolchain development
 
 :doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms.
 
-
 API documentation is automatically generated from source code: :mod:`pynestml` **module index**
 
+Internally, the `ode-toolbox <https://ode-toolbox.readthedocs.io>` Python package is used for the processing of differential equations.
 
 
 .. include:: getting_help.rst
