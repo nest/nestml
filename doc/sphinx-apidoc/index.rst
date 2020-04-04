@@ -52,7 +52,7 @@ NESTML language and toolchain development
 
 API documentation is automatically generated from source code: :mod:`pynestml` **module index**
 
-Internally, the `ode-toolbox <https://ode-toolbox.readthedocs.io>` Python package is used for the processing of differential equations.
+Internally, the `ode-toolbox <https://ode-toolbox.readthedocs.io/>`__ Python package is used for the processing of differential equations.
 
 
 .. include:: getting_help.rst
