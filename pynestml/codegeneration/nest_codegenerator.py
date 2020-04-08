@@ -380,6 +380,7 @@ class NESTCodeGenerator(CodeGenerator):
                 visitor._variables = []
 
             print("All variables defined in state block: " + str([v.name for v in all_variables]))
+            all_variables = [v.name for v in all_variables]
 
             #shape_buffers = self.generate_shape_buffers_(synapse, synapse.get_equations_blocks())
             #print("All shape buffers: " + str([el[0] for el in shape_buffers]))
@@ -467,6 +468,7 @@ class NESTCodeGenerator(CodeGenerator):
                 visitor._variables = []
 
             print("Assigned-to variables in preReceive: " + str([v.name for v in strictly_synaptic_variables]))
+            strictly_synaptic_variables = [v.name for v in strictly_synaptic_variables]
 
             #
             # for each variable:
@@ -516,6 +518,9 @@ class NESTCodeGenerator(CodeGenerator):
             visitor._variables = []
 
             print("Variables used in convolve with other than 'spike post' port: " + str(convolve_with_not_post))
+
+            neuron_state_vars = (set(all_variables) | set(all_conv_vars)) - (set(strictly_synaptic_variables) | set(convolve_with_not_post))
+            print("--> State that will be generated in the neuron class: " + str(neuron_state_vars))
 
 
             import pdb;pdb.set_trace()
