@@ -28,16 +28,18 @@ class ASTInputQualifier(ASTNode):
     ASTInputQualifier represents the qualifier of the input port. Only valid for spiking inputs.
     @attribute inhibitory true Indicates that this spiking input port is inhibitory.
     @attribute excitatory true Indicates that this spiking input port is excitatory.
+    @attribute post true Indicates that this spiking input port is connected to the postsynaptic neuron.
 
     Grammar:
-        inputQualifier : ('inhibitory' | 'excitatory');
+        inputQualifier : ('inhibitory' | 'excitatory' | 'post');
 
     Attributes:
         is_inhibitory = False
         is_excitatory = False
+        is_post = False
     """
 
-    def __init__(self, is_inhibitory=False, is_excitatory=False, source_position=None):
+    def __init__(self, is_inhibitory=False, is_excitatory=False, is_post=False, source_position=None):
         """
         Standard constructor.
         :param is_inhibitory: is inhibitory buffer.
@@ -50,6 +52,7 @@ class ASTInputQualifier(ASTNode):
         super(ASTInputQualifier, self).__init__(source_position)
         self.is_excitatory = is_excitatory
         self.is_inhibitory = is_inhibitory
+        self.is_post = is_post
 
     def get_parent(self, ast):
         """
@@ -71,4 +74,4 @@ class ASTInputQualifier(ASTNode):
         """
         if not isinstance(other, ASTInputQualifier):
             return False
-        return self.is_excitatory == other.is_excitatory and self.is_inhibitory == other.is_inhibitory
+        return self.is_excitatory == other.is_excitatory and self.is_inhibitory == other.is_inhibitory and self.is_post == other.is_post

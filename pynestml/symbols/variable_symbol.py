@@ -202,6 +202,14 @@ class VariableSymbol(Symbol):
         """
         return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
 
+    def is_post(self) -> bool:
+        """
+        Returns whether this symbol represents a buffer of type post.
+        :return: True if is post, otherwise False.
+        :rtype: bool
+        """
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_post()
+
     def is_state(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a state block.

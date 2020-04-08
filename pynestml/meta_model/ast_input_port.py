@@ -171,6 +171,20 @@ class ASTInputPort(ASTNode):
                 return True
         return False
 
+    def is_post(self):
+        """
+        Returns whether this buffer is post or not. For this, it has to be marked explicitly by the 
+        post keyword or no keywords at all shall occur (implicitly all types).
+        :return: True if post, False otherwise.
+        :rtype: bool
+        """
+        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
+            return True
+        for in_type in self.get_input_qualifiers():
+            if in_type.is_post:
+                return True
+        return False
+
     def has_datatype(self):
         """
         Returns whether this buffer has a defined data type or not.

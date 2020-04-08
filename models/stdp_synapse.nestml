@@ -1,5 +1,5 @@
-/*
-Name: stdp_synapse - Synapse type for spike-timing dependent plasticity.
+"""
+Name: stdp - Synapse type for spike-timing dependent plasticity.
 
 Description:
 
@@ -7,23 +7,19 @@ stdp_synapse is a synapses with spike time dependent plasticity (as defined in [
 
 Examples:
 
-multiplicative STDP [2]  mu_plus = mu_minus = 1.0
-additive STDP       [3]  mu_plus = mu_minus = 0.0
-Guetig STDP         [1]  mu_plus = mu_minus = [0.0,1.0]
-van Rossum STDP     [4]  mu_plus = 0.0 mu_minus = 1.0
+Multiplicative STDP [2]  mu_plus = mu_minus = 1
+Additive STDP       [3]  mu_plus = mu_minus = 0
+Guetig STDP         [1]  mu_plus, mu_minus in [0, 1]
+Van Rossum STDP     [4]  mu_plus = 0 mu_minus = 1
 
 Parameters:
 
-tau_plus   double - Time constant of STDP window, potentiation in ms
-                    (tau_minus defined in post-synaptic neuron)
-lambda     double - Step size
-alpha      double - Asymmetry parameter (scales depressing increments as
-                    alpha*lambda)
-mu_plus    double - Weight dependence exponent, potentiation
-mu_minus   double - Weight dependence exponent, depression
-Wmax       double - Maximum allowed weight
-
-Transmits: SpikeEvent
+tau_plus   ms   - Time constant of STDP window, potentiation in ms (tau_minus defined in post-synaptic neuron)
+lambda     real - Step size
+alpha      real - Asymmetry parameter (scales depressing increments as alpha*lambda)
+mu_plus    real - Weight dependence exponent, potentiation
+mu_minus   real - Weight dependence exponent, depression
+Wmax       nS   - Maximum allowed weight
 
 References:
 
@@ -47,21 +43,20 @@ FirstVersion: March 2006
 Author: Moritz Helias, Abigail Morrison
 
 Adapted by: Philipp Weidel
-
-SeeAlso: synapsedict, tsodyks_synapse, static_synapse
-*/
+"""
 synapse stdp:
 
   initial_values:
     w nS = 1.234 nS
-    #Kplus real = 0.
-    # N.B. Kminus is in postsynaptic partner; using `get_post_trace()`
+    post_trace_ real = 0.
+    post_trace_nn real = 0.
   end
 
   parameters:
     the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
     lambda real = .01
     tau_plus ms = 20 ms
+    tau_tr_post_nn ms = 20 ms
     alpha real = 1.
     mu_plus real = 1.
     mu_minus real = 1.
@@ -70,33 +65,48 @@ synapse stdp:
   end
 
   equations:
-    # Kplus: all-to-all trace
-    #shape Kplus_kernel' = -Kplus_kernel / tau_plus
-    shape Kplus_kernel = exp(-t / tau_plus)
-    inline Kplus real = convolve(Kplus_kernel, pre_spikes)
-    #Kplus' = -Kplus / tau_plus
+    # pre_trace: all-to-all trace
+    #shape pre_trace_kernel' = -Kplus_kernel / tau_plus
+    #pre_trace' = -pre_trace / tau_plus
+    shape pre_trace_kernel = exp(-t / tau_plus)
+    inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
+
+    # nearest-neighbour trace of postsynaptic neuron
+    post_trace_nn' = post_trace_nn / tau_tr_post_nn
+
+    # all-to-all trace of postsynaptic neuron
+    inline post_trace real = convolve(pre_trace_kernel, post_spikes) # XXX: really Kminus_kernel
+
+    # all-to-all trace of postsynaptic neuron (alternative)
+    post_trace_' = post_trace_ / tau_plus
   end
 
   input:
     pre_spikes nS <- spike
+    post_spikes nS <- post spike
   end
+
+  output: spike
 
   postReceive:
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * Kplus ))
+    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     w = min(Wmax, w_)
+
+    # update nearest neighbour trace
+    post_trace_nn = 1.
+
+    # update alternative all-to-all trace
+    post_trace_ += 1.
   end
 
   preReceive:
     # depress synapse
-    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * get_post_trace() ))
+    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner
     deliver_spike(w, the_delay)
   end
   
-  update:   # XXX: TODO: will be removed
-  end
-
 end

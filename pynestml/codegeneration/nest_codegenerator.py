@@ -46,6 +46,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -310,7 +311,10 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._printer = ExpressionsPrettyPrinter()
 
-    def process_neuron_synapse_dyads(self, neurons, synapses):
+    def analyse_transform_neuron_synapse_dyads(self, neurons, synapses):
+        """
+        Does not modify existing neurons or synapses, but returns lists with additional elements representing new dyad neuron and synapse
+        """
         if not "neuron_synapse_dyads" in self._options:
             return neurons, synapses
 
@@ -374,17 +378,147 @@ class NESTCodeGenerator(CodeGenerator):
                 synapse.get_state_blocks().accept(visitor)
                 all_variables.extend(visitor._variables)
                 visitor._variables = []
-            print("All variables: " + str(all_variables))
 
+            print("All variables defined in state block: " + str([v.name for v in all_variables]))
+
+            #shape_buffers = self.generate_shape_buffers_(synapse, synapse.get_equations_blocks())
+            #print("All shape buffers: " + str([el[0] for el in shape_buffers]))
+
+
+
+
+            class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
+                _variables = []
+
+                def __init__(self, synapse):
+                    super(ASTAllVariablesUsedInConvolutionVisitor, self).__init__()
+                    self.synapse = synapse
+
+                def visit_function_call(self, node):
+                    func_name = node.get_name()
+                    if func_name == 'convolve':
+                        symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
+                                                                        SymbolKind.VARIABLE)
+                        symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
+                                                                            SymbolKind.VARIABLE)
+                        def get_input_port_by_name(input_block, port_name):
+                            for input_port in input_block.get_input_ports():
+                                if input_port.name == port_name:
+                                    return input_port
+                            return None
+
+                        input_port = get_input_port_by_name(self.synapse.get_input_blocks(), symbol_buffer.name)
+                        if input_port:
+                            has_post_qualifier = input_port.get_input_qualifiers() and input_port.get_input_qualifiers()[0].is_post
+                            if True:
+                                found_parent_assignment = False
+                                node_ = node
+                                while not found_parent_assignment:
+                                    node_ = self.synapse.get_parent(node_)
+                                    if isinstance(node_, ASTInlineExpression):	# XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                                        found_parent_assignment = True
+                                var_name = node_.get_variable_name()
+                                self._variables.append(var_name)
+
+            all_conv_vars = []
+            visitor = ASTAllVariablesUsedInConvolutionVisitor(synapse)
+            synapse.get_equations_blocks().accept(visitor)
+            all_conv_vars.extend(visitor._variables)
+            visitor._variables = []
+
+            print("All variables due to convolutions: " + str(all_conv_vars))
+
+
+
+
+
+
+
+
+
+            #
             # for each variable:
             #		if variable is assigned to in the `preReceive` block, is put in the "strictly synaptic" list
+            #
 
+            class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
+                _variables = []
+
+                def __init__(self, synapse):
+                    super(ASTAssignedToVariablesFinderVisitor, self).__init__()
+                    self.synapse = synapse
+
+
+                def visit_assignment(self, node):
+                    symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(), SymbolKind.VARIABLE)
+                    if symbol is None:
+                        code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                        log_level=LoggingLevel.ERROR, astnode=self.neuron)
+                        return
+
+                    self._variables.append(symbol)
+
+            strictly_synaptic_variables = []
+            if synapse.get_pre_receive():
+                visitor = ASTAssignedToVariablesFinderVisitor(synapse)
+                synapse.get_pre_receive().accept(visitor)
+                strictly_synaptic_variables.extend(visitor._variables)
+                visitor._variables = []
+
+            print("Assigned-to variables in preReceive: " + str([v.name for v in strictly_synaptic_variables]))
+
+            #
             # for each variable:
             #		If this variable occurs in a convolution, and it is not with a "spike post" port, remove it from list
             # 		if this variable occurs in an expression in preReceive block, remove it from list
             #		for all assignments to this variable in the postReceive and equations blocks:
             #			if any of the "strictly synaptic" variables occur in the rhs, remove variable from list; break inner loop
+            #
 
+            class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
+                _variables = []
+
+                def __init__(self, synapse):
+                    super(ASTVariablesUsedInConvolutionVisitor, self).__init__()
+                    self.synapse = synapse
+
+                def visit_function_call(self, node):
+                    func_name = node.get_name()
+                    if func_name == 'convolve':
+                        symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
+                                                                        SymbolKind.VARIABLE)
+                        symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
+                                                                            SymbolKind.VARIABLE)
+                        def get_input_port_by_name(input_block, port_name):
+                            for input_port in input_block.get_input_ports():
+                                if input_port.name == port_name:
+                                    return input_port
+                            return None
+
+                        input_port = get_input_port_by_name(self.synapse.get_input_blocks(), symbol_buffer.name)
+                        if input_port:
+                            has_post_qualifier = input_port.get_input_qualifiers() and input_port.get_input_qualifiers()[0].is_post
+                            if not has_post_qualifier:
+                                found_parent_assignment = False
+                                node_ = node
+                                while not found_parent_assignment:
+                                    node_ = self.synapse.get_parent(node_)
+                                    if isinstance(node_, ASTInlineExpression):	# XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                                        found_parent_assignment = True
+                                var_name = node_.get_variable_name()
+                                self._variables.append(var_name)
+
+            convolve_with_not_post = []
+            visitor = ASTVariablesUsedInConvolutionVisitor(synapse)
+            synapse.get_equations_blocks().accept(visitor)
+            convolve_with_not_post.extend(visitor._variables)
+            visitor._variables = []
+
+            print("Variables used in convolve with other than 'spike post' port: " + str(convolve_with_not_post))
+
+
+            import pdb;pdb.set_trace()
 
             #
             # 	edit neuron
@@ -411,12 +545,12 @@ class NESTCodeGenerator(CodeGenerator):
         return neurons, synapses
 
     def generate_code(self, neurons, synapses):
+        if self._options and "neuron_synapse_dyads" in self._options:
+            neurons, synapses = self.analyse_transform_neuron_synapse_dyads(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
-        if self._options and "neuron_synapse_dyads" in self._options:
-            neurons, synapses = self.process_neuron_synapse_dyads(neurons, synapses)
         self.generate_module_code(neurons, synapses)
 
 
@@ -750,7 +884,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             #print("NEST codegenerator step 6...")
             spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
-            
 
         return spike_updates
 
@@ -771,10 +904,10 @@ class NESTCodeGenerator(CodeGenerator):
             shape_buffers = self.generate_shape_buffers_(synapse, equations_block)
             #print("shape_buffers = " + str([(str(a), str(b)) for a, b in shape_buffers]))
             self.replace_convolve_calls_with_buffers_(synapse, equations_block, shape_buffers)
-            
+
             #print("NEST codegenerator step 0...")
             #self.mark_shape_variable_symbols(synapse, shape_buffers)
-            
+
             #print("NEST codegenerator step 3...")
             #self.update_symbol_table(synapse, shape_buffers)
 
@@ -1631,13 +1764,12 @@ class NESTCodeGenerator(CodeGenerator):
 
         Each shape has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
 
-            convolve(G, ex_spikes)
-            convolve(G, in_spikes)
+        .. code-block::
 
-        then `shape_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.            
+           convolve(G, ex_spikes)
+           convolve(G, in_spikes)
 
-        :param equations_block:equations_block
-        :return: dictionary
+        then `shape_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
         """
 
         odetoolbox_indict = {}
@@ -1653,7 +1785,7 @@ class NESTCodeGenerator(CodeGenerator):
             entry = { "expression": lhs + " = " + rhs }
             symbol_name = equation.get_lhs().get_name()
             symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
-            
+
             entry["initial_values"] = {}
             symbol_order = equation.get_lhs().get_differential_order()
             for order in range(symbol_order):
