@@ -311,6 +311,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         self._printer = ExpressionsPrettyPrinter()
 
+
     def analyse_transform_neuron_synapse_dyads(self, neurons, synapses):
         """
         Does not modify existing neurons or synapses, but returns lists with additional elements representing new dyad neuron and synapse
@@ -523,28 +524,92 @@ class NESTCodeGenerator(CodeGenerator):
             print("--> State that will be generated in the neuron class: " + str(neuron_state_vars))
 
 
-            import pdb;pdb.set_trace()
+            #
+            #   collect all the parameters used in defining expressions of `neuron_state_vars`
+            #
+
+            parameters_used = []
+
 
             #
-            # 	edit neuron
+            #   move state variable definitions from synapse to neuron
+            #
+
+            def get_variable_declarations_from_block(var_name, block):
+                decls = []
+                for decl in block.get_declarations():
+                    for var in decl.get_variables():
+                        if var.get_name() == var_name:
+                            decls.append(decl)
+                            break
+                return decls
+
+            def add_suffix_to_variable_names(decl, suffix: str):
+                for var in decl.get_variables():
+                    var.set_name(var.get_name() + suffix)
+                # XXX: todo: change  variable names inside rhs expressions
+
+            def move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix):
+                if not neuron_block \
+                 or not synapse_block:
+                    return
+
+                decls = get_variable_declarations_from_block(state_var, synapse_block)
+                if decls:
+                    print("Moving state var definition of " + state_var + " from synapse to neuron")
+                    for decl in decls:
+                        synapse_block.declarations.remove(decl)
+                        add_suffix_to_variable_names(decl, suffix=var_name_suffix)
+                        neuron_block.get_declarations().append(decl)
+
+            for state_var in neuron_state_vars:
+                for neuron_block, synapse_block in zip([neuron.get_initial_values_blocks(), synapse.get_state_blocks()],
+                                                       [synapse.get_initial_values_blocks(), synapse.get_state_blocks()]):
+                    move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix="__from_synapse_" + synapse.get_name())
+
+
+
+
+            #
+            #   move defining equations for variables from synapse to neuron
+            #
+
+            for state_var in neuron_state_vars:
+                print("Moving state var defining equation(s) " + str(state_var))
+
+
+            #
+            #    move parameter definitions from synapse to neuron
+            #
+
+
+            #
+            # 	rename neuron
             #
 
             name_separator_str = "__with_"
 
             new_neuron_name = neuron.get_name() + name_separator_str + synapse.get_name()
-            self.analytic_solver[new_neuron_name] = self.analytic_solver[neuron.get_name()]
-            self.numeric_solver[new_neuron_name] = self.numeric_solver[neuron.get_name()]
+            #self.analytic_solver[new_neuron_name] = self.analytic_solver[neuron.get_name()]
+            #self.numeric_solver[new_neuron_name] = self.numeric_solver[neuron.get_name()]
             neuron.set_name(new_neuron_name)
 
+            #
+            #    rename synapse
+            #
+
             new_synapse_name = synapse.get_name() + name_separator_str + neuron.get_name()
-            self.analytic_solver[new_synapse_name] = self.analytic_solver[synapse.get_name()]
-            self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
+            #self.analytic_solver[new_synapse_name] = self.analytic_solver[synapse.get_name()]
+            #self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
             synapse.set_name(new_synapse_name)
 
-            self.generate_neuron_code(new_neuron)
-            self.generate_synapse_code(new_synapse)
+            #
+            #    add modified versions of neuron and synapse to list
+            #
 
-            synapse_name = neuron_synapse_dyad[0]
+            #neurons += new_neuron
+            #synapses += new_synapse
+
             import pdb;pdb.set_trace()
 
         return neurons, synapses
@@ -1108,7 +1173,6 @@ class NESTCodeGenerator(CodeGenerator):
                 #def visit_function_call(self, node):
                     #func_name = node.get_name()
                     #if func_name == 'deliver_spike':
-                        #import pdb;pdb.set_trace()
                         #self.weightParameter = node
 
             #weightParameterFinderVisitor = WeightParameterFinderVisitor()
