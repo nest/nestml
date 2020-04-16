@@ -47,6 +47,7 @@ from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -535,6 +536,8 @@ class NESTCodeGenerator(CodeGenerator):
             #   move state variable definitions from synapse to neuron
             #
 
+            var_name_suffix = "__for_" + synapse.get_name()
+
             def get_variable_declarations_from_block(var_name, block):
                 decls = []
                 for decl in block.get_declarations():
@@ -545,9 +548,15 @@ class NESTCodeGenerator(CodeGenerator):
                 return decls
 
             def add_suffix_to_variable_names(decl, suffix: str):
-                for var in decl.get_variables():
-                    var.set_name(var.get_name() + suffix)
-                # XXX: todo: change  variable names inside rhs expressions
+                if isinstance(decl, ASTInlineExpression):
+                    decl.set_variable_name(decl.get_variable_name() + suffix)
+                elif isinstance(decl, ASTOdeEquation):
+                    decl.get_lhs().set_name(decl.get_lhs().get_name() + suffix)
+                else:
+                    for var in decl.get_variables():
+                        var.set_name(var.get_name() + suffix)
+                # XXX: todo: change variable names inside rhs expressions
+                # XXX: todo: change parameter names inside rhs expressions
 
             def move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix):
                 if not neuron_block \
@@ -565,22 +574,51 @@ class NESTCodeGenerator(CodeGenerator):
             for state_var in neuron_state_vars:
                 for neuron_block, synapse_block in zip([neuron.get_initial_values_blocks(), synapse.get_state_blocks()],
                                                        [synapse.get_initial_values_blocks(), synapse.get_state_blocks()]):
-                    move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix="__from_synapse_" + synapse.get_name())
-
-
+                    move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix)
 
 
             #
             #   move defining equations for variables from synapse to neuron
             #
 
+            def get_eq_declarations_from_block(var_name, block):
+                decls = []
+                for decl in block.get_declarations():
+                    if isinstance(decl, ASTInlineExpression):
+                        var_names = [decl.get_variable_name()]
+                    elif isinstance(decl, ASTOdeEquation):
+                        var_names = [decl.get_lhs().get_name()]
+                    else:
+                        var_names = [var.get_name() for var in decl.get_variables()]
+                    for _var_name in var_names:
+                        if _var_name == var_name:
+                            decls.append(decl)
+                            break
+                return decls
+
+
+            def move_eq_syn_neuron(state_var, synapse_block, neuron_block, var_name_suffix):
+                if not neuron_block \
+                 or not synapse_block:
+                    return
+
+                decls = get_eq_declarations_from_block(state_var, synapse_block)
+                if decls:
+                    print("Moving state var equation for " + state_var + " from synapse to neuron")
+                    for decl in decls:
+                        synapse_block.declarations.remove(decl)
+                        add_suffix_to_variable_names(decl, suffix=var_name_suffix)
+                        neuron_block.get_declarations().append(decl)
+
             for state_var in neuron_state_vars:
                 print("Moving state var defining equation(s) " + str(state_var))
-
+                move_eq_syn_neuron(state_var, synapse.get_equations_block(), neuron.get_equations_block(), var_name_suffix)
 
             #
             #    move parameter definitions from synapse to neuron
             #
+
+
 
 
             #
