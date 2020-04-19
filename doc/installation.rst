@@ -51,7 +51,7 @@ After installation, correct operation can be tested by:
 Anaconda installation
 ---------------------
 
-In preparation I created a conda environment with NEST and installed some additional dependencies:
+In preparation, `create a conda environment with NEST <https://nest-simulator.readthedocs.io/en/stable/installation/index.html>`_, and install some additional dependencies:
 
 .. code:: bash
 
@@ -60,26 +60,26 @@ In preparation I created a conda environment with NEST and installed some additi
    conda install -c conda-forge nest-simulator ipython cxx-compiler pyqt wxpython
    pip install nestml
 
-Test the path to `c++`:
+Test the path to ``c++``:
 
 .. code:: bash
 
    which c++ 
    # '/home/graber/miniconda3/envs/wnestml/bin/c++'
 
-Edit `nest-config` and correct the entry under `--compiler` with the output returned by `which c++`:
+Edit ``nest-config`` and correct the entry under ``--compiler`` with the output returned by ``which c++``:
 
 .. code:: bash
 
    nano /home/graber/miniconda3/envs/wnestml/bin/nest-config
 
-Now set the correct paths and start `ipython`:
+Now set the correct paths and start ``ipython``:
 
 .. code:: bash
 
    PYTHONPATH=$PYTHONPATH:/home/graber/miniconda3/envs/wnestml/lib/python3.7/site-packages/ LD_LIBRARY_PATH=/tmp/nestml-component ipython
 
-The corresponding paths in `ipython` are:
+The corresponding paths in ``ipython`` are:
 
 .. code:: bash
 
