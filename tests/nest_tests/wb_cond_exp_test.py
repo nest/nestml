@@ -27,7 +27,8 @@ class NestWBCondExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models", "wb_cond_exp.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
+        # nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
+        nest_path = "/home/travis/nest_install"
         suffix = '_nestml'
 
         to_nest(input_path=input_path,
