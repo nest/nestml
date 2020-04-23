@@ -43,6 +43,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -51,6 +52,7 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes
 from pynestml.solver.transformer_base import add_assignment_to_update_block, add_declarations_to_internals
 from pynestml.solver.transformer_base import add_declaration_to_initial_values, declaration_in_initial_values
@@ -552,6 +554,9 @@ class NESTCodeGenerator(CodeGenerator):
                     decl.set_variable_name(decl.get_variable_name() + suffix)
                 elif isinstance(decl, ASTOdeEquation):
                     decl.get_lhs().set_name(decl.get_lhs().get_name() + suffix)
+                elif isinstance(decl, ASTStmt):
+                    # XXX: assume stmt is small_stmt and assignment
+                    decl.small_stmt.get_assignment().lhs.set_name(decl.small_stmt.get_assignment().lhs.get_name() + suffix)
                 else:
                     for var in decl.get_variables():
                         var.set_name(var.get_name() + suffix)
@@ -615,9 +620,91 @@ class NESTCodeGenerator(CodeGenerator):
                 move_eq_syn_neuron(state_var, synapse.get_equations_block(), neuron.get_equations_block(), var_name_suffix)
 
             #
+            #    move updates in update block from synapse to neuron
+            #
+
+            def get_statements_from_block(var_name, block):
+                """XXX: only simple statements such as assignments are supported for now. if..then..else compound statements and so are not yet supported."""
+                block = block.get_block()
+                all_stmts = block.get_stmts()
+                stmts = []
+                for node in all_stmts:
+                    if node.is_small_stmt() \
+                     and node.small_stmt.is_assignment() \
+                     and node.small_stmt.get_assignment().lhs.get_name() == var_name:
+                        stmts.append(node)
+                return stmts
+
+            def move_updates_syn_neuron(state_var, synapse_block, neuron_block, var_name_suffix):
+                if not neuron_block \
+                 or not synapse_block:
+                    return
+
+                stmts = get_statements_from_block(state_var, synapse_block)
+                if stmts:
+                    print("Moving state var updates for " + state_var + " from synapse to neuron")
+                    for stmt in stmts:
+                        synapse_block.get_block().stmts.remove(stmt)
+                        add_suffix_to_variable_names(stmt, suffix=var_name_suffix)
+                        neuron_block.get_block().stmts.append(stmt)
+
+            for state_var in neuron_state_vars:
+                print("Moving onPost updates for " + str(state_var))
+                move_updates_syn_neuron(state_var, synapse.get_post_receive(), neuron.get_update_blocks(), var_name_suffix)
+
+            #
             #    move parameter definitions from synapse to neuron
             #
 
+            # XXX: TODO
+
+
+            #
+            #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
+            #
+
+            # XXX: replace astnode by a referent-to-var-in-other; "external"?
+            # during code generation, gets turned into:
+            #   #define get_post_trace()    ( __target->get_K_value( __t_spike - __dendritic_delay ) )
+            # 
+
+
+            def replace_variable_name_in_expressions(var_name, synapse, suffix):
+                """replace all occurrences of variables (`ASTVariable`s) (e.g. `post_trace'`) with `ASTExternalVariable`s, indicating that they are moved to the postsynaptic partner.
+                """
+                def replace_var(_expr=None):
+                    if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                        var = _expr.get_variable()
+                    elif isinstance(_expr, ASTVariable):
+                        var = _expr
+                    else:
+                        return
+
+                    #print(var.get_name() + " --- " + var_name)
+                    if var.get_name() == var_name:
+                        import pdb;pdb.set_trace()
+                    if var.get_name() != var_name:
+                        return
+
+                    ast_ext_var = ASTExternalVariable(
+                     var.get_name() + suffix,
+                     differential_order=var.get_differential_order(),
+                     source_position=var.get_source_position())
+
+                    if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                        _expr.set_variable(ast_ext_var)
+                    #elif isinstance(_expr, ASTVariable):
+                    else:
+                        p = synapse.get_parent(var)
+                        print("Error: unhandeled use of variable " + var_name + " in expression " + str(p))
+
+                func = lambda x: replace_var(x)
+
+                synapse.accept(ASTHigherOrderVisitor(func))
+
+            for state_var in neuron_state_vars:
+                print("Replacing variable in expression(s): " + str(state_var))
+                replace_variable_name_in_expressions(state_var, synapse, var_name_suffix)
 
 
 
@@ -651,6 +738,7 @@ class NESTCodeGenerator(CodeGenerator):
             import pdb;pdb.set_trace()
 
         return neurons, synapses
+
 
     def generate_code(self, neurons, synapses):
         if self._options and "neuron_synapse_dyads" in self._options:
@@ -804,7 +892,6 @@ class NESTCodeGenerator(CodeGenerator):
                         #existing_symbol.set_variable_type(VariableType.SHAPE)
                         #print("6666 setting symbol to " + var.get_name())
 
-            #el
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if variable_in_solver(to_odetb_processed_name(var.get_complete_name()), solver_dicts):

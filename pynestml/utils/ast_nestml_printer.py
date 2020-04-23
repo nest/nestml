@@ -48,6 +48,8 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
+from pynestml.meta_model.ast_post_receive import ASTPostReceive
+from pynestml.meta_model.ast_pre_receive import ASTPreReceive
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
@@ -59,7 +61,6 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
-
 
 class ASTNestMLPrinter(object):
     """
@@ -150,6 +151,10 @@ class ASTNestMLPrinter(object):
             ret = self.print_unit_type(node)
         if isinstance(node, ASTUpdateBlock):
             ret = self.print_update_block(node)
+        if isinstance(node, ASTPreReceive):
+            ret = self.print_pre_receive_block(node)
+        if isinstance(node, ASTPostReceive):
+            ret = self.print_post_receive_block(node)
         if isinstance(node, ASTVariable):
             ret = self.print_variable(node)
         if isinstance(node, ASTWhileStmt):
@@ -637,6 +642,22 @@ class ASTNestMLPrinter(object):
                 return t_lhs + '/' + self.print_node(node.get_rhs())
         else:
             return node.unit
+
+    def print_pre_receive_block(self, node):
+        # type: (ASTPreReceiveBlock) -> str
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent) + 'preReceive:' + print_sl_comment(node.in_comment) + '\n'
+        ret += (self.print_node(node.get_block()) + print_n_spaces(self.indent) + 'end\n')
+        ret += print_ml_comments(node.post_comments, self.indent, True)
+        return ret
+
+    def print_post_receive_block(self, node):
+        # type: (ASTPostReceiveBlock) -> str
+        ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent) + 'postReceive:' + print_sl_comment(node.in_comment) + '\n'
+        ret += (self.print_node(node.get_block()) + print_n_spaces(self.indent) + 'end\n')
+        ret += print_ml_comments(node.post_comments, self.indent, True)
+        return ret
 
     def print_update_block(self, node):
         # type: (ASTUpdateBlock) -> str
