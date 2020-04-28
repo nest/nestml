@@ -44,6 +44,7 @@ from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -528,11 +529,42 @@ class NESTCodeGenerator(CodeGenerator):
 
 
             #
-            #   collect all the parameters used in defining expressions of `neuron_state_vars`
+            #   collect all the variable/parameter/shape/function/etc. names used in defining expressions of `neuron_state_vars`
             #
 
-            parameters_used = []
+            vars_used = []
 
+            def collect_variable_names_in_expression(expr):
+                """collect all occurrences of variables (`ASTVariable`), shapes (`ASTOdeShape`) XXX ...
+                """
+                vars_used_ = []
+
+                def collect_vars(_expr=None):
+                    var = None
+                    if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                        var = _expr.get_variable()
+                    elif isinstance(_expr, ASTVariable):
+                        var = _expr
+                    '''else:
+                        print("XXX: _expr = " + str(_expr))
+                        import pdb;pdb.set_trace()'''
+
+                    if var:
+                        print("\tcollected dependent variable: " +str(var))
+                        vars_used_.append(var)
+
+                func = lambda x: collect_vars(x)
+
+                expr.accept(ASTHigherOrderVisitor(func))
+
+                return vars_used_
+
+            """for state_var in neuron_state_vars:
+                print("Collecting dependent variables in definition of '" + str(state_var) + "'")
+                import pdb;pdb.set_trace()
+                shape = synapse.get_shape_by_name(state_var)
+                if shape:
+	                vars_used.extend(collect_variable_names_in_expressions(state_var, synapse, var_name_suffix))"""
 
             #
             #   move state variable definitions from synapse to neuron
@@ -572,6 +604,8 @@ class NESTCodeGenerator(CodeGenerator):
                 if decls:
                     print("Moving state var definition of " + state_var + " from synapse to neuron")
                     for decl in decls:
+                        if decl.has_expression():
+                            vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
                         synapse_block.declarations.remove(decl)
                         add_suffix_to_variable_names(decl, suffix=var_name_suffix)
                         neuron_block.get_declarations().append(decl)
@@ -611,6 +645,14 @@ class NESTCodeGenerator(CodeGenerator):
                 if decls:
                     print("Moving state var equation for " + state_var + " from synapse to neuron")
                     for decl in decls:
+                        if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
+                         or type(decl) is ASTInlineExpression:
+                            vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
+                        elif type(decl) is ASTOdeEquation:
+                            vars_used.extend(collect_variable_names_in_expression(decl.get_rhs()))
+                        else:
+                            import pdb;pdb.set_trace()
+
                         synapse_block.declarations.remove(decl)
                         add_suffix_to_variable_names(decl, suffix=var_name_suffix)
                         neuron_block.get_declarations().append(decl)
@@ -644,6 +686,7 @@ class NESTCodeGenerator(CodeGenerator):
                 if stmts:
                     print("Moving state var updates for " + state_var + " from synapse to neuron")
                     for stmt in stmts:
+                        vars_used.extend(collect_variable_names_in_expression(stmt))
                         synapse_block.get_block().stmts.remove(stmt)
                         add_suffix_to_variable_names(stmt, suffix=var_name_suffix)
                         neuron_block.get_block().stmts.append(stmt)
@@ -653,8 +696,14 @@ class NESTCodeGenerator(CodeGenerator):
                 move_updates_syn_neuron(state_var, synapse.get_post_receive(), neuron.get_update_blocks(), var_name_suffix)
 
             #
-            #    move parameter definitions from synapse to neuron
+            #    move variable definitions from synapse to neuron
             #
+
+            vars_used = list(set(vars_used))	# pick unique elements
+            print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
+            vars_used = [s for s in vars_used if not var_name_suffix in s.get_name()]
+            print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
+            import pdb;pdb.set_trace()
 
             # XXX: TODO
 
@@ -680,9 +729,6 @@ class NESTCodeGenerator(CodeGenerator):
                     else:
                         return
 
-                    #print(var.get_name() + " --- " + var_name)
-                    if var.get_name() == var_name:
-                        import pdb;pdb.set_trace()
                     if var.get_name() != var_name:
                         return
 
