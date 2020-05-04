@@ -5,7 +5,7 @@ traub_psc_alpha_test.py
 import os
 import nest
 import unittest
-import numpy as np 
+import numpy as np
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 try:
@@ -18,7 +18,7 @@ except:
 
 
 class NestWBCondExpTest(unittest.TestCase):
-    
+
     def test_traub_psc_alpha(self):
 
         if not os.path.exists("target"):
@@ -28,7 +28,6 @@ class NestWBCondExpTest(unittest.TestCase):
         os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        # nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
         nest_path = "/home/travis/nest_install"
         suffix = '_nestml'
 
@@ -39,7 +38,7 @@ class NestWBCondExpTest(unittest.TestCase):
                 module_name=module_name)
 
         install_nest(target_path, nest_path)
-        
+
         nest.Install("nestmlmodule")
         model = "traub_psc_alpha_nestml"
 
@@ -50,22 +49,15 @@ class NestWBCondExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-        # if 0:
-        #     for i in parameters:
-        #         print(i, parameters[i])
-
-        nest.SetStatus(neuron, {'I_e': 130.0})
+        neuron.set({'I_e': 130.0})
         multimeter = nest.Create("multimeter")
-        nest.SetStatus(multimeter, {"withtime": True,
-                                    "record_from": ["V_m"],
-                                    "interval": dt})
-        spikedetector = nest.Create("spike_detector",
-                                    params={"withgid": True,
-                                            "withtime": True})
+        multimeter.set({"record_from": ["V_m"],
+                        "interval": dt})
+        spikedetector = nest.Create("spike_detector")
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spikedetector)
         nest.Simulate(t_simulation)
-        
+
         dmm = nest.GetStatus(multimeter)[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
@@ -76,7 +68,7 @@ class NestWBCondExpTest(unittest.TestCase):
         firing_rate = len(spikes) / t_simulation * 1000
         print("firing rate is ", firing_rate)
         expected_value = np.abs(firing_rate - 50)
-        tolerance_value = 5  # Hz 
+        tolerance_value = 5  # Hz
 
         self.assertLessEqual(expected_value, tolerance_value)
 
