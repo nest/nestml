@@ -67,8 +67,8 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 4})  # GABAB
 
-        nest.Connect([multimeter[0]], neuron1, "one_to_one")
-        nest.Connect([multimeter[1]], neuron2)
+        nest.Connect(multimeter[0], neuron1, "one_to_one")
+        nest.Connect(multimeter[1], neuron2)
 
         spikedetector = nest.Create("spike_detector")
         nest.Connect(neuron1, spikedetector)
