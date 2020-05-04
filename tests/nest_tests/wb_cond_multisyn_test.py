@@ -27,7 +27,6 @@ class NestWBCondExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models", "wb_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        # nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
         nest_path = "/home/travis/nest_install"
         suffix = '_nestml'
 
@@ -49,18 +48,11 @@ class NestWBCondExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-        # if 0:
-        #     for i in parameters:
-        #         print(i, parameters[i])
-
-        nest.SetStatus(neuron, {'I_e': 75.0})
+        neuron.set({'I_e': 75.0})
         multimeter = nest.Create("multimeter")
-        nest.SetStatus(multimeter, {"withtime": True,
-                                    "record_from": ["V_m"],
-                                    "interval": dt})
-        spikedetector = nest.Create("spike_detector",
-                                    params={"withgid": True,
-                                            "withtime": True})
+        multimeter.set({"record_from": ["V_m"],
+                        "interval": dt})
+        spikedetector = nest.Create("spike_detector")
         nest.Connect(multimeter, neuron)
         nest.Connect(neuron, spikedetector)
         nest.Simulate(t_simulation)
