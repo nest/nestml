@@ -75,7 +75,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         nest.Connect(multi, neuron)
         nest.Simulate(500000)
 
-        return nest.GetStatus(multi)[0]['events'], neuron
+        return multi.get("events"), neuron
 
 
     def calc_statistics(self, state, neuron):
@@ -87,7 +87,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         Parameters
         ----------
         state : dict
-            The state of the multimeter which you get by calling nest.GetStatus(multimeter)[0]['events']
+            The state of the multimeter which you get by calling multimeter.get('events')
         neuron : tuple
             Tuple with the NEST id of the neuron with the OU noise conductances
         '''
@@ -99,15 +99,15 @@ class TestOUConductanceNoise(unittest.TestCase):
         times = state['times']
 
         # excitatory noise
-        sigma_ex = nest.GetStatus(neuron, 'sigma_noise_ex')[0]
-        mean_ex = nest.GetStatus(neuron, 'g_noise_ex0')[0]
-        tau_ex = nest.GetStatus(neuron, 'tau_syn_ex')[0]
+        sigma_ex = neuron.get('sigma_noise_ex')
+        mean_ex = neuron.get('g_noise_ex0')
+        tau_ex = neuron.get('tau_syn_ex')
         var_ex = sigma_ex**2 / (2 / tau_ex)
 
         # inhibitory noise
-        sigma_in = nest.GetStatus(neuron, 'sigma_noise_in')[0]
-        mean_in = nest.GetStatus(neuron, 'g_noise_in0')[0]
-        tau_in = nest.GetStatus(neuron, 'tau_syn_in')[0]
+        sigma_in = neuron.get('sigma_noise_in')
+        mean_in = neuron.get('g_noise_in0')
+        tau_in = neuron.get('tau_syn_in')
         var_in = sigma_in**2 / (2 / tau_in)
 
         # variances
@@ -146,7 +146,7 @@ class TestOUConductanceNoise(unittest.TestCase):
         Parameters
         ----------
         state : dict
-            The state of the multimeter which you get by calling nest.GetStatus(multimeter)[0]['events']
+            The state of the multimeter which you get by calling multimeter.get("events")
         '''
         times = state['times']
         fig, ax = plt.subplots(2, 2, constrained_layout=True, figsize=(15, 10))

@@ -309,7 +309,7 @@ class NestIntegrationTest(unittest.TestCase):
         neuron2 = nest.Create(testant, params=custom_model_opts)
 
         if not (gsl_error_tol is None):
-            nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
+            neuron2.set({"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',
                                      params={'spike_times': spike_times, 'spike_weights': spike_weights})
@@ -321,20 +321,18 @@ class NestIntegrationTest(unittest.TestCase):
         multimeter2 = nest.Create('multimeter')
 
         V_m_specifier = 'V_m'  # 'delta_V_m'
-        nest.SetStatus(multimeter1, {"record_from": [V_m_specifier]})
-        nest.SetStatus(multimeter2, {"record_from": [V_m_specifier]})
+        multimeter1.set({"record_from": [V_m_specifier]})
+        multimeter2.set({"record_from": [V_m_specifier]})
 
         nest.Connect(multimeter1, neuron1)
         nest.Connect(multimeter2, neuron2)
 
         nest.Simulate(400.0)
-        dmm1 = nest.GetStatus(multimeter1)[0]
-        Vms1 = dmm1["events"][V_m_specifier]
-        ts1 = dmm1["events"]["times"]
+        Vms1 = multimeter1.get("events")[V_m_specifier]
+        ts1 = multimeter1.get("events")["times"]
 
-        dmm2 = nest.GetStatus(multimeter2)[0]
-        Vms2 = dmm2["events"][V_m_specifier]
-        ts2 = dmm2["events"]["times"]
+        Vms2 = multimeter2.get("events")[V_m_specifier]
+        ts2 = multimeter2.get("events")["times"]
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)

@@ -155,8 +155,7 @@ namespace nest
 {
   recordablesMap_.create();
   {%- if useGSL %}
-  // use a default `good` enough value for the absolute error.
-  // it can be adjusted via `SetStatus`
+  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
   {%- endif %}
 
