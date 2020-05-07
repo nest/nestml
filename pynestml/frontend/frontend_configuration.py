@@ -83,7 +83,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
         cls.argument_parser.add_argument(qualifier_target_arg, choices=['NEST', 'none'], type=str, help=help_target, default='NEST')
-        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{INFO, WARNING, ERROR, NONE}', choices=['INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
+        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=['DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
