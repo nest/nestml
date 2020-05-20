@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
@@ -57,17 +58,48 @@ class ASTFunction(ASTNode):
         :param name: the name of the defined function.
         :type name: str
         :param parameters: (Optional) Set of parameters.
-        :type parameters: list(ASTParameter)
+        :type parameters: List[ASTParameter]
         :param return_type: (Optional) Return type.
-        :type return_type: ast_data_type
+        :type return_type: ASTDataType
         :param block: a block of declarations.
-        :type block: ast_block
+        :type block: ASTBlock
         """
         super(ASTFunction, self).__init__(*args, **kwargs)
         self.block = block
         self.return_type = return_type
         self.parameters = parameters
         self.name = name
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTFunction
+        """
+        block_dup = None
+        if self.block:
+            block_dup = self.block.clone()
+        return_type_dup = None
+        if self.return_type:
+            return_type_dup = self.return_type.clone()
+        parameters_dup = None
+        if self.parameters:
+            parameters_dup = [parameter.clone() for parameter in self.parameters]
+        dup = ASTFunction(name=self.name,
+         parameters=parameters_dup,
+         return_type=return_type_dup,
+         block=block_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """

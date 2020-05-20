@@ -21,7 +21,7 @@
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_signal_type import ASTSignalType
+from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTInputPort(ASTNode):
@@ -68,7 +68,7 @@ class ASTInputPort(ASTNode):
         super(ASTInputPort, self).__init__(*args, **kwargs)
         assert name is not None and isinstance(name, str), \
             '(PyNestML.ASTInputPort) No or wrong type of name provided (%s)!' % type(name)
-        assert signal_type is not None and isinstance(signal_type, ASTSignalType), \
+        assert signal_type is not None and isinstance(signal_type, PortSignalType), \
             '(PyNestML.ASTInputPort) No or wrong type of input signal type provided (%s)!' % type(signal_type)
         if input_qualifiers is None:
             input_qualifiers = []
@@ -86,6 +86,32 @@ class ASTInputPort(ASTNode):
         self.size_parameter = size_parameter
         self.name = name
         self.data_type = data_type
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTInputPort
+        """
+        data_type_dup = None
+        if self.data_type:
+            data_type_dup = self.data_type.clone()
+        dup = ASTAssignment(name=self.name,
+         size_parameter=self.size_parameter,
+         data_type=data_type_dup,
+         input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
+         signal_type=self.signal_type.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """
@@ -131,17 +157,17 @@ class ASTInputPort(ASTNode):
         """
         Returns whether this is a spike buffer or not.
         :return: True if spike buffer, False else.
-        :rtype: bool 
+        :rtype: bool
         """
-        return self.signal_type is ASTSignalType.SPIKE
+        return self.signal_type is PortSignalType.SPIKE
 
     def is_current(self):
         """
         Returns whether this is a current buffer or not.
         :return: True if current buffer, False else.
-        :rtype: bool 
+        :rtype: bool
         """
-        return self.signal_type is ASTSignalType.CURRENT
+        return self.signal_type is PortSignalType.CURRENT
 
     def is_excitatory(self):
         """

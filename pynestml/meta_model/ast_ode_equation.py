@@ -48,8 +48,30 @@ class ASTOdeEquation(ASTNode):
         :type rhs: Union[ASTExpression, ASTSimpleExpression]
         """
         super(ASTOdeEquation, self).__init__(*args, **kwargs)
+        assert instanceof(lhs, ASTVariable)
+        assert instanceof(rhs, ASTExpression) or instanceof(rhs, ASTSimpleExpression)
         self.lhs = lhs
         self.rhs = rhs
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTOdeEquation
+        """
+        dup = ASTOdeEquation(lhs=self.lhs.clone(),
+         rhs=self.rhs.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_lhs(self):
         """

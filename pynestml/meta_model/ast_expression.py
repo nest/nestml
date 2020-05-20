@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
@@ -70,7 +71,7 @@ class ASTExpression(ASTExpressionNode):
         :param is_encapsulated: is encapsulated in brackets.
         :type is_encapsulated: bool
         :param unary_operator: combined by unary operator, e.g., ~.
-        :type unary_operator: ast_unary_operator
+        :type unary_operator: ASTUnaryOperator
         :param is_logical_not: is a negated rhs.
         :type is_logical_not: bool
         :param expression: the rhs either encapsulated in brackets or negated or with a with a unary op, or a simple rhs.
@@ -106,6 +107,55 @@ class ASTExpression(ASTExpressionNode):
         self.condition = condition
         self.if_true = if_true
         self.if_not = if_not
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTExpression
+        """
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        lhs_dup = None
+        if self.lhs:
+            lhs_dup = self.lhs.clone()
+        binary_operator_dup = None
+        if self.binary_operator:
+            binary_operator_dup = self.binary_operator.clone()
+        rhs_dup = None
+        if self.rhs:
+            rhs_dup = self.rhs.clone()
+        condition_dup = None
+        if self.condition:
+            condition_dup = self.condition.clone()
+        if_true_dup = None
+        if self.if_true:
+            if_true_dup = self.if_true.clone()
+        if_not_dup = None
+        if self.if_not:
+            if_not_dup = self.if_not.clone()
+        dup = ASTExpression(is_encapsulated=self.is_encapsulated,
+         unary_operator=unary_operator_dup,
+         is_logical_not=self.is_logical_not,
+         expression=expression_dup,
+         lhs=lhs_dup,
+         binary_operator=binary_operator_dup,
+         rhs=rhs_dup,
+         condition=condition_dup,
+         if_true=if_true_dup,
+         if_not=if_not_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_expression(self):
         """

@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -33,34 +32,57 @@ class ASTNestMLCompilationUnit(ASTNode):
         artifact_name = None
     """
 
-    def __init__(self, artifact_name=None, *args, **kwargs):
+    def __init__(self, neuron_list=None, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
+        :param neuron_list: list of contained neurons
+        :type neuron_list: List[ASTNeuron]
         :param artifact_name: the name of the file where ths model is contained in
         :type artifact_name: str
         """
         super(ASTNestMLCompilationUnit, self).__init__(*args, **kwargs)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
-                artifact_name)
-        self.neuron_list = list()
+            '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+        self.neuron_list = []
+        if not neuron_list is None:
+            assert type(neuron_list) is list
+            self.neuron_list.extend(neuron_list)
         self.artifact_name = artifact_name
+
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTNestMLCompilationUnit
+        """
+        neuron_list_dup = [neuron.clone() for neuron in self.neuron_list]
+        dup = ASTNestMLCompilationUnit(artifact_name=self.artifact_name,
+         neuron_list=neuron_list_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def add_neuron(self, neuron):
         """
         Expects an instance of neuron element which is added to the collection.
-        :param neuron: an instance of a neuron 
+        :param neuron: an instance of a neuron
         :type neuron: ASTNeuron
-        :return: no returned value
-        :rtype: void
         """
         assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
             '(PyNestML.AST.CompilationUnit) No or wrong type of neuron provided (%s)!' % type(neuron)
         self.neuron_list.append(neuron)
-        return
 
     def delete_neuron(self, neuron):
         """

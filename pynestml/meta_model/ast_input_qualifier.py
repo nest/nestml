@@ -52,6 +52,31 @@ class ASTInputQualifier(ASTNode):
         self.is_excitatory = is_excitatory
         self.is_inhibitory = is_inhibitory
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTInputQualifier
+        """
+        dup = ASTAssignment(lhs=lhs_dup,
+         rhs=rhs_dup,
+         is_direct_assignment=self.is_direct_assignment,
+         is_compound_sum = self.is_compound_sum,
+         is_compound_minus = self.is_compound_minus,
+         is_compound_product = self.is_compound_product,
+         is_compound_quotient = self.is_compound_quotient,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.

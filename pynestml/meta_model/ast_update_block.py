@@ -53,7 +53,27 @@ class ASTUpdateBlock(ASTNode):
         :type block: ASTBlock
         """
         super(ASTUpdateBlock, self).__init__(*args, **kwargs)
+        assert instanceof(block, ASTBlock)
         self.block = block
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTUpdateBlock
+        """
+        dup = ASTUpdateBlock(block=self.block.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_block(self):
         """

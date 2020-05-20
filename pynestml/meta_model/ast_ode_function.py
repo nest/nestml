@@ -55,6 +55,34 @@ class ASTOdeFunction(ASTNode):
         self.data_type = data_type
         self.expression = expression
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTOdeFunction
+        """
+        data_type_dup = None
+        if self.data_type:
+            data_type_dup = self.data_type.clone()
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        dup = ASTOdeFunction(is_recordable=self.is_recordable,
+         variable_name=self.variable_name,
+         data_type=data_type_dup,
+         expression=expression_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def get_variable_name(self):
         """
         Returns the variable name.

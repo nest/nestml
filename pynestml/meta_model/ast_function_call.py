@@ -33,7 +33,7 @@ class ASTFunctionCall(ASTNode):
         args = None
     """
 
-    def __init__(self, callee_name, args, *args, **kwargs):
+    def __init__(self, callee_name, function_call_args, *args, **kwargs):
         """
         Standard constructor.
 
@@ -41,12 +41,36 @@ class ASTFunctionCall(ASTNode):
 
         :param callee_name: the name of the function which is called.
         :type callee_name: str
-        :param args: (Optional) List of arguments
-        :type args: list(ASTExpression)
+        :param function_call_args: (Optional) List of arguments
+        :type function_call_args: List[ASTExpression]
         """
         super(ASTFunctionCall, self).__init__(*args, **kwargs)
+        assert type(callee_name) is str
         self.callee_name = callee_name
-        self.args = args
+        self.args = function_call_args
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTFunctionCall
+        """
+        function_call_args_dup = None
+        if self.args:
+             function_call_args_dup = [function_call_arg.clone() for function_call_arg in self.args]
+        dup = ASTAssignment(callee_name=self.callee_name,
+         function_call_args=function_call_args_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """

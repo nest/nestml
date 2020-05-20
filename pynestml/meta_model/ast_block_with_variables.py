@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -49,7 +48,7 @@ class ASTBlockWithVariables(ASTNode):
     """
 
     def __init__(self, is_state=False, is_parameters=False, is_internals=False, is_initial_values=False,
-                 declarations=None):
+                 declarations=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -66,13 +65,13 @@ class ASTBlockWithVariables(ASTNode):
         :param declarations: a list of declarations.
         :type declarations: List[ASTDeclaration]
         """
+        super(ASTBlockWithVariables, self).__init__(*args, **kwargs)
         assert (is_internals or is_parameters or is_state or is_initial_values), \
             '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
         assert ((is_internals + is_parameters + is_state + is_initial_values) == 1), \
             '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
         assert (declarations is None or isinstance(declarations, list)), \
             '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(declarations)
-        super(ASTBlockWithVariables, self).__init__(*args, **kwargs)
         self.declarations = declarations
         self.is_internals = is_internals
         self.is_parameters = is_parameters

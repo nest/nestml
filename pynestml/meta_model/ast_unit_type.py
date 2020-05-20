@@ -79,6 +79,8 @@ class ASTUnitType(ASTNode):
         :type _unit: string
         """
         super(ASTUnitType, self).__init__(*args, **kwargs)
+        if _unit:
+            assert type(_unit) is str
         self.is_encapsulated = is_encapsulated
         self.compound_unit = compound_unit
         self.base = base
@@ -90,6 +92,46 @@ class ASTUnitType(ASTNode):
         self.rhs = rhs
         self.unit = _unit
         self.type_symbol = None
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTAssignment
+        """
+        lhs_dup = None
+        if self.lhs:
+            lhs_dup = self.lhs.clone()
+        rhs_dup = None
+        if self.rhs:
+            rhs_dup = self.rhs.clone()
+        base_dup = None
+        if self.base:
+            base_dup = self.base.clone()
+        compound_unit_dup = None
+        if self.compound_unit:
+            compound_unit_dup = self.compound_unit.clone()
+        dup = ASTUnitType(is_encapsulated=self.is_encapsulated,
+         compound_unit=compound_unit_dup,
+         base=base_dup,
+         is_pow=self.is_pow,
+         exponent=self.exponent,
+         lhs=lhs_dup,
+         rhs=rhs_dup,
+         is_div=self.is_div,
+         is_times=self.is_times,
+         _unit=self.unit,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_simple_unit(self):
         """

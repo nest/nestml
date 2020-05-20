@@ -48,7 +48,7 @@ class ASTInputBlock(ASTNode):
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param input_definitions:
-        :type input_definitions: list(ASTInputPort)
+        :type input_definitions: List[ASTInputPort]
         """
         super(ASTInputBlock, self).__init__(*args, **kwargs)
         if input_definitions is None:
@@ -59,6 +59,26 @@ class ASTInputBlock(ASTNode):
             assert (definition is not None and isinstance(definition, ASTInputPort)), \
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
         self.input_definitions = input_definitions
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTInputBlock
+        """
+        input_definitions_dup = [input_definition.clone() for input_definition in input_definitions]
+        dup = ASTAssignment(input_definitions=input_definitions_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_input_ports(self):
         """

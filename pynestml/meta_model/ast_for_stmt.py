@@ -59,6 +59,44 @@ class ASTForStmt(ASTNode):
         self.start_from = start_from
         self.variable = variable
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTForStmt
+        """
+        variable_dup = None
+        if self.variable:
+            variable_dup = self.variable.clone()
+        start_from_dup = None
+        if self.start_from:
+            start_from_dup = self.start_from.clone()
+        end_at_dup = None
+        if self.end_at:
+            end_at_dup = self.end_at.clone()
+        step_dup = None
+        if self.step:
+            step_dup = self.step.clone()
+        block_dup = None
+        if self.block:
+            block_dup = self.block.clone()
+        dup = ASTForStmt(variable=variable_dup,
+         start_from=start_from_dup,
+         end_at=end_at_dup,
+         step=step_dup,
+         block=block_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def get_variable(self):
         """
         Returns the name of the step variable.

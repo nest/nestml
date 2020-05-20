@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -44,6 +45,32 @@ class ASTElifClause(ASTNode):
         super(ASTElifClause, self).__init__(*args, **kwargs)
         self.block = block
         self.condition = condition
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTElifClause
+        """
+        block_dup = None
+        if self.block:
+            block_dup = self.block.clone()
+        condition_dup = None
+        if self.condition:
+            condition_dup = self.condition.clone()
+        dup = ASTAssignment(block=block_dup,
+         condition=condition_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_condition(self):
         """

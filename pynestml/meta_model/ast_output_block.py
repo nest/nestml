@@ -17,8 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_signal_type import ASTSignalType
+from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
@@ -42,10 +43,30 @@ class ASTOutputBlock(ASTNode):
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param o_type: the type of the output buffer.
-        :type o_type: ASTSignalType
+        :type o_type: PortSignalType
         """
+        assert instanceof(o_type, PortSignalType)
         super(ASTOutputBlock, self).__init__(*args, **kwargs)
         self.type = o_type
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTOutputBlock
+        """
+        dup = ASTAssignment(o_type=self.type.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_spike(self):
         """
@@ -53,7 +74,7 @@ class ASTOutputBlock(ASTNode):
         :return: True if spike, otherwise False.
         :rtype: bool
         """
-        return self.type is ASTSignalType.SPIKE
+        return self.type is PortSignalType.SPIKE
 
     def is_current(self):
         """
@@ -61,7 +82,7 @@ class ASTOutputBlock(ASTNode):
         :return: True if current, otherwise False.
         :rtype: bool
         """
-        return self.type is ASTSignalType.CURRENT
+        return self.type is PortSignalType.CURRENT
 
     def get_parent(self, ast):
         """

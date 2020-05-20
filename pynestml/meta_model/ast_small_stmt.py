@@ -58,6 +58,40 @@ class ASTSmallStmt(ASTNode):
         self.declaration = declaration
         self.return_stmt = return_stmt
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTSmallStmt
+        """
+        assignment_dup = None
+        if self.assignment:
+            assignment_dup = self.assignment.clone()
+        function_call_dup = None
+        if self.function_call:
+            function_call_dup = self.function_call.clone()
+        declaration_dup = None
+        if self.declaration:
+            declaration_dup = self.declaration.clone()
+        return_stmt_dup = None
+        if self.return_stmt:
+            return_stmt_dup = self.return_stmt.clone()
+        dup = ASTSmallStmt(assignment=assignment_dup,
+         function_call=function_call_dup,
+         declaration=declaration_dup,
+         return_stmt=return_stmt_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def is_assignment(self):
         """
         Returns whether it is an assignment statement or not.

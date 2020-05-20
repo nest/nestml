@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_body import ASTBody
@@ -59,14 +58,35 @@ class ASTNeuron(ASTNode):
         """
         super(ASTNeuron, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
-            '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(name)
+            '(PyNestML.ASTNeuron) No  or wrong type of neuron name provided (%s)!' % type(name)
         assert isinstance(body, ASTBody), \
-            '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
+            '(PyNestML.ASTNeuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        self.name = name + FrontendConfiguration.suffix
+            '(PyNestML.ASTNeuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+        self.name = name
         self.body = body
         self.artifact_name = artifact_name
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTNeuron
+        """
+        dup = ASTNeuron(name=self.name,
+         body=self.body.clone(),
+         artifact_name=self.artifact_name,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """

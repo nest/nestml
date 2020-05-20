@@ -91,6 +91,39 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.variable = variable
         self.string = string
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTSimpleExpression
+        """
+        function_call_dup = None
+        if self.function_call:
+            function_call_dup = self.function_call.clone()
+        variable_dup = None
+        if self.variable:
+            variable_dup = self.variable.clone()
+        numeric_literal_dup = None
+        if self.numeric_literal:
+            numeric_literal_dup = self.numeric_literal.clone()
+        dup = ASTSimpleExpression(function_call=function_call_dup,
+         boolean_literal=self.boolean_literal,
+         numeric_literal=numeric_literal_dup,
+         is_inf=self.is_inf,
+         variable=variable_dup,
+         string=self.string,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def is_function_call(self):
         """
         Returns whether it is a function call or not.

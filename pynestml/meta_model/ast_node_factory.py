@@ -50,7 +50,6 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
-from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -60,6 +59,7 @@ from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTNodeFactory(object):
@@ -235,7 +235,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_input_port(cls, name, size_parameter, data_type, input_qualifiers, signal_type, source_position):
-        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),ASTSignalType,ASTSourceLocation) -> ASTInputPort
+        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),PortSignalType,ASTSourceLocation) -> ASTInputPort
         return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type, input_qualifiers=input_qualifiers,
                             signal_type=signal_type, source_position=source_position)
 
@@ -252,10 +252,7 @@ class ASTNodeFactory(object):
     @classmethod
     def create_ast_nestml_compilation_unit(cls, list_of_neurons, source_position, artifact_name):
         # type: (list(ASTNeuron),ASTSourceLocation,str) -> ASTNestMLCompilationUnit
-        instance = ASTNestMLCompilationUnit(artifact_name, source_position=source_position)
-        for i in list_of_neurons:
-            instance.add_neuron(i)
-        return instance
+        return ASTNestMLCompilationUnit(artifact_name=artifact_name, neuron_list=list_of_neurons, source_position=source_position)
 
     @classmethod
     def create_ast_neuron(cls, name, body, source_position, artifact_name):
@@ -280,7 +277,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_output_block(cls, s_type, source_position):
-        # type: (ASTSignalType,ASTSourceLocation) -> ASTOutputBlock
+        # type: (PortSignalType,ASTSourceLocation) -> ASTOutputBlock
         return ASTOutputBlock(s_type, source_position=source_position)
 
     @classmethod

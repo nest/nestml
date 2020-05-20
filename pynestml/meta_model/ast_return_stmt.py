@@ -47,6 +47,28 @@ class ASTReturnStmt(ASTNode):
         super(ASTReturnStmt, self).__init__(*args, **kwargs)
         self.expression = expression
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTReturnStmt
+        """
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        dup = ASTReturnStmt(expression=expression_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def has_expression(self):
         """
         Returns whether the return statement has an rhs or not.
