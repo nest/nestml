@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTBitOperator(ASTNode):

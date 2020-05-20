@@ -25,7 +25,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_signal_type import ASTSignalType
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor

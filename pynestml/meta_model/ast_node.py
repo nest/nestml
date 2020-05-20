@@ -20,7 +20,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTNode(metaclass=ABCMeta):

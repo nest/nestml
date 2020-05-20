@@ -20,7 +20,7 @@
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 

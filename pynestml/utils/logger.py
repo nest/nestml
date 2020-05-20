@@ -97,7 +97,7 @@ class Logger(object):
         if cls.curr_message is None:
             cls.init_logger(LoggingLevel.INFO)
         from pynestml.meta_model.ast_neuron import ASTNeuron
-        from pynestml.meta_model.ast_source_location import ASTSourceLocation
+        from pynestml.utils.ast_source_location import ASTSourceLocation
         assert (neuron is None or isinstance(neuron, ASTNeuron)), \
             '(PyNestML.Logger) Wrong type of neuron provided (%s)!' % type(neuron)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \
