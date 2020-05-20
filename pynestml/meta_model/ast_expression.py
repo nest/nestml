@@ -61,17 +61,19 @@ class ASTExpression(ASTExpressionNode):
 
     def __init__(self, is_encapsulated=False, unary_operator=None, is_logical_not=False,
                  expression=None, lhs=None, binary_operator=None, rhs=None, condition=None, if_true=None,
-                 if_not=None, source_position=None):
+                 if_not=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_encapsulated: is encapsulated in brackets.
         :type is_encapsulated: bool
         :param unary_operator: combined by unary operator, e.g., ~.
         :type unary_operator: ast_unary_operator
         :param is_logical_not: is a negated rhs.
         :type is_logical_not: bool
-        :param expression: the rhs either encapsulated in brackets or negated or with a with a unary op, or
-        a simple rhs.
+        :param expression: the rhs either encapsulated in brackets or negated or with a with a unary op, or a simple rhs.
         :type expression: ASTExpression
         :param lhs: the left-hand side rhs.
         :type lhs: ASTExpression
@@ -85,15 +87,13 @@ class ASTExpression(ASTExpressionNode):
         :type if_true: ASTExpression
         :param if_not: if condition does not hold, this rhs is executed.
         :type if_not: ASTExpression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
+        super(ASTExpression, self).__init__(*args, **kwargs)
         assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator) or
                                               (isinstance(binary_operator, ASTBitOperator)) or
                                               (isinstance(binary_operator, ASTLogicalOperator)) or
                                               (isinstance(binary_operator, ASTComparisonOperator)))), \
             '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(binary_operator)
-        super(ASTExpression, self).__init__(source_position)
         self.is_encapsulated = is_encapsulated
         self.is_logical_not = is_logical_not
         self.unary_operator = unary_operator

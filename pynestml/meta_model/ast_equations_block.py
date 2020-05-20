@@ -42,22 +42,23 @@ class ASTEquationsBlock(ASTNode):
         declarations = None
     """
 
-    def __init__(self, declarations, source_position):
+    def __init__(self, declarations, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param declarations: a block of definitions.
         :type declarations: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
         assert (declarations is not None and isinstance(declarations, list)), \
-            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
+            '(PyNestML.ASTEquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
         for decl in declarations:
             assert (decl is not None and (isinstance(decl, ASTOdeShape) or
                                           isinstance(decl, ASTOdeEquation) or
                                           isinstance(decl, ASTOdeFunction))), \
-                '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
-        super(ASTEquationsBlock, self).__init__(source_position)
+                '(PyNestML.ASTEquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
+        super(ASTEquationsBlock, self).__init__(*args, **kwargs)
         self.declarations = declarations
 
     def get_declarations(self):

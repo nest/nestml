@@ -17,7 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from copy import copy
+
+from copy import copy, deepcopy
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.either import Either
@@ -26,7 +27,7 @@ from pynestml.utils.either import Either
 class ASTVariable(ASTNode):
     """
     This class is used to store a single variable.
-    
+
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     Grammar:
         variable : NAME (differentialOrder='\'')*;
@@ -37,26 +38,40 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, source_position=None):
+    def __init__(self, name, differential_order=0, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the variable
         :type name: str
         :param differential_order: the differential order of the variable.
         :type differential_order: int
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
+        super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
             '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(differential_order)
         assert (differential_order >= 0), \
             '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % differential_order
         assert isinstance(name, str), \
             '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(name)
-        super(ASTVariable, self).__init__(source_position=source_position)
         self.name = name
         self.differential_order = differential_order
-        self.type_symbol = None
+        self.type_symbol = type_symbol
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+        """
+        return ASTVariable(name=self.name,
+         differential_order=self.differential_order,
+         type_symbol=copy(self.type_symbol),
+         # ASTNode common attriutes:
+         source_position=self.get_source_position(),
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
 
     def resolve_in_own_scope(self):
         from pynestml.symbols.symbol import SymbolKind

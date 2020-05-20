@@ -30,17 +30,18 @@ class ASTElifClause(ASTNode):
         block = None
     """
 
-    def __init__(self, condition, block, source_position):
+    def __init__(self, condition, block, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param condition: the condition of the block.
         :type condition: ast_expression
         :param block: a block of statements.
         :type block: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
-        super(ASTElifClause, self).__init__(source_position)
+        super(ASTElifClause, self).__init__(*args, **kwargs)
         self.block = block
         self.condition = condition
 

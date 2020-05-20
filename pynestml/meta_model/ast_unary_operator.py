@@ -32,25 +32,25 @@ class ASTUnaryOperator(ASTNode):
         is_unary_tilde = False
     """
 
-    def __init__(self, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False, source_position=None):
+    def __init__(self, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_unary_plus: is a unary plus.
         :type is_unary_plus: bool
         :param is_unary_minus: is a unary minus.
         :type is_unary_minus: bool
         :param is_unary_tilde: is a unary tilde.
         :type is_unary_tilde: bool
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
         assert ((is_unary_tilde + is_unary_minus + is_unary_plus) == 1), \
             '(PyNestML.AST.UnaryOperator) Type of unary operator not correctly specified!'
-        super(ASTUnaryOperator, self).__init__(source_position)
+        super(ASTUnaryOperator, self).__init__(*args, **kwargs)
         self.is_unary_plus = is_unary_plus
         self.is_unary_minus = is_unary_minus
         self.is_unary_tilde = is_unary_tilde
-        return
 
     def get_parent(self, ast):
         """

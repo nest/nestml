@@ -49,21 +49,22 @@ class ASTBlockWithVariables(ASTNode):
     """
 
     def __init__(self, is_state=False, is_parameters=False, is_internals=False, is_initial_values=False,
-                 declarations=list(), source_position=None):
+                 declarations=None):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_state: is a state block.
         :type is_state: bool
         :param is_parameters: is a parameter block.
-        :type is_parameters: bool 
+        :type is_parameters: bool
         :param is_internals: is an internals block.
         :type is_internals: bool
         :param is_initial_values: is an initial values block.
         :type is_initial_values: bool
         :param declarations: a list of declarations.
-        :type declarations: list(ASTDeclaration)
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type declarations: List[ASTDeclaration]
         """
         assert (is_internals or is_parameters or is_state or is_initial_values), \
             '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
@@ -71,13 +72,38 @@ class ASTBlockWithVariables(ASTNode):
             '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
         assert (declarations is None or isinstance(declarations, list)), \
             '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(declarations)
-        super(ASTBlockWithVariables, self).__init__(source_position)
+        super(ASTBlockWithVariables, self).__init__(*args, **kwargs)
         self.declarations = declarations
         self.is_internals = is_internals
         self.is_parameters = is_parameters
         self.is_initial_values = is_initial_values
         self.is_state = is_state
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTBlockWithVariables
+        """
+        declarations_dup = None
+        if self.declarations:
+            declarations_dup = [decl.clone() for decl in self.declarations]
+        dup = ASTBlockWithVariables(declarations=declarations_dup,
+         is_internals=self.is_internals,
+         is_parameters=self.is_parameters,
+         is_initial_values=self.is_initial_values,
+         is_state=self.is_state,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_declarations(self):
         """

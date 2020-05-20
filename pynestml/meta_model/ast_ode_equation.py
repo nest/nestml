@@ -36,17 +36,18 @@ class ASTOdeEquation(ASTNode):
         rhs = None
     """
 
-    def __init__(self, lhs, rhs, source_position=None):
+    def __init__(self, lhs, rhs, *args, **kwargs):
         """
         Standard constructor.
-        :param lhs: an object of type ASTVariable
-        :type lhs: ast_variable
-        :param rhs: an object of type ASTExpression.
-        :type rhs: ast_expression or ast_simple_expression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param lhs: left-hand side variable
+        :type lhs: ASTVariable
+        :param rhs: right-hand side expression
+        :type rhs: Union[ASTExpression, ASTSimpleExpression]
         """
-        super(ASTOdeEquation, self).__init__(source_position)
+        super(ASTOdeEquation, self).__init__(*args, **kwargs)
         self.lhs = lhs
         self.rhs = rhs
 
@@ -54,7 +55,7 @@ class ASTOdeEquation(ASTNode):
         """
         Returns the left-hand side of the equation.
         :return: an object of the meta_model-variable class.
-        :rtype: ast_variable
+        :rtype: ASTVariable
         """
         return self.lhs
 
@@ -62,7 +63,7 @@ class ASTOdeEquation(ASTNode):
         """
         Returns the left-hand side of the equation.
         :return: an object of the meta_model-expr class.
-        :rtype: ast_expression
+        :rtype: Union[ASTExpression, ASTSimpleExpression]
         """
         return self.rhs
 

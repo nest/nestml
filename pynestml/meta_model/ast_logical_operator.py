@@ -30,22 +30,22 @@ class ASTLogicalOperator(ASTNode):
         is_logical_or = False
     """
 
-    def __init__(self, is_logical_and=False, is_logical_or=False, source_position=None):
+    def __init__(self, is_logical_and=False, is_logical_or=False, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_logical_and: is logical and.
         :type is_logical_and: bool
         :param is_logical_or: is logical or.
         :type is_logical_or: bool
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
         assert (is_logical_and ^ is_logical_or), \
             '(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!'
-        super(ASTLogicalOperator, self).__init__(source_position)
+        super(ASTLogicalOperator, self).__init__(*args, **kwargs)
         self.is_logical_and = is_logical_and
         self.is_logical_or = is_logical_or
-        return
 
     def get_parent(self, ast):
         """

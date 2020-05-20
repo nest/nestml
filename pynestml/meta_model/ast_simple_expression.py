@@ -46,9 +46,12 @@ class ASTSimpleExpression(ASTExpressionNode):
     """
 
     def __init__(self, function_call=None, boolean_literal=None, numeric_literal=None, is_inf=False,
-                 variable=None, string=None, source_position=None):
+                 variable=None, string=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param function_call: a function call.
         :type function_call: ASTFunctionCall
         :param boolean_literal: a boolean value.
@@ -61,22 +64,20 @@ class ASTSimpleExpression(ASTExpressionNode):
         :type variable: ASTVariable
         :param string: a single string literal
         :type string: str
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
+        super(ASTSimpleExpression, self).__init__(*args, **kwargs)
         assert (function_call is None or isinstance(function_call, ASTFunctionCall)), \
-            '(PyNestML.AST.SimpleExpression) Not a function call provided (%s)!' % type(function_call)
+            '(PyNestML.ASTSimpleExpression) Not a function call provided (%s)!' % type(function_call)
         assert (boolean_literal is None or isinstance(boolean_literal, bool)), \
-            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(boolean_literal)
+            '(PyNestML.ASTSimpleExpression) Not a bool provided (%s)!' % type(boolean_literal)
         assert (is_inf is None or isinstance(is_inf, bool)), \
-            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(is_inf)
+            '(PyNestML.ASTSimpleExpression) Not a bool provided (%s)!' % type(is_inf)
         assert (variable is None or isinstance(variable, ASTVariable)), \
-            '(PyNestML.AST.SimpleExpression) Not a variable provided (%s)!' % type(variable)
+            '(PyNestML.ASTSimpleExpression) Not a variable provided (%s)!' % type(variable)
         assert (numeric_literal is None or isinstance(numeric_literal, int) or isinstance(numeric_literal, float)), \
-            '(PyNestML.AST.SimpleExpression) Not a number provided (%s)!' % type(numeric_literal)
+            '(PyNestML.ASTSimpleExpression) Not a number provided (%s)!' % type(numeric_literal)
         assert (string is None or isinstance(string, str)), \
-            '(PyNestML.AST.SimpleExpression) Not a string provided (%s)!' % type(string)
-        super(ASTSimpleExpression, self).__init__(source_position)
+            '(PyNestML.ASTSimpleExpression) Not a string provided (%s)!' % type(string)
         self.function_call = function_call
         self.is_boolean_true = False
         self.is_boolean_false = False
@@ -89,7 +90,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
-        return
 
     def is_function_call(self):
         """

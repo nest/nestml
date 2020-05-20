@@ -27,7 +27,6 @@ class ASTDeclaration(ASTNode):
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
     'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
-    @attribute hide is true iff. declaration is not traceable.
     @attribute function is true iff. declaration is an function.
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
@@ -52,36 +51,75 @@ class ASTDeclaration(ASTNode):
         invariant = None
     """
 
-    def __init__(self, is_recordable=False, is_function=False, _variables=list(), data_type=None, size_parameter=None,
-                 expression=None, invariant=None, source_position=None):
+    def __init__(self, is_recordable=False, is_function=False, _variables=None, data_type=None, size_parameter=None,
+                 expression=None, invariant=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_recordable: is a recordable declaration.
         :type is_recordable: bool
         :param is_function: is a function declaration.
         :type is_function: bool
         :param _variables: a list of variables.
-        :type _variables: list(ASTVariable)
+        :type _variables: List[ASTVariable]
         :param data_type: the data type.
-        :type data_type: ast_data_type
+        :type data_type: ASTDataType
         :param size_parameter: an optional size parameter.
         :type size_parameter: str
         :param expression: an optional right-hand side rhs.
         :type expression: ASTExpression
         :param invariant: a optional invariant.
-        :type invariant: ASTExpression.
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type invariant: ASTExpression
         """
-        super(ASTDeclaration, self).__init__(source_position)
+        super(ASTDeclaration, self).__init__(*args, **kwargs)
         self.is_recordable = is_recordable
         self.is_function = is_function
+        if _variables is None:
+            _variables = []
         self.variables = _variables
         self.data_type = data_type
         self.size_parameter = size_parameter
         self.expression = expression
         self.invariant = invariant
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTDeclaration
+        """
+        variables_dup = None
+        if self.variables:
+            variables_dup = [var.clone() for var in self.variables]
+        data_type_dup = None
+        if self.data_type:
+            data_type_dup = self.data_type.clone()
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        invariant_dup = None
+        if self.invariant:
+            invariant_dup = self.invariant.clone()
+        dup = ASTAssignment(is_recordable=self.is_recordable,
+         is_function=self.is_function,
+         _variables=variables_dup,
+         data_type=data_type_dup,
+         size_parameter=self.size_parameter,
+         expression=expression_dup,
+         invariant=invariant_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_variables(self):
         """

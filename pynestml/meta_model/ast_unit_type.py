@@ -27,7 +27,7 @@ class ASTUnitType(ASTNode):
     This class stores information regarding unit types and their properties.
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
-  
+
     unitType : leftParentheses='(' unitType rightParentheses=')'
                | base=unitType powOp='**' exponent=UNSIGNED_INTEGER
                | left=unitType (timesOp='*' | divOp='/') right=unitType
@@ -53,9 +53,12 @@ class ASTUnitType(ASTNode):
     """
 
     def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
-                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, source_position=None):
+                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, *args, **kwargs):
         """
-        Standard constructor of ASTUnitType.
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param compound_unit: a unit encapsulated in brackets
         :type compound_unit: ASTUnitType
         :param base: the base rhs
@@ -75,7 +78,7 @@ class ASTUnitType(ASTNode):
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
         """
-        super(ASTUnitType, self).__init__(source_position)
+        super(ASTUnitType, self).__init__(*args, **kwargs)
         self.is_encapsulated = is_encapsulated
         self.compound_unit = compound_unit
         self.base = base
@@ -87,7 +90,6 @@ class ASTUnitType(ASTNode):
         self.rhs = rhs
         self.unit = _unit
         self.type_symbol = None
-        return
 
     def is_simple_unit(self):
         """

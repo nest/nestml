@@ -33,20 +33,20 @@ class ASTFunctionCall(ASTNode):
         args = None
     """
 
-    def __init__(self, callee_name, args, source_position):
+    def __init__(self, callee_name, args, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param callee_name: the name of the function which is called.
         :type callee_name: str
         :param args: (Optional) List of arguments
         :type args: list(ASTExpression)
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
-        super(ASTFunctionCall, self).__init__(source_position)
+        super(ASTFunctionCall, self).__init__(*args, **kwargs)
         self.callee_name = callee_name
         self.args = args
-        return
 
     def get_name(self):
         """

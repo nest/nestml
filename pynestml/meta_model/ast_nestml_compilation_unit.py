@@ -33,21 +33,21 @@ class ASTNestMLCompilationUnit(ASTNode):
         artifact_name = None
     """
 
-    def __init__(self, source_position=None, artifact_name=None):
+    def __init__(self, artifact_name=None, *args, **kwargs):
         """
-        Standard constructor of ASTNestMLCompilationUnit.
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param artifact_name: the name of the file where ths model is contained in
         :type artifact_name: str
         """
+        super(ASTNestMLCompilationUnit, self).__init__(*args, **kwargs)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
                 artifact_name)
-        super(ASTNestMLCompilationUnit, self).__init__(source_position)
         self.neuron_list = list()
         self.artifact_name = artifact_name
-        return
 
     def add_neuron(self, neuron):
         """

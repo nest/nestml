@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_node import ASTNode
 
 class ASTOdeFunction(ASTNode):
@@ -35,21 +34,22 @@ class ASTOdeFunction(ASTNode):
         expression = None
     """
 
-    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, source_position=None):
+    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_recordable: (optional) is this function recordable or not.
         :type is_recordable: bool
         :param variable_name: the name of the variable.
         :type variable_name: str
         :param data_type: the datatype of the function.
-        :type data_type: ast_data_type
-        :param expression: the computation rhs.
-        :type expression: ast_expression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type data_type: ASTDataType
+        :param expression: the computation rhs
+        :type expression: ASTExpression
         """
-        super(ASTOdeFunction, self).__init__(source_position)
+        super(ASTOdeFunction, self).__init__(*args, **kwargs)
         self.is_recordable = is_recordable
         self.variable_name = variable_name
         self.data_type = data_type

@@ -41,14 +41,16 @@ class ASTInputBlock(ASTNode):
         input_definitions = None
     """
 
-    def __init__(self, input_definitions=None, source_position=None):
+    def __init__(self, input_definitions=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param input_definitions:
         :type input_definitions: list(ASTInputPort)
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
+        super(ASTInputBlock, self).__init__(*args, **kwargs)
         if input_definitions is None:
             input_definitions = []
         assert (input_definitions is not None and isinstance(input_definitions, list)), \
@@ -56,9 +58,7 @@ class ASTInputBlock(ASTNode):
         for definition in input_definitions:
             assert (definition is not None and isinstance(definition, ASTInputPort)), \
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
-        super(ASTInputBlock, self).__init__(source_position)
         self.input_definitions = input_definitions
-        return
 
     def get_input_ports(self):
         """

@@ -35,9 +35,12 @@ class ASTForStmt(ASTNode):
         block = None
     """
 
-    def __init__(self, variable, start_from, end_at, step, block, source_position):
+    def __init__(self, variable, start_from, end_at, step, block, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param variable: the step variable used for iteration.
         :type variable: str
         :param start_from: left bound of the range, i.e., start value.
@@ -48,10 +51,8 @@ class ASTForStmt(ASTNode):
         :type step: float/int
         :param block: a block of statements.
         :type block: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
-        super(ASTForStmt, self).__init__(source_position)
+        super(ASTForStmt, self).__init__(*args, **kwargs)
         self.block = block
         self.step = step
         self.end_at = end_at

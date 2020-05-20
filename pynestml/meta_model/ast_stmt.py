@@ -32,9 +32,18 @@ class ASTStmt(ASTNode):
         compound_stmt = None
     """
 
-    def __init__(self, small_stmt, compound_stmt, source_position):
-        # type: (ASTSmallStmt,ASTCompoundStmt) -> None
-        super(ASTStmt, self).__init__(source_position)
+    def __init__(self, small_stmt, compound_stmt, *args, **kwargs):
+        """
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param small_stmt: small statement AST node
+        :type lhs: ASTSmallStmt
+        :param compound_stmt: compound statement AST node
+        :type compound_stmt: ASTCompoundStmt
+        """
+        super(ASTStmt, self).__init__(*args, **kwargs)
         self.small_stmt = small_stmt
         self.compound_stmt = compound_stmt
 

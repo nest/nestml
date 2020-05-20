@@ -35,16 +35,16 @@ class ASTOutputBlock(ASTNode):
         type = None
     """
 
-    def __init__(self, o_type, source_position):
-        # type: (ASTSignalType,ASTSourceLocation) -> None
+    def __init__(self, o_type, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param o_type: the type of the output buffer.
-        :type o_type: SignalType
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type o_type: ASTSignalType
         """
-        super(ASTOutputBlock, self).__init__(source_position)
+        super(ASTOutputBlock, self).__init__(*args, **kwargs)
         self.type = o_type
 
     def is_spike(self):

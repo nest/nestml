@@ -44,25 +44,26 @@ class ASTNeuron(ASTNode):
         artifact_name = None
     """
 
-    def __init__(self, name, body, source_position=None, artifact_name=None):
+    def __init__(self, name, body, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param name: the name of the neuron.
         :type name: str
         :param body: the body containing the definitions.
         :type body: ASTBody
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
+        super(ASTNeuron, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
             '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(name)
         assert isinstance(body, ASTBody), \
             '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        super(ASTNeuron, self).__init__(source_position)
         self.name = name + FrontendConfiguration.suffix
         self.body = body
         self.artifact_name = artifact_name

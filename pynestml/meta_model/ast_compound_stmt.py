@@ -37,29 +37,61 @@ class ASTCompoundStmt(ASTNode):
         for_stmt = None
     """
 
-    def __init__(self, if_stmt=None, while_stmt=None, for_stmt=None, source_position=None):
+    def __init__(self, if_stmt=None, while_stmt=None, for_stmt=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param if_stmt: a if statement object
         :type if_stmt: ASTIfStmt
         :param while_stmt: a while statement object
         :type while_stmt: ASTWhileStmt
         :param for_stmt: a for statement object
         :type for_stmt: ASTForStmt
-        :param source_position: The source position of the assignment
-        :type source_position: ASTSourceLocation
         """
         assert (if_stmt is None or isinstance(if_stmt, ASTIfStmt)), \
-            '(PyNestML.AST.CompoundStmt) Wrong type of if-statement provided (%s)!' % type(if_stmt)
+            '(PyNestML.ASTCompoundStmt) Wrong type of if-statement provided (%s)!' % type(if_stmt)
         assert (while_stmt is None or isinstance(while_stmt, ASTWhileStmt)), \
-            '(PyNestML.AST.CompoundStmt) Wrong type of while-statement provided (%s)!' % type(while_stmt)
+            '(PyNestML.ASTCompoundStmt) Wrong type of while-statement provided (%s)!' % type(while_stmt)
         assert (for_stmt is None or isinstance(for_stmt, ASTForStmt)), \
-            '(PyNestML.AST.CompoundStmt) Wrong type of for-statement provided (%s)!' % type(for_stmt)
-        super(ASTCompoundStmt, self).__init__(source_position)
+            '(PyNestML.ASTCompoundStmt) Wrong type of for-statement provided (%s)!' % type(for_stmt)
+        super(ASTCompoundStmt, self).__init__(*args, **kwargs)
         self.if_stmt = if_stmt
         self.while_stmt = while_stmt
         self.for_stmt = for_stmt
-        return
+        assert self.is_if_stmt() + self.is_while_stmt() + self.is_for_stmt() == 1, \
+            '(PyNestML.ASTCompoundStmt) Please provide precisely one if, while or for statement'
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTCompoundStmt
+        """
+        if_stmt_dup = None
+        if self.if_stmt:
+            if_stmt_dup = self.if_stmt.clone()
+        while_stmt_dup = None
+        if self.while_stmt:
+            while_stmt_dup = self.while_stmt.clone()
+        for_stmt_dup = None
+        if self.for_stmt:
+            for_stmt_dup = self.for_stmt.clone()
+        dup = ASTCompoundStmt(if_stmt=if_stmt_dup,
+         while_stmt=while_stmt_dup,
+         for_stmt=for_stmt_dup,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_if_stmt(self):
         """

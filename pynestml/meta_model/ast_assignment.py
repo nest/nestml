@@ -44,11 +44,14 @@ class ASTAssignment(ASTNode):
     """
 
     def __init__(self, lhs=None, is_direct_assignment=False, is_compound_sum=False, is_compound_minus=False,
-                 is_compound_product=False, is_compound_quotient=False, rhs=None, source_position=None):
+                 is_compound_product=False, is_compound_quotient=False, rhs=None, *args, **kwargs):
         """
         Standard constructor.
-        :param lhs: the left-hand side variable to which is assigned to.
-        :type lhs: ASTVariable
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param lhs: the left-hand side variable to which is assigned to
+        :type lhs: Optional[ASTVariable]
         :param is_direct_assignment: is a direct assignment
         :type is_direct_assignment: bool
         :param is_compound_sum: is a compound sum
@@ -60,11 +63,9 @@ class ASTAssignment(ASTNode):
         :param is_compound_quotient: is a compound quotient
         :type is_compound_quotient: bool
         :param rhs: an meta_model-rhs object
-        :type rhs: ast_expression
-        :param source_position: The source position of the assignment
-        :type source_position: ASTSourceLocation
+        :type rhs: Optional[ASTExpression]
         """
-        super(ASTAssignment, self).__init__(source_position)
+        super(ASTAssignment, self).__init__(*args, **kwargs)
         self.lhs = lhs
         self.is_direct_assignment = is_direct_assignment
         self.is_compound_sum = is_compound_sum
@@ -72,7 +73,37 @@ class ASTAssignment(ASTNode):
         self.is_compound_product = is_compound_product
         self.is_compound_quotient = is_compound_quotient
         self.rhs = rhs
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTAssignment
+        """
+        lhs_dup = None
+        if self.lhs:
+            lhs_dup = self.lhs.clone()
+        rhs_dup = None
+        if self.rhs:
+            rhs_dup = self.rhs.clone()
+        dup = ASTAssignment(lhs=lhs_dup,
+         rhs=rhs_dup,
+         is_direct_assignment=self.is_direct_assignment,
+         is_compound_sum = self.is_compound_sum,
+         is_compound_minus = self.is_compound_minus,
+         is_compound_product = self.is_compound_product,
+         is_compound_quotient = self.is_compound_quotient,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_variable(self):
         """

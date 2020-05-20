@@ -48,9 +48,12 @@ class ASTFunction(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, parameters, return_type, block, source_position):
+    def __init__(self, name, parameters, return_type, block, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param name: the name of the defined function.
         :type name: str
         :param parameters: (Optional) Set of parameters.
@@ -59,10 +62,8 @@ class ASTFunction(ASTNode):
         :type return_type: ast_data_type
         :param block: a block of declarations.
         :type block: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
-        super(ASTFunction, self).__init__(source_position)
+        super(ASTFunction, self).__init__(*args, **kwargs)
         self.block = block
         self.return_type = return_type
         self.parameters = parameters

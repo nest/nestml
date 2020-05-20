@@ -37,21 +37,22 @@ class ASTSmallStmt(ASTNode):
         return_stmt (ast_return_stmt): A reference to the returns statement.
     """
 
-    def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, source_position=None):
+    def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param assignment: an meta_model-assignment object.
-        :type assignment: ast_assignment
+        :type assignment: ASTAssignment
         :param function_call: an meta_model-function call object.
-        :type function_call: ast_function_call
+        :type function_call: ASTFunctionCall
         :param declaration: an meta_model-declaration object.
-        :type declaration: ast_declaration
+        :type declaration: ASTDeclaration
         :param return_stmt: an meta_model-return statement object.
-        :type return_stmt: ast_return_stmt
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type return_stmt: ASTReturnStmt
         """
-        super(ASTSmallStmt, self).__init__(source_position)
+        super(ASTSmallStmt, self).__init__(*args, **kwargs)
         self.assignment = assignment
         self.function_call = function_call
         self.declaration = declaration
