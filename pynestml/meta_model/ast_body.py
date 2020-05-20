@@ -55,7 +55,7 @@ class ASTBody(ASTNode):
         body_elements_dup = None
         if self.body_elements:
             body_elements_dup = [body_element.clone() for body_element in self.body_elements]
-        dup = ASTAssignment(body_elements=body_elements_dup,
+        dup = ASTBody(body_elements=body_elements_dup,
          # ASTNode common attriutes:
          source_position=self.source_position,
          scope=self.scope,
@@ -207,9 +207,7 @@ class ASTBody(ASTNode):
                 for port in block.get_input_ports():
                     if port.is_spike():
                         ret.append(port)
-            return ret
-        else:
-            return ret
+        return ret
 
     def equals(self, other):
         """

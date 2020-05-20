@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from copy import copy, deepcopy
+from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.either import Either
@@ -63,7 +63,7 @@ class ASTVariable(ASTNode):
         """
         return ASTVariable(name=self.name,
          differential_order=self.differential_order,
-         type_symbol=copy(self.type_symbol),
+         type_symbol=self.type_symbol,
          # ASTNode common attriutes:
          source_position=self.get_source_position(),
          scope=self.scope,
@@ -118,8 +118,7 @@ class ASTVariable(ASTNode):
         """
         if self.get_differential_order() > 0:
             return self.get_name() + '\'' * (self.get_differential_order() - 1)
-        else:
-            return self.get_name()
+        return self.get_name()
 
     def get_type_symbol(self):
         """
@@ -138,13 +137,12 @@ class ASTVariable(ASTNode):
         assert (type_symbol is not None and isinstance(type_symbol, Either)), \
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
         self.type_symbol = type_symbol
-        return
 
-    def get_parent(self, node):
+    def get_parent(self, ast):
         """
         Indicates whether a this node contains the handed over node.
-        :param node: an arbitrary meta_model node.
-        :type node: ASTNode
+        :param ast: an arbitrary meta_model node.
+        :type ast: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: ASTNode or None
         """
@@ -160,8 +158,7 @@ class ASTVariable(ASTNode):
         from pynestml.symbols.predefined_types import PredefinedTypes
         if self.get_name() in PredefinedTypes.get_types():
             return True
-        else:
-            return False
+        return False
 
     def equals(self, other):
         """

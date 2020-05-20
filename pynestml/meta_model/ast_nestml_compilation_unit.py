@@ -95,8 +95,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         if self.neuron_list.__contains__(neuron):
             self.neuron_list.remove(neuron)
             return True
-        else:
-            return False
+        return False
 
     def get_neuron_list(self):
         """
@@ -116,7 +115,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         for neuron in self.get_neuron_list():
             if neuron is ast:
                 return self
-            elif neuron.get_parent(ast) is not None:
+            if neuron.get_parent(ast) is not None:
                 return neuron.get_parent(ast)
         return None
 

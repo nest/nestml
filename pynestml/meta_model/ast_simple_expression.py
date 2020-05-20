@@ -107,10 +107,15 @@ class ASTSimpleExpression(ASTExpressionNode):
         numeric_literal_dup = None
         if self.numeric_literal:
             numeric_literal_dup = self.numeric_literal.clone()
+        boolean_literal = None
+        if self.is_boolean_true:
+            boolean_literal = True
+        if self.is_boolean_false:
+            boolean_literal = False
         dup = ASTSimpleExpression(function_call=function_call_dup,
-         boolean_literal=self.boolean_literal,
+         boolean_literal=boolean_literal,
          numeric_literal=numeric_literal_dup,
-         is_inf=self.is_inf,
+         is_inf=self.is_inf_literal,
          variable=variable_dup,
          string=self.string,
          # ASTNode common attributes:
@@ -240,12 +245,12 @@ class ASTSimpleExpression(ASTExpressionNode):
         if self.is_function_call():
             if self.get_function_call() is ast:
                 return self
-            elif self.get_function_call().get_parent(ast) is not None:
+            if self.get_function_call().get_parent(ast) is not None:
                 return self.get_function_call().get_parent(ast)
         if self.variable is not None:
             if self.variable is ast:
                 return self
-            elif self.variable.get_parent(ast) is not None:
+            if self.variable.get_parent(ast) is not None:
                 return self.variable.get_parent(ast)
         return None
 
@@ -258,7 +263,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         assert (variable is None or isinstance(variable, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(variable)
         self.variable = variable
-        return
 
     def set_function_call(self, function_call):
         """
@@ -269,7 +273,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         assert (function_call is None or isinstance(function_call, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(function_call)
         self.function_call = function_call
-        return
 
     def equals(self, other):
         """

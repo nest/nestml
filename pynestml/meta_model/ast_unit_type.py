@@ -182,23 +182,23 @@ class ASTUnitType(ASTNode):
         if self.is_encapsulated:
             if self.compound_unit is ast:
                 return self
-            elif self.compound_unit.get_parent(ast) is not None:
+            if self.compound_unit.get_parent(ast) is not None:
                 return self.compound_unit.get_parent(ast)
 
         if self.is_pow:
             if self.base is ast:
                 return self
-            elif self.base.get_parent(ast) is not None:
+            if self.base.get_parent(ast) is not None:
                 return self.base.get_parent(ast)
         if self.is_arithmetic_expression():
             if isinstance(self.get_lhs(), ASTUnitType):
                 if self.get_lhs() is ast:
                     return self
-                elif self.get_lhs().get_parent(ast) is not None:
+                if self.get_lhs().get_parent(ast) is not None:
                     return self.get_lhs().get_parent(ast)
             if self.get_rhs() is ast:
                 return self
-            elif self.get_rhs().get_parent(ast) is not None:
+            if self.get_rhs().get_parent(ast) is not None:
                 return self.get_rhs().get_parent(ast)
         return None
 

@@ -53,7 +53,7 @@ class ASTUpdateBlock(ASTNode):
         :type block: ASTBlock
         """
         super(ASTUpdateBlock, self).__init__(*args, **kwargs)
-        assert instanceof(block, ASTBlock)
+        assert isinstance(block, ASTBlock)
         self.block = block
 
     def clone(self):
@@ -93,7 +93,7 @@ class ASTUpdateBlock(ASTNode):
         """
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

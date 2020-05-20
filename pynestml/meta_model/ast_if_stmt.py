@@ -137,17 +137,17 @@ class ASTIfStmt(ASTNode):
         """
         if self.get_if_clause() is ast:
             return self
-        elif self.get_if_clause().get_parent(ast) is not None:
+        if self.get_if_clause().get_parent(ast) is not None:
             return self.get_if_clause().get_parent(ast)
         for elifClause in self.get_elif_clauses():
             if elifClause is ast:
                 return self
-            elif elifClause.get_parent(ast) is not None:
+            if elifClause.get_parent(ast) is not None:
                 return elifClause.get_parent(ast)
         if self.has_else_clause():
             if self.get_else_clause() is ast:
                 return self
-            elif self.get_else_clause().get_parent(ast) is not None:
+            if self.get_else_clause().get_parent(ast) is not None:
                 return self.get_else_clause().get_parent(ast)
         return None
 

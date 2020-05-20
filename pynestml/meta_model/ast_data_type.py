@@ -18,8 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 
 
@@ -47,7 +48,7 @@ class ASTDataType(ASTNode):
     """
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,
-                 unit_type=None, type_symbol=None, *args, **kwargs):
+                 unit_type:Optional[ASTUnitType]=None, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -85,7 +86,7 @@ class ASTDataType(ASTNode):
         unit_type_dup = None
         if self.unit_type:
             unit_type_dup = self.unit_type.clone()
-        dup = ASTAssignment(is_integer=self.is_integer,
+        dup = ASTDataType(is_integer=self.is_integer,
          is_real=self.is_real,
          is_string=self.is_string,
          is_boolean=self.is_boolean,
@@ -127,8 +128,7 @@ class ASTDataType(ASTNode):
         """
         if self.is_unit_type():
             return self.get_unit_type().get_type_symbol()
-        else:
-            return self.type_symbol
+        return self.type_symbol
 
     def set_type_symbol(self, type_symbol):
         """
@@ -140,7 +140,6 @@ class ASTDataType(ASTNode):
         assert (type_symbol is not None and isinstance(type_symbol, TypeSymbol)), \
             '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(type_symbol))
         self.type_symbol = type_symbol
-        return
 
     def get_parent(self, ast):
         """
@@ -153,7 +152,7 @@ class ASTDataType(ASTNode):
         if self.is_unit_type():
             if self.get_unit_type() is ast:
                 return self
-            elif self.get_unit_type().get_parent(ast) is not None:
+            if self.get_unit_type().get_parent(ast) is not None:
                 return self.get_unit_type().get_parent(ast)
         return None
 

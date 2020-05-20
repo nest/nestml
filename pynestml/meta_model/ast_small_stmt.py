@@ -167,22 +167,22 @@ class ASTSmallStmt(ASTNode):
         if self.is_assignment():
             if self.get_assignment() is ast:
                 return self
-            elif self.get_assignment().get_parent(ast) is not None:
+            if self.get_assignment().get_parent(ast) is not None:
                 return self.get_assignment().get_parent(ast)
         if self.is_function_call():
             if self.get_function_call() is ast:
                 return self
-            elif self.get_function_call().get_parent(ast) is not None:
+            if self.get_function_call().get_parent(ast) is not None:
                 return self.get_function_call().get_parent(ast)
         if self.is_declaration():
             if self.get_declaration() is ast:
                 return self
-            elif self.get_declaration().get_parent(ast) is not None:
+            if self.get_declaration().get_parent(ast) is not None:
                 return self.get_declaration().get_parent(ast)
         if self.is_return_stmt():
             if self.get_return_stmt() is ast:
                 return self
-            elif self.get_return_stmt().get_parent(ast) is not None:
+            if self.get_return_stmt().get_parent(ast) is not None:
                 return self.get_return_stmt().get_parent(ast)
         return None
 

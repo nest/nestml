@@ -81,11 +81,11 @@ class ASTStmt(ASTNode):
         # type: ASTNode -> ASTNode
         if self.small_stmt is ast:
             return self
-        elif self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
+        if self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
             return self.small_stmt.get_parent(ast)
         if self.compound_stmt is ast:
             return self
-        elif self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
+        if self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
             return self.compound_stmt.get_parent(ast)
 
     def is_small_stmt(self):

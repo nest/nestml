@@ -20,7 +20,6 @@
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.port_signal_type import PortSignalType
-from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTOutputBlock(ASTNode):
@@ -45,7 +44,7 @@ class ASTOutputBlock(ASTNode):
         :param o_type: the type of the output buffer.
         :type o_type: PortSignalType
         """
-        assert instanceof(o_type, PortSignalType)
+        assert isinstance(o_type, PortSignalType)
         super(ASTOutputBlock, self).__init__(*args, **kwargs)
         self.type = o_type
 
@@ -56,7 +55,7 @@ class ASTOutputBlock(ASTNode):
         :return: new AST node instance
         :rtype: ASTOutputBlock
         """
-        dup = ASTAssignment(o_type=self.type.clone(),
+        dup = ASTOutputBlock(o_type=self.type.clone(),
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,

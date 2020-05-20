@@ -59,7 +59,7 @@ class ASTParameter(ASTNode):
         :return: new AST node instance
         :rtype: ASTParameter
         """
-        dup = ASTAssignment(name=self.name,
+        dup = ASTParameter(name=self.name,
          data_type=self.data_type.clone(),
          # ASTNode common attributes:
          source_position=self.source_position,
@@ -98,7 +98,7 @@ class ASTParameter(ASTNode):
         """
         if self.get_data_type() is ast:
             return self
-        elif self.get_data_type().get_parent(ast) is not None:
+        if self.get_data_type().get_parent(ast) is not None:
             return self.get_data_type().get_parent(ast)
         return None
 

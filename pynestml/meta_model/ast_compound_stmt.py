@@ -21,7 +21,6 @@
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 
@@ -153,17 +152,17 @@ class ASTCompoundStmt(ASTNode):
         if self.is_if_stmt():
             if self.get_if_stmt() is ast:
                 return self
-            elif self.get_if_stmt().get_parent(ast) is not None:
+            if self.get_if_stmt().get_parent(ast) is not None:
                 return self.get_if_stmt().get_parent(ast)
         if self.is_while_stmt():
             if self.get_while_stmt() is ast:
                 return self
-            elif self.get_while_stmt().get_parent(ast) is not None:
+            if self.get_while_stmt().get_parent(ast) is not None:
                 return self.get_while_stmt().get_parent(ast)
         if self.is_for_stmt():
             if self.is_for_stmt() is ast:
                 return self
-            elif self.get_for_stmt().get_parent(ast) is not None:
+            if self.get_for_stmt().get_parent(ast) is not None:
                 return self.get_for_stmt().get_parent(ast)
         return None
 

@@ -92,11 +92,11 @@ class ASTOdeShape(ASTNode):
         """
         if self.get_variable() is ast:
             return self
-        elif self.get_variable().get_parent(ast) is not None:
+        if self.get_variable().get_parent(ast) is not None:
             return self.get_variable().get_parent(ast)
         if self.get_expression() is ast:
             return self
-        elif self.get_expression().get_parent(ast) is not None:
+        if self.get_expression().get_parent(ast) is not None:
             return self.get_expression().get_parent(ast)
         return None
 

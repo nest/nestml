@@ -96,7 +96,7 @@ class ASTReturnStmt(ASTNode):
         if self.has_expression():
             if self.get_expression() is ast:
                 return self
-            elif self.get_expression().get_parent(ast) is not None:
+            if self.get_expression().get_parent(ast) is not None:
                 return self.get_expression().get_parent(ast)
         return None
 

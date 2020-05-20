@@ -81,7 +81,7 @@ class ASTElseClause(ASTNode):
         """
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import Union
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -62,7 +63,7 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.port_signal_type import PortSignalType
 
 
-class ASTNodeFactory(object):
+class ASTNodeFactory():
     """
     An implementation of the factory pattern for an easier initialization of new AST nodes.
     """
@@ -100,7 +101,7 @@ class ASTNodeFactory(object):
 
     @classmethod
     def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
-                                        is_initial_values=False, declarations=list(), source_position=None):
+                                        is_initial_values=False, declarations=None, source_position=None):
         # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
         return ASTBlockWithVariables(is_state, is_parameters, is_internals, is_initial_values, declarations,
                                      source_position=source_position)
@@ -131,7 +132,7 @@ class ASTNodeFactory(object):
     def create_ast_declaration(cls,
                                is_recordable=False,  # type: bool
                                is_function=False,  # type: bool
-                               variables=list(),  # type: list
+                               variables=None,  # type: list
                                data_type=None,  # type: ASTDataType
                                size_parameter=None,  # type: str
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)

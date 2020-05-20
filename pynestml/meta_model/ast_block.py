@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTBlock(ASTNode):
@@ -58,7 +57,7 @@ class ASTBlock(ASTNode):
         :rtype: ASTBlock
         """
         stmts_dup = [stmt.clone() for stmt in self.stmts]
-        dup = ASTAssignment(stmts_dup,
+        dup = ASTBlock(stmts_dup,
          # ASTNode common attriutes:
          source_position=self.source_position,
          scope=self.scope,

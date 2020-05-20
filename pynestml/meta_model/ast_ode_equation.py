@@ -20,6 +20,9 @@
 
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class ASTOdeEquation(ASTNode):
@@ -48,8 +51,8 @@ class ASTOdeEquation(ASTNode):
         :type rhs: Union[ASTExpression, ASTSimpleExpression]
         """
         super(ASTOdeEquation, self).__init__(*args, **kwargs)
-        assert instanceof(lhs, ASTVariable)
-        assert instanceof(rhs, ASTExpression) or instanceof(rhs, ASTSimpleExpression)
+        assert isinstance(lhs, ASTVariable)
+        assert isinstance(rhs, ASTExpression) or isinstance(rhs, ASTSimpleExpression)
         self.lhs = lhs
         self.rhs = rhs
 
@@ -99,11 +102,11 @@ class ASTOdeEquation(ASTNode):
         """
         if self.get_lhs() is ast:
             return self
-        elif self.get_lhs().get_parent(ast) is not None:
+        if self.get_lhs().get_parent(ast) is not None:
             return self.get_lhs().get_parent(ast)
         if self.get_rhs() is ast:
             return self
-        elif self.get_rhs().get_parent(ast) is not None:
+        if self.get_rhs().get_parent(ast) is not None:
             return self.get_rhs().get_parent(ast)
         return None
 

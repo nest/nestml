@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -58,8 +59,8 @@ class ASTFunctionCall(ASTNode):
         """
         function_call_args_dup = None
         if self.args:
-             function_call_args_dup = [function_call_arg.clone() for function_call_arg in self.args]
-        dup = ASTAssignment(callee_name=self.callee_name,
+            function_call_args_dup = [function_call_arg.clone() for function_call_arg in self.args]
+        dup = ASTFunctionCall(callee_name=self.callee_name,
          function_call_args=function_call_args_dup,
          # ASTNode common attributes:
          source_position=self.source_position,
@@ -107,7 +108,7 @@ class ASTFunctionCall(ASTNode):
         for param in self.get_args():
             if param is ast:
                 return self
-            elif param.get_parent(ast) is not None:
+            if param.get_parent(ast) is not None:
                 return param.get_parent(ast)
         return None
 

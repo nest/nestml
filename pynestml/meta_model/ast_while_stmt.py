@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -32,7 +33,7 @@ class ASTWhileStmt(ASTNode):
         block = None
     """
 
-    def __init__(self, condition, block, *args, **kwargs):
+    def __init__(self, condition:ASTExpression, block:ASTBlock, *args, **kwargs):
         """
         Standard constructor.
 
@@ -52,7 +53,7 @@ class ASTWhileStmt(ASTNode):
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTAssignment
+        :rtype: ASTWhileStmt
         """
         block_dup = None
         if self.block:
@@ -60,7 +61,7 @@ class ASTWhileStmt(ASTNode):
         condition_dup = None
         if self.condition:
             condition_dup = self.condition.clone()
-        dup = ASTAssignment(block=block_dup,
+        dup = ASTWhileStmt(block=block_dup,
          condition=condition_dup,
          # ASTNode common attributes:
          source_position=self.source_position,
@@ -99,11 +100,11 @@ class ASTWhileStmt(ASTNode):
         """
         if self.get_condition() is ast:
             return self
-        elif self.get_condition().get_parent(ast) is not None:
+        if self.get_condition().get_parent(ast) is not None:
             return self.get_condition().get_parent(ast)
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

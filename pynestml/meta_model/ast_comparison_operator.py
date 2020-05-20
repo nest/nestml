@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
 class ASTComparisonOperator(ASTNode):
@@ -76,7 +76,7 @@ class ASTComparisonOperator(ASTNode):
         :return: new AST node instance
         :rtype: ASTComparisonOperator
         """
-        dup = ASTAssignment(is_lt=self.is_lt,
+        dup = ASTComparisonOperator(is_lt=self.is_lt,
          is_le=self.is_le,
          is_eq=self.is_eq,
          is_ne=self.is_ne,

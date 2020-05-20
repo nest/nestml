@@ -59,7 +59,7 @@ class ASTIfClause(ASTNode):
         condition_dup = None
         if self.condition:
             condition_dup = self.condition.clone()
-        dup = ASTIfClause(condition=conditoin_dup,
+        dup = ASTIfClause(condition=condition_dup,
          block=block_dup,
          # ASTNode common attributes:
          source_position=self.source_position,
@@ -98,11 +98,11 @@ class ASTIfClause(ASTNode):
         """
         if self.get_condition() is ast:
             return self
-        elif self.get_condition().get_parent(ast) is not None:
+        if self.get_condition().get_parent(ast) is not None:
             return self.get_condition().get_parent(ast)
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

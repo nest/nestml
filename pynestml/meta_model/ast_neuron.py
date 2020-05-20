@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_body import ASTBody
@@ -138,10 +139,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_state_blocks(self):
         """
@@ -156,10 +156,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_initial_blocks(self):
         """
@@ -174,10 +173,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_parameter_blocks(self):
         """
@@ -192,10 +190,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_internals_blocks(self):
         """
@@ -210,10 +207,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_equations_blocks(self):
         """
@@ -222,16 +218,14 @@ class ASTNeuron(ASTNode):
         :rtype: list(ASTEquationsBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTEquationsBlock):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_equations_block(self):
         """
@@ -270,17 +264,15 @@ class ASTNeuron(ASTNode):
         :return list of ode-equations
         :rtype list(ASTOdeEquation)
         """
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         ret = list()
         blocks = self.get_equations_blocks()
         # the get equations block is not deterministic method, it can return a list or a single object.
         if isinstance(blocks, list):
             for block in blocks:
                 ret.extend(block.get_ode_equations())
-        elif isinstance(blocks, ASTEquationsBlock):
+        if isinstance(blocks, ASTEquationsBlock):
             return blocks.get_ode_equations()
-        else:
-            return ret
+        return ret
 
     def get_input_blocks(self):
         """
@@ -289,16 +281,14 @@ class ASTNeuron(ASTNode):
         :rtype: list(ASTInputBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_input_block import ASTInputBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTInputBlock):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_input_buffers(self):
         """
@@ -306,7 +296,6 @@ class ASTNeuron(ASTNode):
         :return: a list of all input buffers.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -373,7 +362,6 @@ class ASTNeuron(ASTNode):
         :return: a list of internals symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -388,7 +376,6 @@ class ASTNeuron(ASTNode):
         :return: a list of equation function  symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -423,10 +410,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def is_multisynapse_spikes(self):
         """
@@ -510,7 +496,6 @@ class ASTNeuron(ASTNode):
         :return: a list of initial values symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -532,10 +517,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def remove_initial_blocks(self):
         """
@@ -577,7 +561,6 @@ class ASTNeuron(ASTNode):
         :return: a list of initial value variables with odes
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -593,7 +576,6 @@ class ASTNeuron(ASTNode):
         :return: a list of of state variable symbols.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -646,7 +628,6 @@ class ASTNeuron(ASTNode):
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
         self.get_internals_blocks().get_declarations().append(declaration)
-        return
 
     def add_to_initial_values_block(self, declaration):
         # todo by KP: factor me out to utils
@@ -658,7 +639,6 @@ class ASTNeuron(ASTNode):
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
-        return
 
     def add_shape(self, shape):
         # type: (ASTOdeShape) -> None
@@ -751,7 +731,7 @@ class ASTNeuron(ASTNode):
         """
         if self.get_body() is ast:
             return self
-        elif self.get_body().get_parent(ast) is not None:
+        if self.get_body().get_parent(ast) is not None:
             return self.get_body().get_parent(ast)
         return None
 

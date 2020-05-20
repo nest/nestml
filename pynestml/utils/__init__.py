@@ -21,4 +21,4 @@
 __all__ = ['ast_utils', 'logger', 'stack', 'either', 'error_listener',
            'error_strings', 'logging_helper', 'messages', 'model_parser',
            'ode_transformer', 'type_caster', 'type_dictionary', 'unit_type',
-           'ast_nestml_printer']
+           'ast_nestml_printer', 'source_location', 'port_signal_type']

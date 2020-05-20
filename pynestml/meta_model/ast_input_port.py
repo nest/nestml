@@ -97,7 +97,7 @@ class ASTInputPort(ASTNode):
         data_type_dup = None
         if self.data_type:
             data_type_dup = self.data_type.clone()
-        dup = ASTAssignment(name=self.name,
+        dup = ASTInputPort(name=self.name,
          size_parameter=self.size_parameter,
          data_type=data_type_dup,
          input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
@@ -224,12 +224,12 @@ class ASTInputPort(ASTNode):
         if self.has_datatype():
             if self.get_datatype() is ast:
                 return self
-            elif self.get_datatype().get_parent(ast) is not None:
+            if self.get_datatype().get_parent(ast) is not None:
                 return self.get_datatype().get_parent(ast)
         for qual in self.get_input_qualifiers():
             if qual is ast:
                 return self
-            elif qual.get_parent(ast) is not None:
+            if qual.get_parent(ast) is not None:
                 return qual.get_parent(ast)
         return None
 

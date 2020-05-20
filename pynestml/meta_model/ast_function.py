@@ -49,7 +49,7 @@ class ASTFunction(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, parameters, return_type, block, *args, **kwargs):
+    def __init__(self, name, parameters, return_type, block, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -69,6 +69,7 @@ class ASTFunction(ASTNode):
         self.return_type = return_type
         self.parameters = parameters
         self.name = name
+        self.type_symbol = type_symbol
 
     def clone(self):
         """
@@ -90,6 +91,7 @@ class ASTFunction(ASTNode):
          parameters=parameters_dup,
          return_type=return_type_dup,
          block=block_dup,
+         type_symbol=self.type_symbol,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,
@@ -176,16 +178,16 @@ class ASTFunction(ASTNode):
         for param in self.get_parameters():
             if param is ast:
                 return self
-            elif param.get_parent(ast) is not None:
+            if param.get_parent(ast) is not None:
                 return param.get_parent(ast)
         if self.has_return_type():
             if self.get_return_type() is ast:
                 return self
-            elif self.get_return_type().get_parent(ast) is not None:
+            if self.get_return_type().get_parent(ast) is not None:
                 return self.get_return_type().get_parent(ast)
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

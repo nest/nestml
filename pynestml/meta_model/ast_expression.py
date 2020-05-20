@@ -118,6 +118,9 @@ class ASTExpression(ASTExpressionNode):
         expression_dup = None
         if self.expression:
             expression_dup = self.expression.clone()
+        unary_operator_dup = None
+        if self.unary_operator:
+            unary_operator_dup = self.unary_operator.clone()
         lhs_dup = None
         if self.lhs:
             lhs_dup = self.lhs.clone()
@@ -319,38 +322,38 @@ class ASTExpression(ASTExpressionNode):
         if self.is_expression():
             if self.get_expression() is ast:
                 return self
-            elif self.get_expression().get_parent(ast) is not None:
+            if self.get_expression().get_parent(ast) is not None:
                 return self.get_expression().get_parent(ast)
         if self.is_unary_operator():
             if self.get_unary_operator() is ast:
                 return self
-            elif self.get_unary_operator().get_parent(ast) is not None:
+            if self.get_unary_operator().get_parent(ast) is not None:
                 return self.get_unary_operator().get_parent(ast)
         if self.is_compound_expression():
             if self.get_lhs() is ast:
                 return self
-            elif self.get_lhs().get_parent(ast) is not None:
+            if self.get_lhs().get_parent(ast) is not None:
                 return self.get_lhs().get_parent(ast)
             if self.get_binary_operator() is ast:
                 return self
-            elif self.get_binary_operator().get_parent(ast) is not None:
+            if self.get_binary_operator().get_parent(ast) is not None:
                 return self.get_binary_operator().get_parent(ast)
             if self.get_rhs() is ast:
                 return self
-            elif self.get_rhs().get_parent(ast) is not None:
+            if self.get_rhs().get_parent(ast) is not None:
                 return self.get_rhs().get_parent(ast)
         if self.is_ternary_operator():
             if self.get_condition() is ast:
                 return self
-            elif self.get_condition().get_parent(ast) is not None:
+            if self.get_condition().get_parent(ast) is not None:
                 return self.get_condition().get_parent(ast)
             if self.get_if_true() is ast:
                 return self
-            elif self.get_if_true().get_parent(ast) is not None:
+            if self.get_if_true().get_parent(ast) is not None:
                 return self.get_if_true().get_parent(ast)
             if self.get_if_not() is ast:
                 return self
-            elif self.get_if_not().get_parent(ast) is not None:
+            if self.get_if_not().get_parent(ast) is not None:
                 return self.get_if_not().get_parent(ast)
         return None
 

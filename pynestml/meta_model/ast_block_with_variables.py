@@ -118,7 +118,6 @@ class ASTBlockWithVariables(ASTNode):
         """
         del self.declarations
         self.declarations = list()
-        return
 
     def get_parent(self, ast=None):
         """

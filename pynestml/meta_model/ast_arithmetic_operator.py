@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -37,10 +36,10 @@ class ASTArithmeticOperator(ASTNode):
         is_pow_op = False  # type:bool
     """
 
-    def __init__(self, is_times_op: bool, is_div_op: bool, is_modulo_op: bool, is_plus_op:bool, is_minus_op:bool, is_pow_op:bool, *args, **kwargs):
+    def __init__(self, is_times_op:bool, is_div_op:bool, is_modulo_op:bool, is_plus_op:bool, is_minus_op:bool, is_pow_op:bool, *args, **kwargs):
+        super(ASTArithmeticOperator, self).__init__(*args, **kwargs)
         assert ((is_times_op + is_div_op + is_modulo_op + is_plus_op + is_minus_op + is_pow_op) == 1), \
             '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified!'
-        super(ASTArithmeticOperator, self).__init__(*args, **kwargs)
         self.is_times_op = is_times_op
         self.is_div_op = is_div_op
         self.is_modulo_op = is_modulo_op
@@ -69,6 +68,8 @@ class ASTArithmeticOperator(ASTNode):
          in_comment=self.in_comment,
          post_comments=[s for s in self.post_comments],
          implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
 
     def get_parent(self, ast):

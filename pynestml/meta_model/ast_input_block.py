@@ -67,8 +67,8 @@ class ASTInputBlock(ASTNode):
         :return: new AST node instance
         :rtype: ASTInputBlock
         """
-        input_definitions_dup = [input_definition.clone() for input_definition in input_definitions]
-        dup = ASTAssignment(input_definitions=input_definitions_dup,
+        input_definitions_dup = [input_definition.clone() for input_definition in self.input_definitions]
+        dup = ASTInputBlock(input_definitions=input_definitions_dup,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,
@@ -99,7 +99,7 @@ class ASTInputBlock(ASTNode):
         for port in self.get_input_ports():
             if port is ast:
                 return self
-            elif port.get_parent(ast) is not None:
+            if port.get_parent(ast) is not None:
                 return port.get_parent(ast)
         return None
 

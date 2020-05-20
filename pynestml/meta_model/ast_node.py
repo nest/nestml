@@ -116,7 +116,6 @@ class ASTNode(metaclass=ABCMeta):
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         self.implicit_conversion_factor = implicit_factor
-        return
 
     def get_implicit_conversion_factor(self):
         """

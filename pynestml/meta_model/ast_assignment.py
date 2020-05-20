@@ -18,9 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_expression import ASTExpression
 
 
 class ASTAssignment(ASTNode):
@@ -44,8 +46,8 @@ class ASTAssignment(ASTNode):
         rhs = None
     """
 
-    def __init__(self, lhs=None, is_direct_assignment=False, is_compound_sum=False, is_compound_minus=False,
-                 is_compound_product=False, is_compound_quotient=False, rhs=None, *args, **kwargs):
+    def __init__(self, lhs:Optional[ASTVariable]=None, is_direct_assignment:bool=False, is_compound_sum:bool=False, is_compound_minus:bool=False,
+                 is_compound_product:bool=False, is_compound_quotient:bool=False, rhs:Optional[ASTExpression]=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -132,7 +134,7 @@ class ASTAssignment(ASTNode):
         """
         if self.get_variable() is ast:
             return self
-        elif self.get_expression() is ast:
+        if self.get_expression() is ast:
             return self
         if self.get_variable().get_parent(ast) is not None:
             return self.get_variable().get_parent(ast)

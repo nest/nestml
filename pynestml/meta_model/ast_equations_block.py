@@ -72,7 +72,7 @@ class ASTEquationsBlock(ASTNode):
         declarations_dup = None
         if self.declarations:
             declarations_dup = [decl.clone() for decl in self.declarations]
-        dup = ASTAssignment(declarations=declarations_dup,
+        dup = ASTEquationsBlock(declarations=declarations_dup,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,
@@ -103,7 +103,7 @@ class ASTEquationsBlock(ASTNode):
         for decl in self.get_declarations():
             if decl is ast:
                 return self
-            elif decl.get_parent(ast) is not None:
+            if decl.get_parent(ast) is not None:
                 return decl.get_parent(ast)
         return None
 
@@ -149,7 +149,6 @@ class ASTEquationsBlock(ASTNode):
         """
         del self.declarations
         self.declarations = list()
-        return
 
     def equals(self, other):
         """

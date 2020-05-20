@@ -117,11 +117,11 @@ class ASTOdeFunction(ASTNode):
         """
         if self.get_data_type() is ast:
             return self
-        elif self.get_data_type().get_parent(ast) is not None:
+        if self.get_data_type().get_parent(ast) is not None:
             return self.get_data_type().get_parent(ast)
         if self.get_expression() is ast:
             return self
-        elif self.get_expression().get_parent(ast) is not None:
+        if self.get_expression().get_parent(ast) is not None:
             return self.get_expression().get_parent(ast)
         return None
 

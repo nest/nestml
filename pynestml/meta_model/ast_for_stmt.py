@@ -147,15 +147,15 @@ class ASTForStmt(ASTNode):
         """
         if self.get_start_from() is ast:
             return self
-        elif self.get_start_from().get_parent(ast) is not None:
+        if self.get_start_from().get_parent(ast) is not None:
             return self.get_start_from().get_parent(ast)
         if self.get_end_at() is ast:
             return self
-        elif self.get_end_at().get_parent(ast) is not None:
+        if self.get_end_at().get_parent(ast) is not None:
             return self.get_end_at().get_parent(ast)
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 
