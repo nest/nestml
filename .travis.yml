@@ -24,9 +24,9 @@ before_install:
 
   # install antrl4
   - sudo apt install openjdk-8-jre
-  - wget http://www.antlr.org/download/antlr-4.7.1-complete.jar
+  - wget http://www.antlr.org/download/antlr-4.8-complete.jar
   - echo \#\!/bin/bash > antlr4
-  - echo java -cp \"`pwd`/antlr-4.7.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+  - echo java -cp \"`pwd`/antlr-4.8-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
   - echo >> antlr4
   - chmod +x antlr4
   - export PATH=$PATH:`pwd`
@@ -37,7 +37,7 @@ before_install:
 
   # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
   - pip uninstall --yes odetoolbox
-  - pip install git+https://github.com/nest/ode-toolbox.git
+  - pip install git+https://github.com/nest/ode-toolbox.git@509a1e8b17c0f36d7eb749812a6882ca7f1142b1
 
 install:
   # in install, we install NESTML itself
@@ -74,7 +74,7 @@ jobs:
         - echo $PYTHON_INCLUDE_DIR
         - export PYTHON_LIB_DIR=`find /usr/lib/x86_64-linux-gnu -name "libpython3*.so"`
         - echo $PYTHON_LIB_DIR
-        - cmake -DCMAKE_INSTALL_PREFIX=~/nest_install -Dwith-python=3 -DPYTHON_LIBRARY=$PYTHON_LIB_DIR -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR ~/nest-simulator
+        - cmake -DCMAKE_INSTALL_PREFIX=~/nest_install -DPYTHON_LIBRARY=$PYTHON_LIB_DIR -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR ~/nest-simulator
         - make && make install 
 
         # install NESTML itself
