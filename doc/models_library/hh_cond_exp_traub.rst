@@ -1,38 +1,60 @@
 hh_cond_exp_traub
 #################
 
-Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
 
-Description:
 
- hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model
+Description
++++++++++++
 
- (1) Post-synaptic currents
- Incoming spike events induce a post-synaptic change of conductance modeled
- by an exponential function. The exponential function is normalized such that an
- event of weight 1.0 results in a peak current of 1 nS.
+hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model.
 
- (2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
+This model was specifically developed for a major review of simulators [1]_,
+based on a model of hippocampal pyramidal cells by Traub and Miles [2]_.
+The key differences between the current model and the model in [2]_ are:
 
-Problems/Todo:
-Only the channel variables m,h,n are implemented. The original
-contains variables called y,s,r,q and \chi.
-References:
+- This model is a point neuron, not a compartmental model.
+- This model includes only I_Na and I_K, with simpler I_K dynamics than
+  in [2]_, so it has only three instead of eight gating variables;
+  in particular, all Ca dynamics have been removed.
+- Incoming spikes induce an instantaneous conductance change followed by
+  exponential decay instead of activation over time.
 
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-Cambridge University Press, Cambridge UK.
+This model is primarily provided as reference implementation for hh_coba
+example of the Brette et al (2007) review. Default parameter values are chosen
+to match those used with NEST 1.9.10 when preparing data for [1]_. Code for all
+simulators covered is available from ModelDB [3]_.
 
-Sends: SpikeEvent
+Note: In this model, a spike is emitted if :math:`V_m >= V_T + 30` mV and
+:math:`V_m` has fallen during the current time step.
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+To avoid that this leads to multiple spikes during the falling flank of a
+spike, it is essential to choose a sufficiently long refractory period.
+Traub and Miles used :math:`t_{ref} = 3` ms [2, p 118], while we used
+:math:`t_{ref} = 2` ms in [2]_.
 
-Author: Schrader
 
-SeeAlso: hh_psc_alpha
+References
+++++++++++
 
+.. [1] Brette R et al. (2007). Simulation of networks of spiking neurons: A
+       review of tools and strategies. Journal of Computational Neuroscience
+       23:349-98. DOI: https://doi.org/10.1007/s10827-007-0038-6
+.. [2] Traub RD and Miles R (1991). Neuronal networks of the hippocampus.
+       Cambridge University Press, Cambridge UK.
+.. [3] http://modeldb.yale.edu/83319
+
+
+See also
+++++++++
+
+hh_psc_alpha
+
+
+Author
+++++++
+
+Schrader
 
 
 Parameters
@@ -51,7 +73,7 @@ Parameters
     "C_m", "pF", "200.0pF", "Membrane Capacitance"    
     "E_Na", "mV", "50mV", "Reversal potentials"    
     "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
-    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential"    
+    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
     "V_T", "mV", "-63.0mV", "Voltage offset that controls dynamics. For default"    
     "tau_syn_ex", "ms", "5.0ms", "parameters, V_T = -63 mV results in a threshold around -50 mV.Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "10.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
@@ -116,37 +138,60 @@ Source code
 .. code:: nestml
 
    """
-   Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+   hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
+   #######################################################################
 
-   Description:
+   Description
+   +++++++++++
 
-    hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model
+   hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model.
 
-    (1) Post-synaptic currents
-    Incoming spike events induce a post-synaptic change of conductance modeled
-    by an exponential function. The exponential function is normalized such that an
-    event of weight 1.0 results in a peak current of 1 nS.
+   This model was specifically developed for a major review of simulators [1]_,
+   based on a model of hippocampal pyramidal cells by Traub and Miles [2]_.
+   The key differences between the current model and the model in [2]_ are:
 
-    (2) Spike Detection
-    Spike detection is done by a combined threshold-and-local-maximum search: if
-    there is a local maximum above a certain threshold of the membrane potential,
-    it is considered a spike.
+   - This model is a point neuron, not a compartmental model.
+   - This model includes only I_Na and I_K, with simpler I_K dynamics than
+     in [2]_, so it has only three instead of eight gating variables;
+     in particular, all Ca dynamics have been removed.
+   - Incoming spikes induce an instantaneous conductance change followed by
+     exponential decay instead of activation over time.
 
-   Problems/Todo:
-   Only the channel variables m,h,n are implemented. The original
-   contains variables called y,s,r,q and \chi.
-   References:
+   This model is primarily provided as reference implementation for hh_coba
+   example of the Brette et al (2007) review. Default parameter values are chosen
+   to match those used with NEST 1.9.10 when preparing data for [1]_. Code for all
+   simulators covered is available from ModelDB [3]_.
 
-   Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-   Cambridge University Press, Cambridge UK.
+   Note: In this model, a spike is emitted if :math:`V_m >= V_T + 30` mV and
+   :math:`V_m` has fallen during the current time step.
 
-   Sends: SpikeEvent
+   To avoid that this leads to multiple spikes during the falling flank of a
+   spike, it is essential to choose a sufficiently long refractory period.
+   Traub and Miles used :math:`t_{ref} = 3` ms [2, p 118], while we used
+   :math:`t_{ref} = 2` ms in [2]_.
 
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-   Author: Schrader
+   References
+   ++++++++++
 
-   SeeAlso: hh_psc_alpha
+   .. [1] Brette R et al. (2007). Simulation of networks of spiking neurons: A
+          review of tools and strategies. Journal of Computational Neuroscience
+          23:349-98. DOI: https://doi.org/10.1007/s10827-007-0038-6
+   .. [2] Traub RD and Miles R (1991). Neuronal networks of the hippocampus.
+          Cambridge University Press, Cambridge UK.
+   .. [3] http://modeldb.yale.edu/83319
+
+
+   See also
+   ++++++++
+
+   hh_psc_alpha
+
+
+   Author
+   ++++++
+
+   Schrader
    """
    neuron hh_cond_exp_traub:
 
@@ -256,4 +301,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:12.687426
+   Generated at 2020-05-26 15:42:24.525615

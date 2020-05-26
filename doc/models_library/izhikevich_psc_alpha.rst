@@ -1,34 +1,48 @@
 izhikevich_psc_alpha
 ####################
 
-Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped
-                             post-synaptic current.
+izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped post-synaptic current
 
-Description:
-Implementation of the simple spiking neuron model introduced by Izhikevich
-[1]. The dynamics are given by:
-   C_m dV_m/dt = k (V-V_t)(V-V_t) - u + I + I_syn_ex + I_syn_in
-   dU_m/dt = a*(b*(V_m-E_L) - U_m)
 
-   if v >= V_th:
-     V_m is set to c
-     U_m is incremented by d
+Description
++++++++++++
 
-   On each spike arrival, the membrane potential feels an alpha-shaped current
-   of the form:
-     I_syn = I_0 * t * exp(-t/tau_syn) / tau_syn.
+Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
+and current-based synapses.
 
-References:
-[1] Izhikevich, Simple Model of Spiking Neurons,
-IEEE Transactions on Neural Networks (2003) 14:1569-1572
+The dynamics are given by:
 
-Sends: SpikeEvent
+.. math::
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-FirstVersion: 2009
-Author: Hanuschkin, Morrison, Kunkel
-SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
+   C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
+   \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
 
+   &\text{if}\;\;\; V_m \geq V_{th}:\\
+   &\;\;\;\; V_m \text{ is set to } c
+   &\;\;\;\; U_m \text{ is incremented by } d
+
+On each spike arrival, the membrane potential feels an alpha-shaped current of the form:
+
+.. math::
+
+  I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
+
+See also
+++++++++
+
+izhikevich, iaf_psc_alpha
+
+
+References
+++++++++++
+
+.. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+
+
+Authors
++++++++
+
+Hanuschkin, Morrison, Kunkel
 
 
 Parameters
@@ -49,7 +63,7 @@ Parameters
     "b", "nS", "9.0nS", "sensitivity of recovery variable"    
     "c", "mV", "-65mV", "after-spike reset value of V_m"    
     "d", "pA", "60.0pA", "after-spike reset value of U_m"    
-    "V_peak", "mV", "0.0mV", "Spike detection threashold (reset condition"    
+    "V_peak", "mV", "0.0mV", "Spike detection threashold (reset condition)"    
     "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "t_ref", "ms", "2.0ms", "Refractory period"    
@@ -95,33 +109,48 @@ Source code
 .. code:: nestml
 
    """
-   Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped
-                                post-synaptic current.
+   izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped post-synaptic current
+   ###############################################################################################
 
-   Description:
-   Implementation of the simple spiking neuron model introduced by Izhikevich
-   [1]. The dynamics are given by:
-      C_m dV_m/dt = k (V-V_t)(V-V_t) - u + I + I_syn_ex + I_syn_in
-      dU_m/dt = a*(b*(V_m-E_L) - U_m)
+   Description
+   +++++++++++
 
-      if v >= V_th:
-        V_m is set to c
-        U_m is incremented by d
+   Implementation of the simple spiking neuron model introduced by Izhikevich [1]_, with membrane potential in (milli)volt
+   and current-based synapses.
 
-      On each spike arrival, the membrane potential feels an alpha-shaped current
-      of the form:
-        I_syn = I_0 * t * exp(-t/tau_syn) / tau_syn.
+   The dynamics are given by:
 
-   References:
-   [1] Izhikevich, Simple Model of Spiking Neurons,
-   IEEE Transactions on Neural Networks (2003) 14:1569-1572
+   .. math::
 
-   Sends: SpikeEvent
+      C_m \frac{dV_m}{dt} = k (V - V_t)(V - V_t) - u + I + I_{syn,ex} + I_{syn,in}
+      \frac{dU_m}{dt} = a(b(V_m - E_L) - U_m)
 
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-   FirstVersion: 2009
-   Author: Hanuschkin, Morrison, Kunkel
-   SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
+      &\text{if}\;\;\; V_m \geq V_{th}:\\
+      &\;\;\;\; V_m \text{ is set to } c
+      &\;\;\;\; U_m \text{ is incremented by } d
+
+   On each spike arrival, the membrane potential feels an alpha-shaped current of the form:
+
+   .. math::
+
+     I_syn = I_0 \cdot t \cdot \exp\left(-t/\tau_{syn}\right) / \tau_{syn}
+
+   See also
+   ++++++++
+
+   izhikevich, iaf_psc_alpha
+
+
+   References
+   ++++++++++
+
+   .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
+
+
+   Authors
+   +++++++
+
+   Hanuschkin, Morrison, Kunkel
    """
 
    neuron izhikevich_psc_alpha:
@@ -204,4 +233,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:12.640639
+   Generated at 2020-05-26 15:42:24.460020

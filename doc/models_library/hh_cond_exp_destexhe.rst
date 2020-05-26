@@ -1,44 +1,35 @@
 hh_cond_exp_destexhe
 ####################
 
-Name: hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified.
+hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 
-Description:
 
- hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is
- based on the hh_cond_exp_traub model.
+Description
++++++++++++
 
- Differences to hh_cond_exp_traub:
+hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is based on the hh_cond_exp_traub model.
 
- (1) Additional background noise
- A background current whose conductances were modeled as an Ornstein-Uhlenbeck process
- is injected into the neuron.
+Differences to hh_cond_exp_traub:
 
- (2) Additional non-inactivating K+ current
- A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
+(1) **Additional background noise:** A background current whose conductances were modeled as an Ornstein-Uhlenbeck process is injected into the neuron.
+(2) **Additional non-inactivating K+ current:** A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
 
-References:
+References
+++++++++++
 
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-Cambridge University Press, Cambridge UK.
+.. [1] Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK.
+.. [2] Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo. Journal of Neurophysiology
+.. [3] A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons. Neuroscience
+.. [4] Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons. Neuron
 
-Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo
-Journal of Neurophysiology
+Author
+++++++
+Tobias Schulte to Brinke
 
-A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons
-Neuroscience
+See also
+++++++++
 
-Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons
-Neuron
-
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-Author: Tobias Schulte to Brinke
-
-SeeAlso: hh_cond_exp_traub
-
+hh_cond_exp_traub
 
 
 Parameters
@@ -57,7 +48,7 @@ Parameters
     "C_m", "pF", "346.36pF", "Membrane Capacitance"    
     "E_Na", "mV", "60mV", "Reversal potentials"    
     "E_K", "mV", "-90.0mV", "Potassium reversal potential"    
-    "E_L", "mV", "-80.0mV", "Leak reversal Potential (aka resting potential"    
+    "E_L", "mV", "-80.0mV", "Leak reversal Potential (aka resting potential)"    
     "V_T", "mV", "-58.0mV", "Voltage offset that controls dynamics. For default"    
     "tau_syn_ex", "ms", "2.7ms", "parameters, V_T = -63mV results in a threshold around -50mV.Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "10.5ms", "Synaptic Time Constant for Inhibitory Synapse"    
@@ -132,45 +123,37 @@ Source code
 
 .. code:: nestml
 
-   /*
-   Name: hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified.
+   """
+   hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
+   #####################################################################################
 
-   Description:
+   Description
+   +++++++++++
 
-    hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is
-    based on the hh_cond_exp_traub model.
+   hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is based on the hh_cond_exp_traub model.
 
-    Differences to hh_cond_exp_traub:
+   Differences to hh_cond_exp_traub:
 
-    (1) Additional background noise
-    A background current whose conductances were modeled as an Ornstein-Uhlenbeck process
-    is injected into the neuron.
+   (1) **Additional background noise:** A background current whose conductances were modeled as an Ornstein-Uhlenbeck process is injected into the neuron.
+   (2) **Additional non-inactivating K+ current:** A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
 
-    (2) Additional non-inactivating K+ current
-    A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
+   References
+   ++++++++++
 
-   References:
+   .. [1] Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK.
+   .. [2] Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo. Journal of Neurophysiology
+   .. [3] A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons. Neuroscience
+   .. [4] Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons. Neuron
 
-   Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-   Cambridge University Press, Cambridge UK.
+   Author
+   ++++++
+   Tobias Schulte to Brinke
 
-   Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo
-   Journal of Neurophysiology
+   See also
+   ++++++++
 
-   A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons
-   Neuroscience
-
-   Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons
-   Neuron
-
-   Sends: SpikeEvent
-
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-   Author: Tobias Schulte to Brinke
-
-   SeeAlso: hh_cond_exp_traub
-   */
+   hh_cond_exp_traub
+   """
    neuron hh_cond_exp_destexhe:
 
      state:
@@ -308,4 +291,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:12.522530
+   Generated at 2020-05-26 15:42:24.307185

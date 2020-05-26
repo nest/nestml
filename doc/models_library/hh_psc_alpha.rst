@@ -1,51 +1,53 @@
 hh_psc_alpha
 ############
 
-Name: hh_psc_alpha - Hodgkin Huxley neuron model.
-
-Description:
-
- hh_psc_alpha is an implementation of a spiking neuron using the Hodkin-Huxley
- formalism.
-
- (1) Post-syaptic currents
- Incoming spike events induce a post-synaptic change of current modelled
- by an alpha function. The alpha function is normalised such that an event of
- weight 1.0 results in a peak current of 1 pA.
+hh_psc_alpha - Hodgkin-Huxley neuron model
 
 
- (2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
+Description
++++++++++++
 
-Problems/Todo:
+hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
+formalism.
 
- better spike detection
- initial wavelet/spike at simulation onset
+1. Post-synaptic currents
+Incoming spike events induce a post-synaptic change of current modelled
+by an alpha function. The alpha function is normalised such that an event of
+weight 1.0 results in a peak current of 1 pA.
 
-References:
 
- Spiking Neuron Models:
- Single Neurons, Populations, Plasticity
- Wulfram Gerstner, Werner Kistler,  Cambridge University Press
+2. Spike Detection
+Spike detection is done by a combined threshold-and-local-maximum search: if
+there is a local maximum above a certain threshold of the membrane potential,
+it is considered a spike.
 
- Theoretical Neuroscience:
- Computational and Mathematical Modeling of Neural Systems
- Peter Dayan, L. F. Abbott, MIT Press (parameters taken from here)
 
- Hodgkin, A. L. and Huxley, A. F.,
- A Quantitative Description of Membrane Current
- and Its Application to Conduction and Excitation in Nerve,
- Journal of Physiology, 117, 500-544 (1952)
+Problems/Todo
++++++++++++++
 
-Sends: SpikeEvent
+- better spike detection
+- initial wavelet/spike at simulation onset
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-Authors: Schrader
-SeeAlso: hh_cond_exp_traub
+References
+++++++++++
 
+
+.. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
+       populations, plasticity. New York: Cambridge University Press
+.. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
+       mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+       https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
+.. [3] Hodgkin AL and Huxley A F (1952). A quantitative description of
+       membrane current and its application to conduction and excitation in
+       nerve. The Journal of Physiology 117.
+       DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
+
+
+See also
+++++++++
+
+hh_cond_exp_traub
 
 
 Parameters
@@ -65,7 +67,7 @@ Parameters
     "C_m", "pF", "100.0pF", "Membrane Capacitance"    
     "E_Na", "mV", "50mV", "Sodium reversal potential"    
     "E_K", "mV", "-77.0mV", "Potassium reversal potentia"    
-    "E_L", "mV", "-54.402mV", "Leak reversal Potential (aka resting potential"    
+    "E_L", "mV", "-54.402mV", "Leak reversal Potential (aka resting potential)"    
     "tau_syn_ex", "ms", "0.2ms", "Rise time of the excitatory synaptic alpha function i"    
     "tau_syn_in", "ms", "2.0ms", "Rise time of the inhibitory synaptic alpha function"    
     "I_e", "pA", "0pA", "constant external input current"
@@ -126,50 +128,53 @@ Source code
 .. code:: nestml
 
    """
-   Name: hh_psc_alpha - Hodgkin Huxley neuron model.
+   hh_psc_alpha - Hodgkin-Huxley neuron model
+   ##########################################
 
-   Description:
+   Description
+   +++++++++++
 
-    hh_psc_alpha is an implementation of a spiking neuron using the Hodkin-Huxley
-    formalism.
+   hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
+   formalism.
 
-    (1) Post-syaptic currents
-    Incoming spike events induce a post-synaptic change of current modelled
-    by an alpha function. The alpha function is normalised such that an event of
-    weight 1.0 results in a peak current of 1 pA.
+   1. Post-synaptic currents
+   Incoming spike events induce a post-synaptic change of current modelled
+   by an alpha function. The alpha function is normalised such that an event of
+   weight 1.0 results in a peak current of 1 pA.
 
 
-    (2) Spike Detection
-    Spike detection is done by a combined threshold-and-local-maximum search: if
-    there is a local maximum above a certain threshold of the membrane potential,
-    it is considered a spike.
+   2. Spike Detection
+   Spike detection is done by a combined threshold-and-local-maximum search: if
+   there is a local maximum above a certain threshold of the membrane potential,
+   it is considered a spike.
 
-   Problems/Todo:
 
-    better spike detection
-    initial wavelet/spike at simulation onset
+   Problems/Todo
+   +++++++++++++
 
-   References:
+   - better spike detection
+   - initial wavelet/spike at simulation onset
 
-    Spiking Neuron Models:
-    Single Neurons, Populations, Plasticity
-    Wulfram Gerstner, Werner Kistler,  Cambridge University Press
 
-    Theoretical Neuroscience:
-    Computational and Mathematical Modeling of Neural Systems
-    Peter Dayan, L. F. Abbott, MIT Press (parameters taken from here)
+   References
+   ++++++++++
 
-    Hodgkin, A. L. and Huxley, A. F.,
-    A Quantitative Description of Membrane Current
-    and Its Application to Conduction and Excitation in Nerve,
-    Journal of Physiology, 117, 500-544 (1952)
 
-   Sends: SpikeEvent
+   .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
+          populations, plasticity. New York: Cambridge University Press
+   .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
+          mathematical modeling of neural systems. Cambridge, MA: MIT Press.
+          https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127>
+   .. [3] Hodgkin AL and Huxley A F (1952). A quantitative description of
+          membrane current and its application to conduction and excitation in
+          nerve. The Journal of Physiology 117.
+          DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
 
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-   Authors: Schrader
-   SeeAlso: hh_cond_exp_traub
+   See also
+   ++++++++
+
+   hh_cond_exp_traub
    """
    neuron hh_psc_alpha:
      state:
@@ -272,4 +277,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:12.875034
+   Generated at 2020-05-26 15:42:24.783678

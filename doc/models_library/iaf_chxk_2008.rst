@@ -1,29 +1,39 @@
 iaf_chxk_2008
 #############
 
-Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
-                      used in Casti et al 2008.
+iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
 
-Description:
+
+Description
++++++++++++
+
 iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
-conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the
-addition of after hyper-polarization current instead of a membrane potential
-reset. Incoming spike events induce a post-synaptic change of conductance
-modeled by an alpha function. The alpha function is normalized such that an
-event of weight 1.0 results in a peak current of 1 nS at t = tau_syn.
+conductance-based synapses [1]_. A spike is emitted when the membrane potential
+is crossed from below. After a spike, an afterhyperpolarizing (AHP) conductance
+is activated which repolarizes the neuron over time. Membrane potential is not
+reset explicitly and the model also has no explicit refractory time.
 
-References:
-[1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN
-transmission. J Comput Neurosci 24:235-252.
+The AHP conductance and excitatory and inhibitory synaptic input conductances
+follow alpha-function time courses as in the iaf_cond_alpha model.
 
-Sends: SpikeEvent
+.. note ::
+   In the original Fortran implementation underlying [1]_, all previous AHP activation was discarded when a new spike
+   occurred, leading to reduced AHP currents in particular during periods of high spiking activity. Set ``ahp_bug`` to
+   ``true`` to obtain this behavior in the model.
 
-Receives: SpikeEvent, CurrentEvent
 
-Author: Heiberg
+References
+++++++++++
 
-SeeAlso: iaf_cond_alpha
+.. [1] Casti A, Hayot F, Xiao Y, Kaplan E (2008) A simple model of retina-LGN
+       transmission. Journal of Computational Neuroscience 24:235-252.
+       DOI: https://doi.org/10.1007/s10827-007-0053-7
 
+
+See also
+++++++++
+
+iaf_cond_alpha
 
 
 Parameters
@@ -41,7 +51,7 @@ Parameters
     "E_in", "mV", "-90mV", "Inhibitory reversal potential"    
     "g_L", "nS", "100nS", "Leak Conductance"    
     "C_m", "pF", "1000.0pF", "Membrane Capacitance"    
-    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential"    
+    "E_L", "mV", "-60.0mV", "Leak reversal Potential (aka resting potential)"    
     "tau_syn_ex", "ms", "1ms", "Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "1ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "tau_ahp", "ms", "0.5ms", "Afterhyperpolarization (AHP) time constant"    
@@ -95,28 +105,39 @@ Source code
 .. code:: nestml
 
    """
-   Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
-                         used in Casti et al 2008.
+   iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model used in Casti et al. 2008
+   #################################################################################################
 
-   Description:
+   Description
+   +++++++++++
+
    iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
-   conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the
-   addition of after hyper-polarization current instead of a membrane potential
-   reset. Incoming spike events induce a post-synaptic change of conductance
-   modeled by an alpha function. The alpha function is normalized such that an
-   event of weight 1.0 results in a peak current of 1 nS at t = tau_syn.
+   conductance-based synapses [1]_. A spike is emitted when the membrane potential
+   is crossed from below. After a spike, an afterhyperpolarizing (AHP) conductance
+   is activated which repolarizes the neuron over time. Membrane potential is not
+   reset explicitly and the model also has no explicit refractory time.
 
-   References:
-   [1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN
-   transmission. J Comput Neurosci 24:235-252.
+   The AHP conductance and excitatory and inhibitory synaptic input conductances
+   follow alpha-function time courses as in the iaf_cond_alpha model.
 
-   Sends: SpikeEvent
+   .. note ::
+      In the original Fortran implementation underlying [1]_, all previous AHP activation was discarded when a new spike
+      occurred, leading to reduced AHP currents in particular during periods of high spiking activity. Set ``ahp_bug`` to
+      ``true`` to obtain this behavior in the model.
 
-   Receives: SpikeEvent, CurrentEvent
 
-   Author: Heiberg
+   References
+   ++++++++++
 
-   SeeAlso: iaf_cond_alpha
+   .. [1] Casti A, Hayot F, Xiao Y, Kaplan E (2008) A simple model of retina-LGN
+          transmission. Journal of Computational Neuroscience 24:235-252.
+          DOI: https://doi.org/10.1007/s10827-007-0053-7
+
+
+   See also
+   ++++++++
+
+   iaf_cond_alpha
    """
    neuron iaf_chxk_2008:
 
@@ -219,4 +240,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:12.580975
+   Generated at 2020-05-26 15:42:24.379921

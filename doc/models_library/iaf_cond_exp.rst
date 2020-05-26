@@ -1,30 +1,36 @@
 iaf_cond_exp
 ############
 
-Name: iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron
-                     model.
+iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron model
 
-Description:
+
+Description
++++++++++++
+
 iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
 conductance-based synapses. Incoming spike events induce a post-synaptic change
 of conductance modelled by an exponential function. The exponential function
 is normalised such that an event of weight 1.0 results in a peak conductance of
 1 nS.
 
-Sends: SpikeEvent
+References
+++++++++++
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+.. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+       model for the large, fluctuating synaptic conductance state typical of
+       neocortical neurons in vivo. Journal of Computational Neuroscience,
+       16:159-175.
+       DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
 
-References:
+See also
+++++++++
 
-Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
-model for the large, fluctuating synaptic conductance state typical of
-neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 
-Author: Sven Schrader
+Author
+++++++
 
-SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
-
+Sven Schrader
 
 
 Parameters
@@ -44,7 +50,7 @@ Parameters
     "C_m", "pF", "250.0pF", "Membrane Capacitance"    
     "E_ex", "mV", "0mV", "Excitatory reversal Potential"    
     "E_in", "mV", "-85.0mV", "Inhibitory reversal Potential"    
-    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential"    
+    "E_L", "mV", "-70.0mV", "Leak reversal Potential (aka resting potential)"    
     "tau_syn_ex", "ms", "0.2ms", "Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "2.0ms", "Synaptic Time Constant for Inhibitory Synapse"    
     "I_e", "pA", "0pA", "constant external input current"
@@ -84,29 +90,36 @@ Source code
 .. code:: nestml
 
    """
-   Name: iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron
-                        model.
+   iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron model
+   #############################################################################
 
-   Description:
+   Description
+   +++++++++++
+
    iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
    conductance-based synapses. Incoming spike events induce a post-synaptic change
    of conductance modelled by an exponential function. The exponential function
    is normalised such that an event of weight 1.0 results in a peak conductance of
    1 nS.
 
-   Sends: SpikeEvent
+   References
+   ++++++++++
 
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+   .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+          model for the large, fluctuating synaptic conductance state typical of
+          neocortical neurons in vivo. Journal of Computational Neuroscience,
+          16:159-175.
+          DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
 
-   References:
+   See also
+   ++++++++
 
-   Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
-   model for the large, fluctuating synaptic conductance state typical of
-   neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+   iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 
-   Author: Sven Schrader
+   Author
+   ++++++
 
-   SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+   Sven Schrader
    """
    neuron iaf_cond_exp:
 
@@ -181,4 +194,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:12.824604
+   Generated at 2020-05-26 15:42:24.690532

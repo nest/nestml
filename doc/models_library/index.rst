@@ -152,10 +152,10 @@ Source file: `izhikevich_psc_alpha.nestml <https://www.github.com/nest/nestml/bl
 Source file: `hh_cond_exp_traub.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_cond_exp_traub.nestml>`_
 
 
-:doc:`iaf_tum_2000 <iaf_tum_2000>`
+:doc:`iaf_psc_exp_htum <iaf_psc_exp_htum>`
 ----------------------------------
 
-Source file: `iaf_tum_2000.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_tum_2000.nestml>`_
+Source file: `iaf_psc_exp_htum.nestml <https://www.github.com/nest/nestml/blob/master/models/iaf_psc_exp_htum.nestml>`_
 
 
 :doc:`iaf_cond_exp_sfa_rr <iaf_cond_exp_sfa_rr>`

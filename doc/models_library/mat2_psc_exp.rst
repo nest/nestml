@@ -1,65 +1,53 @@
 mat2_psc_exp
 ############
 
-Name: mat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model with
-exponential PSCs and adaptive threshold.
+mat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model with exponential PSCs and adaptive threshold
 
-Description:
+
+Description
++++++++++++
+
 mat2_psc_exp is an implementation of a leaky integrate-and-fire model
 with exponential shaped postsynaptic currents (PSCs). Thus, postsynaptic
 currents have an infinitely short rise time.
 
 The threshold is lifted when the neuron is fired and then decreases in a
-fixed time scale toward a fixed level [3].
+fixed time scale toward a fixed level [3]_.
 
 The threshold crossing is followed by a total refractory period
 during which the neuron is not allowed to fire, even if the membrane
 potential exceeds the threshold. The membrane potential is NOT reset,
 but continuously integrated.
 
-The linear subthresold dynamics is integrated by the Exact
-Integration scheme [1]. The neuron dynamics is solved on the time
-grid given by the computation step size. Incoming as well as emitted
-spikes are forced to that grid.
+.. note::
+   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   may arise due to singularities in the propagator matrics. If this is
+   the case, replace equal-valued parameters by a single parameter.
 
-An additional state variable and the corresponding differential
-equation represents a piecewise constant external current.
+   For details, please see ``IAF_neurons_singularity.ipynb`` in
+   the NEST source code (``docs/model_details``).
 
-The general framework for the consistent formulation of systems with
-neuron like dynamics interacting by point events is described in
-[1]. A flow chart can be found in [2].
 
-Remarks:
-The present implementation uses individual variables for the
-components of the state vector and the non-zero matrix elements of
-the propagator. Because the propagator is a lower triangular matrix
-no full matrix multiplication needs to be carried out and the
-computation can be done "in place" i.e. no temporary state vector
-object is required.
+References
+++++++++++
 
-Remarks:
-tau_m != tau_syn_{ex,in} is required by the current implementation to avoid a
-degenerate case of the ODE describing the model [1]. For very similar values,
-numerics will be unstable.
+.. [1] Rotter S and Diesmann M (1999). Exact simulation of
+       time-invariant linear systems with applications to neuronal
+       modeling. Biologial Cybernetics 81:381-402.
+       DOI: https://doi.org/10.1007/s004220050570
+.. [2] Diesmann M, Gewaltig M-O, Rotter S, Aertsen A (2001). State
+       space analysis of synchronous spiking in cortical neural
+       networks. Neurocomputing 38-40:565-571.
+       DOI:https://doi.org/10.1016/S0925-2312(01)00409-X
+.. [3] Kobayashi R, Tsubo Y and Shinomoto S (2009). Made-to-order
+       spiking neuron model equipped with a multi-timescale adaptive
+       threshold. Frontiers in Computuational Neuroscience 3:9.
+       DOI: https://doi.org/10.3389/neuro.10.009.2009
 
-References:
-[1] Rotter S & Diesmann M (1999) Exact simulation of
-   time-invariant linear systems with applications to neuronal
-   modeling. Biologial Cybernetics 81:381-402.
-[2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State
-   space analysis of synchronous spiking in cortical neural
-   networks. Neurocomputing 38-40:565-571.
-[3] Kobayashi R, Tsubo Y and Shinomoto S (2009) Made-to-order
-   spiking neuron model equipped with a multi-timescale adaptive
-   threshold. Front. Comput. Neurosci. 3:9. doi:10.3389/neuro.10.009.2009
+Author
+++++++
 
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-FirstVersion: Mai 2009
-Author: Thomas Pfeil (modified iaf_psc_exp model of Moritz Helias
-
+Thomas Pfeil (modified iaf_psc_exp model of Moritz Helias)
 
 
 Parameters
@@ -74,7 +62,7 @@ Parameters
     
     "tau_m", "ms", "5ms", "Membrane time constant"    
     "C_m", "pF", "100pF", "Capacity of the membrane"    
-    "t_ref", "ms", "2ms", "Duration of absolute refractory period (no spiking"    
+    "t_ref", "ms", "2ms", "Duration of absolute refractory period (no spiking)"    
     "E_L", "mV", "-70.0mV", "Resting potential"    
     "tau_syn_ex", "ms", "1ms", "Time constant of postsynaptic excitatory currents"    
     "tau_syn_in", "ms", "3ms", "Time constant of postsynaptic inhibitory currents"    
@@ -82,7 +70,7 @@ Parameters
     "tau_2", "ms", "200ms", "Long time constant of adaptive threshold"    
     "alpha_1", "mV", "37.0mV", "Amplitude of short time threshold adaption [3]"    
     "alpha_2", "mV", "2.0mV", "Amplitude of long time threshold adaption [3]"    
-    "omega", "mV", "19.0mV", "Resting spike threshold (absolute value, not relative to E_L"    
+    "omega", "mV", "19.0mV", "Resting spike threshold (absolute value, not relative to E_L)"    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -121,64 +109,53 @@ Source code
 .. code:: nestml
 
    """
-   Name: mat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model with
-   exponential PSCs and adaptive threshold.
+   mat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model with exponential PSCs and adaptive threshold
+   ###############################################################################################################
 
-   Description:
+   Description
+   +++++++++++
+
    mat2_psc_exp is an implementation of a leaky integrate-and-fire model
    with exponential shaped postsynaptic currents (PSCs). Thus, postsynaptic
    currents have an infinitely short rise time.
 
    The threshold is lifted when the neuron is fired and then decreases in a
-   fixed time scale toward a fixed level [3].
+   fixed time scale toward a fixed level [3]_.
 
    The threshold crossing is followed by a total refractory period
    during which the neuron is not allowed to fire, even if the membrane
    potential exceeds the threshold. The membrane potential is NOT reset,
    but continuously integrated.
 
-   The linear subthresold dynamics is integrated by the Exact
-   Integration scheme [1]. The neuron dynamics is solved on the time
-   grid given by the computation step size. Incoming as well as emitted
-   spikes are forced to that grid.
+   .. note::
+      If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+      may arise due to singularities in the propagator matrics. If this is
+      the case, replace equal-valued parameters by a single parameter.
 
-   An additional state variable and the corresponding differential
-   equation represents a piecewise constant external current.
+      For details, please see ``IAF_neurons_singularity.ipynb`` in
+      the NEST source code (``docs/model_details``).
 
-   The general framework for the consistent formulation of systems with
-   neuron like dynamics interacting by point events is described in
-   [1]. A flow chart can be found in [2].
 
-   Remarks:
-   The present implementation uses individual variables for the
-   components of the state vector and the non-zero matrix elements of
-   the propagator. Because the propagator is a lower triangular matrix
-   no full matrix multiplication needs to be carried out and the
-   computation can be done "in place" i.e. no temporary state vector
-   object is required.
+   References
+   ++++++++++
 
-   Remarks:
-   tau_m != tau_syn_{ex,in} is required by the current implementation to avoid a
-   degenerate case of the ODE describing the model [1]. For very similar values,
-   numerics will be unstable.
+   .. [1] Rotter S and Diesmann M (1999). Exact simulation of
+          time-invariant linear systems with applications to neuronal
+          modeling. Biologial Cybernetics 81:381-402.
+          DOI: https://doi.org/10.1007/s004220050570
+   .. [2] Diesmann M, Gewaltig M-O, Rotter S, Aertsen A (2001). State
+          space analysis of synchronous spiking in cortical neural
+          networks. Neurocomputing 38-40:565-571.
+          DOI:https://doi.org/10.1016/S0925-2312(01)00409-X
+   .. [3] Kobayashi R, Tsubo Y and Shinomoto S (2009). Made-to-order
+          spiking neuron model equipped with a multi-timescale adaptive
+          threshold. Frontiers in Computuational Neuroscience 3:9.
+          DOI: https://doi.org/10.3389/neuro.10.009.2009
 
-   References:
-   [1] Rotter S & Diesmann M (1999) Exact simulation of
-      time-invariant linear systems with applications to neuronal
-      modeling. Biologial Cybernetics 81:381-402.
-   [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State
-      space analysis of synchronous spiking in cortical neural
-      networks. Neurocomputing 38-40:565-571.
-   [3] Kobayashi R, Tsubo Y and Shinomoto S (2009) Made-to-order
-      spiking neuron model equipped with a multi-timescale adaptive
-      threshold. Front. Comput. Neurosci. 3:9. doi:10.3389/neuro.10.009.2009
+   Author
+   ++++++
 
-   Sends: SpikeEvent
-
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
-   FirstVersion: Mai 2009
-   Author: Thomas Pfeil (modified iaf_psc_exp model of Moritz Helias)
+   Thomas Pfeil (modified iaf_psc_exp model of Moritz Helias)
    """
    neuron mat2_psc_exp:
 
@@ -274,4 +251,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:13.233589
+   Generated at 2020-05-26 15:42:25.360288

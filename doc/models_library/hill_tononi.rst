@@ -1,55 +1,45 @@
 hill_tononi
 ###########
 
-Name: hill_tononi - Neuron model after Hill & Tononi (2005)
+hill_tononi - Neuron model after Hill & Tononi (2005)
 
-Description:
+
+Description
++++++++++++
 
 This model neuron implements a slightly modified version of the
-neuron model described in [1].
+neuron model described in [1]_. The most important properties are:
 
-The most important properties are:
-
-- Integrate-and-fire with threshold that is increased on spiking
- and decays back to an equilibrium value.
-- No hard reset, but repolarizing potassium current.
+- Integrate-and-fire with threshold adaptive threshold.
+- Repolarizing potassium current instead of hard reset.
 - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
- beta-function (difference of two exponentials) time course.
-- Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium),
- I_Na(p) (persistent sodium), and I_KNa (depolarization-activated
- potassium).
+  beta-function (difference of exponentials) time course.
+- Voltage-dependent NMDA with instantaneous or two-stage unblocking [1]_, [2]_.
+- Intrinsic currents I_h, I_T, I_Na(p), and I_KNa.
+- Synaptic "minis" are not implemented.
 
-In comparison to the model described in the paper, the following
-modifications were mare:
+Documentation and examples can be found on the NEST Simulator repository
+(https://github.com/nest/nest-simulator/) at the following paths:
+- docs/model_details/HillTononiModels.ipynb
+- pynest/examples/intrinsic_currents_spiking.py
+- pynest/examples/intrinsic_currents_subthreshold.py
 
-- NMDA conductance is given by g(t) = g_peak * m(V), where
 
-   m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) )
+References
+++++++++++
 
- This is an approximation to the NMDA model used in [2].
+.. [1] Hill S, Tononi G (2005). Modeling sleep and wakefulness in the
+       thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
+       DOI: https://doi.org/10.1152/jn.00915.2004
+.. [2] Vargas-Caballero M, Robinson HPC (2003). A slow fraction of Mg2+
+       unblock of NMDA receptors limits their  contribution to spike generation
+       in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
+       DOI: https://doi.org/10.1152/jn.01038.2002
 
-- Several apparent typographical errors in the descriptions of
- the intrinsic currents were fixed, hopefully in a meaningful
- way.
+Author
+++++++
 
-I'd like to thank Sean Hill for giving me access to his
-simulator source code.
-
-See examples/hilltononi for usage examples.
-
-Warning:
-THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
-
-Author: Hans Ekkehard Plesser
-
-FirstVersion: October 2009
-
-References:
-[1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698.
-[2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227.
-
-SeeAlso: ht_synapse
-
+Hans Ekkehard Plesser
 
 
 Parameters
@@ -66,7 +56,7 @@ Parameters
     "E_K", "mV", "-90.0mV", ""    
     "g_NaL", "nS", "0.2nS", ""    
     "g_KL", "nS", "1.0nS", "1.0 - 1.85"    
-    "Tau_m", "ms", "16.0ms", "membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677]"    
+    "Tau_m", "ms", "16.0ms", "membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])"    
     "Theta_eq", "mV", "-51.0mV", "equilibrium value"    
     "Tau_theta", "ms", "2.0ms", "time constant"    
     "Tau_spike", "ms", "1.75ms", "membrane time constant applying to repolarizing K-current"    
@@ -200,54 +190,45 @@ Source code
 .. code:: nestml
 
    """
-   Name: hill_tononi - Neuron model after Hill & Tononi (2005)
+   hill_tononi - Neuron model after Hill & Tononi (2005)
+   #####################################################
 
-   Description:
+   Description
+   +++++++++++
 
    This model neuron implements a slightly modified version of the
-   neuron model described in [1].
+   neuron model described in [1]_. The most important properties are:
 
-   The most important properties are:
-
-   - Integrate-and-fire with threshold that is increased on spiking
-    and decays back to an equilibrium value.
-   - No hard reset, but repolarizing potassium current.
+   - Integrate-and-fire with threshold adaptive threshold.
+   - Repolarizing potassium current instead of hard reset.
    - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
-    beta-function (difference of two exponentials) time course.
-   - Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium),
-    I_Na(p) (persistent sodium), and I_KNa (depolarization-activated
-    potassium).
+     beta-function (difference of exponentials) time course.
+   - Voltage-dependent NMDA with instantaneous or two-stage unblocking [1]_, [2]_.
+   - Intrinsic currents I_h, I_T, I_Na(p), and I_KNa.
+   - Synaptic "minis" are not implemented.
 
-   In comparison to the model described in the paper, the following
-   modifications were mare:
+   Documentation and examples can be found on the NEST Simulator repository
+   (https://github.com/nest/nest-simulator/) at the following paths:
+   - docs/model_details/HillTononiModels.ipynb
+   - pynest/examples/intrinsic_currents_spiking.py
+   - pynest/examples/intrinsic_currents_subthreshold.py
 
-   - NMDA conductance is given by g(t) = g_peak * m(V), where
 
-      m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) )
+   References
+   ++++++++++
 
-    This is an approximation to the NMDA model used in [2].
+   .. [1] Hill S, Tononi G (2005). Modeling sleep and wakefulness in the
+          thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
+          DOI: https://doi.org/10.1152/jn.00915.2004
+   .. [2] Vargas-Caballero M, Robinson HPC (2003). A slow fraction of Mg2+
+          unblock of NMDA receptors limits their  contribution to spike generation
+          in cortical pyramidal neurons. Journal of Neurophysiology 89:2778-2783.
+          DOI: https://doi.org/10.1152/jn.01038.2002
 
-   - Several apparent typographical errors in the descriptions of
-    the intrinsic currents were fixed, hopefully in a meaningful
-    way.
+   Author
+   ++++++
 
-   I'd like to thank Sean Hill for giving me access to his
-   simulator source code.
-
-   See examples/hilltononi for usage examples.
-
-   Warning:
-   THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
-
-   Author: Hans Ekkehard Plesser
-
-   FirstVersion: October 2009
-
-   References:
-   [1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698.
-   [2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227.
-
-   SeeAlso: ht_synapse
+   Hans Ekkehard Plesser
    """
    neuron hill_tononi:
      state:
@@ -470,4 +451,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-02-27 14:02:13.115293
+   Generated at 2020-05-26 15:42:25.157611
