@@ -9,13 +9,13 @@ Implementation of the simple spiking neuron model introduced by Izhikevich [1]_.
 
 .. math::
 
-   dv/dt &= 0.04 v^2 + 5 v + 140 - u + I
+   dv/dt &= 0.04 v^2 + 5 v + 140 - u + I\\
    du/dt &= a (b v - u)
 
 
 .. math::
 
-   &\text{if}\;\;\; v \geq V_{th}:\\
+   &\text{if}\;\; v \geq V_{th}:\\
    &\;\;\;\; v \text{ is set to } c\\
    &\;\;\;\; u \text{ is incremented by } d\\
    & \, \\

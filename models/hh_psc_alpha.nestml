@@ -8,13 +8,10 @@ Description
 hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
 formalism.
 
-1. Post-synaptic currents
 Incoming spike events induce a post-synaptic change of current modelled
 by an alpha function. The alpha function is normalised such that an event of
 weight 1.0 results in a peak current of 1 pA.
 
-
-2. Spike Detection
 Spike detection is done by a combined threshold-and-local-maximum search: if
 there is a local maximum above a certain threshold of the membrane potential,
 it is considered a spike.
@@ -29,7 +26,6 @@ Problems/Todo
 
 References
 ++++++++++
-
 
 .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
        populations, plasticity. New York: Cambridge University Press
