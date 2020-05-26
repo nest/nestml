@@ -32,9 +32,9 @@ Equations
 
 .. math::
 {%- if eq.get_lhs().differential_order == 1 %}
-   \frac{ d{{ printer.print_expression(eq.get_lhs()) }} } { dt }
+   \frac{ d{{ printer.print_expression(eq.get_lhs().get_name()) }} } { dt }
 {%- elif eq.get_lhs().differential_order > 1 %}
-   \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print_expression(eq.get_lhs()) }} } { dt^{{ eq.get_lhs().differential_order }} }
+   \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print_expression(eq.get_lhs().get_name()) }} } { dt^{{ eq.get_lhs().differential_order }} }
 {%- else %} {# differential_order == 0 #}
    {{ eq.get_lhs().get_name() }}
 {%- endif -%}

@@ -110,8 +110,12 @@ class AutoDocCodeGenerator(CodeGenerator):
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
         namespace['odeTransformer'] = OdeTransformer()
+
         import textwrap
-        namespace['neuron_source_code'] = textwrap.indent("".join(open(neuron.file_path, "r").readlines()), "   ")
+        pre_comments_bak = neuron.pre_comments
+        neuron.pre_comments = []
+        namespace['neuron_source_code'] = textwrap.indent(neuron.__str__(), "   ")
+        neuron.pre_comments = pre_comments_bak
 
         return namespace
 
