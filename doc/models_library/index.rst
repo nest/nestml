@@ -193,3 +193,26 @@ Source file: `hill_tononi.nestml <https://www.github.com/nest/nestml/blob/master
 
 Source file: `mat2_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/mat2_psc_exp.nestml>`_
 
+
+:doc:`traub_cond_multisyn <traub_cond_multisyn>`
+----------------------------------
+
+Source file: `traub_cond_multisyn.nestml <https://www.github.com/nest/nestml/blob/master/models/traub_cond_multisyn.nestml>`_
+
+
+:doc:`traub_psc_alpha <traub_psc_alpha>`
+----------------------------------
+
+Source file: `traub_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/traub_psc_alpha.nestml>`_
+
+
+:doc:`wb_cond_exp <wb_cond_exp>`
+----------------------------------
+
+Source file: `wb_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/wb_cond_exp.nestml>`_
+
+
+:doc:`wb_cond_multisyn <wb_cond_multisyn>`
+----------------------------------
+
+Source file: `wb_cond_multisyn.nestml <https://www.github.com/nest/nestml/blob/master/models/wb_cond_multisyn.nestml>`_
