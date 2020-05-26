@@ -317,7 +317,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
-        message = 'Successfully generated NEST code for the neuron: \'' + neuron_name + '\' in: \'' + path + '\' !'
+        message = 'Successfully generated code for the neuron: \'' + neuron_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
