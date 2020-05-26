@@ -1,5 +1,5 @@
 /*
- *  Tokens.g4
+ *  PyNestMLLexer.g4
  *
  *  This file is part of NEST.
  *
