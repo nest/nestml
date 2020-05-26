@@ -23,75 +23,12 @@ and
 
 .. math::
 
- \tau_w * dw/dt= a(V-E_L) -W
+ \tau_w * dw/dt = a(V-E_L) - W
 
-Note that the spike detection threshold V_peak is automatically set to
-:math:`V_th+10 mV` to avoid numerical instabilites that may result from
-setting V_peak too high.
+Note that the spike detection threshold :math:`V_{peak}` is automatically set to
+:math:`V_th+10` mV to avoid numerical instabilites that may result from
+setting :math:`V_{peak}` too high.
 
-Parameters:
-+++++++++++++
-The following parameters can be set in the status dictionary.
-
-======== ======= =======================================
-**Dynamic state variables:**
---------------------------------------------------------
- V_m     mV      Membrane potential
- g_ex    nS      Excitatory synaptic conductance
- g_in    nS      Inhibitory synaptic conductance
- w       pA      Spike-adaptation current
-======== ======= =======================================
-
-======== ======= =======================================
-**Membrane Parameters**
---------------------------------------------------------
- C_m     pF      Capacity of the membrane
- t_ref   ms      Duration of refractory period
- V_reset mV      Reset value for V_m after a spike
- E_L     mV      Leak reversal potential
- g_L     nS      Leak conductance
- I_e     pA      Constant external input current
-======== ======= =======================================
-
-======== ======= ==================================
-**Spike adaptation parameters**
----------------------------------------------------
- a       nS      Subthreshold adaptation
- b       pA      Spike-triggered adaptation
- Delta_T mV      Slope factor
- tau_w   ms      Adaptation time constant
- V_th    mV      Spike initiation threshold
- V_peak  mV      Spike detection threshold
-======== ======= ==================================
-
-=========== ======= ===========================================================
-**Synaptic parameters**
--------------------------------------------------------------------------------
- E_ex       mV      Excitatory reversal potential
- tau_syn_ex ms      Rise time of excitatory synaptic conductance (alpha
-                    function)
- E_in       mV      Inhibitory reversal potential
- tau_syn_in ms      Rise time of the inhibitory synaptic conductance
-                    (alpha function)
-=========== ======= ===========================================================
-
-============= ======= =========================================================
-**Integration parameters**
--------------------------------------------------------------------------------
-gsl_error_tol real    This parameter controls the admissible error of the
-                      GSL integrator. Reduce it if NEST complains about
-                      numerical instabilities.
-============= ======= =========================================================
-
-Sends
-+++++
-
-SpikeEvent
-
-Receives
-++++++++
-
-SpikeEvent, CurrentEvent, DataLoggingRequest
 
 References
 ++++++++++
