@@ -1,7 +1,9 @@
 """
-Name: iaf_psc_delta - Leaky integrate-and-fire neuron with delta-shaped PSCs.
+iaf_psc_delta - Current-based leaky integrate-and-fire neuron model with delta-shaped post-synaptic currents
+############################################################################################################
 
-Description:
+Description
++++++++++++
 
 iaf_psc_delta is an implementation of a leaky integrate-and-fire model
 where the potential jumps on each spike arrival.
@@ -10,22 +12,14 @@ The threshold crossing is followed by an absolute refractory period
 during which the membrane potential is clamped to the resting potential.
 
 Spikes arriving while the neuron is refractory, are discarded by
-default. If the property "refractory_input" is set to true, such
+default. If the property ``with_refr_input`` is set to true, such
 spikes are added to the membrane potential at the end of the
 refractory period, dampened according to the interval between
 arrival and end of refractoriness.
 
-The linear subthresold dynamics is integrated by the Exact
-Integration scheme [1]. The neuron dynamics is solved on the time
-grid given by the computation step size. Incoming as well as emitted
-spikes are forced to that grid.
-
-An additional state variable and the corresponding differential
-equation represents a piecewise constant external current.
-
 The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
-[1].  A flow chart can be found in [2].
+[1]_.  A flow chart can be found in [2].
 
 Critical tests for the formulation of the neuron model are the
 comparisons of simulation results for different computation step
@@ -36,35 +30,30 @@ of the nest simulation kernel because it is at the same time complex
 enough to exhibit non-trivial dynamics and simple enough compute
 relevant measures analytically.
 
-Remarks:
 
-The present implementation uses individual variables for the
-components of the state vector and the non-zero matrix elements of
-the propagator.  Because the propagator is a lower triangular matrix
-no full matrix multiplication needs to be carried out and the
-computation can be done "in place" i.e. no temporary state vector
-object is required.
+References
+++++++++++
 
-The template support of recent C++ compilers enables a more succinct
-formulation without loss of runtime performance already at minimal
-optimization levels. A future version of iaf_psc_delta will probably
-address the problem of efficient usage of appropriate vector and
-matrix objects.
+.. [1] Rotter S,  Diesmann M (1999). Exact simulation of
+       time-invariant linear systems with applications to neuronal
+       modeling. Biologial Cybernetics 81:381-402.
+       DOI: https://doi.org/10.1007/s004220050570
+.. [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001). State
+       space analysis of synchronous spiking in cortical neural
+       networks. Neurocomputing 38-40:565-571.
+       DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
 
-References:
-[1] Rotter S & Diesmann M (1999) Exact digital simulation of time-invariant
-linear systems with applications to neuronal modeling. Biologial Cybernetics
-81:381-402.
-[2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State space
-analysis of synchronous spiking in cortical neural networks.
-Neurocomputing 38-40:565-571.
 
-Sends: SpikeEvent
+See also
+++++++++
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+iaf_psc_alpha, iaf_psc_exp
 
-Author:  September 1999, Diesmann, Gewaltig
-SeeAlso: iaf_psc_alpha, iaf_psc_exp, iaf, iaf_psc_delta_canon
+
+Authors
++++++++
+
+Diesmann, Gewaltig (September 1999)
 """
 neuron iaf_psc_delta:
 

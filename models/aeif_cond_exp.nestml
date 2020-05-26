@@ -1,37 +1,111 @@
 """
-Name: aeif_cond_exp -  Conductance based exponential integrate-and-fire neuron
-                         model according to Brette and g_exrstner (2005).
+aeif_cond_exp - Conductance based exponential integrate-and-fire neuron model
+#############################################################################
 
-Description:
-aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron according
-to Brette and g_exrstner (2005).
-Synaptic conductances are modelled as alpha-functions.
+Description
++++++++++++
 
-This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
-adaptive step size to integrate the differential equation.
+aeif_cond_exp is the adaptive exponential integrate and fire neuron
+according to Brette and Gerstner (2005), with post-synaptic
+conductances in the form of truncated exponentials.
 
-The membrane potential is g_inven by the following differential equation:
-C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg
+solver with adaptive stepsize to integrate the differential equation.
+
+The membrane potential is given by the following differential equation:
+
+.. math::
+
+ C dV/dt= -g_L(V-E_L)+g_L*\Delta_T*\exp((V-V_T)/\Delta_T)-g_e(t)(V-E_e) \\
+                                                     -g_i(t)(V-E_i)-w +I_e
 
 and
 
-tau_w * dw/dt= a(V-E_L) -W
+.. math::
+
+ \tau_w * dw/dt= a(V-E_L) -W
+
+Note that the spike detection threshold V_peak is automatically set to
+:math:`V_th+10 mV` to avoid numerical instabilites that may result from
+setting V_peak too high.
 
 Parameters:
++++++++++++++
 The following parameters can be set in the status dictionary.
 
-Author: Marc-Oliver Gewaltig
+======== ======= =======================================
+**Dynamic state variables:**
+--------------------------------------------------------
+ V_m     mV      Membrane potential
+ g_ex    nS      Excitatory synaptic conductance
+ g_in    nS      Inhibitory synaptic conductance
+ w       pA      Spike-adaptation current
+======== ======= =======================================
 
-Sends: SpikeEvent
+======== ======= =======================================
+**Membrane Parameters**
+--------------------------------------------------------
+ C_m     pF      Capacity of the membrane
+ t_ref   ms      Duration of refractory period
+ V_reset mV      Reset value for V_m after a spike
+ E_L     mV      Leak reversal potential
+ g_L     nS      Leak conductance
+ I_e     pA      Constant external input current
+======== ======= =======================================
 
-Receives: SpikeEvent, CurrentEvent, DataLogg_inngRequest
+======== ======= ==================================
+**Spike adaptation parameters**
+---------------------------------------------------
+ a       nS      Subthreshold adaptation
+ b       pA      Spike-triggered adaptation
+ Delta_T mV      Slope factor
+ tau_w   ms      Adaptation time constant
+ V_th    mV      Spike initiation threshold
+ V_peak  mV      Spike detection threshold
+======== ======= ==================================
 
-References: Brette R and g_exrstner W (2005) Adaptive Exponential
-            Integrate-and-Fire Model as an Effective Description of Neuronal
-            Activity. J Neurophysiol 94:3637-3642
+=========== ======= ===========================================================
+**Synaptic parameters**
+-------------------------------------------------------------------------------
+ E_ex       mV      Excitatory reversal potential
+ tau_syn_ex ms      Rise time of excitatory synaptic conductance (alpha
+                    function)
+ E_in       mV      Inhibitory reversal potential
+ tau_syn_in ms      Rise time of the inhibitory synaptic conductance
+                    (alpha function)
+=========== ======= ===========================================================
 
-SeeAlso: iaf_cond_alpha, aeif_cond_exp
+============= ======= =========================================================
+**Integration parameters**
+-------------------------------------------------------------------------------
+gsl_error_tol real    This parameter controls the admissible error of the
+                      GSL integrator. Reduce it if NEST complains about
+                      numerical instabilities.
+============= ======= =========================================================
+
+Sends
++++++
+
+SpikeEvent
+
+Receives
+++++++++
+
+SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References
+++++++++++
+
+.. [1] Brette R and Gerstner W (2005). Adaptive Exponential
+       Integrate-and-Fire Model as an Effective Description of Neuronal
+       Activity. J Neurophysiol 94:3637-3642.
+       DOI: https://doi.org/10.1152/jn.00686.2005
+
+
+See also
+++++++++
+
+iaf_cond_exp, aeif_cond_alpha
 """
 neuron aeif_cond_exp:
 
