@@ -34,6 +34,8 @@ before_install:
   # install Python module dependencies
   - pip install --upgrade pip pytest
   - pip install -r requirements.txt
+  - pip uninstall --yes sympy
+  - pip install sympy==1.4
 
   # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
   - pip uninstall --yes odetoolbox
