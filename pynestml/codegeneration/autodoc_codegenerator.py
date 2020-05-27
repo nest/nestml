@@ -20,6 +20,7 @@
 import datetime
 import os
 import re
+from typing import List
 
 from jinja2 import Environment, FileSystemLoader
 from odetoolbox import analysis
@@ -45,7 +46,6 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
-
 class AutoDocCodeGenerator(CodeGenerator):
 
     def __init__(self):
@@ -57,40 +57,37 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         self._printer = LatexExpressionPrinter()
 
-    def generate_code(self, neurons):
+    def generate_code(self, neurons: List[ASTNeuron]):
+        """
+        Generate model documentation and index page for each neuron that is provided.
+        """
         self.generate_index(neurons)
         self.generate_neurons(neurons)
 
-    def generate_index(self, neurons):
-        # type: (ASTNeuron) -> None
+    def generate_index(self, neurons: List[ASTNeuron]):
         """
+        Generate index (list) of all neuron models with links to their generated documentation.
         """
         nestml_models_index = self._template_nestml_models_index.render(self.setup_index_generation_helpers(neurons))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'index.rst')), 'w+') as f:
             f.write(str(nestml_models_index))
 
-    def generate_neuron_code(self, neuron):
-        # type: (ASTNeuron) -> None
+    def generate_neuron_code(self, neuron: ASTNeuron):
         """
+        Generate model documentation for neuron model.
+        :param neuron: a single neuron object.
+        :type neuron: ASTNeuron
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        self.generate_neuron_model_doc(neuron)
-
-
-    def generate_neuron_model_doc(self, neuron):
-        # type: (ASTNeuron) -> None
-        """
-        For a handed over neuron, this method generates the corresponding header file.
-        :param neuron: a single neuron object.
-        """
         nestml_model_doc = self._template_nestml_model.render(self.setup_model_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.rst', 'w+') as f:
             f.write(str(nestml_model_doc))
 
-    def setup_model_generation_helpers(self, neuron):
+    def setup_model_generation_helpers(self, neuron: ASTNeuron):
         """
-        Returns a standard namespace with often required functionality.
+        Returns a namespace for Jinja2 neuron model documentation template.
+
         :param neuron: a single neuron instance
         :type neuron: ASTNeuron
         :return: a map from name to functionality.
@@ -119,13 +116,12 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         return namespace
 
-
-
-    def setup_index_generation_helpers(self, neurons):
+    def setup_index_generation_helpers(self, neurons: List[ASTNeuron]):
         """
-        Returns a standard namespace with often required functionality.
-        :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
+        Returns a namespace for Jinja2 neuron model index page template.
+
+        :param neurons: a list of neuron instances
+        :type neurons: List[ASTNeuron]
         :return: a map from name to functionality.
         :rtype: dict
         """
