@@ -29,25 +29,27 @@ from pynestml.symbols.predefined_units import PredefinedUnits
 
 class LatexReferenceConverter(IReferenceConverter):
     """
-    LaTeX reference converter
+    ReferenceConverter for the LaTeX target.
     """
 
     def convert_unary_op(self, ast_unary_operator):
         """
-        Returns the same string.
-        :param ast_unary_operator: a single unary operator string.
-        :type ast_unary_operator: ast_unary_operator
-        :return: the same string
+        Convert unary operator.
+
+        :param ast_unary_operator: a unary operator
+        :type ast_unary_operator: ASTUnaryOperator
+        :return: pretty-printed format string
         :rtype: str
         """
         return str(ast_unary_operator) + '%s'
 
     def convert_name_reference(self, ast_variable):
         """
-        Returns the same string
+        Convert name reference.
+
         :param ast_variable: a single variable
         :type ast_variable: ASTVariable
-        :return: the same string
+        :return: pretty-printed format string
         :rtype: str
         """
         var_name = ast_variable.get_name()
@@ -122,10 +124,11 @@ class LatexReferenceConverter(IReferenceConverter):
 
     def convert_function_call(self, function_call):
         """
-        Returns the same function call back.
+        Convert function call.
+
         :param function_call: a function call
         :type function_call: ASTFunctionCall
-        :return: the same sting back
+        :return: pretty-printed format string
         :rtype: str
         """
         result = function_call.get_name()
@@ -147,10 +150,11 @@ class LatexReferenceConverter(IReferenceConverter):
 
     def convert_binary_op(self, ast_binary_operator, wide=False):
         """
-        Returns the same binary operator back.
-        :param ast_binary_operator:  a single binary operator
-        :type ast_binary_operator: str
-        :return: the same binary operator
+        Convert binary operator.
+
+        :param ast_binary_operator: a single binary operator
+        :type ast_binary_operator: ASTBinaryOperator
+        :return: pretty-printed format string
         :rtype: str
         """
         if ast_binary_operator.is_div_op:
@@ -165,18 +169,20 @@ class LatexReferenceConverter(IReferenceConverter):
 
     def convert_constant(self, constant_name):
         """
-        Returns the same string back.
+        Convert constant.
+
         :param constant_name: a constant name
         :type constant_name: str
-        :return: the same string
+        :return: pretty-printed format string
         :rtype: str
         """
         return constant_name
 
     def convert_ternary_operator(self):
         """
-        Converts the ternary operator to its initial shape.
-        :return: a string representation
+        Convert ternary operator.
+
+        :return: pretty-printed format string
         :rtype: str
         """
         return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
