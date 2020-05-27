@@ -85,7 +85,7 @@ Equations
 
 
 .. math::
-   \frac{ dG_{ahp,,d} } { dt }= (\frac{ -2 } { \tau_{ahp} }) \cdot G_{ahp,,d} - (\frac{ 1 } { \tau_{ahp} ** 2 }) \cdot G_{ahp}
+   \frac{ dG_{ahp,,d} } { dt }= (\frac{ -2 } { \tau_{ahp} }) \cdot G_{ahp,,d} - (\frac{ 1 } { { \tau_{ahp} }^{ 2 } }) \cdot G_{ahp}
 
 
 .. math::
@@ -195,4 +195,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 15:19:17.879834
+   Generated at 2020-05-27 18:20:44.929468
