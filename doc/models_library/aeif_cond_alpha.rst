@@ -92,7 +92,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-g_{L} \cdot (V_{bounded} - E_{L}) + I_{spike} - I_{syn,exc} - I_{syn,inh} - w + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-g_{L} \cdot (V_{bounded} - E_{L}) + I_{spike} - I_{syn,exc} - I_{syn,inh} - w + I_{e} + I_{stim}) } \right) 
 
 
 .. math::
@@ -202,4 +202,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:05.961021
+   Generated at 2020-05-27 15:19:17.915383

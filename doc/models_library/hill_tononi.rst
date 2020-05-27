@@ -126,59 +126,59 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { \mathrm{nF} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} } { (\mathrm{ms} \cdot \mathrm{mV}) }) \cdot \mathrm{s} } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { \mathrm{nF} } \left( { (\frac 1 { \Tau_{m} } \left( { (I_{Na} + I_{K} + I_{syn} + I_{NaP} + I_{KNa} + I_{T} + I_{h} + I_{e} + I_{stim}) } \right)  + \frac{ I_{spike} } { (\mathrm{ms} \cdot \mathrm{mV}) }) \cdot \mathrm{s} } \right) 
 
 
 .. math::
-   \frac{ dTheta } { dt }= \frac{ -(\Theta - \Theta_{eq}) } { \Tau_{\theta} }
+   \frac{ d\Theta } { dt }= \frac{ -(\Theta - \Theta_{eq}) } { \Tau_{\theta} }
 
 
 .. math::
-   \frac{ dIKNa_D } { dt }= \frac 1 { \mathrm{ms} } \left( { (D_{influx,peak} \cdot D_{influx} \cdot \mathrm{nS} - \frac 1 { \tau_{D} } \left( { (IKNa_{D} - \frac{ KNa_{D,EQ} } { \mathrm{mV} }) } \right) ) } \right) 
+   \frac{ dIKNa_{D} } { dt }= \frac 1 { \mathrm{ms} } \left( { (D_{influx,peak} \cdot D_{influx} \cdot \mathrm{nS} - \frac 1 { \tau_{D} } \left( { (IKNa_{D} - \frac{ KNa_{D,EQ} } { \mathrm{mV} }) } \right) ) } \right) 
 
 
 .. math::
-   \frac{ dIT_m } { dt }= \frac{ (m_{\infty,T} - IT_{m}) } { \tau_{m,T} }
+   \frac{ dIT_{m} } { dt }= \frac{ (m_{\infty,T} - IT_{m}) } { \tau_{m,T} }
 
 
 .. math::
-   \frac{ dIT_h } { dt }= \frac{ (h_{\infty,T} - IT_{h}) } { \tau_{h,T} }
+   \frac{ dIT_{h} } { dt }= \frac{ (h_{\infty,T} - IT_{h}) } { \tau_{h,T} }
 
 
 .. math::
-   \frac{ dIh_m } { dt }= \frac{ (m_{\infty,h} - Ih_{m}) } { \tau_{m,h} }
+   \frac{ dIh_{m} } { dt }= \frac{ (m_{\infty,h} - Ih_{m}) } { \tau_{m,h} }
 
 
 .. math::
-   \frac{ dg_AMPA__d } { dt }= \frac{ -g_{AMPA,,d} } { AMPA_{\Tau,1} }
+   \frac{ dg_{AMPA,,d} } { dt }= \frac{ -g_{AMPA,,d} } { AMPA_{\Tau,1} }
 
 
 .. math::
-   \frac{ dg_AMPA } { dt }= g_{AMPA,,d} - \frac{ g_{AMPA} } { AMPA_{\Tau,2} }
+   \frac{ dg_{AMPA} } { dt }= g_{AMPA,,d} - \frac{ g_{AMPA} } { AMPA_{\Tau,2} }
 
 
 .. math::
-   \frac{ dg_NMDA__d } { dt }= \frac{ -g_{NMDA,,d} } { NMDA_{\Tau,1} }
+   \frac{ dg_{NMDA,,d} } { dt }= \frac{ -g_{NMDA,,d} } { NMDA_{\Tau,1} }
 
 
 .. math::
-   \frac{ dg_NMDA } { dt }= g_{NMDA,,d} - \frac{ g_{NMDA} } { NMDA_{\Tau,2} }
+   \frac{ dg_{NMDA} } { dt }= g_{NMDA,,d} - \frac{ g_{NMDA} } { NMDA_{\Tau,2} }
 
 
 .. math::
-   \frac{ dg_GABAA__d } { dt }= \frac{ -g_{GABAA,,d} } { GABA_{A,\Tau,1} }
+   \frac{ dg_{GABAA,,d} } { dt }= \frac{ -g_{GABAA,,d} } { GABA_{A,\Tau,1} }
 
 
 .. math::
-   \frac{ dg_GABAA } { dt }= g_{GABAA,,d} - \frac{ g_{GABAA} } { GABA_{A,\Tau,2} }
+   \frac{ dg_{GABAA} } { dt }= g_{GABAA,,d} - \frac{ g_{GABAA} } { GABA_{A,\Tau,2} }
 
 
 .. math::
-   \frac{ dg_GABAB__d } { dt }= \frac{ -g_{GABAB,,d} } { GABA_{B,\Tau,1} }
+   \frac{ dg_{GABAB,,d} } { dt }= \frac{ -g_{GABAB,,d} } { GABA_{B,\Tau,1} }
 
 
 .. math::
-   \frac{ dg_GABAB } { dt }= g_{GABAB,,d} - \frac{ g_{GABAB} } { GABA_{B,\Tau,2} }
+   \frac{ dg_{GABAB} } { dt }= g_{GABAB,,d} - \frac{ g_{GABAB} } { GABA_{B,\Tau,2} }
 
 
 
@@ -394,4 +394,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.398054
+   Generated at 2020-05-27 15:19:18.616596

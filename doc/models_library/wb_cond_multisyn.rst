@@ -100,47 +100,47 @@ Equations
 
 
 .. math::
-   \frac{ dInact_h } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h}) } \right) 
+   \frac{ dInact_{h} } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h}) } \right) 
 
 
 .. math::
-   \frac{ dAct_n } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } \right) 
+   \frac{ dAct_{n} } { dt }= \frac 1 { \mathrm{ms} } \left( { (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n}) } \right) 
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn}) } \right) 
 
 
 .. math::
-   \frac{ dg_AMPA__d } { dt }= \frac{ -g_{AMPA,,d} } { AMPA_{\Tau,1} }
+   \frac{ dg_{AMPA,,d} } { dt }= \frac{ -g_{AMPA,,d} } { AMPA_{\Tau,1} }
 
 
 .. math::
-   \frac{ dg_AMPA } { dt }= g_{AMPA,,d} - \frac{ g_{AMPA} } { AMPA_{\Tau,2} }
+   \frac{ dg_{AMPA} } { dt }= g_{AMPA,,d} - \frac{ g_{AMPA} } { AMPA_{\Tau,2} }
 
 
 .. math::
-   \frac{ dg_NMDA__d } { dt }= \frac{ -g_{NMDA,,d} } { NMDA_{\Tau,1} }
+   \frac{ dg_{NMDA,,d} } { dt }= \frac{ -g_{NMDA,,d} } { NMDA_{\Tau,1} }
 
 
 .. math::
-   \frac{ dg_NMDA } { dt }= g_{NMDA,,d} - \frac{ g_{NMDA} } { NMDA_{\Tau,2} }
+   \frac{ dg_{NMDA} } { dt }= g_{NMDA,,d} - \frac{ g_{NMDA} } { NMDA_{\Tau,2} }
 
 
 .. math::
-   \frac{ dg_GABAA__d } { dt }= \frac{ -g_{GABAA,,d} } { GABA_{A,\Tau,1} }
+   \frac{ dg_{GABAA,,d} } { dt }= \frac{ -g_{GABAA,,d} } { GABA_{A,\Tau,1} }
 
 
 .. math::
-   \frac{ dg_GABAA } { dt }= g_{GABAA,,d} - \frac{ g_{GABAA} } { GABA_{A,\Tau,2} }
+   \frac{ dg_{GABAA} } { dt }= g_{GABAA,,d} - \frac{ g_{GABAA} } { GABA_{A,\Tau,2} }
 
 
 .. math::
-   \frac{ dg_GABAB__d } { dt }= \frac{ -g_{GABAB,,d} } { GABA_{B,\Tau,1} }
+   \frac{ dg_{GABAB,,d} } { dt }= \frac{ -g_{GABAB,,d} } { GABA_{B,\Tau,1} }
 
 
 .. math::
-   \frac{ dg_GABAB } { dt }= g_{GABAB,,d} - \frac{ g_{GABAB} } { GABA_{B,\Tau,2} }
+   \frac{ dg_{GABAB} } { dt }= g_{GABAB,,d} - \frac{ g_{GABAB} } { GABA_{B,\Tau,2} }
 
 
 
@@ -300,4 +300,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:05.834047
+   Generated at 2020-05-27 15:19:17.689764

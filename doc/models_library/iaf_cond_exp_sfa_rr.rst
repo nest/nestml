@@ -89,15 +89,15 @@ Equations
 
 
 .. math::
-   \frac{ dg_sfa } { dt }= \frac{ -g_{sfa} } { \tau_{sfa} }
+   \frac{ dg_{sfa} } { dt }= \frac{ -g_{sfa} } { \tau_{sfa} }
 
 
 .. math::
-   \frac{ dg_rr } { dt }= \frac{ -g_{rr} } { \tau_{rr} }
+   \frac{ dg_{rr} } { dt }= \frac{ -g_{rr} } { \tau_{rr} }
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{L} + I_{e} + I_{stim} - I_{syn,exc} - I_{syn,inh} - I_{sfa} - I_{rr}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{L} + I_{e} + I_{stim} - I_{syn,exc} - I_{syn,inh} - I_{sfa} - I_{rr}) } \right) 
 
 
 
@@ -188,4 +188,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.095643
+   Generated at 2020-05-27 15:19:18.121876

@@ -99,23 +99,23 @@ Equations
 
 
 .. math::
-   \frac{ dg_in__d } { dt }= \frac{ -g_{in,,d} } { \tau_{syn,rise,I} }
+   \frac{ dg_{in,,d} } { dt }= \frac{ -g_{in,,d} } { \tau_{syn,rise,I} }
 
 
 .. math::
-   \frac{ dg_in } { dt }= g_{in,,d} - \frac{ g_{in} } { \tau_{syn,decay,I} }
+   \frac{ dg_{in} } { dt }= g_{in,,d} - \frac{ g_{in} } { \tau_{syn,decay,I} }
 
 
 .. math::
-   \frac{ dg_ex__d } { dt }= \frac{ -g_{ex,,d} } { \tau_{syn,rise,E} }
+   \frac{ dg_{ex,,d} } { dt }= \frac{ -g_{ex,,d} } { \tau_{syn,rise,E} }
 
 
 .. math::
-   \frac{ dg_ex } { dt }= g_{ex,,d} - \frac{ g_{ex} } { \tau_{syn,decay,E} }
+   \frac{ dg_{ex} } { dt }= g_{ex,,d} - \frac{ g_{ex} } { \tau_{syn,decay,E} }
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -211,4 +211,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.117679
+   Generated at 2020-05-27 15:19:18.158213

@@ -85,15 +85,15 @@ Equations
 
 
 .. math::
-   \frac{ dG_ahp__d } { dt }= (\frac{ -2 } { \tau_{ahp} }) \cdot G_{ahp,,d} - (\frac{ 1 } { \tau_{ahp} ** 2 }) \cdot G_{ahp}
+   \frac{ dG_{ahp,,d} } { dt }= (\frac{ -2 } { \tau_{ahp} }) \cdot G_{ahp,,d} - (\frac{ 1 } { \tau_{ahp} ** 2 }) \cdot G_{ahp}
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} - I_{ahp} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} - I_{ahp} + I_{e} + I_{stim}) } \right) 
 
 
 .. math::
-   \frac{ dG_ahp } { dt }= G_{ahp,,d}
+   \frac{ dG_{ahp} } { dt }= G_{ahp,,d}
 
 
 
@@ -195,4 +195,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:05.939261
+   Generated at 2020-05-27 15:19:17.879834

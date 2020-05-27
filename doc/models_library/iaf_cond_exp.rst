@@ -78,7 +78,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{leak} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -155,4 +155,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.145456
+   Generated at 2020-05-27 15:19:18.207075

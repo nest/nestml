@@ -84,11 +84,11 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { \mathrm{ms} } \left( { (\frac{ 0.04 \cdot V_{m} \cdot V_{m} } { \mathrm{mV} } + 5.0 \cdot V_{m} + (140 - U_{m}) \cdot \mathrm{mV} + ((I_{e} + I_{stim}) \cdot \mathrm{GOhm})) } \right) 
 
 
 .. math::
-   \frac{ dU_m } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
+   \frac{ dU_{m} } { dt }= \frac{ a \cdot (b \cdot V_{m} - U_{m} \cdot \mathrm{mV}) } { (\mathrm{mV} \cdot \mathrm{ms}) }
 
 
 
@@ -156,4 +156,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.158771
+   Generated at 2020-05-27 15:19:18.226423

@@ -88,23 +88,23 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) + I_{e} + I_{stim} + I_{ex,mod} + I_{in,mod}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) + I_{e} + I_{stim} + I_{ex,mod} + I_{in,mod}) } \right) 
 
 
 .. math::
-   \frac{ dgate_h } { dt }= \phi_{h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} })
+   \frac{ dgate_{h} } { dt }= \phi_{h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} })
 
 
 .. math::
-   \frac{ dgate_n } { dt }= \phi_{n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} })
+   \frac{ dgate_{n} } { dt }= \phi_{n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} })
 
 
 .. math::
-   \frac{ dgate_r } { dt }= \phi_{r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} })
+   \frac{ dgate_{r} } { dt }= \phi_{r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} })
 
 
 .. math::
-   \frac{ dCa_con } { dt }= \epsilon \cdot (\frac{ (-I_{Ca} - I_{T}) } { \mathrm{pA} } - k_{Ca} \cdot Ca_{con})
+   \frac{ dCa_{con} } { dt }= \epsilon \cdot (\frac{ (-I_{Ca} - I_{T}) } { \mathrm{pA} } - k_{Ca} \cdot Ca_{con})
 
 
 
@@ -262,4 +262,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.349046
+   Generated at 2020-05-27 15:19:18.531469

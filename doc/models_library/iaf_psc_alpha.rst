@@ -129,7 +129,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_abs } { dt }= \frac{ -1 } { \Tau } \cdot V_{abs} + \frac{ 1 } { C_{m} } \cdot I
+   \frac{ dV_{abs} } { dt }= \frac{ -1 } { \Tau } \cdot V_{abs} + \frac{ 1 } { C_{m} } \cdot I
 
 
 
@@ -209,4 +209,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.242158
+   Generated at 2020-05-27 15:19:18.356997

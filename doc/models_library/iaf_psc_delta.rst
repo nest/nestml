@@ -103,7 +103,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_abs } { dt }= \frac{ -1 } { \tau_{m} } \cdot V_{abs} + \frac{ 1 } { C_{m} } \cdot (\text{convolve}(G, spikes) + I_{e} + I_{stim})
+   \frac{ dV_{abs} } { dt }= \frac{ -1 } { \tau_{m} } \cdot V_{abs} + \frac{ 1 } { C_{m} } \cdot (\text{convolve}(G, spikes) + I_{e} + I_{stim})
 
 
 
@@ -195,4 +195,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.307757
+   Generated at 2020-05-27 15:19:18.466274

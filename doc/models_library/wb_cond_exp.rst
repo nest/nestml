@@ -79,15 +79,15 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L}) + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
 
 
 .. math::
-   \frac{ dAct_n } { dt }= (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n})
+   \frac{ dAct_{n} } { dt }= (\alpha_{n} \cdot (1 - Act_{n}) - \beta_{n} \cdot Act_{n})
 
 
 .. math::
-   \frac{ dInact_h } { dt }= (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h})
+   \frac{ dInact_{h} } { dt }= (\alpha_{h} \cdot (1 - Inact_{h}) - \beta_{h} \cdot Inact_{h})
 
 
 
@@ -194,4 +194,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.024936
+   Generated at 2020-05-27 15:19:18.011853

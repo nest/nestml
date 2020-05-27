@@ -90,23 +90,23 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{ex,mod} \cdot \mathrm{pA} + I_{in,mod} \cdot \mathrm{pA}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-(I_{Na} + I_{K} + I_{L} + I_{T} + I_{Ca} + I_{ahp}) \cdot \mathrm{pA} + I_{e} + I_{stim} + I_{ex,mod} \cdot \mathrm{pA} + I_{in,mod} \cdot \mathrm{pA}) } \right) 
 
 
 .. math::
-   \frac{ dgate_h } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} }) } \right) 
+   \frac{ dgate_{h} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,h} \cdot (\frac{ (h_{\infty} - gate_{h}) } { \tau_{h} }) } \right) 
 
 
 .. math::
-   \frac{ dgate_n } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} }) } \right) 
+   \frac{ dgate_{n} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,n} \cdot (\frac{ (n_{\infty} - gate_{n}) } { \tau_{n} }) } \right) 
 
 
 .. math::
-   \frac{ dgate_r } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} }) } \right) 
+   \frac{ dgate_{r} } { dt }= \frac 1 { \mathrm{ms} } \left( { g_{\phi,r} \cdot (\frac{ (r_{\infty} - gate_{r}) } { \tau_{r} }) } \right) 
 
 
 .. math::
-   \frac{ dCa_con } { dt }= g_{\epsilon} \cdot (-I_{Ca} - I_{T} - g_{k,Ca} \cdot Ca_{con})
+   \frac{ dCa_{con} } { dt }= g_{\epsilon} \cdot (-I_{Ca} - I_{T} - g_{k,Ca} \cdot Ca_{con})
 
 
 
@@ -258,4 +258,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.252852
+   Generated at 2020-05-27 15:19:18.372430

@@ -69,7 +69,7 @@ Parameters
     "tau_syn_in", "ms", "2ms", "Time constant of synaptic current."    
     "tau_syn_ex", "ms", "2ms", "Time constant of synaptic current."    
     "t_ref_abs", "ms", "2ms", "absolute refractory period."    
-    "t_ref_tot", "ms", "2ms", "total refractory periodif t_ref_abs == t_ref_tot iaf_tum_2000 equivalent to iaf_psc_exp"    
+    "t_ref_tot", "ms", "2ms", "total refractory periodif t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp"    
     "E_L", "mV", "-70mV", "Resting potential."    
     "V_reset", "mV", "-70.0mV - E_L", "Reset value of the membrane potential"    
     "V_th", "mV", "-55.0mV - E_L", "RELATIVE TO RESTING POTENTIAL(!).I.e. the real threshold is (V_reset + E_L).Threshold, RELATIVE TO RESTING POTENTIAL(!)."    
@@ -98,7 +98,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac{ -V_{m} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac{ -V_{m} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -133,7 +133,7 @@ Source code
        /* total refractory period*/
 
        /* total refractory period*/
-       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # if t_ref_abs == t_ref_tot iaf_tum_2000 equivalent to iaf_psc_exp
+       t_ref_tot ms = 2ms [[t_ref_tot >= t_ref_abs]] # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
        E_L mV = -70mV # Resting potential.
        function V_reset mV = -70.0mV - E_L # Reset value of the membrane potential
        /* RELATIVE TO RESTING POTENTIAL(!).*/
@@ -150,7 +150,7 @@ Source code
      internals:
 
        /* TauR specifies the length of the absolute refractory period as*/
-       /* a double_t in ms. The grid based iaf_tum_2000 can only handle refractory*/
+       /* a double_t in ms. The grid based iaf_psc_exp_htum can only handle refractory*/
        /* periods that are integer multiples of the computation step size (h).*/
        /* To ensure consistency with the overall simulation scheme such conversion*/
        /* should be carried out via objects of class nest::Time. The conversion*/
@@ -206,4 +206,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.186092
+   Generated at 2020-05-27 15:19:18.269127

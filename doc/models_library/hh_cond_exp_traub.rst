@@ -114,19 +114,19 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim}) } \right) 
 
 
 .. math::
-   \frac{ dAct_m } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
+   \frac{ dAct_{m} } { dt }= (\alpha_{m} - (\alpha_{m} + \beta_{m}) \cdot Act_{m})
 
 
 .. math::
-   \frac{ dAct_h } { dt }= (\alpha_{h} - (\alpha_{h} + \beta_{h}) \cdot Act_{h})
+   \frac{ dAct_{h} } { dt }= (\alpha_{h} - (\alpha_{h} + \beta_{h}) \cdot Act_{h})
 
 
 .. math::
-   \frac{ dInact_n } { dt }= (\alpha_{n} - (\alpha_{n} + \beta_{n}) \cdot Inact_{n})
+   \frac{ dInact_{n} } { dt }= (\alpha_{n} - (\alpha_{n} + \beta_{n}) \cdot Inact_{n})
 
 
 
@@ -237,4 +237,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.058265
+   Generated at 2020-05-27 15:19:18.061366

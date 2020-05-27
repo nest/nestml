@@ -97,7 +97,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_abs } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
+   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + \frac 1 { C_{m} } \left( { (I_{syn} + I_{e} + I_{stim}) } \right) 
 
 
 
@@ -194,4 +194,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:06.480333
+   Generated at 2020-05-27 15:19:18.785507

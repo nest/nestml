@@ -93,11 +93,11 @@ Equations
 
 
 .. math::
-   \frac{ dV_m } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (k \cdot (V_{m} - V_{r}) \cdot (V_{m} - V_{t}) - U_{m} + I_{e} + I_{stim} + I_{syn,inh} + I_{syn,exc}) } \right) 
 
 
 .. math::
-   \frac{ dU_m } { dt }= a \cdot (b \cdot (V_{m} - V_{r}) - U_{m})
+   \frac{ dU_{m} } { dt }= a \cdot (b \cdot (V_{m} - V_{r}) - U_{m})
 
 
 
@@ -181,4 +181,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-26 16:40:05.986295
+   Generated at 2020-05-27 15:19:17.954091
