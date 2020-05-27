@@ -53,10 +53,11 @@ Parameters
     :widths: auto
 
     
-    "a", "real", "0.02", "time scale of recovery variable"    
+    "a", "real", "0.02", "describes time scale of recovery variable"    
     "b", "real", "0.2", "sensitivity of recovery variable"    
     "c", "mV", "-65mV", "after-spike reset value of V_m"    
     "d", "real", "8.0", "after-spike reset value of U_m"    
+    "V_m_init", "mV", "-70mV", "initial membrane potential"    
     "V_min", "mV", "-inf * mV", "Absolute lower value for the membrane potential."    
     "I_e", "pA", "0pA", "constant external input current"
 
@@ -71,8 +72,8 @@ State variables
     :widths: auto
 
     
-    "V_m", "mV", "-65mV", "Membrane potential"    
-    "U_m", "real", "0", "Membrane potential recovery variable"
+    "V_m", "mV", "V_m_init", "Membrane potential"    
+    "U_m", "real", "b * V_m_init", "Membrane potential recovery variable"
 
 
 
@@ -101,8 +102,8 @@ Source code
 
    neuron izhikevich:
      initial_values:
-       V_m mV = -65mV # Membrane potential
-       U_m real = 0 # Membrane potential recovery variable
+       V_m mV = V_m_init # Membrane potential
+       U_m real = b * V_m_init # Membrane potential recovery variable
      end
      equations:
        V_m'=(0.04 * V_m * V_m / mV + 5.0 * V_m + (140 - U_m) * mV + ((I_e + I_stim) * GOhm)) / ms
@@ -110,10 +111,11 @@ Source code
      end
 
      parameters:
-       a real = 0.02 # time scale of recovery variable
+       a real = 0.02 # describes time scale of recovery variable
        b real = 0.2 # sensitivity of recovery variable
        c mV = -65mV # after-spike reset value of V_m
        d real = 8.0 # after-spike reset value of U_m
+       V_m_init mV = -70mV # initial membrane potential
        V_min mV = -inf * mV # Absolute lower value for the membrane potential.
 
        /* constant external input current*/
@@ -156,4 +158,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 15:19:18.226423
+   Generated at 2020-05-27 17:52:54.315465
