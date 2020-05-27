@@ -162,7 +162,7 @@ class ASTNeuron(ASTNode):
         """
         Returns a list of all parameter blocks defined in this body.
         :return: a list of parameters-blocks.
-        :rtype: list(ASTBlockWithVariables) or ASTBlockWithVariables
+        :rtype: list(ASTBlockWithVariables)
         """
         ret = list()
         from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
