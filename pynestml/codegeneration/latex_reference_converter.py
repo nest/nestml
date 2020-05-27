@@ -164,6 +164,8 @@ class LatexReferenceConverter(IReferenceConverter):
                 return r"\frac{ %(lhs)s } { %(rhs)s }"
         elif ast_binary_operator.is_times_op:
             return '%(lhs)s \cdot %(rhs)s'
+        elif ast_binary_operator.is_pow_op:
+            return '{ %(lhs)s }^{ %(rhs)s }'
         else:
             return '%(lhs)s' + str(ast_binary_operator) + '%(rhs)s'
 
