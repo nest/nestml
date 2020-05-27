@@ -76,7 +76,7 @@ neuron iaf_psc_exp_htum:
     tau_syn_ex ms = 2 ms  # Time constant of synaptic current.
     t_ref_abs ms = 2 ms   # absolute refractory period.
     # total refractory period
-    t_ref_tot   ms = 2 ms     [[t_ref_tot >= t_ref_abs]] # if t_ref_abs == t_ref_tot iaf_tum_2000 equivalent to iaf_psc_exp
+    t_ref_tot   ms = 2 ms     [[t_ref_tot >= t_ref_abs]] # if t_ref_abs == t_ref_tot iaf_psc_exp_htum equivalent to iaf_psc_exp
     E_L     mV = -70 mV  # Resting potential.
     function V_reset mV = -70.0 mV - E_L # Reset value of the membrane potential
                                      # RELATIVE TO RESTING POTENTIAL(!).
@@ -90,7 +90,7 @@ neuron iaf_psc_exp_htum:
 
   internals:
     # TauR specifies the length of the absolute refractory period as
-    # a double_t in ms. The grid based iaf_tum_2000 can only handle refractory
+    # a double_t in ms. The grid based iaf_psc_exp_htum can only handle refractory
     # periods that are integer multiples of the computation step size (h).
     # To ensure consistency with the overall simulation scheme such conversion
     # should be carried out via objects of class nest::Time. The conversion
