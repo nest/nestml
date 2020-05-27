@@ -62,6 +62,10 @@ class NestIntegrationTest(unittest.TestCase):
 
         nest.ResetKernel()
         neuron1 = nest.Create(referenceModel)
+        if referenceModel == "izhikevich":
+            # work around bug in NEST Simulator: initial conditions for Izhikevich neuron not at equilibrium (#1626)
+            nest.SetStatus(neuron1, "V_m", -70.)
+            nest.SetStatus(neuron1, "U_m", 0.2 * -70.)
         neuron2 = nest.Create(testant)
 
         if not (gsl_error_tol is None):
