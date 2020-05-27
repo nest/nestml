@@ -105,8 +105,6 @@ class LatexExpressionPrinter(object):
                 if_true = self.print_expression(node.get_if_true())
                 if_not = self.print_expression(node.if_not)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
-        elif isinstance(node, str):
-            return node
         else:
             raise RuntimeError('Unsupported rhs in rhs pretty printer!')
 
