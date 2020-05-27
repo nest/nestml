@@ -34,6 +34,7 @@ from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
     integrate_delta_solution
 from pynestml.solver.transformer_base import add_assignment_to_update_block

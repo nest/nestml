@@ -27,7 +27,7 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CodeGenerator(object):
+class CodeGenerator():
 
     def __init__(self, target):
         if not target.upper() in self.get_known_targets():
