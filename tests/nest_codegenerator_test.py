@@ -87,27 +87,6 @@ class CodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
 
-    def test_iaf_cond_alpha_implicit(self):
-        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'iaf_cond_alpha.nestml'))))
-
-        params = list()
-        params.append('--input_path')
-        params.append(input_path)
-        params.append('--logging_level')
-        params.append('INFO')
-        params.append('--target_path')
-        params.append(self.target_path)
-        params.append('--dev')
-        FrontendConfiguration.parse_config(params)
-
-        compilation_unit = ModelParser.parse_model(input_path)
-        iaf_cond_alpha_implicit = list()
-        iaf_cond_alpha_implicit.append(compilation_unit.get_neuron_list()[1])
-
-        nestCodeGenerator = NESTCodeGenerator()
-        nestCodeGenerator.generate_code(iaf_cond_alpha_implicit)
-
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, 'models', 'iaf_cond_alpha.nestml'))))

@@ -1,0 +1,17 @@
+body { max-width: 40em }
+
+td { padding: 3px }
+th { padding: 3px 3em 3px 3px; font-weight: bold }
+.header td { background-color:#ddeeff; padding: 5px !important }
+.check_yes {background-color: #00ff33 }
+.check_no {background-color: #dd3300 }
+tr { margin-bottom: 5px; margin-top: 5px }
+tr:nth-child(even) { background: #eee }
+tr:nth-child(odd) { background: #fff }
+blockquote {padding: 0 !important; margin: 0 !important }
+
+/* some custom styles for maths formulas to bring them more in line with code snippets */
+
+div.formula { padding-left: 4em !important }
+.formula { text-align: left !important }
+.literal-block { margin-left: 4em !important }
