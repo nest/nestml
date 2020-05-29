@@ -5,7 +5,7 @@ The generation of executable code is one of the most important aspects of a DSL-
 
 .. _fig_overview_backend:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_overview_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_overview_cropped.png
    :alt: Overview of the code-generating backend.
 
    Overview of the code-generating backend: The model-processing frontend provides an input AST for the code generation. The NEST-specific backend first transforms the AST by means of the *model transformation subsystem*, before the *NEST code generator* is used to generate the respective C++ code. The instructions how the AST has to be adapted are computed by an external ODE-toolbox.
@@ -16,7 +16,7 @@ Section 3.1: AST Transformations and Code Generation
 
 .. _fig_overview_nest_code_generator:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_trans_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_trans_cropped.png
    :alt: Overview of the NEST code generator.
 
    Overview of the NEST code generator.
@@ -27,7 +27,7 @@ The *NestCodeGenerator* class orchestrates all steps required to generate NEST-s
 
 .. _fig_processing_model_nest_backend:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_AnGen_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_AnGen_cropped.png
    :alt: Processing of a model in the NEST backend.
 
    Processing of a model in the NEST backend.
@@ -40,7 +40,7 @@ In order to compute these optimizations, the ODE-toolbox as introduced by Blunde
 
 .. _fig_model_transformation_subsystem:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_proc_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_proc_cropped.png
    :alt: The model transformation subsystem
 
    The model transformation subsystem: The *EquationsBlockProcessor* receives a neuron model. The *equations* block is extracted and handed over to the ODE-toolbox by means of the *SymPySolver* wrapper class. The returned result is finally processed by the *transformers* and integrated into the AST.
@@ -48,7 +48,7 @@ In order to compute these optimizations, the ODE-toolbox as introduced by Blunde
 
 .. _fig_nestml_to_json:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_toJson_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_toJson_cropped.png
    :alt: From NESTML to JSON.
 
    From NESTML to JSON: In order to interact with the ODE-toolbox, all declarations contained in the *equations* block are converted to JSON format.
@@ -57,7 +57,7 @@ The task of creating a JSON representation of a given *equations* block is handl
 
 .. _fig_interaction_ode_toolbox:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_solver_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_solver_cropped.png
    :alt: Interaction with the ODE-toolbox.
 
    Interaction with the ODE-toolbox: Stated declarations in the source model are transformed to an equivalent representation in JSON format and handed over to the ODE-toolbox. The computed modifications are de-constructed from JSON format to a collection of individual definitions and integrated into the model.
@@ -71,7 +71,7 @@ Having an optimized structure of the *equations* block, PyNESTML starts to trans
 
 .. _fig_model_transforming_process:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_processor_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_processor_cropped.png
    :alt: The model-transforming process.
 
    The model-transforming process.
@@ -84,7 +84,7 @@ Jinja2, as well as many other template engines, often do not directly interact w
 
 .. _fig_higher_order_visitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_used_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_used_cropped.png
    :alt: The *NESTCodeGenerator* class and assisting components.
 
    The *NESTCodeGenerator* class and assisting components.
@@ -93,7 +93,7 @@ Having a set up context, the *NestCodeGenerator* initiates the actual code gener
 
 .. _fig_generated_artifacts_izhikevich:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_genFiles_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_genFiles_cropped.png
    :alt: Generated artifacts of the *Izhikevich* neuron model.
 
    Generated artifacts of the *Izhikevich* neuron model.
@@ -101,7 +101,7 @@ Having a set up context, the *NestCodeGenerator* initiates the actual code gener
 
 .. _fig_templates_generated_code_izhikevich:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_template_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_template_cropped.png
    :alt: Templates and the generated code of the *Izhikevich* neuron model.
 
    Templates and the generated code of the *Izhikevich* neuron model.
@@ -110,7 +110,7 @@ Target implementations can often be described in a schematic way by means of a t
 
 .. _fig_context_sensitive_target_syntax:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_different_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_different_cropped.png
    :alt: Context sensitive target syntax.
 
    Context sensitive target syntax.
@@ -121,7 +121,7 @@ The key principle of the *ExpressionPrettyPrinter* class is its composable natur
 
 .. _fig_astexpression_to_string:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_toNest_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_toNest_cropped.png
    :alt: From *ASTExpression* to a string.
 
    From *ASTExpression* object to a string.
@@ -132,7 +132,7 @@ The *NESTReferenceConverter* is the first concrete implementation of the *IRefer
 
 .. _fig_syntax_by_converttocppname:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_toCpp_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_toCpp_cropped.png
    :alt: Adaption of syntax by the *convertToCPPName* method.
 
    Adaption of syntax by the *convertToCPPName* method.
@@ -141,7 +141,7 @@ C++ as well as many other languages does not support the apostrophe as a valid p
 
 .. _fig_mapping_nestml_types_to_nest:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_primTypes_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_primTypes_cropped.png
    :alt: Mapping of NESTML types to NEST.
 
    Mapping of NESTML types to NEST.
@@ -152,7 +152,7 @@ The *NESTML2NestTypeConverter* class provides a mapping from NESTML types to app
 
 .. _fig_common_neuroscientific_units:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_phy_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_phy_cropped.png
    :alt: Common neuroscientific physical units.
 
    Common neuroscientific physical units.
@@ -162,7 +162,7 @@ In the case of physical units, additional handling is required. NEST assumes tha
 
 .. _fig_conversion_physical_units_nest:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/back_toScalar_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/back_toScalar_cropped.png
    :alt: The conversion of physical units from PyNESTML to NEST.
 
    The conversion of physical units from PyNESTML to NEST.

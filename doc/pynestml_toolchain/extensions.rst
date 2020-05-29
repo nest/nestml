@@ -18,7 +18,7 @@ The following (hypothetical) use case illustrates the extension of the grammar: 
 
 .. _fig_new_grammar_rules:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_gram_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_front_gram_cropped.jpg
    :alt: New grammar rules.
 
    New grammar rules: In order to include a new grammar rule, the existing *body* production is extended by a reference to the extension. The *invariantBlock* production encapsulates the added concept.
@@ -39,7 +39,7 @@ Having a modified metamodel, it remains to adapt PyNESTML to retrieve invariants
 
 .. _fig_modifying_ast_builder:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_astB_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_front_astB_cropped.jpg
    :alt: Modifying the AST builder.
 
    Modifying the AST builder: In order to initialize an AST according to the new grammar, the *ASTBuilderVisitor* is extended by an *ASTInvariantBlock*-node building method. An adaptation of the existing *visitASTBody* method includes the new rule.
@@ -48,7 +48,7 @@ With the modified structure of an AST where a new type of node has been added, i
 
 .. _fig_modifying_ast_visitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_astVisitor_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_front_astVisitor_cropped.jpg
    :alt: Modifying the AST visitor.
 
    Modifying the AST visitor: The *ASTVisitor* class is adapted to support the new type of AST node. The dispatcher functions are adapted, while new monomorphic hook methods are added.
@@ -57,7 +57,7 @@ An initialized AST represents a base for further checks and modifications. :ref:
 
 .. _fig_adapting_astsymboltablevisitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_symbolVisitor_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_front_symbolVisitor_cropped.jpg
    :alt: Adapting the *ASTSymbolTableVisitor*.
 
    Adapting the *ASTSymbolTableVisitor*: The *traverseASTBody* method is extended to regard the new type of block, while the actual handling of the block is delegated to the *visitASTInvariantBlock* method.
@@ -77,7 +77,7 @@ In order to achieve modularity, each context condition is encapsulated in an ind
 
 .. _fig_adding_context_conditions:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_context_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_front_context_cropped.jpg
    :alt: Adding context conditions.
 
    Adding context conditions: Each context condition is implemented in a self-contained class with all required functionality to check the context.
@@ -87,7 +87,7 @@ PyNESTML delegates the task of checking models for semantical correctness to the
 
 .. _fig_extending_cocosmanager:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_front_cocos_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_front_cocos_cropped.jpg
    :alt: Extending the *CoCosManager*.
 
    Extending the *CoCosManager*: New context conditions have to be made known to the managing *CoCosManager* class.
@@ -106,7 +106,7 @@ As illustrated in :numref:`fig_inclusion_new_templates`, the existing *NeuronCla
 
 .. _fig_inclusion_new_templates:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/ext_back_temp_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/ext_back_temp_cropped.jpg
    :alt: Inclusion of new templates.
 
    Inclusion of new templates: The existing set of templates is modified to include additional templates. For the sake of modularity, each extension should be implemented in an individual artifact.
