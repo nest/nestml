@@ -1,14 +1,18 @@
+.keep-us-sustainable {
+   background-color: #272525;
+}
+
 t.rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
     color: #f63;
 }
 
 .wy-side-nav-search {
-	background: linear-gradient(45deg, #fff, #eee);
-	border-bottom: 1px solid #e1e4e5;
+    background: linear-gradient(45deg, #fff, #eee);
+    border-bottom: 1px solid #e1e4e5;
 }
 
 .wy-side-nav-search .version {
-	display: none;
+    display: none;
 }
 
 .wy-side-nav-search input[type=text] {
@@ -16,14 +20,14 @@ t.rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
 }
 
 .wy-nav-side {
-	background: linear-gradient(90deg, #fff, #eee);
-	color: #888;
-	border-right: 1px solid #e1e4e5;
+    background: linear-gradient(90deg, #fff, #eee);
+    color: #888;
+    border-right: 1px solid #e1e4e5;
 }
 
 .wy-menu-vertical a,
 .wy-menu-vertical a:visited {
-	color: #444;
+    color: #444;
 }
 
 .wy-menu-vertical a:hover {
@@ -31,13 +35,13 @@ t.rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
 }
 
 .wy-menu-vertical header, .wy-menu-vertical p.caption {
-	background-color: #c1c1c1;
+    background-color: #c1c1c1;
     color: #6f6f6f;
     border-top: 1px solid #aaa;
 }
 
 .wy-menu-vertical li.current a {
-	color: #888;
+    color: #888;
 }
 
 .wy-nav-top {
@@ -78,10 +82,12 @@ a {
     background-color: transparent;
     cursor: pointer;
 }
+
 a:hover {
     color: #f63;
     text-decoration: underline;
 }
+
 code.descclassname {
     display: none;
 }
@@ -89,6 +95,7 @@ code.descclassname {
 .rst-content dl:not(.docutils) dt  em[class^='property']{
      display:none;
 }
+
 .rst-content pre.literal-block, .rst-content div[class^='highlight'] pre, .rst-content .linenodiv pre {
     line-height: 1.3em;
 }
@@ -122,3 +129,4 @@ code.descclassname {
       overflow: visible !important;
    }
 }
+
