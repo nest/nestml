@@ -1,12 +1,12 @@
 Synaptic response
 -----------------
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_chxk_2008]_synaptic_response.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_chxk_2008]_synaptic_response.png
    :alt: iaf_chxk_2008_nestml
 
 f-I curve
 ---------
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_chxk_2008]_f-I_curve.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_chxk_2008]_f-I_curve.png
    :alt: iaf_chxk_2008_nestml
 
