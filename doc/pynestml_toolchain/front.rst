@@ -5,7 +5,7 @@ In this section we will demonstrate how the model-processing frontend of PyNESTM
 
 .. _fig-frontend-overview:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_overview_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_overview_cropped.jpg
    :alt: Overview of the model-processing Frontend
 
    Overview of the model-processing Frontend: The lexer and parser process a textual model to the corresponding parse tree and can be completely generated from a grammar artifact. The ASTBuilderVisitor is responsible for the initialization of a model's AST, employing classes which conform to the DSL's grammar. After the AST has been constructed, the CommentCollectorVisitor collects and stores all comments stated in the source model. The ASTSymbolTableVisitor subsequently collects context information of the model by utilizing Symbols and the predefined subsystem. Semantic Checks conclude the rocessing by checking the model for semantical correctness. All steps are orchestrated by the ModelParser.
@@ -19,7 +19,7 @@ The first step during the processing of a textual model is the creation of an in
 
 .. _fig-lexer-parser-overview:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_parser_overview_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_parser_overview_cropped.jpg
    :alt: Overview of the lexer, parser and the AST classes
 
    Overview of the lexer, parser and the AST classes: The grammar represents the artifact from which the lexer and parser are generated. Moreover, the ASTBuilderVisitor class extends the generated ParseTreeVisitor class and transforms the handed over parse tree to the respective AST. The ASTNodeFactory features a set of operations for node initialization. The ModelParser encapsulates all processes and can be used to parse complete models or single statements.
@@ -28,7 +28,7 @@ Although possible, *lexer* and *parser* are usually not implemented by hand but 
 
 .. _fig-simplied-grammar:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_grammar_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_grammar_cropped.jpg
    :alt: A simplified grammar
 
    A simplified grammar: Each neuron model is introduced by the keyword *neuron* and the neuron's name. A model is composed of an arbitrary number of *blocks* consisting of a name and a set of *declarations* and *assignments*. Declarations consist of a name, the data type and a value-defining expression, while assignments only utilize a left-hand side name and a value-providing expression. *Expressions* are either simple, i.e., a string, boolean or integer literal, or arithmetic combinations of other expressions.
@@ -39,7 +39,7 @@ Consequently, these components can be used in a black-box manner, where only the
 
 .. _fig-model-parsing-process:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_processing_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_processing_cropped.jpg
    :alt: The model-parsing process
 
    The model-parsing process: First, a model is decomposed into a stream of token objects. If a literal in the model is not constructed according to the token definitions, the process is terminated and the problem reported. Otherwise, the token stream is handed over to the parser which constructs a parse tree by taking the grammar rules into account. For sequences of tokens which are not constructed according to a grammar rule, an error is reported and the process terminated. A constructed parse tree is handed over to the *ASTBuilderVisitor* which constructs the respective AST. Finally, all comments are retrieved and stored.
@@ -48,7 +48,7 @@ Besides complete models, it is also often of interest to parse single instructio
 
 .. _fig-overview-ast-classes:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_astclasses_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_astclasses_cropped.jpg
    :alt: Overview of the AST classes
 
    Overview of the AST classes: The *ASTNode* represents a base class for all concrete AST classes. Each AST node stores a reference to a *SourceLocation* object, representing the position in the textual model where the element has been defined. The *ASTNodeFactory* is used to create new instances of AST nodes.
@@ -63,7 +63,7 @@ Due to Python's missing concept of method overloading, it is not possible to def
 
 .. _fig-grammar-to-ast-classes:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_gram2ast_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_gram2ast_cropped.jpg
    :alt: From Grammar to AST Classes
 
    From Grammar to AST Classes: Each production in the grammar is used to construct a new AST class. For each terminal and referenced sub-rule, an attribute is created. A set of operations provides functionality for the visualization of nodes, data retrieval, and manipulation.
@@ -72,7 +72,7 @@ The *ASTBuilderVisitor* class implements a parse tree visiting process which ini
 
 .. _fig-ast-simpleexpression-node-creating:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_builder_code_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_builder_code_cropped.jpg
    :alt: The *ASTSimpleExpression* node creating method
 
    The *ASTSimpleExpression* node creating method: With the overall structure of the DSL in mind, this method is constructed to directly store correctly typed values. The position of the element in the model is retrieved and stored in a new *SourceLocation* object. Finally, a new AST node is created by the respective factory method.
@@ -81,7 +81,7 @@ Although not crucial for the correct generation of a model implementation, comme
 
 .. _fig-comment-collector-visitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_commentCD_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_commentCD_cropped.jpg
    :alt: The *CommentCollectorVisitor*
 
    The *CommentCollectorVisitor*: The visitor implements a process for the collection of comments in arbitrary nodes of the parse tree. In order to simplify the processing, merely the *visit* method has to be called. This method delegates the work to the *get\_comments* function and finally returns all collected comments. The comment collector extends the *ParseTreeVisitor* and is called within the *ASTBuilderVisitor* whenever an AST is constructed.
@@ -90,7 +90,7 @@ It inspects the token stream and retrieves all comments which belong to the corr
 
 .. _fig-comment-processing-routine:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_comment_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_comment_cropped.jpg
    :alt: Illustration of the comment-processing routine
 
    Illustration of the comment-processing routine: The target of a comment is recognized unambiguously if a separating white-line is inserted, otherwise the comment is added to both enclosing nodes.
@@ -110,7 +110,7 @@ Continuing with an initialized AST, PyNESTML proceeds to start collecting inform
 
 .. _fig-symbol-subsystem:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_symbols_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_symbols_cropped.jpg
    :alt: The *Symbol* subsystem
 
    The *Symbol* subsystem: The abstract *Symbol* class prescribes common properties. This class is implemented by the *TypeSymbol* to represent concrete types. *FunctionSymbol* and *VariableSymbol* store declared functions and variables. For more modularity, the *UnitType* class is used as a wrapper around the *AstroPy* unit system [6]_. *VariableType* and *BlockType* represent enumerations of possible types of variables and blocks.
@@ -125,7 +125,7 @@ The *FunctionSymbol* is the last type of symbol and stores references to pre- an
 
 .. _fig-predefined-subsystem:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_predefined_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_predefined_cropped.jpg
    :alt: The *predefined* subsystem
 
    The *predefined* subsystem: By utilizing the *Symbol* classes, a collection of *UnitType* objects is created representing physical units. Together with primitive data types, these units are encapsulated in *type symbols* and stored in the *PredefinedTypes* collection, before being used in *PredefinedVariables* and *PredefinedFunctions*.
@@ -136,7 +136,7 @@ The *PredefinedUnits* class subsumes a routine used to initialize all basic phys
 
 .. _fig-si-units:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_combunits_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_combunits_cropped.jpg
    :alt: Instantiation of SI units with *AstroPy* @astro2013
 
    Instantiation of SI units with *AstroPy*: First, all basic units and all available prefixes are collected in two separate lists. Then, for each unit and each prefix, a combined unit is created, e.g., with the prefix *kilo* and the unit *gram*, a new unit *kg* is initialized. Each created unit is represented by an AstroPy unit object. For equality checks and printing operations, the *UnitType* wrapper class is used around each AstroPy unit object.
@@ -151,7 +151,7 @@ With a data structure for the representation of types as well as a basic collect
 
 .. _fig-type-deriving-visitor-subsystem:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_typevisitoroverview_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_typevisitoroverview_cropped.jpg
    :alt: Overview of the type-deriving visitor subsystem
 
    Overview of the type-deriving visitor subsystem: The *ASTUnitTypeVisitor* derives correct types for declarations of types as stored in *ASTDataType* nodes, while the *ASTExpressionTypeVisitor* class takes care of correct type derivation in expressions. Here, a set of assisting sub-visitors is used to derive the type symbol based on the concrete type of the expression, e.g., boolean literals or arithmetic expressions, each of which corresponding to one production of the *expression* grammar rule.
@@ -162,7 +162,7 @@ In the case that a primitive type has been used, a respective type symbol is sim
 
 .. _fig-derivation-type-astdatatype:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_transdata_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_transdata_cropped.jpg
    :alt: Derivation of types in *ASTDataType* nodes
 
    Derivation of types in *ASTDataType* nodes: First, the type defining expression is decomposed into its leaves. For each leaf, the corresponding type is retrieved from the *PredefiendTypes* class. Finally, all types are recombined according to the stated operations up to the root and the overall type is stored.
@@ -171,7 +171,7 @@ In the case of *expressions*, it is necessary to propagate the types of the leav
 
 .. _fig-derivation-type-astexpression:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_transexpr_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_transexpr_cropped.jpg
    :alt: Derivation of types in *ASTExpression* nodes
 
    Derivation of types in *ASTExpression* nodes: Analogously to *ASTDataTypes* nodes, an expression is first decomposed into its leaf nodes. Subsequently, the corresponding variable symbol is resolved, and its type symbol retrieved. Type symbols are combined according to the operations used to construct the expressions. In the case of errors, e.g., a combination of boolean and numeric types, an error message is propagated to the root.
@@ -185,7 +185,7 @@ Section 1.3: Semantical Checks
 
 .. _fig-semantical-checks:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_semantics_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_semantics_cropped.jpg
    :alt: Overview of semantical checks
 
    Overview of semantical checks: The orchestrating *ModelParser* class utilizes the *ASTSymbolTableVisitor* to construct a model’s hierarchy of *Scope* objects. Each scope is populated by *Symbol* objects corresponding to elements defined in the respective model. In order to manage all processed neurons in a central unit, the *SymbolTable* class is used. Finally, the *ModelParser* calls all model-analyzing routines of the *CoCosManager* class and checks the model for semantical correctness. The *CoCosManager* class utilizes different *CoCos* to check several properties of the given model.
@@ -198,14 +198,14 @@ Besides data retrieval and manipulation operations, the *Scope* class features s
 
 .. _fig-symbol-resolution-process:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_resolve_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_resolve_cropped.jpg
    :alt: The symbol resolution process
 
    The symbol resolution process: The request to return a *Symbol* object corresponding to a given name is received by the nested scope. The scope is checked, and if no symbol with the corresponding name and type is found, a recursive call to the resolution process on the nesting scope is performed. If a symbol has been found, it is returned, otherwise an error is indicated by returning *none*.
 
 .. _fig-ast-context-collecting-updating:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_symbolsetup_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_symbolsetup_cropped.jpg
    :alt: AST context-collecting and updating process
 
    AST context-collecting and updating process: Starting at the root, i.e., the *ASTNeuron* object, the *ASTSymbolTableVisitor* creates a neuron-specific scope and descends into the AST. For each node, the routine checks if a child node is stored, and updates its scope according to the current one. Found declarations are used to create new symbols which are consequently stored in the parent’s scope.
@@ -216,7 +216,7 @@ The creation of new symbols and scopes is only required in a limited set of case
 
 .. _fig-cocosmanager-context-conditions:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_cocos_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_cocos_cropped.jpg
    :alt: The *CoCosManager* and context conditions
 
    The *CoCosManager* and context conditions: The CoCosManager* class represents a central unit which executes all required checks on the handed over model. Each checked feature of the model is encapsulated by a single class which inherits the abstract *CoCo* class.
@@ -281,7 +281,7 @@ In the following we exemplify the underlying process on two concrete *context co
 
 .. _fig-simple-complex-coco:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/front_cocos_example_cropped.jpg
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_cocos_example_cropped.jpg
    :alt: Simple and complex context conditions
 
    Simple and complex context conditions: Simple context conditions such as *CoCoFunctionUnique* can be implemented in a single function, while more complex conditions such as *CoCoIllegalExpression* also utilize additional classes and visitors. Both types of context conditions work on the handed over AST.

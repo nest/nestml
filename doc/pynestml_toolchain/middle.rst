@@ -5,7 +5,7 @@ As opposed to a typical DSL architecture, where semantical checks, as well as mo
 
 .. _fig_mid_overview:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/mid_overview_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/mid_overview_cropped.png
    :alt: Overview of assisting components
 
    Overview of assisting components: The *PyNESTMLFrontend* represents an orchestrating component, governing PyNESTML's workflow. Parameters handed over by the user are stored in the *FrontendConfiguration*, while the *Logger* and *Messages* classes take care of logging. For the modification and creation of ASTs, the *ASTUtils*, *ASTNodeFactory* and *ASTOdeTransformer* are employed. The *ASTHigherOrderVisitor* represents an assisting component making traversal and modification of ASTs easier.
@@ -16,7 +16,7 @@ Before the actual processing of the model can be started, it is necessary to han
 
 .. _fig_model_processing_routine:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/mid_processing_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/mid_processing_cropped.png
    :alt: The model-processing routine as orchestrated by the *PyNESTMLFrontend*.
 
    The model-processing routine as orchestrated by the *PyNESTMLFrontend*
@@ -31,7 +31,7 @@ The corresponding set of operations on the logger represents a complete interfac
 
 .. _fig_logger_messages:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/mid_logger_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/mid_logger_cropped.png
    :alt: The logger and messages components.
 
    The logger and messages components: The *Logger* provides methods for reporting issues (*logMessage*) and precise retrieval of messages (e.g., *getAllMessagesOfLevel*). For a log in file format, the *printToJson* method can be used. In order to make maintenance more focused, all message strings are encapsulated in the *Messages* class. The currently set logging level, as well as individual message codes, are hereby of an enumeration type.
@@ -42,7 +42,7 @@ Transformations which are especially focused on the *equations* block and its de
 
 .. _fig_ast_manipulating:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/mid_trans_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/mid_trans_cropped.png
    :alt: AST-manipulating modules
 
    AST-manipulating modules: The *ASTOdeTransformer* implements a set of operations focused on the retrieval of information from and modifications of the ODE block. The *ASTNodeFactory* offers operations for the creation of AST nodes, while *ASTUtils* contains a vast collection of operations on the AST.
@@ -53,7 +53,7 @@ We conclude this section by an introduction of the *higher-order visitor*, a con
 
 .. _fig_visitor_pattern:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/mid_oldvis_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/mid_oldvis_cropped.png
    :alt: The *visitor* pattern in practice
 
    The *visitor* pattern in practice: Even small operations, e.g., the collection of certain types of variables, require the usage of sub-classing, where only a single operation is redefined.
@@ -62,7 +62,7 @@ Especially in the case of PyNESTML and its semantics-checking subsystem many vis
 
 .. _fig_higher_order_visitor:
 
-.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml/pic/mid_higher_cropped.png
+.. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/mid_higher_cropped.png
    :alt: The *Higher-Order Visitor*
 
    The *Higher-Order Visitor*: The *visit* operation is provided by the AST whose subtree shall be visited and the actual operation. This operation can be either declared in-place by *lambda expressions* or as a reference to a different function. The higher-order visitor traverses the tree and invokes the function on each node.
