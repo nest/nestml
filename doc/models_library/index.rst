@@ -9,10 +9,10 @@ Source file: `iaf_psc_delta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_psc_delta]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_psc_delta]_synaptic_response_small.png
           :alt: iaf_psc_delta
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_psc_delta]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_psc_delta]_f-I_curve_small.png
           :alt: iaf_psc_delta
 
 
@@ -23,10 +23,10 @@ Source file: `iaf_psc_exp.nestml <https://www.github.com/nest/nestml/blob/master
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_psc_exp]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_psc_exp]_synaptic_response_small.png
           :alt: iaf_psc_exp
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_psc_exp]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_psc_exp]_f-I_curve_small.png
           :alt: iaf_psc_exp
 
 
@@ -37,10 +37,10 @@ Source file: `iaf_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/mast
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_psc_alpha]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_psc_alpha]_synaptic_response_small.png
           :alt: iaf_psc_alpha
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_psc_alpha]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_psc_alpha]_f-I_curve_small.png
           :alt: iaf_psc_alpha
 
 
@@ -51,10 +51,10 @@ Source file: `iaf_cond_exp.nestml <https://www.github.com/nest/nestml/blob/maste
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_cond_exp]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_cond_exp]_synaptic_response_small.png
           :alt: iaf_cond_exp
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_cond_exp]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_cond_exp]_f-I_curve_small.png
           :alt: iaf_cond_exp
 
 
@@ -65,10 +65,10 @@ Source file: `iaf_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/mas
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_cond_alpha]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_cond_alpha]_synaptic_response_small.png
           :alt: iaf_cond_alpha
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_cond_alpha]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_cond_alpha]_f-I_curve_small.png
           :alt: iaf_cond_alpha
 
 
@@ -79,10 +79,10 @@ Source file: `iaf_cond_beta.nestml <https://www.github.com/nest/nestml/blob/mast
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_cond_beta]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_cond_beta]_synaptic_response_small.png
           :alt: iaf_cond_beta
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_cond_beta]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_cond_beta]_f-I_curve_small.png
           :alt: iaf_cond_beta
 
 
@@ -93,10 +93,10 @@ Source file: `izhikevich.nestml <https://www.github.com/nest/nestml/blob/master/
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[izhikevich]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[izhikevich]_synaptic_response_small.png
           :alt: izhikevich
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[izhikevich]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[izhikevich]_f-I_curve_small.png
           :alt: izhikevich
 
 
@@ -107,10 +107,10 @@ Source file: `hh_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/maste
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[hh_psc_alpha]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[hh_psc_alpha]_synaptic_response_small.png
           :alt: hh_psc_alpha
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[hh_psc_alpha]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[hh_psc_alpha]_f-I_curve_small.png
           :alt: hh_psc_alpha
 
 
@@ -121,10 +121,10 @@ Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/mast
 
 .. list-table::
 
-   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_chxk_2008]_synaptic_response_small.png
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_chxk_2008]_synaptic_response_small.png
           :alt: iaf_chxk_2008
 
-     - .. figure:: https://raw.githubusercontent.com/nest/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[iaf_chxk_2008]_f-I_curve_small.png
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[iaf_chxk_2008]_f-I_curve_small.png
           :alt: iaf_chxk_2008
 
 
