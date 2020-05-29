@@ -495,7 +495,7 @@ e.g.:
 
    x integer = 0
    for x in 1 ... 5:
-     <statements>
+     # <statements>
    end
 
 The second variant uses an ``integer`` or ``real`` iterator variable and iterates over the half-open interval ``[lower_bound, upper_bound)`` with a positive ``integer`` or ``real`` step of size ``step``. It is advisable to choose the type of the iterator variable and the step size to be the same.
