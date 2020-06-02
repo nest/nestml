@@ -25,7 +25,7 @@ class ASTArithmeticOperator(ASTNode):
     """
     This class is used to store a single arithmetic operator, e.g. +.
 
-    No grammar. This part is defined outside the grammar to make processing and storing of models easier and  comprehensible.
+    No grammar. This part is defined outside the grammar to make processing and storing of models easier and comprehensible.
 
     Attributes:
         is_times_op = False  # type: bool
