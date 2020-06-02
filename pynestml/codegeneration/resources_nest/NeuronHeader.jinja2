@@ -221,7 +221,7 @@ private:
   *
   {{neuron.print_parameter_comment("*")}}
   *
-  * These are the parameters that can be set by the user through @c SetStatus.
+  * These are the parameters that can be set by the user through @c `node.set()`.
   * They are initialized from the model prototype when the node is created.
   * Parameters do not change during calls to @c update() and are not reset by
   * @c ResetNetwork.
@@ -257,7 +257,7 @@ private:
   *
   * These are the state variables that are advanced in time by calls to
   * @c update(). In many models, some or all of them can be set by the user
-  * through @c SetStatus. The state variables are initialized from the model
+  * through @c `node.set()`. The state variables are initialized from the model
   * prototype when the node is created. State variables are reset by @c ResetNetwork.
   *
   * @note State_ need neither copy constructor nor @c operator=(), since
@@ -561,6 +561,8 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endif %}
   {%- endwith %}
   {%- endfor %}
+
+  Archiving_Node::get_status( __d );
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();

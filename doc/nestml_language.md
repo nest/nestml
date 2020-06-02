@@ -381,7 +381,7 @@ end
 ### Block types
 
 * `neuron` *`<name>`* - The top-level block of a neuron model called `<name>`. The content will be translated into a single neuron model that can be instantiated in PyNEST using `nest.Create(<name>)`. All following blocks are contained in this block.
-* `parameters` - This block is composed of a list of variable declarations that are supposed to contain all variables which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using `nest.SetStatus(<gid>, <variable>, <value>)` and  `nest.GetStatus(<gid>, <variable>)`.
+* `parameters` - This block is composed of a list of variable declarations that are supposed to contain all variables which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using `node.set({<variable>: <value>})` and  `node.get(<variable>)`.
 * `state` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
 * `initial_values` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a `multimeter`.
 * `internals` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
@@ -545,7 +545,7 @@ Inside the `update` block, the current time can be accessed via the variable `t`
 
 Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
-In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `SetStatus` call. The default value of the `gsl_error_tol` is `1e-3`.
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `node.set()` call. The default value of the `gsl_error_tol` is `1e-3`.
 
 ### Concepts for refractoriness
 
@@ -574,8 +574,8 @@ end
 ## Setting and retrieving model properties
 
 * All variables in the `state`, `parameters` and `initial_values` blocks are added to the status dictionary of the neuron.
-* Values can be set using `nest.SetStatus(<gid>, <variable>, <value>)` where `<variable>` is the name of the corresponding NestML variable.
-* Values can be read using `nest.GetStatus(<gid>, <variable>)`. This call will return the value of the corresponding NestML variable.
+* Values can be set using `node.set({<variable>: <value>})` where `<variable>` is the name of the corresponding NestML variable.
+* Values can be read using `node.get(<variable>)`. This call will return the value of the corresponding NestML variable.
 
 ## Recording values with devices
 
@@ -589,7 +589,7 @@ end
 
 ## Guards
 
-Variables which are defined in the `state` and `parameters` blocks can optionally be secured through guards. These guards are checked during the call to `nest.SetStatus()` in NEST.
+Variables which are defined in the `state` and `parameters` blocks can optionally be secured through guards. These guards are checked during the call to `node.set()` in NEST.
 
 ```
 block:

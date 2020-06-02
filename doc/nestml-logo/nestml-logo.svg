@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="46.78891mm"
+   height="14.402354mm"
+   viewBox="0 0 46.78891 14.402354"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (unknown)"
+   sodipodi:docname="nestml-logo.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="78.573296"
+     inkscape:cy="-4.6572094"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1543"
+     inkscape:window-height="1008"
+     inkscape:window-x="160"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(229.91864,-115.51624)">
+    <g
+       transform="matrix(0.14511736,0,0,0.14511736,-132.11431,29.706823)"
+       id="g4248"
+       style="stroke-width:1.94478607">
+      <path
+         inkscape:connector-curvature="0"
+         d="m -437.63364,674.86299 c 0,8.09375 -6.4625,15.69375 -14.43875,15.69375 h -221.89375 l -10e-4,-84.5925 c 0,-8.0925 6.46375,-14.65375 14.44,-14.65375 h 207.455 c 7.97625,0 14.43875,6.56125 14.43875,14.65375 v 68.89875 z"
+         style="fill:#ff6633;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.94478607"
+         id="path4250" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:start;letter-spacing:-2.5px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         x="-665.94263"
+         y="657.8446"
+         id="text4252"><tspan
+           style="font-size:74px;line-height:0;stroke-width:1.94478607"
+           sodipodi:role="line"
+           id="tspan4254"
+           x="-665.94263"
+           y="657.8446">nest</tspan></text>
+      <ellipse
+         ry="8.3968925"
+         rx="9.6343298"
+         cy="461.3093"
+         cx="-133.20123"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         id="path4256"
+         transform="matrix(0.6746707,0,0,0.77409589,-387.34411,272.29267)" />
+      <ellipse
+         rx="9.6343298"
+         ry="8.3968925"
+         transform="matrix(0.6746707,0,0,0.77409589,-365.34411,272.29267)"
+         cy="461.3093"
+         cx="-133.20123"
+         id="path4258"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607" />
+      <ellipse
+         ry="8.3968925"
+         rx="9.6343298"
+         cy="461.3093"
+         cx="-133.20123"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         id="path4260"
+         transform="matrix(0.6746707,0,0,0.77409589,-365.34411,294.29267)" />
+      <ellipse
+         ry="8.3968925"
+         rx="9.6343298"
+         cy="461.3093"
+         cx="-133.20123"
+         transform="matrix(0.6746707,0,0,0.77409589,-387.34411,294.29267)"
+         id="path4262"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.94478607" />
+      <text
+         id="text4264"
+         y="657.8446"
+         x="-432.5596"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'Courier 10 Pitch';-inkscape-font-specification:'Courier 10 Pitch Bold';text-align:start;letter-spacing:-2.5px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ff6633;fill-opacity:1;stroke:none;stroke-width:1.94478607"
+         xml:space="preserve"><tspan
+           style="font-size:74px;line-height:0;stroke-width:1.94478607"
+           y="657.8446"
+           x="-432.5596"
+           id="tspan4266"
+           sodipodi:role="line">ml</tspan></text>
+    </g>
+  </g>
+</svg>
