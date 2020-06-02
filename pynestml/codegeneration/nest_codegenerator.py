@@ -532,8 +532,6 @@ class NESTCodeGenerator(CodeGenerator):
             #   collect all the variable/parameter/shape/function/etc. names used in defining expressions of `neuron_state_vars`
             #
 
-            vars_used = []
-
             def collect_variable_names_in_expression(expr):
                 """collect all occurrences of variables (`ASTVariable`), shapes (`ASTOdeShape`) XXX ...
                 """
@@ -559,12 +557,25 @@ class NESTCodeGenerator(CodeGenerator):
 
                 return vars_used_
 
-            """for state_var in neuron_state_vars:
-                print("Collecting dependent variables in definition of '" + str(state_var) + "'")
-                import pdb;pdb.set_trace()
-                shape = synapse.get_shape_by_name(state_var)
-                if shape:
-	                vars_used.extend(collect_variable_names_in_expressions(state_var, synapse, var_name_suffix))"""
+            vars_used = []
+
+            """def recursive_dependent_variables_search(vars, astnode):
+                vars = []
+                decls = get_variable_declarations_from_block(state_var, astnode)
+                for decl in decls:
+                    if decl.has_expression():
+                        rhs_vars = find_vars_in_expression(decl.get_expression())
+                        vars.extend(recursive_dependent_variables_search(rhs_vars))
+
+                decls = get_eq_declarations_from_block(state_var, synapse_block)
+                return vars
+
+
+
+            vars_used = recursive_dependent_variables_search(neuron_state_vars)
+
+            import pdb;pdb.set_trace() #vars_used = []"""
+
 
             #
             #   move state variable definitions from synapse to neuron
@@ -582,6 +593,7 @@ class NESTCodeGenerator(CodeGenerator):
                 return decls
 
             def add_suffix_to_variable_names(decl, suffix: str):
+                """add suffix to the left-hand side of a declaration"""
                 if isinstance(decl, ASTInlineExpression):
                     decl.set_variable_name(decl.get_variable_name() + suffix)
                 elif isinstance(decl, ASTOdeEquation):
@@ -622,6 +634,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             def get_eq_declarations_from_block(var_name, block):
                 decls = []
+                if not type(var_name) is str:
+                    var_name = str(var_name)
+
                 for decl in block.get_declarations():
                     if isinstance(decl, ASTInlineExpression):
                         var_names = [decl.get_variable_name()]
@@ -636,30 +651,38 @@ class NESTCodeGenerator(CodeGenerator):
                 return decls
 
 
-            def move_eq_syn_neuron(state_var, synapse_block, neuron_block, var_name_suffix):
+            def equations_from_syn_to_neuron(state_var, synapse_block, neuron_block, var_name_suffix, mode):
                 if not neuron_block \
                  or not synapse_block:
                     return
 
+                assert mode in ["move", "copy"]
+
                 decls = get_eq_declarations_from_block(state_var, synapse_block)
+
                 if decls:
-                    print("Moving state var equation for " + state_var + " from synapse to neuron")
+                    print("\tvar = " + str(state_var) + " from synapse eq block to neuron")
                     for decl in decls:
                         if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
                          or type(decl) is ASTInlineExpression:
                             vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
                         elif type(decl) is ASTOdeEquation:
                             vars_used.extend(collect_variable_names_in_expression(decl.get_rhs()))
+                        elif type(decl) is ASTOdeShape:
+                            for expr in decl.get_expressions():
+                                vars_used.extend(collect_variable_names_in_expression(expr))
                         else:
                             import pdb;pdb.set_trace()
 
-                        synapse_block.declarations.remove(decl)
+                        if mode == "move":
+                            synapse_block.declarations.remove(decl)
                         add_suffix_to_variable_names(decl, suffix=var_name_suffix)
+                        import pdb;pdb.set_trace()
                         neuron_block.get_declarations().append(decl)
 
             for state_var in neuron_state_vars:
                 print("Moving state var defining equation(s) " + str(state_var))
-                move_eq_syn_neuron(state_var, synapse.get_equations_block(), neuron.get_equations_block(), var_name_suffix)
+                equations_from_syn_to_neuron(state_var, synapse.get_equations_block(), neuron.get_equations_block(), var_name_suffix, mode="move")
 
             #
             #    move updates in update block from synapse to neuron
@@ -703,20 +726,15 @@ class NESTCodeGenerator(CodeGenerator):
             print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
             vars_used = [s for s in vars_used if not var_name_suffix in s.get_name()]
             print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
-            import pdb;pdb.set_trace()
 
-            # XXX: TODO
+            for state_var in vars_used:
+                print("\tCopying state var defining equation(s) " + str(state_var))
+                equations_from_syn_to_neuron(state_var, synapse.get_equations_block(), neuron.get_equations_block(), var_name_suffix, mode="copy")
 
 
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
             #
-
-            # XXX: replace astnode by a referent-to-var-in-other; "external"?
-            # during code generation, gets turned into:
-            #   #define get_post_trace()    ( __target->get_K_value( __t_spike - __dendritic_delay ) )
-            # 
-
 
             def replace_variable_name_in_expressions(var_name, synapse, suffix):
                 """replace all occurrences of variables (`ASTVariable`s) (e.g. `post_trace'`) with `ASTExternalVariable`s, indicating that they are moved to the postsynaptic partner.
@@ -749,8 +767,30 @@ class NESTCodeGenerator(CodeGenerator):
                 synapse.accept(ASTHigherOrderVisitor(func))
 
             for state_var in neuron_state_vars:
-                print("Replacing variable in expression(s): " + str(state_var))
+                print("Replacing variable in moved expression(s): " + str(state_var))
                 replace_variable_name_in_expressions(state_var, synapse, var_name_suffix)
+
+            def replace_variable_name_in_expressions1(var_name, synapse, suffix):
+                """add suffix to variable names
+                """
+                def replace_var(_expr=None):
+                    if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                        var = _expr.get_variable()
+                    elif isinstance(_expr, ASTVariable):
+                        var = _expr
+                    else:
+                        return
+                    if not suffix in var.get_name() \
+                     and not var.get_name() == "t":
+                        var.set_name(var.get_name() + suffix)
+
+                func = lambda x: replace_var(x)
+
+                synapse.accept(ASTHigherOrderVisitor(func))
+
+            for state_var in vars_used:
+                print("Replacing variable in copied expression(s): " + str(state_var))
+                replace_variable_name_in_expressions1(state_var, neuron, var_name_suffix)
 
 
 
