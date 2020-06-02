@@ -55,7 +55,7 @@ class ASTIfClause(ASTNode):
         """
         block_dup = None
         if self.block:
-            block_dup = self.block.dup()
+            block_dup = self.block.clone()
         condition_dup = None
         if self.condition:
             condition_dup = self.condition.clone()

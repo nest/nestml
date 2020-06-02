@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 
 class ASTUnitType(ASTNode):
@@ -102,7 +102,10 @@ class ASTUnitType(ASTNode):
         """
         lhs_dup = None
         if self.lhs:
-            lhs_dup = self.lhs.clone()
+            if isinstance(self.lhs, ASTNode):
+                lhs_dup = self.lhs.clone()
+            else:
+                lhs_dup = clone_numeric_literal(self.lhs)
         rhs_dup = None
         if self.rhs:
             rhs_dup = self.rhs.clone()

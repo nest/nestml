@@ -101,7 +101,7 @@ class ASTInputPort(ASTNode):
          size_parameter=self.size_parameter,
          data_type=data_type_dup,
          input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
-         signal_type=self.signal_type.clone(),
+         signal_type=self.signal_type,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,

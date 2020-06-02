@@ -71,8 +71,7 @@ class ASTNode(metaclass=ABCMeta):
         self.post_comments = post_comments
         self.implicit_conversion_factor = implicit_conversion_factor
 
-    #@abstractmethod
-    # XXX: UNCOMMENT
+    @abstractmethod
     def clone(self):
         """
         Return a deep copy of this node.

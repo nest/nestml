@@ -18,10 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-
+from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 class ASTSimpleExpression(ASTExpressionNode):
     """
@@ -104,14 +107,13 @@ class ASTSimpleExpression(ASTExpressionNode):
         variable_dup = None
         if self.variable:
             variable_dup = self.variable.clone()
-        numeric_literal_dup = None
-        if self.numeric_literal:
-            numeric_literal_dup = self.numeric_literal.clone()
+        numeric_literal_dup = clone_numeric_literal(self.numeric_literal)
         boolean_literal = None
         if self.is_boolean_true:
             boolean_literal = True
         if self.is_boolean_false:
             boolean_literal = False
+        assert function_call_dup or (not boolean_literal is None) or (not numeric_literal_dup is None) or self.is_inf_literal or variable_dup or self.string
         dup = ASTSimpleExpression(function_call=function_call_dup,
          boolean_literal=boolean_literal,
          numeric_literal=numeric_literal_dup,

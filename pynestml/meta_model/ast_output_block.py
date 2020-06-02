@@ -55,7 +55,7 @@ class ASTOutputBlock(ASTNode):
         :return: new AST node instance
         :rtype: ASTOutputBlock
         """
-        dup = ASTOutputBlock(o_type=self.type.clone(),
+        dup = ASTOutputBlock(o_type=self.type,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,
