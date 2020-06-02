@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 
 class ASTUnitType(ASTNode):
@@ -27,7 +27,7 @@ class ASTUnitType(ASTNode):
     This class stores information regarding unit types and their properties.
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
-  
+
     unitType : leftParentheses='(' unitType rightParentheses=')'
                | base=unitType powOp='**' exponent=UNSIGNED_INTEGER
                | left=unitType (timesOp='*' | divOp='/') right=unitType
@@ -53,9 +53,12 @@ class ASTUnitType(ASTNode):
     """
 
     def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
-                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, source_position=None):
+                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, *args, **kwargs):
         """
-        Standard constructor of ASTUnitType.
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param compound_unit: a unit encapsulated in brackets
         :type compound_unit: ASTUnitType
         :param base: the base rhs
@@ -75,7 +78,9 @@ class ASTUnitType(ASTNode):
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
         """
-        super(ASTUnitType, self).__init__(source_position)
+        super(ASTUnitType, self).__init__(*args, **kwargs)
+        if _unit:
+            assert type(_unit) is str
         self.is_encapsulated = is_encapsulated
         self.compound_unit = compound_unit
         self.base = base
@@ -87,7 +92,49 @@ class ASTUnitType(ASTNode):
         self.rhs = rhs
         self.unit = _unit
         self.type_symbol = None
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTAssignment
+        """
+        lhs_dup = None
+        if self.lhs:
+            if isinstance(self.lhs, ASTNode):
+                lhs_dup = self.lhs.clone()
+            else:
+                lhs_dup = clone_numeric_literal(self.lhs)
+        rhs_dup = None
+        if self.rhs:
+            rhs_dup = self.rhs.clone()
+        base_dup = None
+        if self.base:
+            base_dup = self.base.clone()
+        compound_unit_dup = None
+        if self.compound_unit:
+            compound_unit_dup = self.compound_unit.clone()
+        dup = ASTUnitType(is_encapsulated=self.is_encapsulated,
+         compound_unit=compound_unit_dup,
+         base=base_dup,
+         is_pow=self.is_pow,
+         exponent=self.exponent,
+         lhs=lhs_dup,
+         rhs=rhs_dup,
+         is_div=self.is_div,
+         is_times=self.is_times,
+         _unit=self.unit,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_simple_unit(self):
         """
@@ -138,23 +185,23 @@ class ASTUnitType(ASTNode):
         if self.is_encapsulated:
             if self.compound_unit is ast:
                 return self
-            elif self.compound_unit.get_parent(ast) is not None:
+            if self.compound_unit.get_parent(ast) is not None:
                 return self.compound_unit.get_parent(ast)
 
         if self.is_pow:
             if self.base is ast:
                 return self
-            elif self.base.get_parent(ast) is not None:
+            if self.base.get_parent(ast) is not None:
                 return self.base.get_parent(ast)
         if self.is_arithmetic_expression():
             if isinstance(self.get_lhs(), ASTUnitType):
                 if self.get_lhs() is ast:
                     return self
-                elif self.get_lhs().get_parent(ast) is not None:
+                if self.get_lhs().get_parent(ast) is not None:
                     return self.get_lhs().get_parent(ast)
             if self.get_rhs() is ast:
                 return self
-            elif self.get_rhs().get_parent(ast) is not None:
+            if self.get_rhs().get_parent(ast) is not None:
                 return self.get_rhs().get_parent(ast)
         return None
 

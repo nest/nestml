@@ -23,10 +23,10 @@ from pynestml.symbol_table.scope import Scope, ScopeType
 class SymbolTable(object):
     """
     This class is used to store a single symbol table, consisting of scope and symbols.
-    
+
     Attributes:
         name2neuron_scope A dict from the name of a neuron to the corresponding scope. Type str->Scope
-        sourcePosition The source position of the overall compilation unit. Type ASTSourceLocation
+        source_position The source position of the overall compilation unit. Type ASTSourceLocation
     """
     name2neuron_scope = {}
     source_location = None

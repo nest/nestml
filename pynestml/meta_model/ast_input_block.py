@@ -41,14 +41,16 @@ class ASTInputBlock(ASTNode):
         input_definitions = None
     """
 
-    def __init__(self, input_definitions=None, source_position=None):
+    def __init__(self, input_definitions=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param input_definitions:
-        :type input_definitions: list(ASTInputPort)
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type input_definitions: List[ASTInputPort]
         """
+        super(ASTInputBlock, self).__init__(*args, **kwargs)
         if input_definitions is None:
             input_definitions = []
         assert (input_definitions is not None and isinstance(input_definitions, list)), \
@@ -56,9 +58,27 @@ class ASTInputBlock(ASTNode):
         for definition in input_definitions:
             assert (definition is not None and isinstance(definition, ASTInputPort)), \
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
-        super(ASTInputBlock, self).__init__(source_position)
         self.input_definitions = input_definitions
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTInputBlock
+        """
+        input_definitions_dup = [input_definition.clone() for input_definition in self.input_definitions]
+        dup = ASTInputBlock(input_definitions=input_definitions_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_input_ports(self):
         """
@@ -79,7 +99,7 @@ class ASTInputBlock(ASTNode):
         for port in self.get_input_ports():
             if port is ast:
                 return self
-            elif port.get_parent(ast) is not None:
+            if port.get_parent(ast) is not None:
                 return port.get_parent(ast)
         return None
 

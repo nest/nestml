@@ -21,6 +21,7 @@
 from typing import Optional
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_body import ASTBody
@@ -52,28 +53,50 @@ class ASTNeuron(ASTNode):
         artifact_name = None
     """
 
-    def __init__(self, name, body, source_position=None, artifact_name=None):
+    def __init__(self, name, body, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param name: the name of the neuron.
         :type name: str
         :param body: the body containing the definitions.
         :type body: ASTBody
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
+        super(ASTNeuron, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
-            '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(name)
+            '(PyNestML.ASTNeuron) No  or wrong type of neuron name provided (%s)!' % type(name)
         assert isinstance(body, ASTBody), \
-            '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
+            '(PyNestML.ASTNeuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        super(ASTNeuron, self).__init__(source_position)
-        self.name = name + FrontendConfiguration.suffix
+            '(PyNestML.ASTNeuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+        self.name = name
         self.body = body
         self.artifact_name = artifact_name
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTNeuron
+        """
+        dup = ASTNeuron(name=self.name,
+         body=self.body.clone(),
+         artifact_name=self.artifact_name,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """
@@ -125,10 +148,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_state_blocks(self):
         """
@@ -143,10 +165,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_initial_blocks(self):
         """
@@ -161,7 +182,7 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
         else:
             return ret
@@ -179,10 +200,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_internals_blocks(self):
         """
@@ -197,10 +217,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_equations_blocks(self):
         """
@@ -215,10 +234,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_equations_block(self):
         """
@@ -264,10 +282,9 @@ class ASTNeuron(ASTNode):
         if isinstance(blocks, list):
             for block in blocks:
                 ret.extend(block.get_ode_equations())
-        elif isinstance(blocks, ASTEquationsBlock):
+        if isinstance(blocks, ASTEquationsBlock):
             return blocks.get_ode_equations()
-        else:
-            return ret
+        return ret
 
     def get_input_blocks(self):
         """
@@ -282,10 +299,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_input_buffers(self):
         """
@@ -398,10 +414,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def is_multisynapse_spikes(self):
         """
@@ -524,10 +539,9 @@ class ASTNeuron(ASTNode):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def remove_initial_blocks(self):
         """
@@ -734,7 +748,7 @@ class ASTNeuron(ASTNode):
         """
         if self.get_body() is ast:
             return self
-        elif self.get_body().get_parent(ast) is not None:
+        if self.get_body().get_parent(ast) is not None:
             return self.get_body().get_parent(ast)
         return None
 
@@ -749,40 +763,3 @@ class ASTNeuron(ASTNode):
         if not isinstance(other, ASTNeuron):
             return False
         return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())
-
-    def get_initial_value(self, variable_name):
-        assert type(variable_name) is str
-
-        for decl in self.get_initial_values_blocks().get_declarations():
-            for var in decl.variables:
-                if var.get_complete_name() == variable_name:
-                    return decl.get_expression()
-
-        return None
-
-    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
-        assert type(shape_name) is str
-        shape_name = shape_name.split("__X__")[0]
-
-        # check if defined as a direct function of time
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
-                #print("Is shape " + str(shape_name) + "? YES")
-                return decl
-
-        # check if defined for a higher order of differentiation
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                #print("Is shape " + str(shape_name) + "? YES2")
-                return decl
-
-        #print("Is shape " + str(shape_name) + "? NO")
-        return None
-
-
-    def get_all_shapes(self):
-        shapes = []
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape:
-                shapes.append(decl)
-        return shapes

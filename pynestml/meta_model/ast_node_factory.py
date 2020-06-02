@@ -17,9 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from typing import Union
 
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
@@ -62,7 +63,7 @@ from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_stmt import ASTStmt
 
 
-class ASTNodeFactory(object):
+class ASTNodeFactory():
     """
     An implementation of the factory pattern for an easier initialization of new AST nodes.
     """
@@ -72,7 +73,7 @@ class ASTNodeFactory(object):
                                        is_minus_op=False, is_pow_op=False, source_position=None):
         # type:(bool,bool,bool,bool,bool,bool,ASTSourceLocation) -> ASTArithmeticOperator
         return ASTArithmeticOperator(is_times_op, is_div_op, is_modulo_op, is_plus_op, is_minus_op, is_pow_op,
-                                     source_position)
+                                     source_position=source_position)
 
     @classmethod
     def create_ast_assignment(cls, lhs=None,  # type: ASTVariable
@@ -85,53 +86,53 @@ class ASTNodeFactory(object):
                               source_position=None  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTAssignment
         return ASTAssignment(lhs, is_direct_assignment, is_compound_sum, is_compound_minus, is_compound_product,
-                             is_compound_quotient, expression, source_position)
+                             is_compound_quotient, expression, source_position=source_position)
 
     @classmethod
     def create_ast_bit_operator(cls, is_bit_and=False, is_bit_xor=False, is_bit_or=False, is_bit_shift_left=False,
                                 is_bit_shift_right=False, source_position=None):
         # type: (bool,bool,bool,bool,bool,ASTSourceLocation) -> ASTBitOperator
-        return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position)
+        return ASTBitOperator(is_bit_and, is_bit_xor, is_bit_or, is_bit_shift_left, is_bit_shift_right, source_position=source_position)
 
     @classmethod
     def create_ast_block(cls, stmts, source_position):
         # type: (list(ASTSmallStmt|ASTCompoundStmt),ASTSourceLocation) -> ASTBlock
-        return ASTBlock(stmts, source_position)
+        return ASTBlock(stmts, source_position=source_position)
 
     @classmethod
     def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
-                                        is_initial_values=False, declarations=list(), source_position=None):
+                                        is_initial_values=False, declarations=None, source_position=None):
         # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
         return ASTBlockWithVariables(is_state, is_parameters, is_internals, is_initial_values, declarations,
-                                     source_position)
+                                     source_position=source_position)
 
     @classmethod
     def create_ast_body(cls, body_elements, source_position):
         # type: (list,ASTSourceLocation) -> ASTBody
-        return ASTBody(body_elements, source_position)
+        return ASTBody(body_elements, source_position=source_position)
 
     @classmethod
     def create_ast_comparison_operator(cls, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False,
                                        is_ge=False, is_gt=False, source_position=None):
         # type: (bool,bool,bool,bool,bool,bool,bool,ASTSourceLocation) -> ASTComparisonOperator
-        return ASTComparisonOperator(is_lt, is_le, is_eq, is_ne, is_ne2, is_ge, is_gt, source_position)
+        return ASTComparisonOperator(is_lt, is_le, is_eq, is_ne, is_ne2, is_ge, is_gt, source_position=source_position)
 
     @classmethod
     def create_ast_compound_stmt(cls, if_stmt, while_stmt, for_stmt, source_position):
         # type: (ASTIfStmt,ASTWhileStmt,ASTForStmt,ASTSourceLocation) -> ASTCompoundStmt
-        return ASTCompoundStmt(if_stmt, while_stmt, for_stmt, source_position)
+        return ASTCompoundStmt(if_stmt, while_stmt, for_stmt, source_position=source_position)
 
     @classmethod
     def create_ast_data_type(cls, is_integer=False, is_real=False, is_string=False, is_boolean=False,
                              is_void=False, is_unit_type=None, source_position=None):
         # type: (bool,bool,bool,bool,bool,ASTUnitType,ASTSourceLocation) -> ASTDataType
-        return ASTDataType(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, source_position)
+        return ASTDataType(is_integer, is_real, is_string, is_boolean, is_void, is_unit_type, source_position=source_position)
 
     @classmethod
     def create_ast_declaration(cls,
                                is_recordable=False,  # type: bool
                                is_function=False,  # type: bool
-                               variables=list(),  # type: list
+                               variables=None,  # type: list
                                data_type=None,  # type: ASTDataType
                                size_parameter=None,  # type: str
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
@@ -139,22 +140,22 @@ class ASTNodeFactory(object):
                                source_position=None  # type: ASTSourceLocation
                                ):  # type: (...) -> ASTDeclaration
         return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
-                              source_position)
+                              source_position=source_position)
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):
         # type: (ASTExpression|ASTSimpleExpression,ASTBlock,ASTSourceLocation) -> ASTElifClause
-        return ASTElifClause(condition, block, source_position)
+        return ASTElifClause(condition, block, source_position=source_position)
 
     @classmethod
     def create_ast_else_clause(cls, block, source_position):
         # type: (ASTBlock,ASTSourceLocation) -> ASTElseClause
-        return ASTElseClause(block, source_position)
+        return ASTElseClause(block, source_position=source_position)
 
     @classmethod
     def create_ast_equations_block(cls, declarations=None, source_position=None):
         # type: (list,ASTSourceLocation) -> ASTEquationsBlock
-        return ASTEquationsBlock(declarations, source_position)
+        return ASTEquationsBlock(declarations, source_position=source_position)
 
     @classmethod
     def create_ast_expression(cls, is_encapsulated=False, unary_operator=None,
@@ -206,82 +207,79 @@ class ASTNodeFactory(object):
                             block=None,  # type: ASTBlock
                             source_position=None  # type: ASTSourceLocation
                             ):  # type: (...) -> ASTForStmt
-        return ASTForStmt(variable, start_from, end_at, step, block, source_position)
+        return ASTForStmt(variable, start_from, end_at, step, block, source_position=source_position)
 
     @classmethod
     def create_ast_function(cls, name, parameters, return_type, block, source_position):
         # type: (str,(None|list(ASTParameter)),(ASTDataType|None),ASTBlock,ASTSourceLocation) -> ASTFunction
-        return ASTFunction(name, parameters, return_type, block, source_position)
+        return ASTFunction(name, parameters, return_type, block, source_position=source_position)
 
     @classmethod
     def create_ast_function_call(cls, callee_name, args, source_position):
         # type: (str,(None|list(ASTExpression|ASTSimpleExpression)),ASTSourceLocation) -> ASTFunctionCall
-        return ASTFunctionCall(callee_name, args, source_position)
+        return ASTFunctionCall(callee_name, args, source_position=source_position)
 
     @classmethod
     def create_ast_if_clause(cls, condition, block, source_position):
         # type: (ASTSimpleExpression|ASTExpression,ASTBlock,ASTSourceLocation) -> ASTIfClause
-        return ASTIfClause(condition, block, source_position)
+        return ASTIfClause(condition, block, source_position=source_position)
 
     @classmethod
     def create_ast_if_stmt(cls, if_clause, elif_clauses, else_clause, source_position):
         # type: (ASTIfClause,(None|list(ASTElifClause)),(None|ASTElseClause),ASTSourceLocation) -> ASTIfStmt
-        return ASTIfStmt(if_clause, elif_clauses, else_clause, source_position)
+        return ASTIfStmt(if_clause, elif_clauses, else_clause, source_position=source_position)
 
     @classmethod
     def create_ast_input_block(cls, input_definitions, source_position):
         # type: (list(ASTInputPort), ASTSourceLocation) -> ASTInputBlock
-        return ASTInputBlock(input_definitions, source_position)
+        return ASTInputBlock(input_definitions, source_position=source_position)
 
     @classmethod
     def create_ast_input_port(cls, name, size_parameter, data_type, input_qualifiers, signal_type, source_position):
-        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),ASTSignalType,ASTSourceLocation) -> ASTInputPort
+        # type:(str,str,(None|ASTDataType),list(ASTInputQualifier),PortSignalType,ASTSourceLocation) -> ASTInputPort
         return ASTInputPort(name=name, size_parameter=size_parameter, data_type=data_type, input_qualifiers=input_qualifiers,
                             signal_type=signal_type, source_position=source_position)
 
     @classmethod
     def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
         # type: (bool,bool,ASTSourceLocation) -> ASTInputQualifier
-        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position)
+        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position=source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):
         # type: (bool,bool,ASTSourceLocation) -> ASTLogicalOperator
-        return ASTLogicalOperator(is_logical_and, is_logical_or, source_position)
+        return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
     def create_ast_nestml_compilation_unit(cls, list_of_neurons, source_position, artifact_name):
         # type: (list(ASTNeuron),ASTSourceLocation,str) -> ASTNestMLCompilationUnit
-        instance = ASTNestMLCompilationUnit(source_position, artifact_name)
-        for i in list_of_neurons:
-            instance.add_neuron(i)
-        return instance
+        return ASTNestMLCompilationUnit(artifact_name=artifact_name, neuron_list=list_of_neurons, source_position=source_position)
 
     @classmethod
     def create_ast_neuron(cls, name, body, source_position, artifact_name):
         # type: (str,ASTBody,ASTSourceLocation,str) -> ASTNeuron
-        return ASTNeuron(name, body, source_position, artifact_name)
+        return ASTNeuron(name, body, artifact_name, source_position=source_position)
 
     @classmethod
     def create_ast_ode_equation(cls, lhs, rhs, source_position):
         # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTOdeEquation
-        return ASTOdeEquation(lhs, rhs, source_position)
+        return ASTOdeEquation(lhs, rhs, source_position=source_position)
 
     @classmethod
     def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
         # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
         return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
-                              source_position=source_position, is_recordable=is_recordable, )
+                              is_recordable=is_recordable, source_position=source_position)
 
     @classmethod
     def create_ast_ode_shape(cls, variables=None, expressions=None, source_position=None):
         # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTOdeShape
-        return ASTOdeShape(variables, expressions, source_position)
+        return ASTOdeShape(variables, expressions, source_position=source_position)
 
     @classmethod
     def create_ast_output_block(cls, s_type, source_position):
-        # type: (ASTSignalType,ASTSourceLocation) -> ASTOutputBlock
-        return ASTOutputBlock(s_type, source_position)
+        # type: (PortSignalType,ASTSourceLocation) -> ASTOutputBlock
+        return ASTOutputBlock(s_type, source_position=source_position)
 
     @classmethod
     def create_ast_parameter(cls, name, data_type, source_position):
@@ -291,7 +289,7 @@ class ASTNodeFactory(object):
     @classmethod
     def create_ast_return_stmt(cls, expression=None, source_position=None):
         # type: (ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTReturnStmt
-        return ASTReturnStmt(expression, source_position)
+        return ASTReturnStmt(expression, source_position=source_position)
 
     @classmethod
     def create_ast_simple_expression(cls, function_call=None,  # type: Union(ASTFunctionCall,None)
@@ -303,7 +301,7 @@ class ASTNodeFactory(object):
                                      source_position=None  # type: ASTSourceLocation
                                      ):  # type: (...) -> ASTSimpleExpression
         return ASTSimpleExpression(function_call, boolean_literal, numeric_literal, is_inf, variable, string,
-                                   source_position)
+                                   source_position=source_position)
 
     @classmethod
     def create_ast_small_stmt(cls,
@@ -313,13 +311,13 @@ class ASTNodeFactory(object):
                               return_stmt=None,  # type: ASTReturnStmt
                               source_position=None  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTSmallStmt
-        return ASTSmallStmt(assignment, function_call, declaration, return_stmt, source_position)
+        return ASTSmallStmt(assignment, function_call, declaration, return_stmt, source_position=source_position)
 
     @classmethod
     def create_ast_unary_operator(cls, is_unary_plus=False, is_unary_minus=False, is_unary_tilde=False,
                                   source_position=None):
         # type: (bool,bool,bool,ASTSourceLocation) -> ASTUnaryOperator
-        return ASTUnaryOperator(is_unary_plus, is_unary_minus, is_unary_tilde, source_position)
+        return ASTUnaryOperator(is_unary_plus, is_unary_minus, is_unary_tilde, source_position=source_position)
 
     @classmethod
     def create_ast_unit_type(cls,
@@ -336,17 +334,17 @@ class ASTNodeFactory(object):
                              source_position=None  # type: ASTSourceLocation
                              ):  # type: (...) -> ASTUnitType
         return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, lhs, rhs, is_div,
-                           is_times, unit, source_position)
+                           is_times, unit, source_position=source_position)
 
     @classmethod
     def create_ast_update_block(cls, block, source_position):
         # type: (ASTBlock,ASTSourceLocation) -> ASTUpdateBlock
-        return ASTUpdateBlock(block, source_position)
+        return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
     def create_ast_variable(cls, name, differential_order=0, source_position=None):
         # type: (str,int,ASTSourceLocation) -> ASTVariable
-        return ASTVariable(name, differential_order, source_position)
+        return ASTVariable(name, differential_order, source_position=source_position)
 
     @classmethod
     def create_ast_while_stmt(cls,
@@ -354,9 +352,9 @@ class ASTNodeFactory(object):
                               block,  # type: ASTBlock
                               source_position  # type: ASTSourceLocation
                               ):  # type: (...) -> ASTWhileStmt
-        return ASTWhileStmt(condition, block, source_position)
+        return ASTWhileStmt(condition, block, source_position=source_position)
 
     @classmethod
     def create_ast_stmt(cls, small_stmt=None, compound_stmt=None, source_position=None):
         # type: (ASTSmallStmt,ASTCompoundStmt,ASTSourceLocation) -> ASTStmt
-        return ASTStmt(small_stmt, compound_stmt, source_position)
+        return ASTStmt(small_stmt, compound_stmt, source_position=source_position)

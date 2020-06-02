@@ -28,21 +28,47 @@ class ASTOdeShape(ASTNode):
         odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
     """
 
-    def __init__(self, variables, expressions, source_position):
+    def __init__(self, variables, expressions, *args, **kwargs):
         """
-        Standard constructor of ASTOdeShape.
-        :param lhs: the variable corresponding to the shape
-        :type lhs: ast_variable
-        :param rhs: the right-hand side rhs
-        :type rhs: ast_expression or ast_simple_expression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param variables: the variable corresponding to the shape
+        :type variables: ASTVariable
+        :param expressions: the right-hand side
+        :type expressions: Union[ASTExpression, ASTSimpleExpression]
         """
-        super(ASTOdeShape, self).__init__(source_position)
+        super(ASTOdeShape, self).__init__(*args, **kwargs)
         self.variables = variables
         self.expressions = expressions
-        return
-    
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTInputPort
+        """
+        variables_dup = None
+        if self.variables:
+            variables_dup = [var.clone() for var in self.variables]
+        expressions_dup = None
+        if self.expressions:
+            expressions_dup = [expr.clone() for expr in self.expressions]
+        dup = ASTOdeShape(variables=variables_dup,
+         expressions=expressions_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
     def get_variables(self):
         """
         Returns the variable of the left-hand side.

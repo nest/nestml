@@ -20,7 +20,7 @@
 import sys
 
 
-class ASTSourceLocation(object):
+class ASTSourceLocation:
     """
     This class is used to store information regarding the source position of an element.
     Attributes:

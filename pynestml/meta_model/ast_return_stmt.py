@@ -35,16 +35,39 @@ class ASTReturnStmt(ASTNode):
           expression (ASTSimpleExpression or ASTExpression): An rhs representing the returned value.
     """
 
-    def __init__(self, expression=None, source_position=None):
+    def __init__(self, expression=None, *args, **kwargs):
         """
         Standard constructor.
-        :param expression: an rhs.
-        :type expression: ASTExpression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param expression: expression to return
+        :type expression: Optional[ASTExpression]
         """
-        super(ASTReturnStmt, self).__init__(source_position)
+        super(ASTReturnStmt, self).__init__(*args, **kwargs)
         self.expression = expression
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTReturnStmt
+        """
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        dup = ASTReturnStmt(expression=expression_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def has_expression(self):
         """
@@ -73,7 +96,7 @@ class ASTReturnStmt(ASTNode):
         if self.has_expression():
             if self.get_expression() is ast:
                 return self
-            elif self.get_expression().get_parent(ast) is not None:
+            if self.get_expression().get_parent(ast) is not None:
                 return self.get_expression().get_parent(ast)
         return None
 

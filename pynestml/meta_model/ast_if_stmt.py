@@ -35,25 +35,57 @@ class ASTIfStmt(ASTNode):
         else_clause = None
     """
 
-    def __init__(self, if_clause, elif_clauses=list(), else_clause=None, source_position=None):
+    def __init__(self, if_clause, elif_clauses=None, else_clause=None, *args, **kwargs):
         """
-        Standard construcotr.
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param if_clause: the if-clause
         :type if_clause: ast_if_clause
         :param elif_clauses: (optional) list of elif clauses
-        :type elif_clauses: ast_elif_clause
+        :type elif_clauses: Optional[List[ASTElifClause]]
         :param else_clause: (optional) else clause
-        :type else_clause: ast_else_clause
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type else_clause: Optional[ASTElseClause]
         """
-        assert (elif_clauses is None or isinstance(elif_clauses, list)), \
-            '(PyNestML.AST.IfStmt) Wrong type of elif-clauses provided (%s)!' % type(elif_clauses)
-        super(ASTIfStmt, self).__init__(source_position)
+        super(ASTIfStmt, self).__init__(*args, **kwargs)
+        if elif_clauses is None:
+            elif_clauses = []
+        assert isinstance(elif_clauses, list), \
+            '(PyNestML.ASTIfStmt) Wrong type of elif-clauses provided (%s)!' % type(elif_clauses)
         self.else_clause = else_clause
         self.if_clause = if_clause
         self.elif_clauses = elif_clauses
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTIfStmt
+        """
+        if_clause_dup = None
+        if self.if_clause:
+            if_clause_dup = self.if_clause.clone()
+        elif_clauses_dup = None
+        if self.elif_clauses:
+            elif_clauses_dup = [elif_clause.clone() for elif_clause in self.elif_clauses]
+        else_clause_dup = None
+        if self.else_clause:
+            else_clause_dup = self.else_clause.clone()
+        dup = ASTIfStmt(if_clause=if_clause_dup,
+         elif_clauses=elif_clauses_dup,
+         else_clause=else_clause_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_if_clause(self):
         """
@@ -75,7 +107,7 @@ class ASTIfStmt(ASTNode):
         """
         Returns a list of elif-clauses.
         :return: a list of elif-clauses.
-        :rtype: list(ASTElifClause)
+        :rtype: List[ASTElifClause]
         """
         return self.elif_clauses
 
@@ -91,7 +123,7 @@ class ASTIfStmt(ASTNode):
         """
         Returns the else-clause.
         :return: the else-clause.
-        :rtype: ast_else_clause
+        :rtype: ASTElseClause
         """
         return self.else_clause
 
@@ -99,23 +131,23 @@ class ASTIfStmt(ASTNode):
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: AST_
+        :type ast: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        :rtype: Optional[ASTNode]
         """
         if self.get_if_clause() is ast:
             return self
-        elif self.get_if_clause().get_parent(ast) is not None:
+        if self.get_if_clause().get_parent(ast) is not None:
             return self.get_if_clause().get_parent(ast)
         for elifClause in self.get_elif_clauses():
             if elifClause is ast:
                 return self
-            elif elifClause.get_parent(ast) is not None:
+            if elifClause.get_parent(ast) is not None:
                 return elifClause.get_parent(ast)
         if self.has_else_clause():
             if self.get_else_clause() is ast:
                 return self
-            elif self.get_else_clause().get_parent(ast) is not None:
+            if self.get_else_clause().get_parent(ast) is not None:
                 return self.get_else_clause().get_parent(ast)
         return None
 

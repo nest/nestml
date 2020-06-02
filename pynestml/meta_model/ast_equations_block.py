@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -42,13 +43,14 @@ class ASTEquationsBlock(ASTNode):
         declarations = None
     """
 
-    def __init__(self, declarations, source_position):
+    def __init__(self, declarations, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param declarations: a block of definitions.
         :type declarations: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
@@ -57,8 +59,30 @@ class ASTEquationsBlock(ASTNode):
                                           isinstance(decl, ASTOdeEquation) or
                                           isinstance(decl, ASTInlineExpression))), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
-        super(ASTEquationsBlock, self).__init__(source_position)
+        super(ASTEquationsBlock, self).__init__(*args, **kwargs)
         self.declarations = declarations
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTEquationsBlock
+        """
+        declarations_dup = None
+        if self.declarations:
+            declarations_dup = [decl.clone() for decl in self.declarations]
+        dup = ASTEquationsBlock(declarations=declarations_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_declarations(self):
         """
@@ -79,7 +103,7 @@ class ASTEquationsBlock(ASTNode):
         for decl in self.get_declarations():
             if decl is ast:
                 return self
-            elif decl.get_parent(ast) is not None:
+            if decl.get_parent(ast) is not None:
                 return decl.get_parent(ast)
         return None
 
@@ -119,14 +143,12 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-
     def clear(self):
         """
         Deletes all declarations as stored in this block.
         """
         del self.declarations
         self.declarations = list()
-        return
 
     def equals(self, other):
         """

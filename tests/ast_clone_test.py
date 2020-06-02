@@ -1,5 +1,5 @@
 #
-# special_block_parser_builder_test.py
+# ast_clone_test.py
 #
 # This file is part of NEST.
 #
@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
 import os
 import unittest
 
@@ -35,38 +34,50 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 
-# setups the infrastructure
-PredefinedUnits.register_units()
-PredefinedTypes.register_types()
-PredefinedFunctions.register_functions()
-PredefinedVariables.register_variables()
-SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
-Logger.init_logger(LoggingLevel.INFO)
 
+class ASTCloneTest(unittest.TestCase):
 
-class SpecialBlockParserBuilderTest(unittest.TestCase):
-    """
-    This text is used to check the parsing of special blocks, i.e. for and while-blocks, is executed as expected
-    and the corresponding AST built correctly.
-    """
+    @classmethod
+    def setUp(cls):
+        PredefinedUnits.register_units()
+        PredefinedTypes.register_types()
+        PredefinedFunctions.register_functions()
+        PredefinedVariables.register_variables()
+        SymbolTable.initialize_symbol_table(ASTSourceLocation(start_line=0, start_column=0, end_line=0, end_column=0))
+        Logger.init_logger(LoggingLevel.INFO)
 
-    def test(self):
-        # print('Start special block parsing and AST-building test...'),
-        input_file = FileStream(
-            os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
-                                      'BlockTest.nestml')))
+    @classmethod
+    def _test_single_input_path(cls, input_path):
+        print('Start creating AST for ' + input_path + ' ...'),
+        input_file = FileStream(input_path)
         lexer = PyNestMLLexer(input_file)
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
         parser = PyNestMLParser(stream)
-        # print('done')
+        # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
+        # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        # print('done')
-        self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
+        assert isinstance(ast, ASTNestMLCompilationUnit)
+
+        # now, do the actual test for clone()
+        ast_copy = ast.clone()
+        assert str(ast) == str(ast_copy)
+        ast.get_neuron_list()[0].name = "foo"
+        ast_copy.get_neuron_list()[0].name = "bar"
+        assert str(ast) != str(ast_copy)
+        ast_copy.get_neuron_list()[0].name = "foo"
+        assert str(ast) == str(ast_copy)
+
+    @classmethod
+    def test(cls):
+        input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml"))),
+         os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "ExpressionCollection.nestml")))]
+        for input_path in input_paths:
+            cls._test_single_input_path(input_path)
 
 
 if __name__ == '__main__':
