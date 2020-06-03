@@ -69,16 +69,7 @@ class ASTNeuron(ASTNeuronOrSynapse):
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
-        super(ASTNeuron, self).__init__(*args, **kwargs)
-        assert isinstance(name, str), \
-            '(PyNestML.ASTNeuron) No  or wrong type of neuron name provided (%s)!' % type(name)
-        assert isinstance(body, ASTBody), \
-            '(PyNestML.ASTNeuron) No or wrong type of neuron body provided (%s)!' % type(body)
-        assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.ASTNeuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        self.name = name
-        self.body = body
-        self.artifact_name = artifact_name
+        super(ASTNeuron, self).__init__(name, body, artifact_name, *args, **kwargs)
 
     def clone(self):
         """

@@ -44,7 +44,7 @@ class ASTNeuronOrSynapse(ASTNode):
     This class is used to stuff common to neurons and synapses
     """
 
-    def __init__(self, name, body, source_position=None, artifact_name=None):
+    def __init__(self, name, body, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the neuron.
@@ -62,8 +62,8 @@ class ASTNeuronOrSynapse(ASTNode):
             '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        super(ASTNeuronOrSynapse, self).__init__(source_position)
-        self.name = name + FrontendConfiguration.suffix
+        super(ASTNeuronOrSynapse, self).__init__(*args, **kwargs)
+        self.name = name
         self.body = body
         self.artifact_name = artifact_name
 

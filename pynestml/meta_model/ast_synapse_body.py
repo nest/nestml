@@ -25,7 +25,7 @@ class ASTSynapseBody(ASTNode):
     ...
     """
 
-    def __init__(self, synapse_body_elements, source_position):
+    def __init__(self, synapse_body_elements, *args, **kwargs):
         """
         Standard constructor.
         :param body_elements: a list of elements, e.g. variable blocks.
@@ -33,8 +33,30 @@ class ASTSynapseBody(ASTNode):
         :param source_position: the position of the element in the source model
         :rtype source_location: ASTSourceLocation
         """
-        super(ASTSynapseBody, self).__init__(source_position)
+        super(ASTSynapseBody, self).__init__(*args, **kwargs)
         self.synapseBodyElements = synapse_body_elements
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTNeuronBody
+        """
+        body_elements_dup = None
+        if self.synapseBodyElements:
+            body_elements_dup = [body_element.clone() for body_element in self.synapseBodyElements]
+        dup = ASTSynapseBody(synapse_body_elements=body_elements_dup,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_body_elements(self):
         """

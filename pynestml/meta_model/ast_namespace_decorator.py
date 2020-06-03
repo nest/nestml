@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_variable import ASTVariable
 
 
@@ -26,12 +26,32 @@ class ASTNamespaceDecorator(ASTNode):
     """
     """
 
-    def __init__(self, namespace=None, name=None, source_position=None):
+    def __init__(self, namespace=None, name=None, *args, **kwargs):
         """
         """
-        super(ASTNamespaceDecorator, self).__init__(source_position)
+        super(ASTNamespaceDecorator, self).__init__(*args, **kwargs)
         self.namespace = namespace
         self.name = name
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTExpression
+        """
+        dup = ASTNamespaceDecorator(namespace=self.namespace,
+         name=self.name,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_namespace(self):
         """

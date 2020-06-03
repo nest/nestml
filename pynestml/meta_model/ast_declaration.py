@@ -18,9 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional, List
+
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
@@ -55,7 +58,7 @@ class ASTDeclaration(ASTNode):
     """
 
     def __init__(self, is_recordable:bool=False, is_function:bool=False, _variables:Optional[List[ASTVariable]]=None, data_type:Optional[ASTDataType]=None, size_parameter:Optional[str]=None,
-                 expression:Optional[ASTExpression]=None, invariant:Optional[ASTExpression]=None, decorators:Optional[ASTNamespaceDecorator]=None *args, **kwargs):
+                 expression:Optional[ASTExpression]=None, invariant:Optional[ASTExpression]=None, decorators:Optional[ASTNamespaceDecorator]=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -90,7 +93,42 @@ class ASTDeclaration(ASTNode):
         self.invariant = invariant
         self.decorators = decorators
         # self.namespaceDecorators = namespaceDecorators
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+        :return: new AST node instance
+        :rtype: ASTDeclaration
+        """
+        variables_dup = None
+        if self.variables:
+            variables_dup = [var.clone() for var in self.variables]
+        data_type_dup = None
+        if self.data_type:
+            data_type_dup = self.data_type.clone()
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        invariant_dup = None
+        if self.invariant:
+            invariant_dup = self.invariant.clone()
+        dup = ASTDeclaration(is_recordable=self.is_recordable,
+         is_function=self.is_function,
+         _variables=variables_dup,
+         data_type=data_type_dup,
+         size_parameter=self.size_parameter,
+         expression=expression_dup,
+         invariant=invariant_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     # def get_namespace_decorator(self, namespaceName):
     #     kws = self.get_magic_keywords()

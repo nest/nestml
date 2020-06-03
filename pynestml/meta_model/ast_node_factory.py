@@ -52,7 +52,7 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
-from pynestml.meta_model.ast_signal_type import ASTSignalType
+from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -64,7 +64,6 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
-from pynestml.meta_model.ast_signal_type import ASTSignalType
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
@@ -135,8 +134,8 @@ class ASTNodeFactory():
     @classmethod
     def create_ast_synapse_body(cls, body_elements, source_position):
         # type: (list,ASTSourceLocation) -> ASTSynapseBody
-        return ASTSynapseBody(body_elements, source_position)
-=source_position
+        return ASTSynapseBody(body_elements, source_position=source_position)
+
     @classmethod
     def create_ast_comparison_operator(cls, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False,
                                        is_ge=False, is_gt=False, source_position=None):
@@ -280,7 +279,7 @@ class ASTNodeFactory():
     @classmethod
     def create_ast_nestml_compilation_unit(cls, list_of_neurons, list_of_synapses, source_position, artifact_name):
         # type: (list(ASTNeuron),ASTSourceLocation,str) -> ASTNestMLCompilationUnit
-        instance = ASTNestMLCompilationUnit(source_position, artifact_name)
+        instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
         for i in list_of_neurons:
             instance.add_neuron(i)
         for i in list_of_synapses:
@@ -290,12 +289,12 @@ class ASTNodeFactory():
     @classmethod
     def create_ast_neuron(cls, name, body, source_position, artifact_name):
         # type: (str,ASTBody,ASTSourceLocation,str) -> ASTNeuron
-        return ASTNeuron(name, body, source_position, artifact_name)
+        return ASTNeuron(name, body, artifact_name, source_position=source_position)
 
     @classmethod
     def create_ast_synapse(cls, name, body, source_position, artifact_name):
         # type: (str,ASTSynapseBody,ASTSourceLocation,str) -> ASTSynapse
-        return ASTSynapse(name, body, artifact_name, source_position=source_position)
+        return ASTSynapse(name, body, artifact_name=artifact_name, source_position=source_position)
 
     @classmethod
     def create_ast_ode_equation(cls, lhs, rhs, source_position):
@@ -371,12 +370,12 @@ class ASTNodeFactory():
                              source_position=None  # type: ASTSourceLocation
                              ):  # type: (...) -> ASTUnitType
         return ASTUnitType(is_encapsulated, compound_unit, base, is_pow, exponent, lhs, rhs, is_div,
-                           is_times, unit, source_position)
+                           is_times, unit, source_position=source_position)
 
     @classmethod
     def create_ast_update_block(cls, block, source_position):
         # type: (ASTBlock,ASTSourceLocation) -> ASTUpdateBlock
-        return ASTUpdateBlock(block, source_position)
+        return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
     def create_ast_variable(cls, name, differential_order=0, is_homogeneous=False, source_position=None):
@@ -394,4 +393,4 @@ class ASTNodeFactory():
     @classmethod
     def create_ast_stmt(cls, small_stmt=None, compound_stmt=None, source_position=None):
         # type: (ASTSmallStmt,ASTCompoundStmt,ASTSourceLocation) -> ASTStmt
-        return ASTStmt(small_stmt, compound_stmt, source_position)
+        return ASTStmt(small_stmt, compound_stmt, source_position=source_position)

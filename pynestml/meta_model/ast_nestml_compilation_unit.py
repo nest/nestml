@@ -33,7 +33,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         artifact_name = None
     """
 
-    def __init__(self, neuron_list=None, artifact_name=None, *args, **kwargs):
+    def __init__(self, neuron_list=None, synapse_list=None, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -51,6 +51,10 @@ class ASTNestMLCompilationUnit(ASTNode):
         if not neuron_list is None:
             assert type(neuron_list) is list
             self.neuron_list.extend(neuron_list)
+        self.synapse_list = []
+        if not synapse_list is None:
+            assert type(synapse_list) is list
+            self.synapse_list.extend(synapse_list)
         self.artifact_name = artifact_name
 
 

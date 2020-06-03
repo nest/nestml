@@ -25,7 +25,7 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.symbol import Symbol

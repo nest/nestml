@@ -45,7 +45,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
         artifact_name = None
     """
 
-    def __init__(self, name, body, source_position=None, artifact_name=None):
+    def __init__(self, name, body, default_weight=None, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the synapse.
@@ -57,18 +57,30 @@ class ASTSynapse(ASTNeuronOrSynapse):
         :param artifact_name: the name of the file this synapse is contained in
         :type artifact_name: str
         """
-        assert isinstance(name, str), \
-            '(PyNestML.AST.Synapse) No  or wrong type of synapse name provided (%s)!' % type(name)
-        assert isinstance(body, ASTSynapseBody), \
-            '(PyNestML.AST.Synapse) No or wrong type of synapse body provided (%s)!' % type(body)
-        assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.AST.Synapse) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        super(ASTSynapse, self).__init__(name, body, source_position, artifact_name)
-        self.name = name + "_connection" + FrontendConfiguration.suffix
-        self.body = body
-        self.artifact_name = artifact_name
-        self._default_weight = None
+        super(ASTSynapse, self).__init__(name + "_connection", body, artifact_name, *args, **kwargs)
+        self._default_weight = default_weight
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTSynapse
+        """
+        dup = ASTSynapse(name=self.name,
+         body=self.body.clone(),
+         default_weight=self._default_weight,
+         artifact_name=self.artifact_name,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def set_default_weight(self, w):
         self._default_weight = w

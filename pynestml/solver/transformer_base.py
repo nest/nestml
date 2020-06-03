@@ -26,7 +26,7 @@ from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVis
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
