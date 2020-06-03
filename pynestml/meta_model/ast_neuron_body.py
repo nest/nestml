@@ -30,19 +30,42 @@ class ASTNeuronBody(ASTNode):
                (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
                BLOCK_CLOSE;
     Attributes:
-        bodyElements = None
+        body_elements = None
     """
 
-    def __init__(self, body_elements, source_position):
+    def __init__(self, body_elements, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param body_elements: a list of elements, e.g. variable blocks.
-        :type body_elements: list()
-        :param source_position: the position of the element in the source model
-        :rtype source_location: ASTSourceLocation
+        :type body_elements: List[ASTNode]
         """
-        super(ASTNeuronBody, self).__init__(source_position)
-        self.bodyElements = body_elements
+        super(ASTNeuronBody, self).__init__(*args, **kwargs)
+        self.body_elements = body_elements
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTNeuronBody
+        """
+        body_elements_dup = None
+        if self.body_elements:
+            body_elements_dup = [body_element.clone() for body_element in self.body_elements]
+        dup = ASTNeuronBody(body_elements=body_elements_dup,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_body_elements(self):
         """
@@ -50,7 +73,7 @@ class ASTNeuronBody(ASTNode):
         :return: a list of body elements.
         :rtype: list()
         """
-        return self.bodyElements
+        return self.body_elements
 
     def get_functions(self):
         """
@@ -184,9 +207,7 @@ class ASTNeuronBody(ASTNode):
                 for port in block.get_input_ports():
                     if port.is_spike():
                         ret.append(port)
-            return ret
-        else:
-            return ret
+        return ret
 
     def equals(self, other):
         """

@@ -21,6 +21,7 @@
 from typing import Optional
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
@@ -53,30 +54,60 @@ class ASTNeuron(ASTNeuronOrSynapse):
         artifact_name = None
     """
 
-    def __init__(self, name, body, source_position=None, artifact_name=None):
+    def __init__(self, name, body, artifact_name=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param name: the name of the neuron.
         :type name: str
         :param body: the body containing the definitions.
-        :type body: ASTNeuronBody
+        :type body: ASTBody
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
+        super(ASTNeuron, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
-            '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(name)
-        assert isinstance(body, ASTNeuronBody), \
-            '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
+            '(PyNestML.ASTNeuron) No  or wrong type of neuron name provided (%s)!' % type(name)
+        assert isinstance(body, ASTBody), \
+            '(PyNestML.ASTNeuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        super(ASTNeuron, self).__init__(name, body, source_position, artifact_name)
-        self.name = name + FrontendConfiguration.suffix
+            '(PyNestML.ASTNeuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
+        self.name = name
         self.body = body
         self.artifact_name = artifact_name
 
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
 
+        :return: new AST node instance
+        :rtype: ASTNeuron
+        """
+        dup = ASTNeuron(name=self.name,
+         body=self.body.clone(),
+         artifact_name=self.artifact_name,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
+
+    def get_name(self):
+        """
+        Returns the name of the neuron.
+        :return: the name of the neuron.
+        :rtype: str
+        """
+        return self.name
 
     def get_body(self):
         """
@@ -86,9 +117,13 @@ class ASTNeuron(ASTNeuronOrSynapse):
         """
         return self.body
 
-
-
-
+    def get_artifact_name(self):
+        """
+        Returns the name of the artifact this neuron has been stored in.
+        :return: the name of the file
+        :rtype: str
+        """
+        return self.artifact_name
 
     def get_input_blocks(self):
         """
@@ -103,10 +138,9 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_input_buffers(self):
         """
@@ -175,7 +209,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(symbol)
         return ret
 
-
     def get_function_symbols(self):
         """
         Returns a list of all function symbols defined in the model.
@@ -224,9 +257,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
                         log_level=LoggingLevel.ERROR)
         return ret
 
-
-
-
     def get_initial_values_symbols(self):
         """
         Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the order by which the symbols are defined in the model: this is important if a particular variable is defined in terms of another (earlier) variable.
@@ -272,10 +302,9 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(elem)
         if isinstance(ret, list) and len(ret) == 1:
             return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
+        if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def remove_initial_blocks(self):
         """

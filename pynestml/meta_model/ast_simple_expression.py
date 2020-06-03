@@ -18,10 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
-
+from pynestml.utils.cloning_helpers import clone_numeric_literal
 
 class ASTSimpleExpression(ASTExpressionNode):
     """
@@ -46,9 +49,12 @@ class ASTSimpleExpression(ASTExpressionNode):
     """
 
     def __init__(self, function_call=None, boolean_literal=None, numeric_literal=None, is_inf=False,
-                 variable=None, string=None, source_position=None):
+                 variable=None, string=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param function_call: a function call.
         :type function_call: ASTFunctionCall
         :param boolean_literal: a boolean value.
@@ -61,22 +67,20 @@ class ASTSimpleExpression(ASTExpressionNode):
         :type variable: ASTVariable
         :param string: a single string literal
         :type string: str
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
+        super(ASTSimpleExpression, self).__init__(*args, **kwargs)
         assert (function_call is None or isinstance(function_call, ASTFunctionCall)), \
-            '(PyNestML.AST.SimpleExpression) Not a function call provided (%s)!' % type(function_call)
+            '(PyNestML.ASTSimpleExpression) Not a function call provided (%s)!' % type(function_call)
         assert (boolean_literal is None or isinstance(boolean_literal, bool)), \
-            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(boolean_literal)
+            '(PyNestML.ASTSimpleExpression) Not a bool provided (%s)!' % type(boolean_literal)
         assert (is_inf is None or isinstance(is_inf, bool)), \
-            '(PyNestML.AST.SimpleExpression) Not a bool provided (%s)!' % type(is_inf)
+            '(PyNestML.ASTSimpleExpression) Not a bool provided (%s)!' % type(is_inf)
         assert (variable is None or isinstance(variable, ASTVariable)), \
-            '(PyNestML.AST.SimpleExpression) Not a variable provided (%s)!' % type(variable)
+            '(PyNestML.ASTSimpleExpression) Not a variable provided (%s)!' % type(variable)
         assert (numeric_literal is None or isinstance(numeric_literal, int) or isinstance(numeric_literal, float)), \
-            '(PyNestML.AST.SimpleExpression) Not a number provided (%s)!' % type(numeric_literal)
+            '(PyNestML.ASTSimpleExpression) Not a number provided (%s)!' % type(numeric_literal)
         assert (string is None or isinstance(string, str)), \
-            '(PyNestML.AST.SimpleExpression) Not a string provided (%s)!' % type(string)
-        super(ASTSimpleExpression, self).__init__(source_position)
+            '(PyNestML.ASTSimpleExpression) Not a string provided (%s)!' % type(string)
         self.function_call = function_call
         self.is_boolean_true = False
         self.is_boolean_false = False
@@ -89,7 +93,43 @@ class ASTSimpleExpression(ASTExpressionNode):
         self.is_inf_literal = is_inf
         self.variable = variable
         self.string = string
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTSimpleExpression
+        """
+        function_call_dup = None
+        if self.function_call:
+            function_call_dup = self.function_call.clone()
+        variable_dup = None
+        if self.variable:
+            variable_dup = self.variable.clone()
+        numeric_literal_dup = clone_numeric_literal(self.numeric_literal)
+        boolean_literal = None
+        if self.is_boolean_true:
+            boolean_literal = True
+        if self.is_boolean_false:
+            boolean_literal = False
+        assert function_call_dup or (not boolean_literal is None) or (not numeric_literal_dup is None) or self.is_inf_literal or variable_dup or self.string
+        dup = ASTSimpleExpression(function_call=function_call_dup,
+         boolean_literal=boolean_literal,
+         numeric_literal=numeric_literal_dup,
+         is_inf=self.is_inf_literal,
+         variable=variable_dup,
+         string=self.string,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_function_call(self):
         """
@@ -228,12 +268,12 @@ class ASTSimpleExpression(ASTExpressionNode):
         if self.is_function_call():
             if self.get_function_call() is ast:
                 return self
-            elif self.get_function_call().get_parent(ast) is not None:
+            if self.get_function_call().get_parent(ast) is not None:
                 return self.get_function_call().get_parent(ast)
         if self.variable is not None:
             if self.variable is ast:
                 return self
-            elif self.variable.get_parent(ast) is not None:
+            if self.variable.get_parent(ast) is not None:
                 return self.variable.get_parent(ast)
         return None
 
@@ -246,7 +286,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         assert (variable is None or isinstance(variable, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(variable)
         self.variable = variable
-        return
 
     def set_function_call(self, function_call):
         """
@@ -257,7 +296,6 @@ class ASTSimpleExpression(ASTExpressionNode):
         assert (function_call is None or isinstance(function_call, ASTVariable)), \
             '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(function_call)
         self.function_call = function_call
-        return
 
     def equals(self, other):
         """

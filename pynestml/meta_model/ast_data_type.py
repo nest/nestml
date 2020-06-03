@@ -17,8 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Optional
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 
 
@@ -46,8 +48,12 @@ class ASTDataType(ASTNode):
     """
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,
-                 unit_type=None, source_position=None):
+                 unit_type:Optional[ASTUnitType]=None, type_symbol=None, *args, **kwargs):
         """
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_integer: is an integer data type
         :type is_integer: boolean
         :param is_real: is a real datatype
@@ -60,18 +66,43 @@ class ASTDataType(ASTNode):
         :type is_void: boolean
         :param unit_type: an object of type ASTUnitType
         :type unit_type: ASTUnitType
-        :param source_position: The source position of the assignment
-        :type source_position: ASTSourceLocation
         """
-        super(ASTDataType, self).__init__(source_position)
-        self.unit_type = unit_type
-        self.is_void = is_void
-        self.is_boolean = is_boolean
-        self.is_string = is_string
-        self.is_real = is_real
+        super(ASTDataType, self).__init__(*args, **kwargs)
         self.is_integer = is_integer
-        self.type_symbol = None
-        return
+        self.is_real = is_real
+        self.is_string = is_string
+        self.is_boolean = is_boolean
+        self.is_void = is_void
+        self.unit_type = unit_type
+        self.type_symbol = type_symbol
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTDataType
+        """
+        unit_type_dup = None
+        if self.unit_type:
+            unit_type_dup = self.unit_type.clone()
+        dup = ASTDataType(is_integer=self.is_integer,
+         is_real=self.is_real,
+         is_string=self.is_string,
+         is_boolean=self.is_boolean,
+         is_void=self.is_void,
+         unit_type=unit_type_dup,
+         type_symbol=self.type_symbol,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_unit_type(self):
         """
@@ -97,8 +128,7 @@ class ASTDataType(ASTNode):
         """
         if self.is_unit_type():
             return self.get_unit_type().get_type_symbol()
-        else:
-            return self.type_symbol
+        return self.type_symbol
 
     def set_type_symbol(self, type_symbol):
         """
@@ -110,7 +140,6 @@ class ASTDataType(ASTNode):
         assert (type_symbol is not None and isinstance(type_symbol, TypeSymbol)), \
             '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(type_symbol))
         self.type_symbol = type_symbol
-        return
 
     def get_parent(self, ast):
         """
@@ -123,7 +152,7 @@ class ASTDataType(ASTNode):
         if self.is_unit_type():
             if self.get_unit_type() is ast:
                 return self
-            elif self.get_unit_type().get_parent(ast) is not None:
+            if self.get_unit_type().get_parent(ast) is not None:
                 return self.get_unit_type().get_parent(ast)
         return None
 

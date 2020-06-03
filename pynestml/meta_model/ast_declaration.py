@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
@@ -53,34 +54,35 @@ class ASTDeclaration(ASTNode):
         invariant = None
     """
 
-    def __init__(self, is_recordable=False, is_function=False, _variables=None, data_type=None, size_parameter=None,
-                 expression=None, invariant=None, source_position=None, decorators=None):
+    def __init__(self, is_recordable:bool=False, is_function:bool=False, _variables:Optional[List[ASTVariable]]=None, data_type:Optional[ASTDataType]=None, size_parameter:Optional[str]=None,
+                 expression:Optional[ASTExpression]=None, invariant:Optional[ASTExpression]=None, decorators:Optional[ASTNamespaceDecorator]=None *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_recordable: is a recordable declaration.
         :type is_recordable: bool
         :param is_function: is a function declaration.
         :type is_function: bool
         :param _variables: a list of variables.
-        :type _variables: list(ASTVariable)
+        :type _variables: Optional[List[ASTVariable]]
         :param data_type: the data type.
-        :type data_type: ast_data_type
+        :type data_type: Optional[ASTDataType]
         :param size_parameter: an optional size parameter.
-        :type size_parameter: str
+        :type size_parameter: Optional[str]
         :param expression: an optional right-hand side rhs.
         :type expression: ASTExpression
         :param invariant: a optional invariant.
-        :type invariant: ASTExpression.
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type invariant: ASTExpression
         """
-        super(ASTDeclaration, self).__init__(source_position)
+        super(ASTDeclaration, self).__init__(*args, **kwargs)
+        self.is_recordable = is_recordable
+        self.is_function = is_function
         if _variables is None:
             _variables = []
         if decorators is None:
             decorators = []
-        self.is_recordable = is_recordable
-        self.is_function = is_function
         self.variables = _variables
         self.data_type = data_type
         self.size_parameter = size_parameter
@@ -173,7 +175,6 @@ class ASTDeclaration(ASTNode):
         assert (_parameter is not None and isinstance(_parameter, str)), \
             '(PyNestML.AST.Declaration) No or wrong type of size parameter provided (%s)!' % type(_parameter)
         self.size_parameter = _parameter
-        return
 
     def has_expression(self):
         """
@@ -222,21 +223,21 @@ class ASTDeclaration(ASTNode):
         for var in self.get_variables():
             if var is ast:
                 return self
-            elif var.get_parent(ast) is not None:
+            if var.get_parent(ast) is not None:
                 return var.get_parent(ast)
         if self.get_data_type() is ast:
             return self
-        elif self.get_data_type().get_parent(ast) is not None:
+        if self.get_data_type().get_parent(ast) is not None:
             return self.get_data_type().get_parent(ast)
         if self.has_expression():
             if self.get_expression() is ast:
                 return self
-            elif self.get_expression().get_parent(ast) is not None:
+            if self.get_expression().get_parent(ast) is not None:
                 return self.get_expression().get_parent(ast)
         if self.has_invariant():
             if self.get_invariant() is ast:
                 return self
-            elif self.get_invariant().get_parent(ast) is not None:
+            if self.get_invariant().get_parent(ast) is not None:
                 return self.get_invariant().get_parent(ast)
         return None
 

@@ -1,5 +1,5 @@
 #
-# ast_signal_type.py
+# port_signal_type.py
 #
 # This file is part of NEST.
 #
@@ -17,12 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from enum import Enum
 
 
-class ASTSignalType(Enum):
+class PortSignalType(Enum):
     """
-    This enum is used to describe the type of the emitted signal.
+    This enum is used to describe the type of the received or emitted signal.
     """
     SPIKE = 1
     CURRENT = 2

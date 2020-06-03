@@ -1,5 +1,5 @@
 #
-# PyNestML.py
+# cloning_helpers.py
 #
 # This file is part of NEST.
 #
@@ -17,13 +17,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import sys
+import numpy as np
+from pynestml.meta_model.ast_node import ASTNode
 
-from pynestml.frontend.pynestml_frontend import main
 
-"""
-This file represents the entry point to the PyNestML.
-"""
+def clone_numeric_literal(numeric_literal):
+    if numeric_literal is None:
+        return None
 
-if __name__ == '__main__':
-    main()
+    if type(numeric_literal) in [int, float]:
+        # Python basic type
+        return numeric_literal
+
+    if type(numeric_literal) in [np.int, np.int8, np.int16, np.int32, np.int64]:
+        # NumPy types
+        return numeric_literal.copy()
+
+    if isinstance(numeric_literal, ASTNode):
+        return numeric_literal.clone()
+
+    assert False, "Asked to copy unknown numeric literal (type: " + str(type(numeric_literal)) + " ): " + str(numeric_literal)

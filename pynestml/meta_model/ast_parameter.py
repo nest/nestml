@@ -36,23 +36,41 @@ class ASTParameter(ASTNode):
         data_type (ASTDataType): The data type of the parameter.
     """
 
-    def __init__(self, name=None, data_type=None, source_position=None):
+    def __init__(self, name=None, data_type=None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the parameter.
         :type name: str
         :param data_type: the type of the parameter.
         :type data_type: ASTDataType
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(name)
         assert (data_type is not None and isinstance(data_type, ASTDataType)), \
             '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(data_type)
-        super(ASTParameter, self).__init__(source_position)
+        super(ASTParameter, self).__init__(*args, **kwargs)
         self.data_type = data_type
         self.name = name
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTParameter
+        """
+        dup = ASTParameter(name=self.name,
+         data_type=self.data_type.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """
@@ -80,7 +98,7 @@ class ASTParameter(ASTNode):
         """
         if self.get_data_type() is ast:
             return self
-        elif self.get_data_type().get_parent(ast) is not None:
+        if self.get_data_type().get_parent(ast) is not None:
             return self.get_data_type().get_parent(ast)
         return None
 

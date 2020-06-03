@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -33,20 +34,44 @@ class ASTFunctionCall(ASTNode):
         args = None
     """
 
-    def __init__(self, callee_name, args, source_position):
+    def __init__(self, callee_name, function_call_args, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param callee_name: the name of the function which is called.
         :type callee_name: str
-        :param args: (Optional) List of arguments
-        :type args: list(ASTExpression)
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :param function_call_args: (Optional) List of arguments
+        :type function_call_args: List[ASTExpression]
         """
-        super(ASTFunctionCall, self).__init__(source_position)
+        super(ASTFunctionCall, self).__init__(*args, **kwargs)
+        assert type(callee_name) is str
         self.callee_name = callee_name
-        self.args = args
-        return
+        self.args = function_call_args
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTFunctionCall
+        """
+        function_call_args_dup = None
+        if not self.args is None:
+            function_call_args_dup = [function_call_arg.clone() for function_call_arg in self.args]
+        dup = ASTFunctionCall(callee_name=self.callee_name,
+         function_call_args=function_call_args_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """
@@ -83,7 +108,7 @@ class ASTFunctionCall(ASTNode):
         for param in self.get_args():
             if param is ast:
                 return self
-            elif param.get_parent(ast) is not None:
+            if param.get_parent(ast) is not None:
                 return param.get_parent(ast)
         return None
 

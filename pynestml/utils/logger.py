@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import json
 from collections import OrderedDict
+
 from enum import Enum
 
 
@@ -108,7 +109,7 @@ class Logger(object):
             cls.init_logger(LoggingLevel.INFO)
         from pynestml.meta_model.ast_neuron import ASTNeuron
         from pynestml.meta_model.ast_synapse import ASTSynapse
-        from pynestml.meta_model.ast_source_location import ASTSourceLocation
+        from pynestml.utils.ast_source_location import ASTSourceLocation
         assert astnode is None or isinstance(astnode, ASTNeuron) or isinstance(astnode, ASTSynapse), \
             '(PyNestML.Logger) Wrong type of neuron or synapse provided (%s)!' % type(astnode)
         assert (error_position is None or isinstance(error_position, ASTSourceLocation)), \

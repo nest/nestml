@@ -35,9 +35,12 @@ class ASTForStmt(ASTNode):
         block = None
     """
 
-    def __init__(self, variable, start_from, end_at, step, block, source_position):
+    def __init__(self, variable, start_from, end_at, step, block, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param variable: the step variable used for iteration.
         :type variable: str
         :param start_from: left bound of the range, i.e., start value.
@@ -48,15 +51,51 @@ class ASTForStmt(ASTNode):
         :type step: float/int
         :param block: a block of statements.
         :type block: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
-        super(ASTForStmt, self).__init__(source_position)
+        super(ASTForStmt, self).__init__(*args, **kwargs)
         self.block = block
         self.step = step
         self.end_at = end_at
         self.start_from = start_from
         self.variable = variable
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTForStmt
+        """
+        variable_dup = None
+        if self.variable:
+            variable_dup = self.variable.clone()
+        start_from_dup = None
+        if self.start_from:
+            start_from_dup = self.start_from.clone()
+        end_at_dup = None
+        if self.end_at:
+            end_at_dup = self.end_at.clone()
+        step_dup = None
+        if self.step:
+            step_dup = self.step.clone()
+        block_dup = None
+        if self.block:
+            block_dup = self.block.clone()
+        dup = ASTForStmt(variable=variable_dup,
+         start_from=start_from_dup,
+         end_at=end_at_dup,
+         step=step_dup,
+         block=block_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_variable(self):
         """
@@ -108,15 +147,15 @@ class ASTForStmt(ASTNode):
         """
         if self.get_start_from() is ast:
             return self
-        elif self.get_start_from().get_parent(ast) is not None:
+        if self.get_start_from().get_parent(ast) is not None:
             return self.get_start_from().get_parent(ast)
         if self.get_end_at() is ast:
             return self
-        elif self.get_end_at().get_parent(ast) is not None:
+        if self.get_end_at().get_parent(ast) is not None:
             return self.get_end_at().get_parent(ast)
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

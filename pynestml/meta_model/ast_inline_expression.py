@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_node import ASTNode
 
 
@@ -35,25 +36,54 @@ class ASTInlineExpression(ASTNode):
         expression = None
     """
 
-    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, source_position=None):
+    def __init__(self, is_recordable=False, variable_name=None, data_type=None, expression=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_recordable: (optional) is this function recordable or not.
         :type is_recordable: bool
         :param variable_name: the name of the variable.
         :type variable_name: str
         :param data_type: the datatype of the function.
-        :type data_type: ast_data_type
-        :param expression: the computation rhs.
-        :type expression: ast_expression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type data_type: ASTDataType
+        :param expression: the computation rhs
+        :type expression: ASTExpression
         """
-        super(ASTInlineExpression, self).__init__(source_position)
+        super(ASTInlineExpression, self).__init__(*args, **kwargs)
         self.is_recordable = is_recordable
         self.variable_name = variable_name
         self.data_type = data_type
         self.expression = expression
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTOdeFunction
+        """
+        data_type_dup = None
+        if self.data_type:
+            data_type_dup = self.data_type.clone()
+        expression_dup = None
+        if self.expression:
+            expression_dup = self.expression.clone()
+        dup = ASTOdeFunction(is_recordable=self.is_recordable,
+         variable_name=self.variable_name,
+         data_type=data_type_dup,
+         expression=expression_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_variable_name(self):
         """
@@ -96,11 +126,11 @@ class ASTInlineExpression(ASTNode):
         """
         if self.get_data_type() is ast:
             return self
-        elif self.get_data_type().get_parent(ast) is not None:
+        if self.get_data_type().get_parent(ast) is not None:
             return self.get_data_type().get_parent(ast)
         if self.get_expression() is ast:
             return self
-        elif self.get_expression().get_parent(ast) is not None:
+        if self.get_expression().get_parent(ast) is not None:
             return self.get_expression().get_parent(ast)
         return None
 

@@ -17,17 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import ntpath
 import re
 
 from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
 from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_signal_type import ASTSignalType
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
+from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
 
@@ -468,7 +470,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
-        neuron = ASTNodeFactory.create_ast_neuron(name=name, body=body, source_position=create_source_pos(ctx),
+        neuron = ASTNodeFactory.create_ast_neuron(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
         # update the comments
         update_node_comments(neuron, self.__comments.visit(ctx))
@@ -683,9 +685,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
                 input_qualifiers.append(self.visit(qual))
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         if ctx.isCurrent:
-            signal_type = ASTSignalType.CURRENT
+            signal_type = PortSignalType.CURRENT
         elif ctx.isSpike:
-            signal_type = ASTSignalType.SPIKE
+            signal_type = PortSignalType.SPIKE
         else:
             signal_type = None
         ret = ASTNodeFactory.create_ast_input_port(name=name, size_parameter=size_parameter, data_type=data_type,
@@ -706,11 +708,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOutputBlock(self, ctx):
         source_pos = create_source_pos(ctx)
         if ctx.isSpike is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=ASTSignalType.SPIKE, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
         elif ctx.isCurrent is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=ASTSignalType.CURRENT, source_position=source_pos)
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CURRENT, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
         else:
