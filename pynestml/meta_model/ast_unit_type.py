@@ -53,7 +53,7 @@ class ASTUnitType(ASTNode):
     """
 
     def __init__(self, is_encapsulated=False, compound_unit=None, base=None, is_pow=False,
-                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, *args, **kwargs):
+                 exponent=None, lhs=None, rhs=None, is_div=False, is_times=False, _unit=None, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -77,6 +77,8 @@ class ASTUnitType(ASTNode):
         :type is_times: bool
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
+        :param type_symbol: the corresponding type symbol
+        :type type_symbol: TypeSymbol
         """
         super(ASTUnitType, self).__init__(*args, **kwargs)
         if _unit:
@@ -91,7 +93,7 @@ class ASTUnitType(ASTNode):
         self.is_div = is_div
         self.rhs = rhs
         self.unit = _unit
-        self.type_symbol = None
+        self.type_symbol = type_symbol
 
     def clone(self):
         """
