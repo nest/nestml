@@ -434,7 +434,7 @@ class ASTNeuronOrSynapse(ASTNode):
     def get_initial_values_symbols(self):
         """
         Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the order by which the symbols are defined in the model: this is important if a particular variable is defined in terms of another (earlier) variable.
-        
+
         :return: a list of initial values symbols.
         :rtype: list(VariableSymbol)
         """

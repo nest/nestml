@@ -70,7 +70,7 @@ class ASTInlineExpression(ASTNode):
         expression_dup = None
         if self.expression:
             expression_dup = self.expression.clone()
-        dup = ASTOdeFunction(is_recordable=self.is_recordable,
+        dup = ASTInlineExpression(is_recordable=self.is_recordable,
          variable_name=self.variable_name,
          data_type=data_type_dup,
          expression=expression_dup,

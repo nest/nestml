@@ -125,6 +125,7 @@ class ASTUnitType(ASTNode):
          is_div=self.is_div,
          is_times=self.is_times,
          _unit=self.unit,
+         type_symbol=self.type_symbol,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,

@@ -274,7 +274,7 @@ class ASTNestMLPrinter(object):
     def print_neuron_body(self, node):
         # type: (ASTNeuronBody) -> str
         ret = ''
-        for elem in node.bodyElements:
+        for elem in node.body_elements:
             ret += self.print_node(elem)
             ret += '\n'
         return ret

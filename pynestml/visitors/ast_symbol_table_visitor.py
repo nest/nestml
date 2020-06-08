@@ -346,9 +346,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         type_name = visitor.result
         # all declarations in the state block are recordable
         is_recordable = (node.is_recordable or
-                         self.block_type_stack.top() == BlockType.STATE or
-                         self.block_type_stack.top() == BlockType.INITIAL_VALUES)
-        init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
+                         not self.block_type_stack.is_empty() and (self.block_type_stack.top() == BlockType.STATE or
+                                                                   self.block_type_stack.top() == BlockType.INITIAL_VALUES))
+        init_value = node.get_expression() if (not self.block_type_stack.is_empty() and self.block_type_stack.top() == BlockType.INITIAL_VALUES) else None
         vector_parameter = node.get_size_parameter()
 
         # split the decorators in the AST up into namespace decorators and other decorators
@@ -362,13 +362,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         # now for each variable create a symbol and update the scope
         print("Creating VariableSymbol with decorators = " + str(decorators) + ", namespace_decorators = " + str(namespace_decorators))
+        block_type = None
+        if not self.block_type_stack.is_empty():
+            block_type = self.block_type_stack.top()
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
             symbol = VariableSymbol(element_reference=node,
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
-                                    block_type=self.block_type_stack.top(),
+                                    block_type=block_type,
                                     declaring_expression=expression,
                                     is_predefined=False,
                                     is_function=node.is_function,
