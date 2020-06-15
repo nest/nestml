@@ -47,7 +47,7 @@ class ASTVariableVisitor(ASTVisitor):
 
         scope = node.get_scope()
         var_name = node.get_variable().get_complete_name()
-        var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+        var_resolve = node.get_variable().get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
         # update the type of the variable according to its symbol type.
         if var_resolve is not None:
@@ -60,6 +60,7 @@ class ASTVariableVisitor(ASTVisitor):
                 node.type = var_resolve
                 node.type.referenced_object = node
             else:
+                import pdb;pdb.set_trace()
                 message = 'Variable ' + str(node) + ' could not be resolved!'
                 Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
                                    error_position=node.get_source_position(),

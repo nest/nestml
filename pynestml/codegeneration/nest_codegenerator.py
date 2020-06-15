@@ -46,6 +46,7 @@ from pynestml.codegeneration.nest_reference_converter import NESTReferenceConver
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
+from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -346,7 +347,7 @@ class NESTCodeGenerator(CodeGenerator):
                 return neurons, synapses
             neuron = neurons[neuron_names.index(neuron_name)]
             new_neuron = neuron.clone()
-            neurons.append(new_neuron)
+            #neurons.append(new_neuron)
 
             synapse_names = [synapse.get_name() for synapse in synapses]
             synapse_name = neuron_synapse_dyad[1]
@@ -354,8 +355,9 @@ class NESTCodeGenerator(CodeGenerator):
                 raise Exception("Synapse name used in dyad ('" + synapse_name + "') not found") # XXX: log error
                 return neurons, synapses
             synapse = synapses[synapse_name.index(synapse_name)]
+            synapses.clear()
             new_synapse = synapse.clone()
-            synapses.append(new_synapse)
+            #synapses.append(new_synapse)
 
 
             #
@@ -734,6 +736,10 @@ class NESTCodeGenerator(CodeGenerator):
                 equations_from_syn_to_neuron(state_var, new_synapse.get_equations_block(), new_neuron.get_equations_block(), var_name_suffix, mode="move")
 
 
+            #
+            #    move initial values for equations
+            #
+
             def iv_from_syn_to_neuron(state_var, synapse_block, neuron_block, var_name_suffix, mode):
                 if not neuron_block \
                  or not synapse_block:
@@ -755,6 +761,7 @@ class NESTCodeGenerator(CodeGenerator):
             for state_var in neuron_state_vars:
                 print("Moving initial values for equation(s) " + str(state_var))
                 iv_from_syn_to_neuron(state_var, new_synapse.get_initial_values_blocks(), new_neuron.get_initial_values_blocks(), var_name_suffix, mode="move")
+
 
             #
             #    move updates in update block from synapse to neuron
@@ -797,13 +804,14 @@ class NESTCodeGenerator(CodeGenerator):
             #
 
             vars_used = list(set(vars_used))	# pick unique elements
-            print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
+            #print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
             vars_used = [s for s in vars_used if not var_name_suffix in s.get_name()]
             print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
 
+            print("Copying declarations from neuron equations block to synapse equations block...")
             for state_var in vars_used:
-                print("\tCopying state var defining equation(s) " + str(state_var))
-                equations_from_syn_to_neuron(state_var, new_synapse.get_equations_block(), new_neuron.get_equations_block(), var_name_suffix, mode="copy")
+                print("\t• Copying variable " + str(state_var))
+                equations_from_syn_to_neuron(state_var, new_synapse.get_equations_block(), new_neuron.get_equations_block(), var_name_suffix, mode="move")
 
 
             #
@@ -811,7 +819,8 @@ class NESTCodeGenerator(CodeGenerator):
             #
 
             def replace_variable_name_in_expressions(var_name, synapse, suffix):
-                """replace all occurrences of variables (`ASTVariable`s) (e.g. `post_trace'`) with `ASTExternalVariable`s, indicating that they are moved to the postsynaptic partner.
+                """
+                Replace all occurrences of variables (`ASTVariable`s) (e.g. `post_trace'`) with `ASTExternalVariable`s, indicating that they are moved to the postsynaptic partner.
                 """
                 def replace_var(_expr=None):
                     if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -828,23 +837,33 @@ class NESTCodeGenerator(CodeGenerator):
                      var.get_name() + suffix,
                      differential_order=var.get_differential_order(),
                      source_position=var.get_source_position())
+                    ast_ext_var.update_scope2(new_neuron.get_equations_blocks().get_scope())  # variable reference is in synapse model, referent is variable in neuron model
+                    ast_ext_var.accept(ASTSymbolTableVisitor())
 
                     if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                        print("!! replacement made in expression: " + str(synapse.get_parent(_expr)))
                         _expr.set_variable(ast_ext_var)
-                    #elif isinstance(_expr, ASTVariable):
+                    elif isinstance(_expr, ASTVariable):
+                        if isinstance(synapse.get_parent(_expr), ASTAssignment):
+                            synapse.get_parent(_expr).lhs = ast_ext_var
+                            print("!!! replacement made in expression: " + str(synapse.get_parent(_expr)))
+                        else:
+                            print("Error: unhandled use of variable " + var_name + " in expression " + str(_expr))
                     else:
                         p = synapse.get_parent(var)
-                        print("Error: unhandeled use of variable " + var_name + " in expression " + str(p))
+                        print("Error: unhandled use of variable " + var_name + " in expression " + str(p))
 
                 func = lambda x: replace_var(x)
 
                 synapse.accept(ASTHigherOrderVisitor(func))
 
+            print("In synapse: replacing variables with suffixed external variable references")
             for state_var in neuron_state_vars:
-                print("Replacing variable in moved expression(s): " + str(state_var))
-                replace_variable_name_in_expressions(state_var, synapse, var_name_suffix)
+                print("\t• Replacing variable " + str(state_var))
+                replace_variable_name_in_expressions(state_var, new_synapse, var_name_suffix)
 
-            def replace_variable_name_in_expressions1(var_name, synapse, suffix):
+
+            def replace_variable_name_in_expressions1(var_name, astnode, suffix):
                 """add suffix to variable names
                 """
                 def replace_var(_expr=None):
@@ -855,9 +874,7 @@ class NESTCodeGenerator(CodeGenerator):
                     else:
                         return
 
-                    '''print("XXX")
-                    print(_expr)
-                    import pdb;pdb.set_trace()'''
+                    '''import pdb;pdb.set_trace()'''
 
 
                     if not suffix in var.get_name() \
@@ -867,11 +884,40 @@ class NESTCodeGenerator(CodeGenerator):
 
                 func = lambda x: replace_var(x)
 
-                synapse.accept(ASTHigherOrderVisitor(func))
+                astnode.accept(ASTHigherOrderVisitor(func))
 
+            print("Add suffix to moved variable names in neuron...")
             for state_var in vars_used:
-                print("Replacing variable in copied expression(s): " + str(state_var))
+                print("\t• Replacing variable " + str(state_var))
                 replace_variable_name_in_expressions1(str(state_var), new_neuron, var_name_suffix)
+
+
+            #
+            #    move parameters
+            #
+
+            def param_from_syn_to_neuron(state_var, synapse_block, neuron_block, var_name_suffix, mode):
+                if not neuron_block \
+                 or not synapse_block:
+                    return
+
+                assert mode in ["move", "copy"]
+
+                decls = get_eq_declarations_from_block(state_var, synapse_block)
+
+                for decl in decls:
+                    if mode == "move":
+                        synapse_block.declarations.remove(decl)
+                    add_suffix_to_variable_names(decl, suffix=var_name_suffix)
+                    neuron_block.get_declarations().append(decl)
+                    decl.update_scope(neuron_block.get_scope())
+                    decl.accept(ASTSymbolTableVisitor())
+
+            print("Moving parameters...")
+            for state_var in recursive_vars_used:
+                print("Moving parameter with name " + str(state_var) + " from synapse to neuron")
+                param_from_syn_to_neuron(state_var, new_synapse.get_parameter_blocks(), new_neuron.get_parameter_blocks(), var_name_suffix, mode="move")
+
 
 
 

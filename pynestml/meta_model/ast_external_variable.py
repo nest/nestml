@@ -35,5 +35,13 @@ class ASTExternalVariable(ASTVariable):
         # the corresponding type symbol
         type_symbol = None
     """
-
+    _altscope = None
     pass
+
+    def update_scope2(self, scope):
+        self._altscope = scope
+
+    def get_scope(self):
+        if self._altscope:
+            return self._altscope
+        return self.scope

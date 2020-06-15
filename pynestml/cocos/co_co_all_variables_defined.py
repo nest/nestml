@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -43,7 +44,7 @@ class CoCoAllVariablesDefined(CoCo):
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
         correct.
         :param node: a single neuron instance.
-        :type node: ast_neuron
+        :type node: ASTNeuron
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()
@@ -51,6 +52,10 @@ class CoCoAllVariablesDefined(CoCo):
         expressions = expression_collector_visitor.ret
         for expr in expressions:
             for var in expr.get_variables():
+                if isinstance(var, ASTExternalVariable):
+                    # by definition, will be resolved externally to the current compilation unit
+                    continue
+
                 symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 # this part is required to check that we handle invariants differently
                 expr_par = node.get_parent(expr)

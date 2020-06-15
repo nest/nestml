@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -81,8 +82,9 @@ class ShapeUsageVisitor(ASTVisitor):
             symbol = node.get_scope().resolve_to_symbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
             if symbol is None:
-                code, message = Messages.get_no_variable_found(shapeName)
-                Logger.log_message(astnode=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
+                if not isinstance(node, ASTExternalVariable):
+                    code, message = Messages.get_no_variable_found(shapeName)
+                    Logger.log_message(astnode=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
                 continue
             if not symbol.is_shape():
                 continue
