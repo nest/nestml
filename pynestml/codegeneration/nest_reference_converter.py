@@ -29,6 +29,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -182,9 +183,12 @@ e();
         """
         from pynestml.codegeneration.nest_printer import NestPrinter
         assert (variable is not None and isinstance(variable, ASTVariable)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
+            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of variable provided (%s)!' % type(
                 variable)
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
+
+        if isinstance(variable, ASTExternalVariable):
+            return "((iaf_psc_exp__with_stdp_connection*)(__target))->get_" + str(variable) + "()"
 
         if PredefinedUnits.is_unit(variable.get_complete_name()):
             return str(
