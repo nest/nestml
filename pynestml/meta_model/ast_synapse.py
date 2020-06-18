@@ -57,7 +57,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
         :param artifact_name: the name of the file this synapse is contained in
         :type artifact_name: str
         """
-        super(ASTSynapse, self).__init__(name + "_connection", body, artifact_name, *args, **kwargs)
+        super(ASTSynapse, self).__init__(name, body, artifact_name, *args, **kwargs)
         self._default_weight = default_weight
 
     def clone(self):

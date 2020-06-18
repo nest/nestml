@@ -188,7 +188,7 @@ e();
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
         if isinstance(variable, ASTExternalVariable):
-            return "((iaf_psc_exp__with_stdp_connection*)(__target))->get_" + str(variable) + "()"
+            return "((DYAD_POST_TYPE*)(__target))->get_" + str(variable) + "()"
 
         if PredefinedUnits.is_unit(variable.get_complete_name()):
             return str(

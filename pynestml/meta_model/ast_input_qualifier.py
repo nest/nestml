@@ -64,6 +64,7 @@ class ASTInputQualifier(ASTNode):
         """
         dup = ASTInputQualifier(is_excitatory=self.is_excitatory,
          is_inhibitory=self.is_inhibitory,
+         is_post=self.is_post,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,

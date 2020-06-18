@@ -498,8 +498,11 @@ class ASTNestMLPrinter(object):
         # type: (ASTInputQualifier) -> str
         if node.is_inhibitory:
             return 'inhibitory'
-        else:
+        if node.is_excitatory:
             return 'excitatory'
+        if node.is_post:
+            return 'post'
+        return ''
 
     @classmethod
     def print_logical_operator(cls, node):

@@ -223,6 +223,13 @@ def get_input_port_by_name(input_block, port_name):
             return input_port
     return None
 
+def get_post_port_by_name(input_block, port_name):
+    for port in input_block.get_input_ports():
+        if port.get_name() == port_name \
+         and port.is_post():
+            return port
+    return None
+
 def get_parameter_by_name(parameters_block, var_name):
     for decl in parameters_block.get_declarations():
         for var in decl.get_variables():
@@ -342,19 +349,19 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron_synapse_dyad in self._options["neuron_synapse_dyads"]:
             neuron_names = [neuron.get_name() for neuron in neurons]
             neuron_name = neuron_synapse_dyad[0]
-            if not neuron_name in neuron_names:
-                raise Exeption("Neuron name used in dyad ('" + neuron_name + "') not found") # XXX: log error
+            if not neuron_name + FrontendConfiguration.suffix in neuron_names:
+                raise Exception("Neuron name used in dyad ('" + neuron_name + "') not found") # XXX: log error
                 return neurons, synapses
-            neuron = neurons[neuron_names.index(neuron_name)]
+            neuron = neurons[neuron_names.index(neuron_name + FrontendConfiguration.suffix)]
             new_neuron = neuron.clone()
             #neurons.append(new_neuron)
 
             synapse_names = [synapse.get_name() for synapse in synapses]
             synapse_name = neuron_synapse_dyad[1]
-            if not synapse_name in synapse_names:
+            if not synapse_name + FrontendConfiguration.suffix in synapse_names:
                 raise Exception("Synapse name used in dyad ('" + synapse_name + "') not found") # XXX: log error
                 return neurons, synapses
-            synapse = synapses[synapse_name.index(synapse_name)]
+            synapse = synapses[synapse_names.index(synapse_name + FrontendConfiguration.suffix)]
             synapses.clear()
             new_synapse = synapse.clone()
             #synapses.append(new_synapse)
@@ -735,6 +742,39 @@ class NESTCodeGenerator(CodeGenerator):
                 print("Moving state var defining equation(s) " + str(state_var))
                 equations_from_syn_to_neuron(state_var, new_synapse.get_equations_block(), new_neuron.get_equations_block(), var_name_suffix, mode="move")
 
+            print(neuron)
+
+
+            #
+            # 	mark "post" ports as special: convolutions with them ultimately yield variable updates when post neuron calls emit_spike()
+            #
+
+            def mark_post_ports(neuron, synapse):
+
+                post_ports = []
+
+                def mark_post_port(_expr=None):
+                    var = None
+                    if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                        var = _expr.get_variable()
+                    elif isinstance(_expr, ASTVariable):
+                        var = _expr
+                    '''else:
+                        print("XXX: _expr = " + str(_expr))
+                        import pdb;pdb.set_trace()'''
+
+                    if var \
+                     and get_post_port_by_name(synapse.get_input_blocks(), var.name):
+                        print("\tneuron uses post spike port " +str(var.name) + " for synapse " + synapse.name)
+                        post_ports.append(var)
+
+                        var._is_post_port =True
+                func = lambda x: mark_post_port(x)
+                neuron.accept(ASTHigherOrderVisitor(func))
+                return post_ports
+
+            mark_post_ports(new_neuron, new_synapse)
+
 
             #
             #    move initial values for equations
@@ -761,7 +801,6 @@ class NESTCodeGenerator(CodeGenerator):
             for state_var in neuron_state_vars:
                 print("Moving initial values for equation(s) " + str(state_var))
                 iv_from_syn_to_neuron(state_var, new_synapse.get_initial_values_blocks(), new_neuron.get_initial_values_blocks(), var_name_suffix, mode="move")
-
 
             #
             #    move updates in update block from synapse to neuron
@@ -874,9 +913,6 @@ class NESTCodeGenerator(CodeGenerator):
                     else:
                         return
 
-                    '''import pdb;pdb.set_trace()'''
-
-
                     if not suffix in var.get_name() \
                      and not var.get_name() == "t" \
                      and var.get_name() == var_name:
@@ -931,6 +967,7 @@ class NESTCodeGenerator(CodeGenerator):
             #self.analytic_solver[new_neuron_name] = self.analytic_solver[neuron.get_name()]
             #self.numeric_solver[new_neuron_name] = self.numeric_solver[neuron.get_name()]
             new_neuron.set_name(new_neuron_name)
+            new_neuron.dyadic_synapse_partner = new_synapse
 
             #
             #    rename synapse
@@ -940,6 +977,7 @@ class NESTCodeGenerator(CodeGenerator):
             #self.analytic_solver[new_synapse_name] = self.analytic_solver[synapse.get_name()]
             #self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
             new_synapse.set_name(new_synapse_name)
+            new_synapse.dyadic_neuron_partner = new_neuron
 
             #
             #    add modified versions of neuron and synapse to list
@@ -952,7 +990,6 @@ class NESTCodeGenerator(CodeGenerator):
             synapses.append(new_synapse)
 
             print("Successfully constructed neuron-synapse dyad models")
-            import pdb;pdb.set_trace()
 
         return neurons, synapses
 
@@ -1295,7 +1332,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.update_symbol_table(neuron, shape_buffers)
 
             #print("NEST codegenerator step 6...")
-            spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
+            spike_updates, post_spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates
 
@@ -1361,7 +1398,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.update_symbol_table(synapse, shape_buffers)
 
             #print("NEST codegenerator step 6...")
-            spike_updates = self.get_spike_update_expressions(synapse, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
+            spike_updates, post_spike_updates = self.get_spike_update_expressions(synapse, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates
 
@@ -1439,6 +1476,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
+        if 'dyadic_neuron_partner' in dir(synapse):
+            namespace['dyadic_neuron_partner'] = synapse.dyadic_neuron_partner.get_name()
+
         namespace['synapseName'] = synapse.get_name()
         namespace['synapse'] = synapse
         namespace['astnode'] = synapse
@@ -1455,7 +1495,6 @@ class NESTCodeGenerator(CodeGenerator):
         # namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
-
 
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = not self.analytic_solver[synapse.get_name()] is None
@@ -2065,12 +2104,23 @@ class NESTCodeGenerator(CodeGenerator):
         """
 
         spike_updates = []
+        post_spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
         for shape, spike_input_port in shape_buffers:
             if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
-                continue
-            
-            buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
+                if not ("_is_post_port" in dir(spike_input_port.get_variable()) \
+                 and spike_input_port.get_variable()._is_post_port):
+                    # not a post port
+                    raise Exception("Input port " + str(spike_input_port) + " not found")
+
+            if "_is_post_port" in dir(spike_input_port.get_variable()) \
+             and spike_input_port.get_variable()._is_post_port:
+                orig_port_name = str(spike_input_port)[:str(spike_input_port).index("__for_")]
+                buffer_type = neuron.dyadic_synapse_partner.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+            else:
+                buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
+
+            assert not buffer_type is None
 
             if is_delta_shape(shape):
                 continue
@@ -2091,7 +2141,11 @@ class NESTCodeGenerator(CodeGenerator):
                         continue    # skip adding the statement if we're only adding zero
 
                     assignment_str = shape_spike_buf_name + " += "
-                    assignment_str += "(" + str(spike_input_port) + ")"
+                    if "_is_post_port" in dir(spike_input_port.get_variable()) \
+                     and spike_input_port.get_variable()._is_post_port:
+                        assignment_str += "1."
+                    else:
+                        assignment_str += "(" + str(spike_input_port) + ")"
                     if not expr in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
 
@@ -2105,9 +2159,12 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_assignment.update_scope(neuron.get_scope())
                     ast_assignment.accept(ASTSymbolTableVisitor())
 
-                    spike_updates.append(ast_assignment)
-
-        print("spike_updates = " + str(spike_updates))
+                    if "_is_post_port" in dir(spike_input_port.get_variable()) \
+                     and spike_input_port.get_variable()._is_post_port:
+                        print("adding post assignment string: " + str(ast_assignment))
+                        spike_updates.append(ast_assignment)
+                    else:
+                        spike_updates.append(ast_assignment)
 
         for k, factor in delta_factors.items():
             var = k[0]
@@ -2123,8 +2180,9 @@ class NESTCodeGenerator(CodeGenerator):
             spike_updates.append(ast_assignment)
 
         print("spike_updates = " + ", ".join([str(s) for s in spike_updates]))
+        #print("post_spike_updates = " + ", ".join([str(s) for s in post_spike_updates]))
 
-        return spike_updates
+        return spike_updates, post_spike_updates
 
 
     def remove_shape_definitions_from_equations_block(self, neuron):

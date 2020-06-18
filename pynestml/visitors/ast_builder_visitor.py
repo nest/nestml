@@ -515,7 +515,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed from string'
-        synapse = ASTNodeFactory.create_ast_synapse(name=name, body=body, source_position=create_source_pos(ctx),
+        synapse = ASTNodeFactory.create_ast_synapse(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
                                                   artifact_name=artifact_name)
 
         # # find the @heterogeneous/@homogeneous magic keyword

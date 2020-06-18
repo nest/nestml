@@ -361,7 +361,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 decorators.append(d)
 
         # now for each variable create a symbol and update the scope
-        print("Creating VariableSymbol with decorators = " + str(decorators) + ", namespace_decorators = " + str(namespace_decorators))
+        #print("Creating VariableSymbol with decorators = " + str(decorators) + ", namespace_decorators = " + str(namespace_decorators))
         block_type = None
         if not self.block_type_stack.is_empty():
             block_type = self.block_type_stack.top()
