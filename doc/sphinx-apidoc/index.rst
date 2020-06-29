@@ -1,7 +1,7 @@
 Welcome to the NESTML documentation
 ===================================
 
-NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax, based on the syntax of Python. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain, written in Python, to compute an exact solution if possible or use an appropriate numeric solver otherwise.
+NESTML is a domain-specific language that supports the specification of neuron models in a precise and concise syntax. It was developed to address the maintainability issues that follow from an increasing number of models, model variants, and an increased model complexity in computational neuroscience. Our aim is to ease the modelling process for neuroscientists both with and without prior training in computer science. This is achieved without compromising on performance by automatic source-code generation, allowing the same model file to target different hardware or software platforms by changing  only a command-line parameter. While originally developed in the context of `NEST Simulator <https://nest-simulator.readthedocs.io/>`_, the language itself as well as the associated toolchain are lightweight, modular and extensible, by virtue of using a parser generator and internal abstract syntax tree (AST) representation, which can be operated on using well-known patterns such as visitors and rewriting. Model equations can either be given as a simple string of mathematical notation or as an algorithm written in the built-in procedural language. The equations are analyzed by the associated toolchain `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_, to compute an exact solution if possible or to invoke an appropriate numeric solver otherwise.
 
 .. toctree::
    :glob:
@@ -48,11 +48,11 @@ Tutorials
 NESTML language and toolchain development
 =========================================
 
-:doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model, invokes ode-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms.
+:doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model, invokes ODE-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms.
 
 API documentation is automatically generated from source code: :mod:`pynestml` **module index**
 
-Internally, the `ode-toolbox <https://ode-toolbox.readthedocs.io/>`__ Python package is used for the processing of differential equations.
+Internally, the `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`__ Python package is used for the processing of differential equations.
 
 
 .. include:: getting_help.rst
