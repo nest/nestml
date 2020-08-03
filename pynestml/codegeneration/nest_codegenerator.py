@@ -792,7 +792,8 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.transform_ode_and_shapes_to_json(neuron, parameters_block, shape_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=FrontendConfiguration.logging_level=="DEBUG")
+        #solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=FrontendConfiguration.logging_level=="DEBUG")
+        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=True)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -1331,13 +1332,13 @@ class NESTCodeGenerator(CodeGenerator):
             entry = { "expression": lhs + " = " + rhs }
             symbol_name = equation.get_lhs().get_name()
             symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
-            
+
             entry["initial_values"] = {}
             symbol_order = equation.get_lhs().get_differential_order()
             for order in range(symbol_order):
                 iv_symbol_name = symbol_name + "'" * order
                 initial_value_expr = neuron.get_initial_value(iv_symbol_name)
-                if not initial_value_expr is None:
+                if initial_value_expr:
                     expr = gsl_printer.print_expression(initial_value_expr)
                     entry["initial_values"][to_odetb_name(iv_symbol_name)] = expr
             odetoolbox_indict["dynamics"].append(entry)

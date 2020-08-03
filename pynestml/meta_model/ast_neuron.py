@@ -269,6 +269,16 @@ class ASTNeuron(ASTNode):
                 initial_values_declarations.append(decl)
         return initial_values_declarations
 
+    def get_initial_value(self, variable_name):
+        assert type(variable_name) is str
+
+        for decl in self.get_initial_values_blocks().get_declarations():
+            for var in decl.variables:
+                if var.get_complete_name() == variable_name:
+                    return decl.get_expression()
+
+        return None
+
     def get_equations(self):
         """
         Returns all ode equations as defined in this neuron.
@@ -523,8 +533,33 @@ class ASTNeuron(ASTNode):
                 iv_syms.append(iv_sym)
         #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
         return iv_syms
-                
-        
+
+    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
+        assert type(shape_name) is str
+        shape_name = shape_name.split("__X__")[0]
+
+        # check if defined as a direct function of time
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
+                #print("Is shape " + str(shape_name) + "? YES")
+                return decl
+
+        # check if defined for a higher order of differentiation
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                #print("Is shape " + str(shape_name) + "? YES2")
+                return decl
+
+        #print("Is shape " + str(shape_name) + "? NO")
+        return None
+
+
+    def get_all_shapes(self):
+        shapes = []
+        for decl in self.get_equations_block().get_declarations():
+            if type(decl) is ASTOdeShape:
+                shapes.append(decl)
+        return shapes
 
     def get_initial_values_blocks(self):
         """
