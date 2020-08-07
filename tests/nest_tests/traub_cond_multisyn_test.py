@@ -49,8 +49,8 @@ class NestWBCondExpTest(unittest.TestCase):
         neuron1.set({'I_e': 100.0})
 
         neuron2 = nest.Create(model)
-        neuron2.set({"AMPA_Tau_1": 0.1,
-                     "AMPA_Tau_2": 2.4,
+        neuron2.set({"tau_AMPA_1": 0.1,
+                     "tau_AMPA_2": 2.4,
                      "AMPA_g_peak": 0.1})
 
         multimeter = nest.Create("multimeter", 2)
