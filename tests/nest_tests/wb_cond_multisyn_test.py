@@ -1,19 +1,20 @@
 """
 wb_cond_multisyn_test.py
 """
+try:
+    import matplotlib as mpl
+    mpl.use("Agg")
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except:
+    TEST_PLOTS = False
+
 
 import os
 import nest
 import unittest
 import numpy as np
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-
-try:
-    import matplotlib
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except:
-    TEST_PLOTS = False
 
 
 class NestWBCondExpTest(unittest.TestCase):
@@ -69,10 +70,7 @@ class NestWBCondExpTest(unittest.TestCase):
         expected_value = np.abs(firing_rate - 50)
         tolerance_value = 5  # Hz
 
-        self.assertLessEqual(expected_value, tolerance_value)
-
         if TEST_PLOTS:
-
             fig, ax = plt.subplots(2, figsize=(8, 6), sharex=True)
             ax[0].plot(tv, Voltages, lw=2, color="k")
             ax[1].plot(ts, spikes, 'ko')
@@ -87,6 +85,8 @@ class NestWBCondExpTest(unittest.TestCase):
 
             plt.savefig("resources/wb_cond_multisyn.png")
             # plt.show()
+
+        self.assertLessEqual(expected_value, tolerance_value)
 
 
 if __name__ == "__main__":
