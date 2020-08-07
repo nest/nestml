@@ -153,7 +153,11 @@ namespace nest
  * ---------------------------------------------------------------- */
 {{neuronName}}::{{neuronName}}():Archiving_Node(), P_(), S_(), B_(*this)
 {
+
   recordablesMap_.create();
+
+  calibrate();
+
   {%- if useGSL %}
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
