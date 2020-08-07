@@ -27,7 +27,6 @@ neuron wb_cond_multisyn:
 
   initial_values:
     V_m mV = -65. mV # Membrane potential
-
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
     Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)  # Activation variable n for K
 
@@ -50,16 +49,15 @@ neuron wb_cond_multisyn:
     
     inline alpha_n real = -0.05 * (V_m / mV + 34.0) / (exp(-0.1 * (V_m / mV + 34.0)) - 1.0)
     inline beta_n  real = 0.625 * exp(-(V_m / mV + 44.0) / 80.0)
-    inline alpha_m real = 0.1 * (V_m / mV + 35.0) / (1.0 - exp(-0.1 mV * (V_m / mV + 35.0 mV)))
+    inline alpha_m real = 0.1 * (V_m / mV + 35.0) / (1.0 - exp(-0.1 * (V_m / mV + 35.)))
     inline beta_m  real = 4.0 * exp(-(V_m / mV + 60.0) / 18.0)
     inline alpha_h real = 0.35 * exp(-(V_m / mV + 58.0) / 20.0)
     inline beta_h  real = 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
-
     inline Act_m_inf real = alpha_m / ( alpha_m + beta_m ) 
-    inline I_Na  pA = g_Na * Act_m_inf * Act_m_inf * Act_m_inf * Inact_h * ( V_m - E_Na )
-    inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
-    inline I_L   pA = g_L * ( V_m - E_L )
 
+    inline I_Na  pA = g_Na * Act_m_inf * Act_m_inf * Act_m_inf * Inact_h * ( V_m - E_Na )
+    inline I_K   pA = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+    inline I_L   pA = g_L * ( V_m - E_L )
     
     Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
     Act_n' = ( alpha_n * ( 1 - Act_n ) - beta_n * Act_n ) / ms # n-variable
@@ -130,7 +128,7 @@ neuron wb_cond_multisyn:
 
     alpha_n_init real = -0.05 * (V_m / mV + 34.0) / (exp(-0.1 * (V_m / mV + 34.0)) - 1.0)
     beta_n_init  real = 0.625 * exp(-(V_m / mV + 44.0) / 80.0)
-    alpha_m_init real = 0.1 * (V_m / mV + 35.0) / (1.0 - exp(-0.1 mV * (V_m / mV + 35.0 mV)))
+    alpha_m_init real = 0.1 * (V_m / mV + 35.0) / (1.0 - exp(-0.1 * (V_m / mV + 35.)))
     beta_m_init  real = 4.0 * exp(-(V_m / mV + 60.0) / 18.0)
     alpha_h_init real = 0.35 * exp(-(V_m / mV + 58.0) / 20.0)
     beta_h_init  real = 5.0 / (exp(-0.1 * (V_m / mV + 28.0)) + 1.0)
@@ -161,7 +159,7 @@ neuron wb_cond_multisyn:
   end
 
 
-  function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
+  function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak nS) real:
     # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
     # in the ht_neuron_dynamics integration of the synapse terms.
     # See: Exact digital simulation of time-invariant linear systems
@@ -169,10 +167,10 @@ neuron wb_cond_multisyn:
     # section 3.1.2.
     exact_integration_adjustment real = ( ( 1 / Tau_2 ) - ( 1 / Tau_1 ) ) * ms
 
-    t_peak real = ( Tau_2 * Tau_1 ) * ln( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
+    t_peak ms = ( Tau_2 * Tau_1 ) * ln( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 )
     normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
 
-    return g_peak * normalisation_factor * exact_integration_adjustment
+    return (g_peak / nS) * normalisation_factor * exact_integration_adjustment
   end
 
 end

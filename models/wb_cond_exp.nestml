@@ -26,7 +26,7 @@ neuron wb_cond_exp:
   end
 
   initial_values:
-    V_m mV = -65.0 mV # Membrane potential
+    V_m mV = E_L    # Membrane potential
 
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
     Act_n real = alpha_n_init / ( alpha_n_init + beta_n_init )
@@ -40,20 +40,13 @@ neuron wb_cond_exp:
     recordable inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     recordable inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
     
-    inline alpha_n 1/ms = -0.05/(ms*mV) * (V_m + 34.0 mV) / (exp(-0.1 * (V_m + 34.0 mV)) - 1.0)
-    inline beta_n  1/ms = 0.625/ms * exp(-(V_m + 44.0 mV) / 80.0 mV)
-    inline alpha_m 1/ms = 0.1/(ms*mV) * (V_m + 35.0 mV) / (1.0 - exp(-0.1 mV * (V_m + 35.0 mV)))
-    inline beta_m  1/ms = 4.0/(ms) * exp(-(V_m + 60.0 mV) / 18.0 mV)
-    inline alpha_h 1/ms = 0.35/ms * exp(-(V_m + 58.0 mV) / 20.0 mV)
-    inline beta_h  1/ms = 5.0 / (exp(-0.1 / mV * (V_m + 28.0 mV)) + 1.0) /ms
-    
-    inline I_Na  pA = g_Na * alpha_m / ( alpha_m + beta_m ) * alpha_m / ( alpha_m + beta_m ) * alpha_m / ( alpha_m + beta_m ) * Inact_h * ( V_m - E_Na )
-    inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
+    inline I_Na  pA = g_Na * _subexpr(V_m) * Inact_h * ( V_m - E_Na )
+    inline I_K   pA  = g_K * Act_n**4 * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
 
     V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
-    Act_n' = ( alpha_n * ( 1 - Act_n ) - beta_n * Act_n )  # n-variable
-    Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) # h-variable
+    Act_n' = ( alpha_n(V_m) * ( 1 - Act_n ) - beta_n(V_m) * Act_n )  # n-variable
+    Inact_h' = ( alpha_h(V_m) * ( 1 - Inact_h ) - beta_h(V_m) * Inact_h ) # h-variable
   end
 
   parameters:
@@ -78,12 +71,10 @@ neuron wb_cond_exp:
   internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
-    alpha_n_init 1/ms = -0.05/(ms*mV) * (V_m + 34.0 mV) / (exp(-0.1 * (V_m + 34.0 mV)) - 1.0)
-    beta_n_init  1/ms = 0.625/ms * exp(-(V_m + 44.0 mV) / 80.0 mV)
-    alpha_m_init 1/ms = 0.1/(ms*mV) * (V_m + 35.0 mV) / (1.0 - exp(-0.1 mV * (V_m + 35.0 mV)))
-    beta_m_init  1/ms = 4.0/(ms) * exp(-(V_m + 60.0 mV) / 18.0 mV)
-    alpha_h_init 1/ms = 0.35/ms * exp(-(V_m + 58.0 mV) / 20.0 mV)
-    beta_h_init  1/ms = 5.0 / (exp(-0.1 / mV * (V_m + 28.0 mV)) + 1.0) /ms
+    alpha_n_init 1/ms = -0.05/(ms*mV) * (E_L + 34.0 mV) / (exp(-0.1 * (E_L + 34.0 mV)) - 1.0)
+    beta_n_init  1/ms = 0.625/ms * exp(-(E_L + 44.0 mV) / 80.0 mV)
+    alpha_h_init 1/ms = 0.35/ms * exp(-(E_L + 58.0 mV) / 20.0 mV)
+    beta_h_init  1/ms = 5.0 / (exp(-0.1 / mV * (E_L + 28.0 mV)) + 1.0) /ms
   end
 
   input:
@@ -104,8 +95,35 @@ neuron wb_cond_exp:
       r = RefractoryCounts
       emit_spike()
     end
-
   end
+
+  function _subexpr(V_m mV) real:
+    return alpha_m(V_m)**3 / ( alpha_m(V_m) + beta_m(V_m) )**3
+  end
+
+  function alpha_m(V_m mV) 1/ms:
+    return 0.1/(ms*mV) * (V_m + 35.0 mV) / (1.0 - exp(-0.1 mV * (V_m + 35.0 mV)))
+  end
+
+  function beta_m(V_m mV) 1/ms:
+    return 4.0/(ms) * exp(-(V_m + 60.0 mV) / 18.0 mV)
+  end
+
+  function alpha_n(V_m mV) 1/ms:
+    return -0.05/(ms*mV) * (V_m + 34.0 mV) / (exp(-0.1 * (V_m + 34.0 mV)) - 1.0)
+  end
+
+  function beta_n(V_m mV) 1/ms:
+    return 0.625/ms * exp(-(V_m + 44.0 mV) / 80.0 mV)
+  end
+  
+  function alpha_h(V_m mV) 1/ms:
+    return 0.35/ms * exp(-(V_m + 58.0 mV) / 20.0 mV)
+  end
+  
+  function beta_h(V_m mV) 1/ms:
+    return 5.0 / (exp(-0.1 / mV * (V_m + 28.0 mV)) + 1.0) /ms
+  end  
 
 end
 

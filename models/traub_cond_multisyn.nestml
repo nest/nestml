@@ -157,7 +157,7 @@ neuron traub_cond_multisyn:
   update:
     U_old mV = V_m
     integrate_odes()
-    
+
     # sending spikes: 
     if r > 0: # is refractory?
       r -= 1
