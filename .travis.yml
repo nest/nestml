@@ -38,6 +38,8 @@ before_install:
   # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
   - pip uninstall --yes odetoolbox
   - pip install git+https://github.com/nest/ode-toolbox.git
+  - pip uninstall --yes sympy
+  - pip install sympy==1.4
 
 install:
   # in install, we install NESTML itself
