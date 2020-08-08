@@ -1,37 +1,48 @@
 """
-Name: aeif_cond_exp -  Conductance based exponential integrate-and-fire neuron
-                         model according to Brette and g_exrstner (2005).
+aeif_cond_exp - Conductance based exponential integrate-and-fire neuron model
+#############################################################################
 
-Description:
-aeif_cond_exp is the adaptive exponential integrate and fire neuron according
-to Brette and g_exrstner (2005).
-Synaptic conductances are modelled as alpha-functions.
+Description
++++++++++++
 
-This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
-adaptive step size to integrate the differential equation.
+aeif_cond_exp is the adaptive exponential integrate and fire neuron
+according to Brette and Gerstner (2005), with post-synaptic
+conductances in the form of truncated exponentials.
 
-The membrane potential is g_inven by the following differential equation:
-C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w + I_e + I_stim
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg
+solver with adaptive stepsize to integrate the differential equation.
+
+The membrane potential is given by the following differential equation:
+
+.. math::
+
+ C dV/dt= -g_L(V-E_L)+g_L*\Delta_T*\exp((V-V_T)/\Delta_T)-g_e(t)(V-E_e) \\
+                                                     -g_i(t)(V-E_i)-w +I_e
 
 and
 
-tau_w * dw/dt= a(V-E_L) -W
+.. math::
 
-Parameters:
-The following parameters can be set in the status dictionary.
+ \tau_w * dw/dt = a(V-E_L) - W
 
-Author: Marc-Oliver Gewaltig
+Note that the spike detection threshold :math:`V_{peak}` is automatically set to
+:math:`V_th+10` mV to avoid numerical instabilites that may result from
+setting :math:`V_{peak}` too high.
 
-Sends: SpikeEvent
 
-Receives: SpikeEvent, CurrentEvent, DataLogg_inngRequest
+References
+++++++++++
 
-References: Brette R and g_exrstner W (2005) Adaptive Exponential
-            Integrate-and-Fire Model as an Effective Description of Neuronal
-            Activity. J Neurophysiol 94:3637-3642
+.. [1] Brette R and Gerstner W (2005). Adaptive Exponential
+       Integrate-and-Fire Model as an Effective Description of Neuronal
+       Activity. J Neurophysiol 94:3637-3642.
+       DOI: https://doi.org/10.1152/jn.00686.2005
 
-SeeAlso: iaf_cond_alpha, aeif_cond_exp
+
+See also
+++++++++
+
+iaf_cond_exp, aeif_cond_alpha
 """
 neuron aeif_cond_exp:
 

@@ -87,7 +87,6 @@ class CodeGeneratorTest(unittest.TestCase):
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
 
-
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, 'models', 'iaf_cond_alpha.nestml'))))
