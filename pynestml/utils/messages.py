@@ -484,9 +484,9 @@ class Messages(object):
         assert (missing is not None and isinstance(missing, bool)), \
             '(PyNestML.Utils.Message) Not a bool provided (%s)!' % type(missing)
         if missing:
-            message = block + ' block not defined, model not correct!'
+            message = block + ' block not defined!'
         else:
-            message = block + ' block not unique, model not correct!!'
+            message = block + ' block defined more than once!'
         return MessageCode.BLOCK_NOT_CORRECT, message
 
     @classmethod
