@@ -77,7 +77,7 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
             code, message = Messages.get_block_not_defined_correctly('Equations', False)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        # check that input block is defined exactly once
+        # check that input block is defined at most once
         if isinstance(node.get_input_blocks(), list) and len(node.get_input_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('Input', False)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
@@ -85,12 +85,12 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
         elif isinstance(node.get_input_blocks(), list) and len(node.get_input_blocks()) == 0:
             code, message = Messages.get_block_not_defined_correctly('Input', True)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.WARNING)
         elif node.get_input_blocks() is None:
             code, message = Messages.get_block_not_defined_correctly('Input', True)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        # check that output block is defined exactly once
+                               log_level=LoggingLevel.WARNING)
+        # check that output block is defined at most once
         if isinstance(node.get_output_blocks(), list) and len(node.get_output_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('Output', False)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
@@ -98,9 +98,9 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
         elif isinstance(node.get_output_blocks(), list) and len(node.get_output_blocks()) == 0:
             code, message = Messages.get_block_not_defined_correctly('Output', True)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.WARNING)
         elif node.get_output_blocks() is None:
             code, message = Messages.get_block_not_defined_correctly('Output', True)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.WARNING)
         return
