@@ -7,7 +7,6 @@ initial_values:
 end
 
 equations:
-  shape foo = exp(-t)
   x' = sigma * (y - x) / s
   y' = (x * (rho - z) - y) / s
   z' = (x * y - beta * z) / s
@@ -22,10 +21,5 @@ parameters:
   beta real = 8/3
   rho real = 28
 end
-
-input:
-end
-
-output: spike
 
 end
