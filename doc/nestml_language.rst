@@ -411,7 +411,7 @@ The following functions are predefined in NESTML and can be used out of the box:
      - A Dirac delta impulse function at time t.
    * - ``convolve``
      - f, g
-     - The convolution of function f with function g.
+     - The convolution of shape f with spike input port g.
    * - ``info``
      - s
      - Log the string s with logging level "info".
@@ -684,8 +684,8 @@ This way, a flexible combination of the inputs is possible. If, for example, cur
 
    input:
      I_ext pA <- current
-     inh_spikes <- inhibitory spike
-     exc_spikes <- excitatory spike
+     inh_spikes pA <- inhibitory spike
+     exc_spikes pA <- excitatory spike
    end
 
 Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
@@ -724,6 +724,7 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
    shape G = exp(-t/tau_syn)
    V_m' = -V_m/tau_m + convolve(G, spikes)
 
+The type of the convolution is equal to the type of the second parameter, 
 
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
