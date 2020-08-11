@@ -299,7 +299,8 @@ class NestPrinter(object):
             else:
                 raise RuntimeError('Unexpected output type. Must be current or spike, is %s.' % str(output))
         else:
-            return 'none'
+            # no output port defined in the model: pretend dummy spike output port to obtain usable model
+            return 'nest::SpikeEvent'
 
     @classmethod
     def print_buffer_initialization(cls, variable_symbol):
