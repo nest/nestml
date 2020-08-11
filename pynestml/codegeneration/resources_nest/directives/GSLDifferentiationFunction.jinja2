@@ -1,6 +1,6 @@
 {#
   Creates GSL implementation of the differentiation step for the system of ODEs.
-#}
+-#}
 extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], double f[], void* pnode){
   typedef {{neuronName}}::State_ State_;
   // get access to node so we can almost work as in a member function
@@ -10,27 +10,27 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
 
-  {%- for ode in neuron.get_equations_blocks().get_declarations() -%}
-    {%- for function in utils.get_alias_symbols(ode) -%}
-      {%- if not function.is_equation() -%}
-        {% set declaringExpression = function.get_declaring_expression() -%}
+{%- for ode in neuron.get_equations_blocks().get_declarations() %}
+{%-   for function in utils.get_alias_symbols(ode) %}
+{%-     if not function.is_equation() %}
+{%-       set declaringExpression = function.get_declaring_expression() %}
   double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression, prefix="node.")}};
-      {% endif -%}
-    {% endfor -%}
-  {% endfor %}
+{%-     endif %}
+{%-   endfor %}
+{%- endfor %}
 
-  {# todo by kp: this part is no longer required since we make all functions self contained
-  {% for function in neuron.get_function_symbols() -%}
-    {% set declaringExpression = function.get_declaring_expression() -%}
+{# todo by kp: this part is no longer required since we make all functions self contained
+{%- for function in neuron.get_function_symbols() %}
+{%-   set declaringExpression = function.get_declaring_expression() %}
   double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression, prefix="node.")}};
-  {% endfor -%}
-  #}
+{%- endfor %}
+#}
 
-{% for variable_name in numeric_state_variables: -%}
-{%   set update_expr = numeric_update_expressions[variable_name] -%}
-{%   set variable_sym = numeric_variable_symbols[variable_name] -%}
+{%- for variable_name in numeric_state_variables: %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_sym = numeric_variable_symbols[variable_name] %}
   f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
-{% endfor -%}
+{%- endfor %}
 
   return GSL_SUCCESS;
 }
