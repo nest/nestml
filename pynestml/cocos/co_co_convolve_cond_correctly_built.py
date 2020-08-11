@@ -66,6 +66,4 @@ class ConvolveCheckerVisitor(ASTVisitor):
                 Logger.log_message(error_position=node.get_source_position(),
                                    code=code, message=message,
                                    log_level=LoggingLevel.ERROR)
-            if symbol_var is not None and (symbol_var.is_shape() or symbol_var.is_init_values()):
-                import pdb;pdb.set_trace()
             return
