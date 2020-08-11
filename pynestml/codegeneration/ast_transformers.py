@@ -26,7 +26,6 @@ from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPretty
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
@@ -39,6 +38,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
+from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 
