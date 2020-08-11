@@ -29,10 +29,10 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
     This coco ensures that convolve function call correctly built, i.e., that the first argument is the variable from the initial block and the second argument an input buffer.
 
     Allowed:
-        function I_syn_exc pA =   convolve(g_ex, spikesExc) * ( V_bounded - E_ex )
+        inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
 
     Not allowed:
-        function I_syn_exc pA =   convolve(g_ex, g_ex) * ( V_bounded - E_ex )
+        inline I_syn_exc pA = convolve(g_ex, g_ex) * ( V_m - E_ex )
     """
 
     @classmethod
@@ -66,4 +66,6 @@ class ConvolveCheckerVisitor(ASTVisitor):
                 Logger.log_message(error_position=node.get_source_position(),
                                    code=code, message=message,
                                    log_level=LoggingLevel.ERROR)
+            if symbol_var is not None and (symbol_var.is_shape() or symbol_var.is_init_values()):
+                import pdb;pdb.set_trace()
             return

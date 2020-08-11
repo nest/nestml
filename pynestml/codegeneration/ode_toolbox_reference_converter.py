@@ -25,6 +25,7 @@ from pynestml.utils.ast_utils import ASTUtils
 
 class ODEToolboxReferenceConverter(NestMLReferenceConverter):
     """
+    Convert into a format accepted by ODE-toolbox as input.
     """
 
     def convert_name_reference(self, ast_variable, prefix=''):

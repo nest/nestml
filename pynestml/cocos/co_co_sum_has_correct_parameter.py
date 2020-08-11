@@ -28,8 +28,13 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 class CoCoSumHasCorrectParameter(CoCo):
     """
     This coco ensures that convolve gets only simple variable references as inputs.
+
     Not allowed:
-     V mV = convolve(g_in+g_ex,Buffer)
+
+    .. code-block::
+
+        V mV = convolve(g_in + g_ex, spikes_in)
+
     """
 
     @classmethod
@@ -37,24 +42,19 @@ class CoCoSumHasCorrectParameter(CoCo):
         """
         Ensures the coco for the handed over neuron.
         :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :type neuron: ASTNeuron
         """
         cls.neuronName = neuron.get_name()
-        visitor = SumIsCorrectVisitor()
+        visitor = ConvolveParametersCorrectVisitor()
         neuron.accept(visitor)
-        return
 
 
-class SumIsCorrectVisitor(ASTVisitor):
-    """
-    This visitor ensures that convolve are provided with a correct rhs.
-    """
-
+class ConvolveParametersCorrectVisitor(ASTVisitor):
     def visit_function_call(self, node):
         """
         Checks the coco on the current function call.
         :param node: a single function call.
-        :type node: ast_function_call
+        :type node: ASTFunctionCall
         """
         f_name = node.get_name()
         if f_name == PredefinedFunctions.CONVOLVE:
@@ -63,4 +63,3 @@ class SumIsCorrectVisitor(ASTVisitor):
                     code, message = Messages.get_not_a_variable(str(arg))
                     Logger.log_message(code=code, message=message,
                                        error_position=arg.get_source_position(), log_level=LoggingLevel.ERROR)
-        return
