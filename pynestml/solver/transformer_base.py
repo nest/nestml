@@ -17,10 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import re as re
+import re
+
+from typing import List, Mapping
 
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -34,8 +37,7 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
 
 
-def add_declarations_to_internals(neuron, declarations):
-    # type: (ASTNeuron, dict[str, str]) -> ASTNeuron
+def add_declarations_to_internals(neuron: ASTNeuron, declarations: Mapping[str, str]) -> ASTNeuron:
     """
     Adds the variables as stored in the declaration tuples to the neuron.
     :param neuron: a single neuron instance
@@ -47,8 +49,7 @@ def add_declarations_to_internals(neuron, declarations):
     return neuron
 
 
-def add_declaration_to_internals(neuron, variable_name, init_expression):
-    # type: (ASTNeuron,  str, str) -> ASTNeuron
+def add_declaration_to_internals(neuron: ASTNeuron, variable_name: str, init_expression: str) -> ASTNeuron:
     """
     Adds the variable as stored in the declaration tuple to the neuron. The declared variable is of type real.
     :param neuron: a single neuron instance
@@ -74,8 +75,7 @@ def add_declaration_to_internals(neuron, variable_name, init_expression):
     return neuron
 
 
-def add_declarations_to_initial_values(neuron, variables, initial_values):
-    # type: (ASTNeuron, map(str, str)) -> ASTNeuron
+def add_declarations_to_initial_values(neuron: ASTNeuron, variables: List, initial_values: List) -> ASTNeuron:
     """
     Adds a single declaration to the initial values block of the neuron.
     :param neuron: a neuron
@@ -87,8 +87,7 @@ def add_declarations_to_initial_values(neuron, variables, initial_values):
     return neuron
 
 
-def add_declaration_to_initial_values(neuron, variable: str, initial_value: str):
-    # type: (ASTNeuron, str, str) -> ASTNeuron
+def add_declaration_to_initial_values(neuron: ASTNeuron, variable: str, initial_value: str) -> ASTNeuron:
     """
     Adds a single declaration to the initial values block of the neuron. The declared variable is of type real.
     :param neuron: a neuron
@@ -115,7 +114,7 @@ def add_declaration_to_initial_values(neuron, variable: str, initial_value: str)
     return neuron
 
 
-def declaration_in_initial_values(neuron, variable_name):
+def declaration_in_initial_values(neuron: ASTNeuron, variable_name: str) -> bool:
     assert type(variable_name) is str
 
     for decl in neuron.get_initial_values_blocks().get_declarations():
@@ -126,7 +125,7 @@ def declaration_in_initial_values(neuron, variable_name):
     return False
 
 
-def apply_incoming_spikes(neuron):
+def apply_incoming_spikes(neuron: ASTNeuron):
     """
     Adds a set of update instructions to the handed over neuron.
     :param neuron: a single neuron instance
@@ -156,7 +155,7 @@ def apply_incoming_spikes(neuron):
     return neuron
 
 
-def add_assignment_to_update_block(assignment, neuron):
+def add_assignment_to_update_block(assignment: ASTAssignment, neuron: ASTNeuron) -> ASTNeuron:
     """
     Adds a single assignment to the end of the update block of the handed over neuron.
     :param assignment: a single assignment
@@ -173,8 +172,7 @@ def add_assignment_to_update_block(assignment, neuron):
     return neuron
 
 
-def add_declaration_to_update_block(declaration, neuron):
-    # type: (ASTDeclaration, ASTNeuron) -> ASTNeuron
+def add_declaration_to_update_block(declaration: ASTDeclaration, neuron: ASTNeuron) -> ASTNeuron:
     """
     Adds a single declaration to the end of the update block of the handed over neuron.
     :param declaration: ASTDeclaration node to add
@@ -191,8 +189,7 @@ def add_declaration_to_update_block(declaration, neuron):
     return neuron
 
 
-def add_state_updates(neuron, update_expressions):
-    # type: (map[str, str], ASTNeuron) -> ASTNeuron
+def add_state_updates(neuron: ASTNeuron, update_expressions: Mapping[str, str]) -> ASTNeuron:
     """
     Adds all update instructions as contained in the solver output to the update block of the neuron.
     :param state_shape_variables_updates: map of variables to corresponding updates during the update step.
