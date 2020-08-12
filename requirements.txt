@@ -5,4 +5,4 @@ setuptools
 Jinja2 >= 2.10
 typing
 astropy == 2.0.3
-odetoolbox == 1.0
+odetoolbox >= 2.0
