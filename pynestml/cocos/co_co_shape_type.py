@@ -59,7 +59,8 @@ class ShapeTypeVisitor(ASTVisitor):
              or (var.get_differential_order() > 0
                  and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-(var.get_differential_order()))):
                 actual_type_str = str(expr.type)
-                if not expr.type.unit is None \
+                if 'unit' in dir(expr.type) \
+                 and not expr.type.unit is None \
                  and not expr.type.unit.unit is None:
                     actual_type_str = str(expr.type.unit.unit)
                 code, message = Messages.get_shape_wrong_type(var.get_name(), var.get_differential_order(), actual_type_str)
