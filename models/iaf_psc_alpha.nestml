@@ -93,8 +93,8 @@ neuron iaf_psc_alpha:
   end
 
   equations:
-    shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    shape I_shape_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+    shape I_shape_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
     recordable inline V_m mV = V_abs + E_L # Membrane potential.
     inline I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_stim
     V_abs' = -V_abs/tau_m + I/C_m

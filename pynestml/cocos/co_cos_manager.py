@@ -37,6 +37,7 @@ from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpac
 from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
+from pynestml.cocos.co_co_shape_type import CoCoShapeType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_buffer_data_type import CoCoBufferDataType
@@ -169,6 +170,13 @@ class CoCosManager(object):
         :type neuron: ast_neuron
         """
         CoCoBufferQualifierUnique.check_co_co(neuron)
+
+    @classmethod
+    def check_shape_type(cls, neuron):
+        """
+        Checks that all defined shapes have type real.
+        """
+        CoCoShapeType.check_co_co(neuron)
 
     @classmethod
     def check_parameters_not_assigned_outside_parameters_block(cls, neuron):
@@ -356,6 +364,7 @@ class CoCosManager(object):
         cls.check_buffer_types_are_correct(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
+        cls.check_shape_type(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
         if not after_ast_rewrite:
             cls.check_odes_have_consistent_units(neuron)        # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)

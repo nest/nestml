@@ -1,4 +1,3 @@
-
 #
 # messages.py
 #
@@ -19,6 +18,88 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from enum import Enum
+from typing import Tuple
+
+
+
+class MessageCode(Enum):
+    """
+    A mapping between codes and the corresponding messages.
+    """
+    START_PROCESSING_FILE = 0
+    TYPE_REGISTERED = 1
+    START_SYMBOL_TABLE_BUILDING = 2
+    FUNCTION_CALL_TYPE_ERROR = 3
+    TYPE_NOT_DERIVABLE = 4
+    IMPLICIT_CAST = 5
+    CAST_NOT_POSSIBLE = 6
+    TYPE_DIFFERENT_FROM_EXPECTED = 7
+    ADD_SUB_TYPE_MISMATCH = 8
+    BUFFER_SET_TO_CONDUCTANCE_BASED = 9
+    ODE_UPDATED = 10
+    NO_VARIABLE_FOUND = 11
+    SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
+    NEURON_CONTAINS_ERRORS = 13
+    START_PROCESSING_NEURON = 14
+    CODE_SUCCESSFULLY_GENERATED = 15
+    MODULE_SUCCESSFULLY_GENERATED = 16
+    NO_CODE_GENERATED = 17
+    VARIABLE_USED_BEFORE_DECLARATION = 18
+    VARIABLE_DEFINED_RECURSIVELY = 19
+    VALUE_ASSIGNED_TO_BUFFER = 20
+    ARG_NOT_SHAPE_OR_EQUATION = 21
+    ARG_NOT_BUFFER = 22
+    NUMERATOR_NOT_ONE = 23
+    ORDER_NOT_DECLARED = 24
+    CURRENT_BUFFER_SPECIFIED = 25
+    BLOCK_NOT_CORRECT = 26
+    VARIABLE_NOT_IN_INIT = 27
+    WRONG_NUMBER_OF_ARGS = 28
+    NO_RHS = 29
+    SEVERAL_LHS = 30
+    FUNCTION_REDECLARED = 31
+    FUNCTION_NOT_DECLARED = 52
+    NO_ODE = 32
+    NO_INIT_VALUE = 33
+    NEURON_REDECLARED = 34
+    NEST_COLLISION = 35
+    SHAPE_OUTSIDE_CONVOLVE = 36
+    NAME_COLLISION = 37
+    TYPE_NOT_SPECIFIED = 38
+    NO_TYPE_ALLOWED = 39
+    NO_ASSIGNMENT_ALLOWED = 40
+    NOT_A_VARIABLE = 41
+    MULTIPLE_KEYWORDS = 42
+    VECTOR_IN_NON_VECTOR = 43
+    VARIABLE_REDECLARED = 44
+    SOFT_INCOMPATIBILITY = 45
+    HARD_INCOMPATIBILITY = 46
+    NO_RETURN = 47
+    NOT_LAST_STATEMENT = 48
+    SYMBOL_NOT_RESOLVED = 49
+    TYPE_MISMATCH = 50
+    NO_SEMANTICS = 51
+    NEURON_SOLVED_BY_GSL = 52
+    NEURON_ANALYZED = 53
+    NO_UNIT = 54
+    NOT_NEUROSCIENCE_UNIT = 55
+    INTERNAL_WARNING = 56
+    OPERATION_NOT_DEFINED = 57
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 58
+    INPUT_PATH_NOT_FOUND = 59
+    LEXER_ERROR = 60
+    PARSER_ERROR = 61
+    UNKNOWN_TARGET = 62
+    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
+    ANALYSING_TRANSFORMING_NEURON = 64
+    ODE_NEEDS_CONSISTENT_UNITS = 65
+    TEMPLATED_ARG_TYPES_INCONSISTENT = 66
+    MODULE_NAME_INFO = 67
+    TARGET_PATH_INFO = 68
+    DELTA_FUNCTION_CANNOT_BE_MIXED = 69
+    UNKNOWN_TYPE = 70
+    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
+    SHAPE_WRONG_TYPE = 72
 
 
 class Messages(object):
@@ -262,8 +343,25 @@ class Messages(object):
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
         message = 'No variable \'%s\' found!' % variable_name
-        import pdb;pdb.set_trace()
         return MessageCode.NO_VARIABLE_FOUND, message
+
+    @classmethod
+    def get_shape_wrong_type(cls, shape_name: str, differential_order: int, actual_type: str) -> Tuple[MessageCode, str]:
+        """
+        Returns a message indicating that the type of a shape is wrong.
+        :param shape_name: the name of the shape
+        :param differential_order: differential order of the shape left-hand side, e.g. 2 if the shape is g''
+        :param actual_type: the name of the actual type that was found in the model
+        """
+        assert (shape_name is not None and isinstance(shape_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(shape_name)
+        if differential_order == 0:
+            expected_type_str = "real or int"
+        else:
+            assert differential_order > 0
+            expected_type_str = "s**-%d" % differential_order
+        message = 'Shape \'%s\' was found to be of type \'%s\' (should be %s)!' % (shape_name, actual_type, expected_type_str)
+        return MessageCode.SHAPE_WRONG_TYPE, message
 
     @classmethod
     def get_buffer_type_not_defined(cls, buffer_name):
@@ -1029,84 +1127,4 @@ class Messages(object):
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
 
 
-
-
-
-class MessageCode(Enum):
-    """
-    A mapping between codes and the corresponding messages.
-    """
-    START_PROCESSING_FILE = 0
-    TYPE_REGISTERED = 1
-    START_SYMBOL_TABLE_BUILDING = 2
-    FUNCTION_CALL_TYPE_ERROR = 3
-    TYPE_NOT_DERIVABLE = 4
-    IMPLICIT_CAST = 5
-    CAST_NOT_POSSIBLE = 6
-    TYPE_DIFFERENT_FROM_EXPECTED = 7
-    ADD_SUB_TYPE_MISMATCH = 8
-    BUFFER_SET_TO_CONDUCTANCE_BASED = 9
-    ODE_UPDATED = 10
-    NO_VARIABLE_FOUND = 11
-    SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
-    NEURON_CONTAINS_ERRORS = 13
-    START_PROCESSING_NEURON = 14
-    CODE_SUCCESSFULLY_GENERATED = 15
-    MODULE_SUCCESSFULLY_GENERATED = 16
-    NO_CODE_GENERATED = 17
-    VARIABLE_USED_BEFORE_DECLARATION = 18
-    VARIABLE_DEFINED_RECURSIVELY = 19
-    VALUE_ASSIGNED_TO_BUFFER = 20
-    ARG_NOT_SHAPE_OR_EQUATION = 21
-    ARG_NOT_BUFFER = 22
-    NUMERATOR_NOT_ONE = 23
-    ORDER_NOT_DECLARED = 24
-    CURRENT_BUFFER_SPECIFIED = 25
-    BLOCK_NOT_CORRECT = 26
-    VARIABLE_NOT_IN_INIT = 27
-    WRONG_NUMBER_OF_ARGS = 28
-    NO_RHS = 29
-    SEVERAL_LHS = 30
-    FUNCTION_REDECLARED = 31
-    FUNCTION_NOT_DECLARED = 52
-    NO_ODE = 32
-    NO_INIT_VALUE = 33
-    NEURON_REDECLARED = 34
-    NEST_COLLISION = 35
-    SHAPE_OUTSIDE_CONVOLVE = 36
-    NAME_COLLISION = 37
-    TYPE_NOT_SPECIFIED = 38
-    NO_TYPE_ALLOWED = 39
-    NO_ASSIGNMENT_ALLOWED = 40
-    NOT_A_VARIABLE = 41
-    MULTIPLE_KEYWORDS = 42
-    VECTOR_IN_NON_VECTOR = 43
-    VARIABLE_REDECLARED = 44
-    SOFT_INCOMPATIBILITY = 45
-    HARD_INCOMPATIBILITY = 46
-    NO_RETURN = 47
-    NOT_LAST_STATEMENT = 48
-    SYMBOL_NOT_RESOLVED = 49
-    TYPE_MISMATCH = 50
-    NO_SEMANTICS = 51
-    NEURON_SOLVED_BY_GSL = 52
-    NEURON_ANALYZED = 53
-    NO_UNIT = 54
-    NOT_NEUROSCIENCE_UNIT = 55
-    INTERNAL_WARNING = 56
-    OPERATION_NOT_DEFINED = 57
-    CONVOLVE_NEEDS_BUFFER_PARAMETER = 58
-    INPUT_PATH_NOT_FOUND = 59
-    LEXER_ERROR = 60
-    PARSER_ERROR = 61
-    UNKNOWN_TARGET = 62
-    VARIABLE_WITH_SAME_NAME_AS_UNIT = 63
-    ANALYSING_TRANSFORMING_NEURON = 64
-    ODE_NEEDS_CONSISTENT_UNITS = 65
-    TEMPLATED_ARG_TYPES_INCONSISTENT = 66
-    MODULE_NAME_INFO = 67
-    TARGET_PATH_INFO = 68
-    DELTA_FUNCTION_CANNOT_BE_MIXED = 69
-    UNKNOWN_TYPE = 70
-    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
 

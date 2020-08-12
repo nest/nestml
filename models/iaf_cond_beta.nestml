@@ -52,12 +52,12 @@ neuron iaf_cond_beta:
     V_m mV = E_L              # membrane potential
 
     # inputs from the inhibitory conductance
-    g_in nS = 0 nS
-    g_in$ nS/ms = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I) * nS
+    g_in real = 0
+    g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
 
     # inputs from the excitatory conductance
-    g_ex nS = 0 nS
-    g_ex$ nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+    g_ex real = 0
+    g_ex$ real = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
   end
 
   equations:
