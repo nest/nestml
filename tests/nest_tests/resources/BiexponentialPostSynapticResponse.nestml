@@ -6,14 +6,14 @@ neuron biexp_postsynaptic_response:
   end
 
   initial_values:
-    g_in nS = 0 nS        # inputs from the inhibitory conductance
-    g_in$ nS/ms = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I) * nS
+    g_in real = 0        # inputs from the inhibitory conductance
+    g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
 
-    g_ex nS = 0 nS        # inputs from the excitatory conductance
-    h_ex nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+    g_ex real = 0        # inputs from the excitatory conductance
+    h_ex real = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
 
-    g_GABA nS = 0 nS
-    g_GABA' nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+    g_GABA real = 0
+    g_GABA' 1/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
 
     # n.b. no initial value for shape that is a direct function of time
 
