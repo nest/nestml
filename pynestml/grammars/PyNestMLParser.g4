@@ -249,7 +249,7 @@ parser grammar PyNestMLParser;
   /** ASTEquationsBlock A block declaring special functions:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-         V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+         V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
        end
      @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...

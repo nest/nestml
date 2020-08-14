@@ -103,7 +103,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{M} - I_{L} - I_{syn,exc} - I_{syn,inh} + currents + I_{e} - I_{noise}) } \right) 
+   \frac{ dV_{m} } { dt }= \frac 1 { C_{m} } \left( { (-I_{Na} - I_{K} - I_{M} - I_{L} - I_{syn,exc} - I_{syn,inh} + I_{e} + I_{stim} - I_{noise}) } \right) 
 
 
 .. math::
@@ -165,7 +165,7 @@ Source code
        function I_noise pA = (g_noise_ex * (V_m - E_ex) + g_noise_in * (V_m - E_in))
        function I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
        function I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
-       V_m'=(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + currents + I_e - I_noise) / C_m
+       V_m'=(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + currents + I_e + I_stim - I_noise) / C_m
 
        /* channel dynamics*/
        function V_rel mV = V_m - V_T

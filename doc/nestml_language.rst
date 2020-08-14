@@ -683,7 +683,7 @@ This way, a flexible combination of the inputs is possible. If, for example, cur
 .. code-block:: nestml
 
    input:
-     I_ext pA <- current
+     I_stim pA <- current
      inh_spikes pA <- inhibitory spike
      exc_spikes pA <- excitatory spike
    end
@@ -693,11 +693,11 @@ Please note that it is equivalent if either both `inhibitory` and `excitatory` a
 Integrating current input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The current port symbol (here, `I_ext`) is available as a variable and can be used in expressions, e.g.:
+The current port symbol (here, `I_stim`) is available as a variable and can be used in expressions, e.g.:
 
 .. code-block:: nestml
 
-   V_m' = -V_m/tau_m + ... + I_ext
+   V_m' = -V_m/tau_m + ... + I_stim
 
 
 Integrating spiking input

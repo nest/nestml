@@ -109,7 +109,7 @@ neuron ExpressionCollection:
         test62 = g_L*Delta_T*exp(exp_arg)
         test63 = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
         test64 = convolve(g_in, spikeInh) * ( V_bounded - E_in )
-        test65 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
+        test65 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
         test66 = (a*(V_bounded - E_L) - w)/tau_w
         test67 += spikeExc * nS
         test68 += spikeInh * nS
@@ -130,7 +130,7 @@ neuron ExpressionCollection:
         inline I_L   pA = g_L * ( V_m - E_L )
         inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
         inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
-        V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+        V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
         # channel dynamics
         inline V_rel mV = V_m - V_T
         inline alpha_n 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_rel) / ( exp( ( 15. mV - V_rel) / 5. mV ) - 1. )
@@ -181,7 +181,7 @@ neuron ExpressionCollection:
         inline I_L   pA = g_L * ( V_m - E_L )
         inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
         inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
-        V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+        V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
         # channel dynamics
         inline V_rel mV = V_m - V_T
         inline alpha_n 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_rel) / ( exp( ( 15. mV - V_rel) / 5. mV ) - 1. )
@@ -229,7 +229,7 @@ neuron ExpressionCollection:
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
         inline I_L   pA = g_L * ( V_m - E_L )
-        V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+        V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
         # Inact_n
         inline alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
         inline beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
@@ -289,7 +289,7 @@ neuron ExpressionCollection:
         inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
         inline I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
         inline I_L   pA = g_L * ( V_m - E_L )
-        V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+        V_m' =( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
         # Inact_n
         inline alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
         inline beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
@@ -359,7 +359,7 @@ neuron ExpressionCollection:
         recordable inline I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
         # The spike current is only activate immediately after a spike.
         inline I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
-        V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + currents ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
+        V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_e + I_stim ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
         #############
         # Intrinsic currents
         #############
