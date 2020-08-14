@@ -33,6 +33,7 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
 
     Not allowed:
         inline I_syn_exc pA = convolve(g_ex, g_ex) * ( V_m - E_ex )
+        inline I_syn_exc pA = convolve(spikesExc, g_ex) * ( V_m - E_ex )
     """
 
     @classmethod
