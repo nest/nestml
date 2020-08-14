@@ -26,13 +26,14 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoConvolveCondCorrectlyBuilt(CoCo):
     """
-    This coco ensures that convolve function call correctly built, i.e., that the first argument is the variable from the initial block and the second argument an input buffer.
+    This coco ensures that ``convolve`` is correctly called, i.e. that the first argument is the variable from the initial block and the second argument is an input buffer.
 
     Allowed:
         inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
 
     Not allowed:
         inline I_syn_exc pA = convolve(g_ex, g_ex) * ( V_m - E_ex )
+        inline I_syn_exc pA = convolve(spikesExc, g_ex) * ( V_m - E_ex )
     """
 
     @classmethod
