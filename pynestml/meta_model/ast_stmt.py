@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
@@ -32,11 +33,46 @@ class ASTStmt(ASTNode):
         compound_stmt = None
     """
 
-    def __init__(self, small_stmt, compound_stmt, source_position):
-        # type: (ASTSmallStmt,ASTCompoundStmt) -> None
-        super(ASTStmt, self).__init__(source_position)
+    def __init__(self, small_stmt, compound_stmt, *args, **kwargs):
+        """
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param small_stmt: small statement AST node
+        :type small_stmt: ASTSmallStmt
+        :param compound_stmt: compound statement AST node
+        :type compound_stmt: ASTCompoundStmt
+        """
+        super(ASTStmt, self).__init__(*args, **kwargs)
         self.small_stmt = small_stmt
         self.compound_stmt = compound_stmt
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTStmt
+        """
+        small_stmt_dup = None
+        if self.small_stmt:
+            small_stmt_dup = self.small_stmt.clone()
+        compound_stmt_dup = None
+        if self.compound_stmt:
+            compound_stmt_dup = self.compound_stmt.clone()
+        dup = ASTStmt(small_stmt=small_stmt_dup,
+         compound_stmt=compound_stmt_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_parent(self, ast=None):
         """
@@ -45,11 +81,11 @@ class ASTStmt(ASTNode):
         # type: ASTNode -> ASTNode
         if self.small_stmt is ast:
             return self
-        elif self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
+        if self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
             return self.small_stmt.get_parent(ast)
         if self.compound_stmt is ast:
             return self
-        elif self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
+        if self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
             return self.compound_stmt.get_parent(ast)
 
     def is_small_stmt(self):

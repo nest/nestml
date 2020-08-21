@@ -37,25 +37,60 @@ class ASTSmallStmt(ASTNode):
         return_stmt (ast_return_stmt): A reference to the returns statement.
     """
 
-    def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, source_position=None):
+    def __init__(self, assignment=None, function_call=None, declaration=None, return_stmt=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param assignment: an meta_model-assignment object.
-        :type assignment: ast_assignment
+        :type assignment: ASTAssignment
         :param function_call: an meta_model-function call object.
-        :type function_call: ast_function_call
+        :type function_call: ASTFunctionCall
         :param declaration: an meta_model-declaration object.
-        :type declaration: ast_declaration
+        :type declaration: ASTDeclaration
         :param return_stmt: an meta_model-return statement object.
-        :type return_stmt: ast_return_stmt
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type return_stmt: ASTReturnStmt
         """
-        super(ASTSmallStmt, self).__init__(source_position)
+        super(ASTSmallStmt, self).__init__(*args, **kwargs)
         self.assignment = assignment
         self.function_call = function_call
         self.declaration = declaration
         self.return_stmt = return_stmt
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTSmallStmt
+        """
+        assignment_dup = None
+        if self.assignment:
+            assignment_dup = self.assignment.clone()
+        function_call_dup = None
+        if self.function_call:
+            function_call_dup = self.function_call.clone()
+        declaration_dup = None
+        if self.declaration:
+            declaration_dup = self.declaration.clone()
+        return_stmt_dup = None
+        if self.return_stmt:
+            return_stmt_dup = self.return_stmt.clone()
+        dup = ASTSmallStmt(assignment=assignment_dup,
+         function_call=function_call_dup,
+         declaration=declaration_dup,
+         return_stmt=return_stmt_dup,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def is_assignment(self):
         """
@@ -132,22 +167,22 @@ class ASTSmallStmt(ASTNode):
         if self.is_assignment():
             if self.get_assignment() is ast:
                 return self
-            elif self.get_assignment().get_parent(ast) is not None:
+            if self.get_assignment().get_parent(ast) is not None:
                 return self.get_assignment().get_parent(ast)
         if self.is_function_call():
             if self.get_function_call() is ast:
                 return self
-            elif self.get_function_call().get_parent(ast) is not None:
+            if self.get_function_call().get_parent(ast) is not None:
                 return self.get_function_call().get_parent(ast)
         if self.is_declaration():
             if self.get_declaration() is ast:
                 return self
-            elif self.get_declaration().get_parent(ast) is not None:
+            if self.get_declaration().get_parent(ast) is not None:
                 return self.get_declaration().get_parent(ast)
         if self.is_return_stmt():
             if self.get_return_stmt() is ast:
                 return self
-            elif self.get_return_stmt().get_parent(ast) is not None:
+            if self.get_return_stmt().get_parent(ast) is not None:
                 return self.get_return_stmt().get_parent(ast)
         return None
 

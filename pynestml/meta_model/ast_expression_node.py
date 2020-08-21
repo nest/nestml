@@ -25,15 +25,16 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class ASTExpressionNode(ASTNode):
     """
-    This class is not a part of the grammar but is used to store commonalities of all possible meta_model classes, e.g.,
-    the source position. This class is abstract, thus no instances can be created.
+    This class is not a part of the grammar but is used to store commonalities of expression-type nodes.
+
+    This class is abstract, thus no instances can be created.
     """
     __type = None
     __typeEither = None
     __metaclass__ = ABCMeta
 
-    def __init__(self, source_position, scope=None):
-        super(ASTExpressionNode, self).__init__(source_position, scope)
+    def __init__(self, *args, **kwargs):
+        super(ASTExpressionNode, self).__init__(*args, **kwargs)
 
     @property
     def type(self):
@@ -45,7 +46,6 @@ class ASTExpressionNode(ASTNode):
     @type.setter
     def type(self, _value):
         self.__type = _value
-        return
 
     def get_parent(self, ast):
         pass

@@ -248,10 +248,9 @@ class ASTNestMLPrinter(object):
         self.dec_indent()
         return ret
 
-    def print_body(self, node):
-        # type: (ASTBody) -> str
+    def print_body(self, node: ASTBody) -> str:
         ret = ''
-        for elem in node.bodyElements:
+        for elem in node.body_elements:
             ret += self.print_node(elem)
             ret += '\n'
         return ret
