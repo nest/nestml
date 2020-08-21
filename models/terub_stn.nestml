@@ -145,8 +145,8 @@ neuron terub_stn:
     g_Na       nS = 37.5 nS # Sodium peak conductance.
     E_K        mV = -80.0 mV# Potassium reversal potential.
     g_K        nS = 45.0 nS # Potassium peak conductance.
-    E_Ca       mV = 120 mV  # Calcium reversal potential.
-    g_Ca       nS = 140 nS  # Calcium peak conductance.
+    E_Ca       mV = 140 mV  # Calcium reversal potential.
+    g_Ca       nS = 0.5 nS  # Calcium peak conductance.
     g_T        nS = 0.5 nS  # T-type Calcium channel peak conductance.
     g_ahp      nS = 9 nS    # afterpolarization current peak conductance.
     tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
