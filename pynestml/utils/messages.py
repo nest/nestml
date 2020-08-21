@@ -478,9 +478,9 @@ class Messages(object):
         assert (missing is not None and isinstance(missing, bool)), \
             '(PyNestML.Utils.Message) Not a bool provided (%s)!' % type(missing)
         if missing:
-            message = block + ' block not defined, model not correct!'
+            message = block + ' block not defined!'
         else:
-            message = block + ' block not unique, model not correct!!'
+            message = block + ' block defined more than once!'
         return MessageCode.BLOCK_NOT_CORRECT, message
 
     @classmethod
@@ -983,6 +983,16 @@ class Messages(object):
         message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
+    @classmethod
+    def get_emit_spike_function_but_no_output_port(cls):
+        """
+        Indicates that an emit_spike() function was called, but no spiking output port has been defined.
+        :return: a (code, message) tuple
+        :rtype: (MessageCode, str)
+        """
+        message = 'emit_spike() function was called, but no spiking output port has been defined!'
+        return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
+
 
 class MessageCode(Enum):
     """
@@ -1059,3 +1069,4 @@ class MessageCode(Enum):
     MODULE_NAME_INFO = 67
     TARGET_PATH_INFO = 68
     ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 69
+    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 70
