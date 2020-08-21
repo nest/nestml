@@ -27,7 +27,6 @@ class NestWBCondExpTest(unittest.TestCase):
         os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        # nest_path = "/home/abolfazl/prog/install-dir/nest-simulator-2.18.0_build"
         nest_path = "/home/travis/nest_install"
         suffix = '_nestml'
 
@@ -47,24 +46,20 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.SetKernelStatus({"resolution": dt})
 
         neuron1 = nest.Create(model, 1)
-        nest.SetStatus(neuron1, {'I_e': 100.0})
+        neuron1.set({'I_e': 100.0})
 
         neuron2 = nest.Create(model)
-        nest.SetStatus(neuron2, {"AMPA_Tau_1": 0.1,
-                                 "AMPA_Tau_2": 2.4,
-                                 "AMPA_g_peak": 0.1,
-                                 })
+        neuron2.set({"AMPA_Tau_1": 0.1,
+                     "AMPA_Tau_2": 2.4,
+                     "AMPA_g_peak": 0.1})
 
         multimeter = nest.Create("multimeter", 2)
-        nest.SetStatus([multimeter[0]], {"withtime": True,
-                                         "record_from": ["V_m"],
-                                         "interval": dt})
+        multimeter[0].set({"record_from": ["V_m"],
+                           "interval": dt})
         record_from = ["V_m", "I_syn_ampa",
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
-
-        nest.SetStatus([multimeter[1]], {"withtime": True,
-                                         "record_from": record_from,
-                                         "interval": dt})
+        multimeter[1].set({"record_from": record_from,
+                           "interval": dt})
         #! {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
         # nest.Connect(neuron1, neuron2)
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
@@ -72,12 +67,10 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 4})  # GABAB
 
-        nest.Connect([multimeter[0]], neuron1, "one_to_one")
-        nest.Connect([multimeter[1]], neuron2)
+        nest.Connect(multimeter[0], neuron1, "one_to_one")
+        nest.Connect(multimeter[1], neuron2)
 
-        spikedetector = nest.Create("spike_detector",
-                                    params={"withgid": True,
-                                            "withtime": True})
+        spikedetector = nest.Create("spike_detector")
         nest.Connect(neuron1, spikedetector)
         nest.Simulate(t_simulation)
 

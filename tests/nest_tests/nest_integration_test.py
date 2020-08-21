@@ -38,25 +38,17 @@ class NestIntegrationTest(unittest.TestCase):
 
         models = list()
         models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1.e-3, 0.001))
-        models.append(("iaf_chxk_2008", "iaf_chxk_2008_implicit_nestml", 1.e-3, 0.001))
-        models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 0.001))
         models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 0.001))
-        models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 0.001))
         models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 0.001))
-        models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 0.001))
         models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 0.001))
-        models.append(("hh_psc_alpha", "hh_psc_alpha_implicit_nestml", 1.e-3, 0.001))
         models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1.e-3, 0.001))
         models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-        models.append(("iaf_cond_alpha", "iaf_cond_alpha_implicit_nestml", 1E-3, 1E-3))
         models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1.e-3, 0.001))
-        models.append(("iaf_cond_exp", "iaf_cond_exp_implicit_nestml", 1.e-3, 0.001))
         models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 0.001))
-        models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 0.001))
         models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 0.001))
         models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 0.001))
         models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 0.01))
-        models.append(("iaf_psc_exp_htum", "iaf_tum_2000_nestml", None, 0.01))
+        models.append(("iaf_psc_exp_htum", "iaf_psc_exp_htum_nestml", None, 0.01))
         models.append(("izhikevich", "izhikevich_nestml", 1.e-3, 0.5))
         models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
@@ -70,6 +62,10 @@ class NestIntegrationTest(unittest.TestCase):
 
         nest.ResetKernel()
         neuron1 = nest.Create(referenceModel)
+        if referenceModel == "izhikevich":
+            # work around bug in NEST Simulator: initial conditions for Izhikevich neuron not at equilibrium (#1626)
+            nest.SetStatus(neuron1, "V_m", -70.)
+            nest.SetStatus(neuron1, "U_m", 0.2 * -70.)
         neuron2 = nest.Create(testant)
 
         if not (gsl_error_tol is None):
