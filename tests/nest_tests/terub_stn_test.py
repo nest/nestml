@@ -27,7 +27,8 @@ class NestSTNExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models", "terub_stn.nestml")))
         target_path = "target"
         module_name = 'terub_stn_module'
-        nest_path="/home/abolfazl/prog/nest-build/"
+        # nest_path = "/home/abolfazl/prog/nest-build/"
+        nest_path = "/home/travis/nest_install"
         suffix = '_nestml'
 
         to_nest(input_path=input_path,
@@ -73,10 +74,10 @@ class NestSTNExpTest(unittest.TestCase):
 
         firing_rate = len(spikes) / t_simulation * 1000
         print("firing rate is ", firing_rate)
-        expected_value = np.abs(firing_rate - 50)
-        tolerance_value = 5  # Hz
+        expected_value = np.abs(firing_rate - 14)
+        tolerance_value = 3  # Hz
 
-        # self.assertLessEqual(expected_value, tolerance_value)
+        self.assertLessEqual(expected_value, tolerance_value)
 
         if TEST_PLOTS:
 
