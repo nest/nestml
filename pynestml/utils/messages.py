@@ -21,7 +21,6 @@ from enum import Enum
 from typing import Tuple
 
 
-
 class MessageCode(Enum):
     """
     A mapping between codes and the corresponding messages.
@@ -96,10 +95,11 @@ class MessageCode(Enum):
     TEMPLATED_ARG_TYPES_INCONSISTENT = 66
     MODULE_NAME_INFO = 67
     TARGET_PATH_INFO = 68
-    DELTA_FUNCTION_CANNOT_BE_MIXED = 69
-    UNKNOWN_TYPE = 70
-    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 71
-    SHAPE_WRONG_TYPE = 72
+    ODE_FUNCTION_NEEDS_CONSISTENT_UNITS = 69
+    DELTA_FUNCTION_CANNOT_BE_MIXED = 70
+    UNKNOWN_TYPE = 71
+    ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 72
+    SHAPE_WRONG_TYPE = 73
 
 
 class Messages(object):
@@ -155,11 +155,6 @@ class Messages(object):
     @classmethod
     def get_lexer_error(cls):
         message = 'Error occurred during lexing: abort'
-        return MessageCode.LEXER_ERROR, message
-
-    @classmethod
-    def get_could_not_determine_cond_based(cls, type_str, name):
-        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
@@ -344,24 +339,6 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
         message = 'No variable \'%s\' found!' % variable_name
         return MessageCode.NO_VARIABLE_FOUND, message
-
-    @classmethod
-    def get_shape_wrong_type(cls, shape_name: str, differential_order: int, actual_type: str) -> Tuple[MessageCode, str]:
-        """
-        Returns a message indicating that the type of a shape is wrong.
-        :param shape_name: the name of the shape
-        :param differential_order: differential order of the shape left-hand side, e.g. 2 if the shape is g''
-        :param actual_type: the name of the actual type that was found in the model
-        """
-        assert (shape_name is not None and isinstance(shape_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(shape_name)
-        if differential_order == 0:
-            expected_type_str = "real or int"
-        else:
-            assert differential_order > 0
-            expected_type_str = "s**-%d" % differential_order
-        message = 'Shape \'%s\' was found to be of type \'%s\' (should be %s)!' % (shape_name, actual_type, expected_type_str)
-        return MessageCode.SHAPE_WRONG_TYPE, message
 
     @classmethod
     def get_buffer_type_not_defined(cls, buffer_name):
@@ -1126,5 +1103,15 @@ class Messages(object):
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
 
+
+    @classmethod
+    def get_emit_spike_function_but_no_output_port(cls):
+        """
+        Indicates that an emit_spike() function was called, but no spiking output port has been defined.
+        :return: a (code, message) tuple
+        :rtype: (MessageCode, str)
+        """
+        message = 'emit_spike() function was called, but no spiking output port has been defined!'
+        return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
 
 
