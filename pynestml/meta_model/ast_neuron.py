@@ -23,6 +23,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
@@ -110,17 +111,16 @@ class ASTNeuron(ASTNode):
         :return: a list of update-block elements.
         :rtype: list(ASTUpdateBlock)
         """
-        ret = list()
         from pynestml.meta_model.ast_update_block import ASTUpdateBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTUpdateBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        elif isinstance(ret, list) and len(ret) == 0:
-            return None
-        else:
-            return ret
+                return elem
+        # no update block present -> create one!
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
+        update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
+        self.get_body().get_body_elements().append(update_block)
+        return update_block
 
     def get_state_blocks(self):
         """
