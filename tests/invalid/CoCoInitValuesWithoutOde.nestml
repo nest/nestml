@@ -27,6 +27,6 @@
 
 neuron CoCoInitValuesWithoutOde:
     initial_values:
-        V_m mV
+        V_m mV = 10 mV
     end
 end

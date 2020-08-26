@@ -31,6 +31,6 @@ neuron CoCoInitValuesWithoutOde:
     end
 
     equations:
-        V_m' = 20mV # initial values provided with odes, thus everything is correct
+        V_m' = 20mV / s # initial values provided with odes, thus everything is correct
     end
 end
