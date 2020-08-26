@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from copy import copy
 
 from pynestml.meta_model.ast_node import ASTNode
@@ -48,25 +49,59 @@ class ASTFunction(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, parameters, return_type, block, source_position):
+    def __init__(self, name, parameters, return_type, block, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param name: the name of the defined function.
         :type name: str
         :param parameters: (Optional) Set of parameters.
-        :type parameters: list(ASTParameter)
+        :type parameters: List[ASTParameter]
         :param return_type: (Optional) Return type.
-        :type return_type: ast_data_type
+        :type return_type: ASTDataType
         :param block: a block of declarations.
-        :type block: ast_block
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type block: ASTBlock
         """
-        super(ASTFunction, self).__init__(source_position)
+        super(ASTFunction, self).__init__(*args, **kwargs)
         self.block = block
         self.return_type = return_type
         self.parameters = parameters
         self.name = name
+        self.type_symbol = type_symbol
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTFunction
+        """
+        block_dup = None
+        if self.block:
+            block_dup = self.block.clone()
+        return_type_dup = None
+        if self.return_type:
+            return_type_dup = self.return_type.clone()
+        parameters_dup = None
+        if self.parameters:
+            parameters_dup = [parameter.clone() for parameter in self.parameters]
+        dup = ASTFunction(name=self.name,
+         parameters=parameters_dup,
+         return_type=return_type_dup,
+         block=block_dup,
+         type_symbol=self.type_symbol,
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_name(self):
         """
@@ -143,16 +178,16 @@ class ASTFunction(ASTNode):
         for param in self.get_parameters():
             if param is ast:
                 return self
-            elif param.get_parent(ast) is not None:
+            if param.get_parent(ast) is not None:
                 return param.get_parent(ast)
         if self.has_return_type():
             if self.get_return_type() is ast:
                 return self
-            elif self.get_return_type().get_parent(ast) is not None:
+            if self.get_return_type().get_parent(ast) is not None:
                 return self.get_return_type().get_parent(ast)
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

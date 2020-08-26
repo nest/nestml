@@ -23,7 +23,7 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class ASTOdeShape(ASTNode):
     """
-    This class is used to store shapes. 
+    This class is used to store shapes.
     Grammar:
         odeShape : 'shape' lhs=variable '=' rhs=expr;
     Attributes:
@@ -31,20 +31,40 @@ class ASTOdeShape(ASTNode):
         rhs = None
     """
 
-    def __init__(self, lhs, rhs, source_position):
+    def __init__(self, lhs, rhs, *args, **kwargs):
         """
-        Standard constructor of ASTOdeShape.
+        Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param lhs: the variable corresponding to the shape
-        :type lhs: ast_variable
-        :param rhs: the right-hand side rhs
-        :type rhs: ast_expression or ast_simple_expression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+        :type lhs: ASTVariable
+        :param rhs: the right-hand side
+        :type rhs: Union[ASTExpression, ASTSimpleExpression]
         """
-        super(ASTOdeShape, self).__init__(source_position)
+        super(ASTOdeShape, self).__init__(*args, **kwargs)
         self.lhs = lhs
         self.rhs = rhs
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTInputPort
+        """
+        dup = ASTOdeShape(lhs=self.lhs.clone(),
+         rhs=self.rhs.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_variable(self):
         """
@@ -72,11 +92,11 @@ class ASTOdeShape(ASTNode):
         """
         if self.get_variable() is ast:
             return self
-        elif self.get_variable().get_parent(ast) is not None:
+        if self.get_variable().get_parent(ast) is not None:
             return self.get_variable().get_parent(ast)
         if self.get_expression() is ast:
             return self
-        elif self.get_expression().get_parent(ast) is not None:
+        if self.get_expression().get_parent(ast) is not None:
             return self.get_expression().get_parent(ast)
         return None
 

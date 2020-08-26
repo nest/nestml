@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
 
 
 class ASTBitOperator(ASTNode):
@@ -35,11 +35,12 @@ class ASTBitOperator(ASTNode):
     """
 
     def __init__(self, is_bit_and=False, is_bit_xor=False, is_bit_or=False, is_bit_shift_left=False,
-                 is_bit_shift_right=False, source_position=None):
+                 is_bit_shift_right=False, *args, **kwargs):
         """
         Standard constructor.
-        :param source_position: the position of the element in the source
-        :type source_position: ASTSourceLocation
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param is_bit_and: is bit and operator.
         :type is_bit_and: bool
         :param is_bit_xor: is bit xor operator.
@@ -51,13 +52,35 @@ class ASTBitOperator(ASTNode):
         :param is_bit_shift_right: is bit shift right operator.
         :type is_bit_shift_right: bool
         """
-        super(ASTBitOperator, self).__init__(source_position)
+        super(ASTBitOperator, self).__init__(*args, **kwargs)
         self.is_bit_shift_right = is_bit_shift_right
         self.is_bit_shift_left = is_bit_shift_left
         self.is_bit_or = is_bit_or
         self.is_bit_xor = is_bit_xor
         self.is_bit_and = is_bit_and
-        return
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTBitOperator
+        """
+        dup = ASTBitOperator(is_bit_shift_right=self.is_bit_shift_right,
+         is_bit_shift_left=self.is_bit_shift_left,
+         is_bit_or=self.is_bit_or,
+         is_bit_xor=self.is_bit_xor,
+         is_bit_and=self.is_bit_and,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_parent(self, ast):
         """

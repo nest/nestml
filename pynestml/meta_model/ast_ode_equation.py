@@ -20,6 +20,9 @@
 
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class ASTOdeEquation(ASTNode):
@@ -36,25 +39,48 @@ class ASTOdeEquation(ASTNode):
         rhs = None
     """
 
-    def __init__(self, lhs, rhs, source_position=None):
+    def __init__(self, lhs, rhs, *args, **kwargs):
         """
         Standard constructor.
-        :param lhs: an object of type ASTVariable
-        :type lhs: ast_variable
-        :param rhs: an object of type ASTExpression.
-        :type rhs: ast_expression or ast_simple_expression
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param lhs: left-hand side variable
+        :type lhs: ASTVariable
+        :param rhs: right-hand side expression
+        :type rhs: Union[ASTExpression, ASTSimpleExpression]
         """
-        super(ASTOdeEquation, self).__init__(source_position)
+        super(ASTOdeEquation, self).__init__(*args, **kwargs)
+        assert isinstance(lhs, ASTVariable)
+        assert isinstance(rhs, ASTExpression) or isinstance(rhs, ASTSimpleExpression)
         self.lhs = lhs
         self.rhs = rhs
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTOdeEquation
+        """
+        dup = ASTOdeEquation(lhs=self.lhs.clone(),
+         rhs=self.rhs.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_lhs(self):
         """
         Returns the left-hand side of the equation.
         :return: an object of the meta_model-variable class.
-        :rtype: ast_variable
+        :rtype: ASTVariable
         """
         return self.lhs
 
@@ -62,7 +88,7 @@ class ASTOdeEquation(ASTNode):
         """
         Returns the left-hand side of the equation.
         :return: an object of the meta_model-expr class.
-        :rtype: ast_expression
+        :rtype: Union[ASTExpression, ASTSimpleExpression]
         """
         return self.rhs
 
@@ -76,11 +102,11 @@ class ASTOdeEquation(ASTNode):
         """
         if self.get_lhs() is ast:
             return self
-        elif self.get_lhs().get_parent(ast) is not None:
+        if self.get_lhs().get_parent(ast) is not None:
             return self.get_lhs().get_parent(ast)
         if self.get_rhs() is ast:
             return self
-        elif self.get_rhs().get_parent(ast) is not None:
+        if self.get_rhs().get_parent(ast) is not None:
             return self.get_rhs().get_parent(ast)
         return None
 

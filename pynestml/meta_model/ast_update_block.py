@@ -32,7 +32,7 @@ class ASTUpdateBlock(ASTNode):
         end
       end
      @attribute block Implementation of the dynamics.
-   
+ 
     Grammar:
         updateBlock:
             'update'
@@ -43,22 +43,43 @@ class ASTUpdateBlock(ASTNode):
         block = None
     """
 
-    def __init__(self, block, source_position):
+    def __init__(self, block, *args, **kwargs):
         """
         Standard constructor.
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
         :param block: a block of definitions.
         :type block: ASTBlock
-        :param source_position: the position of this element in the source file.
-        :type source_position: ASTSourceLocation.
         """
-        super(ASTUpdateBlock, self).__init__(source_position)
+        super(ASTUpdateBlock, self).__init__(*args, **kwargs)
+        assert isinstance(block, ASTBlock)
         self.block = block
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTUpdateBlock
+        """
+        dup = ASTUpdateBlock(block=self.block.clone(),
+         # ASTNode common attributes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_block(self):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: ast_block
+        :rtype: ASTBlock
         """
         return self.block
 
@@ -72,7 +93,7 @@ class ASTUpdateBlock(ASTNode):
         """
         if self.get_block() is ast:
             return self
-        elif self.get_block().get_parent(ast) is not None:
+        if self.get_block().get_parent(ast) is not None:
             return self.get_block().get_parent(ast)
         return None
 

@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
 
 
 class ASTBlock(ASTNode):
@@ -30,23 +30,44 @@ class ASTBlock(ASTNode):
         stmts = None
     """
 
-    def __init__(self, _stmts=list(), source_position=None):
+    def __init__(self, stmts, *args, **kwargs):
         """
         Standard constructor.
-        :param _stmts: a list of statements 
-        :type _stmts: list(ASTSmallStmt/ASTCompoundStmt)
-        :param source_position: the position of this element
-        :type source_position: ASTSourceLocation
+
+        Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
+
+        :param stmts: a list of statements
+        :type stmts: List[Union[ASTSmallStmt, ASTCompoundStmt]]
         """
         from pynestml.meta_model.ast_stmt import ASTStmt
-        assert (_stmts is not None and isinstance(_stmts, list)), \
-            '(PyNestML.AST.Bloc) No or wrong type of statements provided (%s)!' % type(_stmts)
-        for stmt in _stmts:
+        assert (stmts is not None and isinstance(stmts, list)), \
+            '(PyNestML.ASTBlock) No or wrong type of statements provided (%s)!' % type(stmts)
+        for stmt in stmts:
             assert (stmt is not None and isinstance(stmt, ASTStmt)), \
-                '(PyNestML.AST.Bloc) No or wrong type of statement provided (%s)!' % type(stmt)
+                '(PyNestML.ASTBlock) No or wrong type of statement provided (%s)!' % type(stmt)
 
-        super(ASTBlock, self).__init__(source_position)
-        self.stmts = _stmts
+        super(ASTBlock, self).__init__(*args, **kwargs)
+        self.stmts = stmts
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this node.
+
+        :return: new AST node instance
+        :rtype: ASTBlock
+        """
+        stmts_dup = [stmt.clone() for stmt in self.stmts]
+        dup = ASTBlock(stmts_dup,
+         # ASTNode common attriutes:
+         source_position=self.source_position,
+         scope=self.scope,
+         comment=self.comment,
+         pre_comments=[s for s in self.pre_comments],
+         in_comment=self.in_comment,
+         post_comments=[s for s in self.post_comments],
+         implicit_conversion_factor=self.implicit_conversion_factor)
+
+        return dup
 
     def get_stmts(self):
         """

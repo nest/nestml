@@ -20,7 +20,7 @@
 import os
 import unittest
 
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
+from pynestml.utils.ast_source_location import ASTSourceLocation
 
 from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
