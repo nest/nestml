@@ -28,15 +28,4 @@ neuron CoCoElementNotDefined:
     state:
         test1 integer = test2 # case 1: variable set to a not defined value
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
-
 end

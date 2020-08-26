@@ -24,11 +24,4 @@ neuron BlockTest:
     state:
         lhs mV = 10V
     end
-    update:
-    end
-
-    input:
-    end
-
-    output: spike
 end

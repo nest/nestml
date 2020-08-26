@@ -28,14 +28,4 @@ neuron CoCoFunctionHasNoRhs:
     state:
         function V_rest mV  # the missing rhs should be detected
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

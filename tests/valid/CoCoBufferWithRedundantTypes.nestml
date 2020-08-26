@@ -26,13 +26,7 @@
 */
 
 neuron CoCoBufferWithRedundantTypes:
-    update:
-        # required for creation of a correct ast
-    end
-
     input:
         spikeInh integer <- inhibitory spike # no redundant keywords used, thus correct
     end
-
-    output: spike
 end

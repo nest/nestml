@@ -28,14 +28,4 @@ neuron CoCoFunctionHasNoRhs:
     state:
         function V_rest mV  = 10mV # a rhs is defined, thus everything is correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

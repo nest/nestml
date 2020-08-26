@@ -26,19 +26,7 @@
 */
 
 neuron CoCoNestNamespaceCollision:
-
     function handler(Tau_1 mV): # handler is not a NEST specific function, thus everything correct
         return
     end
-
-    update:
-        # required for construction of a correct ast
-    end
-
-    input:
-        # required for construction of a correct ast
-    end
-
-    output: spike
-
 end

@@ -26,7 +26,6 @@
 */
 
 neuron CoCoConvolveNotCorrectlyParametrized:
-
     initial_values:
         G real = 1.
     end
@@ -36,13 +35,7 @@ neuron CoCoConvolveNotCorrectlyParametrized:
         function testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
     end
 
-    update:
-        # required for creation of a correct ast
-    end
-
     input:
         spikeExc pA <- excitatory spike
     end
-
-    output: spike
 end

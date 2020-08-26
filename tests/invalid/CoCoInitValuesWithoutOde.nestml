@@ -26,18 +26,7 @@
 */
 
 neuron CoCoInitValuesWithoutOde:
-
     initial_values:
         V_m mV
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

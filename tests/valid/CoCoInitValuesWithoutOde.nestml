@@ -26,7 +26,6 @@
 */
 
 neuron CoCoInitValuesWithoutOde:
-
     initial_values:
         V_m mV = 10mV
     end
@@ -34,14 +33,4 @@ neuron CoCoInitValuesWithoutOde:
     equations:
         V_m' = 20mV # initial values provided with odes, thus everything is correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

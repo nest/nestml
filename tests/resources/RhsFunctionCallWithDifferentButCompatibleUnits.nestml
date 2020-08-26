@@ -24,13 +24,12 @@ neuron BlockTest:
     state:
       lhs mV
     end
+
     function foo(bar mV) mV:
         return bar
     end
+
     update:
       lhs = foo(10V)
     end
-    input:
-    end
-    output: spike
 end

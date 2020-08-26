@@ -26,19 +26,12 @@
 */
 
 neuron CoCoConvolveNotCorrectlyProvided:
-
     equations:
         shape test = 10
         function testB real = convolve(test, spikeExc) # convolve provided with a shape and a buffer, thus correct
     end
 
-    update:
-        # required for creation of a correct ast
-    end
-
     input:
         spikeExc integer  <- excitatory spike
     end
-
-    output: spike
 end

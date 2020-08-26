@@ -25,18 +25,7 @@
  * Positive example.
 */
 neuron CoCoParameterAssignedOutsideBlock:
-
     parameters: # parameter is not assigned outside the block, thus everything is correct
         test mV = 10mV
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

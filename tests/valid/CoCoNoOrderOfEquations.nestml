@@ -25,7 +25,6 @@
 */
 
 neuron CoCoNoOrderOfEquations:
-
     initial_values:
         V_m mV = 10mV
     end
@@ -33,15 +32,4 @@ neuron CoCoNoOrderOfEquations:
     equations:
         V_m' = 10 mV / s # rhs is provided with an order > 0, thus everything is correct
     end
-
-    input:
-        # in order to generate an ast
-    end
-
-    output: spike
-
-    update:
-        # in order to generate an ast
-    end
-
 end

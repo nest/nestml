@@ -26,16 +26,6 @@
 */
 
 neuron CoCoIncorrectReturnStatement:
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
-
     function foo() mV:
         test mV = 10mV
 
@@ -62,5 +52,4 @@ neuron CoCoIncorrectReturnStatement:
         test mV = 10mV
         test = test*2
     end
-
 end

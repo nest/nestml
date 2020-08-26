@@ -24,9 +24,4 @@ neuron BlockTest:
     state:
         V_m mV = (10 pA) / (100 pF) * (1 ms)
     end
-    update:
-    end
-    input:
-    end
-    output: spike
 end
