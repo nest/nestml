@@ -27,13 +27,4 @@ neuron CoCoVariableWithSameNameAsUnit:
     state:
         eV mV = 1 mV # should not conflict with predefined unit eV but throw a warning
     end
-    
-    update:
-    end
-
-    input:
-    end
-
-    output: spike
-
 end

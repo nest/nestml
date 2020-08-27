@@ -28,14 +28,4 @@ neuron CoCoElementInSameLine:
     state:
         test1 integer = 1 # no recursive definition occurred, thus everthing correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

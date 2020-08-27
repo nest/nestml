@@ -26,7 +26,6 @@
 */
 
 neuron CoCoConvolveNotCorrectlyProvided:
-
     state:
         g_ex mV = 10mV
     end
@@ -41,13 +40,7 @@ neuron CoCoConvolveNotCorrectlyProvided:
         V_m' = 20 mV/ms
     end
 
-    update:
-        # required for creation of a correct ast
-    end
-
     input:
         spikeExc integer  <- excitatory spike
     end
-
-    output: spike
 end

@@ -24,9 +24,4 @@ neuron BlockTest:
     state:
         V mV = -70. mV
     end
-    update:
-    end
-    input:
-    end
-    output: spike
 end

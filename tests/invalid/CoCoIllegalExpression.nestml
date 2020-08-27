@@ -54,14 +54,5 @@ neuron CoCoIllegalExpression:
         # here it should detect that from and to are not primitive numbers
         for i in mlVolt...mlVolt+10mV step 10:
         end
-
-
     end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
-
 end

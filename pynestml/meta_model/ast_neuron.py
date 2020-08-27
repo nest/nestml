@@ -26,6 +26,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
@@ -228,7 +229,6 @@ class ASTNeuron(ASTNode):
         :rtype: list(ASTEquationsBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTEquationsBlock):
                 ret.append(elem)
@@ -285,7 +285,6 @@ class ASTNeuron(ASTNode):
         :return list of ode-equations
         :rtype list(ASTOdeEquation)
         """
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         ret = list()
         blocks = self.get_equations_blocks()
         # the get equations block is not deterministic method, it can return a list or a single object.
@@ -303,7 +302,6 @@ class ASTNeuron(ASTNode):
         :rtype: list(ASTInputBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_input_block import ASTInputBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTInputBlock):
                 ret.append(elem)
@@ -319,7 +317,6 @@ class ASTNeuron(ASTNode):
         :return: a list of all input buffers.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -611,6 +608,37 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
+    def get_ode_defined_symbols(self):
+        """
+        Returns a list of all variable symbols which have been defined in th initial_values blocks
+        and are provided with an ode.
+        :return: a list of initial value variables with odes
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and \
+                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
+    def get_state_symbols_without_ode(self):
+        """
+        Returns a list of all elements which have been defined in the state block.
+        :return: a list of of state variable symbols.
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and \
+                    symbol.block_type == BlockType.STATE and not symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
     def is_array_buffer(self):
         """
         This method indicates whether this neuron uses buffers defined vector-wise.
@@ -674,7 +702,6 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
-        #print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)

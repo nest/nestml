@@ -22,14 +22,10 @@
  *  This test is used to test the correct derivation of types when functions use templated type parameters.
 */
 
-
 neuron templated_function_parameters_type_test:
     state:
        force N
        foo real
-    end
-
-    parameters:
     end
 
     update:
@@ -39,11 +35,4 @@ neuron templated_function_parameters_type_test:
         force = max(1 A, 10 A)
         foo = max(1, 3.14)
     end
-
-    input:
-        # required for construction of a correct ast
-    end
-
-    output: spike
-
 end

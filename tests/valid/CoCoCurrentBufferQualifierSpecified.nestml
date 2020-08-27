@@ -26,13 +26,7 @@
 */
 
 neuron CoCoCurrentBufferQualifierSpecified:
-    update:
-        # required for creation of a correct ast
-    end
-
     input:
         currents pA <- current   # no qualifier specified for current port, thus correct
     end
-
-    output: spike
 end

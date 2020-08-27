@@ -26,19 +26,7 @@
 */
 
 neuron CoCoNestNamespaceCollision:
-
     function handle(Tau_1 mV):# <- function 'handle' already in nest namespace
         return
     end
-
-    update:
-        # required for construction of a correct ast
-    end
-
-    input:
-        # required for construction of a correct ast
-    end
-
-    output: spike
-
 end

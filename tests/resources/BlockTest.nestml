@@ -34,13 +34,4 @@ neuron BlockTest:
             end
         end
     end
-
-    input:
-        # required for correct construction of the ast
-    end
-
-    output: spike
-
-
-
 end

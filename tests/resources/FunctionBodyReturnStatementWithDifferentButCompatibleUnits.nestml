@@ -21,14 +21,7 @@
  *
 */
 neuron BlockTest:
-    state:
-    end
     function foo(bar mV)V:
         return bar
     end
-    update:
-    end
-    input:
-    end
-    output: spike
 end
