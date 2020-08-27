@@ -44,6 +44,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -272,39 +273,42 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
 
 
-    def analyse_neuron(self, neuron: ASTNeuron) -> None:
+    def analyse_neuron(self, neuron: ASTNeuron) -> List[ASTAssignment]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
+        :return: spike_updates: list of spike updates, see documentation for get_spike_update_expressions() for more information.
         """
         code, message = Messages.get_start_processing_neuron(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
         equations_block = neuron.get_equations_block()
 
-        if equations_block is not None:
-            delta_factors = self.get_delta_factors_(neuron, equations_block)
-            shape_buffers = self.generate_shape_buffers_(neuron, equations_block)
-            self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
-            self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
-            self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+        if equations_block is None:
+            return []
 
-            analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
-            self.analytic_solver[neuron.get_name()] = analytic_solver
-            self.numeric_solver[neuron.get_name()] = numeric_solver
-            self.remove_initial_values_for_shapes(neuron)
-            shapes = self.remove_shape_definitions_from_equations_block(neuron)
-            self.remove_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
-            self.remove_ode_definitions_from_equations_block(neuron)
-            self.create_initial_values_for_odetb_shapes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
-            self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
-            self.add_timestep_symbol(neuron)
+        delta_factors = self.get_delta_factors_(neuron, equations_block)
+        shape_buffers = self.generate_shape_buffers_(neuron, equations_block)
+        self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
+        self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+        self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
 
-            if not self.analytic_solver[neuron.get_name()] is None:
-                neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+        analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
+        self.analytic_solver[neuron.get_name()] = analytic_solver
+        self.numeric_solver[neuron.get_name()] = numeric_solver
+        self.remove_initial_values_for_shapes(neuron)
+        shapes = self.remove_shape_definitions_from_equations_block(neuron)
+        self.remove_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
+        self.remove_ode_definitions_from_equations_block(neuron)
+        self.create_initial_values_for_odetb_shapes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
+        self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+        self.add_timestep_symbol(neuron)
 
-            self.update_symbol_table(neuron, shape_buffers)
-            spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
+        if not self.analytic_solver[neuron.get_name()] is None:
+            neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+
+        self.update_symbol_table(neuron, shape_buffers)
+        spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates
 
@@ -603,7 +607,7 @@ class NESTCodeGenerator(CodeGenerator):
                     add_declaration_to_initial_values(neuron, var_name, expr)
 
 
-    def get_spike_update_expressions(self, neuron, shape_buffers, solver_dicts, delta_factors):
+    def get_spike_update_expressions(self, neuron: ASTNeuron, shape_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
         """
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
