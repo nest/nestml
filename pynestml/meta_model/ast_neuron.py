@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Optional, Union, List, Dict
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_input_block import ASTInputBlock
@@ -26,12 +26,12 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_source_location import ASTSourceLocation
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.ast_source_location import ASTSourceLocation
 
 def symbol_by_name(name, symbols):
     """get a symbol from a list of symbols by the given name"""
@@ -222,11 +222,10 @@ class ASTNeuron(ASTNode):
             return None
         return ret
 
-    def get_equations_blocks(self):
+    def get_equations_blocks(self) -> Optional[Union[ASTEquationsBlock, List[ASTEquationsBlock]]]:
         """
-        Returns a list of all equations BLOCKS defined in this body.
+        Returns a list of all ``equations`` blocks defined in this body.
         :return: a list of equations-blocks.
-        :rtype: list(ASTEquationsBlock)
         """
         ret = list()
         for elem in self.get_body().get_body_elements():
@@ -246,8 +245,7 @@ class ASTNeuron(ASTNode):
         """
         return self.get_equations_blocks()
 
-    def remove_equations_block(self):
-        # type: (...) -> None
+    def remove_equations_block(self) -> None:
         """
         Deletes all equations blocks. By construction as checked through cocos there is only one there.
         """
@@ -671,6 +669,16 @@ class ASTNeuron(ASTNode):
                 if decl.has_invariant():
                     ret.append(decl.get_invariant())
         return ret
+
+    def create_empty_update_block(self):
+        """
+        Create an empty update block. Only makes sense if one does not already exist.
+        """
+        assert self.get_update_blocks() is None or len(self.get_update_blocks()) == 0, "create_empty_update_block() called although update block already present"
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
+        update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
+        self.get_body().get_body_elements().append(update_block)
 
     def add_to_internal_block(self, declaration, index=-1):
         # todo by KP: factor me out to utils

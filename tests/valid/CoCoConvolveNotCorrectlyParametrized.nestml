@@ -27,13 +27,17 @@
 
 neuron CoCoConvolveNotCorrectlyParametrized:
 
+    parameters:
+        tau ms = 20 ms
+    end
+
     initial_values:
         G real = 1.
     end
 
     equations:
-        shape G' = -G
-        function testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
+        shape G' = -G / tau
+        inline testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
     end
 
     input:

@@ -44,7 +44,7 @@ class CoCoShapeType(CoCo):
 
 class ShapeTypeVisitor(ASTVisitor):
     """
-    This visitor checks if each buffer has a datatype selected according to the coco.
+    This visitor checks if each shape has the appropriate datatype.
     """
 
     def visit_ode_shape(self, node):

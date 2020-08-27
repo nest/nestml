@@ -335,12 +335,17 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 {%-   endif %}
 {%- endfor %}
 
+    // NESTML generated code for the update block:
+
+{%- if neuron.get_update_blocks() %}
 {%- filter indent(2,True) %}
 {%- set dynamics = neuron.get_update_blocks() %}
 {%- with ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" -%}
+{%-   include "directives/Block.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
+{%- endif %}
+
     // voltage logging
     B_.logger_.record_data(origin.get_steps()+lag);
   }
