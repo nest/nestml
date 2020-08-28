@@ -398,7 +398,8 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
 
-        namespace['uses_numeric_solver'] = not self.numeric_solver[neuron.get_name()] is None
+        namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+                                           and not self.numeric_solver[neuron.get_name()] is None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
             namespace['numeric_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables'] }
