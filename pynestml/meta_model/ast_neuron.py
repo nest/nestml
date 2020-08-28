@@ -519,7 +519,6 @@ class ASTNeuron(ASTNode):
 
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
-        
         iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
@@ -529,23 +528,23 @@ class ASTNeuron(ASTNode):
         #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
         return iv_syms
 
-    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
+    def get_shape_by_name(self, shape_name: str) -> Optional[ASTOdeShape]:
         assert type(shape_name) is str
         shape_name = shape_name.split("__X__")[0]
+
+        if not self.get_equations_block():
+            return None
 
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
-                #print("Is shape " + str(shape_name) + "? YES")
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                #print("Is shape " + str(shape_name) + "? YES2")
                 return decl
 
-        #print("Is shape " + str(shape_name) + "? NO")
         return None
 
 
@@ -689,7 +688,6 @@ class ASTNeuron(ASTNode):
         """
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
-        #print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
         n_declarations = len(self.get_internals_blocks().get_declarations())
         if n_declarations == 0:
             index = 0
@@ -715,7 +713,6 @@ class ASTNeuron(ASTNode):
         self.get_initial_blocks().get_declarations().append(declaration)
         declaration.update_scope(self.get_initial_blocks().get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        #from pynestml.symbols.variable_symbol import BlockType
 
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INITIAL_VALUES)
@@ -726,8 +723,7 @@ class ASTNeuron(ASTNode):
         assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
         assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
 
-    def add_shape(self, shape):
-        # type: (ASTOdeShape) -> None
+    def add_shape(self, shape: ASTOdeShape) -> None:
         """
         Adds the handed over declaration to the initial values block.
         :param shape: a single declaration.
