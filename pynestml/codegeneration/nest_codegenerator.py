@@ -381,7 +381,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
 
         namespace['initial_values'] = {}
-        namespace['uses_analytic_solver'] = not self.analytic_solver[neuron.get_name()] is None
+        namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+                                            and not self.analytic_solver[neuron.get_name()] is None
         if namespace['uses_analytic_solver']:
             namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
             namespace['analytic_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
