@@ -100,8 +100,8 @@ class MessageCode(Enum):
     UNKNOWN_TYPE = 71
     ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 72
     SHAPE_WRONG_TYPE = 73
-    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 74
-
+    SHAPE_IV_WRONG_TYPE = 74
+    EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
 
 class Messages(object):
     """
@@ -1133,6 +1133,18 @@ class Messages(object):
             expected_type_str = "s**-%d" % differential_order
         message = 'Shape \'%s\' was found to be of type \'%s\' (should be %s)!' % (shape_name, actual_type, expected_type_str)
         return MessageCode.SHAPE_WRONG_TYPE, message
+
+
+    @classmethod
+    def get_shape_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
+        """
+        Returns a message indicating that the type of a shape initial value is wrong.
+        :param shape_name: the name of the initial value variable
+        :param actual_type: the name of the actual type that was found in the model
+        :param expected_type: the name of the type that was expected
+        """
+        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
+        return MessageCode.SHAPE_IV_WRONG_TYPE, message
 
 
     @classmethod
