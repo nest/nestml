@@ -768,9 +768,10 @@ class NESTCodeGenerator(CodeGenerator):
                 odetoolbox_indict["dynamics"].append(entry)
 
         odetoolbox_indict["parameters"] = {}
-        for decl in parameters_block.get_declarations():
-            for var in decl.variables:
-                odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
+        if not parameters_block is None:
+            for decl in parameters_block.get_declarations():
+                for var in decl.variables:
+                    odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
 
         return odetoolbox_indict
 
