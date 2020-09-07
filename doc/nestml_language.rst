@@ -289,7 +289,7 @@ Declarations can be enriched with special comments which are then taken into gen
    This is a multiline comment in Python syntax.
    """
 
-To enable NESTML to recognize the commented element uniquely, the following approach has to be used: The comment and its target do not have to be separated by a white line, i.e., a white line between a model element and a comment indicates, that the comment does not belong to this element, e.g.:
+To enable NESTML to recognize the commented element uniquely, the following approach has to be used: there should be no white line separating the comment and its target. For example:
 
 .. code-block:: nestml
 
@@ -356,7 +356,7 @@ e.g.
 
 .. code-block:: nestml
 
-   x = max(a*2, b/2)
+   x = divide(a*2, b/2)
 
 Predefined functions
 ^^^^^^^^^^^^^^^^^^^^
@@ -654,7 +654,7 @@ Block types
 ~~~~~~~~~~~
 
 -  ``neuron <name>`` - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create("<name>")``. All following blocks are contained in this block.
--  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all variables which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
+-  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
 -  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
 -  ``initial_values`` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a ``multimeter``.
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
@@ -664,7 +664,6 @@ Block types
 -  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language. The ``update`` block defines the runtime behavior of the neuron. It contains the logic for state
    and equation `updates <#equations>`__ and `refractoriness <#concepts-for-refractoriness>`__. This block is translated into the ``update`` method in NEST.
 
-The following blocks are mandataroy: **input**, **output** and **update**
 
 Neuronal interactions
 ---------------------
@@ -709,7 +708,7 @@ Spikes arriving at the input port of a neuron can be written as a spike train *s
 
    \large s(t) = \sum_{i=1}^N \delta(t - t_i)
 
-To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha function (bi-exponential), decaying exponential, or a delta function. (See :ref:`Shape functions` for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
+To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Shape functions` for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
 
 .. math::
 
@@ -724,7 +723,8 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
    shape G = exp(-t/tau_syn)
    V_m' = -V_m/tau_m + convolve(G, spikes)
 
-The type of the convolution is equal to the type of the second parameter, 
+The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Shapes themselves as always untyped.
+
 
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -797,30 +797,23 @@ Each neuron model can only send a single type of event. The type of the event ha
 
 Please note that this block is **not** terminated with the ``end`` keyword.
 
+
 Handling of time
 ----------------
 
 To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
 
--  ``resolution`` returns the current resolution of the simulation in ms. This can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
+-  ``resolution`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
 -  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
 
 These functions can be used to implement custom buffer lookup logic but should be used with care.
 
+
 Equations
 ---------
 
-Shape functions
-~~~~~~~~~~~~~~~
-
-A `shape` is a function of *t* (which represents the current time of the system), that corresponds to the shape of a postsynaptic response, i.e. the function :math:`I_{shape}(t)` with which incoming spike weights :math:`w` are multiplied to compose the synaptic input :math:`I_{syn}`:
-
-.. math::
-
-   \large I_{\text{syn}}=\sum_{t_i\le t,~i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)
-
 Systems of ODEs
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
 
 In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say ``V``, one must write: ``V'``. It is then assumed that ``V'`` is the first time derivate of ``V``. The second time derivative of ``V`` is ``V''``, and so on. If an equation contains a derivative of order :math:`n`, for example, :math:`V^{(n)}`, all initial values of :math:`V` up to order :math:`n-1` must be defined in the ``state`` block. For example, if stating
 
@@ -834,9 +827,10 @@ in the ``equations`` block,
 
    V mV = 0 mV
 
-has to be stated in the ``initial_values`` block. If the initial values are not defined in ``initial_values`` it is assumed that they are zero and unit checks are no longer possible, thus an error message is generated.
+has to be stated in the ``initial_values`` block. Otherwise, an error message is generated.
 
 The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
+
 
 Inline expressions
 ^^^^^^^^^^^^^^^^^^
@@ -848,9 +842,102 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
    inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
    IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
 
+Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
+
+
+Shape functions
+~~~~~~~~~~~~~~~
+
+A `shape` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying shape could be described as a direct function of time, as follows:
+
+.. code-block:: nestml
+
+   shape g = exp(-t / tau)
+
+with time constant, for example, equal to 20 ms:
+
+.. code-block:: nestml
+
+   parameters:
+     tau ms = 20 ms
+   end
+
+The start at time :math:`t \geq 0` is an implicit assumption for all shapes.
+
+Equivalently, the same exponentially decaying shape can be formulated as a differential equation:
+
+.. code-block:: nestml
+
+   shape g' = -g / tau
+
+In this case, initial values have to be specified up to the order of the differential equation, e.g.:
+
+.. code-block:: nestml
+
+   initial_values:
+     g real = 1
+   end
+
+Here, the ``1`` defines the peak value of the kernel at :math:`t = 0`.
+
+An example second-order kernel is the dual exponential ("alpha") shape, which can be defined in three equivalent ways.
+
+(1) As a direct function of time:
+
+    .. code-block:: nestml
+
+       shape g = (e/tau) * t * exp(-t/tau)
+
+(2) As a system of coupled first-order differential equations:
+
+    .. code-block:: nestml
+
+       shape g' = g$ - g  / tau,
+             g$' = -g$ / tau
+
+    with initial values:
+
+    .. code-block:: nestml
+
+       initial_values:
+         g real = 0
+         g$ real = 1
+       end
+       
+	Note that the types of both differential equations are :math:`\text{ms}^{-1}`.
+
+(3) As a second-order differential equation:
+
+    .. code-block:: nestml
+
+       shape g'' = (-2/tau) * g' - 1/tau**2) * g
+
+    with initial values:
+
+    .. code-block:: nestml
+
+       initial_values:
+         g real = 0
+         g' ms**-1 = e / tau
+       end
+
+A Dirac delta impulse shape can be defined by using the predefined function ``delta``:
+
+.. code-block:: nestml
+
+   shape g = delta(t)
+
+
+Solver selection
+~~~~~~~~~~~~~~~~
+
+Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
+
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
+
 
 Dynamics and time evolution
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 Inside the ``update`` block, the current time can be accessed via the variable ``t``.
 
@@ -858,13 +945,6 @@ Inside the ``update`` block, the current time can be accessed via the variable `
 
 ``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
 
-
-Solver selection
-----------------
-
-Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
-
-In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of the ``gsl_error_tol`` is ``1e-3``.
 
 Concepts for refractoriness
 ---------------------------
@@ -891,12 +971,14 @@ In order to model refractory and non-refractory states, two variables are necess
      end
    end
 
+
 Setting and retrieving model properties
 ---------------------------------------
 
 -  All variables in the ``state``, ``parameters`` and ``initial_values`` blocks are added to the status dictionary of the neuron.
 -  Values can be set using ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>`` is the name of the corresponding NESTML variable.
 -  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This call will return the value of the corresponding NESTML variable.
+
 
 Recording values with devices
 -----------------------------
@@ -909,6 +991,7 @@ Recording values with devices
    parameters:
      recordable t_ref ms = 5 ms
    end
+
 
 Guards
 ------
