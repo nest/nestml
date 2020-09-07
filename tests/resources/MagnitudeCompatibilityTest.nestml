@@ -22,17 +22,12 @@
  *  Test the implicit conversions between units of matching base types.
  */
 
-
 neuron expressionType_test:
     state:
        volts V
        milliVolts mV
        bigComplexUnit V/C
        smallComplelxUnit mV/C
-    end
-
-    parameters:
-
     end
 
     update:
@@ -48,13 +43,5 @@ neuron expressionType_test:
 
         #multi-layered casts:
         volts = milliVolts + (volts + milliVolts)
-
     end
-
-    input:
-        # required for construction of a correct ast
-    end
-
-    output: spike
-
 end

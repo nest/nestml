@@ -1,24 +1,30 @@
 """
-Name: wb_cond_exp - Wang buzsaki model
+wb_cond_exp - Wang-Buzsaki model
+################################
 
-Description:
+Description
++++++++++++
 
-wb_cond_exp is an implementation of a modified Hodkin-Huxley model
-(1) Post-synaptic currents
- Incoming spike events induce a post-synaptic change of conductance modeled
- by an exponential function.
+wb_cond_exp is an implementation of a modified Hodkin-Huxley model.
 
-(2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
+(1) Post-synaptic currents: Incoming spike events induce a post-synaptic change
+    of conductance modeled by an exponential function.
 
-References:
+(2) Spike Detection: Spike detection is done by a combined threshold-and-local-
+    maximum search: if there is a local maximum above a certain threshold of
+    the membrane potential, it is considered a spike.
 
-Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic inhibition in a hippocampal interneuronal network model. Journal of neuroscience, 16(20), pp.6402-6413.
+References
+++++++++++
 
+.. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
+       inhibition in a hippocampal interneuronal network model. Journal of
+       neuroscience, 16(20), pp.6402-6413.
 
-SeeAlso: hh_cond_exp_traub
+See Also
+++++++++
+
+hh_cond_exp_traub, wb_cond_multisyn
 """
 neuron wb_cond_exp:
   state:

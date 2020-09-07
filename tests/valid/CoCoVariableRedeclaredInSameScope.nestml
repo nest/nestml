@@ -25,7 +25,6 @@
  * Positive case.
 */
 neuron CoCoVariableRedeclaredInSameScope:
-
     state:
         test1 integer = 10
     end
@@ -33,11 +32,4 @@ neuron CoCoVariableRedeclaredInSameScope:
     parameters:
         test2 integer = 11 # no redeclaration occurred
     end
-
-    input:
-        # required for correct construction of the ast
-    end
-
-    output: spike
-
 end

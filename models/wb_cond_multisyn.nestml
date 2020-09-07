@@ -1,23 +1,30 @@
 """
-Name: wb_cond_multisyn - Wang buzsaki model with 
+wb_cond_multisyn - Wang-Buzsaki model with multiple synapses
+############################################################
 
-Description:
+Description
++++++++++++
 
-wb_cond_multisyn is an implementation of a modified Hodkin-Huxley model
+wb_cond_multisyn is an implementation of a modified Hodkin-Huxley model.
 
-Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
+Spike detection is done by a combined threshold-and-local-maximum search: if
+there is a local maximum above a certain threshold of the membrane potential,
+it is considered a spike.
 
-- AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
- beta-function (difference of two exponentials) time course.
+AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+beta-function (difference of two exponentials) time course.
 
-References:
+References
+++++++++++
 
-Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic inhibition in a hippocampal interneuronal network model. Journal of neuroscience, 16(20), pp.6402-6413.
+.. [1] Wang, X.J. and Buzsaki, G., (1996) Gamma oscillation by synaptic
+       inhibition in a hippocampal interneuronal network model. Journal of
+       Neuroscience, 16(20), pp.6402-6413.
 
-SeeAlso: hill_tononi
+See also
+++++++++
+
+wb_cond_multisyn
 """
 
 neuron wb_cond_multisyn:

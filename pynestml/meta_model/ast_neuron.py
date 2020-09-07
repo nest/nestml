@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Optional, Union, List, Dict
 
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_input_block import ASTInputBlock
@@ -31,6 +31,7 @@ from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
+from pynestml.utils.ast_source_location import ASTSourceLocation
 
 def symbol_by_name(name, symbols):
     """get a symbol from a list of symbols by the given name"""
@@ -221,14 +222,12 @@ class ASTNeuron(ASTNode):
             return None
         return ret
 
-    def get_equations_blocks(self):
+    def get_equations_blocks(self) -> Optional[Union[ASTEquationsBlock, List[ASTEquationsBlock]]]:
         """
-        Returns a list of all equations BLOCKS defined in this body.
+        Returns a list of all ``equations`` blocks defined in this body.
         :return: a list of equations-blocks.
-        :rtype: list(ASTEquationsBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTEquationsBlock):
                 ret.append(elem)
@@ -246,8 +245,7 @@ class ASTNeuron(ASTNode):
         """
         return self.get_equations_blocks()
 
-    def remove_equations_block(self):
-        # type: (...) -> None
+    def remove_equations_block(self) -> None:
         """
         Deletes all equations blocks. By construction as checked through cocos there is only one there.
         """
@@ -285,7 +283,6 @@ class ASTNeuron(ASTNode):
         :return list of ode-equations
         :rtype list(ASTOdeEquation)
         """
-        from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
         ret = list()
         blocks = self.get_equations_blocks()
         # the get equations block is not deterministic method, it can return a list or a single object.
@@ -303,7 +300,6 @@ class ASTNeuron(ASTNode):
         :rtype: list(ASTInputBlock)
         """
         ret = list()
-        from pynestml.meta_model.ast_input_block import ASTInputBlock
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTInputBlock):
                 ret.append(elem)
@@ -319,7 +315,6 @@ class ASTNeuron(ASTNode):
         :return: a list of all input buffers.
         :rtype: list(VariableSymbol)
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
@@ -524,7 +519,6 @@ class ASTNeuron(ASTNode):
 
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
-        
         iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
@@ -534,23 +528,23 @@ class ASTNeuron(ASTNode):
         #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
         return iv_syms
 
-    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
+    def get_shape_by_name(self, shape_name: str) -> Optional[ASTOdeShape]:
         assert type(shape_name) is str
         shape_name = shape_name.split("__X__")[0]
+
+        if not self.get_equations_block():
+            return None
 
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
-                #print("Is shape " + str(shape_name) + "? YES")
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                #print("Is shape " + str(shape_name) + "? YES2")
                 return decl
 
-        #print("Is shape " + str(shape_name) + "? NO")
         return None
 
 
@@ -611,6 +605,37 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
+    def get_ode_defined_symbols(self):
+        """
+        Returns a list of all variable symbols which have been defined in th initial_values blocks
+        and are provided with an ode.
+        :return: a list of initial value variables with odes
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and \
+                    symbol.block_type == BlockType.INITIAL_VALUES and symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
+    def get_state_symbols_without_ode(self):
+        """
+        Returns a list of all elements which have been defined in the state block.
+        :return: a list of of state variable symbols.
+        :rtype: list(VariableSymbol)
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and \
+                    symbol.block_type == BlockType.STATE and not symbol.is_ode_defined() \
+                    and not symbol.is_predefined:
+                ret.append(symbol)
+        return ret
+
     def is_array_buffer(self):
         """
         This method indicates whether this neuron uses buffers defined vector-wise.
@@ -644,6 +669,16 @@ class ASTNeuron(ASTNode):
                     ret.append(decl.get_invariant())
         return ret
 
+    def create_empty_update_block(self):
+        """
+        Create an empty update block. Only makes sense if one does not already exist.
+        """
+        assert self.get_update_blocks() is None or len(self.get_update_blocks()) == 0, "create_empty_update_block() called although update block already present"
+        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+        block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
+        update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
+        self.get_body().get_body_elements().append(update_block)
+
     def add_to_internal_block(self, declaration, index=-1):
         # todo by KP: factor me out to utils
         """
@@ -653,7 +688,6 @@ class ASTNeuron(ASTNode):
         """
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
-        #print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
         n_declarations = len(self.get_internals_blocks().get_declarations())
         if n_declarations == 0:
             index = 0
@@ -674,13 +708,11 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
-        #print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
         declaration.update_scope(self.get_initial_blocks().get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        #from pynestml.symbols.variable_symbol import BlockType
 
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INITIAL_VALUES)
@@ -691,8 +723,7 @@ class ASTNeuron(ASTNode):
         assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
         assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
 
-    def add_shape(self, shape):
-        # type: (ASTOdeShape) -> None
+    def add_shape(self, shape: ASTOdeShape) -> None:
         """
         Adds the handed over declaration to the initial values block.
         :param shape: a single declaration.

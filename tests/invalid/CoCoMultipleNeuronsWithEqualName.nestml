@@ -25,25 +25,7 @@
  * Negative case.
 */
 neuron CoCoMultipleNeuronsWithEqualName:
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end
 
 neuron CoCoMultipleNeuronsWithEqualName:
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

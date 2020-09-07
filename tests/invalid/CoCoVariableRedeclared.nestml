@@ -32,11 +32,4 @@ neuron CoCoVariableRedeclared:
         test1 mV = 10mV
         test1 boolean = True
     end
-
-    input:
-        # required for construction of a correct ast
-    end
-
-    output: spike
-
 end

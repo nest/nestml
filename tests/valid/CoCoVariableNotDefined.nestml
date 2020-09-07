@@ -32,10 +32,4 @@ neuron CoCoVariableNotDefined:
     update:
         test1 = 1 # everything is defined previously, thus everything correct
     end
-
-    input:
-        # required for correct construction of the ast
-    end
-
-    output: spike
 end

@@ -98,7 +98,7 @@ class CoCosTest(unittest.TestCase):
                          'CoCoVariableWithSameNameAsUnit.nestml'))
         self.assertEqual(
             len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)),
-            1)
+            3)
 
     def test_invalid_variable_redeclaration(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -350,7 +350,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)), 0)
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.WARNING)), 2)
 
     def test_invalid_incorrect_return_stmt_detected(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -506,4 +506,37 @@ class CoCosTest(unittest.TestCase):
                          'CoCoOutputPortDefinedIfEmitCall.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_valid_coco_shape_type(self):
+        """
+        Test the functionality of CoCoShapeType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoShapeType.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_coco_shape_type(self):
+        """
+        Test the functionality of CoCoShapeType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoShapeType.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+
+    def test_invalid_coco_shape_type_initial_values(self):
+        """
+        Test the functionality of CoCoShapeType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoShapeTypeInitialValues.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
 

@@ -26,13 +26,7 @@
 */
 
 neuron CoCoSpikeBufferWithoutType:
-    update:
-        # required for creation of a correct ast
-    end
-
     input:
         spikeAll <- spike # spike buffer type not specified
     end
-
-    output: spike
 end

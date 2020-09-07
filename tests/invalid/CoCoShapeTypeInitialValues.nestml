@@ -1,6 +1,6 @@
 /**
  *
- *  DeclarationWithDifferentButCompatibleUnits.nestml
+ *  CoCoShapeCorrectlyTyped.nestml
  *
  *  This file is part of NEST.
  *
@@ -19,9 +19,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
+ *
+ * This model is used to test if broken CoCos are identified correctly.
+ *
+ * Here, the shape is defined with an incorrect type.
+ *
+ * Negative case
 */
-neuron BlockTest:
-    state:
-        V_m mV = (10 pA) / (100 pF) * (1 ms)
+
+neuron CoCoShapeCorrectlyTyped:
+    parameters:
+        tau ms = 10 ms
+    end
+
+    initial_values: # variable is now defined in the initial block, thus everything is correct.
+        g real = 1
+        g' real = 1
+    end
+
+    equations:
+        shape g'' = (-1/tau**2 * g - 2/tau * g') * pA  # wrong type
     end
 end

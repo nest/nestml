@@ -49,17 +49,9 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
             code, message = Messages.get_block_not_defined_correctly('State', False)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        # check that update block is defined exactly once
+        # check that update block is defined at most once
         if isinstance(node.get_update_blocks(), list) and len(node.get_update_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('Update', False)
-            Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        elif node.get_update_blocks() is None:
-            code, message = Messages.get_block_not_defined_correctly('Update', True)
-            Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        elif isinstance(node.get_update_blocks(), list) and len(node.get_update_blocks()) == 0:
-            code, message = Messages.get_block_not_defined_correctly('Update', True)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that parameters block is defined at most once
@@ -103,4 +95,3 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
             code, message = Messages.get_block_not_defined_correctly('Output', True)
             Logger.log_message(code=code, message=message, neuron=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.WARNING)
-        return

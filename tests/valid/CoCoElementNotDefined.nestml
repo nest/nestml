@@ -29,15 +29,4 @@ neuron CoCoElementNotDefined:
         test integer = 0
         test1 integer = test +1 # all reference are defined and declared, thus everything correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
-
 end
