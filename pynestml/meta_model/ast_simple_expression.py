@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import numpy as np
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -166,11 +168,10 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.numeric_literal is not None
 
-    def get_boolean_literal(self):
+    def get_boolean_literal(self) -> Optional[bool]:
         """
-        Returns whether it is a numeric literal or not.
-        :return: True if numeric literal, otherwise False.
-        :rtype: bool
+        Returns boolean literal if available, otherwise None.
+        :return: boolean literal if ASTSimpleExpression is boolean literal, otherwise None
         """
         if self.is_boolean_true:
             return True
