@@ -23,7 +23,7 @@ from pynestml.meta_model.ast_node import ASTNode
 
 class ASTOdeShape(ASTNode):
     """
-    This class is used to store shapes. 
+    This class is used to store shapes.
     Grammar:
         odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
     """
@@ -97,14 +97,14 @@ class ASTOdeShape(ASTNode):
         """
         Indicates whether this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: AST_
+        :type ast: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        :rtype: ASTNode or None
         """
         for var in self.get_variables():
             if var is ast:
                 return self
-            
+
             if var.get_parent(ast) is not None:
                 return var.get_parent(ast)
 
