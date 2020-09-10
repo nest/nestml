@@ -1,5 +1,5 @@
 #
-# idempotent_reference_converter.py
+# ode_toolbox_reference_converter.py
 #
 # This file is part of NEST.
 #
