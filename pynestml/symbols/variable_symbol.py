@@ -316,12 +316,11 @@ class VariableSymbol(Symbol):
         """
         self.ode_or_shape = expression
 
-    def is_conductance_based(self):
+    def is_conductance_based(self) -> bool:
         """
         Indicates whether this element is conductance based, based on the physical units of the spike buffer. If the unit can be cast to Siemens, the function returns True, otherwise it returns False.
-        
+
         :return: True if conductance based, otherwise False.
-        :rtype: bool
         """
         is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))
         is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
@@ -329,8 +328,7 @@ class VariableSymbol(Symbol):
             code, message = Messages.get_could_not_determine_cond_based(type_str=self.type_symbol.print_nestml_type(), name=self.name)
             Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING, error_position=ASTSourceLocation.get_added_source_position())
             return False
-                        
-        #print("Units: " + str(self.type_symbol.unit.unit) + " -> condbased = " + str(is_cond_based))
+
         return is_cond_based
 
     def get_variable_type(self):
