@@ -507,16 +507,6 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
 
-        """from pynestml.symbols.variable_symbol import BlockType
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) \
-             and symbol.block_type == BlockType.INITIAL_VALUES \
-             and not symbol.is_predefined:
-                ret.append(symbol)
-        return ret"""
-
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
         iv_blk = self.get_initial_values_blocks()
@@ -525,7 +515,6 @@ class ASTNeuron(ASTNode):
                 iv_sym = symbol_by_name(var.get_complete_name(), symbols)
                 assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
                 iv_syms.append(iv_sym)
-        #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
         return iv_syms
 
     def get_shape_by_name(self, shape_name: str) -> Optional[ASTOdeShape]:
