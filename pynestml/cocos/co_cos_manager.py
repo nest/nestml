@@ -174,7 +174,7 @@ class CoCosManager(object):
         CoCoBufferQualifierUnique.check_co_co(neuron)
 
     @classmethod
-    def check_shape_type(cls, neuron):
+    def check_shape_type(cls, neuron: ASTNeuron) -> None:
         """
         Checks that all defined shapes have type real.
         """
