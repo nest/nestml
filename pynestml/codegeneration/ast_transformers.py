@@ -222,7 +222,8 @@ def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
 
 
 def variable_in_solver(shape_var: str, solver_dicts):
-    """Check if a variable by this name is defined in the ode-toolbox solver results
+    """
+    Check if a variable by this name is defined in the ode-toolbox solver results,
     """
 
     for solver_dict in solver_dicts:
