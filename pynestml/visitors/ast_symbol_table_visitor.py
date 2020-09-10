@@ -581,13 +581,6 @@ def add_ode_to_variable(ode_equation):
     :param ode_equation: a single ode-equation
     :type ode_equation: ast_ode_equation
     """
-
-    # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
-    #diff_order = ode_equation.get_lhs().get_differential_order() - 1
-    # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-    #existing_symbol = (ode_equation.get_scope().resolve_to_symbol(ode_equation.get_lhs().get_name() + '\'' * diff_order,
-                                                                  #SymbolKind.VARIABLE))
-                                                                  
     for diff_order in range(ode_equation.get_lhs().get_differential_order()):
         var_name = ode_equation.get_lhs().get_name() + "'" * diff_order
         existing_symbol = ode_equation.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
@@ -605,15 +598,13 @@ def add_ode_to_variable(ode_equation):
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)
 
-    return
-
 
 def add_ode_shape_to_variable(shape):
     """
     Adds the shape as the defining equation.
-    
+
     If the definition of the shape is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their shape definition and variable type set.
-    
+
     :param shape: a single shape object.
     :type shape: ASTOdeShape
     """
@@ -621,7 +612,7 @@ def add_ode_shape_to_variable(shape):
      and shape.get_variables()[0].get_differential_order() == 0:
         # we only update those which define an ODE; skip "direct function of time" specifications
         return
-    
+
     for var, expr in zip(shape.get_variables(), shape.get_expressions()):
         for diff_order in range(var.get_differential_order()):
             var_name = var.get_name() + "'" * diff_order
