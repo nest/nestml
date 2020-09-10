@@ -726,7 +726,7 @@ For example, say there is a spiking input port defined named ``spikes``. A decay
    shape G = exp(-t/tau_syn)
    V_m' = -V_m/tau_m + convolve(G, spikes)
 
-The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Shapes themselves as always untyped.
+The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Shapes themselves are always untyped.
 
 
 Multiple input synapses
