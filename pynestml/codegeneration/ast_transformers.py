@@ -213,7 +213,6 @@ def add_state_updates(neuron: ASTNeuron, update_expressions: Mapping[str, str]) 
     return neuron
 
 
-
 def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
     for decl in neuron.get_initial_blocks().get_declarations():
         assert len(decl.get_variables()) == 1, "Multiple declarations in the same statement not yet supported"
@@ -239,7 +238,6 @@ def variable_in_solver(shape_var: str, solver_dicts):
     return False
 
 
-
 def is_ode_variable(var_base_name, neuron):
     equations_block = neuron.get_equations_blocks()
     for ode_eq in equations_block.get_ode_equations():
@@ -250,7 +248,8 @@ def is_ode_variable(var_base_name, neuron):
 
 
 def variable_in_shapes(var_name: str, shapes):
-    """Check if a variable by this name (in ode-toolbox style) is defined in the ode-toolbox solver results
+    """
+    Check if a variable by this name (in ode-toolbox style) is defined in the ode-toolbox solver results
     """
 
     var_name_base = var_name.split("__X__")[0]
@@ -266,7 +265,8 @@ def variable_in_shapes(var_name: str, shapes):
 
 
 def get_initial_value_from_odetb_result(var_name: str, solver_dicts):
-    """Get the initial value of the variable with the given name from the ode-toolbox results JSON.
+    """
+    Get the initial value of the variable with the given name from the ode-toolbox results JSON.
 
     N.B. the variable name is given in ode-toolbox notation.
     """
@@ -282,7 +282,8 @@ def get_initial_value_from_odetb_result(var_name: str, solver_dicts):
 
 
 def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
-    """Get the differential order of the variable with the given name from the ode-toolbox results JSON.
+    """
+    Get the differential order of the variable with the given name from the ode-toolbox results JSON.
 
     N.B. the variable name is given in NESTML notation, e.g. "g_in$"; convert to ode-toolbox export format notation (e.g. "g_in__DOLLAR").
     """
@@ -306,12 +307,16 @@ def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
 
 
 def to_odetb_processed_name(name: str) -> str:
-    """convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible with ode-toolbox output"""
+    """
+    Convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible with ode-toolbox output
+    """
     return name.replace("$", "__DOLLAR").replace("'", "__d")
 
 
 def to_odetb_name(name: str) -> str:
-    """convert to a name suitable for ode-toolbox input"""
+    """
+    Convert to a name suitable for ode-toolbox input
+    """
     return name.replace("$", "__DOLLAR")
 
 
@@ -328,7 +333,6 @@ def construct_shape_X_spike_buf_name(shape_var_name: str, spike_input_port, orde
     assert type(order) is int
     assert type(diff_order_symbol) is str
     return shape_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
-
 
 
 def replace_rhs_variable(expr, variable_name_to_replace, shape_var, spike_buf):
@@ -377,10 +381,10 @@ def replace_rhs_variables(expr, shape_buffers):
             replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace, shape_var=shape_var, spike_buf=spike_buf)
 
 
-
-
 def is_delta_shape(shape):
-    """catches definition of shape, or reference (function call or variable name) of a delta shape function"""
+    """
+    Catches definition of shape, or reference (function call or variable name) of a delta shape function.
+    """
     if type(shape) is ASTOdeShape:
         if not len(shape.get_variables()) == 1:
             # delta shape not allowed if more than one variable is defined in this shape
@@ -412,6 +416,3 @@ def get_delta_shape_prefactor_expr(shape):
      and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
      and expr.binary_operator.is_times_op:
         return str(expr.lhs)
-
-
-
