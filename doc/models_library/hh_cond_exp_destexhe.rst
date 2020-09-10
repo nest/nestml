@@ -165,7 +165,7 @@ Source code
        function I_noise pA = (g_noise_ex * (V_m - E_ex) + g_noise_in * (V_m - E_in))
        function I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
        function I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
-       V_m'=(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + currents + I_e + I_stim - I_noise) / C_m
+       V_m'=(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
 
        /* channel dynamics*/
        function V_rel mV = V_m - V_T
@@ -218,7 +218,7 @@ Source code
      input:
        spikeInh nS <-inhibitory spike
        spikeExc nS <-excitatory spike
-       currents pA <-current
+       I_stim pA <-current
      end
 
      output: spike
