@@ -265,7 +265,7 @@ def variable_in_shapes(var_name: str, shapes):
     return False
 
 
-def get_initial_value_from_odetb_result(var_name: str, solver_dicts):
+def get_initial_value_from_ode_toolbox_result(var_name: str, solver_dicts):
     """
     Get the initial value of the variable with the given name from the ode-toolbox results JSON.
 
@@ -307,14 +307,14 @@ def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
 
 
 
-def to_odetb_processed_name(name: str) -> str:
+def to_ode_toolbox_processed_name(name: str) -> str:
     """
     Convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible with ode-toolbox output
     """
     return name.replace("$", "__DOLLAR").replace("'", "__d")
 
 
-def to_odetb_name(name: str) -> str:
+def to_ode_toolbox_name(name: str) -> str:
     """
     Convert to a name suitable for ode-toolbox input
     """
