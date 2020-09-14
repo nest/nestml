@@ -326,7 +326,7 @@ class CoCosManager(object):
         CoCoIllegalExpression.check_co_co(neuron)
 
     @classmethod
-    def check_simple_delta_function(cls, neuron):
+    def check_simple_delta_function(cls, neuron: ASTNeuron) -> None:
         CoCoSimpleDeltaFunction.check_co_co(neuron)
 
     @classmethod
