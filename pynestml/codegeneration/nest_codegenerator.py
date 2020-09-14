@@ -768,7 +768,7 @@ class NESTCodeGenerator(CodeGenerator):
         Make inline_expressions self contained, i.e. without any references to other inline_expressions.
 
         TODO: it should be a method inside of the ASTInlineExpression
-        TODO by KP: this should be done by means of a visitor
+        TODO: this should be done by means of a visitor
 
         :param inline_expressions: A sorted list with entries ASTInlineExpression.
         :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.

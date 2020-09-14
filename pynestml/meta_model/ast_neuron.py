@@ -669,7 +669,6 @@ class ASTNeuron(ASTNode):
         self.get_body().get_body_elements().append(update_block)
 
     def add_to_internal_block(self, declaration, index=-1):
-        # todo by KP: factor me out to utils
         """
         Adds the handed over declaration the internal block
         :param declaration: a single declaration
@@ -691,7 +690,6 @@ class ASTNeuron(ASTNode):
         symtable_vistor.block_type_stack.pop()
 
     def add_to_initial_values_block(self, declaration):
-        # todo by KP: factor me out to utils
         """
         Adds the handed over declaration to the initial values block.
         :param declaration: a single declaration.

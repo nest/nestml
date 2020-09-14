@@ -84,7 +84,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             else:
                 buffers = (buffer for buffer in node.get_input_blocks().get_input_ports())
             from pynestml.meta_model.ast_ode_shape import ASTOdeShape
-            # todo by KP: ode declarations are not used, is this correct?
+            # todo: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
             #                    not isinstance(decl, ASTOdeShape))
         # now update the equations

@@ -383,7 +383,6 @@ class ASTNestMLPrinter(object):
 
     def print_function(self, node):
         # type: (ASTFunction) -> str
-        # todo by KP: this is still somehow not nice
         ret = print_ml_comments(node.pre_comments, self.indent)
         ret += 'function ' + node.get_name() + '('
         if node.has_parameters():
