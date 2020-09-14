@@ -214,7 +214,8 @@ class NESTCodeGenerator(CodeGenerator):
 
     def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """
-        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted variable name (e.g. `g_ex__DOLLAR__d__d`).
+        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
+        variable name (e.g. `g_ex__DOLLAR__d__d`).
         """
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -298,9 +299,9 @@ class NESTCodeGenerator(CodeGenerator):
         self.numeric_solver[neuron.get_name()] = numeric_solver
         self.remove_initial_values_for_shapes(neuron)
         shapes = self.remove_shape_definitions_from_equations_block(neuron)
-        self.remove_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
+        self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], shapes)
         self.remove_ode_definitions_from_equations_block(neuron)
-        self.create_initial_values_for_ode_toolbox_shapes(neuron, [analytic_solver, numeric_solver], shape_buffers, shapes)
+        self.create_initial_values_for_shapes(neuron, [analytic_solver, numeric_solver], shapes)
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         self.add_timestep_symbol(neuron)
 
@@ -511,18 +512,13 @@ class NESTCodeGenerator(CodeGenerator):
             neuron.get_initial_blocks().get_declarations().remove(decl)
 
 
-    def remove_initial_values_for_odes(self, neuron, solver_dicts, shape_buffers, shapes):
+    def update_initial_values_for_odes(self, neuron, solver_dicts, shapes):
         """
-        Remove initial values for original declarations (e.g. g_in, V_m', g_ahp'') before ODE-toolbox processing
+        Update initial values for original ODE declarations (e.g. g_in, V_m', g_ahp'') that are present in the model
+        before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
         equations_block = neuron.get_equations_block()
-
-        #
-        #   for each variable that can be matched in the ode-toolbox results dictionary:
-        #   - replace the defining expression by the ode-toolbox result
-        #   - unmark for deletion
-        #
 
         for iv_decl in neuron.get_initial_blocks().get_declarations():
             for var in iv_decl.get_variables():
@@ -530,24 +526,16 @@ class NESTCodeGenerator(CodeGenerator):
                 if is_ode_variable(var.get_name(), neuron):
                     assert variable_in_solver(to_ode_toolbox_processed_name(var_name), solver_dicts)
 
-                    #
-                    #   replace the left-hand side variable name by the ode-toolbox format
-                    #
-
+                    # replace the left-hand side variable name by the ode-toolbox format
                     var.set_name(to_ode_toolbox_processed_name(var.get_complete_name()))
                     var.set_differential_order(0)
 
-
-                    #
-                    #   replace the defining expression by the ode-toolbox result
-                    #
-
+                    # replace the defining expression by the ode-toolbox result
                     iv_expr = get_initial_value_from_ode_toolbox_result(to_ode_toolbox_processed_name(var_name), solver_dicts)
                     assert not iv_expr is None
                     iv_expr = ModelParser.parse_expression(iv_expr)
                     iv_expr.update_scope(neuron.get_initial_blocks().get_scope())
                     iv_decl.set_expression(iv_expr)
-
 
 
     def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:
@@ -561,9 +549,9 @@ class NESTCodeGenerator(CodeGenerator):
         return None
 
 
-    def create_initial_values_for_ode_toolbox_shapes(self, neuron, solver_dicts, shape_buffers, shapes):
+    def create_initial_values_for_shapes(self, neuron, solver_dicts, shapes):
         """
-        Add the variables used in ODEs from the ode-toolbox result dictionary as ODEs in NESTML AST
+        Add the variables used in shapes from the ode-toolbox result dictionary as ODEs in NESTML AST
         """
         for solver_dict in solver_dicts:
             if solver_dict is None:
@@ -571,7 +559,6 @@ class NESTCodeGenerator(CodeGenerator):
             for var_name in solver_dict["initial_values"].keys():
                 if variable_in_shapes(var_name, shapes):
                     assert not declaration_in_initial_values(neuron, var_name)  # original initial value expressions should have been removed to make place for ode-toolbox results
-
 
         for solver_dict in solver_dicts:
             if solver_dict is None:
