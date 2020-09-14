@@ -248,7 +248,7 @@ class Logger(object):
                    (neuron.get_name() if neuron is not None else 'GLOBAL') + '", ' + \
                    '"severity":"' \
                    + str(logLevel.name) + '", '
-            if not code is None:
+            if code is not None:
                 ret += '"code":"' + \
                        code.name + \
                        '", '

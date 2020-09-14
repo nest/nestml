@@ -58,7 +58,7 @@ class ASTFunctionCall(ASTNode):
         :rtype: ASTFunctionCall
         """
         function_call_args_dup = None
-        if not self.args is None:
+        if self.args is not None:
             function_call_args_dup = [function_call_arg.clone() for function_call_arg in self.args]
         dup = ASTFunctionCall(callee_name=self.callee_name,
          function_call_args=function_call_args_dup,

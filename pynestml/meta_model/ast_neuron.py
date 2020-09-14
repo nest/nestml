@@ -513,7 +513,7 @@ class ASTNeuron(ASTNode):
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
                 iv_sym = symbol_by_name(var.get_complete_name(), symbols)
-                assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
+                assert iv_sym is not None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
                 iv_syms.append(iv_sym)
         return iv_syms
 
@@ -707,8 +707,8 @@ class ASTNeuron(ASTNode):
         symtable_vistor.block_type_stack.pop()
         #self.get_initial_blocks().accept(symtable_vistor)
         from pynestml.symbols.symbol import SymbolKind
-        assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
-        assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
+        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
+        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
 
     def add_shape(self, shape: ASTOdeShape) -> None:
         """

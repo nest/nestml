@@ -130,7 +130,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.has_return_type():
             node.get_return_type().update_scope(scope)
 
-        if not node.get_block() is None:
+        if node.get_block() is not None:
             node.get_block().update_scope(scope)
 
     def endvisit_function(self, node):

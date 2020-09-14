@@ -115,7 +115,7 @@ class ASTSimpleExpression(ASTExpressionNode):
             boolean_literal = True
         if self.is_boolean_false:
             boolean_literal = False
-        assert function_call_dup or (not boolean_literal is None) or (not numeric_literal_dup is None) or self.is_inf_literal or variable_dup or self.string
+        assert function_call_dup or (boolean_literal is not None) or (numeric_literal_dup is not None) or self.is_inf_literal or variable_dup or self.string
         dup = ASTSimpleExpression(function_call=function_call_dup,
          boolean_literal=boolean_literal,
          numeric_literal=numeric_literal_dup,

@@ -67,7 +67,7 @@ class ASTDataTypeVisitor(ASTVisitor):
             node.set_type_symbol(self.symbol)
 
     def endvisit_data_type(self, node):
-        if node.is_unit_type() and not node.get_unit_type().get_type_symbol() is None:
+        if node.is_unit_type() and node.get_unit_type().get_type_symbol() is not None:
             node.set_type_symbol(node.get_unit_type().get_type_symbol())
         if self.symbol is not None:
             self.result = self.symbol.get_symbol_name()
@@ -91,7 +91,7 @@ class ASTDataTypeVisitor(ASTVisitor):
                 code, message = Messages.unknown_type(str(node.unit))
                 Logger.log_message(None, code, message, node.get_source_position(), LoggingLevel.ERROR)
                 return
-                
+
             node.set_type_symbol(type_s)
             self.symbol = type_s
 

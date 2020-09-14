@@ -202,9 +202,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             # find the corresponding shape object
             var = el[0].get_variable()
-            assert not var is None
+            assert var is not None
             shape = neuron.get_shape_by_name(var.get_name())
-            assert not shape is None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no shape by name \"" + var.get_name() + "\" found in neuron."
+            assert shape is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no shape by name \"" + var.get_name() + "\" found in neuron."
 
             el = (shape, el[1])
             shape_buffers.add(el)
@@ -305,7 +305,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         self.add_timestep_symbol(neuron)
 
-        if not self.analytic_solver[neuron.get_name()] is None:
+        if self.analytic_solver[neuron.get_name()] is not None:
             neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         self.update_symbol_table(neuron, shape_buffers)
@@ -383,7 +383,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
-                                            and not self.analytic_solver[neuron.get_name()] is None
+                                            and self.analytic_solver[neuron.get_name()] is not None
         if namespace['uses_analytic_solver']:
             namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
             namespace['analytic_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
@@ -400,7 +400,7 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
 
         namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
-                                           and not self.numeric_solver[neuron.get_name()] is None
+                                           and self.numeric_solver[neuron.get_name()] is not None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
             namespace['numeric_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables'] }
@@ -532,7 +532,7 @@ class NESTCodeGenerator(CodeGenerator):
 
                     # replace the defining expression by the ode-toolbox result
                     iv_expr = get_initial_value_from_ode_toolbox_result(to_ode_toolbox_processed_name(var_name), solver_dicts)
-                    assert not iv_expr is None
+                    assert iv_expr is not None
                     iv_expr = ModelParser.parse_expression(iv_expr)
                     iv_expr.update_scope(neuron.get_initial_blocks().get_scope())
                     iv_decl.set_expression(iv_expr)
@@ -620,7 +620,7 @@ class NESTCodeGenerator(CodeGenerator):
                 for var_order in range(get_shape_var_order_from_ode_toolbox_result(shape_var.get_name(), solver_dicts)):
                     shape_spike_buf_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_input_port, var_order)
                     expr = get_initial_value_from_ode_toolbox_result(shape_spike_buf_name, solver_dicts)
-                    assert not expr is None, "Initial value not found for shape " + shape_var
+                    assert expr is not None, "Initial value not found for shape " + shape_var
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
                         continue    # skip adding the statement if we're only adding zero
@@ -747,15 +747,15 @@ class NESTCodeGenerator(CodeGenerator):
                     iv_sym_name_ode_toolbox = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_input_port, order, diff_order_symbol="'")
                     symbol_name_ = shape_var.get_name() + "'" * order
                     symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
-                    assert not symbol is None, "Could not find initial value for variable " + symbol_name_
+                    assert symbol is not None, "Could not find initial value for variable " + symbol_name_
                     initial_value_expr = symbol.get_declaring_expression()
-                    assert not initial_value_expr is None, "No initial value found for variable name " + symbol_name_
+                    assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
                     entry["initial_values"][iv_sym_name_ode_toolbox] = gsl_printer.print_expression(initial_value_expr)
 
                 odetoolbox_indict["dynamics"].append(entry)
 
         odetoolbox_indict["parameters"] = {}
-        if not parameters_block is None:
+        if parameters_block is not None:
             for decl in parameters_block.get_declarations():
                 for var in decl.variables:
                     odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
