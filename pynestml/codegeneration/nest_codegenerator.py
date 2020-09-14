@@ -795,7 +795,7 @@ class NESTCodeGenerator(CodeGenerator):
     def replace_inline_expressions_through_defining_expressions(self, definitions, inline_expressions):
         # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
         """
-        Refactors symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
+        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 
         :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made free from.
         :param inline_expressions: A sorted list with entries {"symbol": "name", "definition": "expression"} with inline_expressions which must be replaced in `definitions`.
@@ -818,47 +818,6 @@ class NESTCodeGenerator(CodeGenerator):
                 target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
         return definitions
-
-    def replace_inline_expressions_through_defining_expressions2(self, solver_dicts, inline_expressions):
-        # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
-        """
-        Refactors symbols form `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
-
-        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made
-        free from.
-        :param inline_expressions: A sorted list with entries {"symbol": "name", "definition": "expression"} with inline_expressions which
-        must be replaced in `definitions`.
-        :return: A list with definitions. Expressions in `definitions` don't depend on inline_expressions from `inline_expressions`.
-        """
-
-        def replace_func_by_def_in_expr(expr, inline_expressions):
-            for m in inline_expressions:
-                matcher = re.compile(self._variable_matching_template.format(m.get_variable_name()))
-                expr = re.sub(matcher, "(" + str(m.get_expression()) + ")", expr)
-                target_definition = str(target.get_expression())
-                target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
-                target.expression = ModelParser.parse_expression(target_definition)
-                target.expression.update_scope(source.get_scope())
-                target.expression.accept(ASTSymbolTableVisitor())
-
-                def log_set_source_position(node):
-                    if node.get_source_position().is_added_source_position():
-                        node.set_source_position(source_position)
-
-                target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
-
-            return expr
-
-        for solver_dict in solver_dicts:
-            if solver_dict is None:
-                continue
-
-            for var, expr in solver_dict["update_expressions"].items():
-                solver_dict["update_expressions"][var] = replace_func_by_def_in_expr(expr, inline_expressions)
-
-            if "propagators" in solver_dict.keys():
-                for var, expr in solver_dict["propagators"].items():
-                    solver_dict["propagators"][var] = replace_func_by_def_in_expr(expr, inline_expressions)
 
 
     def store_transformed_model(self, ast):
