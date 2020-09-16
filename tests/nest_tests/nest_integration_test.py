@@ -196,7 +196,7 @@ class NestIntegrationTest(unittest.TestCase):
             neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
             neuron2 = nest.Create(testant, params=custom_model_opts)
 
-            if not (gsl_error_tol is None):
+            if gsl_error_tol is not None:
                 nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
             dc = nest.Create("dc_generator", params={"amplitude": I_stim * 1E12}) # 1E12: convert A to pA
@@ -285,7 +285,7 @@ class NestIntegrationTest(unittest.TestCase):
         neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
         neuron2 = nest.Create(testant, params=custom_model_opts)
 
-        if not (gsl_error_tol is None):
+        if gsl_error_tol is not None:
             neuron2.set({"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',
