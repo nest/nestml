@@ -102,13 +102,13 @@ neuron iaf_psc_alpha:
 
   parameters:
     C_m     pF = 250 pF   # Capacitance of the membrane
-    tau_m     ms = 10 ms    # Membrane time constant
+    tau_m   ms = 10 ms    # Membrane time constant
     tau_syn_in ms = 2 ms  # Time constant of synaptic current
     tau_syn_ex ms = 2 ms  # Time constant of synaptic current
     t_ref   ms = 2 ms     # Duration of refractory period
     E_L     mV = -70 mV   # Resting potential
     V_reset mV = -70 mV - E_L # Reset potential of the membrane
-    V_th   mV = -55 mV - E_L # Spike threshold
+    V_th   mV = -55 mV - E_L  # Spike threshold
 
     # constant external input current
     I_e pA = 0 pA
