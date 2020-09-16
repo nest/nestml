@@ -44,17 +44,17 @@ class NestIntegrationTest(unittest.TestCase):
         nest.Install("nestml_allmodels_module")
 
         models = []
-        models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
-        models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
-        models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
+        #models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
+        #models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
+        #models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
 
-        models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
-        models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 2., "tau_decay_ex" : 10., "tau_rise_in" : 2., "tau_decay_in" : 10.}, {"tau_syn_rise_E" : 2., "tau_syn_decay_E" : 10., "tau_syn_rise_I" : 2., "tau_syn_decay_I" : 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+        #models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
+        #models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+        #models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 2., "tau_decay_ex" : 10., "tau_rise_in" : 2., "tau_decay_in" : 10.}, {"tau_syn_rise_E" : 2., "tau_syn_decay_E" : 10., "tau_syn_rise_I" : 2., "tau_syn_decay_I" : 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
         models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
-        models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
-        models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
+        #models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
+        #models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
 
         # --------------
         # XXX: TODO!
@@ -100,10 +100,7 @@ class NestIntegrationTest(unittest.TestCase):
             Tested models and test conditions, in order.
         """
 
-        s = """Models library
-==============
-
-"""
+        s = "Models library\n==============\n\n"
 
         print("allmodels = " + str(allmodels))
 
@@ -161,17 +158,11 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"
 
             with open(model_name + '_characterisation.rst', 'w') as f:
-                s_ = """Synaptic response
------------------
-
-"""
+                s_ = "Synaptic response\n-----------------\n\n"
                 s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[" + model_name + "]_synaptic_response.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
-                s_ += """f-I curve
----------
-
-"""
+                s_ += "f-I curve\n---------\n\n"
                 s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[" + model_name + "]_f-I_curve.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
@@ -194,13 +185,6 @@ class NestIntegrationTest(unittest.TestCase):
 
 
     def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
-
-        """if nest_ref_model_opts is None:
-            nest_ref_model_opts = {}
-
-        if custom_model_opts is None:
-            custom_model_opts = {}"""
-
         t_stop = 1000.   # [ms]
 
         I_stim_vec = np.linspace(10E-12, 1E-9, 100)	# [A]
