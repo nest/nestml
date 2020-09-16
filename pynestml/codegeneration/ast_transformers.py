@@ -46,7 +46,7 @@ def add_declarations_to_internals(neuron: ASTNeuron, declarations: Mapping[str, 
     """
     Adds the variables as stored in the declaration tuples to the neuron.
     :param neuron: a single neuron instance
-    :param declarations: a list of declaration tuples
+    :param declarations: a map of variable names to declarations
     :return: a modified neuron
     """
     for variable in declarations:
@@ -84,7 +84,8 @@ def add_declarations_to_initial_values(neuron: ASTNeuron, variables: List, initi
     """
     Adds a single declaration to the initial values block of the neuron.
     :param neuron: a neuron
-    :param declarations: a single
+    :param variables: list of variables
+    :param initial_values: list of initial values
     :return: a modified neuron
     """
     for variable, initial_value in zip(variables, initial_values):
@@ -201,8 +202,8 @@ def add_declaration_to_update_block(declaration: ASTDeclaration, neuron: ASTNeur
 def add_state_updates(neuron: ASTNeuron, update_expressions: Mapping[str, str]) -> ASTNeuron:
     """
     Adds all update instructions as contained in the solver output to the update block of the neuron.
-    :param state_shape_variables_updates: map of variables to corresponding updates during the update step.
     :param neuron: a single neuron
+    :param update_expressions: map of variables to corresponding updates during the update step.
     :return: a modified version of the neuron
     """
     for variable, update_expression in update_expressions.items():
