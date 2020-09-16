@@ -55,70 +55,72 @@ class LatexReferenceConverter(IReferenceConverter):
         var_name = ast_variable.get_name()
         var_complete_name = ast_variable.get_complete_name()
         if not ast_variable.get_scope().resolve_to_symbol(var_complete_name, SymbolKind.VARIABLE) \
-         and PredefinedUnits.is_unit(var_complete_name):
+                and PredefinedUnits.is_unit(var_complete_name):
             # convert a unit (e.g. ms, pA)
-            #var_name = "\color{grey}\mathrm{" + var_name + "}\color{black}"	# readthedocs does not support \color!
+            # var_name = "\color{grey}\mathrm{" + var_name + "}\color{black}"	# readthedocs does not support \color!
             var_name = "\mathrm{" + var_name + "}"
         # convert first underscore
         usc_idx = var_name.find("_")
         if usc_idx > 0:
-            var_name = var_name[:usc_idx] + "_{" + var_name[usc_idx+1:].replace("_", ",") + "}" + "'" * ast_variable.get_differential_order()
+            var_name = var_name[:usc_idx] + "_{" + var_name[usc_idx +
+                                                            1:].replace("_", ",") + "}" + "'" * ast_variable.get_differential_order()
         symbols = {
-            "inf" : r"\\infty",
-            "alpha" : r"\\alpha",
-            "beta" : r"\\beta",
-            "gamma" : r"\\gamma",
-            "delta" : r"\\delta",
-            "epsilon" : r"\\epsilon",
-            "zeta" : r"\\zeta",
-            "eta" : r"\\eta",
-            "theta" : r"\\theta",
-            "iota" : r"\\iota",
-            "kappa" : r"\\kappa",
-            "lambda" : r"\\lambda",
-            "labda" : r"\\lambda",
-            "mu" : r"\\mu",
-            "nu" : r"\\nu",
-            "xi" : r"\\xi",
-            "omnikron" : "o",
-            "pi" : r"\\pi",
-            "rho" : r"\\rho",
-            "sigma" : r"\\sigma",
-            "tau" : r"\\tau",
-            "upsilon" : r"\\upsilon",
-            "phi" : r"\\phi",
-            "chi" : r"\\chi",
-            "psi" : r"\\psi",
-            "omega" : r"\\omega",
-            "Alpha" : r"\\Alpha",
-            "Beta" : r"\\Beta",
-            "Gamma" : r"\\Gamma",
-            "Delta" : r"\\Delta",
-            "Epsilon" : r"\\Epsilon",
-            "Zeta" : r"\\zeta",
-            "Eta" : r"\\Eta",
-            "Theta" : r"\\Theta",
-            "Iota" : r"\\Iota",
-            "Kappa" : r"\\Kappa",
-            "Lambda" : r"\\Lambda",
-            "Labda" : r"\\Lambda",
-            "Mu" : r"\\Mu",
-            "Nu" : r"\\Nu",
-            "Xi" : r"\\Xi",
-            "Omnikron" : "O",
-            "Pi" : r"\\Pi",
-            "Rho" : r"\\Rho",
-            "Sigma" : r"\\Sigma",
-            "Tau" : r"\\Tau",
-            "Upsilon" : r"\\Upsilon",
-            "Phi" : r"\\Phi",
-            "Chi" : r"\\Chi",
-            "Psi" : r"\\Psi",
-            "Omega" : r"\\Omega"
+            "inf": r"\\infty",
+            "alpha": r"\\alpha",
+            "beta": r"\\beta",
+            "gamma": r"\\gamma",
+            "delta": r"\\delta",
+            "epsilon": r"\\epsilon",
+            "zeta": r"\\zeta",
+            "eta": r"\\eta",
+            "theta": r"\\theta",
+            "iota": r"\\iota",
+            "kappa": r"\\kappa",
+            "lambda": r"\\lambda",
+            "labda": r"\\lambda",
+            "mu": r"\\mu",
+            "nu": r"\\nu",
+            "xi": r"\\xi",
+            "omnikron": "o",
+            "pi": r"\\pi",
+            "rho": r"\\rho",
+            "sigma": r"\\sigma",
+            "tau": r"\\tau",
+            "upsilon": r"\\upsilon",
+            "phi": r"\\phi",
+            "chi": r"\\chi",
+            "psi": r"\\psi",
+            "omega": r"\\omega",
+            "Alpha": r"\\Alpha",
+            "Beta": r"\\Beta",
+            "Gamma": r"\\Gamma",
+            "Delta": r"\\Delta",
+            "Epsilon": r"\\Epsilon",
+            "Zeta": r"\\zeta",
+            "Eta": r"\\Eta",
+            "Theta": r"\\Theta",
+            "Iota": r"\\Iota",
+            "Kappa": r"\\Kappa",
+            "Lambda": r"\\Lambda",
+            "Labda": r"\\Lambda",
+            "Mu": r"\\Mu",
+            "Nu": r"\\Nu",
+            "Xi": r"\\Xi",
+            "Omnikron": "O",
+            "Pi": r"\\Pi",
+            "Rho": r"\\Rho",
+            "Sigma": r"\\Sigma",
+            "Tau": r"\\Tau",
+            "Upsilon": r"\\Upsilon",
+            "Phi": r"\\Phi",
+            "Chi": r"\\Chi",
+            "Psi": r"\\Psi",
+            "Omega": r"\\Omega"
         }
         for symbol_find, symbol_replace in symbols.items():
             before = var_name
-            var_name = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])", symbol_replace, var_name)	# "whole word" match
+            var_name = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])",
+                              symbol_replace, var_name)  # "whole word" match
             after = var_name
         return var_name
 
@@ -134,11 +136,12 @@ class LatexReferenceConverter(IReferenceConverter):
         result = function_call.get_name()
 
         symbols = {
-            "convolve" : r"\\text{convolve}"
+            "convolve": r"\\text{convolve}"
         }
 
         for symbol_find, symbol_replace in symbols.items():
-            result = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])", symbol_replace, result)	# "whole word" match
+            result = re.sub(r"(?<![a-zA-Z])(" + symbol_find + ")(?![a-zA-Z])",
+                            symbol_replace, result)  # "whole word" match
 
         if ASTUtils.needs_arguments(function_call):
             n_args = len(function_call.get_args())

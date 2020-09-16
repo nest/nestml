@@ -89,18 +89,18 @@ class ASTBlockWithVariables(ASTNode):
         if self.declarations:
             declarations_dup = [decl.clone() for decl in self.declarations]
         dup = ASTBlockWithVariables(declarations=declarations_dup,
-         is_internals=self.is_internals,
-         is_parameters=self.is_parameters,
-         is_initial_values=self.is_initial_values,
-         is_state=self.is_state,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                    is_internals=self.is_internals,
+                                    is_parameters=self.is_parameters,
+                                    is_initial_values=self.is_initial_values,
+                                    is_state=self.is_state,
+                                    # ASTNode common attriutes:
+                                    source_position=self.source_position,
+                                    scope=self.scope,
+                                    comment=self.comment,
+                                    pre_comments=[s for s in self.pre_comments],
+                                    in_comment=self.in_comment,
+                                    post_comments=[s for s in self.post_comments],
+                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

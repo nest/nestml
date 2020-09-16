@@ -52,6 +52,7 @@ from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoV
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.meta_model.ast_neuron import ASTNeuron
 
+
 class CoCosManager(object):
     """
     This class provides a set of context conditions which have to hold for each neuron instance.
@@ -330,7 +331,7 @@ class CoCosManager(object):
         CoCoSimpleDeltaFunction.check_co_co(neuron)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool=False):
+    def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
         :param neuron: a single neuron object.
@@ -356,7 +357,8 @@ class CoCosManager(object):
         cls.check_convolve_cond_curr_is_correct(neuron)
         cls.check_output_port_defined_if_emit_call(neuron)
         if not after_ast_rewrite:
-            cls.check_odes_have_consistent_units(neuron)        # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
+            # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
+            cls.check_odes_have_consistent_units(neuron)
             cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
             cls.check_correct_usage_of_shapes(neuron)
         cls.check_invariant_type_correct(neuron)
@@ -385,4 +387,3 @@ class CoCosManager(object):
         :type neuron: ast_neuron
         """
         CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
-

@@ -36,4 +36,5 @@ def clone_numeric_literal(numeric_literal):
     if isinstance(numeric_literal, ASTNode):
         return numeric_literal.clone()
 
-    assert False, "Asked to copy unknown numeric literal (type: " + str(type(numeric_literal)) + " ): " + str(numeric_literal)
+    assert False, "Asked to copy unknown numeric literal (type: " + \
+        str(type(numeric_literal)) + " ): " + str(numeric_literal)

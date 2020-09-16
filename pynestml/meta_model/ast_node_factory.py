@@ -269,7 +269,7 @@ class ASTNodeFactory():
     def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
         # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
         return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
-                              is_recordable=is_recordable, source_position=source_position)
+                                   is_recordable=is_recordable, source_position=source_position)
 
     @classmethod
     def create_ast_ode_shape(cls, variables=None, expressions=None, source_position=None):

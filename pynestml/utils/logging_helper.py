@@ -32,5 +32,3 @@ class LoggingHelper(object):
         Logger.log_message(code=code, message=message,
                            error_position=_assignment.get_expression().get_source_position(),
                            log_level=LoggingLevel.ERROR)
-
-  

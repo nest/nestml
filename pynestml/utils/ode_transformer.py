@@ -68,4 +68,3 @@ class OdeTransformer(object):
         vis = ASTHigherOrderVisitor(visit_funcs=fun)
         ast_node.accept(vis)
         return res
-

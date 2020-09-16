@@ -12,7 +12,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
 
 
@@ -24,7 +24,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
+            os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/travis/nest_install"

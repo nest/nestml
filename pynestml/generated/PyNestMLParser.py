@@ -5,6 +5,7 @@ from antlr4 import *
 from io import StringIO
 import sys
 
+
 def serializedATN():
     with StringIO() as buf:
         buf.write(u"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3")
@@ -256,58 +257,58 @@ def serializedATN():
         return buf.getvalue()
 
 
-class PyNestMLParser ( Parser ):
+class PyNestMLParser (Parser):
 
     grammarFileName = "PyNestMLParser.g4"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
-                     u"<INVALID>", u"<INVALID>", u"'end'", u"'integer'", 
-                     u"'real'", u"'string'", u"'boolean'", u"'void'", u"'function'", 
-                     u"'inline'", u"'return'", u"'if'", u"'elif'", u"'else'", 
-                     u"'for'", u"'while'", u"'in'", u"'step'", u"'inf'", 
-                     u"'and'", u"'or'", u"'not'", u"'recordable'", u"'shape'", 
-                     u"'neuron'", u"'state'", u"'parameters'", u"'internals'", 
-                     u"'initial_values'", u"'update'", u"'equations'", u"'input'", 
-                     u"'output'", u"'current'", u"'spike'", u"'inhibitory'", 
-                     u"'excitatory'", u"'...'", u"'('", u"')'", u"'+'", 
-                     u"'~'", u"'|'", u"'^'", u"'&'", u"'['", u"'<-'", u"']'", 
-                     u"'[['", u"']]'", u"'<<'", u"'>>'", u"'<'", u"'>'", 
-                     u"'<='", u"'+='", u"'-='", u"'*='", u"'/='", u"'=='", 
-                     u"'!='", u"'<>'", u"'>='", u"','", u"'-'", u"'='", 
-                     u"'*'", u"'**'", u"'/'", u"'%'", u"'?'", u"':'", u"';'", 
-                     u"'''" ]
+    literalNames = [u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>",
+                    u"<INVALID>", u"<INVALID>", u"'end'", u"'integer'",
+                    u"'real'", u"'string'", u"'boolean'", u"'void'", u"'function'",
+                    u"'inline'", u"'return'", u"'if'", u"'elif'", u"'else'",
+                    u"'for'", u"'while'", u"'in'", u"'step'", u"'inf'",
+                    u"'and'", u"'or'", u"'not'", u"'recordable'", u"'shape'",
+                    u"'neuron'", u"'state'", u"'parameters'", u"'internals'",
+                    u"'initial_values'", u"'update'", u"'equations'", u"'input'",
+                    u"'output'", u"'current'", u"'spike'", u"'inhibitory'",
+                    u"'excitatory'", u"'...'", u"'('", u"')'", u"'+'",
+                    u"'~'", u"'|'", u"'^'", u"'&'", u"'['", u"'<-'", u"']'",
+                    u"'[['", u"']]'", u"'<<'", u"'>>'", u"'<'", u"'>'",
+                    u"'<='", u"'+='", u"'-='", u"'*='", u"'/='", u"'=='",
+                    u"'!='", u"'<>'", u"'>='", u"','", u"'-'", u"'='",
+                    u"'*'", u"'**'", u"'/'", u"'%'", u"'?'", u"':'", u"';'",
+                    u"'''"]
 
-    symbolicNames = [ u"<INVALID>", u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", 
-                      u"WS", u"LINE_ESCAPE", u"END_KEYWORD", u"INTEGER_KEYWORD", 
-                      u"REAL_KEYWORD", u"STRING_KEYWORD", u"BOOLEAN_KEYWORD", 
-                      u"VOID_KEYWORD", u"FUNCTION_KEYWORD", u"INLINE_KEYWORD", 
-                      u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD", 
-                      u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD", 
-                      u"IN_KEYWORD", u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", 
-                      u"OR_KEYWORD", u"NOT_KEYWORD", u"RECORDABLE_KEYWORD", 
-                      u"SHAPE_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD", 
-                      u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", 
-                      u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", 
-                      u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
-                      u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", 
-                      u"LEFT_PAREN", u"RIGHT_PAREN", u"PLUS", u"TILDE", 
-                      u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET", 
-                      u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", u"LEFT_LEFT_SQUARE", 
-                      u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", u"RIGHT_RIGHT_ANGLE", 
-                      u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS", 
-                      u"PLUS_EQUALS", u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS", 
-                      u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE", 
-                      u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS", 
-                      u"STAR", u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT", 
-                      u"QUESTION", u"COLON", u"SEMICOLON", u"DIFFERENTIAL_ORDER", 
-                      u"BOOLEAN_LITERAL", u"STRING_LITERAL", u"NAME", u"UNSIGNED_INTEGER", 
-                      u"FLOAT" ]
+    symbolicNames = [u"<INVALID>", u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE",
+                     u"WS", u"LINE_ESCAPE", u"END_KEYWORD", u"INTEGER_KEYWORD",
+                     u"REAL_KEYWORD", u"STRING_KEYWORD", u"BOOLEAN_KEYWORD",
+                     u"VOID_KEYWORD", u"FUNCTION_KEYWORD", u"INLINE_KEYWORD",
+                     u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD",
+                     u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD",
+                     u"IN_KEYWORD", u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD",
+                     u"OR_KEYWORD", u"NOT_KEYWORD", u"RECORDABLE_KEYWORD",
+                     u"SHAPE_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD",
+                     u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD",
+                     u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD",
+                     u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD",
+                     u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS",
+                     u"LEFT_PAREN", u"RIGHT_PAREN", u"PLUS", u"TILDE",
+                     u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET",
+                     u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", u"LEFT_LEFT_SQUARE",
+                     u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", u"RIGHT_RIGHT_ANGLE",
+                     u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS",
+                     u"PLUS_EQUALS", u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS",
+                     u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE",
+                     u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS",
+                     u"STAR", u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT",
+                     u"QUESTION", u"COLON", u"SEMICOLON", u"DIFFERENTIAL_ORDER",
+                     u"BOOLEAN_LITERAL", u"STRING_LITERAL", u"NAME", u"UNSIGNED_INTEGER",
+                     u"FLOAT"]
 
     RULE_dataType = 0
     RULE_unitType = 1
@@ -349,101 +350,101 @@ class PyNestMLParser ( Parser ):
     RULE_function = 37
     RULE_parameter = 38
 
-    ruleNames =  [ u"dataType", u"unitType", u"unitTypeExponent", u"expression", 
-                   u"simpleExpression", u"unaryOperator", u"bitOperator", 
-                   u"comparisonOperator", u"logicalOperator", u"variable", 
-                   u"functionCall", u"inlineExpression", u"odeEquation", 
-                   u"odeShape", u"block", u"stmt", u"compoundStmt", u"smallStmt", 
-                   u"assignment", u"declaration", u"returnStmt", u"ifStmt", 
-                   u"ifClause", u"elifClause", u"elseClause", u"forStmt", 
-                   u"whileStmt", u"nestMLCompilationUnit", u"neuron", u"body", 
-                   u"blockWithVariables", u"updateBlock", u"equationsBlock", 
-                   u"inputBlock", u"inputPort", u"inputQualifier", u"outputBlock", 
-                   u"function", u"parameter" ]
+    ruleNames = [u"dataType", u"unitType", u"unitTypeExponent", u"expression",
+                 u"simpleExpression", u"unaryOperator", u"bitOperator",
+                 u"comparisonOperator", u"logicalOperator", u"variable",
+                 u"functionCall", u"inlineExpression", u"odeEquation",
+                 u"odeShape", u"block", u"stmt", u"compoundStmt", u"smallStmt",
+                 u"assignment", u"declaration", u"returnStmt", u"ifStmt",
+                 u"ifClause", u"elifClause", u"elseClause", u"forStmt",
+                 u"whileStmt", u"nestMLCompilationUnit", u"neuron", u"body",
+                 u"blockWithVariables", u"updateBlock", u"equationsBlock",
+                 u"inputBlock", u"inputPort", u"inputQualifier", u"outputBlock",
+                 u"function", u"parameter"]
 
     EOF = Token.EOF
-    SL_COMMENT=1
-    ML_COMMENT=2
-    NEWLINE=3
-    WS=4
-    LINE_ESCAPE=5
-    END_KEYWORD=6
-    INTEGER_KEYWORD=7
-    REAL_KEYWORD=8
-    STRING_KEYWORD=9
-    BOOLEAN_KEYWORD=10
-    VOID_KEYWORD=11
-    FUNCTION_KEYWORD=12
-    INLINE_KEYWORD=13
-    RETURN_KEYWORD=14
-    IF_KEYWORD=15
-    ELIF_KEYWORD=16
-    ELSE_KEYWORD=17
-    FOR_KEYWORD=18
-    WHILE_KEYWORD=19
-    IN_KEYWORD=20
-    STEP_KEYWORD=21
-    INF_KEYWORD=22
-    AND_KEYWORD=23
-    OR_KEYWORD=24
-    NOT_KEYWORD=25
-    RECORDABLE_KEYWORD=26
-    SHAPE_KEYWORD=27
-    NEURON_KEYWORD=28
-    STATE_KEYWORD=29
-    PARAMETERS_KEYWORD=30
-    INTERNALS_KEYWORD=31
-    INITIAL_VALUES_KEYWORD=32
-    UPDATE_KEYWORD=33
-    EQUATIONS_KEYWORD=34
-    INPUT_KEYWORD=35
-    OUTPUT_KEYWORD=36
-    CURRENT_KEYWORD=37
-    SPIKE_KEYWORD=38
-    INHIBITORY_KEYWORD=39
-    EXCITATORY_KEYWORD=40
-    ELLIPSIS=41
-    LEFT_PAREN=42
-    RIGHT_PAREN=43
-    PLUS=44
-    TILDE=45
-    PIPE=46
-    CARET=47
-    AMPERSAND=48
-    LEFT_SQUARE_BRACKET=49
-    LEFT_ANGLE_MINUS=50
-    RIGHT_SQUARE_BRACKET=51
-    LEFT_LEFT_SQUARE=52
-    RIGHT_RIGHT_SQUARE=53
-    LEFT_LEFT_ANGLE=54
-    RIGHT_RIGHT_ANGLE=55
-    LEFT_ANGLE=56
-    RIGHT_ANGLE=57
-    LEFT_ANGLE_EQUALS=58
-    PLUS_EQUALS=59
-    MINUS_EQUALS=60
-    STAR_EQUALS=61
-    FORWARD_SLASH_EQUALS=62
-    EQUALS_EQUALS=63
-    EXCLAMATION_EQUALS=64
-    LEFT_ANGLE_RIGHT_ANGLE=65
-    RIGHT_ANGLE_EQUALS=66
-    COMMA=67
-    MINUS=68
-    EQUALS=69
-    STAR=70
-    STAR_STAR=71
-    FORWARD_SLASH=72
-    PERCENT=73
-    QUESTION=74
-    COLON=75
-    SEMICOLON=76
-    DIFFERENTIAL_ORDER=77
-    BOOLEAN_LITERAL=78
-    STRING_LITERAL=79
-    NAME=80
-    UNSIGNED_INTEGER=81
-    FLOAT=82
+    SL_COMMENT = 1
+    ML_COMMENT = 2
+    NEWLINE = 3
+    WS = 4
+    LINE_ESCAPE = 5
+    END_KEYWORD = 6
+    INTEGER_KEYWORD = 7
+    REAL_KEYWORD = 8
+    STRING_KEYWORD = 9
+    BOOLEAN_KEYWORD = 10
+    VOID_KEYWORD = 11
+    FUNCTION_KEYWORD = 12
+    INLINE_KEYWORD = 13
+    RETURN_KEYWORD = 14
+    IF_KEYWORD = 15
+    ELIF_KEYWORD = 16
+    ELSE_KEYWORD = 17
+    FOR_KEYWORD = 18
+    WHILE_KEYWORD = 19
+    IN_KEYWORD = 20
+    STEP_KEYWORD = 21
+    INF_KEYWORD = 22
+    AND_KEYWORD = 23
+    OR_KEYWORD = 24
+    NOT_KEYWORD = 25
+    RECORDABLE_KEYWORD = 26
+    SHAPE_KEYWORD = 27
+    NEURON_KEYWORD = 28
+    STATE_KEYWORD = 29
+    PARAMETERS_KEYWORD = 30
+    INTERNALS_KEYWORD = 31
+    INITIAL_VALUES_KEYWORD = 32
+    UPDATE_KEYWORD = 33
+    EQUATIONS_KEYWORD = 34
+    INPUT_KEYWORD = 35
+    OUTPUT_KEYWORD = 36
+    CURRENT_KEYWORD = 37
+    SPIKE_KEYWORD = 38
+    INHIBITORY_KEYWORD = 39
+    EXCITATORY_KEYWORD = 40
+    ELLIPSIS = 41
+    LEFT_PAREN = 42
+    RIGHT_PAREN = 43
+    PLUS = 44
+    TILDE = 45
+    PIPE = 46
+    CARET = 47
+    AMPERSAND = 48
+    LEFT_SQUARE_BRACKET = 49
+    LEFT_ANGLE_MINUS = 50
+    RIGHT_SQUARE_BRACKET = 51
+    LEFT_LEFT_SQUARE = 52
+    RIGHT_RIGHT_SQUARE = 53
+    LEFT_LEFT_ANGLE = 54
+    RIGHT_RIGHT_ANGLE = 55
+    LEFT_ANGLE = 56
+    RIGHT_ANGLE = 57
+    LEFT_ANGLE_EQUALS = 58
+    PLUS_EQUALS = 59
+    MINUS_EQUALS = 60
+    STAR_EQUALS = 61
+    FORWARD_SLASH_EQUALS = 62
+    EQUALS_EQUALS = 63
+    EXCLAMATION_EQUALS = 64
+    LEFT_ANGLE_RIGHT_ANGLE = 65
+    RIGHT_ANGLE_EQUALS = 66
+    COMMA = 67
+    MINUS = 68
+    EQUALS = 69
+    STAR = 70
+    STAR_STAR = 71
+    FORWARD_SLASH = 72
+    PERCENT = 73
+    QUESTION = 74
+    COLON = 75
+    SEMICOLON = 76
+    DIFFERENTIAL_ORDER = 77
+    BOOLEAN_LITERAL = 78
+    STRING_LITERAL = 79
+    NAME = 80
+    UNSIGNED_INTEGER = 81
+    FLOAT = 82
 
     def __init__(self, input, output=sys.stdout):
         super(PyNestMLParser, self).__init__(input, output=output)
@@ -451,19 +452,17 @@ class PyNestMLParser ( Parser ):
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
-
-
     class DataTypeContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.DataTypeContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.isInt = None # Token
-            self.isReal = None # Token
-            self.isString = None # Token
-            self.isBool = None # Token
-            self.isVoid = None # Token
-            self.unit = None # UnitTypeContext
+            self.isInt = None  # Token
+            self.isReal = None  # Token
+            self.isString = None  # Token
+            self.isBool = None  # Token
+            self.isVoid = None  # Token
+            self.unit = None  # UnitTypeContext
 
         def INTEGER_KEYWORD(self):
             return self.getToken(PyNestMLParser.INTEGER_KEYWORD, 0)
@@ -481,8 +480,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.VOID_KEYWORD, 0)
 
         def unitType(self):
-            return self.getTypedRuleContext(PyNestMLParser.UnitTypeContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.UnitTypeContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_dataType
@@ -492,9 +490,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitDataType(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def dataType(self):
 
@@ -550,18 +545,18 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.UnitTypeContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.base = None # UnitTypeContext
-            self.left = None # UnitTypeContext
-            self.leftParentheses = None # Token
-            self.compoundUnit = None # UnitTypeContext
-            self.rightParentheses = None # Token
-            self.unitlessLiteral = None # Token
-            self.divOp = None # Token
-            self.right = None # UnitTypeContext
-            self.unit = None # Token
-            self.timesOp = None # Token
-            self.powOp = None # Token
-            self.exponent = None # UnitTypeExponentContext
+            self.base = None  # UnitTypeContext
+            self.left = None  # UnitTypeContext
+            self.leftParentheses = None  # Token
+            self.compoundUnit = None  # UnitTypeContext
+            self.rightParentheses = None  # Token
+            self.unitlessLiteral = None  # Token
+            self.divOp = None  # Token
+            self.right = None  # UnitTypeContext
+            self.unit = None  # Token
+            self.timesOp = None  # Token
+            self.powOp = None  # Token
+            self.exponent = None  # UnitTypeExponentContext
 
         def LEFT_PAREN(self):
             return self.getToken(PyNestMLParser.LEFT_PAREN, 0)
@@ -570,8 +565,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.UnitTypeContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.UnitTypeContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.UnitTypeContext, i)
 
         def RIGHT_PAREN(self):
             return self.getToken(PyNestMLParser.RIGHT_PAREN, 0)
@@ -592,8 +586,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.STAR_STAR, 0)
 
         def unitTypeExponent(self):
-            return self.getTypedRuleContext(PyNestMLParser.UnitTypeExponentContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.UnitTypeExponentContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_unitType
@@ -603,8 +596,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitUnitType(self)
             else:
                 return visitor.visitChildren(self)
-
-
 
     def unitType(self, _p=0):
         _parentctx = self._ctx
@@ -644,15 +635,15 @@ class PyNestMLParser ( Parser ):
             self._ctx.stop = self._input.LT(-1)
             self.state = 108
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,4,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
+            _alt = self._interp.adaptivePredict(self._input, 4, self._ctx)
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 106
                     self._errHandler.sync(self)
-                    la_ = self._interp.adaptivePredict(self._input,3,self._ctx)
+                    la_ = self._interp.adaptivePredict(self._input, 3, self._ctx)
                     if la_ == 1:
                         localctx = PyNestMLParser.UnitTypeContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
@@ -693,10 +684,9 @@ class PyNestMLParser ( Parser ):
                         localctx.exponent = self.unitTypeExponent()
                         pass
 
-             
                 self.state = 110
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,4,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 4, self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -730,28 +720,24 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def unitTypeExponent(self):
 
         localctx = PyNestMLParser.UnitTypeExponentContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_unitTypeExponent)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 112
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.PLUS or _la==PyNestMLParser.MINUS:
+            if _la == PyNestMLParser.PLUS or _la == PyNestMLParser.MINUS:
                 self.state = 111
                 _la = self._input.LA(1)
-                if not(_la==PyNestMLParser.PLUS or _la==PyNestMLParser.MINUS):
+                if not(_la == PyNestMLParser.PLUS or _la == PyNestMLParser.MINUS):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-
 
             self.state = 114
             self.match(PyNestMLParser.UNSIGNED_INTEGER)
@@ -768,21 +754,21 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.ExpressionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.left = None # ExpressionContext
-            self.condition = None # ExpressionContext
-            self.leftParentheses = None # Token
-            self.term = None # ExpressionContext
-            self.rightParentheses = None # Token
-            self.logicalNot = None # Token
-            self.powOp = None # Token
-            self.right = None # ExpressionContext
-            self.timesOp = None # Token
-            self.divOp = None # Token
-            self.moduloOp = None # Token
-            self.plusOp = None # Token
-            self.minusOp = None # Token
-            self.ifTrue = None # ExpressionContext
-            self.ifNot = None # ExpressionContext
+            self.left = None  # ExpressionContext
+            self.condition = None  # ExpressionContext
+            self.leftParentheses = None  # Token
+            self.term = None  # ExpressionContext
+            self.rightParentheses = None  # Token
+            self.logicalNot = None  # Token
+            self.powOp = None  # Token
+            self.right = None  # ExpressionContext
+            self.timesOp = None  # Token
+            self.divOp = None  # Token
+            self.moduloOp = None  # Token
+            self.plusOp = None  # Token
+            self.minusOp = None  # Token
+            self.ifTrue = None  # ExpressionContext
+            self.ifNot = None  # ExpressionContext
 
         def LEFT_PAREN(self):
             return self.getToken(PyNestMLParser.LEFT_PAREN, 0)
@@ -791,22 +777,19 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ExpressionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, i)
 
         def RIGHT_PAREN(self):
             return self.getToken(PyNestMLParser.RIGHT_PAREN, 0)
 
         def unaryOperator(self):
-            return self.getTypedRuleContext(PyNestMLParser.UnaryOperatorContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.UnaryOperatorContext, 0)
 
         def NOT_KEYWORD(self):
             return self.getToken(PyNestMLParser.NOT_KEYWORD, 0)
 
         def simpleExpression(self):
-            return self.getTypedRuleContext(PyNestMLParser.SimpleExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.SimpleExpressionContext, 0)
 
         def STAR_STAR(self):
             return self.getToken(PyNestMLParser.STAR_STAR, 0)
@@ -827,16 +810,13 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.MINUS, 0)
 
         def bitOperator(self):
-            return self.getTypedRuleContext(PyNestMLParser.BitOperatorContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BitOperatorContext, 0)
 
         def comparisonOperator(self):
-            return self.getTypedRuleContext(PyNestMLParser.ComparisonOperatorContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ComparisonOperatorContext, 0)
 
         def logicalOperator(self):
-            return self.getTypedRuleContext(PyNestMLParser.LogicalOperatorContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.LogicalOperatorContext, 0)
 
         def QUESTION(self):
             return self.getToken(PyNestMLParser.QUESTION, 0)
@@ -852,8 +832,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitExpression(self)
             else:
                 return visitor.visitChildren(self)
-
-
 
     def expression(self, _p=0):
         _parentctx = self._ctx
@@ -897,15 +875,15 @@ class PyNestMLParser ( Parser ):
             self._ctx.stop = self._input.LT(-1)
             self.state = 165
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
+            _alt = self._interp.adaptivePredict(self._input, 10, self._ctx)
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 163
                     self._errHandler.sync(self)
-                    la_ = self._interp.adaptivePredict(self._input,9,self._ctx)
+                    la_ = self._interp.adaptivePredict(self._input, 9, self._ctx)
                     if la_ == 1:
                         localctx = PyNestMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
@@ -1036,10 +1014,9 @@ class PyNestMLParser ( Parser ):
                         localctx.ifNot = self.expression(3)
                         pass
 
-             
                 self.state = 167
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 10, self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1054,12 +1031,11 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.SimpleExpressionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.string = None # Token
-            self.isInf = None # Token
+            self.string = None  # Token
+            self.isInf = None  # Token
 
         def functionCall(self):
-            return self.getTypedRuleContext(PyNestMLParser.FunctionCallContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.FunctionCallContext, 0)
 
         def BOOLEAN_LITERAL(self):
             return self.getToken(PyNestMLParser.BOOLEAN_LITERAL, 0)
@@ -1071,8 +1047,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.FLOAT, 0)
 
         def variable(self):
-            return self.getTypedRuleContext(PyNestMLParser.VariableContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.VariableContext, 0)
 
         def STRING_LITERAL(self):
             return self.getToken(PyNestMLParser.STRING_LITERAL, 0)
@@ -1089,18 +1064,15 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def simpleExpression(self):
 
         localctx = PyNestMLParser.SimpleExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 8, self.RULE_simpleExpression)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.state = 177
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 12, self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 168
@@ -1117,18 +1089,17 @@ class PyNestMLParser ( Parser ):
                 self.enterOuterAlt(localctx, 3)
                 self.state = 170
                 _la = self._input.LA(1)
-                if not(_la==PyNestMLParser.UNSIGNED_INTEGER or _la==PyNestMLParser.FLOAT):
+                if not(_la == PyNestMLParser.UNSIGNED_INTEGER or _la == PyNestMLParser.FLOAT):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
                 self.state = 172
                 self._errHandler.sync(self)
-                la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
+                la_ = self._interp.adaptivePredict(self._input, 11, self._ctx)
                 if la_ == 1:
                     self.state = 171
                     self.variable()
-
 
                 pass
 
@@ -1150,7 +1121,6 @@ class PyNestMLParser ( Parser ):
                 self.variable()
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1164,9 +1134,9 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.UnaryOperatorContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.unaryPlus = None # Token
-            self.unaryMinus = None # Token
-            self.unaryTilde = None # Token
+            self.unaryPlus = None  # Token
+            self.unaryMinus = None  # Token
+            self.unaryTilde = None  # Token
 
         def PLUS(self):
             return self.getToken(PyNestMLParser.PLUS, 0)
@@ -1185,9 +1155,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitUnaryOperator(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def unaryOperator(self):
 
@@ -1226,11 +1193,11 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.BitOperatorContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.bitAnd = None # Token
-            self.bitXor = None # Token
-            self.bitOr = None # Token
-            self.bitShiftLeft = None # Token
-            self.bitShiftRight = None # Token
+            self.bitAnd = None  # Token
+            self.bitXor = None  # Token
+            self.bitOr = None  # Token
+            self.bitShiftLeft = None  # Token
+            self.bitShiftRight = None  # Token
 
         def AMPERSAND(self):
             return self.getToken(PyNestMLParser.AMPERSAND, 0)
@@ -1255,9 +1222,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitBitOperator(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def bitOperator(self):
 
@@ -1304,13 +1268,13 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.ComparisonOperatorContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.lt = None # Token
-            self.le = None # Token
-            self.eq = None # Token
-            self.ne = None # Token
-            self.ne2 = None # Token
-            self.ge = None # Token
-            self.gt = None # Token
+            self.lt = None  # Token
+            self.le = None  # Token
+            self.eq = None  # Token
+            self.ne = None  # Token
+            self.ne2 = None  # Token
+            self.ge = None  # Token
+            self.gt = None  # Token
 
         def LEFT_ANGLE(self):
             return self.getToken(PyNestMLParser.LEFT_ANGLE, 0)
@@ -1341,9 +1305,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitComparisonOperator(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def comparisonOperator(self):
 
@@ -1398,8 +1359,8 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.LogicalOperatorContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.logicalAnd = None # Token
-            self.logicalOr = None # Token
+            self.logicalAnd = None  # Token
+            self.logicalOr = None  # Token
 
         def AND_KEYWORD(self):
             return self.getToken(PyNestMLParser.AND_KEYWORD, 0)
@@ -1415,9 +1376,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitLogicalOperator(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def logicalOperator(self):
 
@@ -1452,7 +1410,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.VariableContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.name = None # Token
+            self.name = None  # Token
 
         def NAME(self):
             return self.getToken(PyNestMLParser.NAME, 0)
@@ -1472,9 +1430,6 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def variable(self):
 
         localctx = PyNestMLParser.VariableContext(self, self._ctx, self.state)
@@ -1485,14 +1440,14 @@ class PyNestMLParser ( Parser ):
             localctx.name = self.match(PyNestMLParser.NAME)
             self.state = 208
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
+            _alt = self._interp.adaptivePredict(self._input, 17, self._ctx)
+            while _alt != 2 and _alt != ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
                     self.state = 205
-                    self.match(PyNestMLParser.DIFFERENTIAL_ORDER) 
+                    self.match(PyNestMLParser.DIFFERENTIAL_ORDER)
                 self.state = 210
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input, 17, self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1507,7 +1462,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.FunctionCallContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.calleeName = None # Token
+            self.calleeName = None  # Token
 
         def LEFT_PAREN(self):
             return self.getToken(PyNestMLParser.LEFT_PAREN, 0)
@@ -1522,8 +1477,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ExpressionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, i)
 
         def COMMA(self, i=None):
             if i is None:
@@ -1540,14 +1494,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def functionCall(self):
 
         localctx = PyNestMLParser.FunctionCallContext(self, self._ctx, self.state)
         self.enterRule(localctx, 20, self.RULE_functionCall)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 211
@@ -1563,7 +1514,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 218
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==PyNestMLParser.COMMA:
+                while _la == PyNestMLParser.COMMA:
                     self.state = 214
                     self.match(PyNestMLParser.COMMA)
                     self.state = 215
@@ -1571,8 +1522,6 @@ class PyNestMLParser ( Parser ):
                     self.state = 220
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-
-
 
             self.state = 223
             self.match(PyNestMLParser.RIGHT_PAREN)
@@ -1589,22 +1538,20 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.InlineExpressionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.recordable = None # Token
-            self.variableName = None # Token
+            self.recordable = None  # Token
+            self.variableName = None  # Token
 
         def INLINE_KEYWORD(self):
             return self.getToken(PyNestMLParser.INLINE_KEYWORD, 0)
 
         def dataType(self):
-            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext, 0)
 
         def EQUALS(self):
             return self.getToken(PyNestMLParser.EQUALS, 0)
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def NAME(self):
             return self.getToken(PyNestMLParser.NAME, 0)
@@ -1624,23 +1571,19 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def inlineExpression(self):
 
         localctx = PyNestMLParser.InlineExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 22, self.RULE_inlineExpression)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 226
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.RECORDABLE_KEYWORD:
+            if _la == PyNestMLParser.RECORDABLE_KEYWORD:
                 self.state = 225
                 localctx.recordable = self.match(PyNestMLParser.RECORDABLE_KEYWORD)
-
 
             self.state = 228
             self.match(PyNestMLParser.INLINE_KEYWORD)
@@ -1655,10 +1598,9 @@ class PyNestMLParser ( Parser ):
             self.state = 234
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.SEMICOLON:
+            if _la == PyNestMLParser.SEMICOLON:
                 self.state = 233
                 self.match(PyNestMLParser.SEMICOLON)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1673,19 +1615,17 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.OdeEquationContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.lhs = None # VariableContext
-            self.rhs = None # ExpressionContext
+            self.lhs = None  # VariableContext
+            self.rhs = None  # ExpressionContext
 
         def EQUALS(self):
             return self.getToken(PyNestMLParser.EQUALS, 0)
 
         def variable(self):
-            return self.getTypedRuleContext(PyNestMLParser.VariableContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.VariableContext, 0)
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def SEMICOLON(self):
             return self.getToken(PyNestMLParser.SEMICOLON, 0)
@@ -1699,14 +1639,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def odeEquation(self):
 
         localctx = PyNestMLParser.OdeEquationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 24, self.RULE_odeEquation)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 236
@@ -1718,10 +1655,9 @@ class PyNestMLParser ( Parser ):
             self.state = 240
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.SEMICOLON:
+            if _la == PyNestMLParser.SEMICOLON:
                 self.state = 239
                 self.match(PyNestMLParser.SEMICOLON)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1744,8 +1680,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.VariableContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.VariableContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.VariableContext, i)
 
         def EQUALS(self, i=None):
             if i is None:
@@ -1757,8 +1692,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ExpressionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, i)
 
         def COMMA(self, i=None):
             if i is None:
@@ -1778,14 +1712,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def odeShape(self):
 
         localctx = PyNestMLParser.OdeShapeContext(self, self._ctx, self.state)
         self.enterRule(localctx, 26, self.RULE_odeShape)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 242
@@ -1799,7 +1730,7 @@ class PyNestMLParser ( Parser ):
             self.state = 253
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.COMMA:
+            while _la == PyNestMLParser.COMMA:
                 self.state = 246
                 self.match(PyNestMLParser.COMMA)
                 self.state = 247
@@ -1815,10 +1746,9 @@ class PyNestMLParser ( Parser ):
             self.state = 257
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.SEMICOLON:
+            if _la == PyNestMLParser.SEMICOLON:
                 self.state = 256
                 self.match(PyNestMLParser.SEMICOLON)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1838,8 +1768,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.StmtContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.StmtContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.StmtContext, i)
 
         def NEWLINE(self, i=None):
             if i is None:
@@ -1856,20 +1785,17 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def block(self):
 
         localctx = PyNestMLParser.BlockContext(self, self._ctx, self.state)
         self.enterRule(localctx, 28, self.RULE_block)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 263
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.RETURN_KEYWORD) | (1 << PyNestMLParser.IF_KEYWORD) | (1 << PyNestMLParser.FOR_KEYWORD) | (1 << PyNestMLParser.WHILE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.RETURN_KEYWORD) | (1 << PyNestMLParser.IF_KEYWORD) | (1 << PyNestMLParser.FOR_KEYWORD) | (1 << PyNestMLParser.WHILE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la == PyNestMLParser.NAME:
                 self.state = 261
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -1903,12 +1829,10 @@ class PyNestMLParser ( Parser ):
             self.parser = parser
 
         def smallStmt(self):
-            return self.getTypedRuleContext(PyNestMLParser.SmallStmtContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.SmallStmtContext, 0)
 
         def compoundStmt(self):
-            return self.getTypedRuleContext(PyNestMLParser.CompoundStmtContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.CompoundStmtContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_stmt
@@ -1918,9 +1842,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitStmt(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def stmt(self):
 
@@ -1958,16 +1879,13 @@ class PyNestMLParser ( Parser ):
             self.parser = parser
 
         def ifStmt(self):
-            return self.getTypedRuleContext(PyNestMLParser.IfStmtContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.IfStmtContext, 0)
 
         def forStmt(self):
-            return self.getTypedRuleContext(PyNestMLParser.ForStmtContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ForStmtContext, 0)
 
         def whileStmt(self):
-            return self.getTypedRuleContext(PyNestMLParser.WhileStmtContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.WhileStmtContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_compoundStmt
@@ -1977,9 +1895,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitCompoundStmt(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def compoundStmt(self):
 
@@ -2022,20 +1937,16 @@ class PyNestMLParser ( Parser ):
             self.parser = parser
 
         def assignment(self):
-            return self.getTypedRuleContext(PyNestMLParser.AssignmentContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.AssignmentContext, 0)
 
         def functionCall(self):
-            return self.getTypedRuleContext(PyNestMLParser.FunctionCallContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.FunctionCallContext, 0)
 
         def declaration(self):
-            return self.getTypedRuleContext(PyNestMLParser.DeclarationContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.DeclarationContext, 0)
 
         def returnStmt(self):
-            return self.getTypedRuleContext(PyNestMLParser.ReturnStmtContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ReturnStmtContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_smallStmt
@@ -2046,9 +1957,6 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def smallStmt(self):
 
         localctx = PyNestMLParser.SmallStmtContext(self, self._ctx, self.state)
@@ -2056,7 +1964,7 @@ class PyNestMLParser ( Parser ):
         try:
             self.state = 279
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,29,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 29, self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 275
@@ -2081,7 +1989,6 @@ class PyNestMLParser ( Parser ):
                 self.returnStmt()
                 pass
 
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2095,20 +2002,18 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.AssignmentContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.lhs_variable = None # VariableContext
-            self.directAssignment = None # Token
-            self.compoundSum = None # Token
-            self.compoundMinus = None # Token
-            self.compoundProduct = None # Token
-            self.compoundQuotient = None # Token
+            self.lhs_variable = None  # VariableContext
+            self.directAssignment = None  # Token
+            self.compoundSum = None  # Token
+            self.compoundMinus = None  # Token
+            self.compoundProduct = None  # Token
+            self.compoundQuotient = None  # Token
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def variable(self):
-            return self.getTypedRuleContext(PyNestMLParser.VariableContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.VariableContext, 0)
 
         def EQUALS(self):
             return self.getToken(PyNestMLParser.EQUALS, 0)
@@ -2133,9 +2038,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitAssignment(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def assignment(self):
 
@@ -2186,22 +2088,20 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.DeclarationContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.isRecordable = None # Token
-            self.isFunction = None # Token
-            self.sizeParameter = None # Token
-            self.rhs = None # ExpressionContext
-            self.invariant = None # ExpressionContext
+            self.isRecordable = None  # Token
+            self.isFunction = None  # Token
+            self.sizeParameter = None  # Token
+            self.rhs = None  # ExpressionContext
+            self.invariant = None  # ExpressionContext
 
         def variable(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.VariableContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.VariableContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.VariableContext, i)
 
         def dataType(self):
-            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext, 0)
 
         def COMMA(self, i=None):
             if i is None:
@@ -2237,8 +2137,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ExpressionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, i)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_declaration
@@ -2249,38 +2148,33 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def declaration(self):
 
         localctx = PyNestMLParser.DeclarationContext(self, self._ctx, self.state)
         self.enterRule(localctx, 38, self.RULE_declaration)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 292
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.RECORDABLE_KEYWORD:
+            if _la == PyNestMLParser.RECORDABLE_KEYWORD:
                 self.state = 291
                 localctx.isRecordable = self.match(PyNestMLParser.RECORDABLE_KEYWORD)
-
 
             self.state = 295
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.FUNCTION_KEYWORD:
+            if _la == PyNestMLParser.FUNCTION_KEYWORD:
                 self.state = 294
                 localctx.isFunction = self.match(PyNestMLParser.FUNCTION_KEYWORD)
-
 
             self.state = 297
             self.variable()
             self.state = 302
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.COMMA:
+            while _la == PyNestMLParser.COMMA:
                 self.state = 298
                 self.match(PyNestMLParser.COMMA)
                 self.state = 299
@@ -2294,7 +2188,7 @@ class PyNestMLParser ( Parser ):
             self.state = 309
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.LEFT_SQUARE_BRACKET:
+            if _la == PyNestMLParser.LEFT_SQUARE_BRACKET:
                 self.state = 306
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 307
@@ -2302,28 +2196,25 @@ class PyNestMLParser ( Parser ):
                 self.state = 308
                 self.match(PyNestMLParser.RIGHT_SQUARE_BRACKET)
 
-
             self.state = 313
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.EQUALS:
+            if _la == PyNestMLParser.EQUALS:
                 self.state = 311
                 self.match(PyNestMLParser.EQUALS)
                 self.state = 312
                 localctx.rhs = self.expression(0)
 
-
             self.state = 319
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.LEFT_LEFT_SQUARE:
+            if _la == PyNestMLParser.LEFT_LEFT_SQUARE:
                 self.state = 315
                 self.match(PyNestMLParser.LEFT_LEFT_SQUARE)
                 self.state = 316
                 localctx.invariant = self.expression(0)
                 self.state = 317
                 self.match(PyNestMLParser.RIGHT_RIGHT_SQUARE)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -2343,8 +2234,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.RETURN_KEYWORD, 0)
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_returnStmt
@@ -2354,9 +2244,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitReturnStmt(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def returnStmt(self):
 
@@ -2368,11 +2255,10 @@ class PyNestMLParser ( Parser ):
             self.match(PyNestMLParser.RETURN_KEYWORD)
             self.state = 323
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,37,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input, 37, self._ctx)
             if la_ == 1:
                 self.state = 322
                 self.expression(0)
-
 
         except RecognitionException as re:
             localctx.exception = re
@@ -2389,8 +2275,7 @@ class PyNestMLParser ( Parser ):
             self.parser = parser
 
         def ifClause(self):
-            return self.getTypedRuleContext(PyNestMLParser.IfClauseContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.IfClauseContext, 0)
 
         def END_KEYWORD(self):
             return self.getToken(PyNestMLParser.END_KEYWORD, 0)
@@ -2399,12 +2284,10 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ElifClauseContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ElifClauseContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ElifClauseContext, i)
 
         def elseClause(self):
-            return self.getTypedRuleContext(PyNestMLParser.ElseClauseContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ElseClauseContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_ifStmt
@@ -2415,14 +2298,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def ifStmt(self):
 
         localctx = PyNestMLParser.IfStmtContext(self, self._ctx, self.state)
         self.enterRule(localctx, 42, self.RULE_ifStmt)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 325
@@ -2430,7 +2310,7 @@ class PyNestMLParser ( Parser ):
             self.state = 329
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.ELIF_KEYWORD:
+            while _la == PyNestMLParser.ELIF_KEYWORD:
                 self.state = 326
                 self.elifClause()
                 self.state = 331
@@ -2440,10 +2320,9 @@ class PyNestMLParser ( Parser ):
             self.state = 333
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.ELSE_KEYWORD:
+            if _la == PyNestMLParser.ELSE_KEYWORD:
                 self.state = 332
                 self.elseClause()
-
 
             self.state = 335
             self.match(PyNestMLParser.END_KEYWORD)
@@ -2465,15 +2344,13 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.IF_KEYWORD, 0)
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def COLON(self):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_ifClause
@@ -2483,9 +2360,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitIfClause(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def ifClause(self):
 
@@ -2519,15 +2393,13 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.ELIF_KEYWORD, 0)
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def COLON(self):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_elifClause
@@ -2537,9 +2409,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitElifClause(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def elifClause(self):
 
@@ -2576,8 +2445,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_elseClause
@@ -2587,9 +2455,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitElseClause(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def elseClause(self):
 
@@ -2616,10 +2481,10 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.ForStmtContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.var = None # Token
-            self.start_from = None # ExpressionContext
-            self.end_at = None # ExpressionContext
-            self.negative = None # Token
+            self.var = None  # Token
+            self.start_from = None  # ExpressionContext
+            self.end_at = None  # ExpressionContext
+            self.negative = None  # Token
 
         def FOR_KEYWORD(self):
             return self.getToken(PyNestMLParser.FOR_KEYWORD, 0)
@@ -2637,8 +2502,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def END_KEYWORD(self):
             return self.getToken(PyNestMLParser.END_KEYWORD, 0)
@@ -2650,8 +2514,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ExpressionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, i)
 
         def UNSIGNED_INTEGER(self):
             return self.getToken(PyNestMLParser.UNSIGNED_INTEGER, 0)
@@ -2671,14 +2534,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def forStmt(self):
 
         localctx = PyNestMLParser.ForStmtContext(self, self._ctx, self.state)
         self.enterRule(localctx, 50, self.RULE_forStmt)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 351
@@ -2699,14 +2559,13 @@ class PyNestMLParser ( Parser ):
             self.state = 359
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.MINUS:
+            if _la == PyNestMLParser.MINUS:
                 self.state = 358
                 localctx.negative = self.match(PyNestMLParser.MINUS)
 
-
             self.state = 361
             _la = self._input.LA(1)
-            if not(_la==PyNestMLParser.UNSIGNED_INTEGER or _la==PyNestMLParser.FLOAT):
+            if not(_la == PyNestMLParser.UNSIGNED_INTEGER or _la == PyNestMLParser.FLOAT):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -2735,15 +2594,13 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.WHILE_KEYWORD, 0)
 
         def expression(self):
-            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.ExpressionContext, 0)
 
         def COLON(self):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def END_KEYWORD(self):
             return self.getToken(PyNestMLParser.END_KEYWORD, 0)
@@ -2756,9 +2613,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitWhileStmt(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def whileStmt(self):
 
@@ -2797,8 +2651,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.NeuronContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.NeuronContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.NeuronContext, i)
 
         def NEWLINE(self, i=None):
             if i is None:
@@ -2815,20 +2668,17 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def nestMLCompilationUnit(self):
 
         localctx = PyNestMLParser.NestMLCompilationUnitContext(self, self._ctx, self.state)
         self.enterRule(localctx, 54, self.RULE_nestMLCompilationUnit)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 376
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.NEWLINE or _la==PyNestMLParser.NEURON_KEYWORD:
+            while _la == PyNestMLParser.NEWLINE or _la == PyNestMLParser.NEURON_KEYWORD:
                 self.state = 374
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -2870,8 +2720,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.NAME, 0)
 
         def body(self):
-            return self.getTypedRuleContext(PyNestMLParser.BodyContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BodyContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_neuron
@@ -2881,9 +2730,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitNeuron(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def neuron(self):
 
@@ -2927,43 +2773,37 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.BlockWithVariablesContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.BlockWithVariablesContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.BlockWithVariablesContext, i)
 
         def equationsBlock(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.EquationsBlockContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.EquationsBlockContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.EquationsBlockContext, i)
 
         def inputBlock(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.InputBlockContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.InputBlockContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.InputBlockContext, i)
 
         def outputBlock(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.OutputBlockContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.OutputBlockContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.OutputBlockContext, i)
 
         def updateBlock(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.UpdateBlockContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.UpdateBlockContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.UpdateBlockContext, i)
 
         def function(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.FunctionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.FunctionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.FunctionContext, i)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_body
@@ -2974,14 +2814,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def body(self):
 
         localctx = PyNestMLParser.BodyContext(self, self._ctx, self.state)
         self.enterRule(localctx, 58, self.RULE_body)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 385
@@ -3043,7 +2880,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.BlockWithVariablesContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.blockType = None # Token
+            self.blockType = None  # Token
 
         def COLON(self):
             return self.getToken(PyNestMLParser.COLON, 0)
@@ -3067,8 +2904,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.DeclarationContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.DeclarationContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.DeclarationContext, i)
 
         def NEWLINE(self, i=None):
             if i is None:
@@ -3085,14 +2921,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def blockWithVariables(self):
 
         localctx = PyNestMLParser.BlockWithVariablesContext(self, self._ctx, self.state)
         self.enterRule(localctx, 60, self.RULE_blockWithVariables)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 400
@@ -3108,7 +2941,7 @@ class PyNestMLParser ( Parser ):
             self.state = 406
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la == PyNestMLParser.NAME:
                 self.state = 404
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -3150,8 +2983,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def END_KEYWORD(self):
             return self.getToken(PyNestMLParser.END_KEYWORD, 0)
@@ -3164,9 +2996,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitUpdateBlock(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def updateBlock(self):
 
@@ -3209,22 +3038,19 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.InlineExpressionContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.InlineExpressionContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.InlineExpressionContext, i)
 
         def odeEquation(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.OdeEquationContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.OdeEquationContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.OdeEquationContext, i)
 
         def odeShape(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.OdeShapeContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.OdeShapeContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.OdeShapeContext, i)
 
         def NEWLINE(self, i=None):
             if i is None:
@@ -3241,14 +3067,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def equationsBlock(self):
 
         localctx = PyNestMLParser.EquationsBlockContext(self, self._ctx, self.state)
         self.enterRule(localctx, 64, self.RULE_equationsBlock)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 416
@@ -3258,7 +3081,7 @@ class PyNestMLParser ( Parser ):
             self.state = 424
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.SHAPE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.SHAPE_KEYWORD))) != 0) or _la == PyNestMLParser.NAME:
                 self.state = 422
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -3314,8 +3137,7 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.InputPortContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.InputPortContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.InputPortContext, i)
 
         def NEWLINE(self, i=None):
             if i is None:
@@ -3332,14 +3154,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def inputBlock(self):
 
         localctx = PyNestMLParser.InputBlockContext(self, self._ctx, self.state)
         self.enterRule(localctx, 66, self.RULE_inputBlock)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 429
@@ -3349,7 +3168,7 @@ class PyNestMLParser ( Parser ):
             self.state = 435
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.NEWLINE or _la==PyNestMLParser.NAME:
+            while _la == PyNestMLParser.NEWLINE or _la == PyNestMLParser.NAME:
                 self.state = 433
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -3383,10 +3202,10 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.InputPortContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.name = None # Token
-            self.sizeParameter = None # Token
-            self.isCurrent = None # Token
-            self.isSpike = None # Token
+            self.name = None  # Token
+            self.sizeParameter = None  # Token
+            self.isCurrent = None  # Token
+            self.isSpike = None  # Token
 
         def LEFT_ANGLE_MINUS(self):
             return self.getToken(PyNestMLParser.LEFT_ANGLE_MINUS, 0)
@@ -3404,15 +3223,13 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.RIGHT_SQUARE_BRACKET, 0)
 
         def dataType(self):
-            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext, 0)
 
         def inputQualifier(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.InputQualifierContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.InputQualifierContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.InputQualifierContext, i)
 
         def CURRENT_KEYWORD(self):
             return self.getToken(PyNestMLParser.CURRENT_KEYWORD, 0)
@@ -3429,14 +3246,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def inputPort(self):
 
         localctx = PyNestMLParser.InputPortContext(self, self._ctx, self.state)
         self.enterRule(localctx, 68, self.RULE_inputPort)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 440
@@ -3444,7 +3258,7 @@ class PyNestMLParser ( Parser ):
             self.state = 444
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.LEFT_SQUARE_BRACKET:
+            if _la == PyNestMLParser.LEFT_SQUARE_BRACKET:
                 self.state = 441
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 442
@@ -3452,21 +3266,19 @@ class PyNestMLParser ( Parser ):
                 self.state = 443
                 self.match(PyNestMLParser.RIGHT_SQUARE_BRACKET)
 
-
             self.state = 447
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.UNSIGNED_INTEGER:
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la == PyNestMLParser.NAME or _la == PyNestMLParser.UNSIGNED_INTEGER:
                 self.state = 446
                 self.dataType()
-
 
             self.state = 449
             self.match(PyNestMLParser.LEFT_ANGLE_MINUS)
             self.state = 453
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==PyNestMLParser.INHIBITORY_KEYWORD or _la==PyNestMLParser.EXCITATORY_KEYWORD:
+            while _la == PyNestMLParser.INHIBITORY_KEYWORD or _la == PyNestMLParser.EXCITATORY_KEYWORD:
                 self.state = 450
                 self.inputQualifier()
                 self.state = 455
@@ -3500,8 +3312,8 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.InputQualifierContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.isInhibitory = None # Token
-            self.isExcitatory = None # Token
+            self.isInhibitory = None  # Token
+            self.isExcitatory = None  # Token
 
         def INHIBITORY_KEYWORD(self):
             return self.getToken(PyNestMLParser.INHIBITORY_KEYWORD, 0)
@@ -3517,9 +3329,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitInputQualifier(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def inputQualifier(self):
 
@@ -3554,8 +3363,8 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.OutputBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.isSpike = None # Token
-            self.isCurrent = None # Token
+            self.isSpike = None  # Token
+            self.isCurrent = None  # Token
 
         def OUTPUT_KEYWORD(self):
             return self.getToken(PyNestMLParser.OUTPUT_KEYWORD, 0)
@@ -3577,9 +3386,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitOutputBlock(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def outputBlock(self):
 
@@ -3618,7 +3424,7 @@ class PyNestMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.FunctionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.returnType = None # DataTypeContext
+            self.returnType = None  # DataTypeContext
 
         def FUNCTION_KEYWORD(self):
             return self.getToken(PyNestMLParser.FUNCTION_KEYWORD, 0)
@@ -3636,8 +3442,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.COLON, 0)
 
         def block(self):
-            return self.getTypedRuleContext(PyNestMLParser.BlockContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.BlockContext, 0)
 
         def END_KEYWORD(self):
             return self.getToken(PyNestMLParser.END_KEYWORD, 0)
@@ -3646,12 +3451,10 @@ class PyNestMLParser ( Parser ):
             if i is None:
                 return self.getTypedRuleContexts(PyNestMLParser.ParameterContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.ParameterContext,i)
-
+                return self.getTypedRuleContext(PyNestMLParser.ParameterContext, i)
 
         def dataType(self):
-            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext, 0)
 
         def COMMA(self, i=None):
             if i is None:
@@ -3668,14 +3471,11 @@ class PyNestMLParser ( Parser ):
             else:
                 return visitor.visitChildren(self)
 
-
-
-
     def function(self):
 
         localctx = PyNestMLParser.FunctionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 74, self.RULE_function)
-        self._la = 0 # Token type
+        self._la = 0  # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 470
@@ -3687,13 +3487,13 @@ class PyNestMLParser ( Parser ):
             self.state = 481
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.NAME:
+            if _la == PyNestMLParser.NAME:
                 self.state = 473
                 self.parameter()
                 self.state = 478
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==PyNestMLParser.COMMA:
+                while _la == PyNestMLParser.COMMA:
                     self.state = 474
                     self.match(PyNestMLParser.COMMA)
                     self.state = 475
@@ -3702,17 +3502,14 @@ class PyNestMLParser ( Parser ):
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
 
-
-
             self.state = 483
             self.match(PyNestMLParser.RIGHT_PAREN)
             self.state = 485
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la==PyNestMLParser.NAME or _la==PyNestMLParser.UNSIGNED_INTEGER:
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.INTEGER_KEYWORD) | (1 << PyNestMLParser.REAL_KEYWORD) | (1 << PyNestMLParser.STRING_KEYWORD) | (1 << PyNestMLParser.BOOLEAN_KEYWORD) | (1 << PyNestMLParser.VOID_KEYWORD) | (1 << PyNestMLParser.LEFT_PAREN))) != 0) or _la == PyNestMLParser.NAME or _la == PyNestMLParser.UNSIGNED_INTEGER:
                 self.state = 484
                 localctx.returnType = self.dataType()
-
 
             self.state = 487
             self.match(PyNestMLParser.COLON)
@@ -3738,8 +3535,7 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.NAME, 0)
 
         def dataType(self):
-            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext,0)
-
+            return self.getTypedRuleContext(PyNestMLParser.DataTypeContext, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_parameter
@@ -3749,9 +3545,6 @@ class PyNestMLParser ( Parser ):
                 return visitor.visitParameter(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def parameter(self):
 
@@ -3771,8 +3564,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
-
     def sempred(self, localctx, ruleIndex, predIndex):
         if self._predicates == None:
             self._predicates = dict()
@@ -3785,43 +3576,30 @@ class PyNestMLParser ( Parser ):
             return pred(localctx, predIndex)
 
     def unitType_sempred(self, localctx, predIndex):
-            if predIndex == 0:
-                return self.precpred(self._ctx, 3)
-         
+        if predIndex == 0:
+            return self.precpred(self._ctx, 3)
 
-            if predIndex == 1:
-                return self.precpred(self._ctx, 4)
-         
+        if predIndex == 1:
+            return self.precpred(self._ctx, 4)
 
     def expression_sempred(self, localctx, predIndex):
-            if predIndex == 2:
-                return self.precpred(self._ctx, 10)
-         
+        if predIndex == 2:
+            return self.precpred(self._ctx, 10)
 
-            if predIndex == 3:
-                return self.precpred(self._ctx, 8)
-         
+        if predIndex == 3:
+            return self.precpred(self._ctx, 8)
 
-            if predIndex == 4:
-                return self.precpred(self._ctx, 7)
-         
+        if predIndex == 4:
+            return self.precpred(self._ctx, 7)
 
-            if predIndex == 5:
-                return self.precpred(self._ctx, 6)
-         
+        if predIndex == 5:
+            return self.precpred(self._ctx, 6)
 
-            if predIndex == 6:
-                return self.precpred(self._ctx, 5)
-         
+        if predIndex == 6:
+            return self.precpred(self._ctx, 5)
 
-            if predIndex == 7:
-                return self.precpred(self._ctx, 3)
-         
+        if predIndex == 7:
+            return self.precpred(self._ctx, 3)
 
-            if predIndex == 8:
-                return self.precpred(self._ctx, 2)
-         
-
-
-
-
+        if predIndex == 8:
+            return self.precpred(self._ctx, 2)

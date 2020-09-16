@@ -77,20 +77,20 @@ class ASTComparisonOperator(ASTNode):
         :rtype: ASTComparisonOperator
         """
         dup = ASTComparisonOperator(is_lt=self.is_lt,
-         is_le=self.is_le,
-         is_eq=self.is_eq,
-         is_ne=self.is_ne,
-         is_ne2=self.is_ne2,
-         is_ge=self.is_ge,
-         is_gt=self.is_gt,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                    is_le=self.is_le,
+                                    is_eq=self.is_eq,
+                                    is_ne=self.is_ne,
+                                    is_ne2=self.is_ne2,
+                                    is_ge=self.is_ge,
+                                    is_gt=self.is_gt,
+                                    # ASTNode common attriutes:
+                                    source_position=self.source_position,
+                                    scope=self.scope,
+                                    comment=self.comment,
+                                    pre_comments=[s for s in self.pre_comments],
+                                    in_comment=self.in_comment,
+                                    post_comments=[s for s in self.post_comments],
+                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

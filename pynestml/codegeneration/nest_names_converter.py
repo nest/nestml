@@ -87,7 +87,7 @@ class NestNamesConverter(object):
     def convert_to_cpp_name(cls, variable_name):
         """
         Converts a handed over name to the corresponding NEST/C++ naming guideline. This is chosen to be compatible with the naming strategy for ode-toolbox, such that the variable name in a NESTML statement like "G_ahp' += 1" will be converted into "G_ahp__d".
-        
+
         :param variable_name: a single name.
         :type variable_name: str
         :return: the corresponding transformed name.

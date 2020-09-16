@@ -74,16 +74,16 @@ class ASTIfStmt(ASTNode):
         if self.else_clause:
             else_clause_dup = self.else_clause.clone()
         dup = ASTIfStmt(if_clause=if_clause_dup,
-         elif_clauses=elif_clauses_dup,
-         else_clause=else_clause_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                        elif_clauses=elif_clauses_dup,
+                        else_clause=else_clause_dup,
+                        # ASTNode common attributes:
+                        source_position=self.source_position,
+                        scope=self.scope,
+                        comment=self.comment,
+                        pre_comments=[s for s in self.pre_comments],
+                        in_comment=self.in_comment,
+                        post_comments=[s for s in self.post_comments],
+                        implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

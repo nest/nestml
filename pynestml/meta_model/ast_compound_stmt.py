@@ -80,16 +80,16 @@ class ASTCompoundStmt(ASTNode):
         if self.for_stmt:
             for_stmt_dup = self.for_stmt.clone()
         dup = ASTCompoundStmt(if_stmt=if_stmt_dup,
-         while_stmt=while_stmt_dup,
-         for_stmt=for_stmt_dup,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                              while_stmt=while_stmt_dup,
+                              for_stmt=for_stmt_dup,
+                              # ASTNode common attriutes:
+                              source_position=self.source_position,
+                              scope=self.scope,
+                              comment=self.comment,
+                              pre_comments=[s for s in self.pre_comments],
+                              in_comment=self.in_comment,
+                              post_comments=[s for s in self.post_comments],
+                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

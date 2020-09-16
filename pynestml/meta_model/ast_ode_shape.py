@@ -57,15 +57,15 @@ class ASTOdeShape(ASTNode):
         if self.expressions:
             expressions_dup = [expr.clone() for expr in self.expressions]
         dup = ASTOdeShape(variables=variables_dup,
-         expressions=expressions_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                          expressions=expressions_dup,
+                          # ASTNode common attributes:
+                          source_position=self.source_position,
+                          scope=self.scope,
+                          comment=self.comment,
+                          pre_comments=[s for s in self.pre_comments],
+                          in_comment=self.in_comment,
+                          post_comments=[s for s in self.post_comments],
+                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -127,20 +127,19 @@ class ASTOdeShape(ASTNode):
         """
         if not isinstance(other, ASTOdeShape):
             return False
-        
+
         for var in self.get_variables():
             if not var in other.get_variables():
                 return False
-        
+
         for var in other.get_variables():
             if not var in self.get_variables():
                 return False
-        
 
         for expr in self.get_expressions():
             if not expr in other.get_expressions():
                 return False
-        
+
         for expr in other.get_expressions():
             if not expr in self.get_expressions():
                 return False

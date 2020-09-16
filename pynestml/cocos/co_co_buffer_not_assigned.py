@@ -32,7 +32,7 @@ class CoCoBufferNotAssigned(CoCo):
         currentSum = current + 10mV # current being a buffer
     Not allowed:
         current = currentSum + 10mV
-    
+
     """
 
     @classmethod

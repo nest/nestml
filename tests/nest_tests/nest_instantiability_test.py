@@ -26,12 +26,12 @@ import unittest
 
 
 def strip_suffix(l, suffix):
-        new_l = []
-        for n in l:
-                if n[-len(suffix):] == suffix:
-                        n = n[:-len(suffix)]
-                new_l.append(n)
-        return new_l
+    new_l = []
+    for n in l:
+        if n[-len(suffix):] == suffix:
+            n = n[:-len(suffix)]
+        new_l.append(n)
+    return new_l
 
 
 class NestInstantiabilityTest(unittest.TestCase):
@@ -47,7 +47,8 @@ class NestInstantiabilityTest(unittest.TestCase):
         neuron_models = [m for m in models if str(nest.GetDefaults(m, "element_type")) == "neuron"]
         _neuron_models = strip_suffix(neuron_models, "_neuron")
 
-        nestml_unit_test_models = [neuron_model_name for neuron_model_name in _neuron_models if neuron_model_name.endswith("_nestml")]
+        nestml_unit_test_models = [
+            neuron_model_name for neuron_model_name in _neuron_models if neuron_model_name.endswith("_nestml")]
 
         nest.ResetKernel()
 

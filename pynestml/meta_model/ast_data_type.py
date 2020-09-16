@@ -48,7 +48,7 @@ class ASTDataType(ASTNode):
     """
 
     def __init__(self, is_integer=False, is_real=False, is_string=False, is_boolean=False, is_void=False,
-                 unit_type:Optional[ASTUnitType]=None, type_symbol=None, *args, **kwargs):
+                 unit_type: Optional[ASTUnitType] = None, type_symbol=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -87,20 +87,20 @@ class ASTDataType(ASTNode):
         if self.unit_type:
             unit_type_dup = self.unit_type.clone()
         dup = ASTDataType(is_integer=self.is_integer,
-         is_real=self.is_real,
-         is_string=self.is_string,
-         is_boolean=self.is_boolean,
-         is_void=self.is_void,
-         unit_type=unit_type_dup,
-         type_symbol=self.type_symbol,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                          is_real=self.is_real,
+                          is_string=self.is_string,
+                          is_boolean=self.is_boolean,
+                          is_void=self.is_void,
+                          unit_type=unit_type_dup,
+                          type_symbol=self.type_symbol,
+                          # ASTNode common attributes:
+                          source_position=self.source_position,
+                          scope=self.scope,
+                          comment=self.comment,
+                          pre_comments=[s for s in self.pre_comments],
+                          in_comment=self.in_comment,
+                          post_comments=[s for s in self.post_comments],
+                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

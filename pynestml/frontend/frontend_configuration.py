@@ -71,7 +71,7 @@ class FrontendConfiguration(object):
         :type args: list(str)
         """
         cls.argument_parser = argparse.ArgumentParser(
-                description='''NESTML is a domain specific language that supports the specification of neuron
+            description='''NESTML is a domain specific language that supports the specification of neuron
 models in a precise and concise syntax, based on the syntax of Python. Model
 equations can either be given as a simple string of mathematical notation or
 as an algorithm written in the built-in procedural language. The equations are
@@ -80,10 +80,13 @@ appropriate numeric solver otherwise.
 
  Version ''' + str(pynestml.__version__), formatter_class=argparse.RawDescriptionHelpFormatter)
 
-        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', type=str, help=help_input_path, required=True)
+        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH',
+                                         type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
-        cls.argument_parser.add_argument(qualifier_target_arg, choices=['NEST', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
-        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=['DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
+        cls.argument_parser.add_argument(qualifier_target_arg, choices=[
+                                         'NEST', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
+                                         'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
@@ -101,22 +104,27 @@ appropriate numeric solver otherwise.
         # parse or compose the module name
         if parsed_args.module_name is not None:
             if not parsed_args.module_name.endswith('module'):
-                raise Exception('Invalid module name specified ("' + parsed_args.module_name + '"): the module name should end with the word "module"')
+                raise Exception('Invalid module name specified ("' + parsed_args.module_name +
+                                '"): the module name should end with the word "module"')
             if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', parsed_args.module_name):
-                raise Exception('The specified module name ("' + parsed_args.module_name + '") cannot be parsed as a C variable name')
+                raise Exception('The specified module name ("' + parsed_args.module_name +
+                                '") cannot be parsed as a C variable name')
             cls.module_name = parsed_args.module_name
         elif os.path.isfile(parsed_args.input_path):
             cls.module_name = 'nestmlmodule'
-            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' +
+                               cls.module_name + '"', log_level=LoggingLevel.INFO)
         elif os.path.isdir(parsed_args.input_path):
             cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path))
             if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
-                raise Exception('No module name specified; tried to use the input directory name ("' + cls.module_name + '"), but it cannot be parsed as a C variable name')
+                raise Exception('No module name specified; tried to use the input directory name ("' +
+                                cls.module_name + '"), but it cannot be parsed as a C variable name')
             if not cls.module_name.endswith('module'):
                 cls.module_name += 'module'
-            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' +
+                               cls.module_name + '"', log_level=LoggingLevel.INFO)
         else:
-            assert False # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
+            assert False  # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
 
         cls.store_log = parsed_args.store_log
         cls.suffix = parsed_args.suffix
@@ -209,7 +217,8 @@ appropriate numeric solver otherwise.
                 cls.target_path = os.path.join(pynestml_dir, path)
         else:
             cls.target_path = os.path.join(os.getcwd(), 'target')
-            Logger.log_message(code=MessageCode.TARGET_PATH_INFO, log_level=LoggingLevel.INFO, message='Target files will be generated in directory \'' + cls.target_path + '\'')
+            Logger.log_message(code=MessageCode.TARGET_PATH_INFO, log_level=LoggingLevel.INFO,
+                               message='Target files will be generated in directory \'' + cls.target_path + '\'')
         # check if the target path dir already exists
         if not os.path.isdir(cls.target_path):
             os.makedirs(cls.target_path)

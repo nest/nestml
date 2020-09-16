@@ -24,6 +24,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.symbol import SymbolKind
 from astropy import units
 
+
 class CoCoOdesHaveConsistentUnits(CoCo):
     """
     This coco ensures that whenever an ODE is defined, the physical unit of the left-hand side variable matches that of the right-hand side expression.
@@ -51,16 +52,19 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         variable_symbol = node.get_lhs().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if variable_symbol is None:
             code, message = Messages.get_variable_not_defined(variable_name)
-            Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR, error_position=node.get_source_position())
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR,
+                               error_position=node.get_source_position())
             return
         variable_type = variable_symbol.type_symbol
         from pynestml.utils.unit_type import UnitType
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-        inv_diff_order_unit_type = UnitType(name="inv_diff_order_unit_type_" + variable_name + "'" * node.get_lhs().get_differential_order(), unit=1 / units.s**node.get_lhs().get_differential_order())
+        inv_diff_order_unit_type = UnitType(name="inv_diff_order_unit_type_" + variable_name + "'" *
+                                            node.get_lhs().get_differential_order(), unit=1 / units.s**node.get_lhs().get_differential_order())
         inv_diff_order_unit_type_symbol = UnitTypeSymbol(inv_diff_order_unit_type)
         lhs_type = variable_type * inv_diff_order_unit_type_symbol
         rhs_type = node.get_rhs().type
         if not rhs_type.is_castable_to(lhs_type):
-            code, message = Messages.get_ode_needs_consistent_units(variable_name, node.get_lhs().get_differential_order(), lhs_type, rhs_type)
+            code, message = Messages.get_ode_needs_consistent_units(
+                variable_name, node.get_lhs().get_differential_order(), lhs_type, rhs_type)
             Logger.log_message(error_position=node.get_source_position(), code=code,
                                message=message, log_level=LoggingLevel.ERROR)

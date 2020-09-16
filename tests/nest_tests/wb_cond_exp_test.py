@@ -7,7 +7,7 @@ try:
     mpl.use('agg')
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
 
 

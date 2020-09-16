@@ -12,9 +12,8 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
-
 
 
 class NestWBCondExpTest(unittest.TestCase):
@@ -25,10 +24,10 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
+            os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        nest_path = "/home/travis/nest_install"
+        nest_path = "/home/archels/nest-simulator-build"
         suffix = '_nestml'
 
         to_nest(input_path=input_path,
@@ -72,7 +71,6 @@ class NestWBCondExpTest(unittest.TestCase):
 
         self.assertLessEqual(expected_value, tolerance_value)
 
-
         if TEST_PLOTS:
 
             fig, ax = plt.subplots(2, figsize=(8, 6), sharex=True)
@@ -89,6 +87,7 @@ class NestWBCondExpTest(unittest.TestCase):
 
             plt.savefig("resources/traub_psc_alpha.png")
             # plt.show()
+
 
 if __name__ == "__main__":
     unittest.main()

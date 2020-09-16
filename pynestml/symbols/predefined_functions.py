@@ -310,9 +310,9 @@ class PredefinedFunctions(object):
         """
         params = list()
 
-        params.append(PredefinedTypes.get_template_type(0)) # value
-        params.append(PredefinedTypes.get_template_type(0)) # min
-        params.append(PredefinedTypes.get_template_type(0)) # max
+        params.append(PredefinedTypes.get_template_type(0))  # value
+        params.append(PredefinedTypes.get_template_type(0))  # min
+        params.append(PredefinedTypes.get_template_type(0))  # max
 
         symbol = FunctionSymbol(name=cls.CLIP, param_types=params,
                                 return_type=PredefinedTypes.get_template_type(0),
@@ -328,7 +328,7 @@ class PredefinedFunctions(object):
         params.append(PredefinedTypes.get_template_type(0))
         params.append(PredefinedTypes.get_template_type(0))
         symbol = FunctionSymbol(name=cls.MAX, param_types=params,
-								return_type=PredefinedTypes.get_template_type(0),
+                                return_type=PredefinedTypes.get_template_type(0),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.MAX] = symbol
 

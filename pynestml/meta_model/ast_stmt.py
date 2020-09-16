@@ -62,15 +62,15 @@ class ASTStmt(ASTNode):
         if self.compound_stmt:
             compound_stmt_dup = self.compound_stmt.clone()
         dup = ASTStmt(small_stmt=small_stmt_dup,
-         compound_stmt=compound_stmt_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                      compound_stmt=compound_stmt_dup,
+                      # ASTNode common attributes:
+                      source_position=self.source_position,
+                      scope=self.scope,
+                      comment=self.comment,
+                      pre_comments=[s for s in self.pre_comments],
+                      in_comment=self.in_comment,
+                      post_comments=[s for s in self.post_comments],
+                      implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

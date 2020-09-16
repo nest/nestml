@@ -63,7 +63,6 @@ class NestModelsLibraryGenerator(unittest.TestCase):
         for reference, testant, gsl_error_tol, tollerance in models:
             self._test_model(reference, testant, gsl_error_tol, tollerance)
 
-
     def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001):
         spike_times = [100.0, 200.0]
         spike_weights = [1., -1.]
@@ -102,8 +101,8 @@ class NestModelsLibraryGenerator(unittest.TestCase):
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)
-            ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
-            ax[1].plot(ts2, Vms2, label = "Testant " + testant)
+            ax[0].plot(ts1, Vms1, label="Reference " + referenceModel)
+            ax[1].plot(ts2, Vms2, label="Testant " + testant)
             for _ax in ax:
                 _ax.legend(loc='upper right')
                 _ax.grid()
@@ -111,9 +110,10 @@ class NestModelsLibraryGenerator(unittest.TestCase):
 
         for index in range(0, len(Vms1)):
             if abs(Vms1[index] - Vms2[index]) > tolerance \
-             or np.isnan(Vms1[index]) \
-             or np.isnan(Vms2[index]):
-                print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
+                    or np.isnan(Vms1[index]) \
+                    or np.isnan(Vms2[index]):
+                print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) +
+                      " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
                 raise Exception(testant + ": TEST FAILED")
 
         print(testant + " PASSED")

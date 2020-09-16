@@ -140,23 +140,23 @@ class ASTExpression(ASTExpressionNode):
         if self.if_not:
             if_not_dup = self.if_not.clone()
         dup = ASTExpression(is_encapsulated=self.is_encapsulated,
-         unary_operator=unary_operator_dup,
-         is_logical_not=self.is_logical_not,
-         expression=expression_dup,
-         lhs=lhs_dup,
-         binary_operator=binary_operator_dup,
-         rhs=rhs_dup,
-         condition=condition_dup,
-         if_true=if_true_dup,
-         if_not=if_not_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                            unary_operator=unary_operator_dup,
+                            is_logical_not=self.is_logical_not,
+                            expression=expression_dup,
+                            lhs=lhs_dup,
+                            binary_operator=binary_operator_dup,
+                            rhs=rhs_dup,
+                            condition=condition_dup,
+                            if_true=if_true_dup,
+                            if_not=if_not_dup,
+                            # ASTNode common attributes:
+                            source_position=self.source_position,
+                            scope=self.scope,
+                            comment=self.comment,
+                            pre_comments=[s for s in self.pre_comments],
+                            in_comment=self.in_comment,
+                            post_comments=[s for s in self.post_comments],
+                            implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

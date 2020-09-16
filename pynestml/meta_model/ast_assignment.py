@@ -46,8 +46,8 @@ class ASTAssignment(ASTNode):
         rhs = None
     """
 
-    def __init__(self, lhs:Optional[ASTVariable]=None, is_direct_assignment:bool=False, is_compound_sum:bool=False, is_compound_minus:bool=False,
-                 is_compound_product:bool=False, is_compound_quotient:bool=False, rhs:Optional[ASTExpression]=None, *args, **kwargs):
+    def __init__(self, lhs: Optional[ASTVariable] = None, is_direct_assignment: bool = False, is_compound_sum: bool = False, is_compound_minus: bool = False,
+                 is_compound_product: bool = False, is_compound_quotient: bool = False, rhs: Optional[ASTExpression] = None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -91,20 +91,20 @@ class ASTAssignment(ASTNode):
         if self.rhs:
             rhs_dup = self.rhs.clone()
         dup = ASTAssignment(lhs=lhs_dup,
-         rhs=rhs_dup,
-         is_direct_assignment=self.is_direct_assignment,
-         is_compound_sum = self.is_compound_sum,
-         is_compound_minus = self.is_compound_minus,
-         is_compound_product = self.is_compound_product,
-         is_compound_quotient = self.is_compound_quotient,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                            rhs=rhs_dup,
+                            is_direct_assignment=self.is_direct_assignment,
+                            is_compound_sum=self.is_compound_sum,
+                            is_compound_minus=self.is_compound_minus,
+                            is_compound_product=self.is_compound_product,
+                            is_compound_quotient=self.is_compound_quotient,
+                            # ASTNode common attriutes:
+                            source_position=self.source_position,
+                            scope=self.scope,
+                            comment=self.comment,
+                            pre_comments=[s for s in self.pre_comments],
+                            in_comment=self.in_comment,
+                            post_comments=[s for s in self.post_comments],
+                            implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -227,4 +227,3 @@ class ASTAssignment(ASTNode):
                                                                source_position=self.get_source_position())
         result.update_scope(self.get_scope())
         return result
-

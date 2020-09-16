@@ -75,7 +75,8 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
         # check if this function exists
         if method_symbol is None:
             code, message = Messages.get_could_not_resolve(function_name)
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),  log_level=LoggingLevel.ERROR)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
             self._failure_occurred = True
             return
         return_type = method_symbol.get_return_type()
@@ -88,10 +89,12 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
                 actual_symbol = node.get_function_call().get_args()[arg_idx].type
                 if arg_type._i in template_symbol_to_actual_symbol.keys():
                     if (not template_symbol_to_actual_symbol[arg_type._i].differs_only_in_magnitude(actual_symbol)) \
-                        and (not                             template_symbol_to_actual_symbol[arg_type._i].is_castable_to(actual_symbol)):
+                            and (not template_symbol_to_actual_symbol[arg_type._i].is_castable_to(actual_symbol)):
                         # if the one cannot be cast into the other
-                        code, message = Messages.templated_arg_types_inconsistent(function_name, arg_idx, template_symbol_to_parameter_indices[arg_type._i], failing_arg_type_str=actual_symbol.print_nestml_type(), other_type_str=template_symbol_to_actual_symbol[arg_type._i].print_nestml_type())
-                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+                        code, message = Messages.templated_arg_types_inconsistent(function_name, arg_idx, template_symbol_to_parameter_indices[arg_type._i], failing_arg_type_str=actual_symbol.print_nestml_type(
+                        ), other_type_str=template_symbol_to_actual_symbol[arg_type._i].print_nestml_type())
+                        Logger.log_message(code=code, message=message,
+                                           error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
                         self._failure_occurred = True
                         return
 
@@ -100,4 +103,3 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
                 else:
                     template_symbol_to_actual_symbol[arg_type._i] = actual_symbol
                     template_symbol_to_parameter_indices[arg_type._i] = [arg_idx]
-

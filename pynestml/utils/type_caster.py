@@ -45,18 +45,19 @@ class TypeCaster(object):
     def try_to_recover_or_error(_lhs_type_symbol, _rhs_type_symbol, _containing_expression):
         if _rhs_type_symbol.is_castable_to(_lhs_type_symbol):
             if isinstance(_lhs_type_symbol, UnitTypeSymbol) \
-             and isinstance(_rhs_type_symbol, UnitTypeSymbol):
-                conversion_factor = UnitTypeSymbol.get_conversion_factor(_lhs_type_symbol.astropy_unit,  _rhs_type_symbol.astropy_unit)
+                    and isinstance(_rhs_type_symbol, UnitTypeSymbol):
+                conversion_factor = UnitTypeSymbol.get_conversion_factor(
+                    _lhs_type_symbol.astropy_unit,  _rhs_type_symbol.astropy_unit)
                 if not conversion_factor == 1.:
                     # the units are mutually convertible, but require a factor unequal to 1 (e.g. mV and A*Ohm)
-                    TypeCaster.do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression)
+                    TypeCaster.do_magnitude_conversion_rhs_to_lhs(
+                        _rhs_type_symbol, _lhs_type_symbol, _containing_expression)
             # the units are mutually convertible (e.g. V and A*Ohm)
             code, message = Messages.get_implicit_cast_rhs_to_lhs(_rhs_type_symbol.print_symbol(),
-                                                                _lhs_type_symbol.print_symbol())
+                                                                  _lhs_type_symbol.print_symbol())
             Logger.log_message(error_position=_containing_expression.get_source_position(),
-                            code=code, message=message, log_level=LoggingLevel.INFO)
+                               code=code, message=message, log_level=LoggingLevel.INFO)
         else:
             code, message = Messages.get_type_different_from_expected(_lhs_type_symbol, _rhs_type_symbol)
             Logger.log_message(error_position=_containing_expression.get_source_position(),
-                            code=code, message=message, log_level=LoggingLevel.ERROR)
-
+                               code=code, message=message, log_level=LoggingLevel.ERROR)

@@ -26,6 +26,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.utils.ast_utils import ASTUtils
 
+
 class ExpressionsPrettyPrinter(object):
     """
     Converts expressions to the executable platform dependent code. By using different
@@ -63,7 +64,7 @@ class ExpressionsPrettyPrinter(object):
             The expression string.
         """
         if (node.get_implicit_conversion_factor() is not None) \
-         and (not node.get_implicit_conversion_factor() == 1):
+                and (not node.get_implicit_conversion_factor() == 1):
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, prefix=prefix) + ')'
         else:
             return self.__do_print(node, prefix=prefix)
@@ -74,7 +75,7 @@ class ExpressionsPrettyPrinter(object):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
-                       self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
+                    self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:

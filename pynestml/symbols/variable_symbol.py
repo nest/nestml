@@ -40,7 +40,7 @@ from astropy import units
 class VariableSymbol(Symbol):
     """
     This class is used to store a single variable symbol containing all required information.
-    
+
     Attributes:
         block_type           The type of block in which this symbol has been declared. Type: BlockType
         vector_parameter     The parameter indicating the position in an array. Type: str
@@ -296,9 +296,9 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         return self.ode_or_shape is not None and (isinstance(self.ode_or_shape, ASTExpression) or
-                                                     isinstance(self.ode_or_shape, ASTSimpleExpression) or
-                                                     isinstance(self.ode_or_shape, ASTOdeShape) or
-                                                     isinstance(self.ode_or_shape, ASTOdeEquation))
+                                                  isinstance(self.ode_or_shape, ASTSimpleExpression) or
+                                                  isinstance(self.ode_or_shape, ASTOdeShape) or
+                                                  isinstance(self.ode_or_shape, ASTOdeEquation))
 
     def get_ode_or_shape(self):
         """
@@ -325,8 +325,10 @@ class VariableSymbol(Symbol):
         is_cond_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("S")))
         is_curr_based = self.type_symbol.is_castable_to(UnitTypeSymbol(unit=PredefinedUnits.get_unit("A")))
         if is_cond_based == is_curr_based:
-            code, message = Messages.get_could_not_determine_cond_based(type_str=self.type_symbol.print_nestml_type(), name=self.name)
-            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING, error_position=ASTSourceLocation.get_added_source_position())
+            code, message = Messages.get_could_not_determine_cond_based(
+                type_str=self.type_symbol.print_nestml_type(), name=self.name)
+            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING,
+                               error_position=ASTSourceLocation.get_added_source_position())
             return False
 
         return is_cond_based

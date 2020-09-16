@@ -30,6 +30,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
+
 class CoCoShapeType(CoCo):
     """
     Ensures that all defined shapes are untyped (for direct functions of time), or have a type equivalent to 1/s**-order, where order is the differential order of the shape (e.g. 2 for ``shape g'' = ...``).
@@ -64,14 +65,15 @@ class ShapeTypeVisitor(ASTVisitor):
             # check shape type
             if (var.get_differential_order() == 0
                 and not type(expr.type) in [IntegerTypeSymbol, RealTypeSymbol]) \
-             or (var.get_differential_order() > 0
-                 and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
+                or (var.get_differential_order() > 0
+                    and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
                 actual_type_str = str(expr.type)
                 if 'unit' in dir(expr.type) \
-                 and expr.type.unit is not None \
-                 and expr.type.unit.unit is not None:
+                        and expr.type.unit is not None \
+                        and expr.type.unit.unit is not None:
                     actual_type_str = str(expr.type.unit.unit)
-                code, message = Messages.get_shape_wrong_type(var.get_name(), var.get_differential_order(), actual_type_str)
+                code, message = Messages.get_shape_wrong_type(
+                    var.get_name(), var.get_differential_order(), actual_type_str)
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
 
@@ -84,10 +86,12 @@ class ShapeTypeVisitor(ASTVisitor):
                     Logger.log_message(neuron=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=node.get_source_position())
                     continue
-                assert len(self._neuron.get_initial_blocks().get_declarations()[0].get_variables()) == 1, "Only single variables are supported as targets of an assignment."
+                assert len(self._neuron.get_initial_blocks().get_declarations()[0].get_variables(
+                )) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
                 if not iv.get_type_symbol().get_value().is_castable_to(PredefinedTypes.get_type("ms")**-order):
                     actual_type_str = DebugTypeConverter.convert(iv.get_type_symbol())
                     expected_type_str = "s^-" + str(order)
                     code, message = Messages.get_shape_iv_wrong_type(iv_name, actual_type_str, expected_type_str)
-                    Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, code=code, message=message)
+                    Logger.log_message(error_position=node.get_source_position(),
+                                       log_level=LoggingLevel.ERROR, code=code, message=message)

@@ -24,6 +24,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.symbol import SymbolKind
 from astropy import units
 
+
 class CoCoOdeFunctionsHaveConsistentUnits(CoCo):
     """
     This coco ensures that whenever an ODE function is defined, the physical unit of the left-hand side variable matches that of the right-hand side expression.
@@ -50,5 +51,7 @@ class OdeFunctionConsistentUnitsVisitor(ASTVisitor):
         declared_type = node.get_data_type().type_symbol
         expression_type = node.get_expression().type
         if not expression_type.is_castable_to(declared_type):
-            code, message = Messages.get_ode_function_needs_consistent_units(node.get_variable_name(), declared_type, expression_type)
-            Logger.log_message(error_position=node.get_source_position(), code=code, message=message, log_level=LoggingLevel.ERROR)
+            code, message = Messages.get_ode_function_needs_consistent_units(
+                node.get_variable_name(), declared_type, expression_type)
+            Logger.log_message(error_position=node.get_source_position(), code=code,
+                               message=message, log_level=LoggingLevel.ERROR)

@@ -31,6 +31,7 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
 
+
 class ASTDataTypeVisitor(ASTVisitor):
     """
     This class represents a visitor which inspects a handed over data type, checks if correct typing has been used

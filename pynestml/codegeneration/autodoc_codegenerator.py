@@ -36,6 +36,7 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.ode_transformer import OdeTransformer
 
+
 class AutoDocCodeGenerator(CodeGenerator):
 
     def __init__(self):

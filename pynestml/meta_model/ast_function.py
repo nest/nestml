@@ -88,18 +88,18 @@ class ASTFunction(ASTNode):
         if self.parameters:
             parameters_dup = [parameter.clone() for parameter in self.parameters]
         dup = ASTFunction(name=self.name,
-         parameters=parameters_dup,
-         return_type=return_type_dup,
-         block=block_dup,
-         type_symbol=self.type_symbol,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                          parameters=parameters_dup,
+                          return_type=return_type_dup,
+                          block=block_dup,
+                          type_symbol=self.type_symbol,
+                          # ASTNode common attributes:
+                          source_position=self.source_position,
+                          scope=self.scope,
+                          comment=self.comment,
+                          pre_comments=[s for s in self.pre_comments],
+                          in_comment=self.in_comment,
+                          post_comments=[s for s in self.post_comments],
+                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

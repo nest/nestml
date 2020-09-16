@@ -33,7 +33,7 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
         MAX_SSE = 1E-12
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
-        nest_path = "/home/travis/nest_install"
+        nest_path = "/home/archels/nest-simulator-build"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'

@@ -270,8 +270,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         data_type = (self.visit(ctx.dataType()) if ctx.dataType() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
         inlineExpr = ASTNodeFactory.create_ast_inline_expression(is_recordable=is_recordable, variable_name=variable_name,
-                                                              data_type=data_type, expression=expression,
-                                                              source_position=create_source_pos(ctx))
+                                                                 data_type=data_type, expression=expression,
+                                                                 source_position=create_source_pos(ctx))
         update_node_comments(inlineExpr, self.__comments.visit(ctx))
         return inlineExpr
 
@@ -292,7 +292,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             expr_node = self.visit(expr)
             var_nodes.append(var_node)
             expr_nodes.append(expr_node)
-        shape = ASTNodeFactory.create_ast_ode_shape(variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
+        shape = ASTNodeFactory.create_ast_ode_shape(
+            variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
         update_node_comments(shape, self.__comments.visit(ctx))
         return shape
 

@@ -52,7 +52,6 @@ class ASTNestMLCompilationUnit(ASTNode):
             self.neuron_list.extend(neuron_list)
         self.artifact_name = artifact_name
 
-
     def clone(self):
         """
         Return a clone ("deep copy") of this node.
@@ -62,15 +61,15 @@ class ASTNestMLCompilationUnit(ASTNode):
         """
         neuron_list_dup = [neuron.clone() for neuron in self.neuron_list]
         dup = ASTNestMLCompilationUnit(artifact_name=self.artifact_name,
-         neuron_list=neuron_list_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                       neuron_list=neuron_list_dup,
+                                       # ASTNode common attributes:
+                                       source_position=self.source_position,
+                                       scope=self.scope,
+                                       comment=self.comment,
+                                       pre_comments=[s for s in self.pre_comments],
+                                       in_comment=self.in_comment,
+                                       post_comments=[s for s in self.post_comments],
+                                       implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

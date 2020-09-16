@@ -95,11 +95,11 @@ class LatexExpressionPrinter():
                 rhs = self.print_expression(node.get_rhs())
                 wide = False
                 if node.get_binary_operator().is_div_op \
-                 and len(lhs) > 3 * len(rhs):
+                        and len(lhs) > 3 * len(rhs):
                     # if lhs (numerator) is much wider than rhs (denominator), rewrite as a factor
                     wide = True
                 op = self.reference_converter.convert_binary_op(node.get_binary_operator(), wide=wide)
-                return op % ({"lhs" : lhs, "rhs" : rhs})
+                return op % ({"lhs": lhs, "rhs": rhs})
             elif node.is_ternary_operator():
                 condition = self.print_expression(node.get_condition())
                 if_true = self.print_expression(node.get_if_true())

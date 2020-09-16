@@ -82,18 +82,18 @@ class ASTForStmt(ASTNode):
         if self.block:
             block_dup = self.block.clone()
         dup = ASTForStmt(variable=variable_dup,
-         start_from=start_from_dup,
-         end_at=end_at_dup,
-         step=step_dup,
-         block=block_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                         start_from=start_from_dup,
+                         end_at=end_at_dup,
+                         step=step_dup,
+                         block=block_dup,
+                         # ASTNode common attributes:
+                         source_position=self.source_position,
+                         scope=self.scope,
+                         comment=self.comment,
+                         pre_comments=[s for s in self.pre_comments],
+                         in_comment=self.in_comment,
+                         post_comments=[s for s in self.post_comments],
+                         implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

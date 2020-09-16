@@ -25,6 +25,7 @@ class TemplateTypeSymbol(TypeSymbol):
     """Function type templates for predefined NESTML functions. This allows e.g. functions like max() and min() to have a return type equal to the type of their arguments, regardless of what type the arguments are (integers, meters, nanosiemens...)
 
     Template type symbols are uniquely identified with an integer number `i`, i.e. TemplateTypeSymbol(n) == TemplateTypeSymbol(m) iff n == m."""
+
     def __init__(self, i):
         super(TemplateTypeSymbol, self).__init__(name='_template_' + str(i))
         self._i = i
@@ -49,4 +50,3 @@ class TemplateTypeSymbol(TypeSymbol):
             return True
 
         return False
-

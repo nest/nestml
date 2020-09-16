@@ -6,7 +6,7 @@ try:
     mpl.use("Agg")
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
 
 
@@ -28,7 +28,8 @@ class NestWBCondExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models", "wb_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        nest_path = "/home/travis/nest_install"
+#        nest_path = "/home/travis/nest_install"
+        nest_path = "/home/archels/nest-simulator-build"
         suffix = '_nestml'
 
         to_nest(input_path=input_path,

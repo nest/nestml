@@ -198,7 +198,8 @@ class TypeSymbol(Symbol):
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
         result = ErrorTypeSymbol()
-        code, message = Messages.get_binary_operation_not_defined(lhs=self.print_nestml_type(), operator=_operator, rhs=_other.print_nestml_type())
+        code, message = Messages.get_binary_operation_not_defined(
+            lhs=self.print_nestml_type(), operator=_operator, rhs=_other.print_nestml_type())
         Logger.log_message(code=code, message=message, error_position=self.referenced_object.get_source_position(),
                            log_level=LoggingLevel.ERROR)
         return result
