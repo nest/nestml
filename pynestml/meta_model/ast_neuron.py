@@ -33,12 +33,6 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
-def symbol_by_name(name, symbols):
-    """get a symbol from a list of symbols by the given name"""
-    for sym in symbols:
-        if sym.name == name:
-            return sym
-    return None
 
 class ASTNeuron(ASTNode):
     """
@@ -501,8 +495,10 @@ class ASTNeuron(ASTNode):
 
     def get_initial_values_symbols(self):
         """
-        Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the order by which the symbols are defined in the model: this is important if a particular variable is defined in terms of another (earlier) variable.
-        
+        Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the
+        order by which the symbols are defined in the model: this is important if a particular variable is defined in
+        terms of another (earlier) variable.
+
         :return: a list of initial values symbols.
         :rtype: list(VariableSymbol)
         """
@@ -512,8 +508,9 @@ class ASTNeuron(ASTNode):
         iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
-                iv_sym = symbol_by_name(var.get_complete_name(), symbols)
-                assert iv_sym is not None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
+                _syms = [sym for sym in symbols if sym.name == var.get_complete_name()]
+                assert len(_syms) > 0, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
+                iv_sym = _syms[0]
                 iv_syms.append(iv_sym)
         return iv_syms
 
