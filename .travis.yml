@@ -69,7 +69,7 @@ jobs:
         # install nest-simulator
         - pip install cython pytest-xdist
         - cd
-        - git clone --depth=1 https://github.com/nest/nest-simulator
+        - git clone https://github.com/nest/nest-simulator
         - cd nest-simulator
         - git checkout a19db02876c796eee7de8b6ea8414f188473e10a
         - cd ..
