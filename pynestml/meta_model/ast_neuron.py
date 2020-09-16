@@ -179,8 +179,7 @@ class ASTNeuron(ASTNode):
             return ret[0]
         if isinstance(ret, list) and len(ret) == 0:
             return None
-        else:
-            return ret
+        return ret
 
     def get_parameter_blocks(self):
         """
