@@ -37,20 +37,19 @@ neuron iaf_chxk_2008:
 
   initial_values:
     V_m mV = E_L   # membrane potential
-    G_ahp nS = 0 nS      # AHP conductance
-    G_ahp' nS/ms = 0 nS/ms   # AHP conductance
-    #G_ahp' nS/ms = e / tau_ahp * nS   # AHP conductance
+    g_ahp nS = 0 nS      # AHP conductance
+    g_ahp' nS/ms = 0 nS/ms   # AHP conductance
   end
 
   equations:
     shape g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
-    G_ahp'' = (-2/tau_ahp) * G_ahp'-(1/tau_ahp**2) * G_ahp
+    g_ahp'' = -2 * g_ahp' / tau_ahp - g_ahp / tau_ahp**2
 
-    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
-    function I_ahp pA = G_ahp * ( V_m - E_ahp )
-    function I_leak pA = g_L * ( V_m - E_L )
+    inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    inline I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+    inline I_ahp pA = g_ahp * ( V_m - E_ahp )
+    inline I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_e + I_stim ) / C_m
   end
@@ -65,7 +64,7 @@ neuron iaf_chxk_2008:
     tau_syn_ex ms = 1 ms      # Synaptic Time Constant Excitatory Synapse
     tau_syn_in ms = 1 ms      # Synaptic Time Constant for Inhibitory Synapse
     tau_ahp ms = 0.5 ms       # Afterhyperpolarization (AHP) time constant
-    g_ahp nS = 443.8 nS       # AHP conductance
+    G_ahp nS = 443.8 nS       # AHP conductance
     E_ahp mV = -95 mV         # AHP potential
     ahp_bug boolean = false   # If true, discard AHP conductance value from previous spikes
 
@@ -74,31 +73,28 @@ neuron iaf_chxk_2008:
   end
 
   internals:
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude conductance excursion.
     PSConInit_E nS/ms = nS * e / tau_syn_ex
 
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion.
     PSConInit_I nS/ms = nS * e / tau_syn_in
 
-    PSConInit_AHP real = g_ahp * e / tau_ahp * (ms/nS)
+    PSConInit_AHP real = G_ahp * e / tau_ahp * (ms/nS)
   end
 
   input:
-    spikesInh nS <- inhibitory spike
-    spikesExc nS <- excitatory spike
-    I_stim pA <- current
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
+      I_stim pA <- current
   end
 
   output: spike
 
   update:
-
     vm_prev mV = V_m
     integrate_odes()
     if vm_prev < V_th and V_m >= V_th:
-      # neuron is not absolute refractory
+      # Neuron is not absolute refractory
 
       # Find precise spike time using linear interpolation
       sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev ) / ms
@@ -110,11 +106,12 @@ neuron iaf_chxk_2008:
 
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
-        G_ahp  = delta_g_ahp * nS
-        G_ahp' = delta_dg_ahp * nS/ms
+        g_ahp  = delta_g_ahp * nS
+        g_ahp' = delta_dg_ahp * nS/ms
       else:
-        G_ahp  += delta_g_ahp * nS
-        G_ahp' += delta_dg_ahp * nS/ms
+        # Correct implementation adds initial values for new AHP to AHP history
+        g_ahp  += delta_g_ahp * nS
+        g_ahp' += delta_dg_ahp * nS/ms
       end
 
       emit_spike()

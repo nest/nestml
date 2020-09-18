@@ -17,30 +17,49 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+import copy
+import json
 import datetime
 import os
 import re
-
+import sympy
+from typing import Optional, Union, List, Dict, Mapping
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
 import pynestml
+
+from pynestml.codegeneration.ast_transformers import add_assignment_to_update_block, add_declarations_to_internals, add_declaration_to_initial_values, declaration_in_initial_values, get_delta_shape_prefactor_expr, is_delta_shape, replace_rhs_variables, replace_rhs_variable, construct_shape_X_spike_buf_name, get_expr_from_shape_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, get_shape_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_shapes, is_ode_variable, variable_in_solver, variable_in_neuron_initial_values
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
-from pynestml.codegeneration.legacy_expression_printer import LegacyExpressionPrinter
+from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
+from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
+from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
-    integrate_delta_solution
-from pynestml.solver.transformer_base import add_assignment_to_update_block
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbol_table.symbol_table import SymbolTable
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableType, VariableSymbol
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -51,16 +70,23 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
+
 class NESTCodeGenerator(CodeGenerator):
+    """
+    Code generator for a C++ NEST extension module.
+    """
 
     _variable_matching_template = r'(\b)({})(\b)'
 
     def __init__(self):
+        self.analytic_solver = {}
+        self.numeric_solver = {}
         # setup the template environment
         def raise_helper(msg):
             raise TemplateRuntimeError(msg)
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
         env.globals['raise'] = raise_helper
+        env.globals["is_delta_shape"] = is_delta_shape
         setup_env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest', 'setup')))
         setup_env.globals['raise'] = raise_helper
         # setup the cmake template
@@ -75,7 +101,6 @@ class NESTCodeGenerator(CodeGenerator):
         self._template_neuron_h_file = env.get_template('NeuronHeader.jinja2')
         # setup the neuron implementation template
         self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
-
         self._printer = ExpressionsPrettyPrinter()
 
     def generate_code(self, neurons):
@@ -83,8 +108,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
 
-    def generate_module_code(self, neurons):
-        # type: (list(ASTNeuron)) -> None
+    def generate_module_code(self, neurons: List[ASTNeuron]) -> None:
         """
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
@@ -119,8 +143,7 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
 
 
-    def analyse_transform_neurons(self, neurons):
-        # type: (list(ASTNeuron)) -> None
+    def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
         """
         Analyse and transform a list of neurons.
         :param neurons: a list of neurons.
@@ -128,44 +151,170 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             code, message = Messages.get_analysing_transforming_neuron(neuron.get_name())
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            self.analyse_neuron(neuron)
+            spike_updates = self.analyse_neuron(neuron)
+            neuron.spike_updates = spike_updates
             # now store the transformed model
             self.store_transformed_model(neuron)
 
 
-    def analyse_neuron(self, neuron):
-        # type: (ASTNeuron) -> None
+    def get_delta_factors_(self, neuron, equations_block):
+        """
+        For every occurrence of a convolution of the form `x^(n) = a * convolve(shape, inport) + ...` where `shape` is a delta function, add the element `(x^(n), inport) --> a` to the set. 
+        """
+        delta_factors = {}
+        for ode_eq in equations_block.get_ode_equations():
+            var = ode_eq.get_lhs()
+            expr = ode_eq.get_rhs()
+            conv_calls = OdeTransformer.get_convolve_function_calls(expr)
+            for conv_call in conv_calls:
+                assert len(conv_call.args) == 2, "convolve() function call should have precisely two arguments: shape and spike buffer"
+                shape = conv_call.args[0]
+                if is_delta_shape(neuron.get_shape_by_name(shape.get_variable().get_name())):
+                    inport = conv_call.args[1].get_variable()
+                    expr_str = str(expr)
+                    sympy_expr = sympy.parsing.sympy_parser.parse_expr(expr_str)
+                    sympy_expr = sympy.expand(sympy_expr)
+                    sympy_conv_expr = sympy.parsing.sympy_parser.parse_expr(str(conv_call))
+                    factor_str = []
+                    for term in sympy.Add.make_args(sympy_expr):
+                        if term.find(sympy_conv_expr):
+                            factor_str.append(str(term.replace(sympy_conv_expr, 1)))
+                    factor_str = " + ".join(factor_str)
+                    delta_factors[(var, inport)] = factor_str
+
+        return delta_factors
+
+
+    def generate_shape_buffers_(self, neuron, equations_block):
+        """
+        For every occurrence of a convolution of the form `convolve(var, spike_buf)`: add the element `(shape, spike_buf)` to the set, with `shape` being the shape that contains variable `var`.
+        """
+
+        shape_buffers = set()
+        convolve_calls = OdeTransformer.get_convolve_function_calls(equations_block)
+        for convolve in convolve_calls:
+            el = (convolve.get_args()[0], convolve.get_args()[1])
+            sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
+            if sym is None:
+                raise Exception("No initial value(s) defined for shape with variable \"" + convolve.get_args()[0].get_variable().get_complete_name() + "\"")
+            if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
+                el = (el[1], el[0])
+
+            # find the corresponding shape object
+            var = el[0].get_variable()
+            assert var is not None
+            shape = neuron.get_shape_by_name(var.get_name())
+            assert shape is not None, "In convolution \"convolve(" + str(var.name) + ", " + str(el[1]) + ")\": no shape by name \"" + var.get_name() + "\" found in neuron."
+
+            el = (shape, el[1])
+            shape_buffers.add(el)
+
+        return shape_buffers
+
+
+    def replace_variable_names_in_expressions(self, neuron, solver_dicts):
+        """
+        Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
+        variable name (e.g. `g_ex__DOLLAR__d__d`).
+        """
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+                if variable_in_solver(to_ode_toolbox_processed_name(var.get_complete_name()), solver_dicts):
+                    ast_variable = ASTVariable(to_ode_toolbox_processed_name(var.get_complete_name()), differential_order=0)
+                    ast_variable.set_source_position(var.get_source_position())
+                    _expr.set_variable(ast_variable)
+
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+                if variable_in_solver(to_ode_toolbox_processed_name(var.get_complete_name()), solver_dicts):
+                    var.set_name(to_ode_toolbox_processed_name(var.get_complete_name()))
+                    var.set_differential_order(0)
+
+        func = lambda x: replace_var(x)
+
+        neuron.accept(ASTHigherOrderVisitor(func))
+
+
+    def replace_convolve_calls_with_buffers_(self, neuron, equations_block, shape_buffers):
+        """
+        Replace all occurrences of `convolve(shape[']^n, spike_input_port)` with the corresponding buffer variable, e.g. `g_E__X__spikes_exc[__d]^n` for a shape named `g_E` and a spike input port named `spikes_exc`.
+        """
+
+        def replace_function_call_through_var(_expr=None):
+            if _expr.is_function_call() and _expr.get_function_call().get_name() == "convolve":
+                convolve = _expr.get_function_call()
+                el = (convolve.get_args()[0], convolve.get_args()[1])
+                sym = convolve.get_args()[0].get_scope().resolve_to_symbol(convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
+                if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
+                    el = (el[1], el[0])
+                var = el[0].get_variable()
+                spike_input_port = el[1].get_variable()
+                shape = neuron.get_shape_by_name(var.get_name())
+
+                _expr.set_function_call(None)
+                buffer_var = construct_shape_X_spike_buf_name(var.get_name(), spike_input_port, var.get_differential_order() - 1)
+                if is_delta_shape(shape):
+                    # delta shapes are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
+                    _expr.set_variable(None)
+                    _expr.set_numeric_literal(0)
+                else:
+                    ast_variable = ASTVariable(buffer_var)
+                    ast_variable.set_source_position(_expr.get_source_position())
+                    _expr.set_variable(ast_variable)
+
+        func = lambda x: replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
+
+        equations_block.accept(ASTHigherOrderVisitor(func))
+
+
+    def add_timestep_symbol(self, neuron):
+        assert neuron.get_initial_value("__h") is None, "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        assert not "__h" in [sym.name for sym in neuron.get_internal_symbols()], "\"__h\" is a reserved name, please do not use variables by this name in your NESTML file"
+        neuron.add_to_internal_block(ModelParser.parse_declaration('__h ms = resolution()'), index=0)
+
+
+    def analyse_neuron(self, neuron: ASTNeuron) -> List[ASTAssignment]:
         """
         Analyse and transform a single neuron.
         :param neuron: a single neuron.
+        :return: spike_updates: list of spike updates, see documentation for get_spike_update_expressions() for more information.
         """
         code, message = Messages.get_start_processing_neuron(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-        # make normalization
-        # apply spikes to buffers
-        # get rid of convolve, store them and apply then at the end
+
         equations_block = neuron.get_equations_block()
-        shape_to_buffers = {}
-        if equations_block is not None:
-            # extract function names and corresponding incoming buffers
-            convolve_calls = OdeTransformer.get_sum_function_calls(equations_block)
-            for convolve in convolve_calls:
-                shape_to_buffers[str(convolve.get_args()[0])] = str(convolve.get_args()[1])
-            OdeTransformer.refactor_convolve_call(equations_block)
-            self.make_functions_self_contained(equations_block.get_ode_functions())
-            self.replace_functions_through_defining_expressions(equations_block.get_ode_equations(),
-                                                           equations_block.get_ode_functions())
-            # transform everything into gsl processable (e.g. no functional shapes) or exact form.
-            self.transform_shapes_and_odes(neuron, shape_to_buffers)
-            self.apply_spikes_from_buffers(neuron, shape_to_buffers)
-            # update the symbol table
-            symbol_table_visitor = ASTSymbolTableVisitor()
-            symbol_table_visitor.after_ast_rewrite_ = True		# suppress warnings due to AST rewrites
-            neuron.accept(symbol_table_visitor)
+
+        if equations_block is None:
+            return []
+
+        delta_factors = self.get_delta_factors_(neuron, equations_block)
+        shape_buffers = self.generate_shape_buffers_(neuron, equations_block)
+        self.replace_convolve_calls_with_buffers_(neuron, equations_block, shape_buffers)
+        self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+        self.replace_inline_expressions_through_defining_expressions(equations_block.get_ode_equations(), equations_block.get_inline_expressions())
+
+        analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, shape_buffers)
+        self.analytic_solver[neuron.get_name()] = analytic_solver
+        self.numeric_solver[neuron.get_name()] = numeric_solver
+        self.remove_initial_values_for_shapes(neuron)
+        shapes = self.remove_shape_definitions_from_equations_block(neuron)
+        self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], shapes)
+        self.remove_ode_definitions_from_equations_block(neuron)
+        self.create_initial_values_for_shapes(neuron, [analytic_solver, numeric_solver], shapes)
+        self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+        self.add_timestep_symbol(neuron)
+
+        if self.analytic_solver[neuron.get_name()] is not None:
+            neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
+
+        self.update_symbol_table(neuron, shape_buffers)
+        spike_updates = self.get_spike_update_expressions(neuron, shape_buffers, [analytic_solver, numeric_solver], delta_factors)
+
+        return spike_updates
 
 
-    def generate_neuron_code(self, neuron):
-        # type: (ASTNeuron) -> None
+    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding header and implementation file.
         :param neuron: a single neuron object.
@@ -176,20 +325,17 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_neuron_cpp_file(neuron)
 
 
-    def generate_model_h_file(self, neuron):
-        # type: (ASTNeuron) -> None
+    def generate_model_h_file(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding header file.
         :param neuron: a single neuron object.
         """
-        # print("!!!", neuron)
         neuron_h_file = self._template_neuron_h_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
             f.write(str(neuron_h_file))
 
 
-    def generate_neuron_cpp_file(self, neuron):
-        # type: (ASTNeuron) -> None
+    def generate_neuron_cpp_file(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding implementation file.
         :param neuron: a single neuron object.
@@ -199,7 +345,7 @@ class NESTCodeGenerator(CodeGenerator):
             f.write(str(neuron_cpp_file))
 
 
-    def setup_generation_helpers(self, neuron):
+    def setup_generation_helpers(self, neuron: ASTNeuron) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance
@@ -208,22 +354,22 @@ class NESTCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         gsl_converter = GSLReferenceConverter()
-        gsl_printer = LegacyExpressionPrinter(gsl_converter)
+        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
         # helper classes and objects
         converter = NESTReferenceConverter(False)
-        legacy_pretty_printer = LegacyExpressionPrinter(converter)
+        unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
         namespace['neuron'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
-        namespace['printer'] = NestPrinter(legacy_pretty_printer)
+        namespace['printer'] = NestPrinter(unitless_pretty_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
-        namespace['idemPrinter'] = LegacyExpressionPrinter()
+        namespace['idemPrinter'] = UnitlessExpressionPrinter()
         namespace['outputEvent'] = namespace['printer'].print_output_event(neuron.get_body())
         namespace['is_spike_input'] = ASTUtils.is_spike_input(neuron.get_body())
         namespace['is_current_input'] = ASTUtils.is_current_input(neuron.get_body())
@@ -235,233 +381,407 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
 
+        namespace['initial_values'] = {}
+        namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+                                            and self.analytic_solver[neuron.get_name()] is not None
+        if namespace['uses_analytic_solver']:
+            namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
+            namespace['analytic_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables'] }
+            namespace['update_expressions'] = {}
+            for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
+                namespace['initial_values'][sym] = expr
+            for sym in namespace['analytic_state_variables']:
+                expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
+                expr_ast = ModelParser.parse_expression(expr_str)
+                expr_ast.update_scope(neuron.get_equations_blocks().get_scope()) # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                expr_ast.accept(ASTSymbolTableVisitor())
+                namespace['update_expressions'][sym] = expr_ast
+
+            namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
+
+        namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+                                           and self.numeric_solver[neuron.get_name()] is not None
+        if namespace['uses_numeric_solver']:
+            namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
+            namespace['numeric_variable_symbols'] = { sym : neuron.get_equations_block().get_scope().resolve_to_symbol(sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables'] }
+            assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
+            namespace['numeric_update_expressions'] = {}
+            for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
+                namespace['initial_values'][sym] = expr
+            for sym in namespace['numeric_state_variables']:
+                expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
+                expr_ast = ModelParser.parse_expression(expr_str)
+                expr_ast.update_scope(neuron.get_equations_blocks().get_scope()) # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
+                expr_ast.accept(ASTSymbolTableVisitor())
+                namespace['numeric_update_expressions'][sym] = expr_ast
+
+            namespace['useGSL'] = namespace['uses_numeric_solver']
+            namespace['names'] = GSLNamesConverter()
+            converter = NESTReferenceConverter(True)
+            unitless_pretty_printer = UnitlessExpressionPrinter(converter)
+            namespace['printer'] = NestPrinter(unitless_pretty_printer)
+
+        namespace["spike_updates"] = neuron.spike_updates
+
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
 
-        self.define_solver_type(neuron, namespace)
         return namespace
 
 
-    def define_solver_type(self, neuron, namespace):
-        # type: (ASTNeuron, dict) -> None
+    def ode_toolbox_analysis(self, neuron: ASTNeuron, shape_buffers: Mapping[ASTOdeShape, ASTInputPort]):
         """
-        For a handed over neuron this method enriches the namespace by methods which are used to solve
-        odes.
-        :param namespace: a single namespace dict.
-        :param neuron: a single neuron
+        Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
         """
-        namespace['useGSL'] = False
-        if neuron.get_equations_block() is not None and len(neuron.get_equations_block().get_declarations()) > 0:
-            if (not self.is_functional_shape_present(neuron.get_equations_block().get_ode_shapes())) or \
-                    len(neuron.get_equations_block().get_ode_equations()) > 1:
-                namespace['names'] = GSLNamesConverter()
-                namespace['useGSL'] = True
-                converter = NESTReferenceConverter(True)
-                legacy_pretty_printer = LegacyExpressionPrinter(converter)
-                namespace['printer'] = NestPrinter(legacy_pretty_printer)
-        return
-
-
-    def is_functional_shape_present(self, shapes):
-        # type: (list(ASTOdeShape)) -> bool
-        """
-        For a handed over list of shapes this method checks if a single shape exits with differential order of 0.
-        :param shapes: a list of shapes
-        :type shapes: list(ASTOdeShape)
-        :return: True if at leas one shape with diff. order of 0 exits, otherwise False.
-        :rtype: bool
-        """
-        for shape in shapes:
-            if shape.get_variable().get_differential_order() == 0:
-                return True
-        return False
-
-
-    def transform_shapes_and_odes(self, neuron, shape_to_buffers):
-        # type: (ASTNeuron, map(str, str)) -> ASTNeuron
-        """
-        Solves all odes and equations in the handed over neuron.
-
-        Precondition: it should be ensured that most one equations block is present.
-
-        :param neuron: a single neuron instance.
-        :param shape_to_buffers: Map of shape names to buffers to which they were connected.
-        :return: A transformed version of the neuron that can be passed to the GSL.
-        """
-
-        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "Precondition violated: only one equation block should be present"
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
 
         equations_block = neuron.get_equations_block()
 
-        if len(equations_block.get_ode_shapes()) == 0:
-            code, message = Messages.get_neuron_solved_by_solver(neuron.get_name())
-            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-            return neuron
-        elif len(equations_block.get_ode_shapes()) == 1 and \
-                str(equations_block.get_ode_shapes()[0].get_expression()).strip().startswith(
-                    "delta"):  # assume the model is well formed
-            shape = equations_block.get_ode_shapes()[0]
-            integrate_delta_solution(equations_block, neuron, shape, shape_to_buffers)
-            return neuron
-        elif len(equations_block.get_ode_equations()) == 1:
-            code, message = Messages.get_neuron_analyzed(neuron.get_name())
-            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
-            solver_result = self.solve_ode_with_shapes(equations_block)
+        if len(equations_block.get_ode_shapes()) == 0 and len(equations_block.get_ode_equations()) == 0:
+            # no equations defined -> no changes to the neuron
+            return None, None
 
-            if solver_result["solver"] is "analytical":
-                neuron = integrate_exact_solution(neuron, solver_result)
-                neuron.remove_equations_block()
-            elif (solver_result["solver"] is "numeric"
-                  and self.is_functional_shape_present(equations_block.get_ode_shapes())):
-                functional_shapes_to_odes(neuron, solver_result)
+        code, message = Messages.get_neuron_analyzed(neuron.get_name())
+        Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-            return neuron
-        else:
-            code, message = Messages.get_neuron_solved_by_solver(neuron.get_name())
-            Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+        parameters_block = neuron.get_parameter_blocks()
+        odetoolbox_indict = self.transform_ode_and_shapes_to_json(neuron, parameters_block, shape_buffers)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        #solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=FrontendConfiguration.logging_level=="DEBUG")
+        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=True)
+        analytic_solver = None
+        analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
+        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+        if len(analytic_solvers) > 0:
+            analytic_solver = analytic_solvers[0]
 
-            if self.is_functional_shape_present(equations_block.get_ode_shapes()):
-                ode_shapes = self.solve_functional_shapes(equations_block)
-                functional_shapes_to_odes(neuron, ode_shapes)
+        # if numeric solver is required, generate a stepping function that includes each state variable
+        numeric_solver = None
+        numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+        if numeric_solvers:
+            solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, disable_analytic_solver=True, debug=FrontendConfiguration.logging_level=="DEBUG")
+            numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+            assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
+            if len(numeric_solvers) > 0:
+                numeric_solver = numeric_solvers[0]
 
-            return neuron
+        return analytic_solver, numeric_solver
 
 
-    def apply_spikes_from_buffers(self, neuron, shape_to_buffers):
-        """generate the equations that update the dynamical variables when incoming spikes arrive.
+    def update_symbol_table(self, neuron, shape_buffers):
+        """
+        Update symbol table and scope.
+        """
+        SymbolTable.delete_neuron_scope(neuron.get_name())
+        symbol_table_visitor = ASTSymbolTableVisitor()
+        symbol_table_visitor.after_ast_rewrite_ = True
+        neuron.accept(symbol_table_visitor)
+        SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
 
-        For example, a resulting `assignment_string` could be "I_shape_in += (in_spikes/nS) * 1".
 
-        The definition of the spike kernel shape is then set to 0.
+    def remove_initial_values_for_shapes(self, neuron):
+        """
+        Remove initial values for original declarations (e.g. g_in, g_in', V_m); these might conflict with the initial value expressions returned from ODE-toolbox.
+        """
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
+
+        equations_block = neuron.get_equations_block()
+        symbols_to_remove = set()
+        for shape in equations_block.get_ode_shapes():
+            for shape_var in shape.get_variables():
+                shape_var_order = shape_var.get_differential_order()
+                for order in range(shape_var_order):
+                    symbol_name = shape_var.get_name() + "'" * order
+                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
+                    symbols_to_remove.add(symbol_name)
+
+        decl_to_remove = set()
+        for symbol_name in symbols_to_remove:
+            for decl in neuron.get_initial_blocks().get_declarations():
+                if len(decl.get_variables()) == 1:
+                    if decl.get_variables()[0].get_name() == symbol_name:
+                        decl_to_remove.add(decl)
+                else:
+                    for var in decl.get_variables():
+                        if var.get_name() == symbol_name:
+                            decl.variables.remove(var)
+
+        for decl in decl_to_remove:
+            neuron.get_initial_blocks().get_declarations().remove(decl)
+
+
+    def update_initial_values_for_odes(self, neuron, solver_dicts, shapes):
+        """
+        Update initial values for original ODE declarations (e.g. g_in, V_m', g_ahp'') that are present in the model
+        before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
+        """
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
+        equations_block = neuron.get_equations_block()
+
+        for iv_decl in neuron.get_initial_blocks().get_declarations():
+            for var in iv_decl.get_variables():
+                var_name = var.get_complete_name()
+                if is_ode_variable(var.get_name(), neuron):
+                    assert variable_in_solver(to_ode_toolbox_processed_name(var_name), solver_dicts)
+
+                    # replace the left-hand side variable name by the ode-toolbox format
+                    var.set_name(to_ode_toolbox_processed_name(var.get_complete_name()))
+                    var.set_differential_order(0)
+
+                    # replace the defining expression by the ode-toolbox result
+                    iv_expr = get_initial_value_from_ode_toolbox_result(to_ode_toolbox_processed_name(var_name), solver_dicts)
+                    assert iv_expr is not None
+                    iv_expr = ModelParser.parse_expression(iv_expr)
+                    iv_expr.update_scope(neuron.get_initial_blocks().get_scope())
+                    iv_decl.set_expression(iv_expr)
+
+
+    def _get_ast_variable(self, neuron, var_name) -> Optional[ASTVariable]:
+        """
+        Grab the ASTVariable corresponding to the initial value by this name
+        """
+        for decl in neuron.get_initial_values_blocks().get_declarations():
+            for var in decl.variables:
+                if var.get_name() == var_name:
+                    return var
+        return None
+
+
+    def create_initial_values_for_shapes(self, neuron, solver_dicts, shapes):
+        """
+        Add the variables used in shapes from the ode-toolbox result dictionary as ODEs in NESTML AST
+        """
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
+            for var_name in solver_dict["initial_values"].keys():
+                if variable_in_shapes(var_name, shapes):
+                    assert not declaration_in_initial_values(neuron, var_name)  # original initial value expressions should have been removed to make place for ode-toolbox results
+
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
+
+            for var_name, expr in solver_dict["initial_values"].items():
+                # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
+                if variable_in_shapes(var_name, shapes):
+                    expr = "0"    # for shapes, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    if not declaration_in_initial_values(neuron, var_name):
+                        add_declaration_to_initial_values(neuron, var_name, expr)
+
+
+    def create_initial_values_for_ode_toolbox_odes(self, neuron, solver_dicts, shape_buffers, shapes):
+        """
+        Add the variables used in ODEs from the ode-toolbox result dictionary as ODEs in NESTML AST.
+        """
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
+            for var_name in solver_dict["initial_values"].keys():
+                assert not declaration_in_initial_values(neuron, var_name)  # original initial value expressions should have been removed to make place for ode-toolbox results
+
+        for solver_dict in solver_dicts:
+            if solver_dict is None:
+                continue
+
+            for var_name, expr in solver_dict["initial_values"].items():
+                # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
+
+                if variable_in_shapes(var_name, shapes):
+                    expr = "0"    # for shapes, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+
+                if not declaration_in_initial_values(neuron, var_name):
+                    add_declaration_to_initial_values(neuron, var_name, expr)
+
+
+    def get_spike_update_expressions(self, neuron: ASTNeuron, shape_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
+        """
+        Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
+
+        For example, a resulting `assignment_str` could be "I_shape_in += (in_spikes/nS) * 1". The values are taken from the initial values for each corresponding dynamical variable, either from ode-toolbox or directly from user specification in the model.
+
+        Note that for shapes, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
         """
         spike_updates = []
         initial_values = neuron.get_initial_values_blocks()
-        for declaration in initial_values.get_declarations():
-            variable = declaration.get_variables()[0]
-            for shape in shape_to_buffers:
-                matcher_computed_shape_odes = re.compile(shape + r"(__d)*")
-                if re.fullmatch(matcher_computed_shape_odes, str(variable)):
-                    buffer_type = neuron.get_scope(). \
-                        resolve_to_symbol(shape_to_buffers[shape], SymbolKind.VARIABLE).get_type_symbol()
-                    assignment_string = variable.get_complete_name() + " += (" + shape_to_buffers[
-                        shape] + '/' + buffer_type.print_nestml_type() + ") * " + \
-                                        self._printer.print_expression(declaration.get_expression())
-                    spike_updates.append(ModelParser.parse_assignment(assignment_string))
-                    # the IV is applied. can be reset
-                    declaration.set_expression(ModelParser.parse_expression("0"))
-                    break
-        for assignment in spike_updates:
-            add_assignment_to_update_block(assignment, neuron)
+
+        for shape, spike_input_port in shape_buffers:
+            if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+                continue
+
+            buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
+
+            if is_delta_shape(shape):
+                continue
+
+            for shape_var in shape.get_variables():
+                for var_order in range(get_shape_var_order_from_ode_toolbox_result(shape_var.get_name(), solver_dicts)):
+                    shape_spike_buf_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_input_port, var_order)
+                    expr = get_initial_value_from_ode_toolbox_result(shape_spike_buf_name, solver_dicts)
+                    assert expr is not None, "Initial value not found for shape " + shape_var
+                    expr = str(expr)
+                    if expr in ["0", "0.", "0.0"]:
+                        continue    # skip adding the statement if we're only adding zero
+
+                    assignment_str = shape_spike_buf_name + " += "
+                    assignment_str += "(" + str(spike_input_port) + ")"
+                    if not expr in ["1.", "1.0", "1"]:
+                        assignment_str += " * (" + self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+
+                    if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                        assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
+
+                    ast_assignment = ModelParser.parse_assignment(assignment_str)
+                    ast_assignment.update_scope(neuron.get_scope())
+                    ast_assignment.accept(ASTSymbolTableVisitor())
+
+                    spike_updates.append(ast_assignment)
+
+        for k, factor in delta_factors.items():
+            var = k[0]
+            inport = k[1]
+            assignment_str = var.get_name() + "'" * (var.get_differential_order() - 1) + " += "
+            if not factor in ["1.", "1.0", "1"]:
+                assignment_str += "(" + self._printer.print_expression(ModelParser.parse_expression(factor)) + ") * "
+            assignment_str += str(inport)
+            ast_assignment = ModelParser.parse_assignment(assignment_str)
+            ast_assignment.update_scope(neuron.get_scope())
+            ast_assignment.accept(ASTSymbolTableVisitor())
+
+            spike_updates.append(ast_assignment)
+
+        return spike_updates
 
 
-    def solve_ode_with_shapes(self, equations_block):
-        # type: (ASTEquationsBlock) -> dict[str, list]
-        odes_shapes_json = self.transform_ode_and_shapes_to_json(equations_block)
-
-        return analysis(odes_shapes_json, enable_stiffness_check=False)
-
-
-    def transform_ode_and_shapes_to_json(self, equations_block):
-        # type: (ASTEquationsBlock) -> dict[str, list]
+    def remove_shape_definitions_from_equations_block(self, neuron):
         """
-        Converts AST node to a JSON representation
-        :param equations_block:equations_block
-        :return: json mapping: {odes: [...], shape: [...]}
+        Removes all shapes in this block.
         """
-        result = {"odes": [], "shapes": []}
+        equations_block = neuron.get_equations_block()
 
+        decl_to_remove = set()
+        for decl in equations_block.get_declarations():
+            if type(decl) is ASTOdeShape:
+                decl_to_remove.add(decl)
+
+        for decl in decl_to_remove:
+            equations_block.get_declarations().remove(decl)
+
+        return decl_to_remove
+
+
+    def remove_ode_definitions_from_equations_block(self, neuron):
+        """
+        Removes all ODEs in this block.
+        """
+        equations_block = neuron.get_equations_block()
+
+        decl_to_remove = set()
+        for decl in equations_block.get_ode_equations():
+            decl_to_remove.add(decl)
+
+        for decl in decl_to_remove:
+            equations_block.get_declarations().remove(decl)
+
+
+    def transform_ode_and_shapes_to_json(self, neuron: ASTNeuron, parameters_block, shape_buffers):
+        """
+        Converts AST node to a JSON representation suitable for passing to ode-toolbox.
+
+        Each shape has to be generated for each spike buffer convolve in which it occurs, e.g. if the NESTML model code contains the statements
+
+            convolve(G, ex_spikes)
+            convolve(G, in_spikes)
+
+        then `shape_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.            
+
+        :param equations_block: ASTEquationsBlock
+        :return: Dict
+        """
+        odetoolbox_indict = {}
+
+        gsl_converter = ODEToolboxReferenceConverter()
+        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
+
+        odetoolbox_indict["dynamics"] = []
+        equations_block = neuron.get_equations_block()
         for equation in equations_block.get_ode_equations():
-            result["odes"].append({"symbol": equation.get_lhs().get_name(),
-                                   "definition": self._printer.print_expression(equation.get_rhs())})
+            lhs = to_ode_toolbox_name(equation.get_lhs().get_complete_name())   # n.b. includes single quotation marks to indicate differential order
+            rhs = gsl_printer.print_expression(equation.get_rhs())
+            entry = { "expression": lhs + " = " + rhs }
+            symbol_name = equation.get_lhs().get_name()
+            symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
 
-        ode_shape_names = set()
-        for shape in equations_block.get_ode_shapes():
-            if shape.get_variable().get_differential_order() == 0:
-                result["shapes"].append({"type": "function",
-                                         "symbol": shape.get_variable().get_complete_name(),
-                                         "definition": self._printer.print_expression(shape.get_expression())})
+            entry["initial_values"] = {}
+            symbol_order = equation.get_lhs().get_differential_order()
+            for order in range(symbol_order):
+                iv_symbol_name = symbol_name + "'" * order
+                initial_value_expr = neuron.get_initial_value(iv_symbol_name)
+                if initial_value_expr:
+                    expr = gsl_printer.print_expression(initial_value_expr)
+                    entry["initial_values"][to_ode_toolbox_name(iv_symbol_name)] = expr
+            odetoolbox_indict["dynamics"].append(entry)
 
-            else:
-                extracted_shape_name = shape.get_variable().get_name()
-                if '__' in shape.get_variable().get_name():
-                    extracted_shape_name = shape.get_variable().get_name()[0:shape.get_variable().get_name().find("__")]
-                if extracted_shape_name not in ode_shape_names:  # add shape name only once
-                    ode_shape_names.add(extracted_shape_name)
+        # write a copy for each (shape, spike buffer) combination
+        for shape, spike_input_port in shape_buffers:
 
-        # try to resolve all available initial values
-        shape_name_to_initial_values = {}
-        shape_name_to_shape_definition = {}
+            if is_delta_shape(shape):
+                # delta function -- skip passing this to ode-toolbox
+                continue
 
-        for shape_name in ode_shape_names:
-            shape_name_symbol = equations_block.get_scope().resolve_to_symbol(shape_name, SymbolKind.VARIABLE)
-            shape_name_to_initial_values[shape_name] = [
-                self._printer.print_expression(shape_name_symbol.get_declaring_expression())]
-            shape_name_to_shape_definition[shape_name] = self._printer.print_expression(shape_name_symbol.get_ode_definition())
-            order = 1
-            while True:
-                shape_name_symbol = equations_block.get_scope().resolve_to_symbol(shape_name + "__" + 'd' * order,
-                                                                                  SymbolKind.VARIABLE)
-                if shape_name_symbol is not None:
-                    shape_name_to_initial_values[shape_name].append(
-                        self._printer.print_expression(shape_name_symbol.get_declaring_expression()))
-                    shape_name_to_shape_definition[shape_name] = self._printer.print_expression(
-                        shape_name_symbol.get_ode_definition())
-                else:
-                    break
-                order = order + 1
+            for shape_var in shape.get_variables():
+                expr = get_expr_from_shape_var(shape, shape_var.get_complete_name())
+                shape_order = shape_var.get_differential_order()
+                shape_X_spike_buf_name_ticks = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_input_port, shape_order, diff_order_symbol="'")
 
-        for shape_name in ode_shape_names:
-            result["shapes"].append({"type": "ode",
-                                     "symbol": shape_name,
-                                     "definition": shape_name_to_shape_definition[shape_name],
-                                     "initial_values": shape_name_to_initial_values[shape_name]})
+                replace_rhs_variables(expr, shape_buffers)
 
-        result["parameters"] = {}  # ode-framework requires this.
-        return result
+                entry = {}
+                entry["expression"] = shape_X_spike_buf_name_ticks + " = " + str(expr)
 
+                # initial values need to be declared for order 1 up to shape order (e.g. none for shape function f(t) = ...; 1 for shape ODE f'(t) = ...; 2 for f''(t) = ... and so on)
+                entry["initial_values"] = {}
+                for order in range(shape_order):
+                    iv_sym_name_ode_toolbox = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_input_port, order, diff_order_symbol="'")
+                    symbol_name_ = shape_var.get_name() + "'" * order
+                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name_, SymbolKind.VARIABLE)
+                    assert symbol is not None, "Could not find initial value for variable " + symbol_name_
+                    initial_value_expr = symbol.get_declaring_expression()
+                    assert initial_value_expr is not None, "No initial value found for variable name " + symbol_name_
+                    entry["initial_values"][iv_sym_name_ode_toolbox] = gsl_printer.print_expression(initial_value_expr)
 
-    def solve_functional_shapes(self, equations_block):
-        # type: (ASTEquationsBlock) -> dict[str, list]
-        shapes_json = self.transform_functional_shapes_to_json(equations_block)
+                odetoolbox_indict["dynamics"].append(entry)
 
-        return analysis(shapes_json, enable_stiffness_check=False)
+        odetoolbox_indict["parameters"] = {}
+        if parameters_block is not None:
+            for decl in parameters_block.get_declarations():
+                for var in decl.variables:
+                    odetoolbox_indict["parameters"][var.get_complete_name()] = gsl_printer.print_expression(decl.get_expression())
+
+        return odetoolbox_indict
 
 
-    def transform_functional_shapes_to_json(self, equations_block):
-        # type: (ASTEquationsBlock) -> dict[str, list]
+    def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
         """
-        Converts AST node to a JSON representation
-        :param equations_block:equations_block
-        :return: json mapping: {odes: [...], shape: [...]}
-        """
-        result = {"odes": [], "shapes": []}
+        Make inline_expressions self contained, i.e. without any references to other inline_expressions.
 
-        for shape in equations_block.get_ode_shapes():
-            if shape.get_variable().get_differential_order() == 0:
-                result["shapes"].append({"type": "function",
-                                         "symbol": shape.get_variable().get_complete_name(),
-                                         "definition": self._printer.print_expression(shape.get_expression())})
+        TODO: it should be a method inside of the ASTInlineExpression
+        TODO: this should be done by means of a visitor
 
-        result["parameters"] = {}  # ode-framework requires this.
-        return result
-
-    def make_functions_self_contained(self, functions):
-        # type: (list(ASTOdeFunction)) -> list(ASTOdeFunction)
+        :param inline_expressions: A sorted list with entries ASTInlineExpression.
+        :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
         """
-        TODO: it should be a method inside of the ASTOdeFunction
-        TODO by KP: this should be done by means of a visitor
-        Make function definition self contained, e.g. without any references to functions from `functions`.
-        :param functions: A sorted list with entries ASTOdeFunction.
-        :return: A list with ASTOdeFunctions. Defining expressions don't depend on each other.
-        """
-        for source in functions:
+        for source in inline_expressions:
             source_position = source.get_source_position()
-            for target in functions:
+            for target in inline_expressions:
                 matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
                 target.expression = ModelParser.parse_expression(target_definition)
+                target.expression.update_scope(source.get_scope())
+                target.expression.accept(ASTSymbolTableVisitor())
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():
@@ -469,27 +789,26 @@ class NESTCodeGenerator(CodeGenerator):
 
                 target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
-        return functions
+        return inline_expressions
 
 
-    def replace_functions_through_defining_expressions(self, definitions, functions):
-        # type: (list(ASTOdeEquation), list(ASTOdeFunction)) -> list(ASTOdeFunction)
+    def replace_inline_expressions_through_defining_expressions(self, definitions, inline_expressions):
+        # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
         """
-        Refractors symbols form `functions` in `definitions` with corresponding defining expressions from `functions`.
-        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made
-        free from.
-        :param functions: A sorted list with entries {"symbol": "name", "definition": "expression"} with functions which
-        must be replaced in `definitions`.
-        :return: A list with definitions. Expressions in `definitions` don't depend on functions from `functions`.
+        Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
+
+        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made free from.
+        :param inline_expressions: A sorted list with entries {"symbol": "name", "definition": "expression"} with inline_expressions which must be replaced in `definitions`.
+        :return: A list with definitions. Expressions in `definitions` don't depend on inline_expressions from `inline_expressions`.
         """
-        for fun in functions:
-            source_position = fun.get_source_position()
+        for m in inline_expressions:
+            source_position = m.get_source_position()
             for target in definitions:
-                matcher = re.compile(self._variable_matching_template.format(fun.get_variable_name()))
+                matcher = re.compile(self._variable_matching_template.format(m.get_variable_name()))
                 target_definition = str(target.get_rhs())
-                target_definition = re.sub(matcher, "(" + str(fun.get_expression()) + ")", target_definition)
+                target_definition = re.sub(matcher, "(" + str(m.get_expression()) + ")", target_definition)
                 target.rhs = ModelParser.parse_expression(target_definition)
-                target.update_scope(fun.get_scope())
+                target.update_scope(m.get_scope())
                 target.accept(ASTSymbolTableVisitor())
 
                 def log_set_source_position(node):
@@ -497,24 +816,8 @@ class NESTCodeGenerator(CodeGenerator):
                         node.set_source_position(source_position)
 
                 target.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
+
         return definitions
-
-
-    def transform_functions_json(self, equations_block):
-        # type: (ASTEquationsBlock) -> list[dict[str, str]]
-        """
-        Converts AST node to a JSON representation
-        :param equations_block:equations_block
-        :return: json mapping: {odes: [...], shape: [...]}
-        """
-        equations_block = OdeTransformer.refactor_convolve_call(equations_block)
-        result = []
-
-        for fun in equations_block.get_functions():
-            result.append({"symbol": fun.get_variable_name(),
-                           "definition": self._printer.print_expression(fun.get_expression())})
-
-        return result
 
 
     def store_transformed_model(self, ast):

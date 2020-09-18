@@ -122,6 +122,8 @@ def main():
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
         return 1
+    # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
+    sys.setrecursionlimit(10000)
     # after all argument have been collected, start the actual processing
     return int(process())
 

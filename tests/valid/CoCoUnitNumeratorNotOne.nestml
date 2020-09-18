@@ -28,14 +28,4 @@ neuron CoCoUnitNumeratorNotOne:
     state:
         test1 1/s = 10/s # the numerator is correctly stated as 1, thus everything correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

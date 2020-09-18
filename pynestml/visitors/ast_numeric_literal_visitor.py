@@ -21,6 +21,7 @@
 """
 simpleExpression : (UNSIGNED_INTEGER | FLOAT) (variable)?
 """
+from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -45,10 +46,14 @@ class ASTNumericLiteralVisitor(ASTVisitor):
             scope = node.get_scope()
             var_name = node.get_variable().get_name()
             variable_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-            if not variable_symbol_resolve is None:
+            if variable_symbol_resolve is not None:
                 node.type = variable_symbol_resolve.get_type_symbol()
             else:
-                node.type = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
+                type_symbol_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
+                if type_symbol_resolve is not None:
+                    node.type = type_symbol_resolve
+                else:
+                    node.type = ErrorTypeSymbol()
             node.type.referenced_object = node
             return
 

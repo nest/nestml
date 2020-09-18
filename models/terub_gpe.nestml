@@ -49,61 +49,61 @@ neuron terub_gpe:
 
   equations:
     # Parameters for Terman Rubin GPe Neuron
-    function g_tau_n_0 ms = 0.05 ms
-    function g_tau_n_1 ms = 0.27 ms
-    function g_theta_n_tau mV = -40.0 mV
-    function g_sigma_n_tau mV = -12.0 mV
+    inline g_tau_n_0 ms = 0.05 ms
+    inline g_tau_n_1 ms = 0.27 ms
+    inline g_theta_n_tau mV = -40.0 mV
+    inline g_sigma_n_tau mV = -12.0 mV
 
-    function g_tau_h_0 ms = 0.05 ms
-    function g_tau_h_1 ms = 0.27 ms
-    function g_theta_h_tau mV = -40.0 mV
-    function g_sigma_h_tau mV = -12.0 mV
-    function g_tau_r ms = 30.0 ms
+    inline g_tau_h_0 ms = 0.05 ms
+    inline g_tau_h_1 ms = 0.27 ms
+    inline g_theta_h_tau mV = -40.0 mV
+    inline g_sigma_h_tau mV = -12.0 mV
+    inline g_tau_r ms = 30.0 ms
 
     # steady state values for gating variables
-    function g_theta_a mV = -57.0 mV
-    function g_sigma_a mV =  2.0 mV
-    function g_theta_h mV = -58.0 mV
-    function g_sigma_h mV = -12.0 mV
-    function g_theta_m mV = -37.0 mV
-    function g_sigma_m mV = 10.0 mV
-    function g_theta_n mV = -50.0 mV
-    function g_sigma_n mV = 14.0 mV
-    function g_theta_r mV = -70.0 mV
-    function g_sigma_r mV = -2.0 mV
-    function g_theta_s mV = -35.0 mV
-    function g_sigma_s mV = 2.0 mV
+    inline g_theta_a mV = -57.0 mV
+    inline g_sigma_a mV =  2.0 mV
+    inline g_theta_h mV = -58.0 mV
+    inline g_sigma_h mV = -12.0 mV
+    inline g_theta_m mV = -37.0 mV
+    inline g_sigma_m mV = 10.0 mV
+    inline g_theta_n mV = -50.0 mV
+    inline g_sigma_n mV = 14.0 mV
+    inline g_theta_r mV = -70.0 mV
+    inline g_sigma_r mV = -2.0 mV
+    inline g_theta_s mV = -35.0 mV
+    inline g_sigma_s mV = 2.0 mV
 
     # time evolvement of gating variables
-    function g_phi_h real =  0.05
-    function g_phi_n real =  0.1 #Report: 0.1, Terman Rubin 2002: 0.05
-    function g_phi_r real = 1.0
+    inline g_phi_h real =  0.05
+    inline g_phi_n real =  0.1 #Report: 0.1, Terman Rubin 2002: 0.05
+    inline g_phi_r real = 1.0
 
     # Calcium concentration and afterhyperpolarization current
-    function g_epsilon 1/ms =  0.0001 /ms
-    function g_k_Ca real = 15.0 #Report:15,  Terman Rubin 2002: 20.0
-    function g_k1 real = 30.0
+    inline g_epsilon 1/ms =  0.0001 /ms
+    inline g_k_Ca real = 15.0 #Report:15,  Terman Rubin 2002: 20.0
+    inline g_k1 real = 30.0
 
-    function I_ex_mod real = -convolve(g_ex, spikeExc) * V_m
-    function I_in_mod real = convolve(g_in, spikeInh) * (V_m-E_gg)
+    inline I_ex_mod real = -convolve(g_ex, spikeExc) * V_m
+    inline I_in_mod real = convolve(g_in, spikeInh) * (V_m-E_gg)
 
-    function tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
-    function tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
-    function tau_r real = g_tau_r
+    inline tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
+    inline tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
+    inline tau_r real = g_tau_r
 
-    function a_inf real = 1. / (1. + exp(-(V_m-g_theta_a)/g_sigma_a))
-    function h_inf real = 1. / (1. + exp(-(V_m-g_theta_h)/g_sigma_h))
-    function m_inf real = 1. / (1. + exp(-(V_m-g_theta_m)/g_sigma_m))
-    function n_inf real = 1. / (1. + exp(-(V_m-g_theta_n)/g_sigma_n))
-    function r_inf real = 1. / (1. + exp(-(V_m-g_theta_r)/g_sigma_r))
-    function s_inf real = 1. / (1. + exp(-(V_m-g_theta_s)/g_sigma_s))
+    inline a_inf real = 1. / (1. + exp(-(V_m-g_theta_a)/g_sigma_a))
+    inline h_inf real = 1. / (1. + exp(-(V_m-g_theta_h)/g_sigma_h))
+    inline m_inf real = 1. / (1. + exp(-(V_m-g_theta_m)/g_sigma_m))
+    inline n_inf real = 1. / (1. + exp(-(V_m-g_theta_n)/g_sigma_n))
+    inline r_inf real = 1. / (1. + exp(-(V_m-g_theta_r)/g_sigma_r))
+    inline s_inf real = 1. / (1. + exp(-(V_m-g_theta_s)/g_sigma_s))
 
-    function I_Na  real =  g_Na  * m_inf * m_inf * m_inf * gate_h    * (V_m - E_Na)
-    function I_K   real =  g_K   * gate_n * gate_n * gate_n * gate_n * (V_m - E_K )
-    function I_L   real =  g_L                                       * (V_m - E_L )
-    function I_T   real =  g_T   * a_inf* a_inf * a_inf * gate_r     * (V_m - E_Ca)
-    function I_Ca  real =  g_Ca  * s_inf * s_inf                     * (V_m - E_Ca)
-    function I_ahp real =  g_ahp * (Ca_con / (Ca_con + g_k1))        * (V_m - E_K )
+    inline I_Na  real =  g_Na  * m_inf * m_inf * m_inf * gate_h    * (V_m - E_Na)
+    inline I_K   real =  g_K   * gate_n * gate_n * gate_n * gate_n * (V_m - E_K )
+    inline I_L   real =  g_L                                       * (V_m - E_L )
+    inline I_T   real =  g_T   * a_inf* a_inf * a_inf * gate_r     * (V_m - E_Ca)
+    inline I_Ca  real =  g_Ca  * s_inf * s_inf                     * (V_m - E_Ca)
+    inline I_ahp real =  g_ahp * (Ca_con / (Ca_con + g_k1))        * (V_m - E_K )
 
     # synapses: alpha functions
     ## alpha function for the g_in

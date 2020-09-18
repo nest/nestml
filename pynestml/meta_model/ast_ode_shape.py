@@ -25,26 +25,23 @@ class ASTOdeShape(ASTNode):
     """
     This class is used to store shapes.
     Grammar:
-        odeShape : 'shape' lhs=variable '=' rhs=expr;
-    Attributes:
-        lhs = None
-        rhs = None
+        odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
     """
 
-    def __init__(self, lhs, rhs, *args, **kwargs):
+    def __init__(self, variables, expressions, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param lhs: the variable corresponding to the shape
-        :type lhs: ASTVariable
-        :param rhs: the right-hand side
-        :type rhs: Union[ASTExpression, ASTSimpleExpression]
+        :param variables: the variable corresponding to the shape
+        :type variables: ASTVariable
+        :param expressions: the right-hand side
+        :type expressions: Union[ASTExpression, ASTSimpleExpression]
         """
         super(ASTOdeShape, self).__init__(*args, **kwargs)
-        self.lhs = lhs
-        self.rhs = rhs
+        self.variables = variables
+        self.expressions = expressions
 
     def clone(self):
         """
@@ -53,8 +50,14 @@ class ASTOdeShape(ASTNode):
         :return: new AST node instance
         :rtype: ASTInputPort
         """
-        dup = ASTOdeShape(lhs=self.lhs.clone(),
-         rhs=self.rhs.clone(),
+        variables_dup = None
+        if self.variables:
+            variables_dup = [var.clone() for var in self.variables]
+        expressions_dup = None
+        if self.expressions:
+            expressions_dup = [expr.clone() for expr in self.expressions]
+        dup = ASTOdeShape(variables=variables_dup,
+         expressions=expressions_dup,
          # ASTNode common attributes:
          source_position=self.source_position,
          scope=self.scope,
@@ -66,38 +69,52 @@ class ASTOdeShape(ASTNode):
 
         return dup
 
-    def get_variable(self):
+    def get_variables(self):
         """
         Returns the variable of the left-hand side.
         :return: the variable
         :rtype: ast_variable
         """
-        return self.lhs
+        return self.variables
 
-    def get_expression(self):
+    def get_variable_names(self):
+        """
+        Returns the variable of the left-hand side.
+        :return: the variable
+        :rtype: ast_variable
+        """
+        return [var.get_complete_name() for var in self.variables]
+
+    def get_expressions(self):
         """
         Returns the right-hand side rhs.
         :return: the rhs
         :rtype: ast_expression
         """
-        return self.rhs
+        return self.expressions
 
     def get_parent(self, ast):
         """
-        Indicates whether a this node contains the handed over node.
+        Indicates whether this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: AST_
+        :type ast: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
+        :rtype: ASTNode or None
         """
-        if self.get_variable() is ast:
-            return self
-        if self.get_variable().get_parent(ast) is not None:
-            return self.get_variable().get_parent(ast)
-        if self.get_expression() is ast:
-            return self
-        if self.get_expression().get_parent(ast) is not None:
-            return self.get_expression().get_parent(ast)
+        for var in self.get_variables():
+            if var is ast:
+                return self
+
+            if var.get_parent(ast) is not None:
+                return var.get_parent(ast)
+
+        for expr in self.get_expressions():
+            if expr is ast:
+                return self
+
+            if expr.get_parent(ast) is not None:
+                return expr.get_parent(ast)
+
         return None
 
     def equals(self, other):
@@ -110,4 +127,22 @@ class ASTOdeShape(ASTNode):
         """
         if not isinstance(other, ASTOdeShape):
             return False
-        return self.get_variable().equals(other.get_variable()) and self.get_expression().equals(other.get_expression())
+        
+        for var in self.get_variables():
+            if not var in other.get_variables():
+                return False
+        
+        for var in other.get_variables():
+            if not var in self.get_variables():
+                return False
+        
+
+        for expr in self.get_expressions():
+            if not expr in other.get_expressions():
+                return False
+        
+        for expr in other.get_expressions():
+            if not expr in self.get_expressions():
+                return False
+
+        return True

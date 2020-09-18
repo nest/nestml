@@ -39,7 +39,7 @@ before_install:
 
   # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
   - pip uninstall --yes odetoolbox
-  - pip install git+https://github.com/nest/ode-toolbox.git@509a1e8b17c0f36d7eb749812a6882ca7f1142b1
+  - pip install git+https://github.com/nest/ode-toolbox.git
 
 install:
   # in install, we install NESTML itself
@@ -62,14 +62,17 @@ stages:
 jobs:
   include:
     - stage: test
-      script: pytest -s -o norecursedirs='*' tests
+      script: pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests
 
     - stage: integration
       install:
         # install nest-simulator
         - pip install cython pytest-xdist
         - cd
-        - git clone --depth=1 https://github.com/nest/nest-simulator
+        - git clone https://github.com/nest/nest-simulator
+        - cd nest-simulator
+        - git checkout a19db02876c796eee7de8b6ea8414f188473e10a
+        - cd ..
         - mkdir nest_install
         - cd nest_install
         - export PYTHON_INCLUDE_DIR=`python3 -c "from sysconfig import get_paths; info = get_paths(); print(info['include'])"`
@@ -86,7 +89,7 @@ jobs:
         - python setup.py install
 
       script:
-        - nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestmlmodule
+        - nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
         - cd target
         - cmake -Dwith-nest=/home/travis/nest_install/bin/nest-config .
         - make && make install
@@ -96,4 +99,5 @@ jobs:
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - echo $PYNESTKERNEL_LOCATION
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
-        - pytest -s --forked $TRAVIS_BUILD_DIR/tests/nest_tests
+        - pytest -s  -o log_cli=true -o log_cli_level="DEBUG" --forked $TRAVIS_BUILD_DIR/tests/nest_tests
+

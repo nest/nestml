@@ -26,21 +26,9 @@
 */
 
 neuron CoCoVectorInNonVectorDeclaration:
-
     state:
         ten integer = 10
         g_ex mV [ten] = 10mV
         g_in mV [ten]= g_ex + g_ex # vector = vector + vector, thus everything is correct
     end
-
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

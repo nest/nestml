@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.idempotent_reference_converter import IdempotentReferenceConverter
+from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -40,7 +40,8 @@ class ExpressionsPrettyPrinter(object):
         if reference_converter is not None:
             self.reference_converter = reference_converter
         else:
-            self.reference_converter = IdempotentReferenceConverter()
+            self.reference_converter = NestMLReferenceConverter()
+
         if types_printer is not None:
             self.types_printer = types_printer
         else:
@@ -61,8 +62,9 @@ class ExpressionsPrettyPrinter(object):
         s : str
             The expression string.
         """
-        if node.get_implicit_conversion_factor() is not None:
-            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
+        if (node.get_implicit_conversion_factor() is not None) \
+         and (not node.get_implicit_conversion_factor() == 1):
+            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, prefix=prefix) + ')'
         else:
             return self.__do_print(node, prefix=prefix)
 
@@ -72,7 +74,7 @@ class ExpressionsPrettyPrinter(object):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
-                       self.reference_converter.convert_name_reference(node.get_variable())
+                       self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:
@@ -84,7 +86,7 @@ class ExpressionsPrettyPrinter(object):
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable())
+                return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
         elif isinstance(node, ASTExpression):
@@ -113,7 +115,7 @@ class ExpressionsPrettyPrinter(object):
                 if_not = self.print_expression(node.if_not, prefix=prefix)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
         else:
-            raise RuntimeError('Unsupported rhs in rhs pretty printer!')
+            raise RuntimeError('Unsupported rhs in rhs pretty printer (%s)!' % str(node))
 
     def print_function_call(self, function_call, prefix=''):
         """Print a function call, including bracketed arguments list.
@@ -133,7 +135,6 @@ class ExpressionsPrettyPrinter(object):
             The function call string.
         """
         function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
-
         if ASTUtils.needs_arguments(function_call):
             return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
         else:

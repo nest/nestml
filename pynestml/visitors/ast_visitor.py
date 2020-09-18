@@ -44,7 +44,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -289,11 +289,11 @@ class ASTVisitor(object):
         """
         return
 
-    def visit_ode_function(self, node):
+    def visit_inline_expression(self, node):
         """
-        Used to visit a single ode-function.
-        :param node: a single ode-function.
-        :type node: ASTOdeFunction
+        Used to visit a single inline expression.
+        :param node: a single inline expression.
+        :type node: ASTInlineExpression
         """
         return
 
@@ -596,11 +596,11 @@ class ASTVisitor(object):
         """
         return
 
-    def endvisit_ode_function(self, node):
+    def endvisit_inline_expression(self, node):
         """
-        Used to endvisit a single ode-function.
-        :param node: a single ode-function.
-        :type node: ASTOdeFunction
+        Used to endvisit a single inline expression.
+        :param node: a single inline expression
+        :type node: ASTInlineExpression
         """
         return
 
@@ -790,8 +790,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTOdeEquation):
             self.visit_ode_equation(node)
             return
-        if isinstance(node, ASTOdeFunction):
-            self.visit_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            self.visit_inline_expression(node)
             return
         if isinstance(node, ASTOdeShape):
             self.visit_ode_shape(node)
@@ -915,8 +915,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTOdeEquation):
             self.traverse_ode_equation(node)
             return
-        if isinstance(node, ASTOdeFunction):
-            self.traverse_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            self.traverse_inline_expression(node)
             return
         if isinstance(node, ASTOdeShape):
             self.traverse_ode_shape(node)
@@ -1040,8 +1040,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTOdeEquation):
             self.endvisit_ode_equation(node)
             return
-        if isinstance(node, ASTOdeFunction):
-            self.endvisit_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            self.endvisit_inline_expression(node)
             return
         if isinstance(node, ASTOdeShape):
             self.endvisit_ode_shape(node)
@@ -1254,7 +1254,7 @@ class ASTVisitor(object):
             node.get_rhs().accept(self.get_real_self())
         return
 
-    def traverse_ode_function(self, node):
+    def traverse_inline_expression(self, node):
         if node.get_data_type() is not None:
             node.get_data_type().accept(self.get_real_self())
         if node.get_expression() is not None:
@@ -1262,10 +1262,9 @@ class ASTVisitor(object):
         return
 
     def traverse_ode_shape(self, node):
-        if node.get_variable() is not None:
-            node.get_variable().accept(self.get_real_self())
-        if node.get_expression() is not None:
-            node.get_expression().accept(self.get_real_self())
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            var.accept(self.get_real_self())
+            expr.accept(self.get_real_self())
         return
 
     def traverse_output_block(self, node):

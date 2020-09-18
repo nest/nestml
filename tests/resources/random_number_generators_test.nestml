@@ -1,5 +1,25 @@
+/**
+ * 
+ *  random_number_generators_test.nestml
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+*/
 neuron test_random:
-
   initial_values:
     p mV = random_normal(500 mV, 25 mV)
     q real = random_normal(500, 25)
@@ -12,22 +32,13 @@ neuron test_random:
     r' = random_uniform(42, 123) / s
   end
 
-  parameters:
-  end
-
-  internals:
-  end
-
   input:
     ex_spikes nS <- excitatory spike
     in_spikes nS <- inhibitory spike
     currents pA <- current
   end
 
-  output: spike
-
   update:
     integrate_odes()
   end
-
 end

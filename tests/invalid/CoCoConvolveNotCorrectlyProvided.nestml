@@ -26,7 +26,6 @@
 */
 
 neuron CoCoConvolveNotCorrectlyProvided:
-
     state:
         g_ex mV = 10mV
     end
@@ -37,17 +36,11 @@ neuron CoCoConvolveNotCorrectlyProvided:
 
     equations:
         shape test = 10
-        function testB pA = convolve(g_ex, g_ex) + test
-        V_m' = 0 mV/ms
-    end
-
-    update:
-        # required for creation of a correct ast
+        inline testB pA = convolve(g_ex, g_ex) + test
+        V_m' = 20 mV/ms
     end
 
     input:
         spikeExc integer  <- excitatory spike
     end
-
-    output: spike
 end

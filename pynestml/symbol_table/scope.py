@@ -237,8 +237,7 @@ class Scope(object):
                 return self
         if self.has_enclosing_scope():
             return self.get_enclosing_scope().resolve_to_symbol(name, kind)
-        else:
-            return None
+        return None
 
     def resolve_to_symbol(self, name, kind):
         """
@@ -256,8 +255,7 @@ class Scope(object):
                 return sim
         if self.has_enclosing_scope():
             return self.get_enclosing_scope().resolve_to_symbol(name, kind)
-        else:
-            return None
+        return None
 
     def get_global_scope(self):
         """
@@ -267,10 +265,9 @@ class Scope(object):
         """
         if self.get_scope_type() is ScopeType.GLOBAL:
             return self
-        elif self.has_enclosing_scope():
+        if self.has_enclosing_scope():
             return self.get_enclosing_scope().get_global_scope()
-        else:
-            return None
+        return None
 
     def get_enclosing_scope(self):
         """

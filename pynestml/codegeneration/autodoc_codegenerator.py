@@ -17,13 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import datetime
 import os
-import re
 from typing import List
 
 from jinja2 import Environment, FileSystemLoader
-from odetoolbox import analysis
 
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.latex_expression_printer import LatexExpressionPrinter
@@ -33,19 +32,9 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.solver.solution_transformers import integrate_exact_solution, functional_shapes_to_odes, \
-    integrate_delta_solution
-from pynestml.solver.transformer_base import add_assignment_to_update_block
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.logger import Logger
-from pynestml.utils.logger import LoggingLevel
-from pynestml.utils.messages import Messages
-from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 
 class AutoDocCodeGenerator(CodeGenerator):
 

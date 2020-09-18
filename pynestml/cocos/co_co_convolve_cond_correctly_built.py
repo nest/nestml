@@ -26,13 +26,14 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoConvolveCondCorrectlyBuilt(CoCo):
     """
-    This coco ensures that convolve and cond/curr sum are correctly build, i.e.,
-    that the first argument is the variable from the initial block and the second argument an input buffer.
-    Allowed:
-        function I_syn_exc pA =   convolve(g_ex, spikesExc) * ( V_bounded - E_ex )
-    Not allowed:
-        function I_syn_exc pA =   convolve(g_ex, g_ex) * ( V_bounded - E_ex )
+    This coco ensures that ``convolve`` is correctly called, i.e. that the first argument is the variable from the initial block and the second argument is an input buffer.
 
+    Allowed:
+        inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+
+    Not allowed:
+        inline I_syn_exc pA = convolve(g_ex, g_ex) * ( V_m - E_ex )
+        inline I_syn_exc pA = convolve(spikesExc, g_ex) * ( V_m - E_ex )
     """
 
     @classmethod
@@ -47,13 +48,12 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
 
 class ConvolveCheckerVisitor(ASTVisitor):
     """
-    Visits a function call and checks that if the function call is a cond_sum,cur_sum or convolve, the parameters
-    are correct.
+    Visits a function call and checks that if the function call is a convolve, the parameters are correct.
     """
 
     def visit_function_call(self, node):
         func_name = node.get_name()
-        if func_name == 'convolve' or func_name == 'cond_sum' or func_name == 'curr_sum':
+        if func_name == 'convolve':
             symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
                                                             SymbolKind.VARIABLE)
             symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),

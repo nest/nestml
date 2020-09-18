@@ -21,15 +21,10 @@
  *
 */
 neuron BlockTest:
-    state:
-    end
     function foo(bar mV):
         return
     end
     update:
       foo(10V)
     end
-    input:
-    end
-    output: spike
 end

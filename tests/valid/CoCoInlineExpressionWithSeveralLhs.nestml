@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoFunctionHasNoRhs.nestml
+ *  CoCoInlineExpressionWithSeveralLhs.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,22 +20,12 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
- * a function (aka. alias) does not a rhs.
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if a inline with several lhs is detected.
+ *
  * Positive case.
 */
-neuron CoCoFunctionHasNoRhs:
-    state:
-        function V_rest mV  = 10mV # a rhs is defined, thus everything is correct
+neuron CoCoInlineExpressionWithSeveralLhs:
+    equations:
+        inline V_rest mV  = 10mV  # only one lhs for a inline, thus everything correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

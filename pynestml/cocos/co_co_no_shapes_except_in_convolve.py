@@ -17,8 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -28,14 +30,13 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoNoShapesExceptInConvolve(CoCo):
     """
-    This CoCo ensures that shape variables do not occur on the right hand side except in convolve/curr_sum and
-    cond_sum.
+    This CoCo ensures that shape variables do not occur on the right hand side except in convolve().
     Allowed:
-        shape g_ex ...
-        function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+        shape g_ex = ...
+        function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
 
     Not allowed
-        shape g_ex ...
+        shape g_ex = ...
         function I_syn_exc pA = g_ex * ( V_m - E_ex )
 
     """
@@ -71,19 +72,17 @@ class ShapeUsageVisitor(ASTVisitor):
         neuron.accept(self)
         return
 
-    def visit_variable(self, node):
+    def visit_variable(self, node: ASTNode):
         """
         Visits each shape and checks if it is used correctly.
         :param node: a single node.
-        :type node: AST_
+        :type node: ASTNode
         """
         for shapeName in self.__shapes:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
             symbol = node.get_scope().resolve_to_symbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
             if symbol is None:
-                code, message = Messages.get_no_variable_found(shapeName)
-                Logger.log_message(neuron=self.__neuron_node, code=code, message=message, log_level=LoggingLevel.ERROR)
                 continue
             if not symbol.is_shape():
                 continue
@@ -95,14 +94,13 @@ class ShapeUsageVisitor(ASTVisitor):
                     grandparent = self.__neuron_node.get_parent(parent)
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
                         grandparent_func_name = grandparent.get_name()
-                        if grandparent_func_name == 'curr_sum' or grandparent_func_name == 'cond_sum' or \
-                                grandparent_func_name == 'convolve':
+                        if grandparent_func_name == 'convolve':
                             continue
                 code, message = Messages.get_shape_outside_convolve(shapeName)
-                Logger.log_message(error_position=node.get_source_position(),
-                                   code=code, message=message,
-                                   log_level=LoggingLevel.ERROR)
-        return
+                Logger.log_message(code=code,
+                                   message=message,
+                                   log_level=LoggingLevel.ERROR,
+                                   error_position=node.get_source_position())
 
 
 class ShapeCollectingVisitor(ASTVisitor):
@@ -129,4 +127,5 @@ class ShapeCollectingVisitor(ASTVisitor):
         :param node: a single shape node.
         :type node: ASTOdeShape
         """
-        self.shape_names.append(node.get_variable().get_name_of_lhs())
+        for var in node.get_variables():
+            self.shape_names.append(var.get_name_of_lhs())

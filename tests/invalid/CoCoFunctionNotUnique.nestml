@@ -44,15 +44,4 @@ neuron CoCoFunctionNotUnique:
            test = test # here no return statement should be detected
         end
     end
-
-    input:
-        # in order to generate an ast
-    end
-
-    output: spike
-
-    update:
-        # in order to generate an ast
-    end
-
 end

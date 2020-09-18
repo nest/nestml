@@ -25,7 +25,6 @@
  * Negative case.
 */
 neuron CoCoParameterAssignedOutsideBlock:
-
     parameters:
         test mV = 10mV
     end
@@ -33,10 +32,4 @@ neuron CoCoParameterAssignedOutsideBlock:
     update:
         test = 20mV
     end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

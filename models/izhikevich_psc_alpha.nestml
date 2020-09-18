@@ -59,8 +59,8 @@ neuron izhikevich_psc_alpha:
     shape I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
-    function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
-    function I_syn_inh pA = convolve(I_syn_in, spikesInh)
+    inline I_syn_exc pA = convolve(I_syn_ex, spikesExc)
+    inline I_syn_inh pA = convolve(I_syn_in, spikesInh)
 
     V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )

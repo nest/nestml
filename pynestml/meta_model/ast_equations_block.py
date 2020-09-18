@@ -20,7 +20,7 @@
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 
 
@@ -30,14 +30,14 @@ class ASTEquationsBlock(ASTNode):
     ASTEquationsBlock a special function definition:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-         V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+         V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
        end
      @attribute odeDeclaration Block with equations and differential equations.
      Grammar:
           equationsBlock:
             'equations'
             BLOCK_OPEN
-              (odeFunction|odeEquation|odeShape|NEWLINE)+
+              (inlineExpression | odeEquation | odeShape | NEWLINE)+
             BLOCK_CLOSE;
     Attributes:
         declarations = None
@@ -53,12 +53,12 @@ class ASTEquationsBlock(ASTNode):
         :type declarations: ast_block
         """
         assert (declarations is not None and isinstance(declarations, list)), \
-            '(PyNestML.ASTEquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
+            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
         for decl in declarations:
             assert (decl is not None and (isinstance(decl, ASTOdeShape) or
                                           isinstance(decl, ASTOdeEquation) or
-                                          isinstance(decl, ASTOdeFunction))), \
-                '(PyNestML.ASTEquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
+                                          isinstance(decl, ASTInlineExpression))), \
+                '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
         self.declarations = declarations
 
@@ -88,7 +88,7 @@ class ASTEquationsBlock(ASTNode):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: list(ASTOdeFunction|ASTOdeEquation|ASTOdeShape)
+        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTOdeShape)
         """
         return self.declarations
 
@@ -131,15 +131,15 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_ode_functions(self):
+    def get_inline_expressions(self):
         """
-        Returns a list of all ode functions in this block.
-        :return: a list of all ode shapes.
-        :rtype: list(ASTOdeShape)
+        Returns a list of all inline expressions in this block.
+        :return: a list of all inline expressions.
+        :rtype: list(ASTInlineExpression)
         """
         ret = list()
         for decl in self.get_declarations():
-            if isinstance(decl, ASTOdeFunction):
+            if isinstance(decl, ASTInlineExpression):
                 ret.append(decl)
         return ret
 

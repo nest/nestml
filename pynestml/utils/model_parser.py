@@ -50,7 +50,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -133,29 +133,6 @@ class ModelParser(object):
         log_to_restore = copy.deepcopy(Logger.get_log())
         counter = Logger.curr_message
 
-        # replace all derived variables through a computer processable names: e.g. g_in''' -> g_in__ddd
-        restore_differential_order = []
-        for ode in ASTUtils.get_all(ast, ASTOdeEquation):
-            lhs_variable = ode.get_lhs()
-            if lhs_variable.get_differential_order() > 0:
-                lhs_variable.differential_order = lhs_variable.get_differential_order() - 1
-                restore_differential_order.append(lhs_variable)
-
-        for shape in ASTUtils.get_all(ast, ASTOdeShape):
-            lhs_variable = shape.get_variable()
-            if lhs_variable.get_differential_order() > 0:
-                lhs_variable.differential_order = lhs_variable.get_differential_order() - 1
-                restore_differential_order.append(lhs_variable)
-
-        # than replace remaining variables
-        for variable in ASTUtils.get_all(ast, ASTVariable):
-            if variable.get_differential_order() > 0:
-                variable.set_name(variable.get_name() + "__" + "d" * variable.get_differential_order())
-                variable.differential_order = 0
-
-        # now also equations have no ' at lhs. replace every occurrence of last d to ' to compensate
-        for ode_variable in restore_differential_order:
-            ode_variable.differential_order = 1
         Logger.set_log(log_to_restore, counter)
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
@@ -377,10 +354,10 @@ class ModelParser(object):
         return ret
 
     @classmethod
-    def parse_ode_function(cls, string):
-        # type: (str) -> ASTOdeFunction
+    def parse_inline_expression(cls, string):
+        # type: (str) -> ASTInlineExpression
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.odeFunction())
+        ret = builder.visit(parser.inlineExpression())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

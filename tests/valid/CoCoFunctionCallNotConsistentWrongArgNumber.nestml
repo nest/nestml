@@ -29,14 +29,4 @@ neuron CoCoFunctionCallNotConsistentWrongArgNumber:
     state:
         test integer = max(1,2) # max is provided with correct number of arguments and types, thus everything is correct
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

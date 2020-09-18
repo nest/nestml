@@ -40,7 +40,7 @@ class GSLNamesConverter(object):
     @classmethod
     def name(cls, symbol):
         """
-        Transforms the haded over symbol to a GSL processable format.
+        Transforms the given symbol to a format that can be processed by GSL.
         :param symbol: a single variable symbol
         :type symbol: VariableSymbol
         :return: the corresponding string format

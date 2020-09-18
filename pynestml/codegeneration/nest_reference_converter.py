@@ -159,7 +159,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
-    def convert_name_reference(self, variable):
+    def convert_name_reference(self, variable, prefix=''):
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
@@ -175,6 +175,8 @@ class NESTReferenceConverter(IReferenceConverter):
 
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
+
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if symbol is None:
@@ -198,7 +200,7 @@ class NESTReferenceConverter(IReferenceConverter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += NestPrinter.print_origin(symbol) + NestNamesConverter.buffer_value(symbol)
+            s += NestPrinter.print_origin(symbol, prefix=prefix) + NestNamesConverter.buffer_value(symbol)
             if symbol.has_vector_parameter():
                 s += '[i]'
             if not units_conversion_factor == 1:
@@ -208,8 +210,11 @@ class NESTReferenceConverter(IReferenceConverter):
         if symbol.is_function:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
+        if symbol.is_shape():
+            print("Printing node " + str(symbol.name))
+
         if symbol.is_init_values():
-            temp = NestPrinter.print_origin(symbol)
+            temp = NestPrinter.print_origin(symbol, prefix=prefix)
             if self.uses_gsl:
                 temp += GSLNamesConverter.name(symbol)
             else:
@@ -217,7 +222,7 @@ class NESTReferenceConverter(IReferenceConverter):
             temp += ('[i]' if symbol.has_vector_parameter() else '')
             return temp
 
-        return NestPrinter.print_origin(symbol) + \
+        return NestPrinter.print_origin(symbol, prefix=prefix) + \
                NestNamesConverter.name(symbol) + \
                ('[i]' if symbol.has_vector_parameter() else '')
 

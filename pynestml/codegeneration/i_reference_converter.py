@@ -35,7 +35,7 @@ class IReferenceConverter(object):
         pass
 
     @abstractmethod
-    def convert_name_reference(self, variable):
+    def convert_name_reference(self, variable, prefix=''):
         pass
 
     @abstractmethod

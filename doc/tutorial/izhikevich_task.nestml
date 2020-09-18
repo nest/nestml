@@ -8,7 +8,7 @@ neuron izhikevich_tutorial:
   end
 
   equations:
-    v' = (.04 * v * v / mV + 5 * v + (140 - u) * mV + (I_ext * GOhm)) / ms
+    v' = (.04 * v * v / mV + 5 * v + (140 - u) * mV + (I_e * GOhm)) / ms
     # TODO: add an ODE for u
   end
 
@@ -19,7 +19,7 @@ neuron izhikevich_tutorial:
 
   input:
     spikes mV <- spike
-    I_ext pA <- current
+    I_e pA <- current
   end
 
   output: spike

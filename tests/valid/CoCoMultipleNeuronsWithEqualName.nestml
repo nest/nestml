@@ -25,25 +25,7 @@
  * Positive case.
 */
 neuron CoCoMultipleNeuronsWithEqualName:
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end
 
 neuron CoCoMultipleNeuronsWithEqualNameNot: # names are not equal, thus should not be detected as an error
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

@@ -28,7 +28,6 @@
 */
 
 neuron CoCoOdeCorrectlyTyped:
-
     initial_values: # variable is now defined in the initial block, thus everything is correct.
         V_m mV = 10 mV
     end
@@ -36,14 +35,4 @@ neuron CoCoOdeCorrectlyTyped:
     equations:
         V_m' = (10 pA) / (100 pF)
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

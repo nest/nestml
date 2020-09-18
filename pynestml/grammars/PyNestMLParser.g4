@@ -118,11 +118,11 @@ parser grammar PyNestMLParser;
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable=RECORDABLE_KEYWORD)? FUNCTION_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
+  inlineExpression : (recordable=RECORDABLE_KEYWORD)? INLINE_KEYWORD variableName=NAME dataType EQUALS expression (SEMICOLON)?;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  odeShape : SHAPE_KEYWORD lhs=variable EQUALS rhs=expression (SEMICOLON)?;
+  odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -249,14 +249,14 @@ parser grammar PyNestMLParser;
   /** ASTEquationsBlock A block declaring special functions:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-         V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+         V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
        end
-     @attribute odeFunction: A single ode function statement, e.g., function V_m mV = ...
+     @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
      @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   (odeFunction|odeEquation|odeShape|NEWLINE)*
+                   (inlineExpression | odeEquation | odeShape | NEWLINE)*
                    END_KEYWORD;
 
   /** ASTInputBlock represents a single input block, e.g.:

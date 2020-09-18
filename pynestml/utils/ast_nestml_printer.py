@@ -44,7 +44,7 @@ from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_ode_function import ASTOdeFunction
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_ode_shape import ASTOdeShape
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
@@ -124,8 +124,8 @@ class ASTNestMLPrinter(object):
             ret = self.print_neuron(node)
         if isinstance(node, ASTOdeEquation):
             ret = self.print_ode_equation(node)
-        if isinstance(node, ASTOdeFunction):
-            ret = self.print_ode_function(node)
+        if isinstance(node, ASTInlineExpression):
+            ret = self.print_inline_expression(node)
         if isinstance(node, ASTOdeShape):
             ret = self.print_ode_shape(node)
         if isinstance(node, ASTOutputBlock):
@@ -383,7 +383,6 @@ class ASTNestMLPrinter(object):
 
     def print_function(self, node):
         # type: (ASTFunction) -> str
-        # todo by KP: this is still somehow not nice
         ret = print_ml_comments(node.pre_comments, self.indent)
         ret += 'function ' + node.get_name() + '('
         if node.has_parameters():
@@ -494,12 +493,12 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_ode_function(self, node):
-        # type: (ASTOdeFunction) -> str
+    def print_inline_expression(self, node):
+        # type: (ASTInlineExpression) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         if node.is_recordable:
             ret += 'recordable'
-        ret += (print_n_spaces(self.indent) + 'function ' +
+        ret += (print_n_spaces(self.indent) + 'inline ' +
                 str(node.get_variable_name()) + ' ' + self.print_node(node.get_data_type()) +
                 ' = ' + self.print_node(node.get_expression()) + print_sl_comment(node.in_comment) + '\n')
         ret += print_ml_comments(node.post_comments, self.indent, True)
@@ -509,7 +508,13 @@ class ASTNestMLPrinter(object):
         # type: (ASTOdeShape) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent)
-        ret += 'shape ' + self.print_node(node.get_variable()) + ' = ' + self.print_node(node.get_expression())
+        ret += 'shape '
+        for var, expr in zip(node.get_variables(), node.get_expressions()):
+            ret += self.print_node(var)
+            ret += ' = '
+            ret += self.print_node(expr)
+            ret += ', '
+        ret = ret[:-2]
         ret += print_sl_comment(node.in_comment) + '\n'
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret

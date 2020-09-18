@@ -72,7 +72,7 @@ class NestModelsLibraryGenerator(unittest.TestCase):
         neuron1 = nest.Create(referenceModel)
         neuron2 = nest.Create(testant)
 
-        if not (gsl_error_tol is None):
+        if gsl_error_tol is not None:
             nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',

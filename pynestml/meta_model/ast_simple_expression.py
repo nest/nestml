@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import numpy as np
 
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -113,7 +115,7 @@ class ASTSimpleExpression(ASTExpressionNode):
             boolean_literal = True
         if self.is_boolean_false:
             boolean_literal = False
-        assert function_call_dup or (not boolean_literal is None) or (not numeric_literal_dup is None) or self.is_inf_literal or variable_dup or self.string
+        assert function_call_dup or (boolean_literal is not None) or (numeric_literal_dup is not None) or self.is_inf_literal or variable_dup or self.string
         dup = ASTSimpleExpression(function_call=function_call_dup,
          boolean_literal=boolean_literal,
          numeric_literal=numeric_literal_dup,
@@ -166,6 +168,18 @@ class ASTSimpleExpression(ASTExpressionNode):
         """
         return self.numeric_literal is not None
 
+    def get_boolean_literal(self) -> Optional[bool]:
+        """
+        Returns boolean literal if available, otherwise None.
+        :return: boolean literal if ASTSimpleExpression is boolean literal, otherwise None
+        """
+        if self.is_boolean_true:
+            return True
+        elif self.is_boolean_false:
+            return False
+        else:
+            return None
+
     def get_numeric_literal(self):
         """
         Returns the value of the numeric literal.
@@ -173,6 +187,14 @@ class ASTSimpleExpression(ASTExpressionNode):
         :rtype: int/float
         """
         return self.numeric_literal
+
+    def set_numeric_literal(self, numeric_literal):
+        """
+        Updates the numeric literal attribute of this node.
+        :param numeric_literal: a single numeric literal
+        :type numeric_literal: int or float
+        """
+        self.numeric_literal = numeric_literal
 
     def is_variable(self):
         """

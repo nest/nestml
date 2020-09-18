@@ -17,6 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Optional
+
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -347,6 +352,7 @@ class ASTUtils(object):
         if neuron.get_internals_blocks() is None:
             internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
                                                                       ASTSourceLocation.get_added_source_position())
+            internal.update_scope(neuron.get_scope())
             neuron.get_body().get_body_elements().append(internal)
         return neuron
 
@@ -396,9 +402,7 @@ class ASTUtils(object):
             return False
         else:
             for func in variable.get_declaring_expression().get_function_calls():
-                if func.get_name() == PredefinedFunctions.CONVOLVE or \
-                        func.get_name() == PredefinedFunctions.CURR_SUM or \
-                        func.get_name() == PredefinedFunctions.COND_SUM:
+                if func.get_name() == PredefinedFunctions.CONVOLVE:
                     return True
         return False
 
@@ -417,46 +421,15 @@ class ASTUtils(object):
         return
 
     @classmethod
-    def convert_variable_name_to_model_notation(cls, variable):
+    def get_declaration_by_name(cls, block: ASTBlock, var_name: str) -> Optional[ASTDeclaration]:
         """
-        This Function is used to convert a supported name (aka. defined with d instead of '), to an unsupported one.
-        It is used to find all variables which have to provided with a ode declaration.
+        Get a declaration by variable name.
+        :param block: the block to look for the variable in
+        :param var_name: name of the variable to look for (including single quotes indicating differential order)
         """
-        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        from pynestml.meta_model.ast_variable import ASTVariable
-        # type: ASTVariable -> str
-
-        name = variable.get_name()
-        diff_order = 0
-        while True:
-            if name.endswith('__d'):
-                diff_order += 1
-                name = name[:-3]
-                break
-            elif name.endswith('d'):
-                diff_order += 1
-                name = name[:-1]
-            else:
-                break
-        return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
-
-    @classmethod
-    def convert_variable_name_to_generator_notation(cls, variable):
-        """
-        This function is used to convert an unsupported name in the codegeneration (aka g_in') to a supported
-        one (e.g., g_in_d). It decreases the unsupported order by one.
-        """
-        from pynestml.meta_model.ast_variable import ASTVariable
-        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-
-        name = variable.get_name()
-        diff_order = variable.get_differental_order()
-        if diff_order > 0:
-            import re
-            pattern = re.compile('w*_((d)*)\b')
-            if pattern.match(name):
-                name += 'd'
-            else:
-                name += '__d'
-            diff_order -= 1
-        return ASTNodeFactory.create_ast_variable(name=name, differential_order=diff_order)
+        decls = block.get_declarations()
+        for decl in decls:
+            for var in decl.get_variables():
+                if var.get_complete_name() == var_name:
+                    return decl
+        return None

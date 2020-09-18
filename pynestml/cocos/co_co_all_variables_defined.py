@@ -76,13 +76,13 @@ class CoCoAllVariablesDefined(CoCo):
                  and symbol.block_type != BlockType.INPUT_BUFFER_SPIKE \
                  and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
-                    if (not symbol.get_referenced_object().get_source_position().before(var.get_source_position()) and
-                            symbol.block_type != BlockType.PARAMETERS):
+                    if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))
+                     and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS])):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(neuron=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
-                    # todo by KP: we should not check this for invariants
+                    # todo: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position()) and
                             not symbol.get_referenced_object().get_source_position().is_added_source_position()):
                         code, message = Messages.get_variable_defined_recursively(var.get_name())

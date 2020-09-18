@@ -49,7 +49,7 @@ class ASTBuildingTest(unittest.TestCase):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
-                # print('Start creating AST for ' + filename + ' ...'),
+                print('Start creating AST for ' + filename + ' ...'),
                 input_file = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 lexer = PyNestMLLexer(input_file)

@@ -1,5 +1,5 @@
 #
-# ast_ode_function.py
+# ast_inline_expression.py
 #
 # This file is part of NEST.
 #
@@ -19,14 +19,16 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_node import ASTNode
 
-class ASTOdeFunction(ASTNode):
+
+class ASTInlineExpression(ASTNode):
     """
-    Stores a single declaration of a ode function, e.g.,
-        function v_init mV = V_m - 50 mV
+    Stores a single declaration of an inline expression, e.g.,
+        inline v_init mV = V_m - 50mV.
     Grammar:
-        odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' rhs;
+        inline : (recordable='recordable')? INLINE_KEYWORD variableName=NAME datatype '=' rhs;
     Attributes:
         is_recordable = False
         variable_name = None
@@ -49,7 +51,7 @@ class ASTOdeFunction(ASTNode):
         :param expression: the computation rhs
         :type expression: ASTExpression
         """
-        super(ASTOdeFunction, self).__init__(*args, **kwargs)
+        super(ASTInlineExpression, self).__init__(*args, **kwargs)
         self.is_recordable = is_recordable
         self.variable_name = variable_name
         self.data_type = data_type
@@ -60,7 +62,7 @@ class ASTOdeFunction(ASTNode):
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTOdeFunction
+        :rtype: ASTInlineExpression
         """
         data_type_dup = None
         if self.data_type:
@@ -68,7 +70,7 @@ class ASTOdeFunction(ASTNode):
         expression_dup = None
         if self.expression:
             expression_dup = self.expression.clone()
-        dup = ASTOdeFunction(is_recordable=self.is_recordable,
+        dup = ASTInlineExpression(is_recordable=self.is_recordable,
          variable_name=self.variable_name,
          data_type=data_type_dup,
          expression=expression_dup,
@@ -133,7 +135,7 @@ class ASTOdeFunction(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTOdeFunction):
+        if not isinstance(other, ASTInlineExpression):
             return False
         if self.is_recordable != other.is_recordable:
             return False

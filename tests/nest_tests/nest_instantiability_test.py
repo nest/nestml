@@ -37,8 +37,11 @@ def strip_suffix(l, suffix):
 class NestInstantiabilityTest(unittest.TestCase):
 
     def test_nest_instantiability(self):
+        # N.B. all models are assumed to have been already built (see .travis.yml)
+
+        nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        nest.Install("nestmlmodule")
+        nest.Install("nestml_allmodels_module")
 
         models = nest.Models(mtype="nodes")
         neuron_models = [m for m in models if str(nest.GetDefaults(m, "element_type")) == "neuron"]

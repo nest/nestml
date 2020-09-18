@@ -47,7 +47,7 @@ class ASTNestMLCompilationUnit(ASTNode):
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.NestMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
         self.neuron_list = []
-        if not neuron_list is None:
+        if neuron_list is not None:
             assert type(neuron_list) is list
             self.neuron_list.extend(neuron_list)
         self.artifact_name = artifact_name

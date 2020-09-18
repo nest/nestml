@@ -26,7 +26,6 @@
 */
 
 neuron CoCoFunctionRedeclared:
-
     function maxGt(arg1 integer,arg2 integer) integer: # both functions have different names, thus everything is
         if arg1>arg2:
             return arg1
@@ -42,14 +41,4 @@ neuron CoCoFunctionRedeclared:
             return arg1
         end
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end
