@@ -62,7 +62,7 @@ class NESTMLLexer(RegexLexer):
             (r'\d+j?', Number.Integer)
         ],
         'name': [
-            ('[a-zA-Z_]\w*\'*', Name),
+            ('[a-zA-Z_\$]\w*\'*', Name),
         ],
         'stringescape': [
             (r'\\([\\abfnrtv"\']|\n|N\{.*?\}|u[a-fA-F0-9]{4}|'
