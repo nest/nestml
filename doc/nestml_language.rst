@@ -907,7 +907,7 @@ An example second-order kernel is the dual exponential ("alpha") shape, which ca
          g$ real = 1
        end
        
-	Note that the types of both differential equations are :math:`\text{ms}^{-1}`.
+   Note that the types of both differential equations are :math:`\text{ms}^{-1}`.
 
 (3) As a second-order differential equation:
 
