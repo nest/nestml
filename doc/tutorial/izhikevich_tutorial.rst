@@ -11,7 +11,7 @@ Start your Python interpreter
 
 Note that on MacOS, `LD_LIBRARY_PATH` is called `DYLD_LIBRARY_PATH`.
 
-.. code-block::
+.. code::
 
    PYTHONPATH=$PYTHONPATH:/home/johndoe/nest-simulator-build/lib/python3.6/site-packages LD_LIBRARY_PATH=/tmp/nestml-component ipython3
 
@@ -21,7 +21,7 @@ NESTML code generation
 
 Assume we have a NESTML input model at `/home/johndoe/nestml-tutorial/izhikevich_solution.nestml`. To generate code, build the module and load the module into the NEST Simulator:
 
-.. code-block::
+.. code::
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
    to_nest(input_path="/home/johndoe/nestml-tutorial/izhikevich_solution.nestml", target_path="/tmp/nestml-component", logging_level="INFO")
@@ -33,7 +33,7 @@ Instantiate model in NEST Simulator and run
 
 In the same Python session, continue entering the following code. This performs the instantiation of the model (`nest.Create("izhikevich_tutorial")`), injects a constant current and runs the simulation for 250 ms.
 
-.. code-block::
+.. code::
 
    import nest
    import matplotlib.pyplot as plt
