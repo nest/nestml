@@ -77,12 +77,16 @@ Now set the correct paths and start ``ipython``:
 
 .. code:: bash
 
-   PYTHONPATH=$PYTHONPATH:/home/graber/miniconda3/envs/wnestml/lib/python3.7/site-packages/ LD_LIBRARY_PATH=/tmp/nestml-component ipython
+   export PYTHONPATH=$PYTHONPATH:/home/graber/miniconda3/envs/wnestml/lib/python3.7/site-packages
+   export LD_LIBRARY_PATH=/tmp/nestml-component
+   ipython
 
 The corresponding paths in ``ipython`` are:
 
-.. code:: bash
+.. code:: python
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-   to_nest(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml", target_path="/tmp/nestml-component", logging_level="INFO")
+   to_nest(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml",
+           target_path="/tmp/nestml-component",
+           logging_level="INFO")
    install_nest("/tmp/nestml-component", "/home/graber/miniconda3/envs/wnestml/") 
