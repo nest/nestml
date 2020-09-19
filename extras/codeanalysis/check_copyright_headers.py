@@ -75,25 +75,20 @@ for extensions, template_ext in templates.items():
 total_files = 0
 total_errors = 0
 for dirpath, _, fnames in os.walk(source_dir):
-    print("\tdirpath = " + str(dirpath) + ", fnames = " + str(fnames))
     if any([exclude_dir in dirpath[len(source_dir):] for exclude_dir in exclude_dirs]):
-        print("\t\t exclude dir")
         continue
 
     for fname in fnames:
         if any([regex.search(fname) for regex in exclude_file_regex]):
-            print("\t\t exclude file regex")
             continue
 
         extension = os.path.splitext(fname)[1][1:]
         if not (extension and extension in template_contents.keys()):
-            print("\t\t extension")
             continue
 
         tested_file = os.path.join(dirpath, fname)
 
         if any([exclude_file in tested_file for exclude_file in exclude_files]):
-            print("\t\t exclude file")
             continue
 
         with open(tested_file, encoding='utf-8') as source_file:
@@ -116,8 +111,7 @@ for dirpath, _, fnames in os.walk(source_dir):
                     total_errors += 1
                     break
 
-print("{0} out of {1} files have an erroneous copyright header.".format(
-    total_errors, total_files))
+print("{0} out of {1} files have an erroneous copyright header.".format(total_errors, total_files))
 
 if total_errors > 0:
     sys.exit(EXIT_BAD_HEADER)
