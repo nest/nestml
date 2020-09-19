@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_correct_order_in_equation.py
 #

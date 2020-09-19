@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # expressions_pretty_printer.py
 #

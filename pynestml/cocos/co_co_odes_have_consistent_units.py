@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_odes_have_consistent_units.py
 #

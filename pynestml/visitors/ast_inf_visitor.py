@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# ast_inf_visitor.py.py
+# ast_inf_visitor.py
 #
 # This file is part of NEST.
 #

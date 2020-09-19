@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # function_symbol.py
 #
@@ -16,8 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with NEST.  If not, see <http://www.gnu.org/licenses/>.#
-
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.symbols.symbol import Symbol, SymbolKind
 
 

@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# CoCoShapeVarInCorrectExpression.py
+# co_co_convolve_cond_correctly_built.py
 #
 # This file is part of NEST.
 #

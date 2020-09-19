@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_codegenerator_test.py
 #

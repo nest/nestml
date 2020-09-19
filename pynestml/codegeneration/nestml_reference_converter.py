@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# idempotent_reference_converter.py
+# nestml_reference_converter.py
 #
 # This file is part of NEST.
 #

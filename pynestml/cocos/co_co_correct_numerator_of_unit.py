@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_correct_numerator_of_unit.py
 #

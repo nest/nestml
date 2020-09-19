@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # gsl_reference_converter.py
 #

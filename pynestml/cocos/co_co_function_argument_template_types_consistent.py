@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_function_argument_template_types_consistent.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_data_type_visitor.py
 #

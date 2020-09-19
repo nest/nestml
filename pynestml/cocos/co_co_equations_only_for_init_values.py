@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_equations_only_for_init_values.py
 #

@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# ASTLineOperatorVisitor.py
+# ast_line_operation_visitor.py
 #
 # This file is part of NEST.
 #

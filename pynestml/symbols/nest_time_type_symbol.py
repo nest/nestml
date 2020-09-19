@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_time_type_symbol.py
 #

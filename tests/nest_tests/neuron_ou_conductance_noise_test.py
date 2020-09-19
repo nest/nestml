@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # neuron_ou_conductance_noise_test.py
 #

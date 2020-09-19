@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # unitless_expression_printer.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_no_nest_name_space_collision.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # comment_collector_visitor.py
 #

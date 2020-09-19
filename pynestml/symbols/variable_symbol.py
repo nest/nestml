@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # variable_symbol.py
 #

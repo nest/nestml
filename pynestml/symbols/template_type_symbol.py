@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # template_type_symbol.py
 #

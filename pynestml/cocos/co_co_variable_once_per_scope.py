@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_variable_once_per_scope.py
 #

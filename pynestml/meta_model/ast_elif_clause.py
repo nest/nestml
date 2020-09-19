@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_elif_clause.py
 #

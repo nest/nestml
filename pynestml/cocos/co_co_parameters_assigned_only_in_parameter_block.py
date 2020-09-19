@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_parameters_assigned_only_in_parameter_block.py
 #

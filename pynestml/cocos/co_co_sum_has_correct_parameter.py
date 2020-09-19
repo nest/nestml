@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_sum_has_correct_parameter.py
 #

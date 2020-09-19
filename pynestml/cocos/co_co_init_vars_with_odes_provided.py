@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_init_vars_with_odes_provided.py
 #

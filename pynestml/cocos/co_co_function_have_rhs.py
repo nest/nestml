@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_function_have_rhs.py
 #

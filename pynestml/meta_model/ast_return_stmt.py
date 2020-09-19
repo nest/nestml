@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_return_stmt.py
 #

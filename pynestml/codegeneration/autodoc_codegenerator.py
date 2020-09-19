@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# autodoc_codegeneration.py
+# autodoc_codegenerator.py
 #
 # This file is part of NEST.
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_bit_operator.py
 #

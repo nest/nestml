@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # frontend_configuration.py
 #

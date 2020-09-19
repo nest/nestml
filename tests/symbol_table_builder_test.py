@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # symbol_table_builder_test.py
 #

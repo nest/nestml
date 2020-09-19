@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # real_type_symbol.py
 #

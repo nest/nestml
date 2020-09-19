@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# CoCoEachBlockUnique.py
+# co_co_each_block_unique_and_defined.py
 #
 # This file is part of NEST.
 #

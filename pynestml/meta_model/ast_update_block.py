@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_update_block.py
 #

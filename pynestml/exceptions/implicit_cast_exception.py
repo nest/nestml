@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # implicit_cast_exception.py
 #

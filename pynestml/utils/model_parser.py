@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # model_parser.py
 #

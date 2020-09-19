@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # comment_test.py
 #

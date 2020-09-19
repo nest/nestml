@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # pynestml_frontend_test.py
 #

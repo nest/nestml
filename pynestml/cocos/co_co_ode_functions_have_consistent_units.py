@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# co_co_odes_have_consistent_units.py
+# co_co_ode_functions_have_consistent_units.py
 #
 # This file is part of NEST.
 #
