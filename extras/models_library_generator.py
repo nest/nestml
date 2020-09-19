@@ -26,7 +26,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except ImportError:
     TEST_PLOTS = False
 
 
@@ -112,8 +112,8 @@ class NestModelsLibraryGenerator(unittest.TestCase):
             if abs(Vms1[index] - Vms2[index]) > tolerance \
                     or np.isnan(Vms1[index]) \
                     or np.isnan(Vms2[index]):
-                print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) +
-                      " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
+                print(str(Vms1[index]) + " differs from  " + str(Vms2[index])
+                      + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
                 raise Exception(testant + ": TEST FAILED")
 
         print(testant + " PASSED")
