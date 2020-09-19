@@ -756,7 +756,7 @@ For the sake of keeping the example simple, we assign a decaying exponential-sha
 
 After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
 
-.. code:: python
+.. code-block:: python
 
    neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
@@ -773,7 +773,7 @@ Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
 We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
 
-.. code:: python
+.. code-block:: python
 
    mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1',
                                                           'I_shape2__X__spikes2',

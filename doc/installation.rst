@@ -83,7 +83,7 @@ Now set the correct paths and start ``ipython``:
 
 The corresponding paths in ``ipython`` are:
 
-.. code:: python
+.. code-block:: python
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
    to_nest(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml",

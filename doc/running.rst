@@ -45,19 +45,19 @@ Generated artifacts are copied to the selected target directory (default is ``ta
 
 where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home/nest/work/nest-install``). Subsequently, the module can either be linked into NEST (see `Writing an extension module <https://nest.github.io/nest-simulator/extension_modules>`_), or loaded dynamically using the ``Install`` API call. For example, to dynamically load a module with ``module_name`` equal to ``nestmlmodule`` in PyNEST:
 
-.. code:: python
+.. code-block:: python
 
    nest.Install("nestmlmodule")
 
 PyNESTML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNESTML has been installed, the following modules have to be imported:
 
-.. code:: python
+.. code-block:: python
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 Subsequently, it is possible to call PyNESTML from other Python tools and scripts via:
 
-.. code:: python
+.. code-block:: python
 
    to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
 
@@ -91,7 +91,7 @@ This operation expects the same set of arguments as in the case of command line 
 
 If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
 
-.. code:: python
+.. code-block:: python
 
    install_nest(models_path, nest_path)
 
@@ -99,7 +99,7 @@ Here, ``models_path`` should be set to the ``target`` directory of ``to_nest()``
 
 A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is ``nestmlmodule``.
 
-.. code:: python
+.. code-block:: python
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
