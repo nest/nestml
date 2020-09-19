@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 # -*- coding: utf-8 -*-
 #
 # check_copyright_headers.py
@@ -20,22 +22,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Script to check if all files have a proper copyright header.
+"""
+Script to check if all files have a proper copyright header.
+
 This script checks the copyright headers of all C/C++/SLI/Python files
 in the source code against the corresponding templates defined in
-"doc/copyright_header.*". It uses the variable NEST_SOURCES to
-determine the source directory to check.
-This script is supposed to be run from static_code_analysis.sh either
-during the run of the CI or invocation of check_code_style.sh.
-In order to ease error reporting in this context, this script uses two
-distinct output channels: messages meant for immediate display are
-printed to stderr using the helper function eprint(). Messages meant
-for the summary at the end of static_code_analysis.sh are printed to
-stdout instead so they can be more easily captured and only printed if
-errors occured.
-"""
+"doc/copyright_header_template.*".
 
-"""
 This script was based on/adapted from:
 
 https://github.com/nest/nest-simulator/blob/master/extras/check_copyright_headers.py
@@ -46,16 +39,10 @@ import sys
 import re
 
 
-def eprint(*args, **kwargs):
-    """Convenience function to print to stderr instead of stdout"""
-    print(*args, file=sys.stderr, **kwargs)
-
-
 EXIT_SUCCESS = 0
 EXIT_BAD_HEADER = 1
 
-#source_dir = "/home/travis/build/nest/nestml"
-source_dir = "/home/archels/nestml-fork-pycodestyle/nestml"
+source_dir = "/home/travis/build/nest/nestml"
 
 exclude_dirs = [
     '.git',
@@ -88,21 +75,25 @@ for extensions, template_ext in templates.items():
 total_files = 0
 total_errors = 0
 for dirpath, _, fnames in os.walk(source_dir):
+    print("\tdirpath = " + str(dirpath) + ", fnames = " + str(fnames))
     if any([exclude_dir in dirpath for exclude_dir in exclude_dirs]):
+        print("\t\t exclude dir")
         continue
 
     for fname in fnames:
         if any([regex.search(fname) for regex in exclude_file_regex]):
+            print("\t\t exclude file regex")
             continue
 
         extension = os.path.splitext(fname)[1][1:]
         if not (extension and extension in template_contents.keys()):
+            print("\t\t extension")
             continue
 
         tested_file = os.path.join(dirpath, fname)
 
-        if any([exclude_file in tested_file
-                for exclude_file in exclude_files]):
+        if any([exclude_file in tested_file for exclude_file in exclude_files]):
+            print("\t\t exclude file")
             continue
 
         with open(tested_file, encoding='utf-8') as source_file:
@@ -119,7 +110,7 @@ for dirpath, _, fnames in os.walk(source_dir):
                 line_exp = template_line.replace('{{file_name}}', fname)
                 if line_src != line_exp:
                     fname = os.path.relpath(tested_file)
-                    eprint("[COPYRIGHT-HEADER-CHECK] {0}: expected '{1}', found '{2}'.".format(
+                    print("[COPYRIGHT-HEADER-CHECK] {0}: expected '{1}', found '{2}'.".format(
                         fname, line_exp.rstrip('\n'), line_src.rstrip('\n')))
                     print("... {}\\n".format(fname))
                     total_errors += 1
