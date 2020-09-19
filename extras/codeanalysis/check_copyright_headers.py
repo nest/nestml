@@ -76,7 +76,7 @@ total_files = 0
 total_errors = 0
 for dirpath, _, fnames in os.walk(source_dir):
     print("\tdirpath = " + str(dirpath) + ", fnames = " + str(fnames))
-    if any([exclude_dir in dirpath for exclude_dir in exclude_dirs]):
+    if any([exclude_dir in dirpath[len(source_dir):] for exclude_dir in exclude_dirs]):
         print("\t\t exclude dir")
         continue
 
