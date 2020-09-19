@@ -233,7 +233,6 @@ def variable_in_solver(shape_var: str, solver_dicts):
 
         for var_name in solver_dict["state_variables"]:
             var_name_base = var_name.split("__X__")[0]
-            #var_name_base = var_name_base.split("__d")[0]
             if var_name_base == shape_var:
                 return True
 
@@ -403,10 +402,6 @@ def is_delta_shape(shape):
         and type(expr.get_rhs()) is ASTSimpleExpression \
         and expr.get_rhs().is_function_call() \
         and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
-    #is_name_of_delta_shape = type(expr) is ASTSimpleExpression \
-    # and expr.is_variable() \
-    # and expr.get_variable().get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE).is_shape() \
-    # and expr.
     return rhs_is_delta_shape or rhs_is_multiplied_delta_shape
 
 

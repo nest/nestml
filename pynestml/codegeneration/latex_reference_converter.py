@@ -58,12 +58,11 @@ class LatexReferenceConverter(IReferenceConverter):
                 and PredefinedUnits.is_unit(var_complete_name):
             # convert a unit (e.g. ms, pA)
             # var_name = "\color{grey}\mathrm{" + var_name + "}\color{black}"	# readthedocs does not support \color!
-            var_name = "\mathrm{" + var_name + "}"
+            var_name = r"\mathrm{" + var_name + "}"
         # convert first underscore
         usc_idx = var_name.find("_")
         if usc_idx > 0:
-            var_name = var_name[:usc_idx] + "_{" + var_name[usc_idx +
-                                                            1:].replace("_", ",") + "}" + "'" * ast_variable.get_differential_order()
+            var_name = var_name[:usc_idx] + "_{" + var_name[usc_idx + 1:].replace("_", ",") + "}" + "'" * ast_variable.get_differential_order()
         symbols = {
             "inf": r"\\infty",
             "alpha": r"\\alpha",
@@ -166,11 +165,11 @@ class LatexReferenceConverter(IReferenceConverter):
             else:
                 return r"\frac{ %(lhs)s } { %(rhs)s }"
         elif ast_binary_operator.is_times_op:
-            return '%(lhs)s \cdot %(rhs)s'
+            return r'%(lhs)s \cdot %(rhs)s'
         elif ast_binary_operator.is_pow_op:
-            return '{ %(lhs)s }^{ %(rhs)s }'
+            return r'{ %(lhs)s }^{ %(rhs)s }'
         else:
-            return '%(lhs)s' + str(ast_binary_operator) + '%(rhs)s'
+            return r'%(lhs)s' + str(ast_binary_operator) + r'%(rhs)s'
 
     def convert_constant(self, constant_name):
         """

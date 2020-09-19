@@ -220,7 +220,7 @@ class ASTSimpleExpression(ASTExpressionNode):
     def has_unit(self):
         """
         Returns whether this is a numeric literal with a defined unit.
-        :return: True if numeric literal with unit, otherwise False. 
+        :return: True if numeric literal with unit, otherwise False.
         :rtype: bool
         """
         return self.variable is not None and self.numeric_literal is not None

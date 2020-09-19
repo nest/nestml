@@ -51,9 +51,9 @@ class TestOUConductanceNoise(unittest.TestCase):
             Tuple with the NEST id of the simulated neuron
 
         '''
-        seed = np.random.randint(0, 2**32-1)
+        seed = np.random.randint(0, 2**32 - 1)
         print('seed: {}'.format(seed))
-        nest.SetKernelStatus({'resolution': resolution, 'grng_seed': seed, 'rng_seeds': [seed+1]})
+        nest.SetKernelStatus({'resolution': resolution, 'grng_seed': seed, 'rng_seeds': [seed + 1]})
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                 "..", "..", "models", "hh_cond_exp_destexhe.nestml")))
@@ -143,7 +143,7 @@ class TestOUConductanceNoise(unittest.TestCase):
 
         Produces a plot with the time courses of the total excitatory (top left)
         and total inhibitory (bottom left) conductances during synaptic background
-        activity as subplots. The two other subplots consist of distributions of 
+        activity as subplots. The two other subplots consist of distributions of
         values for each conductance (excitatory and inhibitory).
 
         Parameters
@@ -167,12 +167,12 @@ class TestOUConductanceNoise(unittest.TestCase):
                 ax_cond.set_title('Inhibitory Conductance')
                 ax_hist.set_title('Conductance distribution (inhibitory)')
 
-            ax_cond.plot(times[mask], state[rf][mask]/1000.)
+            ax_cond.plot(times[mask], state[rf][mask] / 1000.)
             ax_cond.set_xlabel('time (ms)')
             ax_cond.set_ylabel('Conductance (\u03bcS)')
 
             ax_hist.set_ylim((0, 2800))
-            ax_hist.hist(state[rf][:19000]/1000., bins=100, range=(0, 0.1))
+            ax_hist.hist(state[rf][:19000] / 1000., bins=100, range=(0, 0.1))
             ax_hist.set_xlabel('Conductance (\u03bcS)')
 
         plt.savefig('figure2AB_destexhe2001.pdf')

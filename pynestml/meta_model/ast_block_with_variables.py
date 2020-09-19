@@ -145,8 +145,8 @@ class ASTBlockWithVariables(ASTNode):
         if not isinstance(other, ASTBlockWithVariables):
             return False
         if not (self.is_initial_values == other.is_initial_values
-                and self.is_internals == other.is_internals and
-                self.is_parameters == other.is_parameters and self.is_state == other.is_state):
+                and self.is_internals == other.is_internals
+                and self.is_parameters == other.is_parameters and self.is_state == other.is_state):
             return False
         if len(self.get_declarations()) != len(other.get_declarations()):
             return False

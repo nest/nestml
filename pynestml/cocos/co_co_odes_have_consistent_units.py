@@ -58,8 +58,8 @@ class OdeConsistentUnitsVisitor(ASTVisitor):
         variable_type = variable_symbol.type_symbol
         from pynestml.utils.unit_type import UnitType
         from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
-        inv_diff_order_unit_type = UnitType(name="inv_diff_order_unit_type_" + variable_name + "'" *
-                                            node.get_lhs().get_differential_order(), unit=1 / units.s**node.get_lhs().get_differential_order())
+        unit_type_name = "inv_diff_order_unit_type_" + variable_name + "'" * node.get_lhs().get_differential_order()
+        inv_diff_order_unit_type = UnitType(name=unit_type_name, unit=1 / units.s**node.get_lhs().get_differential_order())
         inv_diff_order_unit_type_symbol = UnitTypeSymbol(inv_diff_order_unit_type)
         lhs_type = variable_type * inv_diff_order_unit_type_symbol
         rhs_type = node.get_rhs().type

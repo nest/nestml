@@ -259,9 +259,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().accept(visitor)
         type_name = visitor.result
         # all declarations in the state block are recordable
-        is_recordable = (node.is_recordable or
-                         self.block_type_stack.top() == BlockType.STATE or
-                         self.block_type_stack.top() == BlockType.INITIAL_VALUES)
+        is_recordable = (node.is_recordable
+                         or self.block_type_stack.top() == BlockType.STATE
+                         or self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
         # now for each variable create a symbol and update the scope

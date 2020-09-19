@@ -311,8 +311,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
-                                                       symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE
+                                                       or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
@@ -719,7 +719,7 @@ class ASTNeuron(ASTNode):
         shape.update_scope(self.get_equations_blocks().get_scope())
 
     """
-    The following print methods are used by the backend and represent the comments as stored at the corresponding 
+    The following print methods are used by the backend and represent the comments as stored at the corresponding
     parts of the neuron definition.
     """
 

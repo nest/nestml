@@ -36,8 +36,8 @@ class UnitConverter(object):
         :return: a factor to that unit, converting it to "neuroscience" scales.
         :rtype float
         """
-        assert (isinstance(unit, units.IrreducibleUnit) or isinstance(unit, units.CompositeUnit) or
-                isinstance(unit, units.Unit) or isinstance(unit, units.PrefixUnit)), \
+        assert (isinstance(unit, units.IrreducibleUnit) or isinstance(unit, units.CompositeUnit)
+                or isinstance(unit, units.Unit) or isinstance(unit, units.PrefixUnit)), \
             "UnitConverter: given parameter is not a unit (%s)!" % type(unit)
 
         # check if it is dimensionless, thus only a prefix

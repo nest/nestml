@@ -138,7 +138,7 @@ class ASTFunction(ASTNode):
     def get_return_type(self):
         """
         Returns the return type of function.
-        :return: the return type 
+        :return: the return type
         :rtype: ast_data_type
         """
         return self.return_type
@@ -212,7 +212,7 @@ class ASTFunction(ASTNode):
                 return False
         if self.has_return_type() + other.has_return_type() == 1:
             return False
-        if (self.has_return_type() and other.has_return_type() and
-                not self.get_return_type().equals(other.get_return_type())):
+        if (self.has_return_type() and other.has_return_type()
+                and not self.get_return_type().equals(other.get_return_type())):
             return False
         return self.get_block().equals(other.get_block())

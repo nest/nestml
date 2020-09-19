@@ -105,7 +105,7 @@ class CoCosManager(object):
     @classmethod
     def check_functions_have_rhs(cls, neuron):
         """
-        Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV 
+        Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV
         :param neuron: a single neuron object
         :type neuron: ast_neuron
         """
@@ -114,7 +114,7 @@ class CoCosManager(object):
     @classmethod
     def check_function_has_max_one_lhs(cls, neuron):
         """
-        Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV 
+        Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """

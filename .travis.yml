@@ -64,7 +64,7 @@ stages:
 jobs:
   include:
     - stage: pycodestyle
-      script: python3 -m pycodestyle /home/travis/build/nest/nestml -v --ignore=E241,E501,E303,E714,E713,E714,E252 --exclude=/home/travis/build/nest/nestml/doc,/home/travis/build/nest/nestml/.eggs,/home/travis/build/nest/nestml/pynestml/generated
+      script: python3 -m pycodestyle /home/travis/build/nest/nestml -v --ignore=E241,E501,E303,E714,E713,E714,E252,W503 --exclude=/home/travis/build/nest/nestml/doc,/home/travis/build/nest/nestml/.eggs,/home/travis/build/nest/nestml/pynestml/generated
 
     - stage: test
       script: pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests

@@ -60,8 +60,7 @@ class NestWBCondExpTest(unittest.TestCase):
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
         multimeter[1].set({"record_from": record_from,
                            "interval": dt})
-        #! {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
-        # nest.Connect(neuron1, neuron2)
+        # {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 2})  # NMDA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA

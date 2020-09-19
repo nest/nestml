@@ -106,10 +106,10 @@ class ASTSourceLocation:
         """
         if not isinstance(source_position, ASTSourceLocation):
             return False
-        return (self.get_start_line() == source_position.get_start_line() and
-                self.get_start_column() == source_position.get_start_column() and
-                self.get_end_line() == source_position.get_end_line() and
-                self.get_end_column() == source_position.get_end_column())
+        return (self.get_start_line() == source_position.get_start_line()
+                and self.get_start_column() == source_position.get_start_column()
+                and self.get_end_line() == source_position.get_end_line()
+                and self.get_end_column() == source_position.get_end_column())
 
     def before(self, source_position):
         """
@@ -188,10 +188,10 @@ class ASTSourceLocation:
         if not isinstance(source_position, ASTSourceLocation):
             return False
 
-        if (self.get_start_line() <= source_position.get_start_line() and
-                self.get_end_line() >= source_position.get_end_line() and
-                self.get_start_column() <= source_position.get_start_column() and
-                self.get_end_column() >= source_position.get_end_column()):
+        if (self.get_start_line() <= source_position.get_start_line()
+                and self.get_end_line() >= source_position.get_end_line()
+                and self.get_start_column() <= source_position.get_start_column()
+                and self.get_end_column() >= source_position.get_end_column()):
             return True
         else:
             return False

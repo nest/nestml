@@ -12,7 +12,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except ImportError:
     TEST_PLOTS = False
 
 

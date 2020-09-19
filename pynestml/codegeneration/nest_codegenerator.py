@@ -158,8 +158,8 @@ class NESTCodeGenerator(CodeGenerator):
             self.store_transformed_model(neuron)
 
     def get_delta_factors_(self, neuron, equations_block):
-        """
-        For every occurrence of a convolution of the form `x^(n) = a * convolve(shape, inport) + ...` where `shape` is a delta function, add the element `(x^(n), inport) --> a` to the set. 
+        r"""
+        For every occurrence of a convolution of the form `x^(n) = a * convolve(shape, inport) + ...` where `shape` is a delta function, add the element `(x^(n), inport) --> a` to the set.
         """
         delta_factors = {}
         for ode_eq in equations_block.get_ode_equations():
@@ -197,8 +197,8 @@ class NESTCodeGenerator(CodeGenerator):
             sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
                 convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
             if sym is None:
-                raise Exception("No initial value(s) defined for shape with variable \"" +
-                                convolve.get_args()[0].get_variable().get_complete_name() + "\"")
+                raise Exception("No initial value(s) defined for shape with variable \""
+                                + convolve.get_args()[0].get_variable().get_complete_name() + "\"")
             if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
                 el = (el[1], el[0])
 
@@ -234,7 +234,8 @@ class NESTCodeGenerator(CodeGenerator):
                     var.set_name(to_ode_toolbox_processed_name(var.get_complete_name()))
                     var.set_differential_order(0)
 
-        def func(x): return replace_var(x)
+        def func(x):
+            return replace_var(x)
 
         neuron.accept(ASTHigherOrderVisitor(func))
 
@@ -267,7 +268,8 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_variable.set_source_position(_expr.get_source_position())
                     _expr.set_variable(ast_variable)
 
-        def func(x): return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
+        def func(x):
+            return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
         equations_block.accept(ASTHigherOrderVisitor(func))
 
@@ -454,8 +456,7 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.transform_ode_and_shapes_to_json(neuron, parameters_block, shape_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        #solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=FrontendConfiguration.logging_level=="DEBUG")
-        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=True)
+        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=FrontendConfiguration.logging_level == "DEBUG")
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -696,7 +697,7 @@ class NESTCodeGenerator(CodeGenerator):
             convolve(G, ex_spikes)
             convolve(G, in_spikes)
 
-        then `shape_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.            
+        then `shape_buffers` will contain the pairs `(G, ex_spikes)` and `(G, in_spikes)`, from which two ODEs will be generated, with dynamical state (variable) names `G__X__ex_spikes` and `G__X__in_spikes`.
 
         :param equations_block: ASTEquationsBlock
         :return: Dict

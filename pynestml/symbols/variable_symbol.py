@@ -269,9 +269,9 @@ class VariableSymbol(Symbol):
         recordable = 'recordable, ' if self.is_recordable else ''
         func = 'function, ' if self.is_function else ''
         conductance_based = 'conductance based, ' if self.is_conductance_based else ''
-        return ('VariableSymbol[' + self.get_symbol_name() + ', type=' +
-                typ_e + ', ' + str(self.block_type) + ', ' + recordable + func + conductance_based +
-                'array parameter=' + vector_value + ', @' + source_position + ')')
+        return 'VariableSymbol[' + self.get_symbol_name() + ', type=' \
+               + typ_e + ', ' + str(self.block_type) + ', ' + recordable + func + conductance_based \
+               + 'array parameter=' + vector_value + ', @' + source_position + ')'
 
     def get_type_symbol(self):
         """
@@ -295,10 +295,10 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.ode_or_shape is not None and (isinstance(self.ode_or_shape, ASTExpression) or
-                                                  isinstance(self.ode_or_shape, ASTSimpleExpression) or
-                                                  isinstance(self.ode_or_shape, ASTOdeShape) or
-                                                  isinstance(self.ode_or_shape, ASTOdeEquation))
+        return self.ode_or_shape is not None and (isinstance(self.ode_or_shape, ASTExpression)
+                                                  or isinstance(self.ode_or_shape, ASTSimpleExpression)
+                                                  or isinstance(self.ode_or_shape, ASTOdeShape)
+                                                  or isinstance(self.ode_or_shape, ASTOdeEquation))
 
     def get_ode_or_shape(self):
         """
@@ -355,8 +355,8 @@ class VariableSymbol(Symbol):
         :return: True if has initial value, otherwise False.
         :rtype: bool
         """
-        return self.initial_value is not None and (isinstance(self.initial_value, ASTSimpleExpression) or
-                                                   isinstance(self.initial_value, ASTExpression))
+        return self.initial_value is not None and (isinstance(self.initial_value, ASTSimpleExpression)
+                                                   or isinstance(self.initial_value, ASTExpression))
 
     def get_initial_value(self):
         """
@@ -382,17 +382,17 @@ class VariableSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return (type(self) != type(other) and
-                self.get_referenced_object() == other.get_referenced_object() and
-                self.get_symbol_name() == other.get_symbol_name() and
-                self.get_corresponding_scope() == other.get_corresponding_scope() and
-                self.block_type == other.get_block_type() and
-                self.get_vector_parameter() == other.get_vector_parameter() and
-                self.declaring_expression == other.declaring_expression and
-                self.is_predefined == other.is_predefined and
-                self.is_function == other.is_function and
-                self.is_conductance_based == other.is_conductance_based and
-                self.is_recordable == other.is_recordable)
+        return (type(self) != type(other)
+                and self.get_referenced_object() == other.get_referenced_object()
+                and self.get_symbol_name() == other.get_symbol_name()
+                and self.get_corresponding_scope() == other.get_corresponding_scope()
+                and self.block_type == other.get_block_type()
+                and self.get_vector_parameter() == other.get_vector_parameter()
+                and self.declaring_expression == other.declaring_expression
+                and self.is_predefined == other.is_predefined
+                and self.is_function == other.is_function
+                and self.is_conductance_based == other.is_conductance_based
+                and self.is_recordable == other.is_recordable)
 
     def print_comment(self, prefix=None):
         """

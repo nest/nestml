@@ -62,6 +62,7 @@ class CoCoSimpleDeltaFunction(CoCo):
                     Logger.log_message(code=code, message=message,
                                        error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)
 
-        def func(x): return check_simple_delta(x) if isinstance(x, ASTSimpleExpression) else True
+        def func(x):
+            return check_simple_delta(x) if isinstance(x, ASTSimpleExpression) else True
 
         node.accept(ASTHigherOrderVisitor(func))

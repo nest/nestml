@@ -44,33 +44,33 @@ class NestIntegrationTest(unittest.TestCase):
         nest.Install("nestml_allmodels_module")
 
         models = []
-        #models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
-        #models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
-        #models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
+        # models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
+        # models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
+        # models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
 
-        #models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
-        #models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+        # models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
+        # models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
         # models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 2., "tau_decay_ex" : 10., "tau_rise_in" : 2., "tau_decay_in" : 10.}, {"tau_syn_rise_E" : 2., "tau_syn_decay_E" : 10., "tau_syn_rise_I" : 2., "tau_syn_decay_I" : 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
         # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
         models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))
-        #models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
-        #models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
+        # models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
+        # models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
 
         # --------------
         # XXX: TODO!
 
-        #models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
-        #models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
-        #models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 1E-3))
-        #models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3))
-        #models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 1E-3))
-        #models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
-        #models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
+        # models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
+        # models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
+        # models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 1E-3))
+        # models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3))
+        # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 1E-3))
+        # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
+        # models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
         for model in models:
             reference = model[0]
@@ -243,7 +243,7 @@ class NestIntegrationTest(unittest.TestCase):
                     _ax.grid()
                 fig.suptitle("Rate: " + str(rate_testant[i]) + " Hz")
                 plt.savefig(
-                    "/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_[I_stim="+str(I_stim)+"].png")
+                    "/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_[I_stim=" + str(I_stim) + "].png")
 
         if TEST_PLOTS:
             if len(I_stim_vec) < 20:
@@ -270,7 +270,6 @@ class NestIntegrationTest(unittest.TestCase):
                 ax = [ax]
                 ax[0].plot(I_stim_vec * 1E12, rate_testant, marker=marker, label=referenceModel)
                 for _ax in ax:
-                    #_ax.legend(loc='upper right')
                     _ax.grid()
                     _ax.set_ylabel("Firing rate [Hz]")
                 ax[0].set_xlabel("$I_{inj}$ [pA]")
@@ -329,20 +328,19 @@ class NestIntegrationTest(unittest.TestCase):
                 ax = [ax]
                 ax[0].plot(ts2, Vms2, label=testant)
                 for _ax in ax:
-                    #_ax.legend(loc='upper right')
                     _ax.grid()
                 ax[0].set_xlabel("Time [ms]")
                 ax[0].set_ylabel("$V_m$ [mV]")
                 plt.tight_layout()
-                plt.savefig("/tmp/nestml_models_library_[" + referenceModel +
-                            "]_synaptic_response" + fname_snip + ".png")
+                plt.savefig("/tmp/nestml_models_library_[" + referenceModel
+                            + "]_synaptic_response" + fname_snip + ".png")
 
         for index in range(0, len(Vms1)):
             if abs(Vms1[index] - Vms2[index]) > tolerance \
                     or np.isnan(Vms1[index]) \
                     or np.isnan(Vms2[index]):
-                print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) +
-                      " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
+                print(str(Vms1[index]) + " differs from  " + str(Vms2[index])
+                      + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
                 raise Exception(testant + ": TEST FAILED")
 
         print(testant + " PASSED")

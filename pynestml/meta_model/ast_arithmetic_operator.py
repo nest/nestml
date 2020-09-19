@@ -88,6 +88,6 @@ class ASTArithmeticOperator(ASTNode):
         """
         if not isinstance(other, ASTArithmeticOperator):
             return False
-        return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op and
-                self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op and
-                self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)
+        return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op
+                and self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op
+                and self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)

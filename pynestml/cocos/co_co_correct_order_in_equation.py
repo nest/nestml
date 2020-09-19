@@ -25,7 +25,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoCorrectOrderInEquation(CoCo):
     """
-    This coco ensures that whenever a ode-equation is assigned to a variable, it have a differential order 
+    This coco ensures that whenever a ode-equation is assigned to a variable, it have a differential order
     of at leas one.
     Allowed:
         equations:
@@ -34,7 +34,7 @@ class CoCoCorrectOrderInEquation(CoCo):
     Not allowed:
         equations:
             V_m = ...
-        end  
+        end
     """
 
     @classmethod

@@ -219,7 +219,7 @@ class ASTVisitor(object):
 
     def visit_data_type(self, node):
         """
-        Used to visit a single data-type. 
+        Used to visit a single data-type.
         :param node: a data-type.
         :type node: ASTDataType
         """
@@ -252,7 +252,7 @@ class ASTVisitor(object):
     def visit_unary_operator(self, node):
         """
         Used to visit a single unary operator.
-        :param node: a single unary operator. 
+        :param node: a single unary operator.
         :type node: ASTUnaryOperator
         """
         return
@@ -260,7 +260,7 @@ class ASTVisitor(object):
     def visit_bit_operator(self, node):
         """
         Used to visit a single unary operator.
-        :param node: a single bit operator. 
+        :param node: a single bit operator.
         :type node: ASTBitOperator
         """
         return
@@ -340,7 +340,7 @@ class ASTVisitor(object):
     def visit_output_block(self, node):
         """
         Used to visit a single output block.
-        :param node: a single output block. 
+        :param node: a single output block.
         :type node: ASTOutputBlock
         """
         return
@@ -415,7 +415,7 @@ class ASTVisitor(object):
     def endvisit_update_block(self, node):
         """
         Used to endvisit a single update block.
-        :param node: an update block object. 
+        :param node: an update block object.
         :type node: ASTDynamics
         """
         return
@@ -511,7 +511,7 @@ class ASTVisitor(object):
     def endvisit_for_stmt(self, node):
         """
         Private method: Used to endvisit a single for-stmt.
-        :param node: a for-statement. 
+        :param node: a for-statement.
         :type node: ASTForStmt
         """
         return
@@ -526,7 +526,7 @@ class ASTVisitor(object):
 
     def endvisit_data_type(self, node):
         """
-        Used to endvisit a single data-type. 
+        Used to endvisit a single data-type.
         :param node: a data-type.
         :type node: ASTDataType
         """
@@ -559,7 +559,7 @@ class ASTVisitor(object):
     def endvisit_unary_operator(self, node):
         """
         Used to endvisit a single unary operator.
-        :param node: a single unary operator. 
+        :param node: a single unary operator.
         :type node: ASTUnaryOperator
         """
         return
@@ -567,7 +567,7 @@ class ASTVisitor(object):
     def endvisit_bit_operator(self, node):
         """
         Used to endvisit a single unary operator.
-        :param node: a single bit operator. 
+        :param node: a single bit operator.
         :type node: ASTBitOperator
         """
         return
@@ -647,7 +647,7 @@ class ASTVisitor(object):
     def endvisit_output_block(self, node):
         """
         Used to endvisit a single output block.
-        :param node: a single output block. 
+        :param node: a single output block.
         :type node: ASTOutputBlock
         """
         return

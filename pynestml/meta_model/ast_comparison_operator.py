@@ -114,6 +114,6 @@ class ASTComparisonOperator(ASTNode):
         """
         if not isinstance(other, ASTComparisonOperator):
             return False
-        return (self.is_lt == other.is_lt and self.is_le == other.is_le and
-                self.is_eq == other.is_eq and self.is_ne == other.is_ne and
-                self.is_ne2 == other.is_ne2 and self.is_ge == other.is_ge and self.is_gt == other.is_gt)
+        return (self.is_lt == other.is_lt and self.is_le == other.is_le
+                and self.is_eq == other.is_eq and self.is_ne == other.is_ne
+                and self.is_ne2 == other.is_ne2 and self.is_ge == other.is_ge and self.is_gt == other.is_gt)

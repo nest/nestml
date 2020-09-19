@@ -152,13 +152,13 @@ class ASTAssignment(ASTNode):
         """
         if not isinstance(other, ASTAssignment):
             return False
-        return (self.get_variable().equals(other.get_variable()) and
-                self.is_compound_quotient == other.is_compound_quotient and
-                self.is_compound_product == other.is_compound_product and
-                self.is_compound_minus == other.is_compound_minus and
-                self.is_compound_sum == other.is_compound_sum and
-                self.is_direct_assignment == other.is_direct_assignment and
-                self.get_expression().equals(other.get_expression()))
+        return (self.get_variable().equals(other.get_variable())
+                and self.is_compound_quotient == other.is_compound_quotient
+                and self.is_compound_product == other.is_compound_product
+                and self.is_compound_minus == other.is_compound_minus
+                and self.is_compound_sum == other.is_compound_sum
+                and self.is_direct_assignment == other.is_direct_assignment
+                and self.get_expression().equals(other.get_expression()))
 
     def deconstruct_compound_assignment(self):
         """

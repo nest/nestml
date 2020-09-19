@@ -25,13 +25,13 @@ import numpy as np
 import unittest
 
 
-def strip_suffix(l, suffix):
-    new_l = []
-    for n in l:
+def strip_suffix(names_list, suffix):
+    new_names_list = []
+    for n in names_list:
         if n[-len(suffix):] == suffix:
             n = n[:-len(suffix)]
-        new_l.append(n)
-    return new_l
+        new_names_list.append(n)
+    return new_names_list
 
 
 class NestInstantiabilityTest(unittest.TestCase):

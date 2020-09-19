@@ -152,7 +152,7 @@ class PredefinedTypes(object):
         -Correct Serializations of a UnitRepresentation
 
         In Case of UNITS always return a TS with serialization as name
-        :param name: the name of the symbol. 
+        :param name: the name of the symbol.
         :type name: str or unit
         :return: a single symbol copy or none
         :rtype: type_symbol or None

@@ -177,8 +177,8 @@ class TypeSymbol(Symbol):
         from astropy import units
         # TODO: consider even more complex cases which can be resolved to the same unit?
         if (isinstance(unit_a, units.Unit) or isinstance(unit_a, units.PrefixUnit) or isinstance(unit_a, units.CompositeUnit)) \
-                and (isinstance(unit_b, units.Unit) or isinstance(unit_b, units.PrefixUnit)
-                     or isinstance(unit_b, units.CompositeUnit)) and unit_a.physical_type == unit_b.physical_type:
+            and (isinstance(unit_b, units.Unit) or isinstance(unit_b, units.PrefixUnit)
+                 or isinstance(unit_b, units.CompositeUnit)) and unit_a.physical_type == unit_b.physical_type:
             return True
         return False
 

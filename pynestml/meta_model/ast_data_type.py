@@ -166,9 +166,9 @@ class ASTDataType(ASTNode):
         """
         if not isinstance(other, ASTDataType):
             return False
-        if not (self.is_integer == other.is_integer and self.is_real == other.is_real and
-                self.is_string == other.is_string and self.is_boolean == other.is_boolean and
-                self.is_void == other.is_void):
+        if not (self.is_integer == other.is_integer and self.is_real == other.is_real
+                and self.is_string == other.is_string and self.is_boolean == other.is_boolean
+                and self.is_void == other.is_void):
             return False
         # only one of them uses a unit, thus false
         if self.is_unit_type() + other.is_unit_type() == 1:

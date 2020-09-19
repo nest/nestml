@@ -29,7 +29,7 @@ class ASTExpression(ASTExpressionNode):
     """
     ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
     or a simple rhs, e.g. 10mV.
-    Grammar: 
+    Grammar:
       rhs : leftParentheses='(' rhs rightParentheses=')'
              | <assoc=right> base=rhs powOp='**' exponent=rhs
              | unaryOperator term=rhs
@@ -90,10 +90,10 @@ class ASTExpression(ASTExpressionNode):
         :type if_not: ASTExpression
         """
         super(ASTExpression, self).__init__(*args, **kwargs)
-        assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator) or
-                                              (isinstance(binary_operator, ASTBitOperator)) or
-                                              (isinstance(binary_operator, ASTLogicalOperator)) or
-                                              (isinstance(binary_operator, ASTComparisonOperator)))), \
+        assert ((binary_operator is None) or (isinstance(binary_operator, ASTArithmeticOperator)
+                                              or isinstance(binary_operator, ASTBitOperator)
+                                              or isinstance(binary_operator, ASTLogicalOperator)
+                                              or isinstance(binary_operator, ASTComparisonOperator))), \
             '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(binary_operator)
         self.is_encapsulated = is_encapsulated
         self.is_logical_not = is_logical_not
@@ -162,7 +162,7 @@ class ASTExpression(ASTExpressionNode):
 
     def is_expression(self):
         """
-        :rtype: bool 
+        :rtype: bool
         """
         return self.expression is not None
 
@@ -177,7 +177,7 @@ class ASTExpression(ASTExpressionNode):
     def is_unary_operator(self):
         """
         Returns whether the rhs uses an unary operator.
-        :return: True if unary operator, otherwise False.  
+        :return: True if unary operator, otherwise False.
         :rtype: bool
         """
         return self.unary_operator is not None
@@ -384,13 +384,13 @@ class ASTExpression(ASTExpressionNode):
         if self.is_compound_expression() + other.is_compound_expression() == 1:
             return False
         if self.is_compound_expression() and other.is_compound_expression() and \
-                not (self.get_lhs().equals(other.get_lhs()) and self.get_rhs().equals(other.get_rhs()) and
-                     self.get_binary_operator().equals(other.get_binary_operator())):
+                not (self.get_lhs().equals(other.get_lhs()) and self.get_rhs().equals(other.get_rhs())
+                     and self.get_binary_operator().equals(other.get_binary_operator())):
             return False
         if self.is_ternary_operator() + other.is_ternary_operator() == 1:
             return False
         if self.is_ternary_operator() and other.is_ternary_operator() and \
-                not (self.get_condition().equals(other.get_condition()) and
-                     self.get_if_true().equals(other.get_if_true()) and self.get_if_not().equals(other.get_if_not())):
+                not (self.get_condition().equals(other.get_condition())
+                     and self.get_if_true().equals(other.get_if_true()) and self.get_if_not().equals(other.get_if_not())):
             return False
         return True

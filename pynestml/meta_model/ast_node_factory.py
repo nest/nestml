@@ -179,10 +179,10 @@ class ASTNodeFactory():
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
         """
-        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator) or
-                                                 isinstance(binary_operator, ASTComparisonOperator) or
-                                                 isinstance(binary_operator, ASTLogicalOperator) or
-                                                 isinstance(binary_operator, ASTArithmeticOperator))), \
+        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator)
+                                                 or isinstance(binary_operator, ASTComparisonOperator)
+                                                 or isinstance(binary_operator, ASTLogicalOperator)
+                                                 or isinstance(binary_operator, ASTArithmeticOperator))), \
             '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(binary_operator)
         return ASTExpression(lhs=lhs, binary_operator=binary_operator, rhs=rhs, source_position=source_position)
 
