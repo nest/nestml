@@ -76,19 +76,19 @@ Units can have at most one of the following magnitude prefixes:
 
 Simple physical units can be combined to complex units. For this, the operators , ``*`` (multiplication), ``/`` (division), ``**`` (power) and ``()`` (parenthesis) can be used. An example could be
 
-.. code:: nestml
+.. code-block:: nestml
 
    mV*mV*nS**2/(mS*pA)
 
 Units of the form ``<unit> ** -1`` can also be expressed as ``1/<unit>``. For example
 
-.. code:: nestml
+.. code-block:: nestml
 
    (ms*mV)**-1
 
 is equivalent to
 
-.. code:: nestml
+.. code-block:: nestml
 
    1/(ms*mV)
 
@@ -212,7 +212,7 @@ NESTML also supports the usage of named derived-units such as Newton, Henry or l
 
 Here, except for Ohm, the symbol of the unit has to be used in the model, e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    x = 10 N * 22 Ohm / 0.5 V
 
@@ -227,13 +227,13 @@ Simple unit literals are composed of a number and a type name (with or without a
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    V_m mV = 1 mV
 
 Complex unit literals can be composed according to the common arithmetic rules, i.e., by using operators to combine simple units:
 
-.. code:: nestml
+.. code-block:: nestml
 
    V_rest = -55 mV/s**2
 
@@ -263,7 +263,7 @@ Names of functions and input ports must also satisfy this pattern. The type of t
 
     <list_of_comma_separated_names> <type> (= initialization_expression)?
 
-.. code:: nestml
+.. code-block:: nestml
 
     a, b, c real = -0.42
     d integer = 1
@@ -276,7 +276,7 @@ Documentation strings
 
 Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments (``"""..."""``) or Java-style comments (``/* ... */``) can be used.
 
-.. code:: nestml
+.. code-block:: nestml
 
    var1 real # single line comment
 
@@ -291,7 +291,7 @@ Declarations can be enriched with special comments which are then taken into gen
 
 To enable NESTML to recognize the commented element uniquely, the following approach has to be used: there should be no white line separating the comment and its target. For example:
 
-.. code:: nestml
+.. code-block:: nestml
 
    V_m mV = -55 mV # I am a comment of the membrane potential
 
@@ -299,14 +299,14 @@ To enable NESTML to recognize the commented element uniquely, the following appr
 
 If a comment shall be attached to an element, no white lines are allowed.
 
-.. code:: nestml
+.. code-block:: nestml
 
    V_m mV = -55mV # I am a comment of the membrane potential
    /* I am a comment of the membrane potential.*/ 
 
 Whitelines are therefore used to separate comment targets:
 
-.. code:: nestml
+.. code-block:: nestml
 
    V_m mV = -55mV
    /* I am a comment of the membrane potential.*/ 
@@ -340,7 +340,7 @@ Functions can be used to write repeatedly used code blocks only once. They consi
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    function divide(a real, b real) real:
      return a/b
@@ -354,7 +354,7 @@ To use a function, it has to be called. A function call is composed of the funct
 
 e.g.
 
-.. code:: nestml
+.. code-block:: nestml
 
    x = max(a*2, b/2)
 
@@ -448,7 +448,7 @@ The ``return`` keyword can only be used inside of the ``function`` block. Depend
 
 e.g.
 
-.. code:: nestml
+.. code-block:: nestml
 
    if a > b:
      return a
@@ -474,7 +474,7 @@ The start of the ``while`` loop is composed of the keyword ``while`` followed by
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    x integer = 0
    while x <= 10:
@@ -491,7 +491,7 @@ The ``for`` loop starts with the keyword ``for`` followed by the name of a previ
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    x integer = 0
    for x in 1 ... 5:
@@ -508,7 +508,7 @@ The second variant uses an ``integer`` or ``real`` iterator variable and iterate
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    x integer
    for x in 1 ... 5 step 2:
@@ -533,7 +533,7 @@ NESTML supports different variants of the if-else conditional. The first example
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    if 2 < 3:
      # <statements>
@@ -551,7 +551,7 @@ The second example shows an if-else block, which executes the ``if_statements`` 
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    if 2 < 3:
      # <if_statements>
@@ -573,7 +573,7 @@ In order to allow grouping a sequence of related ``if`` conditions, NESTML also 
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    if 2 < 3:
      # <if_statements>
@@ -591,7 +591,7 @@ e.g.:
 
 Conditionals can also be nested inside of each other.
 
-.. code:: nestml
+.. code-block:: nestml
 
    if 1 < 4:
      # <statements>
@@ -682,7 +682,7 @@ A neuron model written in NESTML can be configured to receive two distinct types
 
 This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following `input` block would be appropriate:
 
-.. code:: nestml
+.. code-block:: nestml
 
    input:
      I_stim pA <- current
@@ -697,7 +697,7 @@ Integrating current input
 
 The current port symbol (here, `I_stim`) is available as a variable and can be used in expressions, e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    V_m' = -V_m/tau_m + ... + I_stim
 
@@ -721,7 +721,7 @@ where :math:`w_i` is the weight of spike :math:`i`.
 
 For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic shape ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a shape and input port as its arguments:
 
-.. code:: nestml
+.. code-block:: nestml
 
    shape G = exp(-t/tau_syn)
    V_m' = -V_m/tau_m + convolve(G, spikes)
@@ -734,7 +734,7 @@ Multiple input synapses
 
 If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
 
-.. code:: nestml
+.. code-block:: nestml
 
    input:
      spikes1 nS <- spike
@@ -744,7 +744,7 @@ If there is more than one line specifying a `spike` or `current` port with the s
 
 For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
 
-.. code:: nestml
+.. code-block:: nestml
 
    equations:
      shape I_shape1 = exp(-t / tau_syn1)
@@ -794,7 +794,7 @@ Output
 
 Each neuron model can only send a single type of event. The type of the event has to be given in the ``output`` block. Currently, however, only spike output is supported.
 
-.. code:: nestml
+.. code-block:: nestml
 
    output: spike
 
@@ -820,13 +820,13 @@ Systems of ODEs
 
 In the ``equations`` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. When using a derivative of a variable, say ``V``, one must write: ``V'``. It is then assumed that ``V'`` is the first time derivate of ``V``. The second time derivative of ``V`` is ``V''``, and so on. If an equation contains a derivative of order :math:`n`, for example, :math:`V^{(n)}`, all initial values of :math:`V` up to order :math:`n-1` must be defined in the ``state`` block. For example, if stating
 
-.. code:: nestml
+.. code-block:: nestml
 
    V' = a * V
 
 in the ``equations`` block,
 
-.. code:: nestml
+.. code-block:: nestml
 
    V mV = 0 mV
 
@@ -840,7 +840,7 @@ Inline expressions
 
 In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or shape expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
 
-.. code:: nestml
+.. code-block:: nestml
 
    inline h_inf_T real = 1 / (1 + exp((V_m / mV + 83) / 4))
    IT_h' = (h_inf_T * nS - IT_h) / tau_h_T / ms
@@ -853,13 +853,13 @@ Shape functions
 
 A `shape` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying shape could be described as a direct function of time, as follows:
 
-.. code:: nestml
+.. code-block:: nestml
 
    shape g = exp(-t / tau)
 
 with time constant, for example, equal to 20 ms:
 
-.. code:: nestml
+.. code-block:: nestml
 
    parameters:
      tau ms = 20 ms
@@ -869,13 +869,13 @@ The start at time :math:`t \geq 0` is an implicit assumption for all shapes.
 
 Equivalently, the same exponentially decaying shape can be formulated as a differential equation:
 
-.. code:: nestml
+.. code-block:: nestml
 
    shape g' = -g / tau
 
 In this case, initial values have to be specified up to the order of the differential equation, e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    initial_values:
      g real = 1
@@ -887,20 +887,20 @@ An example second-order kernel is the dual exponential ("alpha") shape, which ca
 
 (1) As a direct function of time:
 
-    .. code:: nestml
+    .. code-block:: nestml
 
        shape g = (e/tau) * t * exp(-t/tau)
 
 (2) As a system of coupled first-order differential equations:
 
-    .. code:: nestml
+    .. code-block:: nestml
 
        shape g' = g$ - g  / tau,
              g$' = -g$ / tau
 
     with initial values:
 
-    .. code:: nestml
+    .. code-block:: nestml
 
        initial_values:
          g real = 0
@@ -911,13 +911,13 @@ An example second-order kernel is the dual exponential ("alpha") shape, which ca
 
 (3) As a second-order differential equation:
 
-    .. code:: nestml
+    .. code-block:: nestml
 
        shape g'' = (-2/tau) * g' - 1/tau**2) * g
 
     with initial values:
 
-    .. code:: nestml
+    .. code-block:: nestml
 
        initial_values:
          g real = 0
@@ -926,7 +926,7 @@ An example second-order kernel is the dual exponential ("alpha") shape, which ca
 
 A Dirac delta impulse shape can be defined by using the predefined function ``delta``:
 
-.. code:: nestml
+.. code-block:: nestml
 
    shape g = delta(t)
 
@@ -954,7 +954,7 @@ Concepts for refractoriness
 
 In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
 
-.. code:: nestml
+.. code-block:: nestml
 
    parameters:
      t_ref ms = 5 ms
@@ -989,7 +989,7 @@ Recording values with devices
 -  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 -  The ``recordable`` keyword can be used to also make variables in other blocks (``parameters, internals``) available to recording devices.
 
-.. code:: nestml
+.. code-block:: nestml
 
    parameters:
      recordable t_ref ms = 5 ms
@@ -1010,7 +1010,7 @@ Variables which are defined in the ``state`` and ``parameters`` blocks can optio
 
 e.g.:
 
-.. code:: nestml
+.. code-block:: nestml
 
    parameters:
      t_ref ms = 5 ms [[t_ref >= 0 ms]] # refractory period cannot be negative

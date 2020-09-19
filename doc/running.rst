@@ -3,7 +3,7 @@ Running NESTML
 
 After the installation, the toolchain can be executed by the following command.
 
-.. code:: bash
+.. code-block:: bash
 
    nestml ARGUMENTS
 
@@ -37,7 +37,7 @@ where arguments are:
 
 Generated artifacts are copied to the selected target directory (default is ``target``). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 
-.. code:: bash
+.. code-block:: bash
 
    cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
    make all
