@@ -44,18 +44,18 @@ class NestIntegrationTest(unittest.TestCase):
         nest.Install("nestml_allmodels_module")
 
         models = []
-        # models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
-        # models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
-        # models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
 
-        # models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
-        # models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-        # models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 2., "tau_decay_ex" : 10., "tau_rise_in" : 2., "tau_decay_in" : 10.}, {"tau_syn_rise_E" : 2., "tau_syn_decay_E" : 10., "tau_syn_rise_I" : 2., "tau_syn_decay_I" : 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+        models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
+        models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
+        models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
 
-        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
-        models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))
-        # models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
-        # models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
+        models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
+        models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 2., "tau_decay_ex" : 10., "tau_rise_in" : 2., "tau_decay_in" : 10.}, {"tau_syn_rise_E" : 2., "tau_syn_decay_E" : 10., "tau_syn_rise_I" : 2., "tau_syn_decay_I" : 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+
+        models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
+        models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
 
         # --------------
         # XXX: TODO!
