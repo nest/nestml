@@ -79,7 +79,7 @@ class ASTDataTypeVisitor(ASTVisitor):
 
     def visit_unit_type(self, node):
         """
-        Visits a single unit type element, checks for correct usage of units and builds the corresponding combinecd
+        Visits a single unit type element, checks for correct usage of units and builds the corresponding combined
         unit.
         :param node: a single unit type meta_model.
         :type node: ASTUnitType

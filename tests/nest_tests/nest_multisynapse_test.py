@@ -36,7 +36,7 @@ class NestMultiSynapseTest(unittest.TestCase):
     def test_multisynapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
-        nest_path = "/home/archels/nest-simulator-build"
+        nest_path = "/home/travis/nest_install"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'

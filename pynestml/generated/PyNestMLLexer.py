@@ -288,7 +288,7 @@ class PyNestMLLexer(Lexer):
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
+    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
 
     COMMENT = 2
     NEW_LINE = 3
@@ -376,70 +376,70 @@ class PyNestMLLexer(Lexer):
     UNSIGNED_INTEGER = 81
     FLOAT = 82
 
-    channelNames = [u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN", u"COMMENT", u"NEW_LINE"]
+    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN", u"COMMENT", u"NEW_LINE" ]
 
-    modeNames = [u"DEFAULT_MODE"]
+    modeNames = [ u"DEFAULT_MODE" ]
 
-    literalNames = [u"<INVALID>",
-                    u"'end'", u"'integer'", u"'real'", u"'string'", u"'boolean'",
-                    u"'void'", u"'function'", u"'inline'", u"'return'", u"'if'",
-                    u"'elif'", u"'else'", u"'for'", u"'while'", u"'in'", u"'step'",
-                    u"'inf'", u"'and'", u"'or'", u"'not'", u"'recordable'", u"'shape'",
-                    u"'neuron'", u"'state'", u"'parameters'", u"'internals'", u"'initial_values'",
-                    u"'update'", u"'equations'", u"'input'", u"'output'", u"'current'",
-                    u"'spike'", u"'inhibitory'", u"'excitatory'", u"'...'", u"'('",
-                    u"')'", u"'+'", u"'~'", u"'|'", u"'^'", u"'&'", u"'['", u"'<-'",
-                    u"']'", u"'[['", u"']]'", u"'<<'", u"'>>'", u"'<'", u"'>'",
-                    u"'<='", u"'+='", u"'-='", u"'*='", u"'/='", u"'=='", u"'!='",
-                    u"'<>'", u"'>='", u"','", u"'-'", u"'='", u"'*'", u"'**'", u"'/'",
-                    u"'%'", u"'?'", u"':'", u"';'", u"'''"]
+    literalNames = [ u"<INVALID>",
+            u"'end'", u"'integer'", u"'real'", u"'string'", u"'boolean'", 
+            u"'void'", u"'function'", u"'inline'", u"'return'", u"'if'", 
+            u"'elif'", u"'else'", u"'for'", u"'while'", u"'in'", u"'step'", 
+            u"'inf'", u"'and'", u"'or'", u"'not'", u"'recordable'", u"'shape'", 
+            u"'neuron'", u"'state'", u"'parameters'", u"'internals'", u"'initial_values'", 
+            u"'update'", u"'equations'", u"'input'", u"'output'", u"'current'", 
+            u"'spike'", u"'inhibitory'", u"'excitatory'", u"'...'", u"'('", 
+            u"')'", u"'+'", u"'~'", u"'|'", u"'^'", u"'&'", u"'['", u"'<-'", 
+            u"']'", u"'[['", u"']]'", u"'<<'", u"'>>'", u"'<'", u"'>'", 
+            u"'<='", u"'+='", u"'-='", u"'*='", u"'/='", u"'=='", u"'!='", 
+            u"'<>'", u"'>='", u"','", u"'-'", u"'='", u"'*'", u"'**'", u"'/'", 
+            u"'%'", u"'?'", u"':'", u"';'", u"'''" ]
 
-    symbolicNames = [u"<INVALID>",
-                     u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", u"WS", u"LINE_ESCAPE",
-                     u"END_KEYWORD", u"INTEGER_KEYWORD", u"REAL_KEYWORD", u"STRING_KEYWORD",
-                     u"BOOLEAN_KEYWORD", u"VOID_KEYWORD", u"FUNCTION_KEYWORD", u"INLINE_KEYWORD",
-                     u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD", u"ELSE_KEYWORD",
-                     u"FOR_KEYWORD", u"WHILE_KEYWORD", u"IN_KEYWORD", u"STEP_KEYWORD",
-                     u"INF_KEYWORD", u"AND_KEYWORD", u"OR_KEYWORD", u"NOT_KEYWORD",
-                     u"RECORDABLE_KEYWORD", u"SHAPE_KEYWORD", u"NEURON_KEYWORD",
-                     u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD",
-                     u"INITIAL_VALUES_KEYWORD", u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD",
-                     u"INPUT_KEYWORD", u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD",
-                     u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", u"LEFT_PAREN",
-                     u"RIGHT_PAREN", u"PLUS", u"TILDE", u"PIPE", u"CARET", u"AMPERSAND",
-                     u"LEFT_SQUARE_BRACKET", u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET",
-                     u"LEFT_LEFT_SQUARE", u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE",
-                     u"RIGHT_RIGHT_ANGLE", u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS",
-                     u"PLUS_EQUALS", u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS",
-                     u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE",
-                     u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS", u"STAR",
-                     u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT", u"QUESTION", u"COLON",
-                     u"SEMICOLON", u"DIFFERENTIAL_ORDER", u"BOOLEAN_LITERAL", u"STRING_LITERAL",
-                     u"NAME", u"UNSIGNED_INTEGER", u"FLOAT"]
+    symbolicNames = [ u"<INVALID>",
+            u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", u"WS", u"LINE_ESCAPE", 
+            u"END_KEYWORD", u"INTEGER_KEYWORD", u"REAL_KEYWORD", u"STRING_KEYWORD", 
+            u"BOOLEAN_KEYWORD", u"VOID_KEYWORD", u"FUNCTION_KEYWORD", u"INLINE_KEYWORD", 
+            u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD", u"ELSE_KEYWORD", 
+            u"FOR_KEYWORD", u"WHILE_KEYWORD", u"IN_KEYWORD", u"STEP_KEYWORD", 
+            u"INF_KEYWORD", u"AND_KEYWORD", u"OR_KEYWORD", u"NOT_KEYWORD", 
+            u"RECORDABLE_KEYWORD", u"SHAPE_KEYWORD", u"NEURON_KEYWORD", 
+            u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", 
+            u"INITIAL_VALUES_KEYWORD", u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", 
+            u"INPUT_KEYWORD", u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
+            u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", u"LEFT_PAREN", 
+            u"RIGHT_PAREN", u"PLUS", u"TILDE", u"PIPE", u"CARET", u"AMPERSAND", 
+            u"LEFT_SQUARE_BRACKET", u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", 
+            u"LEFT_LEFT_SQUARE", u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", 
+            u"RIGHT_RIGHT_ANGLE", u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS", 
+            u"PLUS_EQUALS", u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS", 
+            u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE", 
+            u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS", u"STAR", 
+            u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT", u"QUESTION", u"COLON", 
+            u"SEMICOLON", u"DIFFERENTIAL_ORDER", u"BOOLEAN_LITERAL", u"STRING_LITERAL", 
+            u"NAME", u"UNSIGNED_INTEGER", u"FLOAT" ]
 
-    ruleNames = [u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", u"WS", u"LINE_ESCAPE",
-                 u"END_KEYWORD", u"INTEGER_KEYWORD", u"REAL_KEYWORD", u"STRING_KEYWORD",
-                 u"BOOLEAN_KEYWORD", u"VOID_KEYWORD", u"FUNCTION_KEYWORD",
-                 u"INLINE_KEYWORD", u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD",
-                 u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD", u"IN_KEYWORD",
-                 u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", u"OR_KEYWORD",
-                 u"NOT_KEYWORD", u"RECORDABLE_KEYWORD", u"SHAPE_KEYWORD",
-                 u"NEURON_KEYWORD", u"STATE_KEYWORD", u"PARAMETERS_KEYWORD",
-                 u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", u"UPDATE_KEYWORD",
-                 u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", u"OUTPUT_KEYWORD",
-                 u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", u"INHIBITORY_KEYWORD",
-                 u"EXCITATORY_KEYWORD", u"ELLIPSIS", u"LEFT_PAREN", u"RIGHT_PAREN",
-                 u"PLUS", u"TILDE", u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET",
-                 u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", u"LEFT_LEFT_SQUARE",
-                 u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", u"RIGHT_RIGHT_ANGLE",
-                 u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS", u"PLUS_EQUALS",
-                 u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS",
-                 u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE",
-                 u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS",
-                 u"STAR", u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT", u"QUESTION",
-                 u"COLON", u"SEMICOLON", u"DIFFERENTIAL_ORDER", u"BOOLEAN_LITERAL",
-                 u"STRING_LITERAL", u"NAME", u"UNSIGNED_INTEGER", u"FLOAT",
-                 u"POINT_FLOAT", u"EXPONENT_FLOAT", u"EXPONENT"]
+    ruleNames = [ u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", u"WS", u"LINE_ESCAPE", 
+                  u"END_KEYWORD", u"INTEGER_KEYWORD", u"REAL_KEYWORD", u"STRING_KEYWORD", 
+                  u"BOOLEAN_KEYWORD", u"VOID_KEYWORD", u"FUNCTION_KEYWORD", 
+                  u"INLINE_KEYWORD", u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD", 
+                  u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD", u"IN_KEYWORD", 
+                  u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", u"OR_KEYWORD", 
+                  u"NOT_KEYWORD", u"RECORDABLE_KEYWORD", u"SHAPE_KEYWORD", 
+                  u"NEURON_KEYWORD", u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", 
+                  u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", u"UPDATE_KEYWORD", 
+                  u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", u"OUTPUT_KEYWORD", 
+                  u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", u"INHIBITORY_KEYWORD", 
+                  u"EXCITATORY_KEYWORD", u"ELLIPSIS", u"LEFT_PAREN", u"RIGHT_PAREN", 
+                  u"PLUS", u"TILDE", u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET", 
+                  u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", u"LEFT_LEFT_SQUARE", 
+                  u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", u"RIGHT_RIGHT_ANGLE", 
+                  u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS", u"PLUS_EQUALS", 
+                  u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS", 
+                  u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE", 
+                  u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS", 
+                  u"STAR", u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT", u"QUESTION", 
+                  u"COLON", u"SEMICOLON", u"DIFFERENTIAL_ORDER", u"BOOLEAN_LITERAL", 
+                  u"STRING_LITERAL", u"NAME", u"UNSIGNED_INTEGER", u"FLOAT", 
+                  u"POINT_FLOAT", u"EXPONENT_FLOAT", u"EXPONENT" ]
 
     grammarFileName = u"PyNestMLLexer.g4"
 
@@ -449,3 +449,5 @@ class PyNestMLLexer(Lexer):
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None
+
+

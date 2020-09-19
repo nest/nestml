@@ -36,7 +36,8 @@ class TestOUConductanceNoise(unittest.TestCase):
     record_from = ['g_noise_ex', 'g_noise_in']
 
     def simulate_OU_noise_neuron(self, resolution):
-        ''' Simulates a single neuron with OU noise conductances.
+        '''
+        Simulates a single neuron with OU noise conductances.
 
         Parameters
         ----------
@@ -57,7 +58,7 @@ class TestOUConductanceNoise(unittest.TestCase):
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                 "..", "..", "models", "hh_cond_exp_destexhe.nestml")))
-        nest_path = "/home/archels/nest-simulator-build"
+        nest_path = "/home/travis/nest_install"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
