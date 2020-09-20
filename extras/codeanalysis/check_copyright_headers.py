@@ -27,7 +27,7 @@ Script to check if all files have a proper copyright header.
 
 This script checks the copyright headers of all C/C++/SLI/Python files
 in the source code against the corresponding templates defined in
-"doc/copyright_header_template.*".
+"extras/codeanalysis/copyright_header_template.*".
 
 This script was based on/adapted from:
 
