@@ -11,7 +11,7 @@ Start your Python interpreter
 
 Note that on MacOS, `LD_LIBRARY_PATH` is called `DYLD_LIBRARY_PATH`.
 
-.. code-block:: python
+.. code-block:: bash
 
    PYTHONPATH=$PYTHONPATH:/home/johndoe/nest-simulator-build/lib/python3.6/site-packages LD_LIBRARY_PATH=/tmp/nestml-component ipython3
 
