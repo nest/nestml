@@ -97,8 +97,8 @@ Source code
        V_m mV = E_L # membrane potential
      end
      equations:
-       shape g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
-       shape g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
+       kernel g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
+       kernel g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
        function I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
        function I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
        function I_leak pA = g_L * (V_m - E_L)

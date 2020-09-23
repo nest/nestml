@@ -118,8 +118,8 @@ Source code
      equations:
 
        /* synapses: exponential conductance*/
-       shape g_in = exp(-1.0 / tau_syn_in * t)
-       shape g_ex = exp(-1.0 / tau_syn_ex * t)
+       kernel g_in = exp(-1.0 / tau_syn_in * t)
+       kernel g_ex = exp(-1.0 / tau_syn_ex * t)
    recordable    function I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
    recordable    function I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
        function alpha_n 1/ms = -0.05 / (ms * mV) * (V_m + 34.0mV) / (exp(-0.1 * (V_m + 34.0mV)) - 1.0)

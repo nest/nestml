@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_biexponential_synapse_shape_test.py
+# nest_biexponential_synapse_kernel_test.py
 #
 # This file is part of NEST.
 #
@@ -90,6 +90,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         print("final V_m = " + str(final_v_m))
         MAX_ABS_ERROR = 1E-6
         assert abs(final_v_m - -64.2913308548727) < MAX_ABS_ERROR
+
 
     def plot(self, vm_1, i_1):
         fig, ax = plt.subplots(nrows=5)

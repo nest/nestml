@@ -27,7 +27,7 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 
 
 class CoCoSimpleDeltaFunction(CoCo):
@@ -58,7 +58,7 @@ class CoCoSimpleDeltaFunction(CoCo):
                     Logger.log_message(code=code, message=message,
                                        error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)
 
-                if type(parent) is not ASTOdeShape:
+                if type(parent) is not ASTKernel:
                     code, message = Messages.delta_function_cannot_be_mixed()
                     Logger.log_message(code=code, message=message,
                                        error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)

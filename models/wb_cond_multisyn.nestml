@@ -67,17 +67,17 @@ neuron wb_cond_multisyn:
     # Synapses
     #############
 
-    shape g_AMPA' = g_AMPA$ - g_AMPA / AMPA_Tau_2,
-          g_AMPA$' = -g_AMPA$ / AMPA_Tau_1
+    kernel g_AMPA' = g_AMPA$ - g_AMPA / AMPA_Tau_2,
+           g_AMPA$' = -g_AMPA$ / AMPA_Tau_1
 
-    shape g_NMDA' = g_NMDA$ - g_NMDA / NMDA_Tau_2,
-          g_NMDA$' = -g_NMDA$ / NMDA_Tau_1
+    kernel g_NMDA' = g_NMDA$ - g_NMDA / NMDA_Tau_2,
+           g_NMDA$' = -g_NMDA$ / NMDA_Tau_1
 
-    shape g_GABAA' = g_GABAA$ - g_GABAA / GABA_A_Tau_2,
-          g_GABAA$' = -g_GABAA$ / GABA_A_Tau_1
+    kernel g_GABAA' = g_GABAA$ - g_GABAA / GABA_A_Tau_2,
+           g_GABAA$' = -g_GABAA$ / GABA_A_Tau_1
 
-    shape g_GABAB' = g_GABAB$ - g_GABAB / GABA_B_Tau_2,
-          g_GABAB$' = -g_GABAB$ / GABA_B_Tau_1
+    kernel g_GABAB' = g_GABAB$ - g_GABAB / GABA_B_Tau_2,
+           g_GABAB$' = -g_GABAB$ / GABA_B_Tau_1
   end
 
   parameters:

@@ -212,7 +212,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if symbol.is_function:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
-        if symbol.is_shape():
+        if symbol.is_kernel():
             print("Printing node " + str(symbol.name))
 
         if symbol.is_init_values():

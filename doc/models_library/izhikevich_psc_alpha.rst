@@ -1,7 +1,7 @@
 izhikevich_psc_alpha
 ####################
 
-izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped post-synaptic current
+izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-kernel post-synaptic current
 
 
 Description
@@ -21,7 +21,7 @@ The dynamics are given by:
    &\;\;\;\; V_m \text{ is set to } c
    &\;\;\;\; U_m \text{ is incremented by } d
 
-On each spike arrival, the membrane potential feels an alpha-shaped current of the form:
+On each spike arrival, the membrane potential feels an alpha-kernel current of the form:
 
 .. math::
 
@@ -119,8 +119,8 @@ Source code
      equations:
 
        /* synapses: alpha functions*/
-       shape I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       shape I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+       kernel I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+       kernel I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
        function I_syn_exc pA = convolve(I_syn_ex,spikesExc)
        function I_syn_inh pA = convolve(I_syn_in,spikesInh)
        V_m'=(k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_stim + I_syn_inh + I_syn_exc) / C_m

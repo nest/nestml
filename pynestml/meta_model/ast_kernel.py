@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_ode_shape.py
+# ast_kernel.py
 #
 # This file is part of NEST.
 #
@@ -22,11 +22,11 @@
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTOdeShape(ASTNode):
+class ASTKernel(ASTNode):
     """
-    This class is used to store shapes.
+    This class is used to store kernels.
     Grammar:
-        odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
+        kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
     """
 
     def __init__(self, variables, expressions, *args, **kwargs):
@@ -35,12 +35,12 @@ class ASTOdeShape(ASTNode):
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param variables: the variable corresponding to the shape
+        :param variables: the variable corresponding to the kernel
         :type variables: ASTVariable
         :param expressions: the right-hand side
         :type expressions: Union[ASTExpression, ASTSimpleExpression]
         """
-        super(ASTOdeShape, self).__init__(*args, **kwargs)
+        super(ASTKernel, self).__init__(*args, **kwargs)
         self.variables = variables
         self.expressions = expressions
 
@@ -57,16 +57,16 @@ class ASTOdeShape(ASTNode):
         expressions_dup = None
         if self.expressions:
             expressions_dup = [expr.clone() for expr in self.expressions]
-        dup = ASTOdeShape(variables=variables_dup,
-                          expressions=expressions_dup,
-                          # ASTNode common attributes:
-                          source_position=self.source_position,
-                          scope=self.scope,
-                          comment=self.comment,
-                          pre_comments=[s for s in self.pre_comments],
-                          in_comment=self.in_comment,
-                          post_comments=[s for s in self.post_comments],
-                          implicit_conversion_factor=self.implicit_conversion_factor)
+        dup = ASTKernel(variables=variables_dup,
+                        expressions=expressions_dup,
+                        # ASTNode common attributes:
+                        source_position=self.source_position,
+                        scope=self.scope,
+                        comment=self.comment,
+                        pre_comments=[s for s in self.pre_comments],
+                        in_comment=self.in_comment,
+                        post_comments=[s for s in self.post_comments],
+                        implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -126,7 +126,7 @@ class ASTOdeShape(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTOdeShape):
+        if not isinstance(other, ASTKernel):
             return False
 
         for var in self.get_variables():

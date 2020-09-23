@@ -46,7 +46,7 @@ from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilation
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -127,8 +127,8 @@ class ASTNestMLPrinter(object):
             ret = self.print_ode_equation(node)
         if isinstance(node, ASTInlineExpression):
             ret = self.print_inline_expression(node)
-        if isinstance(node, ASTOdeShape):
-            ret = self.print_ode_shape(node)
+        if isinstance(node, ASTKernel):
+            ret = self.print_ode_kernel(node)
         if isinstance(node, ASTOutputBlock):
             ret = self.print_output_block(node)
         if isinstance(node, ASTParameter):
@@ -505,11 +505,11 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_ode_shape(self, node):
-        # type: (ASTOdeShape) -> str
+    def print_ode_kernel(self, node):
+        # type: (ASTKernel) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent)
-        ret += 'shape '
+        ret += 'kernel '
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             ret += self.print_node(var)
             ret += ' = '

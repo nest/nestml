@@ -61,11 +61,11 @@ neuron iaf_cond_beta:
   end
 
   equations:
-      shape g_in' = g_in$ - g_in / tau_syn_rise_I,
-            g_in$' = -g_in$ / tau_syn_decay_I
+      kernel g_in' = g_in$ - g_in / tau_syn_rise_I,
+             g_in$' = -g_in$ / tau_syn_decay_I
 
-      shape g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
-            g_ex$' = -g_ex$ / tau_syn_decay_E
+      kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
+             g_ex$' = -g_ex$ / tau_syn_decay_E
 
       inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
       inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)

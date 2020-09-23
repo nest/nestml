@@ -22,7 +22,7 @@
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 
 
 class ASTEquationsBlock(ASTNode):
@@ -38,7 +38,7 @@ class ASTEquationsBlock(ASTNode):
           equationsBlock:
             'equations'
             BLOCK_OPEN
-              (inlineExpression | odeEquation | odeShape | NEWLINE)+
+              (inlineExpression | odeEquation | kernel | NEWLINE)+
             BLOCK_CLOSE;
     Attributes:
         declarations = None
@@ -56,7 +56,7 @@ class ASTEquationsBlock(ASTNode):
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
         for decl in declarations:
-            assert (decl is not None and (isinstance(decl, ASTOdeShape)
+            assert (decl is not None and (isinstance(decl, ASTKernel)
                                           or isinstance(decl, ASTOdeEquation)
                                           or isinstance(decl, ASTInlineExpression))), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
@@ -89,7 +89,7 @@ class ASTEquationsBlock(ASTNode):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTOdeShape)
+        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTKernel)
         """
         return self.declarations
 
@@ -120,15 +120,15 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_ode_shapes(self):
+    def get_ode_kernels(self):
         """
-        Returns a list of all ode shapes in this block.
-        :return: a list of all ode shapes.
-        :rtype: list(ASTOdeShape)
+        Returns a list of all ode kernels in this block.
+        :return: a list of all ode kernels.
+        :rtype: list(ASTKernel)
         """
         ret = list()
         for decl in self.get_declarations():
-            if isinstance(decl, ASTOdeShape):
+            if isinstance(decl, ASTKernel):
                 ret.append(decl)
         return ret
 

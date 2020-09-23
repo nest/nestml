@@ -24,7 +24,7 @@ from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -53,7 +53,7 @@ class VariableSymbol(Symbol):
         ode_declaration      Used to store the corresponding ode declaration.
         is_conductance_based  Indicates whether this buffer is conductance based.
         initial_value        Indicates the initial value if such is declared.
-        variable_type        The type of the variable, either a shape, or buffer or function. Type: VariableType
+        variable_type        The type of the variable, either a kernel, or buffer or function. Type: VariableType
     """
 
     def __init__(self, element_reference=None, scope=None, name=None, block_type=None, vector_parameter=None,
@@ -97,7 +97,7 @@ class VariableSymbol(Symbol):
         self.type_symbol = type_symbol
         self.initial_value = initial_value
         self.variable_type = variable_type
-        self.ode_or_shape = None
+        self.ode_or_kernel = None
 
     def has_vector_parameter(self):
         """
@@ -244,13 +244,13 @@ class VariableSymbol(Symbol):
         """
         return self.block_type == BlockType.OUTPUT
 
-    def is_shape(self) -> bool:
+    def is_kernel(self) -> bool:
         """
-        Returns whether this variable belongs to the definition of a shape.
-        :return: True if part of a shape definition, otherwise False.
+        Returns whether this variable belongs to the definition of a kernel.
+        :return: True if part of a kernel definition, otherwise False.
         :rtype: bool
         """
-        return self.variable_type == VariableType.SHAPE
+        return self.variable_type == VariableType.KERNEL
 
     def is_init_values(self) -> bool:
         """
@@ -296,26 +296,26 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.ode_or_shape is not None and (isinstance(self.ode_or_shape, ASTExpression)
-                                                  or isinstance(self.ode_or_shape, ASTSimpleExpression)
-                                                  or isinstance(self.ode_or_shape, ASTOdeShape)
-                                                  or isinstance(self.ode_or_shape, ASTOdeEquation))
+        return self.ode_or_kernel is not None and (isinstance(self.ode_or_kernel, ASTExpression)
+                                                   or isinstance(self.ode_or_kernel, ASTSimpleExpression)
+                                                   or isinstance(self.ode_or_kernel, ASTKernel)
+                                                   or isinstance(self.ode_or_kernel, ASTOdeEquation))
 
-    def get_ode_or_shape(self):
+    def get_ode_or_kernel(self):
         """
-        Returns the ODE or shape defining the value of this variable symbol.
+        Returns the ODE or kernel defining the value of this variable symbol.
         :return: the rhs defining the value.
-        :rtype: ASTExpression or ASTSimpleExpression or ASTOdeShape
+        :rtype: ASTExpression or ASTSimpleExpression or ASTKernel
         """
-        return self.ode_or_shape
+        return self.ode_or_kernel
 
-    def set_ode_or_shape(self, expression):
+    def set_ode_or_kernel(self, expression):
         """
         Updates the currently stored ode-definition to the handed-over one.
         :param expression: a single rhs object.
         :type expression: ASTExpression
         """
-        self.ode_or_shape = expression
+        self.ode_or_kernel = expression
 
     def is_conductance_based(self) -> bool:
         """
@@ -416,7 +416,7 @@ class VariableType(Enum):
     """
     Indicates to which type of variable this is.
     """
-    SHAPE = 0
+    KERNEL = 0
     VARIABLE = 1
     BUFFER = 2
     EQUATION = 3

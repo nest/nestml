@@ -107,9 +107,9 @@ neuron terub_gpe:
 
     # synapses: alpha functions
     ## alpha function for the g_in
-    shape g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+    kernel g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     ## alpha function for the g_ex
-    shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+    kernel g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
     # V dot -- synaptic input are currents, inhib current is negative
     V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) * pA + I_e + I_stim + I_ex_mod * pA + I_in_mod * pA) / C_m

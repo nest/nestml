@@ -8,7 +8,7 @@ Description
 +++++++++++
 
 iaf_psc_exp_htum is an implementation of a leaky integrate-and-fire model
-with exponential shaped postsynaptic currents (PSCs) according to [1]_.
+with exponential kernel postsynaptic currents (PSCs) according to [1]_.
 The postsynaptic currents have an infinitely short rise time.
 In particular, this model allows setting an absolute and relative
 refractory time separately, as required by [1]_.
@@ -118,9 +118,9 @@ Source code
        V_m mV = 0.0mV # Membrane potential
      end
      equations:
-       shape I_shape_in = exp(-1 / tau_syn_in * t)
-       shape I_shape_ex = exp(-1 / tau_syn_ex * t)
-       function I_syn pA = convolve(I_shape_in,in_spikes) + convolve(I_shape_ex,ex_spikes)
+       kernel I_kernel_in = exp(-1 / tau_syn_in * t)
+       kernel I_kernel_ex = exp(-1 / tau_syn_ex * t)
+       function I_syn pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes)
        V_m'=-V_m / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 

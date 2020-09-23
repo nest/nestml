@@ -8,7 +8,7 @@ Description
 +++++++++++
 
 iaf_psc_exp is an implementation of a leaky integrate-and-fire model
-with exponential shaped postsynaptic currents (PSCs) according to [1]_.
+with exponential kernel postsynaptic currents (PSCs) according to [1]_.
 Thus, postsynaptic currents have an infinitely short rise time.
 
 The threshold crossing is followed by an absolute refractory period (t_ref)
@@ -108,9 +108,9 @@ Source code
        function V_m mV = V_abs + E_L # Membrane potential.
      end
      equations:
-       shape I_shape_in = exp(-t / tau_syn_in)
-       shape I_shape_ex = exp(-t / tau_syn_ex)
-       function I_syn pA = convolve(I_shape_in,in_spikes) + convolve(I_shape_ex,ex_spikes)
+       kernel I_kernel_in = exp(-t / tau_syn_in)
+       kernel I_kernel_ex = exp(-t / tau_syn_ex)
+       function I_syn pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes)
        V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
      end
 

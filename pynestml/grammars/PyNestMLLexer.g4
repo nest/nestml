@@ -60,7 +60,7 @@ lexer grammar PyNestMLLexer;
   NOT_KEYWORD : 'not';
   
   RECORDABLE_KEYWORD : 'recordable';
-  SHAPE_KEYWORD : 'shape';
+  KERNEL_KEYWORD : 'kernel';
   NEURON_KEYWORD : 'neuron';
   STATE_KEYWORD : 'state';
   PARAMETERS_KEYWORD : 'parameters';
