@@ -24,6 +24,8 @@ from typing import Optional
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -434,3 +436,14 @@ class ASTUtils(object):
                 if var.get_complete_name() == var_name:
                     return decl
         return None
+
+    @classmethod
+    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
+        """
+        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
+        """
+        if isinstance(inline_expr.get_expression(), ASTSimpleExpression) \
+           and inline_expr.get_expression().is_function_call() \
+           and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+            return True
+        return False

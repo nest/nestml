@@ -216,6 +216,38 @@ class NESTCodeGenerator(CodeGenerator):
 
         return kernel_buffers
 
+    def replace_convolution_aliasing_inlines(self, neuron):
+        """
+        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
+        """
+        def replace_var(_expr, replace_var_name : str, replace_with_var_name : str):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+                if var.get_name() == replace_var_name:
+                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(), differential_order=0)
+                    ast_variable.set_source_position(var.get_source_position())
+                    _expr.set_variable(ast_variable)
+
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+                if var.get_name() == replace_var_name:
+                    var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
+                    var.set_differential_order(0)
+
+        import pdb;pdb.set_trace()
+
+        for decl in neuron.get_equations_block().get_declarations():
+            from pynestml.utils.ast_utils import ASTUtils
+            if isinstance(decl, ASTInlineExpression) \
+               and isinstance(decl.get_expression(), ASTSimpleExpression) \
+               and '__X__' in str(decl.get_expression()):
+                replace_with_var_name = decl.get_expression().get_variable().get_name()
+                print("zzzzzz replacing occurrences of " + str(decl.get_variable_name()) + " with " + str(replace_with_var_name))
+                func = lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)
+                neuron.accept(ASTHigherOrderVisitor(func))
+
+
+
     def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """
         Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
@@ -312,6 +344,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.remove_ode_definitions_from_equations_block(neuron)
         self.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+        self.replace_convolution_aliasing_inlines(neuron)
         self.add_timestep_symbol(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
