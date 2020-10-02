@@ -502,9 +502,11 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
 
+        iv_blk = self.get_initial_values_blocks()
+        if iv_blk is None:
+            return []
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
-        iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
                 _syms = [sym for sym in symbols if sym.name == var.get_complete_name()]
