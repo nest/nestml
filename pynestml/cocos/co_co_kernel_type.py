@@ -31,6 +31,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
+
 class CoCoKernelType(CoCo):
     """
     Ensures that all defined kernels are untyped (for direct functions of time), or have a type equivalent to 1/s**-order, where order is the differential order of the kernel (e.g. 2 for ``kernel g'' = ...``).
