@@ -19,7 +19,7 @@ The dynamics are given by:
    &\;\;\;\; V_m \text{ is set to } c
    &\;\;\;\; U_m \text{ is incremented by } d
 
-On each spike arrival, the membrane potential feels an alpha-kerneld current of the form:
+On each spike arrival, the membrane potential feels an alpha-kernel current of the form:
 
 .. math::
 
