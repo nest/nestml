@@ -83,8 +83,10 @@ class NESTCodeGenerator(CodeGenerator):
         self.analytic_solver = {}
         self.numeric_solver = {}
         # setup the template environment
+
         def raise_helper(msg):
             raise TemplateRuntimeError(msg)
+
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
         env.globals['raise'] = raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel

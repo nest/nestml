@@ -153,7 +153,7 @@ def apply_incoming_spikes(neuron: ASTNeuron):
         for astDeclaration in initial_values:
             for variable in astDeclaration.get_variables():
                 if re.match(kernel + "[\']*", variable.get_complete_name()) or re.match(kernel + '__[\\d]+$',
-                                                                                       variable.get_complete_name()):
+                                                                                        variable.get_complete_name()):
                     spikes_updates.append(ModelParser.parse_assignment(
                         variable.get_complete_name() + " += " + buffer + " * " + printer.print_expression(
                             astDeclaration.get_expression())))
