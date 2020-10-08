@@ -120,10 +120,10 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_ode_kernels(self):
+    def get_kernels(self):
         """
-        Returns a list of all ode kernels in this block.
-        :return: a list of all ode kernels.
+        Returns a list of all kernels in this block.
+        :return: a list of all kernels.
         :rtype: list(ASTKernel)
         """
         ret = list()

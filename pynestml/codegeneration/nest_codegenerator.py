@@ -445,7 +445,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_block()
 
-        if len(equations_block.get_ode_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
+        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
             # no equations defined -> no changes to the neuron
             return None, None
 
@@ -494,7 +494,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         equations_block = neuron.get_equations_block()
         symbols_to_remove = set()
-        for kernel in equations_block.get_ode_kernels():
+        for kernel in equations_block.get_kernels():
             for kernel_var in kernel.get_variables():
                 kernel_var_order = kernel_var.get_differential_order()
                 for order in range(kernel_var_order):

@@ -128,7 +128,7 @@ class ASTNestMLPrinter(object):
         if isinstance(node, ASTInlineExpression):
             ret = self.print_inline_expression(node)
         if isinstance(node, ASTKernel):
-            ret = self.print_ode_kernel(node)
+            ret = self.print_kernel(node)
         if isinstance(node, ASTOutputBlock):
             ret = self.print_output_block(node)
         if isinstance(node, ASTParameter):
@@ -505,7 +505,7 @@ class ASTNestMLPrinter(object):
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_ode_kernel(self, node):
+    def print_kernel(self, node):
         # type: (ASTKernel) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
         ret += print_n_spaces(self.indent)

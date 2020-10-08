@@ -367,7 +367,7 @@ class ModelParser(object):
         return ret
 
     @classmethod
-    def parse_ode_kernel(cls, string):
+    def parse_kernel(cls, string):
         # type: (str) -> ASTKernel
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.kernel())

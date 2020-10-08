@@ -122,7 +122,7 @@ class KernelCollectingVisitor(ASTVisitor):
         neuron.accept(self)
         return self.kernel_names
 
-    def visit_ode_kernel(self, node):
+    def visit_kernel(self, node):
         """
         Collects the kernel.
         :param node: a single kernel node.

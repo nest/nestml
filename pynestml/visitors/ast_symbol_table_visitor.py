@@ -451,7 +451,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
 
-    def visit_ode_kernel(self, node):
+    def visit_kernel(self, node):
         """
         Private method: Used to visit a single kernel, create the corresponding symbol and update the scope.
         :param node: a kernel.
@@ -573,7 +573,7 @@ def assign_ode_to_variables(ode_block):
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)
         elif isinstance(decl, ASTKernel):
-            add_ode_kernel_to_variable(decl)
+            add_kernel_to_variable(decl)
 
 
 def add_ode_to_variable(ode_equation):
@@ -600,7 +600,7 @@ def add_ode_to_variable(ode_equation):
                            code=code, message=message, log_level=LoggingLevel.INFO)
 
 
-def add_ode_kernel_to_variable(kernel):
+def add_kernel_to_variable(kernel):
     """
     Adds the kernel as the defining equation.
 

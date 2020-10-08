@@ -144,7 +144,7 @@ class NestPrinter(object):
         if isinstance(node, ASTInlineExpression):
             ret = self.print_inline_expression(node)
         if isinstance(node, ASTKernel):
-            ret = self.print_ode_kernel(node)
+            ret = self.print_kernel(node)
         if isinstance(node, ASTOutputBlock):
             ret = self.print_output_block(node)
         if isinstance(node, ASTParameter):

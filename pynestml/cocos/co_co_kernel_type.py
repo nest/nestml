@@ -55,7 +55,7 @@ class KernelTypeVisitor(ASTVisitor):
 
     _neuron = None  # the parent ASTNeuron containing the kernel
 
-    def visit_ode_kernel(self, node):
+    def visit_kernel(self, node):
         """
         Checks the coco on the current node.
         :param node: AST kernel object

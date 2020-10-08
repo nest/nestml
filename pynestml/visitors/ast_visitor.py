@@ -298,10 +298,10 @@ class ASTVisitor(object):
         """
         return
 
-    def visit_ode_kernel(self, node):
+    def visit_kernel(self, node):
         """
-        Used to visit a single ode-kernel.
-        :param node: a single ode-kernel.
+        Used to visit a single kernel.
+        :param node: a single kernel.
         :type node: ASTKernel
         """
         return
@@ -605,10 +605,10 @@ class ASTVisitor(object):
         """
         return
 
-    def endvisit_ode_kernel(self, node):
+    def endvisit_kernel(self, node):
         """
-        Used to endvisit a single ode-kernel.
-        :param node: a single ode-kernel.
+        Used to endvisit a single kernel.
+        :param node: a single kernel.
         :type node: ASTKernel
         """
         return
@@ -795,7 +795,7 @@ class ASTVisitor(object):
             self.visit_inline_expression(node)
             return
         if isinstance(node, ASTKernel):
-            self.visit_ode_kernel(node)
+            self.visit_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.visit_output_block(node)
@@ -920,7 +920,7 @@ class ASTVisitor(object):
             self.traverse_inline_expression(node)
             return
         if isinstance(node, ASTKernel):
-            self.traverse_ode_kernel(node)
+            self.traverse_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.traverse_output_block(node)
@@ -1045,7 +1045,7 @@ class ASTVisitor(object):
             self.endvisit_inline_expression(node)
             return
         if isinstance(node, ASTKernel):
-            self.endvisit_ode_kernel(node)
+            self.endvisit_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.endvisit_output_block(node)
@@ -1262,7 +1262,7 @@ class ASTVisitor(object):
             node.get_expression().accept(self.get_real_self())
         return
 
-    def traverse_ode_kernel(self, node):
+    def traverse_kernel(self, node):
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             var.accept(self.get_real_self())
             expr.accept(self.get_real_self())
