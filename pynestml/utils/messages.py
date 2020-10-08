@@ -1144,7 +1144,7 @@ class Messages(object):
     def get_kernel_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the type of a kernel initial value is wrong.
-        :param kernel_name: the name of the initial value variable
+        :param iv_name: the name of the initial value variable
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
