@@ -1,5 +1,6 @@
-
-# verify.py
+# -*- coding: utf-8 -*-
+#
+# {{file_name}}
 #
 # This file is part of NEST.
 #
@@ -17,5 +18,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-print("This source file is used to check the installation of the static code analysis tools.")

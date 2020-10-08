@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# CoCoAllFunctionsDeclared.py
+# co_co_function_calls_consistent.py
 #
 # This file is part of NEST.
 #

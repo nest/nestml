@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_invariant_is_boolean.py
 #

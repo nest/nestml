@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # magnitude_compatibility_test.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_numeric_literal_visitor.py
 #

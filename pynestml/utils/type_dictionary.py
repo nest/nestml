@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # type_dictionary.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_data_type_visitor.py
 #
@@ -30,6 +31,7 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
+
 
 class ASTDataTypeVisitor(ASTVisitor):
     """
@@ -78,7 +80,7 @@ class ASTDataTypeVisitor(ASTVisitor):
 
     def visit_unit_type(self, node):
         """
-        Visits a single unit type element, checks for correct usage of units and builds the corresponding combined 
+        Visits a single unit type element, checks for correct usage of units and builds the corresponding combined
         unit.
         :param node: a single unit type meta_model.
         :type node: ASTUnitType

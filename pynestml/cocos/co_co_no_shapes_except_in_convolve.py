@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_no_shapes_except_in_convolve.py
 #

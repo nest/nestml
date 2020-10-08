@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_no_two_neurons_in_set_of_compilation_units.py
 #

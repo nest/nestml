@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_clone_test.py
 #
@@ -75,7 +76,7 @@ class ASTCloneTest(unittest.TestCase):
     @classmethod
     def test(cls):
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "nest_tests", "resources", "iaf_psc_exp_multisynapse.nestml"))),
-         os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "ExpressionCollection.nestml")))]
+                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "ExpressionCollection.nestml")))]
         for input_path in input_paths:
             cls._test_single_input_path(input_path)
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_bit_operator.py
 #
@@ -67,18 +68,18 @@ class ASTBitOperator(ASTNode):
         :rtype: ASTBitOperator
         """
         dup = ASTBitOperator(is_bit_shift_right=self.is_bit_shift_right,
-         is_bit_shift_left=self.is_bit_shift_left,
-         is_bit_or=self.is_bit_or,
-         is_bit_xor=self.is_bit_xor,
-         is_bit_and=self.is_bit_and,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                             is_bit_shift_left=self.is_bit_shift_left,
+                             is_bit_or=self.is_bit_or,
+                             is_bit_xor=self.is_bit_xor,
+                             is_bit_and=self.is_bit_and,
+                             # ASTNode common attriutes:
+                             source_position=self.source_position,
+                             scope=self.scope,
+                             comment=self.comment,
+                             pre_comments=[s for s in self.pre_comments],
+                             in_comment=self.in_comment,
+                             post_comments=[s for s in self.post_comments],
+                             implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -102,6 +103,6 @@ class ASTBitOperator(ASTNode):
         """
         if not isinstance(other, ASTBitOperator):
             return False
-        return (self.is_bit_and == other.is_bit_and and self.is_bit_or == other.is_bit_or and
-                self.is_bit_xor == other.is_bit_xor and self.is_bit_shift_left == self.is_bit_shift_left and
-                self.is_bit_shift_right == other.is_bit_shift_right)
+        return (self.is_bit_and == other.is_bit_and and self.is_bit_or == other.is_bit_or
+                and self.is_bit_xor == other.is_bit_xor and self.is_bit_shift_left == self.is_bit_shift_left
+                and self.is_bit_shift_right == other.is_bit_shift_right)

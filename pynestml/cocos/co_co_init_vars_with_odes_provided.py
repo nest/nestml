@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_init_vars_with_odes_provided.py
 #
@@ -28,7 +29,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoInitVarsWithOdesProvided(CoCo):
     """
-    This CoCo ensures that all variables which have been declared in the "initial_values" block are provided 
+    This CoCo ensures that all variables which have been declared in the "initial_values" block are provided
     with a corresponding ode.
     Allowed:
         initial_values:
@@ -38,7 +39,7 @@ class CoCoInitVarsWithOdesProvided(CoCo):
         equations:
             V_m' = ...
         end
-    Not allowed:        
+    Not allowed:
         initial_values:
             V_m mV = E_L
         end

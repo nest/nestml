@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # as_component_test.py
 #
@@ -17,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import unittest
 import os
 import shutil

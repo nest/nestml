@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_current_buffers_not_specified.py
 #

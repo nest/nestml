@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_function_max_one_lhs.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nestml_printer_test.py
 #

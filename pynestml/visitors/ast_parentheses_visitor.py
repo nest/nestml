@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_parentheses_visitor.py
 #

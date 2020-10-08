@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # random_number_generators_test.py
 #

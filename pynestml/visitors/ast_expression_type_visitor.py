@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_expression_type_visitor.py
 #

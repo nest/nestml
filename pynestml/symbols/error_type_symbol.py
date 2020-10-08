@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # error_type_symbol.py
 #

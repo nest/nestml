@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # port_signal_type.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # messages.py
 #
@@ -103,6 +104,7 @@ class MessageCode(Enum):
     SHAPE_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
 
+
 class Messages(object):
     """
     This class contains a collection of error messages which enables a centralized maintaining and modifications of
@@ -170,7 +172,8 @@ class Messages(object):
 
     @classmethod
     def get_binary_operation_type_could_not_be_derived(cls, lhs, operator, rhs, lhs_type, rhs_type):
-        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (lhs, operator, rhs, lhs_type, rhs_type)
+        message = 'The type of the expression (left-hand side = \'%s\'; binary operator = \'%s\'; right-hand side = \'%s\') could not be derived: left-hand side has type \'%s\' whereas right-hand side has type \'%s\'!' % (
+            lhs, operator, rhs, lhs_type, rhs_type)
         return MessageCode.TYPE_MISMATCH, message
 
     @classmethod
@@ -1015,14 +1018,16 @@ class Messages(object):
             message += 'd ' + name + ' / dt\''
         else:
             message += '\'' + str(name) + '\''
-        message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + rhs_type.print_symbol() + '\''
+        message += ' has inconsistent units: expected \'' + lhs_type.print_symbol() + '\', got \'' + \
+            rhs_type.print_symbol() + '\''
         return MessageCode.ODE_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
     def get_ode_function_needs_consistent_units(cls, name, declared_type, expression_type):
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
+        message = 'ODE function definition for \'' + name + '\' has inconsistent units: expected \'' + \
+            declared_type.print_symbol() + '\', got \'' + expression_type.print_symbol() + '\''
         return MessageCode.ODE_FUNCTION_NEEDS_CONSISTENT_UNITS, message
 
     @classmethod
@@ -1062,7 +1067,9 @@ class Messages(object):
         :return: a nes code,message tuple
         :rtype: (MessageCode,str)
         """
-        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
+        message = 'In function \'' + function_name + '\': actual derived type of templated parameter ' + \
+            str(failing_arg_idx + 1) + ' is \'' + failing_arg_type_str + '\', which is inconsistent with that of parameter(s) ' + \
+            ', '.join([str(_ + 1) for _ in other_args_idx]) + ', which have type \'' + other_type_str + '\''
         return MessageCode.TEMPLATED_ARG_TYPES_INCONSISTENT, message
 
     @classmethod
@@ -1080,7 +1087,8 @@ class Messages(object):
         :param deltafunc: the delta function node
         :type name: ASTFunctionCall
         """
-        message = "delta function takes exactly one argument (time *t*); instead found " + ", ".join([str(arg) for arg in deltafunc.get_args()])
+        message = "delta function takes exactly one argument (time *t*); instead found " + ", ".join([
+            str(arg) for arg in deltafunc.get_args()])
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
 
     @classmethod
@@ -1093,7 +1101,6 @@ class Messages(object):
         message = "Unknown type or unit literal: " + provided_type_str
         return MessageCode.UNKNOWN_TYPE, message
 
-
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls):
         """
@@ -1104,7 +1111,6 @@ class Messages(object):
         message = "ASTDataType type symbol could not be derived"
         return MessageCode.ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED, message
 
-
     @classmethod
     def get_emit_spike_function_but_no_output_port(cls):
         """
@@ -1114,7 +1120,6 @@ class Messages(object):
         """
         message = 'emit_spike() function was called, but no spiking output port has been defined!'
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
-
 
     @classmethod
     def get_shape_wrong_type(cls, shape_name: str, differential_order: int, actual_type: str) -> Tuple[MessageCode, str]:
@@ -1131,9 +1136,9 @@ class Messages(object):
         else:
             assert differential_order > 0
             expected_type_str = "s**-%d" % differential_order
-        message = 'Shape \'%s\' was found to be of type \'%s\' (should be %s)!' % (shape_name, actual_type, expected_type_str)
+        message = 'Shape \'%s\' was found to be of type \'%s\' (should be %s)!' % (
+            shape_name, actual_type, expected_type_str)
         return MessageCode.SHAPE_WRONG_TYPE, message
-
 
     @classmethod
     def get_shape_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
@@ -1143,11 +1148,12 @@ class Messages(object):
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
-        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
+        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (
+            iv_name, actual_type, expected_type)
         return MessageCode.SHAPE_IV_WRONG_TYPE, message
-
 
     @classmethod
     def get_could_not_determine_cond_based(cls, type_str, name):
-        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
+        message = "Unable to determine based on type '" + type_str + \
+            "' of variable '" + name + "' whether conductance-based or current-based"
         return MessageCode.LEXER_ERROR, message

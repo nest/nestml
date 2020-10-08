@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # model_parser.py
 #
@@ -73,6 +74,7 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.error_listener import NestMLErrorListener
 
+
 class ModelParser(object):
 
     @classmethod
@@ -88,7 +90,8 @@ class ModelParser(object):
             input_file = FileStream(file_path)
         except IOError:
             code, message = Messages.get_input_path_not_found(path=file_path)
-            Logger.log_message(neuron=None, code=None, message=message, error_position=None, log_level=LoggingLevel.ERROR)
+            Logger.log_message(neuron=None, code=None, message=message,
+                               error_position=None, log_level=LoggingLevel.ERROR)
             return
         code, message = Messages.get_start_processing_file(file_path)
         Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
@@ -107,7 +110,8 @@ class ModelParser(object):
         stream.fill()
         if lexerErrorListener._error_occurred:
             code, message = Messages.get_lexer_error()
-            Logger.log_message(neuron=None, code=None, message=message, error_position=None, log_level=LoggingLevel.ERROR)
+            Logger.log_message(neuron=None, code=None, message=message,
+                               error_position=None, log_level=LoggingLevel.ERROR)
             return
         # parse the file
         parser = PyNestMLParser(None)
@@ -121,7 +125,8 @@ class ModelParser(object):
         compilation_unit = parser.nestMLCompilationUnit()
         if parserErrorListener._error_occurred:
             code, message = Messages.get_parser_error()
-            Logger.log_message(neuron=None, code=None, message=message, error_position=None, log_level=LoggingLevel.ERROR)
+            Logger.log_message(neuron=None, code=None, message=message,
+                               error_position=None, log_level=LoggingLevel.ERROR)
             return
 
         # create a new visitor and return the new AST

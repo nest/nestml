@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # logger.py
 #
@@ -114,7 +115,7 @@ class Logger(object):
         if cls.logging_level.value <= log_level.value:
             to_print = '[' + str(cls.curr_message) + ','
             to_print = (to_print + (neuron.get_name() + ', ' if neuron is not None else
-                    cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
+                                    cls.current_neuron.get_name() + ', ' if cls.current_neuron is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
             to_print = to_print + str(message)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # gsl_reference_converter.py
 #
@@ -48,7 +49,7 @@ class GSLReferenceConverter(IReferenceConverter):
         """
         self.is_upper_bound = is_upper_bound
 
-    def convert_name_reference(self, ast_variable: ASTVariable, prefix: str=''):
+    def convert_name_reference(self, ast_variable: ASTVariable, prefix: str = ''):
         """
         Converts a single name reference to a gsl processable format.
         :param ast_variable: a single variable
@@ -176,7 +177,8 @@ class GSLReferenceConverter(IReferenceConverter):
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
 
         # suppress prefix for misc. predefined functions
-        function_is_predefined = PredefinedFunctions.get_function(function_name)  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        function_is_predefined = PredefinedFunctions.get_function(function_name)
         if function_is_predefined:
             prefix = ''
 

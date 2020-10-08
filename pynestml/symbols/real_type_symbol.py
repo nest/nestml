@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # real_type_symbol.py
 #
@@ -110,8 +111,8 @@ class RealTypeSymbol(TypeSymbol):
         from pynestml.symbols.boolean_type_symbol import BooleanTypeSymbol
         from pynestml.symbols.integer_type_symbol import IntegerTypeSymbol
         if _other_type.is_instance_of(BooleanTypeSymbol) \
-         or _other_type.is_instance_of(IntegerTypeSymbol) \
-         or _other_type.is_instance_of(RealTypeSymbol):
+                or _other_type.is_instance_of(IntegerTypeSymbol) \
+                or _other_type.is_instance_of(RealTypeSymbol):
             return True
         else:
             return False

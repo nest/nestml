@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_symbol_table_visitor.py
 #
@@ -259,9 +260,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().accept(visitor)
         type_name = visitor.result
         # all declarations in the state block are recordable
-        is_recordable = (node.is_recordable or
-                         self.block_type_stack.top() == BlockType.STATE or
-                         self.block_type_stack.top() == BlockType.INITIAL_VALUES)
+        is_recordable = (node.is_recordable
+                         or self.block_type_stack.top() == BlockType.STATE
+                         or self.block_type_stack.top() == BlockType.INITIAL_VALUES)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
         # now for each variable create a symbol and update the scope
@@ -458,16 +459,16 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             if var.get_differential_order() == 0 and \
-             node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
+                    node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
                 symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
-                                    name=var.get_name(),
-                                    block_type=BlockType.EQUATION,
-                                    declaring_expression=expr,
-                                    is_predefined=False,
-                                    is_function=False,
-                                    is_recordable=True,
-                                    type_symbol=PredefinedTypes.get_real_type(),
-                                    variable_type=VariableType.SHAPE)
+                                        name=var.get_name(),
+                                        block_type=BlockType.EQUATION,
+                                        declaring_expression=expr,
+                                        is_predefined=False,
+                                        is_function=False,
+                                        is_recordable=True,
+                                        type_symbol=PredefinedTypes.get_real_type(),
+                                        variable_type=VariableType.SHAPE)
                 symbol.set_comment(node.get_comment())
                 node.get_scope().add_symbol(symbol)
             var.update_scope(node.get_scope())
@@ -588,7 +589,7 @@ def add_ode_to_variable(ode_equation):
         if existing_symbol is None:
             code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
             Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.ERROR)
             return
 
         existing_symbol.set_ode_or_shape(ode_equation)
@@ -609,7 +610,7 @@ def add_ode_shape_to_variable(shape):
     :type shape: ASTOdeShape
     """
     if len(shape.get_variables()) == 1 \
-     and shape.get_variables()[0].get_differential_order() == 0:
+            and shape.get_variables()[0].get_differential_order() == 0:
         # we only update those which define an ODE; skip "direct function of time" specifications
         return
 
@@ -620,7 +621,8 @@ def add_ode_shape_to_variable(shape):
 
             if existing_symbol is None:
                 code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
-                Logger.log_message(code=code, message=message, error_position=shape.get_source_position(), log_level=LoggingLevel.ERROR)
+                Logger.log_message(code=code, message=message,
+                                   error_position=shape.get_source_position(), log_level=LoggingLevel.ERROR)
                 return
 
             existing_symbol.set_ode_or_shape(expr)

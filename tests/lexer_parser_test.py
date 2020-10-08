@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # lexer_parser_test.py
 #

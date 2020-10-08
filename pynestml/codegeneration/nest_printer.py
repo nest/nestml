@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_printer.py
 #
@@ -67,6 +68,7 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
+
 
 class NestPrinter(object):
     """
@@ -166,7 +168,7 @@ class NestPrinter(object):
         if isinstance(node, ASTStmt):
             ret = self.print_stmt(node)
         return ret
-    
+
     def print_assignment(self, node, prefix=""):
         # type: (ASTAssignment) -> str
         ret = self.print_node(node.lhs) + ' '
@@ -181,7 +183,7 @@ class NestPrinter(object):
         else:
             ret += '='
         ret += ' ' + self.print_node(node.rhs)
-        return ret        
+        return ret
 
     def print_variable(self, node):
         # type: (ASTVariable) -> str
@@ -372,7 +374,7 @@ class NestPrinter(object):
         for typeSym in function_symbol.get_parameter_types():
             # create the type name combination, e.g. double Tau
             declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
-                            params[function_symbol.get_parameter_types().index(typeSym)]
+                params[function_symbol.get_parameter_types().index(typeSym)]
             # if not the last component, separate by ','
             if function_symbol.get_parameter_types().index(typeSym) < \
                     len(function_symbol.get_parameter_types()) - 1:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # predefined_types.py
 #
@@ -34,7 +35,7 @@ from pynestml.utils.unit_type import UnitType
 class PredefinedTypes(object):
     """
     This class represents all types which are predefined in the system.
-    
+
     Attributes:
         name2type     A dict from names of variables to the corresponding type symbols. Type: dict(str->TypeSymbol)
         REAL_TYPE     The identifier of the type 'real'. Type: str
@@ -152,7 +153,7 @@ class PredefinedTypes(object):
         -Correct Serializations of a UnitRepresentation
 
         In Case of UNITS always return a TS with serialization as name
-        :param name: the name of the symbol. 
+        :param name: the name of the symbol.
         :type name: str or unit
         :return: a single symbol copy or none
         :rtype: type_symbol or None

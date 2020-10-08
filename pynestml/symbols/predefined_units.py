@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # predefined_units.py
 #
@@ -43,7 +44,7 @@ class PredefinedUnits(object):
         for unit_str in dir(u.si) + dir(u.cgs) + dir(u.astrophys):
             try:
                 unit = eval("u." + unit_str)    # grab the unit object
-            except:
+            except BaseException:
                 unit = None
 
             if issubclass(type(unit), u.core.UnitBase):

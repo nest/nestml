@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # gsl_names_converter.py
 #

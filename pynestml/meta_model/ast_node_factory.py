@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_node_factory.py
 #
@@ -179,10 +180,10 @@ class ASTNodeFactory():
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
         """
-        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator) or
-                                                 isinstance(binary_operator, ASTComparisonOperator) or
-                                                 isinstance(binary_operator, ASTLogicalOperator) or
-                                                 isinstance(binary_operator, ASTArithmeticOperator))), \
+        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator)
+                                                 or isinstance(binary_operator, ASTComparisonOperator)
+                                                 or isinstance(binary_operator, ASTLogicalOperator)
+                                                 or isinstance(binary_operator, ASTArithmeticOperator))), \
             '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(binary_operator)
         return ASTExpression(lhs=lhs, binary_operator=binary_operator, rhs=rhs, source_position=source_position)
 
@@ -269,7 +270,7 @@ class ASTNodeFactory():
     def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
         # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
         return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
-                              is_recordable=is_recordable, source_position=source_position)
+                                   is_recordable=is_recordable, source_position=source_position)
 
     @classmethod
     def create_ast_ode_shape(cls, variables=None, expressions=None, source_position=None):

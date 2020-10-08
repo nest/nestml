@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_user_defined_function_correctly_defined.py
 #

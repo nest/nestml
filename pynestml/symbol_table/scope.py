@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # scope.py
 #
@@ -24,7 +25,7 @@ from pynestml.symbols.symbol import Symbol, SymbolKind
 
 class Scope(object):
     """
-    This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and 
+    This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and
     a set of sub-scopes with additional elements.
     Attributes:
         enclosing_scope The scope this scope is enclosed in. Type: Scope
@@ -291,8 +292,8 @@ class Scope(object):
     def get_source_position(self):
         """
         Returns the position in the source as enclosed by this scope
-        :return: 
-        :rtype: 
+        :return:
+        :rtype:
         """
         return self.source_position
 

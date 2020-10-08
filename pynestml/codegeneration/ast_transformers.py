@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_transformers.py
 #
@@ -233,7 +234,6 @@ def variable_in_solver(shape_var: str, solver_dicts):
 
         for var_name in solver_dict["state_variables"]:
             var_name_base = var_name.split("__X__")[0]
-            #var_name_base = var_name_base.split("__d")[0]
             if var_name_base == shape_var:
                 return True
 
@@ -307,7 +307,6 @@ def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
     return order
 
 
-
 def to_ode_toolbox_processed_name(name: str) -> str:
     """
     Convert name in the same way as ode-toolbox does from input to output, i.e. returned names are compatible with ode-toolbox output
@@ -340,10 +339,11 @@ def construct_shape_X_spike_buf_name(shape_var_name: str, spike_input_port, orde
 def replace_rhs_variable(expr, variable_name_to_replace, shape_var, spike_buf):
     def replace_shape_var(node):
         if type(node) is ASTSimpleExpression \
-            and node.is_variable() \
-            and node.get_variable().get_name() == variable_name_to_replace:
+                and node.is_variable() \
+                and node.get_variable().get_name() == variable_name_to_replace:
             var_order = node.get_variable().get_differential_order()
-            new_variable_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
+            new_variable_name = construct_shape_X_spike_buf_name(
+                shape_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
             new_variable = ASTVariable(new_variable_name, var_order)
             new_variable.set_source_position(node.get_variable().get_source_position())
             node.set_variable(new_variable)
@@ -380,7 +380,8 @@ def replace_rhs_variables(expr, shape_buffers):
     for shape, spike_buf in shape_buffers:
         for shape_var in shape.get_variables():
             variable_name_to_replace = shape_var.get_name()
-            replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace, shape_var=shape_var, spike_buf=spike_buf)
+            replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace,
+                                 shape_var=shape_var, spike_buf=spike_buf)
 
 
 def is_delta_shape(shape):
@@ -402,10 +403,6 @@ def is_delta_shape(shape):
         and type(expr.get_rhs()) is ASTSimpleExpression \
         and expr.get_rhs().is_function_call() \
         and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
-    #is_name_of_delta_shape = type(expr) is ASTSimpleExpression \
-        #and expr.is_variable() \
-        #and expr.get_variable().get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE).is_shape() \
-        #and expr.
     return rhs_is_delta_shape or rhs_is_multiplied_delta_shape
 
 
@@ -414,7 +411,7 @@ def get_delta_shape_prefactor_expr(shape):
     assert len(shape.get_variables()) == 1
     expr = shape.get_expressions()[0]
     if type(expr) is ASTExpression \
-     and expr.get_rhs().is_function_call() \
-     and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
-     and expr.binary_operator.is_times_op:
+            and expr.get_rhs().is_function_call() \
+            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
+            and expr.binary_operator.is_times_op:
         return str(expr.lhs)

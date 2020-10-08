@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_input_port.py
 #
@@ -98,18 +99,18 @@ class ASTInputPort(ASTNode):
         if self.data_type:
             data_type_dup = self.data_type.clone()
         dup = ASTInputPort(name=self.name,
-         size_parameter=self.size_parameter,
-         data_type=data_type_dup,
-         input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
-         signal_type=self.signal_type,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                           size_parameter=self.size_parameter,
+                           data_type=data_type_dup,
+                           input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
+                           signal_type=self.signal_type,
+                           # ASTNode common attributes:
+                           source_position=self.source_position,
+                           scope=self.scope,
+                           comment=self.comment,
+                           pre_comments=[s for s in self.pre_comments],
+                           in_comment=self.in_comment,
+                           post_comments=[s for s in self.post_comments],
+                           implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -171,7 +172,7 @@ class ASTInputPort(ASTNode):
 
     def is_excitatory(self):
         """
-        Returns whether this buffer is excitatory or not. For this, it has to be marked explicitly by the 
+        Returns whether this buffer is excitatory or not. For this, it has to be marked explicitly by the
         excitatory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if excitatory, False otherwise.
         :rtype: bool
@@ -185,7 +186,7 @@ class ASTInputPort(ASTNode):
 
     def is_inhibitory(self):
         """
-        Returns whether this buffer is inhibitory or not. For this, it has to be marked explicitly by the 
+        Returns whether this buffer is inhibitory or not. For this, it has to be marked explicitly by the
         inhibitory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if inhibitory, False otherwise.
         :rtype: bool
@@ -247,8 +248,8 @@ class ASTInputPort(ASTNode):
             return False
         if self.has_index_parameter() + other.has_index_parameter() == 1:
             return False
-        if (self.has_index_parameter() and other.has_index_parameter() and
-                self.get_input_qualifiers() != other.get_index_parameter()):
+        if (self.has_index_parameter() and other.has_index_parameter()
+                and self.get_input_qualifiers() != other.get_index_parameter()):
             return False
         if self.has_datatype() + other.has_datatype() == 1:
             return False

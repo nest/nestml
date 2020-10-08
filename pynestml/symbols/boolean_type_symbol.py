@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # boolean_type_symbol.py
 #

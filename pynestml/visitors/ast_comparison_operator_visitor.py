@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# ast_comparison_operator_visitor.py.py
+# ast_comparison_operator_visitor.py
 #
 # This file is part of NEST.
 #
