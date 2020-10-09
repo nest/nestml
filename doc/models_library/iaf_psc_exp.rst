@@ -8,7 +8,7 @@ Description
 +++++++++++
 
 iaf_psc_exp is an implementation of a leaky integrate-and-fire model
-with exponential kernel postsynaptic currents (PSCs) according to [1]_.
+with exponential-kernel postsynaptic currents (PSCs) according to [1]_.
 Thus, postsynaptic currents have an infinitely short rise time.
 
 The threshold crossing is followed by an absolute refractory period (t_ref)

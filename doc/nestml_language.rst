@@ -742,7 +742,7 @@ If there is more than one line specifying a `spike` or `current` port with the s
      spikes3 nS <- spike
    end
 
-For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynapic response to each input port, each with a different time constant:
+For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
 
 .. code-block:: nestml
 
