@@ -379,7 +379,7 @@ def replace_rhs_variables(expr, kernel_buffers):
     """
     for kernel, spike_buf in kernel_buffers:
         for kernel_var in kernel.get_variables():
-            variable_name_to_replace = kernel.get_name()
+            variable_name_to_replace = kernel_var.get_name()
             replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace,
                                  kernel_var=kernel_var, spike_buf=spike_buf)
 

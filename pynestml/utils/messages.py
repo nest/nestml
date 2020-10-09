@@ -1138,7 +1138,7 @@ class Messages(object):
             expected_type_str = "s**-%d" % differential_order
         message = 'Kernel \'%s\' was found to be of type \'%s\' (should be %s)!' % (
             kernel_name, actual_type, expected_type_str)
-        return MessageCode.SHAPE_WRONG_TYPE, message
+        return MessageCode.KERNEL_WRONG_TYPE, message
 
     @classmethod
     def get_kernel_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
