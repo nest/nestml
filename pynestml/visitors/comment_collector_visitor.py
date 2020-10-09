@@ -52,7 +52,7 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
                 get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
-    def visitOdeShape(self, ctx):
+    def visitKernel(self, ctx):
         return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
                 get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 

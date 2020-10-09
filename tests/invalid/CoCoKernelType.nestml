@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoShapeCorrectlyTyped.nestml
+ *  CoCoKernelCorrectlyTyped.nestml
  *
  *  This file is part of NEST.
  *
@@ -22,12 +22,12 @@
  *
  * This model is used to test if broken CoCos are identified correctly.
  *
- * Here, the shape is defined with a correct type.
+ * Here, the kernel is defined with an incorrect type.
  *
- * Positive case
+ * Negative case
 */
 
-neuron CoCoShapeCorrectlyTyped:
+neuron CoCoKernelCorrectlyTyped:
     parameters:
         tau ms = 10 ms
     end
@@ -38,6 +38,6 @@ neuron CoCoShapeCorrectlyTyped:
     end
 
     equations:
-        shape g'' = -1/tau**2 * g - 2/tau * g'
+        kernel g'' = (-1/tau**2 * g - 2/tau * g') * pA  # wrong type
     end
 end

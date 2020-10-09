@@ -1,7 +1,7 @@
 iaf_psc_delta
 #############
 
-iaf_psc_delta - Current-based leaky integrate-and-fire neuron model with delta-shaped post-synaptic currents
+iaf_psc_delta - Current-based leaky integrate-and-fire neuron model with delta-kernel post-synaptic currents
 
 
 Description
@@ -124,7 +124,7 @@ Source code
        function V_m mV = V_abs + E_L # Membrane potential.
      end
      equations:
-       shape G = delta(t,tau_m)
+       kernel G = delta(t,tau_m)
        V_abs'=-1 / tau_m * V_abs + 1 / C_m * (convolve(G,spikes) + I_e + I_stim)
      end
 

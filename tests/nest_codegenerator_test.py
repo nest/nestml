@@ -36,7 +36,7 @@ from pynestml.utils.model_parser import ModelParser
 
 class CodeGeneratorTest(unittest.TestCase):
     """
-    Tests code generator with an IAF psc and cond model, both with alpha and delta shaped synaptic kernels
+    Tests code generator with an IAF psc and cond model, both with alpha and delta synaptic kernels
     """
 
     def setUp(self):

@@ -40,8 +40,8 @@ neuron wb_cond_exp:
 
   equations:
     # synapses: exponential conductance
-    shape g_in = exp(-1.0 / tau_syn_in * t)
-    shape g_ex = exp(-1.0 / tau_syn_ex * t)
+    kernel g_in = exp(-1.0 / tau_syn_in * t)
+    kernel g_ex = exp(-1.0 / tau_syn_ex * t)
 
     recordable inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     recordable inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )

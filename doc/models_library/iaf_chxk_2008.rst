@@ -113,8 +113,8 @@ Source code
 
      end
      equations:
-       shape g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       shape g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+       kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+       kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
        G_ahp__d'=(-2 / tau_ahp) * G_ahp__d - (1 / tau_ahp ** 2) * G_ahp
        function I_syn_exc pA = convolve(g_ex,spikesExc) * (V_m - E_ex)
        function I_syn_inh pA = convolve(g_in,spikesInh) * (V_m - E_in)

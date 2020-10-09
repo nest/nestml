@@ -122,7 +122,7 @@ parser grammar PyNestMLParser;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  odeShape : SHAPE_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
+  kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -253,10 +253,10 @@ parser grammar PyNestMLParser;
        end
      @attribute inlineExpression: A single inline expression, e.g., inline V_m mV = ...
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
-     @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
+     @attribute kernel:      A single kernel statement, e.g., kernel V_m = ....
    */
   equationsBlock: EQUATIONS_KEYWORD COLON
-                   (inlineExpression | odeEquation | odeShape | NEWLINE)*
+                   (inlineExpression | odeEquation | kernel | NEWLINE)*
                    END_KEYWORD;
 
   /** ASTInputBlock represents a single input block, e.g.:

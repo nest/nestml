@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_no_shapes_except_in_convolve.py
+# co_co_no_kernels_except_in_convolve.py
 #
 # This file is part of NEST.
 #
@@ -22,22 +22,22 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoNoShapesExceptInConvolve(CoCo):
+class CoCoNoKernelsExceptInConvolve(CoCo):
     """
-    This CoCo ensures that shape variables do not occur on the right hand side except in convolve().
+    This CoCo ensures that kernel variables do not occur on the right hand side except in convolve().
     Allowed:
-        shape g_ex = ...
+        kernel g_ex = ...
         function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
 
     Not allowed
-        shape g_ex = ...
+        kernel g_ex = ...
         function I_syn_exc pA = g_ex * ( V_m - E_ex )
 
     """
@@ -49,22 +49,22 @@ class CoCoNoShapesExceptInConvolve(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        shape_collector_visitor = ShapeCollectingVisitor()
-        shape_names = shape_collector_visitor.collect_shapes(neuron=node)
-        shape_usage_visitor = ShapeUsageVisitor(_shapes=shape_names)
-        shape_usage_visitor.work_on(node)
+        kernel_collector_visitor = KernelCollectingVisitor()
+        kernel_names = kernel_collector_visitor.collect_kernels(neuron=node)
+        kernel_usage_visitor = KernelUsageVisitor(_kernels=kernel_names)
+        kernel_usage_visitor.work_on(node)
 
 
-class ShapeUsageVisitor(ASTVisitor):
+class KernelUsageVisitor(ASTVisitor):
 
-    def __init__(self, _shapes=None):
+    def __init__(self, _kernels=None):
         """
         Standard constructor.
-        :param _shapes: a list of shapes.
-        :type _shapes: list(ASTOdeShape)
+        :param _kernels: a list of kernels.
+        :type _kernels: list(ASTKernel)
         """
-        super(ShapeUsageVisitor, self).__init__()
-        self.__shapes = _shapes
+        super(KernelUsageVisitor, self).__init__()
+        self.__kernels = _kernels
         self.__neuron_node = None
         return
 
@@ -75,58 +75,58 @@ class ShapeUsageVisitor(ASTVisitor):
 
     def visit_variable(self, node: ASTNode):
         """
-        Visits each shape and checks if it is used correctly.
+        Visits each kernel and checks if it is used correctly.
         :param node: a single node.
         :type node: ASTNode
         """
-        for shapeName in self.__shapes:
+        for kernelName in self.__kernels:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
-            symbol = node.get_scope().resolve_to_symbol(shapeName, SymbolKind.VARIABLE)
-            # if it is not a shape just continue
+            symbol = node.get_scope().resolve_to_symbol(kernelName, SymbolKind.VARIABLE)
+            # if it is not a kernel just continue
             if symbol is None:
                 continue
-            if not symbol.is_shape():
+            if not symbol.is_kernel():
                 continue
-            if node.get_complete_name() == shapeName:
+            if node.get_complete_name() == kernelName:
                 parent = self.__neuron_node.get_parent(node)
                 if parent is not None:
-                    if isinstance(parent, ASTOdeShape):
+                    if isinstance(parent, ASTKernel):
                         continue
                     grandparent = self.__neuron_node.get_parent(parent)
                     if grandparent is not None and isinstance(grandparent, ASTFunctionCall):
                         grandparent_func_name = grandparent.get_name()
                         if grandparent_func_name == 'convolve':
                             continue
-                code, message = Messages.get_shape_outside_convolve(shapeName)
+                code, message = Messages.get_kernel_outside_convolve(kernelName)
                 Logger.log_message(code=code,
                                    message=message,
                                    log_level=LoggingLevel.ERROR,
                                    error_position=node.get_source_position())
 
 
-class ShapeCollectingVisitor(ASTVisitor):
+class KernelCollectingVisitor(ASTVisitor):
 
     def __init__(self):
-        super(ShapeCollectingVisitor, self).__init__()
-        self.shape_names = None
+        super(KernelCollectingVisitor, self).__init__()
+        self.kernel_names = None
 
-    def collect_shapes(self, neuron):
+    def collect_kernels(self, neuron):
         """
-        Collects all shapes in the model.
+        Collects all kernels in the model.
         :param neuron: a single neuron instance
         :type neuron: ast_neuron
-        :return: a list of shapes.
+        :return: a list of kernels.
         :rtype: list(str)
         """
-        self.shape_names = list()
+        self.kernel_names = list()
         neuron.accept(self)
-        return self.shape_names
+        return self.kernel_names
 
-    def visit_ode_shape(self, node):
+    def visit_kernel(self, node):
         """
-        Collects the shape.
-        :param node: a single shape node.
-        :type node: ASTOdeShape
+        Collects the kernel.
+        :param node: a single kernel node.
+        :type node: ASTKernel
         """
         for var in node.get_variables():
-            self.shape_names.append(var.get_name_of_lhs())
+            self.kernel_names.append(var.get_name_of_lhs())

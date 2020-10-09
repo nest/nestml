@@ -95,7 +95,7 @@ class NestMLReferenceConverter(IReferenceConverter):
 
     def convert_ternary_operator(self):
         """
-        Converts the ternary operator to its initial shape.
+        Converts the ternary operator to its initial kernel.
         :return: a string representation
         :rtype: str
         """

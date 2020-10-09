@@ -27,8 +27,8 @@
 
 neuron CoCoConvolveNotCorrectlyProvided:
     equations:
-        shape test = 10
-        inline testB pA = convolve(test, spikeExc) # convolve provided with a shape and a buffer, thus correct
+        kernel test = 10
+        inline testB pA = convolve(test, spikeExc) # convolve provided with a kernel and a buffer, thus correct
     end
 
     input:

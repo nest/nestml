@@ -122,8 +122,8 @@ Source code
      equations:
 
        /* synapses: alpha functions*/
-       shape I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       shape I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+       kernel I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+       kernel I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
        function I_syn_exc pA = convolve(I_syn_ex,spikeExc)
        function I_syn_inh pA = convolve(I_syn_in,spikeInh)
        function I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)

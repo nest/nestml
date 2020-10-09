@@ -508,35 +508,35 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_valid_coco_shape_type(self):
+    def test_valid_coco_kernel_type(self):
         """
-        Test the functionality of CoCoShapeType.
+        Test the functionality of CoCoKernelType.
         """
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoShapeType.nestml'))
+                         'CoCoKernelType.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_invalid_coco_shape_type(self):
+    def test_invalid_coco_kernel_type(self):
         """
-        Test the functionality of CoCoShapeType.
+        Test the functionality of CoCoKernelType.
         """
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoShapeType.nestml'))
+                         'CoCoKernelType.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-    def test_invalid_coco_shape_type_initial_values(self):
+    def test_invalid_coco_kernel_type_initial_values(self):
         """
-        Test the functionality of CoCoShapeType.
+        Test the functionality of CoCoKernelType.
         """
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoShapeTypeInitialValues.nestml'))
+                         'CoCoKernelTypeInitialValues.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)

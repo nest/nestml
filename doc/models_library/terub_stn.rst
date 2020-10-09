@@ -199,11 +199,11 @@ Source code
 
        /* synapses: alpha functions*/
        /* alpha function for the g_in*/
-       shape g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+       kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
        /* alpha function for the g_ex*/
 
        /* alpha function for the g_ex*/
-       shape g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+       kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
      end
 
      parameters:

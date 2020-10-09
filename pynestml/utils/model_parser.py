@@ -52,7 +52,7 @@ from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilation
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -367,10 +367,10 @@ class ModelParser(object):
         return ret
 
     @classmethod
-    def parse_ode_shape(cls, string):
-        # type: (str) -> ASTOdeShape
+    def parse_kernel(cls, string):
+        # type: (str) -> ASTKernel
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.odeShape())
+        ret = builder.visit(parser.kernel())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

@@ -39,7 +39,7 @@ __all__ = [
     'co_co_invariant_is_boolean.py',
     'co_co_neuron_name_unique.py',
     'co_co_no_nest_name_space_collision.py',
-    'co_co_no_shapes_except_in_convolve.py',
+    'co_co_no_kernels_except_in_convolve.py',
     'co_co_no_two_neurons_in_set_of_compilation_units.py',
     'co_co_buffer_data_type.py',
     'co_co_parameters_assigned_only_in_parameter_block.py',

@@ -65,7 +65,7 @@ class NestMultiSynapseTest(unittest.TestCase):
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": 3, "weight": 500., "delay": 0.1})
 
         mm = nest.Create('multimeter', params={'record_from': [
-                         'I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': 0.1})
+                         'I_kernel1__X__spikes1', 'I_kernel2__X__spikes2', 'I_kernel3__X__spikes3'], 'interval': 0.1})
         nest.Connect(mm, neuron)
 
         vm_1 = nest.Create('voltmeter')
@@ -90,13 +90,13 @@ class NestMultiSynapseTest(unittest.TestCase):
             ax[0].plot(V_m_timevec, V_m, label="V_m")
             ax[0].set_ylabel("voltage")
 
-            ax[1].plot(mm["times"], mm["I_shape1__X__spikes1"], label="I_shape1")
+            ax[1].plot(mm["times"], mm["I_kernel1__X__spikes1"], label="I_kernel1")
             ax[1].set_ylabel("current")
 
-            ax[2].plot(mm["times"], mm["I_shape2__X__spikes2"], label="I_shape2")
+            ax[2].plot(mm["times"], mm["I_kernel2__X__spikes2"], label="I_kernel2")
             ax[2].set_ylabel("current")
 
-            ax[3].plot(mm["times"], mm["I_shape3__X__spikes3"], label="I_shape3")
+            ax[3].plot(mm["times"], mm["I_kernel3__X__spikes3"], label="I_kernel3")
             ax[3].set_ylabel("current")
 
             for _ax in ax:

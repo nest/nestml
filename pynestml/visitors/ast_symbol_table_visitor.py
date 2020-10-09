@@ -84,10 +84,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_ports())
             else:
                 buffers = (buffer for buffer in node.get_input_blocks().get_input_ports())
-            from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+            from pynestml.meta_model.ast_kernel import ASTKernel
             # todo: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
-            #                    not isinstance(decl, ASTOdeShape))
+            #                    not isinstance(decl, ASTKernel))
         # now update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
@@ -451,11 +451,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
 
-    def visit_ode_shape(self, node):
+    def visit_kernel(self, node):
         """
-        Private method: Used to visit a single ode-shape, create the corresponding symbol and update the scope.
-        :param node: a single ode-shape.
-        :type node: ast_ode_shape
+        Private method: Used to visit a single kernel, create the corresponding symbol and update the scope.
+        :param node: a kernel.
+        :type node: ASTKernel
         """
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             if var.get_differential_order() == 0 and \
@@ -468,7 +468,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                         is_function=False,
                                         is_recordable=True,
                                         type_symbol=PredefinedTypes.get_real_type(),
-                                        variable_type=VariableType.SHAPE)
+                                        variable_type=VariableType.KERNEL)
                 symbol.set_comment(node.get_comment())
                 node.get_scope().add_symbol(symbol)
             var.update_scope(node.get_scope())
@@ -568,12 +568,12 @@ def assign_ode_to_variables(ode_block):
     :type ode_block: ASTEquations
     """
     from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-    from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+    from pynestml.meta_model.ast_kernel import ASTKernel
     for decl in ode_block.get_declarations():
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)
-        elif isinstance(decl, ASTOdeShape):
-            add_ode_shape_to_variable(decl)
+        elif isinstance(decl, ASTKernel):
+            add_kernel_to_variable(decl)
 
 
 def add_ode_to_variable(ode_equation):
@@ -592,7 +592,7 @@ def add_ode_to_variable(ode_equation):
                                log_level=LoggingLevel.ERROR)
             return
 
-        existing_symbol.set_ode_or_shape(ode_equation)
+        existing_symbol.set_ode_or_kernel(ode_equation)
 
         ode_equation.get_scope().update_variable_symbol(existing_symbol)
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
@@ -600,31 +600,30 @@ def add_ode_to_variable(ode_equation):
                            code=code, message=message, log_level=LoggingLevel.INFO)
 
 
-def add_ode_shape_to_variable(shape):
+def add_kernel_to_variable(kernel):
     """
-    Adds the shape as the defining equation.
+    Adds the kernel as the defining equation.
 
-    If the definition of the shape is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their shape definition and variable type set.
+    If the definition of the kernel is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
 
-    :param shape: a single shape object.
-    :type shape: ASTOdeShape
+    :param kernel: a single kernel object.
+    :type kernel: ASTKernel
     """
-    if len(shape.get_variables()) == 1 \
-            and shape.get_variables()[0].get_differential_order() == 0:
+    if len(kernel.get_variables()) == 1 \
+            and kernel.get_variables()[0].get_differential_order() == 0:
         # we only update those which define an ODE; skip "direct function of time" specifications
         return
 
-    for var, expr in zip(shape.get_variables(), shape.get_expressions()):
+    for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
         for diff_order in range(var.get_differential_order()):
             var_name = var.get_name() + "'" * diff_order
-            existing_symbol = shape.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+            existing_symbol = kernel.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
             if existing_symbol is None:
                 code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
-                Logger.log_message(code=code, message=message,
-                                   error_position=shape.get_source_position(), log_level=LoggingLevel.ERROR)
+                Logger.log_message(code=code, message=message, error_position=kernel.get_source_position(), log_level=LoggingLevel.ERROR)
                 return
 
-            existing_symbol.set_ode_or_shape(expr)
-            existing_symbol.set_variable_type(VariableType.SHAPE)
-            shape.get_scope().update_variable_symbol(existing_symbol)
+            existing_symbol.set_ode_or_kernel(expr)
+            existing_symbol.set_variable_type(VariableType.KERNEL)
+            kernel.get_scope().update_variable_symbol(existing_symbol)

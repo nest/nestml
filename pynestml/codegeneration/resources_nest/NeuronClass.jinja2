@@ -78,17 +78,17 @@ namespace nest
   template <> void RecordablesMap<{{neuronName}}>::create(){
   // use standard names where you can for consistency!
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
 {%- for variable in neuron.get_state_non_alias_symbols() %}
 {%-   include "directives/RecordCallback.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
 {%- filter indent(2,True) %}
 {%- for variable in neuron.get_initial_values_non_alias_symbols() %}
-{%-   if not is_delta_shape(neuron.get_shape_by_name(variable.name)) %}
+{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable.name)) %}
 {%-     include "directives/RecordCallback.jinja2" %}
 {%-   endif %}
 {%- endfor %}
@@ -182,7 +182,7 @@ namespace nest
 {%- endfor %}
 {%- endfilter %}
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
 {%- for state in neuron.get_state_non_alias_symbols() %}
 {%-   with variable = state %}
@@ -191,10 +191,10 @@ namespace nest
 {%- endfor %}
 {%- endfilter %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
 {%- filter indent(2,True) %}
 {%- for init in neuron.get_initial_values_non_alias_symbols() %}
-{%-   if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+{%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-     with variable = init -%}
 {%-       include "directives/MemberInitialization.jinja2" %}
 {%-     endwith %}
@@ -221,7 +221,7 @@ S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
 
 {%- filter indent(2, True) %}
 {%- for init in neuron.get_initial_values_non_alias_symbols() %}
-{%-   if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+{%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
 {%-   endif %}
 {%- endfor %}

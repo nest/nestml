@@ -47,7 +47,7 @@ class MessageCode(Enum):
     VARIABLE_USED_BEFORE_DECLARATION = 18
     VARIABLE_DEFINED_RECURSIVELY = 19
     VALUE_ASSIGNED_TO_BUFFER = 20
-    ARG_NOT_SHAPE_OR_EQUATION = 21
+    ARG_NOT_KERNEL_OR_EQUATION = 21
     ARG_NOT_BUFFER = 22
     NUMERATOR_NOT_ONE = 23
     ORDER_NOT_DECLARED = 24
@@ -63,7 +63,7 @@ class MessageCode(Enum):
     NO_INIT_VALUE = 33
     NEURON_REDECLARED = 34
     NEST_COLLISION = 35
-    SHAPE_OUTSIDE_CONVOLVE = 36
+    KERNEL_OUTSIDE_CONVOLVE = 36
     NAME_COLLISION = 37
     TYPE_NOT_SPECIFIED = 38
     NO_TYPE_ALLOWED = 39
@@ -100,8 +100,8 @@ class MessageCode(Enum):
     DELTA_FUNCTION_CANNOT_BE_MIXED = 70
     UNKNOWN_TYPE = 71
     ASTDATATYPE_TYPE_SYMBOL_COULD_NOT_BE_DERIVED = 72
-    SHAPE_WRONG_TYPE = 73
-    SHAPE_IV_WRONG_TYPE = 74
+    KERNEL_WRONG_TYPE = 73
+    KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
 
 
@@ -476,9 +476,9 @@ class Messages(object):
         return MessageCode.VALUE_ASSIGNED_TO_BUFFER, message
 
     @classmethod
-    def get_first_arg_not_shape_or_equation(cls, func_name):
+    def get_first_arg_not_kernel_or_equation(cls, func_name):
         """
-        Indicates that the first argument of an rhs is not an equation or shape.
+        Indicates that the first argument of an rhs is not an equation or kernel.
         :param func_name: the name of the function
         :type func_name: str
         :return: a message
@@ -486,8 +486,8 @@ class Messages(object):
         """
         assert (func_name is not None and isinstance(func_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
-        message = 'First argument of \'%s\' not a shape or equation!' % func_name
-        return MessageCode.ARG_NOT_SHAPE_OR_EQUATION, message
+        message = 'First argument of \'%s\' not a kernel or equation!' % func_name
+        return MessageCode.ARG_NOT_KERNEL_OR_EQUATION, message
 
     @classmethod
     def get_second_arg_not_a_buffer(cls, func_name):
@@ -711,18 +711,18 @@ class Messages(object):
         return MessageCode.NEST_COLLISION, message
 
     @classmethod
-    def get_shape_outside_convolve(cls, name):
+    def get_kernel_outside_convolve(cls, name):
         """
-        Indicates that a shape variable has been used outside a convolve call.
-        :param name: the name of the shape
+        Indicates that a kernel variable has been used outside a convolve call.
+        :param name: the name of the kernel
         :type name: str
         :return: message
         :rtype: (MessageCode,str)
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Shape \'%s\' used outside convolve!' % name
-        return MessageCode.SHAPE_OUTSIDE_CONVOLVE, message
+        message = 'Kernel \'%s\' used outside convolve!' % name
+        return MessageCode.KERNEL_OUTSIDE_CONVOLVE, message
 
     @classmethod
     def get_compilation_unit_name_collision(cls, name, art1, art2):
@@ -945,7 +945,7 @@ class Messages(object):
         :return: a message
         :rtype: (MessageCode,str)
         """
-        message = 'Equations or shapes could not be solved. The model remains unchanged!'
+        message = 'Equations or kernels could not be solved. The model remains unchanged!'
         return MessageCode.NEURON_ANALYZED, message
 
     @classmethod
@@ -965,7 +965,7 @@ class Messages(object):
         :return: a message
         :rtype: (MessageCode,str)
         """
-        message = 'Shapes will be solved with GLS!'
+        message = 'Kernels will be solved with GLS!'
         return MessageCode.NEURON_ANALYZED, message
 
     @classmethod
@@ -1077,7 +1077,7 @@ class Messages(object):
         """
         Delta function cannot be mixed with expressions.
         """
-        message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this shape is used"
+        message = "delta function cannot be mixed with expressions; please instead perform these operations on the convolve() function where this kernel is used"
         return MessageCode.DELTA_FUNCTION_CANNOT_BE_MIXED, message
 
     @classmethod
@@ -1122,35 +1122,35 @@ class Messages(object):
         return MessageCode.EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT, message
 
     @classmethod
-    def get_shape_wrong_type(cls, shape_name: str, differential_order: int, actual_type: str) -> Tuple[MessageCode, str]:
+    def get_kernel_wrong_type(cls, kernel_name: str, differential_order: int, actual_type: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that the type of a shape is wrong.
-        :param shape_name: the name of the shape
-        :param differential_order: differential order of the shape left-hand side, e.g. 2 if the shape is g''
+        Returns a message indicating that the type of a kernel is wrong.
+        :param kernel_name: the name of the kernel
+        :param differential_order: differential order of the kernel left-hand side, e.g. 2 if the kernel is g''
         :param actual_type: the name of the actual type that was found in the model
         """
-        assert (shape_name is not None and isinstance(shape_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(shape_name)
+        assert (kernel_name is not None and isinstance(kernel_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(kernel_name)
         if differential_order == 0:
             expected_type_str = "real or int"
         else:
             assert differential_order > 0
             expected_type_str = "s**-%d" % differential_order
-        message = 'Shape \'%s\' was found to be of type \'%s\' (should be %s)!' % (
-            shape_name, actual_type, expected_type_str)
-        return MessageCode.SHAPE_WRONG_TYPE, message
+        message = 'Kernel \'%s\' was found to be of type \'%s\' (should be %s)!' % (
+            kernel_name, actual_type, expected_type_str)
+        return MessageCode.KERNEL_WRONG_TYPE, message
 
     @classmethod
-    def get_shape_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
+    def get_kernel_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that the type of a shape initial value is wrong.
-        :param shape_name: the name of the initial value variable
+        Returns a message indicating that the type of a kernel initial value is wrong.
+        :param iv_name: the name of the initial value variable
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
-        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (
-            iv_name, actual_type, expected_type)
-        return MessageCode.SHAPE_IV_WRONG_TYPE, message
+        message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
+        return MessageCode.KERNEL_IV_WRONG_TYPE, message
+
 
     @classmethod
     def get_could_not_determine_cond_based(cls, type_str, name):

@@ -24,7 +24,7 @@ from typing import Optional, Union, List, Dict
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.variable_symbol import BlockType
@@ -517,31 +517,32 @@ class ASTNeuron(ASTNode):
                 iv_syms.append(iv_sym)
         return iv_syms
 
-    def get_shape_by_name(self, shape_name: str) -> Optional[ASTOdeShape]:
-        assert type(shape_name) is str
-        shape_name = shape_name.split("__X__")[0]
+    def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
+        assert type(kernel_name) is str
+        kernel_name = kernel_name.split("__X__")[0]
 
         if not self.get_equations_block():
             return None
 
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
+            if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
                 return decl
 
         return None
 
-    def get_all_shapes(self):
-        shapes = []
+
+    def get_all_kernels(self):
+        kernels = []
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape:
-                shapes.append(decl)
-        return shapes
+            if type(decl) is ASTKernel:
+                kernels.append(decl)
+        return kernels
 
     def get_initial_values_blocks(self):
         """
@@ -709,17 +710,17 @@ class ASTNeuron(ASTNode):
         from pynestml.symbols.symbol import SymbolKind
         assert declaration.get_variables()[0].get_scope().resolve_to_symbol(
             declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
-        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()
-                                                         [0].get_name(), SymbolKind.VARIABLE) is not None
+        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(),
+                                                         SymbolKind.VARIABLE) is not None
 
-    def add_shape(self, shape: ASTOdeShape) -> None:
+    def add_kernel(self, kernel: ASTKernel) -> None:
         """
         Adds the handed over declaration to the initial values block.
-        :param shape: a single declaration.
+        :param kernel: a single declaration.
         """
         assert self.get_equations_block() is not None
-        self.get_equations_block().get_declarations().append(shape)
-        shape.update_scope(self.get_equations_blocks().get_scope())
+        self.get_equations_block().get_declarations().append(kernel)
+        kernel.update_scope(self.get_equations_blocks().get_scope())
 
     """
     The following print methods are used by the backend and represent the comments as stored at the corresponding

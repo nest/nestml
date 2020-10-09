@@ -8,8 +8,8 @@ Description
 +++++++++++
 
 iaf_psc_alpha is an implementation of a leaky integrate-and-fire model
-with alpha-function shaped synaptic currents. Thus, synaptic currents
-and the resulting post-synaptic potentials have a finite rise time.
+with alpha-kernel synaptic currents. Thus, synaptic currents and the
+resulting post-synaptic potentials have a finite rise time.
 
 The threshold crossing is followed by an absolute refractory period
 during which the membrane potential is clamped to the resting potential.
@@ -149,9 +149,9 @@ Source code
        function V_m mV = V_abs + E_L # Membrane potential.
      end
      equations:
-       shape I_shape_in = pA * (e / tau_syn_in) * t * exp(-1 / tau_syn_in * t)
-       shape I_shape_ex = pA * (e / tau_syn_ex) * t * exp(-1 / tau_syn_ex * t)
-       function I pA = convolve(I_shape_in,in_spikes) + convolve(I_shape_ex,ex_spikes) + I_e + I_stim
+       kernel I_kernel_in = pA * (e / tau_syn_in) * t * exp(-1 / tau_syn_in * t)
+       kernel I_kernel_ex = pA * (e / tau_syn_ex) * t * exp(-1 / tau_syn_ex * t)
+       function I pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes) + I_e + I_stim
        V_abs'=-1 / Tau * V_abs + 1 / C_m * I
      end
 
