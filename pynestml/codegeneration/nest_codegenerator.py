@@ -249,6 +249,8 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
         variable name (e.g. `g_ex__DOLLAR__d__d`).
+
+        Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():

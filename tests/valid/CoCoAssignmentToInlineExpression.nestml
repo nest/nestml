@@ -28,7 +28,7 @@ neuron CoCoAssignmentToInlineExpression:
     end
 
     equations:
-        shape alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
+        kernel alpha_kernel = (e / tau_syn) * t * exp(-t / tau_syn)
         inline foo real = convolve(alpha_kernel, spikes_in)
     end
 

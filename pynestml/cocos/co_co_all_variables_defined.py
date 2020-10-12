@@ -115,15 +115,16 @@ class ASTAssignedVariableDefinedVisitor(ASTVisitor):
                         return
             else:
                 # for kernels, also allow derivatives of that kernel to appear
-                for inline_expr in self.neuron.get_equations_block().get_inline_expressions():
-                    if node.get_variable().get_name() == inline_expr.variable_name:
-                        from pynestml.utils.ast_utils import ASTUtils
-                        if ASTUtils.inline_aliases_convolution(inline_expr):
-                            symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-                            if symbol is not None:
-                                # actually, no problem detected, skip error
-                                # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                return
+                if self.neuron.get_equations_block() is not None:
+                    for inline_expr in self.neuron.get_equations_block().get_inline_expressions():
+                        if node.get_variable().get_name() == inline_expr.variable_name:
+                            from pynestml.utils.ast_utils import ASTUtils
+                            if ASTUtils.inline_aliases_convolution(inline_expr):
+                                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                                if symbol is not None:
+                                    # actually, no problem detected, skip error
+                                    # XXX: TODO: check that differential order is less than or equal to that of the kernel
+                                    return
 
             code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),

@@ -35,7 +35,6 @@ except Exception:
     TEST_PLOTS = False
 
 
-
 class NestNonLinearDendriteTest(unittest.TestCase):
     """
     Test for proper reset of synaptic integration after condition is triggered (here, dendritic spike).
