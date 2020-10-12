@@ -98,7 +98,7 @@ class CoCoAllVariablesDefined(CoCo):
 
 
 class ASTAssignedVariableDefinedVisitor(ASTVisitor):
-    def __init__(self, neuron: ASTNeuron, after_ast_rewrite:bool = False):
+    def __init__(self, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         super(ASTAssignedVariableDefinedVisitor, self).__init__()
         self.neuron = neuron
         self.after_ast_rewrite = after_ast_rewrite
@@ -110,21 +110,19 @@ class ASTAssignedVariableDefinedVisitor(ASTVisitor):
             if self.after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
                 symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
                 if symbol is not None:
-                    # an inline expression defining this variable name (ignoring differential order) exists. If this variable was the result of a convolution...
-                    print("xxxxxxxxx no problem for variable " + str(node.get_variable().get_name()))
-                    return
+                    # an inline expression defining this variable name (ignoring differential order) exists
+                    if "__X__" in str(symbol):	 # if this variable was the result of a convolution...
+                        return
             else:
-                # for shapes, also allow derivatives of that shape to appear
+                # for kernels, also allow derivatives of that kernel to appear
                 for inline_expr in self.neuron.get_equations_block().get_inline_expressions():
                     if node.get_variable().get_name() == inline_expr.variable_name:
                         from pynestml.utils.ast_utils import ASTUtils
-                        #import pdb;pdb.set_trace()
                         if ASTUtils.inline_aliases_convolution(inline_expr):
                             symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
                             if symbol is not None:
                                 # actually, no problem detected, skip error
-                                # XXX: TODO: check that differential order is less than or equal to that of the shape
-                                print("xxxxxxxxx no problem for variable " + str(node.get_variable().get_name()))
+                                # XXX: TODO: check that differential order is less than or equal to that of the kernel
                                 return
 
             code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())

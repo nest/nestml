@@ -220,7 +220,7 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
         """
-        def replace_var(_expr, replace_var_name : str, replace_with_var_name : str):
+        def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
@@ -234,15 +234,12 @@ class NESTCodeGenerator(CodeGenerator):
                     var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
                     var.set_differential_order(0)
 
-        import pdb;pdb.set_trace()
-
         for decl in neuron.get_equations_block().get_declarations():
             from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
                and isinstance(decl.get_expression(), ASTSimpleExpression) \
                and '__X__' in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
-                print("zzzzzz replacing occurrences of " + str(decl.get_variable_name()) + " with " + str(replace_with_var_name))
                 func = lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)
                 neuron.accept(ASTHigherOrderVisitor(func))
 
@@ -294,7 +291,7 @@ class NESTCodeGenerator(CodeGenerator):
                 buffer_var = construct_kernel_X_spike_buf_name(
                     var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if is_delta_kernel(kernel):
-                    # delta kernel are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
+                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
                     _expr.set_variable(None)
                     _expr.set_numeric_literal(0)
                 else:
@@ -551,13 +548,16 @@ class NESTCodeGenerator(CodeGenerator):
         for decl in decl_to_remove:
             neuron.get_initial_blocks().get_declarations().remove(decl)
 
-    def update_initial_values_for_odes(self, neuron, solver_dicts, kernels):
+    def update_initial_values_for_odes(self, neuron, solver_dicts, kernels) -> None:
         """
         Update initial values for original ODE declarations (e.g. g_in, V_m', g_ahp'') that are present in the model
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
         equations_block = neuron.get_equations_block()
+
+        if neuron.get_initial_blocks() is None:
+            return
 
         for iv_decl in neuron.get_initial_blocks().get_declarations():
             for var in iv_decl.get_variables():
@@ -703,7 +703,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         decl_to_remove = set()
         for decl in equations_block.get_declarations():
-            if type(decl) is ASTKernel:
+            if type(decl) is ASTOdeShape:
                 decl_to_remove.add(decl)
 
         for decl in decl_to_remove:

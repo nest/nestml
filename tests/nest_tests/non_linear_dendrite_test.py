@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # non_linear_dendrite_test.py
 #
@@ -37,37 +38,24 @@ except:
 
 class NestNonLinearDendriteTest(unittest.TestCase):
     """
-    Test for proper reset of synaptic integration after condition is triggered (here, dendritic spike)
+    Test for proper reset of synaptic integration after condition is triggered (here, dendritic spike).
     """
 
     def test_non_linear_dendrite(self):
         MAX_SSE = 1E-12
 
+        I_dend_alias_name = 'I_dend'
+        I_dend_internal_name = 'I_kernel2__X__I_2'
 
-
-
-
-
-        ln_state_specifier = 'I_dend'
-        log10_state_specifier = 'I_kernel2__X__I_2'
-
-
-
-
-
-
-
-
-
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
-        nest_path = "/home/archels/nest-simulator-build"
+        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
+        nest_path = "/home/travis/nest_install"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
         store_log = False
         suffix = '_nestml'
         dev = True
-        #to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         install_nest(target_path, nest_path)
         nest.set_verbosity("M_ALL")
 
@@ -80,26 +68,28 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         nest.Connect(sg, nrn, syn_spec={"receptor_type" : 2, "weight": 30., "delay": 1.})
 
         mm = nest.Create('multimeter')
-        mm.set({"record_from": [ln_state_specifier, log10_state_specifier, "V_m"]})
+        mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name]})
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
 
         timevec = mm.get("events")["times"]
-        ln_state_ts = mm.get("events")[ln_state_specifier]
-        log10_state_ts = mm.get("events")[log10_state_specifier]
+        I_dend_alias_ts = mm.get("events")[I_dend_alias_name]
+        I_dend_internal_ts = mm.get("events")[I_dend_internal_name]
 
         if True:
             if TEST_PLOTS:
                 fig, ax = plt.subplots(2, 1)
-                ax[0].plot(timevec, ln_state_ts, label = "Referenc")
-                ax[1].plot(timevec, log10_state_ts, label = "Testant ")
+                ax[0].plot(timevec, I_dend_alias_ts, label="aliased I_dend")
+                ax[1].plot(timevec, I_dend_internal_ts, label="internal I_dend")
                 for _ax in ax:
                     _ax.legend()
                     _ax.grid()
+                plt.ylabel("Dendritic current $I_{dend}$")
+                plt.suptitle("Reset of synaptic integration after dendritic spike")
                 plt.savefig("/tmp/nestml_younes.png")
 
-        assert np.all(ln_state_ts == log10_state_ts), "Variable " + str(ln_state_specifier) + " and (internal) variable " + str(log10_state_specifier) + " should measure the same thing, but discrepancy in values occurred."
+        assert np.all(I_dend_alias_ts == I_dend_internal_ts), "Variable " + str(I_dend_alias_name) + " and (internal) variable " + str(I_dend_internal_name) + " should measure the same thing, but discrepancy in values occurred."
 
         tidx = np.argmin((timevec - 35)**2)
-        assert np.all(ln_state_ts[tidx:] == 0.), "After dendritic spike, dendritic current should be reset to 0 and stay at 0."
+        assert np.all(I_dend_alias_ts[tidx:] == 0.), "After dendritic spike, dendritic current should be reset to 0 and stay at 0."
