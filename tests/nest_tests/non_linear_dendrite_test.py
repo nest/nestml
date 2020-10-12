@@ -31,7 +31,7 @@ try:
     matplotlib.use('agg')
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except Exception:
     TEST_PLOTS = False
 
 
@@ -65,7 +65,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         nrn = nest.Create("iaf_psc_exp_nonlineardendrite_nestml")
 
         sg = nest.Create("spike_generator", params={"spike_times": [10., 20., 30.]})
-        nest.Connect(sg, nrn, syn_spec={"receptor_type" : 2, "weight": 30., "delay": 1.})
+        nest.Connect(sg, nrn, syn_spec={"receptor_type": 2, "weight": 30., "delay": 1.})
 
         mm = nest.Create('multimeter')
         mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name]})
