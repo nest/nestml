@@ -6,34 +6,34 @@ neuron biexp_postsynaptic_response:
   end
 
   initial_values:
-    g_in nS = 0 nS        # inputs from the inhibitory conductance
-    g_in$ nS/ms = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I) * nS
+    g_in real = 0        # inputs from the inhibitory conductance
+    g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
 
-    g_ex nS = 0 nS        # inputs from the excitatory conductance
-    h_ex nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+    g_ex real = 0        # inputs from the excitatory conductance
+    h_ex real = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
 
-    g_GABA nS = 0 nS
-    g_GABA' nS/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E) * nS
+    g_GABA real = 0
+    g_GABA' 1/ms = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
 
-    # n.b. no initial value for shape that is a direct function of time
+    # n.b. no initial value for kernel that is a direct function of time
 
     V_m mV = E_L          # membrane potential
   end
 
   equations:
-      shape g_ex' = -g_ex / tau_syn_decay_E + h_ex,
+      kernel g_ex' = -g_ex / tau_syn_decay_E + h_ex,
             h_ex' = -h_ex / tau_syn_rise_E
 
-      shape g_in' = -g_in / tau_syn_decay_I + g_in$,
+      kernel g_in' = -g_in / tau_syn_decay_I + g_in$,
             g_in$' = -g_in$ / tau_syn_rise_I
 
-      shape g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
+      kernel g_gap = g_gap_const * (exp(-t/tau_syn_decay_gap) - exp(-t/tau_syn_rise_gap))
     
-      #shape g_alpha = (e / tau_syn_alpha) * t * exp(-t / tau_syn_alpha)
+      #kernel g_alpha = (e / tau_syn_alpha) * t * exp(-t / tau_syn_alpha)
 
-      #shape g_GABA'' = g_gap_const * (exp(-t/tau_syn_decay_E) / tau_syn_decay_E**2 - exp(-t/tau_syn_rise_E) / tau_syn_rise_E**2)
+      #kernel g_GABA'' = g_gap_const * (exp(-t/tau_syn_decay_E) / tau_syn_decay_E**2 - exp(-t/tau_syn_rise_E) / tau_syn_rise_E**2)
 
-      shape g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
+      kernel g_GABA'' = -(g_GABA + g_GABA' * (tau_syn_decay_E + tau_syn_rise_E)) / (tau_syn_decay_E * tau_syn_rise_E)
       
       inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
       inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)

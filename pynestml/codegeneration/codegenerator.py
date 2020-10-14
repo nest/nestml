@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# codegeneration.py
+# codegenerator.py
 #
 # This file is part of NEST.
 #
@@ -18,22 +19,37 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List, Sequence
+
+from pynestml.exceptions.invalid_target_exception import InvalidTargetException
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CodeGenerator(object):
+class CodeGenerator():
 
     def __init__(self, target, options=None):
-        assert target in self.get_known_targets()
+        if not target.upper() in self.get_known_targets():
+            code, msg = Messages.get_unknown_target(target)
+            Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
+            self._target = ""
+            raise InvalidTargetException()
+
         self._target = target
         self._options = options
 
-    def generate_neurons(self, neurons):
-        # type: (list(ASTNeuron)) -> None
+    @staticmethod
+    def get_known_targets():
+        targets = ["NEST", "autodoc", ""]     # include the empty string here to represent "no code generated"
+        targets = [s.upper() for s in targets]
+        return targets
+
+    def generate_neurons(self, neurons: List[ASTNeuron]):
         """
-        Analyse a list of neurons, solve them and generate the corresponding code.
+        Generate code for the given neurons.
+
         :param neurons: a list of neurons.
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -44,10 +60,9 @@ class CodeGenerator(object):
                 code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-    def generate_synapses(self, synapses):
-        # type: (list(ASTsynapse)) -> None
+    def generate_synapses(self, synapses: Sequence[ASTSynapse]) -> None:
         """
-        Analysis a list of synapses, solves them and generates the corresponding code.
+        Generates code for a list of 
         :param synapses: a list of synapses.
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
@@ -59,17 +74,19 @@ class CodeGenerator(object):
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
-    @staticmethod
-    def get_known_targets():
-        return ["NEST", ""]     # include the empty string here to represent "no code generated"
-
+def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
 
     def generate_code(self, neurons, synapses):
         if self._target == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
             _codeGenerator = NESTCodeGenerator(options=self._options)
             _codeGenerator.generate_code(neurons, synapses)
-        elif self._target == "":
+        elif self._target.upper() == "AUTODOC":
+            from pynestml.codegeneration.autodoc_codegenerator import AutoDocCodeGenerator
+            _codeGenerator = AutoDocCodeGenerator()
+            _codeGenerator.generate_code(neurons)
+        else:
             # dummy/null target: user requested to not generate any code
+            assert self._target == ""
             code, message = Messages.get_no_code_generated()
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)

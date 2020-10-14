@@ -78,17 +78,17 @@ neuron traub_cond_multisyn:
     # Synapses
     #############
 
-    shape g_AMPA' = g_AMPA$ - g_AMPA / tau_AMPA_2,
-          g_AMPA$' = -g_AMPA$ / tau_AMPA_1
+    kernel g_AMPA' = g_AMPA$ - g_AMPA / tau_AMPA_2,
+           g_AMPA$' = -g_AMPA$ / tau_AMPA_1
 
-    shape g_NMDA' = g_NMDA$ - g_NMDA / tau_NMDA_2,
-          g_NMDA$' = -g_NMDA$ / tau_NMDA_1
+    kernel g_NMDA' = g_NMDA$ - g_NMDA / tau_NMDA_2,
+           g_NMDA$' = -g_NMDA$ / tau_NMDA_1
 
-    shape g_GABAA' = g_GABAA$ - g_GABAA / tau_GABAA_2,
-          g_GABAA$' = -g_GABAA$ / tau_GABAA_1
+    kernel g_GABAA' = g_GABAA$ - g_GABAA / tau_GABAA_2,
+           g_GABAA$' = -g_GABAA$ / tau_GABAA_1
 
-    shape g_GABAB' = g_GABAB$ - g_GABAB / tau_GABAB_2,
-          g_GABAB$' = -g_GABAB$ / tau_GABAB_1
+    kernel g_GABAB' = g_GABAB$ - g_GABAB / tau_GABAB_2,
+           g_GABAB$' = -g_GABAB$ / tau_GABAB_1
   end
 
   parameters:
@@ -157,7 +157,7 @@ neuron traub_cond_multisyn:
   update:
     U_old mV = V_m
     integrate_odes()
-    
+
     # sending spikes: 
     if r > 0: # is refractory?
       r -= 1

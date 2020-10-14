@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_function_call.py
 #
@@ -58,18 +59,18 @@ class ASTFunctionCall(ASTNode):
         :rtype: ASTFunctionCall
         """
         function_call_args_dup = None
-        if not self.args is None:
+        if self.args is not None:
             function_call_args_dup = [function_call_arg.clone() for function_call_arg in self.args]
         dup = ASTFunctionCall(callee_name=self.callee_name,
-         function_call_args=function_call_args_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                              function_call_args=function_call_args_dup,
+                              # ASTNode common attributes:
+                              source_position=self.source_position,
+                              scope=self.scope,
+                              comment=self.comment,
+                              pre_comments=[s for s in self.pre_comments],
+                              in_comment=self.in_comment,
+                              post_comments=[s for s in self.post_comments],
+                              implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

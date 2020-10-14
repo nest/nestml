@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # frontend_configuration.py
 #
@@ -74,7 +75,7 @@ class FrontendConfiguration(object):
         :type args: list(str)
         """
         cls.argument_parser = argparse.ArgumentParser(
-                description='''NESTML is a domain specific language that supports the specification of neuron
+            description='''NESTML is a domain specific language that supports the specification of neuron
 models in a precise and concise syntax, based on the syntax of Python. Model
 equations can either be given as a simple string of mathematical notation or
 as an algorithm written in the built-in procedural language. The equations are
@@ -83,10 +84,13 @@ appropriate numeric solver otherwise.
 
  Version ''' + str(pynestml.__version__), formatter_class=argparse.RawDescriptionHelpFormatter)
 
-        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', type=str, help=help_input_path, required=True)
+        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH',
+                                         type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
-        cls.argument_parser.add_argument(qualifier_target_arg, choices=['NEST', 'none'], type=str, help=help_target, default='NEST')
-        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=['DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
+        cls.argument_parser.add_argument(qualifier_target_arg, choices=[
+                                         'NEST', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
+                                         'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
@@ -204,7 +208,7 @@ appropriate numeric solver otherwise.
         if target is None or target.upper() == 'NONE':
             target = ''     # make sure `target` is always a string
 
-        if target not in CodeGenerator.get_known_targets():
+        if target.upper() not in CodeGenerator.get_known_targets():
             code, message = Messages.get_unknown_target(target)
             Logger.log_message(None, code, message, None, LoggingLevel.ERROR)
             raise InvalidTargetException()
@@ -223,7 +227,8 @@ appropriate numeric solver otherwise.
                 cls.target_path = os.path.join(pynestml_dir, path)
         else:
             cls.target_path = os.path.join(os.getcwd(), 'target')
-            Logger.log_message(code=MessageCode.TARGET_PATH_INFO, log_level=LoggingLevel.INFO, message='Target files will be generated in directory \'' + cls.target_path + '\'')
+            Logger.log_message(code=MessageCode.TARGET_PATH_INFO, log_level=LoggingLevel.INFO,
+                               message='Target files will be generated in directory \'' + cls.target_path + '\'')
         # check if the target path dir already exists
         if not os.path.isdir(cls.target_path):
             os.makedirs(cls.target_path)

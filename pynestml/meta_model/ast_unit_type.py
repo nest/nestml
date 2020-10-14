@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_unit_type.py
 #
@@ -118,24 +119,24 @@ class ASTUnitType(ASTNode):
         if self.compound_unit:
             compound_unit_dup = self.compound_unit.clone()
         dup = ASTUnitType(is_encapsulated=self.is_encapsulated,
-         compound_unit=compound_unit_dup,
-         base=base_dup,
-         is_pow=self.is_pow,
-         exponent=self.exponent,
-         lhs=lhs_dup,
-         rhs=rhs_dup,
-         is_div=self.is_div,
-         is_times=self.is_times,
-         _unit=self.unit,
-         type_symbol=self.type_symbol,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                          compound_unit=compound_unit_dup,
+                          base=base_dup,
+                          is_pow=self.is_pow,
+                          exponent=self.exponent,
+                          lhs=lhs_dup,
+                          rhs=rhs_dup,
+                          is_div=self.is_div,
+                          is_times=self.is_times,
+                          _unit=self.unit,
+                          type_symbol=self.type_symbol,
+                          # ASTNode common attributes:
+                          source_position=self.source_position,
+                          scope=self.scope,
+                          comment=self.comment,
+                          pre_comments=[s for s in self.pre_comments],
+                          in_comment=self.in_comment,
+                          post_comments=[s for s in self.post_comments],
+                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -230,8 +231,8 @@ class ASTUnitType(ASTNode):
         if self.is_arithmetic_expression() + other.is_arithmetic_expression() == 1:
             return False
         if self.is_arithmetic_expression() and other.is_arithmetic_expression() and \
-                not (self.get_lhs().equals(other.lhs) and self.rhs.equals(other.rhs) and
-                     self.is_times == other.is_times and self.is_div == other.is_div):
+                not (self.get_lhs().equals(other.lhs) and self.rhs.equals(other.rhs)
+                     and self.is_times == other.is_times and self.is_div == other.is_div):
             return False
         if self.is_simple_unit() + other.is_simple_unit() == 1:
             return False

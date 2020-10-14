@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # special_block_parser_builder_test.py
 #

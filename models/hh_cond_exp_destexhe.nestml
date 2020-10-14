@@ -1,42 +1,41 @@
-/*
-Name: hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified.
+"""
+hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
+#####################################################################################
 
-Description:
+Description
++++++++++++
 
- hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is
- based on the hh_cond_exp_traub model.
+hh_cond_exp_destexhe is an implementation of a modified Hodkin-Huxley model, which is based on the hh_cond_exp_traub model.
 
- Differences to hh_cond_exp_traub:
+Differences to hh_cond_exp_traub:
 
- (1) Additional background noise
- A background current whose conductances were modeled as an Ornstein-Uhlenbeck process
- is injected into the neuron.
+(1) **Additional background noise:** A background current whose conductances were modeled as an Ornstein-Uhlenbeck process is injected into the neuron.
+(2) **Additional non-inactivating K+ current:** A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
 
- (2) Additional non-inactivating K+ current
- A non-inactivating K+ current was included, which is responsible for spike frequency adaptation.
 
-References:
+References
+++++++++++
 
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-Cambridge University Press, Cambridge UK.
+.. [1] Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus. Cambridge University Press, Cambridge UK.
 
-Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo
-Journal of Neurophysiology
+.. [2] Destexhe, A. and Pare, D. (1999) Impact of Network Activity on the Integrative Properties of Neocortical Pyramidal Neurons In Vivo. Journal of Neurophysiology
 
-A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons
-Neuroscience
+.. [3] A. Destexhe, M. Rudolph, J.-M. Fellous and T. J. Sejnowski (2001) Fluctuating synaptic conductances recreate in vivo-like activity in neocortical neurons. Neuroscience
 
-Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons
-Neuron
+.. [4] Z. Mainen, J. Joerges, J. R. Huguenard and T. J. Sejnowski (1995) A Model of Spike Initiation in Neocortical Pyramidal Neurons. Neuron
 
-Sends: SpikeEvent
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+Author
+++++++
 
-Author: Tobias Schulte to Brinke
+Tobias Schulte to Brinke
 
-SeeAlso: hh_cond_exp_traub
-*/
+
+See also
+++++++++
+
+hh_cond_exp_traub
+"""
 neuron hh_cond_exp_destexhe:
 
   state:
@@ -57,8 +56,8 @@ neuron hh_cond_exp_destexhe:
 
   equations:
     # synapses: exponential conductance
-    shape g_in = exp(-1/tau_syn_in*t)
-    shape g_ex = exp(-1/tau_syn_ex*t)
+    kernel g_in = exp(-1/tau_syn_in*t)
+    kernel g_ex = exp(-1/tau_syn_ex*t)
 
     # Add aliases to simplify the equation definition of V_m
     inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )

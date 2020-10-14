@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # expression_parser_test.py
 #

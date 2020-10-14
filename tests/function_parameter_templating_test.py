@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # function_parameter_templating_test.py
 #

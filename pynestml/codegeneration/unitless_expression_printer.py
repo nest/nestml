@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # unitless_expression_printer.py
 #
@@ -39,8 +40,8 @@ class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
         :param reference_converter: a single reference converter object.
         :type reference_converter: IReferenceConverter
         """
-        super(UnitlessExpressionPrinter, self).__init__(reference_converter=reference_converter, types_printer=types_printer)
-
+        super(UnitlessExpressionPrinter, self).__init__(
+            reference_converter=reference_converter, types_printer=types_printer)
 
     def print_expression(self, node, prefix=''):
         """Print an expression.
@@ -62,11 +63,11 @@ class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
         if isinstance(node, ASTSimpleExpression):
             if node.is_numeric_literal():
                 return self.types_printer.pretty_print(node.get_numeric_literal())
-            elif node.is_variable() and (not node.get_scope() is None):
-                node_is_variable_symbol = not node.get_scope().resolve_to_symbol(node.variable.get_complete_name(), SymbolKind.VARIABLE) is None
+            elif node.is_variable() and node.get_scope() is not None:
+                node_is_variable_symbol = node.get_scope().resolve_to_symbol(
+                    node.variable.get_complete_name(), SymbolKind.VARIABLE) is not None
                 if not node_is_variable_symbol and PredefinedUnits.is_unit(node.variable.get_complete_name()):
                     # case for a literal unit, e.g. "ms"
                     return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
         return super(UnitlessExpressionPrinter, self).print_expression(node, prefix=prefix)
-

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_integration_test.py
 #
@@ -30,7 +31,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
 
 
@@ -44,13 +45,14 @@ class NestIntegrationTest(unittest.TestCase):
         nest.Install("nestml_allmodels_module")
 
         models = []
+
         models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
         models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
         models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
 
         models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
         models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex" : 2., "tau_decay_ex" : 10., "tau_rise_in" : 2., "tau_decay_in" : 10.}, {"tau_syn_rise_E" : 2., "tau_syn_decay_E" : 10., "tau_syn_rise_I" : 2., "tau_syn_decay_I" : 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.}, {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2., "tau_syn_decay_I": 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
         models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
         models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
@@ -59,17 +61,17 @@ class NestIntegrationTest(unittest.TestCase):
         # --------------
         # XXX: TODO!
 
-        #models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
-        #models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
-        #models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 1E-3))
-        #models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3))
-        #models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 1E-3))
-        #models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 1E-3))
-        #models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
-        #models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
+        # models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
+        # models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
+        # models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 1E-3))
+        # models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3))
+        # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 1E-3))
+        # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 1E-3))
+        # models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
+        # models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
         for model in models:
             reference = model[0]
@@ -86,11 +88,11 @@ class NestIntegrationTest(unittest.TestCase):
                 custom_model_opts = None
 
             self._test_model(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)
-            self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)
+            self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
+                                          nest_ref_model_opts, custom_model_opts)
 
         all_models = [s[:-7] for s in list(os.walk("models"))[0][2] if s[-7:] == ".nestml"]
         self.generate_models_documentation(models, all_models)
-
 
     def generate_models_documentation(self, models, allmodels):
         """
@@ -100,10 +102,7 @@ class NestIntegrationTest(unittest.TestCase):
             Tested models and test conditions, in order.
         """
 
-        s = """Models library
-==============
-
-"""
+        s = "Models library\n==============\n\n"
 
         print("allmodels = " + str(allmodels))
 
@@ -115,7 +114,6 @@ class NestIntegrationTest(unittest.TestCase):
             if model_name in untested_models:
                 untested_models.remove(model_name)
         print("untested_models = " + str(untested_models))
-
 
         for model in models:
             reference = model[0]
@@ -135,7 +133,7 @@ class NestIntegrationTest(unittest.TestCase):
             else:
                 custom_model_opts = {}
 
-            model_fname = testant[:-7] + ".nestml" # strip "_nestml"
+            model_fname = testant[:-7] + ".nestml"  # strip "_nestml"
             model_name = testant[:-7]
 
             s += "\n"
@@ -153,26 +151,24 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"
             s += ".. list-table::\n"
             s += "\n"
-            s += "   * - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[" + model_name + "]_synaptic_response_small.png\n"
+            s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                model_name + "]_synaptic_response_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
-            s += "     - .. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[" + model_name + "]_f-I_curve_small.png\n"
+            s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                model_name + "]_f-I_curve_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
 
             with open(model_name + '_characterisation.rst', 'w') as f:
-                s_ = """Synaptic response
------------------
-
-"""
-                s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[" + model_name + "]_synaptic_response.png\n"
+                s_ = "Synaptic response\n-----------------\n\n"
+                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                    model_name + "]_synaptic_response.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
-                s_ += """f-I curve
----------
-
-"""
-                s_ += ".. figure:: https://raw.githubusercontent.com/clinssen/nestml/nestml-apidoc/doc/models_library/nestml_models_library_[" + model_name + "]_f-I_curve.png\n"
+                s_ += "f-I curve\n---------\n\n"
+                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                    model_name + "]_f-I_curve.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
                 f.write(s_)
@@ -192,18 +188,10 @@ class NestIntegrationTest(unittest.TestCase):
         with open('models_library.rst', 'w') as f:
             f.write(s)
 
-
     def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
-
-        """if nest_ref_model_opts is None:
-            nest_ref_model_opts = {}
-
-        if custom_model_opts is None:
-            custom_model_opts = {}"""
-
         t_stop = 1000.   # [ms]
 
-        I_stim_vec = np.linspace(10E-12, 1E-9, 100)	# [A]
+        I_stim_vec = np.linspace(10E-12, 1E-9, 100)  # [A]
         rate_testant = float("nan") * np.ones_like(I_stim_vec)
         rate_reference = float("nan") * np.ones_like(I_stim_vec)
         for i, I_stim in enumerate(I_stim_vec):
@@ -212,10 +200,10 @@ class NestIntegrationTest(unittest.TestCase):
             neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
             neuron2 = nest.Create(testant, params=custom_model_opts)
 
-            if not (gsl_error_tol is None):
+            if gsl_error_tol is not None:
                 nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
-            dc = nest.Create("dc_generator", params={"amplitude": I_stim * 1E12}) # 1E12: convert A to pA
+            dc = nest.Create("dc_generator", params={"amplitude": I_stim * 1E12})  # 1E12: convert A to pA
 
             nest.Connect(dc, neuron1)
             nest.Connect(dc, neuron2)
@@ -249,20 +237,14 @@ class NestIntegrationTest(unittest.TestCase):
 
             if TEST_PLOTS and False:
                 fig, ax = plt.subplots(2, 1)
-                ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
-                ax[1].plot(ts2, Vms2, label = "Testant " + testant)
+                ax[0].plot(ts1, Vms1, label="Reference " + referenceModel)
+                ax[1].plot(ts2, Vms2, label="Testant " + testant)
                 for _ax in ax:
                     _ax.legend(loc='upper right')
                     _ax.grid()
                 fig.suptitle("Rate: " + str(rate_testant[i]) + " Hz")
-                plt.savefig("/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_[I_stim="+str(I_stim)+"].png")
-
-            #for index in range(0, len(Vms1)):
-                #if abs(Vms1[index] - Vms2[index]) > tolerance \
-                #or np.isnan(Vms1[index]) \
-                #or np.isnan(Vms2[index]):
-                    #print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
-                    #raise Exception(testant + ": TEST FAILED")
+                plt.savefig(
+                    "/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_[I_stim=" + str(I_stim) + "].png")
 
         if TEST_PLOTS:
             if len(I_stim_vec) < 20:
@@ -289,7 +271,6 @@ class NestIntegrationTest(unittest.TestCase):
                 ax = [ax]
                 ax[0].plot(I_stim_vec * 1E12, rate_testant, marker=marker, label=referenceModel)
                 for _ax in ax:
-                    #_ax.legend(loc='upper right')
                     _ax.grid()
                     _ax.set_ylabel("Firing rate [Hz]")
                 ax[0].set_xlabel("$I_{inj}$ [pA]")
@@ -297,7 +278,6 @@ class NestIntegrationTest(unittest.TestCase):
                 plt.savefig("/tmp/nestml_models_library_[" + referenceModel + "]_f-I_curve" + fname_snip + ".png")
 
         print(testant + " PASSED")
-
 
     def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
 
@@ -308,7 +288,7 @@ class NestIntegrationTest(unittest.TestCase):
         neuron1 = nest.Create(referenceModel, params=nest_ref_model_opts)
         neuron2 = nest.Create(testant, params=custom_model_opts)
 
-        if not (gsl_error_tol is None):
+        if gsl_error_tol is not None:
             neuron2.set({"gsl_error_tol": gsl_error_tol})
 
         spikegenerator = nest.Create('spike_generator',
@@ -336,8 +316,8 @@ class NestIntegrationTest(unittest.TestCase):
 
         if TEST_PLOTS:
             fig, ax = plt.subplots(2, 1)
-            ax[0].plot(ts1, Vms1, label = "Reference " + referenceModel)
-            ax[1].plot(ts2, Vms2, label = "Testant " + testant)
+            ax[0].plot(ts1, Vms1, label="Reference " + referenceModel)
+            ax[1].plot(ts2, Vms2, label="Testant " + testant)
             for _ax in ax:
                 _ax.legend(loc='upper right')
                 _ax.grid()
@@ -347,23 +327,25 @@ class NestIntegrationTest(unittest.TestCase):
             for figsize, fname_snip in zip([(8, 5), (4, 3)], ["", "_small"]):
                 fig, ax = plt.subplots(1, 1, figsize=figsize)
                 ax = [ax]
-                ax[0].plot(ts2, Vms2, label = testant)
+                ax[0].plot(ts2, Vms2, label=testant)
                 for _ax in ax:
-                    #_ax.legend(loc='upper right')
                     _ax.grid()
                 ax[0].set_xlabel("Time [ms]")
                 ax[0].set_ylabel("$V_m$ [mV]")
                 plt.tight_layout()
-                plt.savefig("/tmp/nestml_models_library_[" + referenceModel + "]_synaptic_response" + fname_snip + ".png")
+                plt.savefig("/tmp/nestml_models_library_[" + referenceModel
+                            + "]_synaptic_response" + fname_snip + ".png")
 
         for index in range(0, len(Vms1)):
             if abs(Vms1[index] - Vms2[index]) > tolerance \
-             or np.isnan(Vms1[index]) \
-             or np.isnan(Vms2[index]):
-                print(str(Vms1[index]) + " differs from  " + str(Vms2[index]) + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
+                    or np.isnan(Vms1[index]) \
+                    or np.isnan(Vms2[index]):
+                print(str(Vms1[index]) + " differs from  " + str(Vms2[index])
+                      + " at iteration: " + str(index) + " of overall iterations: " + str(len(Vms1)))
                 raise Exception(testant + ": TEST FAILED")
 
         print(testant + " PASSED")
+
 
 if __name__ == "__main__":
     t = NestIntegrationTest()

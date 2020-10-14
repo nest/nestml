@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # i_reference_converter.py
 #

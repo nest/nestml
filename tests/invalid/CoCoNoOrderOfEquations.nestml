@@ -32,15 +32,4 @@ neuron CoCoNoOrderOfEquations:
     equations:
         V_m = 10 mV / s # here, we did not specified the order of equation
     end
-
-    input:
-        # in order to generate an ast
-    end
-
-    output: spike
-
-    update:
-        # in order to generate an ast
-    end
-
 end

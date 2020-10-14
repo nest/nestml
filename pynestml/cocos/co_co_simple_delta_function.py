@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_simple_delta_function.py
 #
@@ -26,45 +27,43 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 
 
 class CoCoSimpleDeltaFunction(CoCo):
     """
-
+    Check that predefined delta function is only used with single argument ``t``.
     """
 
     @classmethod
     def check_co_co(cls, node):
         """
-        Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
-        correct.
+        Checks if this coco applies for the handed over neuron.
+
         :param node: a single neuron instance.
-        :type node: ast_neuron
+        :type node: ASTNeuron
         """
-        
 
         def check_simple_delta(_expr=None):
             if _expr.is_function_call() and _expr.get_function_call().get_name() == "delta":
                 deltafunc = _expr.get_function_call()
                 parent = node.get_parent(_expr)
-                
+
                 # check the argument
-                if not (len(deltafunc.get_args()) == 1 \
-                 and type(deltafunc.get_args()[0]) is ASTSimpleExpression \
-                 and not deltafunc.get_args()[0].get_variable() is None \
-                 and deltafunc.get_args()[0].get_variable().name == "t"):
+                if not (len(deltafunc.get_args()) == 1
+                        and type(deltafunc.get_args()[0]) is ASTSimpleExpression
+                        and deltafunc.get_args()[0].get_variable() is not None
+                        and deltafunc.get_args()[0].get_variable().name == "t"):
                     code, message = Messages.delta_function_one_arg(deltafunc)
-                    Logger.log_message(code=code, message=message, error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)
+                    Logger.log_message(code=code, message=message,
+                                       error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)
 
-                if not type(parent) is ASTOdeShape:
+                if type(parent) is not ASTKernel:
                     code, message = Messages.delta_function_cannot_be_mixed()
-                    Logger.log_message(code=code, message=message, error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)
+                    Logger.log_message(code=code, message=message,
+                                       error_position=_expr.get_source_position(), log_level=LoggingLevel.ERROR)
 
-
-        func = lambda x: check_simple_delta(x) if isinstance(x, ASTSimpleExpression) else True
+        def func(x):
+            return check_simple_delta(x) if isinstance(x, ASTSimpleExpression) else True
 
         node.accept(ASTHigherOrderVisitor(func))
-
-        
-        

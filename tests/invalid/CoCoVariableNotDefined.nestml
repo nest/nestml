@@ -28,10 +28,5 @@ neuron CoCoVariableNotDefined:
     update:
         test1 = test2 + 1
     end
-
-    input:
-        # required for correct construction of the ast
-    end
-
-    output: spike
 end
+

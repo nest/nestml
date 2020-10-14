@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_node.py
 #
@@ -163,7 +164,6 @@ class ASTNode(metaclass=ABCMeta):
         :param _scope: a scope object.
         :type _scope: Scope
         """
-        #print("~~~ Updating scope of node " + str(self) + " to " + str(_scope))
         self.scope = _scope
 
     def get_comment(self):

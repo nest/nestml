@@ -70,8 +70,8 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#odeShape.
-    def visitOdeShape(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#kernel.
+    def visitKernel(self, ctx):
         return self.visitChildren(ctx)
 
 

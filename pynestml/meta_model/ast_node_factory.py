@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_node_factory.py
 #
@@ -61,7 +62,7 @@ from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
@@ -69,6 +70,7 @@ from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTNodeFactory():
@@ -205,10 +207,10 @@ class ASTNodeFactory():
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
         """
-        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator) or
-                                                 isinstance(binary_operator, ASTComparisonOperator) or
-                                                 isinstance(binary_operator, ASTLogicalOperator) or
-                                                 isinstance(binary_operator, ASTArithmeticOperator))), \
+        assert (binary_operator is not None and (isinstance(binary_operator, ASTBitOperator)
+                                                 or isinstance(binary_operator, ASTComparisonOperator)
+                                                 or isinstance(binary_operator, ASTLogicalOperator)
+                                                 or isinstance(binary_operator, ASTArithmeticOperator))), \
             '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(binary_operator)
         return ASTExpression(lhs=lhs, binary_operator=binary_operator, rhs=rhs, source_position=source_position)
 
@@ -305,12 +307,12 @@ class ASTNodeFactory():
     def create_ast_inline_expression(cls, variable_name, data_type, expression, source_position, is_recordable=False):
         # type: (str,ASTDataType,ASTExpression|ASTSimpleExpression,ASTSourceLocation,bool) -> ASTInlineExpression
         return ASTInlineExpression(variable_name=variable_name, data_type=data_type, expression=expression,
-                              is_recordable=is_recordable, source_position=source_position)
+                                   is_recordable=is_recordable, source_position=source_position)
 
     @classmethod
-    def create_ast_ode_shape(cls, variables=None, expressions=None, source_position=None):
-        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTOdeShape
-        return ASTOdeShape(variables, expressions, source_position=source_position)
+    def create_ast_kernel(cls, variables=None, expressions=None, source_position=None):
+        # type: (ASTVariable,ASTSimpleExpression|ASTExpression,ASTSourceLocation) -> ASTKernel
+        return ASTKernel(variables, expressions, source_position=source_position)
 
     @classmethod
     def create_ast_output_block(cls, s_type, source_position):

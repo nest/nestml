@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_variable.py
 #
@@ -63,16 +64,16 @@ class ASTVariable(ASTNode):
         Return a clone ("deep copy") of this node.
         """
         return ASTVariable(name=self.name,
-         differential_order=self.differential_order,
-         type_symbol=self.type_symbol,
-         # ASTNode common attriutes:
-         source_position=self.get_source_position(),
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                           differential_order=self.differential_order,
+                           type_symbol=self.type_symbol,
+                           # ASTNode common attriutes:
+                           source_position=self.get_source_position(),
+                           scope=self.scope,
+                           comment=self.comment,
+                           pre_comments=[s for s in self.pre_comments],
+                           in_comment=self.in_comment,
+                           post_comments=[s for s in self.post_comments],
+                           implicit_conversion_factor=self.implicit_conversion_factor)
 
     def resolve_in_own_scope(self):
         from pynestml.symbols.symbol import SymbolKind
@@ -98,11 +99,10 @@ class ASTVariable(ASTNode):
     def get_is_homogeneous(self):
         return self.is_homogeneous
 
-    def get_differential_order(self):
+    def get_differential_order(self) -> int:
         """
         Returns the differential order of the variable.
         :return: the differential order.
-        :rtype: int
         """
         return self.differential_order
 

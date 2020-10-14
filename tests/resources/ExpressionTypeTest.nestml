@@ -46,16 +46,11 @@ neuron expressionType_test:
        force N
        testint integer
        timesquared s**2
-       velocity m/s 
-        
+       velocity m/s
     end
 
     function foo(_mass kg, _dist m, _time s) N :
       return _mass*_dist/(_time**2)
-    end
-
-    parameters:
-       
     end
 
     update:
@@ -73,11 +68,4 @@ neuron expressionType_test:
         force = kg*m/(s**2)
         force = volts*amps      # this is expected to yield an error
     end
-
-    input:
-        # required for construction of a correct ast
-    end
-
-    output: spike
-
 end

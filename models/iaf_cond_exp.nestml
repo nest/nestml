@@ -1,27 +1,34 @@
 """
-Name: iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron
-                     model.
+iaf_cond_exp - Simple conductance based leaky integrate-and-fire neuron model
+#############################################################################
 
-Description:
+Description
++++++++++++
+
 iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
 conductance-based synapses. Incoming spike events induce a post-synaptic change
 of conductance modelled by an exponential function. The exponential function
 is normalised such that an event of weight 1.0 results in a peak conductance of
 1 nS.
 
-Sends: SpikeEvent
+References
+++++++++++
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+.. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
+       model for the large, fluctuating synaptic conductance state typical of
+       neocortical neurons in vivo. Journal of Computational Neuroscience,
+       16:159-175.
+       DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
 
-References:
+See also
+++++++++
 
-Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
-model for the large, fluctuating synaptic conductance state typical of
-neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 
-Author: Sven Schrader
+Author
+++++++
 
-SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+Sven Schrader
 """
 neuron iaf_cond_exp:
 
@@ -34,8 +41,8 @@ neuron iaf_cond_exp:
   end
 
   equations:
-    shape g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
-    shape g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
+    kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
+    kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
 
     inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )

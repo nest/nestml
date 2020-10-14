@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # unit_system_test.py
 #
@@ -42,7 +43,9 @@ printer = NestPrinter(ExpressionsPrettyPrinter(), NESTReferenceConverter())
 
 
 def get_first_statement_in_update_block(model):
-    return model.get_neuron_list()[0].get_update_blocks().get_block().get_stmts()[0]
+    if model.get_neuron_list()[0].get_update_blocks():
+        return model.get_neuron_list()[0].get_update_blocks().get_block().get_stmts()[0]
+    return None
 
 
 def get_first_declaration_in_state_block(model):

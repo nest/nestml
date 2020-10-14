@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # __init__.py
 #
@@ -26,7 +27,6 @@ __all__ = ['cocos',
            'frontend',
            'generated',
            'meta_model',
-           'solver',
            'symbols',
            'symbol_table',
            'utils',

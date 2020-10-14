@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_power_visitor.py
 #
@@ -74,7 +75,7 @@ class ASTPowerVisitor(ASTVisitor):
             return self.calculate_numeric_value(expr.get_expression())
         elif isinstance(expr, ASTSimpleExpression) and expr.get_numeric_literal() is not None:
             if isinstance(expr.get_numeric_literal(), int) \
-             or isinstance(expr.get_numeric_literal(), float):
+                    or isinstance(expr.get_numeric_literal(), float):
                 literal = expr.get_numeric_literal()
                 return Either.value(literal)
             else:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # model_parser.py
 #
@@ -29,6 +30,7 @@ from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
+from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -48,10 +50,9 @@ from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -59,8 +60,6 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.meta_model.ast_stmt import ASTStmt
-from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -74,6 +73,7 @@ from pynestml.visitors.ast_builder_visitor import ASTBuilderVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.error_listener import NestMLErrorListener
+
 
 class ModelParser(object):
 
@@ -132,12 +132,21 @@ class ModelParser(object):
 
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
+        log_to_restore = copy.deepcopy(Logger.get_log())
+        counter = Logger.curr_message
+
+        Logger.set_log(log_to_restore, counter)
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
         for synapse in ast.get_synapse_list():
             synapse.accept(ASTSymbolTableVisitor())
             SymbolTable.add_synapse_scope(synapse.get_name(), synapse.get_scope())
+        # store source paths
+        for neuron in ast.get_neuron_list():
+            neuron.file_path = file_path
+        ast.file_path = file_path
+
         return ast
 
     @classmethod
@@ -373,10 +382,10 @@ class ModelParser(object):
         return ret
 
     @classmethod
-    def parse_ode_shape(cls, string):
-        # type: (str) -> ASTOdeShape
+    def parse_kernel(cls, string):
+        # type: (str) -> ASTKernel
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.odeShape())
+        ret = builder.visit(parser.kernel())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

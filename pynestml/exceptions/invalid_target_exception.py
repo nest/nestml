@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # invalid_target_exception.py
 #

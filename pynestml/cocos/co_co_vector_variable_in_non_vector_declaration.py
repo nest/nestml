@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_vector_variable_in_non_vector_declaration.py
 #

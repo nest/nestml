@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_assignments_helper.py
 #

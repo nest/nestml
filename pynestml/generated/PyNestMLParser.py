@@ -305,6 +305,7 @@ class PyNestMLParser ( Parser ):
                      u"'real'", u"'string'", u"'boolean'", u"'void'", u"'function'", 
                      u"'inline'", u"'return'", u"'if'", u"'elif'", u"'else'", 
                      u"'for'", u"'while'", u"'in'", u"'step'", u"'inf'", 
+<<<<<<< HEAD
                      u"'and'", u"'or'", u"'not'", u"'recordable'", u"'shape'", 
                      u"'neuron'", u"'synapse'", u"'state'", u"'parameters'", 
                      u"'internals'", u"'initial_values'", u"'update'", u"'equations'", 
@@ -317,6 +318,19 @@ class PyNestMLParser ( Parser ):
                      u"'-='", u"'*='", u"'/='", u"'=='", u"'!='", u"'<>'", 
                      u"'>='", u"','", u"'-'", u"'='", u"'*'", u"'**'", u"'/'", 
                      u"'%'", u"'?'", u"':'", u"'::'", u"';'", u"'''" ]
+=======
+                     u"'and'", u"'or'", u"'not'", u"'recordable'", u"'kernel'", 
+                     u"'neuron'", u"'state'", u"'parameters'", u"'internals'", 
+                     u"'initial_values'", u"'update'", u"'equations'", u"'input'", 
+                     u"'output'", u"'current'", u"'spike'", u"'inhibitory'", 
+                     u"'excitatory'", u"'...'", u"'('", u"')'", u"'+'", 
+                     u"'~'", u"'|'", u"'^'", u"'&'", u"'['", u"'<-'", u"']'", 
+                     u"'[['", u"']]'", u"'<<'", u"'>>'", u"'<'", u"'>'", 
+                     u"'<='", u"'+='", u"'-='", u"'*='", u"'/='", u"'=='", 
+                     u"'!='", u"'<>'", u"'>='", u"','", u"'-'", u"'='", 
+                     u"'*'", u"'**'", u"'/'", u"'%'", u"'?'", u"':'", u"';'", 
+                     u"'''" ]
+>>>>>>> upstream/master
 
     symbolicNames = [ u"<INVALID>", u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", 
                       u"WS", u"LINE_ESCAPE", u"END_KEYWORD", u"INTEGER_KEYWORD", 
@@ -326,6 +340,7 @@ class PyNestMLParser ( Parser ):
                       u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD", 
                       u"IN_KEYWORD", u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", 
                       u"OR_KEYWORD", u"NOT_KEYWORD", u"RECORDABLE_KEYWORD", 
+<<<<<<< HEAD
                       u"SHAPE_KEYWORD", u"NEURON_KEYWORD", u"SYNAPSE_KEYWORD", 
                       u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", 
                       u"INITIAL_VALUES_KEYWORD", u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", 
@@ -341,6 +356,20 @@ class PyNestMLParser ( Parser ):
                       u"LEFT_ANGLE_EQUALS", u"PLUS_EQUALS", u"MINUS_EQUALS", 
                       u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS", u"EQUALS_EQUALS", 
                       u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE", 
+=======
+                      u"KERNEL_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD", 
+                      u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", 
+                      u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", 
+                      u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
+                      u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", 
+                      u"LEFT_PAREN", u"RIGHT_PAREN", u"PLUS", u"TILDE", 
+                      u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET", 
+                      u"LEFT_ANGLE_MINUS", u"RIGHT_SQUARE_BRACKET", u"LEFT_LEFT_SQUARE", 
+                      u"RIGHT_RIGHT_SQUARE", u"LEFT_LEFT_ANGLE", u"RIGHT_RIGHT_ANGLE", 
+                      u"LEFT_ANGLE", u"RIGHT_ANGLE", u"LEFT_ANGLE_EQUALS", 
+                      u"PLUS_EQUALS", u"MINUS_EQUALS", u"STAR_EQUALS", u"FORWARD_SLASH_EQUALS", 
+                      u"EQUALS_EQUALS", u"EXCLAMATION_EQUALS", u"LEFT_ANGLE_RIGHT_ANGLE", 
+>>>>>>> upstream/master
                       u"RIGHT_ANGLE_EQUALS", u"COMMA", u"MINUS", u"EQUALS", 
                       u"STAR", u"STAR_STAR", u"FORWARD_SLASH", u"PERCENT", 
                       u"QUESTION", u"COLON", u"DOUBLE_COLON", u"SEMICOLON", 
@@ -360,7 +389,7 @@ class PyNestMLParser ( Parser ):
     RULE_functionCall = 10
     RULE_inlineExpression = 11
     RULE_odeEquation = 12
-    RULE_odeShape = 13
+    RULE_kernel = 13
     RULE_block = 14
     RULE_stmt = 15
     RULE_compoundStmt = 16
@@ -398,9 +427,14 @@ class PyNestMLParser ( Parser ):
                    u"simpleExpression", u"unaryOperator", u"bitOperator", 
                    u"comparisonOperator", u"logicalOperator", u"variable", 
                    u"functionCall", u"inlineExpression", u"odeEquation", 
+<<<<<<< HEAD
                    u"odeShape", u"block", u"stmt", u"compoundStmt", u"smallStmt", 
                    u"assignment", u"declaration", u"anyDecorator", u"namespaceDecoratorNamespace", 
                    u"namespaceDecoratorName", u"returnStmt", u"ifStmt", 
+=======
+                   u"kernel", u"block", u"stmt", u"compoundStmt", u"smallStmt", 
+                   u"assignment", u"declaration", u"returnStmt", u"ifStmt", 
+>>>>>>> upstream/master
                    u"ifClause", u"elifClause", u"elseClause", u"forStmt", 
                    u"whileStmt", u"nestMLCompilationUnit", u"neuron", u"neuronBody", 
                    u"synapse", u"synapseBody", u"preReceiveBlock", u"postReceiveBlock", 
@@ -435,7 +469,7 @@ class PyNestMLParser ( Parser ):
     OR_KEYWORD=24
     NOT_KEYWORD=25
     RECORDABLE_KEYWORD=26
-    SHAPE_KEYWORD=27
+    KERNEL_KEYWORD=27
     NEURON_KEYWORD=28
     SYNAPSE_KEYWORD=29
     STATE_KEYWORD=30
@@ -1786,14 +1820,14 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-    class OdeShapeContext(ParserRuleContext):
+    class KernelContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
-            super(PyNestMLParser.OdeShapeContext, self).__init__(parent, invokingState)
+            super(PyNestMLParser.KernelContext, self).__init__(parent, invokingState)
             self.parser = parser
 
-        def SHAPE_KEYWORD(self):
-            return self.getToken(PyNestMLParser.SHAPE_KEYWORD, 0)
+        def KERNEL_KEYWORD(self):
+            return self.getToken(PyNestMLParser.KERNEL_KEYWORD, 0)
 
         def variable(self, i=None):
             if i is None:
@@ -1825,27 +1859,33 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.SEMICOLON, 0)
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_odeShape
+            return PyNestMLParser.RULE_kernel
 
         def accept(self, visitor):
-            if hasattr(visitor, "visitOdeShape"):
-                return visitor.visitOdeShape(self)
+            if hasattr(visitor, "visitKernel"):
+                return visitor.visitKernel(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def odeShape(self):
+    def kernel(self):
 
-        localctx = PyNestMLParser.OdeShapeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_odeShape)
+        localctx = PyNestMLParser.KernelContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 26, self.RULE_kernel)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
+<<<<<<< HEAD
             self.state = 256
             self.match(PyNestMLParser.SHAPE_KEYWORD)
             self.state = 257
+=======
+            self.state = 242
+            self.match(PyNestMLParser.KERNEL_KEYWORD)
+            self.state = 243
+>>>>>>> upstream/master
             self.variable()
             self.state = 258
             self.match(PyNestMLParser.EQUALS)
@@ -3755,11 +3795,11 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.OdeEquationContext,i)
 
 
-        def odeShape(self, i=None):
+        def kernel(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.OdeShapeContext)
+                return self.getTypedRuleContexts(PyNestMLParser.KernelContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.OdeShapeContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.KernelContext,i)
 
 
         def NEWLINE(self, i=None):
@@ -3794,8 +3834,13 @@ class PyNestMLParser ( Parser ):
             self.state = 488
             self._errHandler.sync(self)
             _la = self._input.LA(1)
+<<<<<<< HEAD
             while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.SHAPE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
                 self.state = 486
+=======
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.KERNEL_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+                self.state = 422
+>>>>>>> upstream/master
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD]:
@@ -3806,9 +3851,15 @@ class PyNestMLParser ( Parser ):
                     self.state = 483
                     self.odeEquation()
                     pass
+<<<<<<< HEAD
                 elif token in [PyNestMLParser.SHAPE_KEYWORD]:
                     self.state = 484
                     self.odeShape()
+=======
+                elif token in [PyNestMLParser.KERNEL_KEYWORD]:
+                    self.state = 420
+                    self.kernel()
+>>>>>>> upstream/master
                     pass
                 elif token in [PyNestMLParser.NEWLINE]:
                     self.state = 485

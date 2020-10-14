@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # deferred_logging_exception.py
 #

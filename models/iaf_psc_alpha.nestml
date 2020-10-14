@@ -1,76 +1,86 @@
 """
-Name: iaf_psc_alpha - Leaky integrate-and-fire neuron model.
+iaf_psc_alpha - Leaky integrate-and-fire neuron model
+#####################################################
 
-Description:
+Description
++++++++++++
 
-  iaf_psc_alpha is an implementation of a leaky integrate-and-fire model
-  with alpha-function shaped synaptic currents. Thus, synaptic currents
-  and the resulting post-synaptic potentials have a finite rise time.
+iaf_psc_alpha is an implementation of a leaky integrate-and-fire model
+with alpha-function kernel synaptic currents. Thus, synaptic currents
+and the resulting post-synaptic potentials have a finite rise time.
 
-  The threshold crossing is followed by an absolute refractory period
-  during which the membrane potential is clamped to the resting potential.
+The threshold crossing is followed by an absolute refractory period
+during which the membrane potential is clamped to the resting potential.
 
-  The linear subthresold dynamics is integrated by the Exact
-  Integration scheme [1]. The neuron dynamics is solved on the time
-  grid given by the computation step size. Incoming as well as emitted
-  spikes are forced to that grid.
+The general framework for the consistent formulation of systems with
+neuron like dynamics interacting by point events is described in
+[1]_.  A flow chart can be found in [2]_.
 
-  An additional state variable and the corresponding differential
-  equation represents a piecewise constant external current.
+Critical tests for the formulation of the neuron model are the
+comparisons of simulation results for different computation step
+sizes.
 
-  The general framework for the consistent formulation of systems with
-  neuron like dynamics interacting by point events is described in
-  [1].  A flow chart can be found in [2].
+The iaf_psc_alpha is the standard model used to check the consistency
+of the nest simulation kernel because it is at the same time complex
+enough to exhibit non-trivial dynamics and simple enough compute
+relevant measures analytically.
 
-  Critical tests for the formulation of the neuron model are the
-  comparisons of simulation results for different computation step
-  sizes. sli/testsuite/nest contains a number of such tests.
+.. note::
+   If tau_m is very close to tau_syn_ex or tau_syn_in, numerical problems
+   may arise due to singularities in the propagator matrics. If this is
+   the case, replace equal-valued parameters by a single parameter.
 
-  The iaf_psc_alpha is the standard model used to check the consistency
-  of the nest simulation kernel because it is at the same time complex
-  enough to exhibit non-trivial dynamics and simple enough compute
-  relevant measures analytically.
+   For details, please see ``IAF_neurons_singularity.ipynb`` in
+   the NEST source code (``docs/model_details``).
 
-Remarks:
 
-  The present implementation uses individual variables for the
-  components of the state vector and the non-zero matrix elements of
-  the propagator.  Because the propagator is a lower triangular matrix
-  no full matrix multiplication needs to be carried out and the
-  computation can be done "in place" i.e. no temporary state vector
-  object is required.
+Parameters
+++++++++++
 
-  The template support of recent C++ compilers enables a more succinct
-  formulation without loss of runtime performance already at minimal
-  optimization levels. A future version of iaf_psc_alpha will probably
-  address the problem of efficient usage of appropriate vector and
-  matrix objects.
+The following parameters can be set in the status dictionary.
 
-Remarks:
+=========== ======  ==========================================================
+ V_m        mV      Membrane potential
+ E_L        mV      Resting membrane potential
+ C_m        pF      Capacity of the membrane
+ tau_m      ms      Membrane time constant
+ t_ref      ms      Duration of refractory period
+ V_th       mV      Spike threshold
+ V_reset    mV      Reset potential of the membrane
+ tau_syn_ex ms      Rise time of the excitatory synaptic alpha function
+ tau_syn_in ms      Rise time of the inhibitory synaptic alpha function
+ I_e        pA      Constant input current
+ V_min      mV      Absolute lower value for the membrane potenial
+=========== ======  ==========================================================
 
-  If tau_m is very close to tau_syn_ex or tau_syn_in, the model
-  will numerically behave as if tau_m is equal to tau_syn_ex or
-  tau_syn_in, respectively, to avoid numerical instabilities.
-  For details, please see IAF_Neurons_Singularity.ipynb in
-  the NEST source code (docs/model_details).
 
-References:
-  [1] Rotter S & Diesmann M (1999) Exact simulation of time-invariant linear
-      systems with applications to neuronal modeling. Biologial Cybernetics
-      81:381-402.
-  [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State space
-      analysis of synchronous spiking in cortical neural networks.
-      Neurocomputing 38-40:565-571.
-  [3] Morrison A, Straube S, Plesser H E, & Diesmann M (2006) Exact subthreshold
-      integration with continuous spike times in discrete time neural network
-      simulations. Neural Computation, in press
+References
+++++++++++
 
-Sends: SpikeEvent
+.. [1] Rotter S,  Diesmann M (1999). Exact simulation of
+       time-invariant linear systems with applications to neuronal
+       modeling. Biologial Cybernetics 81:381-402.
+       DOI: https://doi.org/10.1007/s004220050570
+.. [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001). State
+       space analysis of synchronous spiking in cortical neural
+       networks. Neurocomputing 38-40:565-571.
+       DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
+.. [3] Morrison A, Straube S, Plesser H E, Diesmann M (2006). Exact
+       subthreshold integration with continuous spike times in discrete time
+       neural network simulations. Neural Computation, in press
+       DOI: https://doi.org/10.1162/neco.2007.19.1.47
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-FirstVersion: September 1999
-Author:  Diesmann, Gewaltig
-SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+
+See also
+++++++++
+
+iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
+
+
+Authors
++++++++
+
+Diesmann, Gewaltig
 """
 neuron iaf_psc_alpha:
 
@@ -83,22 +93,22 @@ neuron iaf_psc_alpha:
   end
 
   equations:
-    shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    kernel I_kernel_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+    kernel I_kernel_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
     recordable inline V_m mV = V_abs + E_L # Membrane potential.
-    inline I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + I_stim
+    inline I pA = convolve(I_kernel_in, in_spikes) + convolve(I_kernel_ex, ex_spikes) + I_e + I_stim
     V_abs' = -V_abs/tau_m + I/C_m
   end
 
   parameters:
     C_m     pF = 250 pF   # Capacitance of the membrane
-    tau_m     ms = 10 ms    # Membrane time constant
+    tau_m   ms = 10 ms    # Membrane time constant
     tau_syn_in ms = 2 ms  # Time constant of synaptic current
     tau_syn_ex ms = 2 ms  # Time constant of synaptic current
     t_ref   ms = 2 ms     # Duration of refractory period
     E_L     mV = -70 mV   # Resting potential
     V_reset mV = -70 mV - E_L # Reset potential of the membrane
-    V_th   mV = -55 mV - E_L # Spike threshold
+    V_th   mV = -55 mV - E_L  # Spike threshold
 
     # constant external input current
     I_e pA = 0 pA

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # pynestml_2_nest_type_converter_test.py
 #

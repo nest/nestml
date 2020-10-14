@@ -29,14 +29,4 @@ neuron CoCoEachBlockUnique:
         test1 integer = 0 # no variable is redeclared in the same scope, thus everything correct
         test2 integer = 0
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

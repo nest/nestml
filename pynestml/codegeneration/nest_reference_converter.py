@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_reference_converter.py
 #
@@ -128,10 +129,10 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'std::log10({!s})'
 
         if function_name == PredefinedFunctions.COSH:
-              return 'std::cosh({!s})'
+            return 'std::cosh({!s})'
 
         if function_name == PredefinedFunctions.SINH:
-              return 'std::sinh({!s})'
+            return 'std::sinh({!s})'
 
         if function_name == PredefinedFunctions.TANH:
             return 'std::tanh({!s})'
@@ -164,7 +165,8 @@ e();
 '''
 
         # suppress prefix for misc. predefined functions
-        function_is_predefined = PredefinedFunctions.get_function(function_name)  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        function_is_predefined = PredefinedFunctions.get_function(function_name)
         if function_is_predefined:
             prefix = ''
 
@@ -196,7 +198,7 @@ e();
         if variable_name == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
 
-        assert not variable.get_scope() is None, "Undeclared variable: " + variable.get_complete_name()
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
 
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if symbol is None:
@@ -206,7 +208,7 @@ e();
 
             code, message = Messages.get_could_not_resolve(variable_name)
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                              error_position=variable.get_source_position())
+                               error_position=variable.get_source_position())
             return ''
 
         if symbol.is_local():
@@ -230,7 +232,7 @@ e();
         if symbol.is_function:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
-        if symbol.is_shape():
+        if symbol.is_kernel():
             print("Printing node " + str(symbol.name))
 
         if symbol.is_init_values():
@@ -243,8 +245,8 @@ e();
             return temp
 
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
-               NestNamesConverter.name(symbol) + \
-               ('[i]' if symbol.has_vector_parameter() else '')
+            NestNamesConverter.name(symbol) + \
+            ('[i]' if symbol.has_vector_parameter() else '')
 
     @classmethod
     def convert_constant(cls, constant_name):
@@ -389,4 +391,3 @@ e();
         :rtype: str
         """
         return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
-

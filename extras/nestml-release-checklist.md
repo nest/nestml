@@ -40,7 +40,7 @@ Follow this checklist to successfully perform a NESTML release. Let's say that 3
 - Perform a corresponding release on PyPi. From the `release-v3.1` branch:
 
   ```bash
-  python setup.py sdist
+  python setup.py bdist_wheel
   twine upload dist/*
   ```
 

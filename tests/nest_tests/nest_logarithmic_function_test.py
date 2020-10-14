@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_logarithmic_function_test.py
 #
@@ -18,8 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Sanity test for the predefined logarithmic functions ln() and log10()"""
-
 import nest
 import numpy as np
 import os
@@ -28,6 +27,7 @@ from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 
 class NestLogarithmicFunctionTest(unittest.TestCase):
+    """Sanity test for the predefined logarithmic functions ln() and log10()"""
 
     def test_logarithmic_function(self):
         MAX_SSE = 1E-12

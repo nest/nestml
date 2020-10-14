@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_illegal_expression.py
 #
@@ -92,10 +93,11 @@ class CorrectExpressionVisitor(ASTVisitor):
         rhs_expr = node.get_expression()
         lhs_variable_symbol = node.get_variable().resolve_in_own_scope()
         rhs_type_symbol = rhs_expr.type
-        
+
         if lhs_variable_symbol is None:
             code, message = Messages.get_equation_var_not_in_init_values_block(node.get_variable().get_complete_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR)
             return
 
         if isinstance(rhs_type_symbol, ErrorTypeSymbol):
@@ -215,7 +217,7 @@ class CorrectExpressionVisitor(ASTVisitor):
                                log_level=LoggingLevel.ERROR)
         elif not (from_type.equals(PredefinedTypes.get_integer_type())
                   or from_type.equals(
-                    PredefinedTypes.get_real_type())):
+                PredefinedTypes.get_real_type())):
             code, message = Messages.get_type_different_from_expected(PredefinedTypes.get_integer_type(),
                                                                       from_type)
             Logger.log_message(code=code, message=message, error_position=node.get_start_from().get_source_position(),

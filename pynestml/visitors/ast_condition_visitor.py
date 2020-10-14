@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_condition_visitor.py
 #
@@ -60,8 +61,8 @@ class ASTConditionVisitor(ASTVisitor):
 
         # Alternatives match exactly -> any is valid
         if if_true.equals(if_not) \
-         or if_true.differs_only_in_magnitude(if_not) \
-         or if_true.is_castable_to(if_not):
+                or if_true.differs_only_in_magnitude(if_not) \
+                or if_true.is_castable_to(if_not):
             node.type = if_true
             return
 

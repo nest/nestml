@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_visitor.py
 #
@@ -10,7 +11,7 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
-# NEST is distributed in the hope that it will be useful, 
+# NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -45,7 +46,7 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_pre_receive import ASTPreReceive
@@ -253,7 +254,7 @@ class ASTVisitor(object):
 
     def visit_data_type(self, node):
         """
-        Used to visit a single data-type. 
+        Used to visit a single data-type.
         :param node: a data-type.
         :type node: ASTDataType
         """
@@ -286,7 +287,7 @@ class ASTVisitor(object):
     def visit_unary_operator(self, node):
         """
         Used to visit a single unary operator.
-        :param node: a single unary operator. 
+        :param node: a single unary operator.
         :type node: ASTUnaryOperator
         """
         return
@@ -294,7 +295,7 @@ class ASTVisitor(object):
     def visit_bit_operator(self, node):
         """
         Used to visit a single unary operator.
-        :param node: a single bit operator. 
+        :param node: a single bit operator.
         :type node: ASTBitOperator
         """
         return
@@ -331,11 +332,11 @@ class ASTVisitor(object):
         """
         return
 
-    def visit_ode_shape(self, node):
+    def visit_kernel(self, node):
         """
-        Used to visit a single ode-shape.
-        :param node: a single ode-shape.
-        :type node: ASTOdeShape
+        Used to visit a single kernel.
+        :param node: a single kernel.
+        :type node: ASTKernel
         """
         return
 
@@ -374,7 +375,7 @@ class ASTVisitor(object):
     def visit_output_block(self, node):
         """
         Used to visit a single output block.
-        :param node: a single output block. 
+        :param node: a single output block.
         :type node: ASTOutputBlock
         """
         return
@@ -465,7 +466,7 @@ class ASTVisitor(object):
     def endvisit_update_block(self, node):
         """
         Used to endvisit a single update block.
-        :param node: an update block object. 
+        :param node: an update block object.
         :type node: ASTDynamics
         """
         return
@@ -573,7 +574,7 @@ class ASTVisitor(object):
     def endvisit_for_stmt(self, node):
         """
         Private method: Used to endvisit a single for-stmt.
-        :param node: a for-statement. 
+        :param node: a for-statement.
         :type node: ASTForStmt
         """
         return
@@ -588,7 +589,7 @@ class ASTVisitor(object):
 
     def endvisit_data_type(self, node):
         """
-        Used to endvisit a single data-type. 
+        Used to endvisit a single data-type.
         :param node: a data-type.
         :type node: ASTDataType
         """
@@ -621,7 +622,7 @@ class ASTVisitor(object):
     def endvisit_unary_operator(self, node):
         """
         Used to endvisit a single unary operator.
-        :param node: a single unary operator. 
+        :param node: a single unary operator.
         :type node: ASTUnaryOperator
         """
         return
@@ -629,7 +630,7 @@ class ASTVisitor(object):
     def endvisit_bit_operator(self, node):
         """
         Used to endvisit a single unary operator.
-        :param node: a single bit operator. 
+        :param node: a single bit operator.
         :type node: ASTBitOperator
         """
         return
@@ -666,11 +667,11 @@ class ASTVisitor(object):
         """
         return
 
-    def endvisit_ode_shape(self, node):
+    def endvisit_kernel(self, node):
         """
-        Used to endvisit a single ode-shape.
-        :param node: a single ode-shape.
-        :type node: ASTOdeShape
+        Used to endvisit a single kernel.
+        :param node: a single kernel.
+        :type node: ASTKernel
         """
         return
 
@@ -709,7 +710,7 @@ class ASTVisitor(object):
     def endvisit_output_block(self, node):
         """
         Used to endvisit a single output block.
-        :param node: a single output block. 
+        :param node: a single output block.
         :type node: ASTOutputBlock
         """
         return
@@ -861,8 +862,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTInlineExpression):
             self.visit_inline_expression(node)
             return
-        if isinstance(node, ASTOdeShape):
-            self.visit_ode_shape(node)
+        if isinstance(node, ASTKernel):
+            self.visit_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.visit_output_block(node)
@@ -998,8 +999,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTInlineExpression):
             self.traverse_inline_expression(node)
             return
-        if isinstance(node, ASTOdeShape):
-            self.traverse_ode_shape(node)
+        if isinstance(node, ASTKernel):
+            self.traverse_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.traverse_output_block(node)
@@ -1135,8 +1136,8 @@ class ASTVisitor(object):
         if isinstance(node, ASTInlineExpression):
             self.endvisit_inline_expression(node)
             return
-        if isinstance(node, ASTOdeShape):
-            self.endvisit_ode_shape(node)
+        if isinstance(node, ASTKernel):
+            self.endvisit_kernel(node)
             return
         if isinstance(node, ASTOutputBlock):
             self.endvisit_output_block(node)
@@ -1373,7 +1374,7 @@ class ASTVisitor(object):
             node.get_expression().accept(self.get_real_self())
         return
 
-    def traverse_ode_shape(self, node):
+    def traverse_kernel(self, node):
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             var.accept(self.get_real_self())
             expr.accept(self.get_real_self())

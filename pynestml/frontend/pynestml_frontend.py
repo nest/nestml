@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # pynestml_frontend.py
 #
@@ -61,7 +62,6 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     codegen_opts : str, optional
         Path to a JSON file containing additional options for the target code generator.
     '''
-
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
@@ -97,7 +97,8 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         args.append(codegen_opts)
 
     FrontendConfiguration.parse_config(args)
-    process()
+    if not process() == 0:
+        raise Exception("Error(s) occurred while processing the model")
 
 
 def install_nest(models_path, nest_path):
@@ -123,7 +124,7 @@ def install_nest(models_path, nest_path):
     nest_installer(models_path, nest_path)
 
 
-def main(args):
+def main() -> int:
     """
     Entry point for the command-line application.
 
@@ -132,15 +133,23 @@ def main(args):
     The process exit code: 0 for success, > 0 for failure
     """
     try:
-        FrontendConfiguration.parse_config(args)
+        FrontendConfiguration.parse_config(sys.argv[1:])
     except InvalidPathException:
         print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
-        return
+        return 1
+    # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
+    sys.setrecursionlimit(10000)
     # after all argument have been collected, start the actual processing
-    process()
+    return int(process())
 
 
 def process():
+    """
+    Returns
+    -------
+    errors_occurred : bool
+        Flag indicating whether errors occurred during processing
+    """
 
     errors_occurred = False
 
@@ -233,7 +242,3 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
-
-
-if __name__ == '__main__':
-    main(sys.argv[1:])

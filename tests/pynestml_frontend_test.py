@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # pynestml_frontend_test.py
 #
@@ -33,14 +34,14 @@ except ImportError:
     from mock import patch
 
 
-
 class PyNestMLFrontendTest(unittest.TestCase):
     """
     Tests if the frontend works as intended and is able to process handed over arguments.
     """
 
-    def test_codegeneration_for_all_models(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
+    def test_codegeneration_for_single_model(self):
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                 os.path.join('..', 'models', 'iaf_psc_exp.nestml'))))
         params = list()
         params.append('nestml')
         params.append('--input_path')
@@ -56,7 +57,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
             exit_code = main()
         self.assertTrue(exit_code == 0)
 
-
     def test_module_name_parsing_right_module_name_specified(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
 
@@ -69,7 +69,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
         assert FrontendConfiguration.module_name == 'xyzzymodule'
 
-
     def test_module_name_parsing_wrong_module_name_specified(self):
         with pytest.raises(Exception):
             path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
@@ -81,7 +80,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
             params.append('xyzzy')
             FrontendConfiguration.parse_config(params)
 
-
     def test_module_name_parsing_input_path_is_file(self):
         h, path = tempfile.mkstemp(prefix='nestml')
         basename = os.path.basename(os.path.normpath(path))
@@ -91,7 +89,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append(path)
         FrontendConfiguration.parse_config(params)
         assert FrontendConfiguration.module_name == 'nestmlmodule'
-
 
     def test_module_name_parsing_input_path_is_dir(self):
         path = tempfile.mkdtemp(prefix='nestml')
@@ -105,7 +102,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
         FrontendConfiguration.parse_config(params)
         assert FrontendConfiguration.module_name == basename + 'module'
 
-
     def test_module_name_parsing_input_path_is_wrong_dir(self):
         with pytest.raises(Exception):
             path = tempfile.mkdtemp(prefix='nestml-')
@@ -116,7 +112,6 @@ class PyNestMLFrontendTest(unittest.TestCase):
             params.append('--logging_level')
             params.append('INFO')
             FrontendConfiguration.parse_config(params)
-
 
     def tearDown(self):
         # clean up

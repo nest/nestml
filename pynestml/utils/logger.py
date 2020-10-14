@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # logger.py
 #
@@ -71,9 +72,9 @@ class Logger(object):
     @classmethod
     def get_log(cls):
         """
-        Returns the overall log of messages.
-        :return: dict from entry id to (astnode, message, type) tuple.
-        :rtype: dict(int -> tuple(astnode, level, str))
+        Returns the overall log of messages. The structure of the log is: (NEURON,LEVEL,MESSAGE)
+        :return: dict from id to astnode+message+type.
+        :rtype: dict(int->ASTNode,level,str)
         """
         return cls.log
 
@@ -267,7 +268,7 @@ class Logger(object):
                    (astnode.get_name() if astnode is not None else 'GLOBAL') + '", ' + \
                    '"severity":"' \
                    + str(logLevel.name) + '", '
-            if not code is None:
+            if code is not None:
                 ret += '"code":"' + \
                        code.name + \
                        '", '

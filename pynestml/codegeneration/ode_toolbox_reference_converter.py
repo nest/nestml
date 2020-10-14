@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# idempotent_reference_converter.py
+# ode_toolbox_reference_converter.py
 #
 # This file is part of NEST.
 #
@@ -25,6 +26,7 @@ from pynestml.utils.ast_utils import ASTUtils
 
 class ODEToolboxReferenceConverter(NestMLReferenceConverter):
     """
+    Convert into a format accepted by ODE-toolbox as input.
     """
 
     def convert_name_reference(self, ast_variable, prefix=''):

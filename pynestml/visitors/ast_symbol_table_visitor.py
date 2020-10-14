@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_symbol_table_visitor.py
 #
@@ -54,7 +55,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: a single neuron.
         :rtype: ast_neuron
         """
-        print("In ASTSymbolTableVisitor::visit_neuron()")
         # set current processed neuron
         Logger.set_current_astnode(node)
         code, message = Messages.get_start_building_symbol_table()
@@ -85,10 +85,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
                 buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_ports())
             else:
                 buffers = (buffer for buffer in node.get_input_blocks().get_input_ports())
-            from pynestml.meta_model.ast_ode_shape import ASTOdeShape
-            # todo by KP: ode declarations are not used, is this correct?
+            from pynestml.meta_model.ast_kernel import ASTKernel
+            # todo: ode declarations are not used, is this correct?
             # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
-            #                    not isinstance(decl, ASTOdeShape))
+            #                    not isinstance(decl, ASTKernel))
         # now update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
@@ -181,8 +181,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.has_return_type():
             node.get_return_type().update_scope(scope)
 
-        node.get_block().update_scope(scope)
-        return
+        if node.get_block() is not None:
+            node.get_block().update_scope(scope)
 
     def endvisit_function(self, node):
         symbol = self.symbol_stack.pop()
@@ -314,7 +314,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-
         node.get_variable().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
         return
@@ -345,10 +344,10 @@ class ASTSymbolTableVisitor(ASTVisitor):
         node.get_data_type().accept(visitor)
         type_name = visitor.result
         # all declarations in the state block are recordable
-        is_recordable = (node.is_recordable or
-                         not self.block_type_stack.is_empty() and (self.block_type_stack.top() == BlockType.STATE or
-                                                                   self.block_type_stack.top() == BlockType.INITIAL_VALUES))
-        init_value = node.get_expression() if (not self.block_type_stack.is_empty() and self.block_type_stack.top() == BlockType.INITIAL_VALUES) else None
+        is_recordable = (node.is_recordable
+                         or self.block_type_stack.top() == BlockType.STATE
+                         or self.block_type_stack.top() == BlockType.INITIAL_VALUES)
+        init_value = node.get_expression() if self.block_type_stack.top() == BlockType.INITIAL_VALUES else None
         vector_parameter = node.get_size_parameter()
 
         # split the decorators in the AST up into namespace decorators and other decorators
@@ -532,7 +531,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def visit_inline_expression(self, node):
         """
         Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
-        :param node: a single inline expression..
+        :param node: a single inline expression.
         :type node: ASTInlineExpression
         """
         data_type_visitor = ASTDataTypeVisitor()
@@ -546,31 +545,31 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                 is_predefined=False, is_function=True,
                                 is_recordable=node.is_recordable,
                                 type_symbol=type_symbol,
-                                variable_type=VariableType.VARIABLE)    # XXX: function?
+                                variable_type=VariableType.VARIABLE)
         symbol.set_comment(node.get_comment())
         # now update the scopes
         node.get_scope().add_symbol(symbol)
         node.get_data_type().update_scope(node.get_scope())
         node.get_expression().update_scope(node.get_scope())
 
-    def visit_ode_shape(self, node):
+    def visit_kernel(self, node):
         """
-        Private method: Used to visit a single ode-shape, create the corresponding symbol and update the scope.
-        :param node: a single ode-shape.
-        :type node: ast_ode_shape
+        Private method: Used to visit a single kernel, create the corresponding symbol and update the scope.
+        :param node: a kernel.
+        :type node: ASTKernel
         """
         for var, expr in zip(node.get_variables(), node.get_expressions()):
             if var.get_differential_order() == 0 and \
-             node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
+                    node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE) is None:
                 symbol = VariableSymbol(element_reference=node, scope=node.get_scope(),
-                                    name=var.get_name(),
-                                    block_type=BlockType.EQUATION,
-                                    declaring_expression=expr,
-                                    is_predefined=False,
-                                    is_function=False,
-                                    is_recordable=True,
-                                    type_symbol=PredefinedTypes.get_real_type(),
-                                    variable_type=VariableType.SHAPE)
+                                        name=var.get_name(),
+                                        block_type=BlockType.EQUATION,
+                                        declaring_expression=expr,
+                                        is_predefined=False,
+                                        is_function=False,
+                                        is_recordable=True,
+                                        type_symbol=PredefinedTypes.get_real_type(),
+                                        variable_type=VariableType.KERNEL)
                 symbol.set_comment(node.get_comment())
                 node.get_scope().add_symbol(symbol)
             var.update_scope(node.get_scope())
@@ -670,12 +669,12 @@ def assign_ode_to_variables(ode_block):
     :type ode_block: ASTEquations
     """
     from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-    from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+    from pynestml.meta_model.ast_kernel import ASTKernel
     for decl in ode_block.get_declarations():
         if isinstance(decl, ASTOdeEquation):
             add_ode_to_variable(decl)
-        elif isinstance(decl, ASTOdeShape):
-            add_ode_shape_to_variable(decl)
+        elif isinstance(decl, ASTKernel):
+            add_kernel_to_variable(decl)
 
 
 def add_ode_to_variable(ode_equation):
@@ -684,12 +683,6 @@ def add_ode_to_variable(ode_equation):
     :param ode_equation: a single ode-equation
     :type ode_equation: ast_ode_equation
     """
-    # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
-    #diff_order = ode_equation.get_lhs().get_differential_order() - 1
-    # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-    #existing_symbol = (ode_equation.get_scope().resolve_to_symbol(ode_equation.get_lhs().get_name() + '\'' * diff_order,
-                                                                  #SymbolKind.VARIABLE))
-                                                                  
     for diff_order in range(ode_equation.get_lhs().get_differential_order()):
         var_name = ode_equation.get_lhs().get_name() + "'" * diff_order
         existing_symbol = ode_equation.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
@@ -697,43 +690,41 @@ def add_ode_to_variable(ode_equation):
         if existing_symbol is None:
             code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
             Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                           log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.ERROR)
             return
 
-        existing_symbol.set_ode_or_shape(ode_equation)
+        existing_symbol.set_ode_or_kernel(ode_equation)
 
         ode_equation.get_scope().update_variable_symbol(existing_symbol)
         code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
         Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
                            code=code, message=message, log_level=LoggingLevel.INFO)
 
-    return
 
+def add_kernel_to_variable(kernel):
+    """
+    Adds the kernel as the defining equation.
 
-def add_ode_shape_to_variable(shape):
+    If the definition of the kernel is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
+
+    :param kernel: a single kernel object.
+    :type kernel: ASTKernel
     """
-    Adds the shape as the defining equation.
-    
-    If the definition of the shape is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their shape definition and variable type set.
-    
-    :param shape: a single shape object.
-    :type shape: ASTOdeShape
-    """
-    if len(shape.get_variables()) == 1 \
-     and shape.get_variables()[0].get_differential_order() == 0:
+    if len(kernel.get_variables()) == 1 \
+            and kernel.get_variables()[0].get_differential_order() == 0:
         # we only update those which define an ODE; skip "direct function of time" specifications
         return
-    
-    for var, expr in zip(shape.get_variables(), shape.get_expressions()):
+
+    for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
         for diff_order in range(var.get_differential_order()):
             var_name = var.get_name() + "'" * diff_order
-            existing_symbol = shape.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
+            existing_symbol = kernel.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
 
             if existing_symbol is None:
                 code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
-                Logger.log_message(code=code, message=message, error_position=shape.get_source_position(), log_level=LoggingLevel.ERROR)
+                Logger.log_message(code=code, message=message, error_position=kernel.get_source_position(), log_level=LoggingLevel.ERROR)
                 return
 
-            existing_symbol.set_ode_or_shape(expr)
-            existing_symbol.set_variable_type(VariableType.SHAPE)
-            shape.get_scope().update_variable_symbol(existing_symbol)
+            existing_symbol.set_ode_or_kernel(expr)
+            existing_symbol.set_variable_type(VariableType.KERNEL)
+            kernel.get_scope().update_variable_symbol(existing_symbol)

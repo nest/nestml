@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# CoCoEachBlockUnique.py
+# co_co_each_neuron_block_unique_and_defined.py
 #
 # This file is part of NEST.
 #
@@ -25,9 +26,12 @@ from pynestml.utils.messages import Messages
 
 class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
     """
-    This context condition ensures that each block is defined at most once, and that all required blocks are present.
+    This context condition ensures that each block is defined at most once.
+
     Not allowed:
+
     .. code:: nestml
+
        state:
            ...
        end
@@ -50,17 +54,9 @@ class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
             code, message = Messages.get_block_not_defined_correctly('State', False)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        # check that update block is defined exactly once
+        # check that update block is defined at most once
         if isinstance(node.get_update_blocks(), list) and len(node.get_update_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('Update', False)
-            Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        elif node.get_update_blocks() is None:
-            code, message = Messages.get_block_not_defined_correctly('Update', True)
-            Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        elif isinstance(node.get_update_blocks(), list) and len(node.get_update_blocks()) == 0:
-            code, message = Messages.get_block_not_defined_correctly('Update', True)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         # check that parameters block is defined at most once
@@ -78,7 +74,7 @@ class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
             code, message = Messages.get_block_not_defined_correctly('Equations', False)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        # check that input block is defined exactly once
+        # check that input block is defined at most once
         if isinstance(node.get_input_blocks(), list) and len(node.get_input_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('Input', False)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
@@ -86,12 +82,12 @@ class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
         elif isinstance(node.get_input_blocks(), list) and len(node.get_input_blocks()) == 0:
             code, message = Messages.get_block_not_defined_correctly('Input', True)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.WARNING)
         elif node.get_input_blocks() is None:
             code, message = Messages.get_block_not_defined_correctly('Input', True)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        # check that output block is defined exactly once
+                               log_level=LoggingLevel.WARNING)
+        # check that output block is defined at most once
         if isinstance(node.get_output_blocks(), list) and len(node.get_output_blocks()) > 1:
             code, message = Messages.get_block_not_defined_correctly('Output', False)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
@@ -99,9 +95,8 @@ class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
         elif isinstance(node.get_output_blocks(), list) and len(node.get_output_blocks()) == 0:
             code, message = Messages.get_block_not_defined_correctly('Output', True)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.WARNING)
         elif node.get_output_blocks() is None:
             code, message = Messages.get_block_not_defined_correctly('Output', True)
             Logger.log_message(code=code, message=message, astnode=node, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-        return
+                               log_level=LoggingLevel.WARNING)

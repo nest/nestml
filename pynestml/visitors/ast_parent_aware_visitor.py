@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_parent_aware_visitor.py
 #

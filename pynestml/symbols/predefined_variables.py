@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # predefined_variables.py
 #
@@ -23,7 +24,7 @@ from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, Variable
 
 class PredefinedVariables(object):
     """
-    This class is used to store all predefined variables as generally available. 
+    This class is used to store all predefined variables as generally available.
     """
     name2variable = {}  # type: dict -> VariableSymbol
     E_CONSTANT = 'e'  # type: str
@@ -76,7 +77,7 @@ class PredefinedVariables(object):
     @classmethod
     def get_time_constant(cls):
         """
-        Returns a copy of the variable symbol representing the time constant t.    
+        Returns a copy of the variable symbol representing the time constant t.
         :return: a variable symbol.
         :rtype: VariableSymbol
         """
@@ -85,7 +86,7 @@ class PredefinedVariables(object):
     @classmethod
     def get_euler_constant(cls):
         """
-        Returns a copy of the variable symbol representing the euler constant t.    
+        Returns a copy of the variable symbol representing the euler constant t.
         :return: a variable symbol.
         :rtype: VariableSymbol
         """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_function_call_visitor.py
 #
@@ -98,7 +99,7 @@ class ASTFunctionCallVisitor(ASTVisitor):
             return
 
         if isinstance(method_symbol.get_return_type(), VoidTypeSymbol):
-            # todo by KP: the error message is not used here, @ptraeder fix this
+            # todo: the error message is not used here, fix this
             # error_msg = ErrorStrings.message_void_function_on_rhs(self, function_name, node.get_source_position())
             node.type = ErrorTypeSymbol()
             return

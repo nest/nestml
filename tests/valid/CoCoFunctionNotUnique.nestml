@@ -26,7 +26,6 @@
 */
 
 neuron CoCoFunctionNotUnique:
-
     function deltaNew(Tau_a ms,Tau_b ms) real: # deltaNew is not predefined, thus everything is correct
         test real = 1
         return test # correctly type return type is given
@@ -46,15 +45,4 @@ neuron CoCoFunctionNotUnique:
         end
         # all branches of the final statement have a return statement, thus everything is correct
     end
-
-    input:
-        # in order to generate an ast
-    end
-
-    output: spike
-
-    update:
-        # in order to generate an ast
-    end
-
 end

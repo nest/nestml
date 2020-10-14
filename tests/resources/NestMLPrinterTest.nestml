@@ -47,9 +47,9 @@ neuron aeif_cond_alpha_implicit:
     inline V_bounded mV = min(0,1) # inline in
     /*inline post*/
 
-    /*shape pre*/
-    shape V_M'' = 1 # shape in
-    /*shape post*/
+    /*kernel pre*/
+    kernel V_M'' = 1 # kernel in
+    /*kernel post*/
 
     /*ode pre*/
     V_m'= 1 # ode in

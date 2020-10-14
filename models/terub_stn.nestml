@@ -1,42 +1,35 @@
 """
-Name: terub_stn - Terman Rubin neuron model.
+terub_stn - Terman Rubin neuron model
+#####################################
 
-Description:
+Description
++++++++++++
 
-  terub_stn is an implementation of a spiking neuron using the Terman Rubin model
-  based on the Hodgkin-Huxley formalism.
+terub_stn is an implementation of a spiking neuron using the Terman Rubin model
+based on the Hodgkin-Huxley formalism.
 
-  (1) Post-syaptic currents
-  Incoming spike events induce a post-synaptic change of current modelled
-  by an alpha function. The alpha function is normalised such that an event of
-  weight 1.0 results in a peak current of 1 pA.
+(1) **Post-syaptic currents:** Incoming spike events induce a post-synaptic change of current modelled
+    by an alpha function. The alpha function is normalised such that an event of
+    weight 1.0 results in a peak current of 1 pA.
 
-
-  (2) Spike Detection
-  Spike detection is done by a combined threshold-and-local-maximum search: if there
-  is a local maximum above a certain threshold of the membrane potential, it is considered a spike.
-
-Problems/Todo:
-
-  better spike detection
-
-References:
-  Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J.
-  Activity Patterns in a Model for the Subthalamopallidal Network
-  of the Basal Ganglia
-  The Journal of Neuroscience, 22(7), 2963-2976 (2002)
-
-  Rubin, J.E. and Terman, D.
-  High Frequency Stimulation of the Subthalamic Nucleus Eliminates
-  Pathological Thalamic Rhythmicity in a Computational Model
-  Journal of Computational Neuroscience, 16, 211-235 (2004)
+(2) **Spike Detection:** Spike detection is done by a combined threshold-and-local-maximum search: if there
+    is a local maximum above a certain threshold of the membrane potential, it is considered a spike.
 
 
-Sends: SpikeEvent
+References
+++++++++++
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+.. [1] Terman, D. and Rubin, J.E. and Yew, A.C. and Wilson, C.J. Activity Patterns in a Model for the Subthalamopallidal Network
+       of the Basal Ganglia. The Journal of Neuroscience, 22(7), 2963-2976 (2002)
 
-Author: Martin Ebert
+.. [2] Rubin, J.E. and Terman, D. High Frequency Stimulation of the Subthalamic Nucleus Eliminates
+       Pathological Thalamic Rhythmicity in a Computational Model Journal of Computational Neuroscience, 16, 211-235 (2004)
+
+
+Author
+++++++
+
+Martin Ebert
 """
 neuron terub_stn:
   state:
@@ -132,9 +125,9 @@ neuron terub_stn:
 
     # synapses: alpha functions
     ## alpha function for the g_in
-    shape g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+    kernel g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     ## alpha function for the g_ex
-    shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+    kernel g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
   end
 
   parameters:
@@ -145,8 +138,8 @@ neuron terub_stn:
     g_Na       nS = 37.5 nS # Sodium peak conductance.
     E_K        mV = -80.0 mV# Potassium reversal potential.
     g_K        nS = 45.0 nS # Potassium peak conductance.
-    E_Ca       mV = 120 mV  # Calcium reversal potential.
-    g_Ca       nS = 140 nS  # Calcium peak conductance.
+    E_Ca       mV = 140 mV  # Calcium reversal potential.
+    g_Ca       nS = 0.5 nS  # Calcium peak conductance.
     g_T        nS = 0.5 nS  # T-type Calcium channel peak conductance.
     g_ahp      nS = 9 nS    # afterpolarization current peak conductance.
     tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.

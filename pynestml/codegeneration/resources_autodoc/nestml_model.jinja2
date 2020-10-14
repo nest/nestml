@@ -1,0 +1,63 @@
+{{ neuronName }}
+{% for i in range(neuronName | length) %}#{%- endfor %}
+
+{{ neuron.print_comment() | trim }}
+
+
+Parameters
+++++++++++
+
+{{ neuron.print_parameter_comment() }}
+
+{% with block = neuron.get_parameter_blocks() %}
+{%- include "block_decl_table.jinja2" %}
+{% endwith %}
+
+
+
+State variables
++++++++++++++++
+
+{% with block = neuron.get_initial_blocks() %}
+{%- include "block_decl_table.jinja2" %}
+{% endwith %}
+
+
+
+Equations
++++++++++
+
+{% with block = neuron.get_equations_block() %}
+{% for eq in block.get_ode_equations() %}
+
+.. math::
+{%- if eq.get_lhs().differential_order == 1 %}
+   \frac{ d{{ printer.print_expression(eq.get_lhs()) | replace("'", "") }} } { dt }
+{%- elif eq.get_lhs().differential_order > 1 %}
+   \frac{ d^{{ eq.get_lhs().differential_order }} {{ printer.print_expression(eq.get_lhs()) | replace("'", "") }} } { dt^{{ eq.get_lhs().differential_order }} }
+{%- else %} {# differential_order == 0 #}
+   {{ eq.get_lhs().get_name() }}
+{%- endif -%}
+   = {{ printer.print_expression(eq.get_rhs()) }}
+{% endfor %}
+{% endwith %}
+
+
+
+Source code
++++++++++++
+
+.. code-block:: nestml
+
+{{ neuron_source_code }}
+
+
+Characterisation
+++++++++++++++++
+
+.. include:: {{neuronName}}_characterisation.rst
+
+
+.. footer::
+
+   Generated at {{ now }}

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_comparison_operator.py
 #
@@ -77,20 +78,20 @@ class ASTComparisonOperator(ASTNode):
         :rtype: ASTComparisonOperator
         """
         dup = ASTComparisonOperator(is_lt=self.is_lt,
-         is_le=self.is_le,
-         is_eq=self.is_eq,
-         is_ne=self.is_ne,
-         is_ne2=self.is_ne2,
-         is_ge=self.is_ge,
-         is_gt=self.is_gt,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                    is_le=self.is_le,
+                                    is_eq=self.is_eq,
+                                    is_ne=self.is_ne,
+                                    is_ne2=self.is_ne2,
+                                    is_ge=self.is_ge,
+                                    is_gt=self.is_gt,
+                                    # ASTNode common attriutes:
+                                    source_position=self.source_position,
+                                    scope=self.scope,
+                                    comment=self.comment,
+                                    pre_comments=[s for s in self.pre_comments],
+                                    in_comment=self.in_comment,
+                                    post_comments=[s for s in self.post_comments],
+                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -114,6 +115,6 @@ class ASTComparisonOperator(ASTNode):
         """
         if not isinstance(other, ASTComparisonOperator):
             return False
-        return (self.is_lt == other.is_lt and self.is_le == other.is_le and
-                self.is_eq == other.is_eq and self.is_ne == other.is_ne and
-                self.is_ne2 == other.is_ne2 and self.is_ge == other.is_ge and self.is_gt == other.is_gt)
+        return (self.is_lt == other.is_lt and self.is_le == other.is_le
+                and self.is_eq == other.is_eq and self.is_ne == other.is_ne
+                and self.is_ne2 == other.is_ne2 and self.is_ge == other.is_ge and self.is_gt == other.is_gt)

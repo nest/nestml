@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # cocos_test.py
 #
@@ -98,7 +99,7 @@ class CoCosTest(unittest.TestCase):
                          'CoCoVariableWithSameNameAsUnit.nestml'))
         self.assertEqual(
             len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.WARNING)),
-            1)
+            3)
 
     def test_invalid_variable_redeclaration(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -109,7 +110,7 @@ class CoCosTest(unittest.TestCase):
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
     def test_valid_variable_redeclaration(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoVariableRedeclared.nestml'))
@@ -117,7 +118,7 @@ class CoCosTest(unittest.TestCase):
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
     def test_invalid_each_block_unique(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoEachBlockUnique.nestml'))
@@ -125,7 +126,7 @@ class CoCosTest(unittest.TestCase):
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_each_block_unique(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoEachBlockUnique.nestml'))
@@ -133,7 +134,7 @@ class CoCosTest(unittest.TestCase):
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
     def test_invalid_function_unique_and_defined(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionNotUnique.nestml'))
@@ -141,7 +142,7 @@ class CoCosTest(unittest.TestCase):
             len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
 
     def test_valid_function_unique_and_defined(self):
-        Logger.set_logging_level(LoggingLevel.NO)
+        Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoFunctionNotUnique.nestml'))
@@ -216,7 +217,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 1)
+                                                                            LoggingLevel.ERROR)), 2)
 
     def test_valid_numerator_of_unit_one(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -292,7 +293,7 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoCurrentBufferTypeSpecified.nestml'))
+                         'CoCoCurrentBufferQualifierSpecified.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
@@ -300,7 +301,7 @@ class CoCosTest(unittest.TestCase):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoCurrentBufferTypeSpecified.nestml'))
+                         'CoCoCurrentBufferQualifierSpecified.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
@@ -310,7 +311,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSpikeBufferWithoutType.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
 
     def test_valid_spike_buffer_without_datatype(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -350,7 +351,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.WARNING)), 0)
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.WARNING)), 2)
 
     def test_invalid_incorrect_return_stmt_detected(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -390,7 +391,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 4)
+                                                                            LoggingLevel.ERROR)), 3)
 
     def test_valid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -416,19 +417,19 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_invalid_sum_correctly_parameterized(self):
+    def test_invalid_convolve_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoSumNotCorrectlyParametrized.nestml'))
+                         'CoCoConvolveNotCorrectlyParametrized.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-    def test_valid_sum_correctly_parameterized(self):
+    def test_valid_convolve_correctly_parameterized(self):
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoSumNotCorrectlyParametrized.nestml'))
+                         'CoCoConvolveNotCorrectlyParametrized.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
                                                                             LoggingLevel.ERROR)), 0)
 
@@ -463,3 +464,79 @@ class CoCosTest(unittest.TestCase):
                          'CoCoIllegalExpression.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_ode_correctly_typed(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoOdeIncorrectlyTyped.nestml'))
+        self.assertTrue(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
+                                                                           LoggingLevel.ERROR)) > 0)
+
+    def test_valid_ode_correctly_typed(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoOdeCorrectlyTyped.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_output_block_defined_if_emit_call(self):
+        """test that an error is raised when the emit_spike() function is called by the neuron, but an output block is not defined"""
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoOutputPortDefinedIfEmitCall.nestml'))
+        self.assertTrue(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
+                                                                           LoggingLevel.ERROR)) > 0)
+
+    def test_invalid_output_port_defined_if_emit_call(self):
+        """test that an error is raised when the emit_spike() function is called by the neuron, but a spiking output port is not defined"""
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoOutputPortDefinedIfEmitCall-2.nestml'))
+        self.assertTrue(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
+                                                                           LoggingLevel.ERROR)) > 0)
+
+    def test_valid_output_port_defined_if_emit_call(self):
+        """test that no error is raised when the output block is missing, but not emit_spike() functions are called"""
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoOutputPortDefinedIfEmitCall.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_valid_coco_kernel_type(self):
+        """
+        Test the functionality of CoCoKernelType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoKernelType.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_coco_kernel_type(self):
+        """
+        Test the functionality of CoCoKernelType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoKernelType.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+
+    def test_invalid_coco_kernel_type_initial_values(self):
+        """
+        Test the functionality of CoCoKernelType.
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoKernelTypeInitialValues.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)

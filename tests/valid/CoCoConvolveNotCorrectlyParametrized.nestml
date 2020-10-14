@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoSumNotCorrectlyParametrized.nestml
+ *  CoCoConvolveNotCorrectlyParametrized.nestml
  *
  *  This file is part of NEST.
  *
@@ -25,24 +25,23 @@
  * Positive case.
 */
 
-neuron CoCoSumNotCorrectlyParametrized:
+neuron CoCoConvolveNotCorrectlyParametrized:
+
+    parameters:
+        tau ms = 20 ms
+    end
 
     initial_values:
-        V_m mV = 10 mV
+        G real = 1.
     end
 
     equations:
-        shape V_m' = 20 mV
-        inline testB pA = convolve(V_m, spikeExc) # convolve aka. sum is now correctly parametrized
-    end
-
-    update:
-        # required for creation of a correct ast
+        kernel G' = -G / tau
+        inline testB pA = convolve(G, spikeExc)   # convolve is now correctly parametrized
     end
 
     input:
-        spikeExc integer  <- excitatory spike
+        spikeExc pA <- excitatory spike
     end
-
-    output: spike
 end
+

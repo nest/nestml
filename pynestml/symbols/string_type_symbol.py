@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # string_type_symbol.py
 #

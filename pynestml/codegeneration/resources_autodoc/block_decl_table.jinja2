@@ -1,0 +1,24 @@
+.. csv-table::
+    :header: "Name", "Physical unit", "Default value", "Description"
+    :widths: auto
+
+{% macro comments(decl) %}
+{%- for pre_comment in decl.pre_comments %}
+{%-   if pre_comment -%}
+{{ pre_comment | trim }}
+{%-   endif %}
+{%- endfor %}
+{%- if decl.in_comment -%}
+{{ decl.in_comment | trim }}
+{%- endif %}
+{%- endmacro %}
+
+{%- for decl in block.get_declarations() %}
+{%- for v in decl.get_variables() %}
+
+{%- set _name = v.get_name() %}
+{%- set _type_symbol = v.get_type_symbol().get_value().print_symbol() %}    {# XXX: can also use decl.get_data_type() #}
+{%- set _default = decl.get_expression() %}
+    "{{ _name }}", "{{ _type_symbol }}", "{{ _default }}", "{{ comments(decl) | replace('\\', '\\\\') | replace('"', '""') | replace('|', '\\|') | indent }}"
+{%- endfor %}
+{%- endfor %}

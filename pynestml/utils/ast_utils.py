@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_utils.py
 #
@@ -17,6 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Optional
+
+from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -471,3 +477,16 @@ class ASTUtils(object):
         neuron.get_state_blocks().get_declarations().append(declaration)
         return
 
+    @classmethod
+    def get_declaration_by_name(cls, block: ASTBlock, var_name: str) -> Optional[ASTDeclaration]:
+        """
+        Get a declaration by variable name.
+        :param block: the block to look for the variable in
+        :param var_name: name of the variable to look for (including single quotes indicating differential order)
+        """
+        decls = block.get_declarations()
+        for decl in decls:
+            for var in decl.get_variables():
+                if var.get_complete_name() == var_name:
+                    return decl
+        return None

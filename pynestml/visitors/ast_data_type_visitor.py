@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_data_type_visitor.py
 #
@@ -30,6 +31,7 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
 from pynestml.visitors.ast_visitor import ASTVisitor
+
 
 class ASTDataTypeVisitor(ASTVisitor):
     """
@@ -67,7 +69,7 @@ class ASTDataTypeVisitor(ASTVisitor):
             node.set_type_symbol(self.symbol)
 
     def endvisit_data_type(self, node):
-        if node.is_unit_type() and not node.get_unit_type().get_type_symbol() is None:
+        if node.is_unit_type() and node.get_unit_type().get_type_symbol() is not None:
             node.set_type_symbol(node.get_unit_type().get_type_symbol())
         if self.symbol is not None:
             self.result = self.symbol.get_symbol_name()
@@ -78,7 +80,7 @@ class ASTDataTypeVisitor(ASTVisitor):
 
     def visit_unit_type(self, node):
         """
-        Visits a single unit type element, checks for correct usage of units and builds the corresponding combined 
+        Visits a single unit type element, checks for correct usage of units and builds the corresponding combined
         unit.
         :param node: a single unit type meta_model.
         :type node: ASTUnitType
@@ -91,7 +93,7 @@ class ASTDataTypeVisitor(ASTVisitor):
                 code, message = Messages.unknown_type(str(node.unit))
                 Logger.log_message(None, code, message, node.get_source_position(), LoggingLevel.ERROR)
                 return
-                
+
             node.set_type_symbol(type_s)
             self.symbol = type_s
 

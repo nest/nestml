@@ -1,0 +1,7 @@
+type: sphinx
+configuration: doc/sphinx-apidoc/conf.py
+python:
+    version: 3
+    requirements_file: requirements.txt
+formats:
+    - none

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_printer.py
 #
@@ -49,7 +50,7 @@ from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -65,6 +66,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
+
 
 class NestPrinter(object):
     """
@@ -139,8 +141,8 @@ class NestPrinter(object):
             ret = self.print_ode_equation(node)
         if isinstance(node, ASTInlineExpression):
             ret = self.print_inline_expression(node)
-        if isinstance(node, ASTOdeShape):
-            ret = self.print_ode_shape(node)
+        if isinstance(node, ASTKernel):
+            ret = self.print_kernel(node)
         if isinstance(node, ASTOutputBlock):
             ret = self.print_output_block(node)
         if isinstance(node, ASTParameter):
@@ -164,7 +166,7 @@ class NestPrinter(object):
         if isinstance(node, ASTStmt):
             ret = self.print_stmt(node)
         return ret
-    
+
     def print_assignment(self, node, prefix=""):
         # type: (ASTAssignment) -> str
         ret = self.print_node(node.lhs) + ' '
@@ -179,7 +181,7 @@ class NestPrinter(object):
         else:
             ret += '='
         ret += ' ' + self.print_node(node.rhs)
-        return ret        
+        return ret
 
     def print_variable(self, node):
         # type: (ASTVariable) -> str
@@ -297,7 +299,8 @@ class NestPrinter(object):
             else:
                 raise RuntimeError('Unexpected output type. Must be current or spike, is %s.' % str(output))
         else:
-            return 'none'
+            # no output port defined in the model: pretend dummy spike output port to obtain usable model
+            return 'nest::SpikeEvent'
 
     @classmethod
     def print_buffer_initialization(cls, variable_symbol):
@@ -369,7 +372,7 @@ class NestPrinter(object):
         for typeSym in function_symbol.get_parameter_types():
             # create the type name combination, e.g. double Tau
             declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
-                            params[function_symbol.get_parameter_types().index(typeSym)]
+                params[function_symbol.get_parameter_types().index(typeSym)]
             # if not the last component, separate by ','
             if function_symbol.get_parameter_types().index(typeSym) < \
                     len(function_symbol.get_parameter_types()) - 1:

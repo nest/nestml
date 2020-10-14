@@ -1,19 +1,38 @@
-"""
-wb_cond_exp_test.py
-"""
+# -*- coding: utf-8 -*-
+#
+# wb_cond_exp_test.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+try:
+    import matplotlib as mpl
+    mpl.use('agg')
+    import matplotlib.pyplot as plt
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
+
 
 import os
 import nest
 import unittest
 import numpy as np
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-
-try:
-    import matplotlib
-    import matplotlib.pyplot as plt
-    TEST_PLOTS = True
-except:
-    TEST_PLOTS = False
 
 
 class NestWBCondExpTest(unittest.TestCase):
@@ -38,7 +57,7 @@ class NestWBCondExpTest(unittest.TestCase):
 
         install_nest(target_path, nest_path)
 
-        nest.Install("nestmlmodule")
+        nest.Install(module_name)
         model = "wb_cond_exp_nestml"
 
         dt = 0.01
@@ -69,10 +88,7 @@ class NestWBCondExpTest(unittest.TestCase):
         expected_value = np.abs(firing_rate - 50)
         tolerance_value = 5  # Hz
 
-        self.assertLessEqual(expected_value, tolerance_value)
-
         if TEST_PLOTS:
-
             fig, ax = plt.subplots(2, figsize=(8, 6), sharex=True)
             ax[0].plot(tv, Voltages, lw=2, color="k")
             ax[1].plot(ts, spikes, 'ko')
@@ -87,6 +103,8 @@ class NestWBCondExpTest(unittest.TestCase):
 
             plt.savefig("resources/wb_cond_exp.png")
             # plt.show()
+
+        self.assertLessEqual(expected_value, tolerance_value)
 
 
 if __name__ == "__main__":

@@ -33,14 +33,4 @@ neuron CoCoOdeVarNotInInitialValues:
     equations:
         V_m' = 10 mV / s
     end
-
-    update:
-        # required for creation of a correct ast
-    end
-
-    input:
-        # required for creation of a correct ast
-    end
-
-    output: spike
 end

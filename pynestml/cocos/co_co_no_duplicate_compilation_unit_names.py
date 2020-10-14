@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_no_duplicate_compilation_unit_names.py
 #

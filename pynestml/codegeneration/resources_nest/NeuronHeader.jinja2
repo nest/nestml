@@ -394,7 +394,7 @@ public:
   /* getters/setters for initial values block (excluding functions) */
 
   {%- for init in neuron.get_non_function_initial_values_symbols() %}
-  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- with variable = init %}
   {%- include "directives/MemberVariableGetterSetter.jinja2" %}
   {%- endwith %}
@@ -542,7 +542,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
   {%- for state in neuron.get_state_non_alias_symbols() %}
   {%- with variable = state %}
   {%- filter indent(2,True) %}
@@ -551,10 +551,10 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
   {%- for init in neuron.get_initial_values_non_alias_symbols() %}
   {%- with variable = init %}
-  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- filter indent(2,True) %}
   {%- include "directives/WriteInDictionary.jinja2" %}
   {%- endfilter %}
@@ -592,7 +592,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
   {%- for state in neuron.get_state_non_alias_symbols() %}
   {%- with variable = state %}
   {%- filter indent(2,True) %}
@@ -601,10 +601,10 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
   {%- for init in neuron.get_initial_values_non_alias_symbols() %}
   {%- with variable = init %}
-  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- filter indent(2,True) %}
   {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
   {%- endfilter %}
@@ -637,7 +637,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
 
   {%- for init in neuron.get_initial_values_non_alias_symbols() %}
   {%- with variable = init %}
-  {%- if not is_delta_shape(neuron.get_shape_by_name(init.name)) %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- filter indent(2,True) %}
   {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
   {%- endfilter %}
