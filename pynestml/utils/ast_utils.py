@@ -19,11 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Optional, Union
 
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
+from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -143,14 +145,11 @@ class ASTUtils(object):
         return function_call.get_name() == PredefinedFunctions.GET_NN_POST_TRACE
 
     @classmethod
-    def is_spike_input(cls, body):
-        # type: (ASTNeuronBody or ASTSynapseeBody) -> bool
+    def is_spike_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
         """
         Checks if the handed over neuron contains a spike input buffer.
         :param body: a single body element.
-        :type body: ast_body
         :return: True if spike buffer is contained, otherwise false.
-        :rtype: bool
         """
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
@@ -159,7 +158,7 @@ class ASTUtils(object):
         return False
 
     @classmethod
-    def is_current_input(cls, body):
+    def is_current_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
         """
         Checks if the handed over neuron contains a current input buffer.
         :param body: a single body element.

@@ -56,9 +56,11 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -81,6 +83,19 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 #from pynestml.visitors.ast_symbol_table_visitor import assign_ode_to_variables
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
+
+def get_input_port_by_name(input_block, port_name):
+    for input_port in input_block.get_input_ports():
+        if input_port.name == port_name:
+            return input_port
+    return None
+
+def get_parameter_by_name(parameters_block, var_name):
+    for decl in parameters_block.get_declarations():
+        for var in decl.get_variables():
+            if var.get_name() == var_name:
+                return decl
+    return None
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -402,7 +417,7 @@ class NESTCodeGenerator(CodeGenerator):
                             vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
                         elif type(decl) is ASTOdeEquation:
                             vars_used.extend(collect_variable_names_in_expression(decl.get_rhs()))
-                        elif type(decl) is ASTOdeShape:
+                        elif type(decl) is ASTKernel:
                             for expr in decl.get_expressions():
                                 vars_used.extend(collect_variable_names_in_expression(expr))
                         else:
@@ -507,7 +522,7 @@ class NESTCodeGenerator(CodeGenerator):
                             vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
                         elif type(decl) is ASTOdeEquation:
                             vars_used.extend(collect_variable_names_in_expression(decl.get_rhs()))
-                        elif type(decl) is ASTOdeShape:
+                        elif type(decl) is ASTKernel:
                             for expr in decl.get_expressions():
                                 vars_used.extend(collect_variable_names_in_expression(expr))
                         else:
@@ -777,7 +792,9 @@ class NESTCodeGenerator(CodeGenerator):
         return neurons, synapses
 
 
-    def generate_code(self, neurons):
+    def generate_code(self, neurons, synapses):
+        if self._options and "neuron_synapse_dyads" in self._options:
+            neurons, synapses = self.analyse_transform_neuron_synapse_dyads(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -1011,6 +1028,19 @@ class NESTCodeGenerator(CodeGenerator):
 
         return spike_updates
 
+    def analyse_synapse(self, synapse):
+        # type: (ASTsynapse) -> None
+        """
+        Analyse and transform a single synapse.
+        :param synapse: a single synapse.
+        """
+        code, message = Messages.get_start_processing_synapse(synapse.get_name())
+        Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
+
+        self.add_timestep_symbol(synapse)
+
+        return []
+
     def generate_neuron_code(self, neuron):
         # type: (ASTNeuron) -> None
         """
@@ -1022,6 +1052,15 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_neuron_h_file(neuron)
         self.generate_neuron_cpp_file(neuron)
 
+    def generate_neuron_cpp_file(self, neuron):
+        # type: (ASTNeuron) -> None
+        """
+        For a handed over neuron, this method generates the corresponding implementation file.
+        :param neuron: a single neuron object.
+        """
+        neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_neuron_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
+            f.write(str(neuron_cpp_file))
 
     def generate_synapse_code(self, synapse):
         # type: (ASTsynapse) -> None
@@ -1082,9 +1121,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
         namespace['idemPrinter'] = UnitlessExpressionPrinter()
-        namespace['outputEvent'] = namespace['printer'].print_output_event(synapse.get_body())
-        namespace['is_spike_input'] = ASTUtils.is_spike_input(synapse.get_body())
-        namespace['is_current_input'] = ASTUtils.is_current_input(synapse.get_body())
         namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
@@ -1116,7 +1152,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['uses_numeric_solver'] = synapse.get_name() in self.analytic_solver.keys() \
             and self.numeric_solver[synapse.get_name()] is not None
         if namespace['uses_numeric_solver']:
-            namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
+            namespace['numeric_state_variables'] = self.numeric_solver[synapse.get_name()]["state_variables"]
             namespace['numeric_variable_symbols'] = {sym: synapse.get_equations_block().get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']}
             assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
@@ -1124,10 +1160,10 @@ class NESTCodeGenerator(CodeGenerator):
             for sym, expr in self.numeric_solver[synapse.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             for sym in namespace['numeric_state_variables']:
-                expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
+                expr_str = self.numeric_solver[synapse.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
-                expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
+                expr_ast.update_scope(synapse.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['numeric_update_expressions'][sym] = expr_ast
 
@@ -1142,6 +1178,12 @@ class NESTCodeGenerator(CodeGenerator):
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         synapse.accept(rng_visitor)
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
+
+        namespace["PyNestMLLexer"] = {}
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+        for kw in dir(PyNestMLLexer):
+            if kw.isupper():
+                namespace["PyNestMLLexer"][kw] = eval("PyNestMLLexer." + kw)
 
         return namespace
 

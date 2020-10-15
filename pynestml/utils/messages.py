@@ -435,7 +435,7 @@ class Messages(object):
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (neuron_name is not None and isinstance(model_name, str)), \
+        assert (model_name is not None and isinstance(model_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)

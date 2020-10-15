@@ -22,13 +22,15 @@
 from typing import List, Sequence
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
+from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CodeGenerator():
+class CodeGenerator:
 
     def __init__(self, target, options=None):
         if not target.upper() in self.get_known_targets():
@@ -46,7 +48,7 @@ class CodeGenerator():
         targets = [s.upper() for s in targets]
         return targets
 
-    def generate_neurons(self, neurons: List[ASTNeuron]):
+    def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
         """
         Generate code for the given neurons.
 
@@ -73,8 +75,6 @@ class CodeGenerator():
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
-
-def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
 
     def generate_code(self, neurons, synapses):
         if self._target == "NEST":

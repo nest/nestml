@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# ast_neuron.py
+# ast_neuron_or_synapse.py
 #
 # This file is part of NEST.
 #
@@ -20,12 +21,11 @@
 
 from typing import Optional
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
@@ -594,15 +594,14 @@ class ASTNeuronOrSynapse(ASTNode):
         assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
         assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
 
-    def add_shape(self, shape):
-        # type: (ASTOdeShape) -> None
+    def add_kernel(self, kernel: ASTKernel) -> None:
         """
         Adds the handed over declaration to the initial values block.
-        :param shape: a single declaration.
+        :param kernel: a single declaration.
         """
         assert self.get_equations_block() is not None
-        self.get_equations_block().get_declarations().append(shape)
-        shape.update_scope(self.get_equations_blocks().get_scope())
+        self.get_equations_block().get_declarations().append(kernel)
+        kernel.update_scope(self.get_equations_blocks().get_scope())
 
     """
     The following print methods are used by the backend and represent the comments as stored at the corresponding 
@@ -712,31 +711,31 @@ class ASTNeuronOrSynapse(ASTNode):
 
         return None
 
-    def get_shape_by_name(self, shape_name) -> Optional[ASTOdeShape]:
-        assert type(shape_name) is str
-        shape_name = shape_name.split("__X__")[0]
+    def get_kernel_by_name(self, kernel_name) -> Optional[ASTKernel]:
+        assert type(kernel_name) is str
+        kernel_name = kernel_name.split("__X__")[0]
 
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
-                #print("Is shape " + str(shape_name) + "? YES")
+            if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
+                #print("Is kernel " + str(kernel_name) + "? YES")
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                #print("Is shape " + str(shape_name) + "? YES2")
+            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                #print("Is kernel " + str(kernel_name) + "? YES2")
                 return decl
 
         return None
 
 
-    def get_all_shapes(self):
-        shapes = []
+    def get_all_kernels(self):
+        kernels = []
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape:
-                shapes.append(decl)
-        return shapes
+            if type(decl) is ASTKernel:
+                kernels.append(decl)
+        return kernels
 
 
 

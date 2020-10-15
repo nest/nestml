@@ -281,7 +281,7 @@ class NestPrinter(object):
     @classmethod
     def print_output_event(cls, ast_body):
         """
-        For the handed over neuron, this operations checks of output event shall be preformed.
+        For the handed over neuron, print its defined output type.
         :param ast_body: a single neuron body
         :type ast_body: ASTNeuronBody
         :return: the corresponding representation of the event

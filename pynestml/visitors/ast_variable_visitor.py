@@ -61,7 +61,6 @@ class ASTVariableVisitor(ASTVisitor):
                 node.type = var_resolve
                 node.type.referenced_object = node
             else:
-                import pdb;pdb.set_trace()
                 message = 'Variable ' + str(node) + ' could not be resolved!'
                 Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
                                    error_position=node.get_source_position(),

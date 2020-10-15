@@ -230,7 +230,7 @@ private:
   /* getters/setters for initial values block (excluding functions) */
 
 {%- for init in synapse.get_non_function_initial_values_symbols() %}
-{%-   if not is_delta_shape(synapse.get_shape_by_name(init.name)) %}
+{%-   if not is_delta_kernel(synapse.get_kernel_by_name(init.name)) %}
 {%-       with variable = init %}
 {%-           include "directives/MemberVariableGetterSetter.jinja2" %}
 {%-       endwith %}
@@ -652,7 +652,7 @@ void
 {%- endif %}
 {%- endfor %}
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
 {%- for state in synapse.get_state_non_alias_symbols() %}
 {%-     with variable = state %}
 {%-         filter indent(2,True) %}
@@ -661,10 +661,10 @@ void
 {%-     endwith %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
 {%- for init in synapse.get_initial_values_non_alias_symbols() %}
 {%-     with variable = init %}
-{%-     if not is_delta_shape(synapse.get_shape_by_name(init.name)) %}
+{%-     if not is_delta_kernel(synapse.get_kernel_by_name(init.name)) %}
 {%-         filter indent(2,True) %}
 {%-         include "directives/WriteInDictionary.jinja2" %}
 {%-         endfilter %}
@@ -692,7 +692,7 @@ void
 {%-     endif %}
 {%- endfor %}
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
 {%- for state in synapse.get_state_non_alias_symbols() %}
 {%-     with variable = state %}
 {%-         filter indent(2,True) %}
@@ -701,10 +701,10 @@ void
 {%-     endwith %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
 {%- for init in synapse.get_initial_values_non_alias_symbols() %}
 {%-     with variable = init %}
-{%-         if not is_delta_shape(synapse.get_shape_by_name(init.name)) %}
+{%-         if not is_delta_kernel(synapse.get_kernel_by_name(init.name)) %}
 {%-             filter indent(2,True) %}
 {%-             include "directives/ReadFromDictionaryToTmp.jinja2" %}
 {%-             endfilter %}
@@ -741,7 +741,7 @@ void
 
 {%- for init in synapse.get_initial_values_non_alias_symbols() %}
 {%-     with variable = init %}
-{%-         if not is_delta_shape(synapse.get_shape_by_name(init.name)) %}
+{%-         if not is_delta_kernel(synapse.get_kernel_by_name(init.name)) %}
 {%-             filter indent(2,True) %}
 {%-             include "directives/AssignTmpDictionaryValue.jinja2" %}
 {%-             endfilter %}
@@ -802,14 +802,14 @@ template < typename targetidentifierT >
     init_internals_block_symbols();
 
 
-  // initial values for state variables not in ODE or shape
+  // initial values for state variables not in ODE or kernel
 {%- for state in synapse.get_state_non_alias_symbols() %}
 {%-     with variable = state %}
 {%-         include "directives/MemberInitialization.jinja2" %}
 {%-     endwith %}
 {%- endfor %}
 
-  // initial values for state variables in ODE or shape
+  // initial values for state variables in ODE or kernel
 {%- for init in synapse.get_initial_values_non_alias_symbols() %}
 {%-     with variable = init %}
 {%-         include "directives/MemberInitialization.jinja2" %}
@@ -832,7 +832,7 @@ template < typename targetidentifierT >
 {%-     endif %}
 {%- endfor %}
 
-  // state variables in ODE or shape
+  // state variables in ODE or kernel
 {%- for init in synapse.get_initial_values_non_alias_symbols() %}
 {%-     with variable = init %}
     {{printer.print_origin(variable)}}{{names.name(variable)}} = rhs.{{printer.print_origin(variable)}}{{names.name(variable)}};
