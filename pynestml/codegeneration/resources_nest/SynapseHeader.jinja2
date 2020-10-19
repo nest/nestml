@@ -772,7 +772,7 @@ void
 
 
 /**
-* NESTML internals block symbols initialisation
+ * NESTML internals block symbols initialisation
 **/
 template < typename targetidentifierT >
 void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
@@ -784,7 +784,9 @@ void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
 {%- endfor %}
 }
 
-
+/**
+ * constructor
+**/
 template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}()
 {

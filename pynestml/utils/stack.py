@@ -66,6 +66,8 @@ class Stack(object):
         return len(self.list) == 0
 
     def top(self):
+        if self.currentIndex < 0:
+            return None
         return self.list[self.currentIndex]
 
     def pop_n_to_list(self, n):

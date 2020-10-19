@@ -118,6 +118,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # set current processed synapse
         # Logger.set_current_synapse(node)
         print("In ASTSymbolTableVisitor::visit_synapse()")
+        Logger.set_current_astnode(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)

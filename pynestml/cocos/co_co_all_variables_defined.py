@@ -84,7 +84,7 @@ class CoCoAllVariablesDefined(CoCo):
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))
-                            and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS])):
+                            and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS, BlockType.INITIAL_VALUES])):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(astnode=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
