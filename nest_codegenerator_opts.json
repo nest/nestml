@@ -1,0 +1,4 @@
+{
+    "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]
+}
+

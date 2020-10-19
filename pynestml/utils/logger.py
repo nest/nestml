@@ -127,7 +127,7 @@ class Logger(object):
         if cls.logging_level.value <= log_level.value:
             to_print = '[' + str(cls.curr_message) + ','
             to_print = (to_print + (astnode.get_name() + ', ' if astnode is not None else
-                    cls.current_astnode.get_name() + ', ' if cls.current_astnode is not None else 'GLOBAL, '))
+                        cls.current_astnode.get_name() + ', ' if cls.current_astnode is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
             to_print = to_print + str(message)

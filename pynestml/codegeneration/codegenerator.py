@@ -64,7 +64,7 @@ class CodeGenerator:
 
     def generate_synapses(self, synapses: Sequence[ASTSynapse]) -> None:
         """
-        Generates code for a list of 
+        Generates code for a list of synapses.
         :param synapses: a list of synapses.
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration

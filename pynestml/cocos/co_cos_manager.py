@@ -398,4 +398,3 @@ class CoCosManager(object):
         :type neuron: ast_neuron
         """
         CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
-

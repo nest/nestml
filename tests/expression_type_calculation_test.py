@@ -91,7 +91,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         # ExpressionTestVisitor().handle(model)
         Logger.set_current_astnode(None)
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)), 2)
+                                                                             LoggingLevel.ERROR)), 2)
 
 
 if __name__ == '__main__':

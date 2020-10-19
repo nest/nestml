@@ -809,4 +809,4 @@ class ASTNeuron(ASTNeuronOrSynapse):
         """
         if not isinstance(other, ASTNeuron):
             return False
-        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())	
+        return self.get_name() == other.get_name() and self.get_body().equals(other.get_body())

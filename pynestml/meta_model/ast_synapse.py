@@ -67,17 +67,17 @@ class ASTSynapse(ASTNeuronOrSynapse):
         :rtype: ASTSynapse
         """
         dup = ASTSynapse(name=self.name,
-         body=self.body.clone(),
-         default_weight=self._default_weight,
-         artifact_name=self.artifact_name,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                         body=self.body.clone(),
+                         default_weight=self._default_weight,
+                         artifact_name=self.artifact_name,
+                         # ASTNode common attributes:
+                         source_position=self.source_position,
+                         scope=self.scope,
+                         comment=self.comment,
+                         pre_comments=[s for s in self.pre_comments],
+                         in_comment=self.in_comment,
+                         post_comments=[s for s in self.post_comments],
+                         implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -159,8 +159,8 @@ class ASTSynapse(ASTNeuronOrSynapse):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
-                                                       symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE
+                                                       or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
@@ -175,4 +175,3 @@ class ASTSynapse(ASTNeuronOrSynapse):
             if BUFFER.is_spike_buffer():
                 ret.append(BUFFER)
         return ret
-

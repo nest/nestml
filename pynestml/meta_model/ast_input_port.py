@@ -200,7 +200,7 @@ class ASTInputPort(ASTNode):
 
     def is_post(self):
         """
-        Returns whether this buffer is post or not. For this, it has to be marked explicitly by the 
+        Returns whether this buffer is post or not. For this, it has to be marked explicitly by the
         post keyword or no keywords at all shall occur (implicitly all types).
         :return: True if post, False otherwise.
         :rtype: bool

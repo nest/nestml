@@ -112,7 +112,7 @@ class ASTNestMLCompilationUnit(ASTNode):
     def add_synapse(self, synapse):
         """
         Expects an instance of synapse element which is added to the collection.
-        :param synapse: an instance of a synapse 
+        :param synapse: an instance of a synapse
         :type synapse: ASTsynapse
         :return: no returned value
         :rtype: void

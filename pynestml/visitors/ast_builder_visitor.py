@@ -255,7 +255,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
                                                   source_position=create_source_pos(ctx),)
-                                                  # is_homogeneous=is_homogeneous)
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
@@ -299,8 +298,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             expr_node = self.visit(expr)
             var_nodes.append(var_node)
             expr_nodes.append(expr_node)
-        kernel = ASTNodeFactory.create_ast_kernel(
-            variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
+        kernel = ASTNodeFactory.create_ast_kernel(variables=var_nodes,
+                                                  expressions=expr_nodes,
+                                                  source_position=create_source_pos(ctx))
         update_node_comments(kernel, self.__comments.visit(ctx))
         return kernel
 
@@ -406,8 +406,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             for clause in ctx.elifClause():
                 elif_clauses.append(self.visit(clause))
         else_clause = self.visit(ctx.elseClause()) if ctx.elseClause() is not None else None
-        return ASTNodeFactory.create_ast_if_stmt(if_clause=if_clause, elif_clauses=elif_clauses,
-                                                 else_clause=else_clause, source_position=create_source_pos(ctx))
+        ret = ASTNodeFactory.create_ast_if_stmt(if_clause=if_clause, elif_clauses=elif_clauses,
+                                                else_clause=else_clause, source_position=create_source_pos(ctx))
+        return ret
 
     # Visit a parse tree produced by PyNESTMLParser#ifClause.
     def visitIfClause(self, ctx):
@@ -484,10 +485,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         return neuron
 
     def visitNamespaceDecoratorNamespace(self, ctx):
-            return ctx.NAME()
+        return ctx.NAME()
 
     def visitNamespaceDecoratorName(self, ctx):
-            return ctx.NAME()
+        return ctx.NAME()
 
     def visitAnyDecorator(self, ctx):
         from pynestml.generated.PyNestMLLexer import PyNestMLLexer
@@ -518,7 +519,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         else:
             artifact_name = 'parsed from string'
         synapse = ASTNodeFactory.create_ast_synapse(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
-                                                  artifact_name=artifact_name)
+                                                    artifact_name=artifact_name)
 
         # # find the @heterogeneous/@homogeneous magic keyword
         """for parameter_block in body.get_parameter_blocks():
@@ -760,6 +761,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         ret = ASTNodeFactory.create_ast_post_receive(block=block, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
+
 
 def update_node_comments(node, comments):
     node.comment = comments[0]

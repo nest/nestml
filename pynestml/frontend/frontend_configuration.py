@@ -201,7 +201,7 @@ appropriate numeric solver otherwise.
                 cls.module_name += 'module'
             Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
         else:
-            assert False # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
+            assert False  # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
 
     @classmethod
     def handle_target(cls, target):

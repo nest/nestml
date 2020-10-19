@@ -59,7 +59,7 @@ class ASTDeclaration(ASTNode):
     """
 
     def __init__(self, is_recordable: bool = False, is_function: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
-                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, decorators:Optional[ASTNamespaceDecorator]=None, *args, **kwargs):
+                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, decorators: Optional[ASTNamespaceDecorator] = None, *args, **kwargs):
         """
         Standard constructor.
 

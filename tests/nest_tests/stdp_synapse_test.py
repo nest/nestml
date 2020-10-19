@@ -29,7 +29,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except Exception:
     TEST_PLOTS = False
 
 
@@ -37,7 +37,6 @@ except:
 class NestSTDPSynapseTest(unittest.TestCase):
 
     def test_nest_stdp_synapse(self):
-
         neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
         synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
         fname_snip = "dyad_test"
@@ -68,19 +67,19 @@ class NestSTDPSynapseTest(unittest.TestCase):
         wr = nest.Create('weight_recorder')
         wr_ref = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                    {"weight_recorder": wr[0], "w": 1., "the_delay" : 1., "receptor_type" : 0})
+                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
-                            params={"spike_times": pre_spike_times})
+                             params={"spike_times": pre_spike_times})
         post_sg = nest.Create("spike_generator",
-                            params={"spike_times": post_spike_times,
-                                    'allow_offgrid_times': True})
+                              params={"spike_times": post_spike_times,
+                                      'allow_offgrid_times': True})
 
         # create parrot neurons and connect spike_generators
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(neuron_model_name)
-        #mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1, 'withtime': True })
+        # mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1, 'withtime': True })
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
 
@@ -94,7 +93,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         # get STDP synapse and weight before protocol
         syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
 
-        sim_time = 20. #np.amax(pre_spike_times) + 5 * delay
+        sim_time = 20.  # np.amax(pre_spike_times) + 5 * delay
         n_steps = int(np.ceil(sim_time / resolution)) + 1
         t = 0.
         t_hist = []
@@ -104,20 +103,18 @@ class NestSTDPSynapseTest(unittest.TestCase):
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
-            #w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
-            #w_hist_ref.append(nest.GetStatus(syn)[0]['weight'])
+            # w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
+            # w_hist_ref.append(nest.GetStatus(syn)[0]['weight'])
             w_hist.append(nest.GetStatus(syn)[0]['w'])
             w_hist_ref.append(nest.GetStatus(syn)[0]['w'])      # XXX
 
 
         # verify
-
         MAX_ABS_ERROR = 1E-6
-        #assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
+        # assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
 
 
         # plot
-
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=3)
             ax1, ax3, ax2 = ax
@@ -134,7 +131,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
             ax2.plot(t_hist, w_hist, marker="o", label="nestml")
             ax2.plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
-            #ax2.plot(wr_weights)
 
             ax2.set_xlabel("Time [ms]")
             ax1.set_ylabel("Pre spikes")
@@ -147,6 +143,3 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)
-
-
-

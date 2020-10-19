@@ -467,7 +467,6 @@ class Messages(object):
         """
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
-        import pdb;pdb.set_trace()
         message = 'Variable \'%s\' used before declaration!' % variable_name
         return MessageCode.VARIABLE_USED_BEFORE_DECLARATION, message
 
@@ -1234,5 +1233,3 @@ class Messages(object):
         """
         message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
-
-

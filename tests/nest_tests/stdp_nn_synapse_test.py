@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# stdp_synapse_test.py
+# stdp_nn_synapse_test.py
 #
 # This file is part of NEST.
 #
@@ -29,7 +29,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except Exception:
     TEST_PLOTS = False
 
 
@@ -45,8 +45,8 @@ class STDPSynapseTest(unittest.TestCase):
         store_log = False
         suffix = '_nestml'
         dev = True
-        #to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        #install_nest(target_path, nest_path)
+        # to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+        # install_nest(target_path, nest_path)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
@@ -56,14 +56,14 @@ class STDPSynapseTest(unittest.TestCase):
         resolution = 1.	 # [ms]
         delay = 1.  # [ms]
 
-        #pre_spike_times = [6.]
-        #post_spike_times = [1.,3.]
+        # pre_spike_times = [6.]
+        # post_spike_times = [1.,3.]
 
-        pre_spike_times = [3.,11.]	  # [ms]
-        post_spike_times = [6.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+        pre_spike_times = [3., 11.]	  # [ms]
+        post_spike_times = [6.]   # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
 
         pre_spike_times = [3., 5., 7., 11., 15., 17., 20., 21., 22., 23., 26., 28.]	  # [ms]
-        post_spike_times = [6., 8., 10., 13.] # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+        post_spike_times = [6., 8., 10., 13.]  # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
 
         # pre_spike_times = 1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))	  # [ms]
 
@@ -81,23 +81,23 @@ class STDPSynapseTest(unittest.TestCase):
         wr = nest.Create('weight_recorder')
         wr_ref = nest.Create('weight_recorder')
         nest.CopyModel("stdp_nn_connection_nestml", "stdp_connection_nestml_rec",
-                    {"weight_recorder": wr[0], "w": 1., "the_delay" : 1., "receptor_type" : 1})
-        nest.CopyModel("stdp_nn_restr_synapse", "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type" : 1})
+                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 1})
+        nest.CopyModel("stdp_nn_restr_synapse", "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type": 1})
 
         # create spike_generators with these times
-        pre_sg = nest.Create("spike_generator", 
-                            params={"spike_times": pre_spike_times,
-                                    'allow_offgrid_spikes': True})
-        post_sg = nest.Create("spike_generator", 
-                            params={"spike_times": post_spike_times,
-                                    'allow_offgrid_spikes': True})
+        pre_sg = nest.Create("spike_generator",
+                             params={"spike_times": pre_spike_times,
+                                     'allow_offgrid_spikes': True})
+        post_sg = nest.Create("spike_generator",
+                              params={"spike_times": post_spike_times,
+                                      'allow_offgrid_spikes': True})
 
         # create parrot neurons and connect spike_generators
         pre_parrot = nest.Create("parrot_neuron")
         post_parrot = nest.Create("parrot_neuron")
         pre_parrot_ref = nest.Create("parrot_neuron")
         post_parrot_ref = nest.Create("parrot_neuron")
-        #mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1 })
+        # mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1 })
         spikedet_pre = nest.Create("spike_detector", params={'precise_times': True})
         spikedet_post = nest.Create("spike_detector", params={'precise_times': True})
 
@@ -115,7 +115,7 @@ class STDPSynapseTest(unittest.TestCase):
         syn = nest.GetConnections(source=pre_parrot, synapse_model="stdp_connection_nestml_rec")
         syn_ref = nest.GetConnections(source=pre_parrot_ref, synapse_model="stdp_connection_ref_rec")
 
-        sim_time = 20. #np.amax(pre_spike_times) + 5 * delay
+        sim_time = 20.  # np.amax(pre_spike_times) + 5 * delay
         n_steps = int(np.ceil(sim_time / resolution)) + 1
         t = 0.
         t_hist = []
@@ -146,7 +146,6 @@ class STDPSynapseTest(unittest.TestCase):
 
             ax2.plot(t_hist, w_hist, marker="o", label="nestml")
             ax2.plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
-            #ax2.plot(wr_weights)
 
             ax2.set_xlabel("Time [ms]")
             ax1.set_ylabel("Pre spikes")
@@ -162,7 +161,5 @@ class STDPSynapseTest(unittest.TestCase):
 
 
         # verify
-        
         MAX_ABS_ERROR = 1E-6
         assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
-

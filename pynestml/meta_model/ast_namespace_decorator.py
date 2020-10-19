@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# ast_assignment.py
+# ast_namespace_decorator.py
 #
 # This file is part of NEST.
 #
@@ -41,15 +42,15 @@ class ASTNamespaceDecorator(ASTNode):
         :rtype: ASTExpression
         """
         dup = ASTNamespaceDecorator(namespace=self.namespace,
-         name=self.name,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                    name=self.name,
+                                    # ASTNode common attributes:
+                                    source_position=self.source_position,
+                                    scope=self.scope,
+                                    comment=self.comment,
+                                    pre_comments=[s for s in self.pre_comments],
+                                    in_comment=self.in_comment,
+                                    post_comments=[s for s in self.post_comments],
+                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -93,5 +94,5 @@ class ASTNamespaceDecorator(ASTNode):
         """
         if not isinstance(other, ASTNamespaceDecorator):
             return False
-        return (self.get_name().equals(other.get_name()) and
-                self.get_namespace().equals(other.get_namespace()))
+        return (self.get_name().equals(other.get_name())
+                and self.get_namespace().equals(other.get_namespace()))

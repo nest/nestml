@@ -32,12 +32,14 @@ from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
+
 def symbol_by_name(name, symbols):
     """get a symbol from a list of symbols by the given name"""
     for sym in symbols:
         if sym.name == name:
             return sym
     return None
+
 
 class ASTNeuronOrSynapse(ASTNode):
     """
@@ -332,8 +334,8 @@ class ASTNeuronOrSynapse(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) \
-             and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.INITIAL_VALUES) \
-             and symbol.is_function:
+                    and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.INITIAL_VALUES) \
+                    and symbol.is_function:
                 ret.append(symbol)
         return ret
 
@@ -451,17 +453,15 @@ class ASTNeuronOrSynapse(ASTNode):
 
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
-        
+
         iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
                 iv_sym = symbol_by_name(var.get_complete_name(), symbols)
                 assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
                 iv_syms.append(iv_sym)
-        #print("Returning syms: " + ", ".join([iv_sym.name for iv_sym in iv_syms]))
+
         return iv_syms
-                
-        
 
     def get_initial_values_blocks(self):
         """
@@ -556,7 +556,6 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
-        #print("In ASTNeuron::add_to_internal_block(): decl = " + str(declaration) + ", scope = " + str(self.get_internals_blocks().get_scope()))
         n_declarations = len(self.get_internals_blocks().get_declarations())
         if n_declarations == 0:
             index = 0
@@ -577,19 +576,16 @@ class ASTNeuronOrSynapse(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
-        #print("In ASTNeuron::add_to_initial_values_block(): decl = " + str(declaration) + ", scope = " + str(self.get_initial_blocks().get_scope()))
         if self.get_initial_blocks() is None:
             ASTUtils.create_initial_values_block(self)
         self.get_initial_blocks().get_declarations().append(declaration)
         declaration.update_scope(self.get_initial_blocks().get_scope())
         from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-        #from pynestml.symbols.variable_symbol import BlockType
 
         symtable_vistor = ASTSymbolTableVisitor()
         symtable_vistor.block_type_stack.push(BlockType.INITIAL_VALUES)
         declaration.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
-        #self.get_initial_blocks().accept(symtable_vistor)
         from pynestml.symbols.symbol import SymbolKind
         assert not declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
         assert not declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is None
@@ -604,8 +600,7 @@ class ASTNeuronOrSynapse(ASTNode):
         kernel.update_scope(self.get_equations_blocks().get_scope())
 
     """
-    The following print methods are used by the backend and represent the comments as stored at the corresponding 
-    parts of the neuron definition.
+    The following print methods are used by the backend and represent the comments as stored at the corresponding parts of the neuron definition.
     """
 
     def print_dynamics_comment(self, prefix=None):
@@ -718,13 +713,11 @@ class ASTNeuronOrSynapse(ASTNode):
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
-                #print("Is kernel " + str(kernel_name) + "? YES")
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
             if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                #print("Is kernel " + str(kernel_name) + "? YES2")
                 return decl
 
         return None
@@ -736,6 +729,3 @@ class ASTNeuronOrSynapse(ASTNode):
             if type(decl) is ASTKernel:
                 kernels.append(decl)
         return kernels
-
-
-
