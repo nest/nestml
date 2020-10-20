@@ -138,7 +138,7 @@ Example: Spike-Timing Dependent Plasticity (STDP) synapse
 #########################################################
 
 
-.. figure:: ../doc/fig/stdp_synapse_test.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp_synapse_test.png
    
    STDP synapse test
 
@@ -156,7 +156,7 @@ stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1
 
 This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions on interactions between pre- and post spikes.
 
-.. figure:: ../doc/fig/stdp-nearest-neighbour.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
    
    Figure 7 from Morrison, Diesmann and Gerstner
 
