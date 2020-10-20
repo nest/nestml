@@ -99,8 +99,4 @@ synapse stdp_nn:
     # deliver spike to postsynaptic partner
     deliver_spike(w, the_delay)
   end
-  
-  update:   # XXX: TODO: will be removed
-  end
-
 end
