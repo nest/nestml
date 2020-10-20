@@ -108,6 +108,31 @@ and
     }
 
 
+Magic keyword attributes
+------------------------
+
+@nest:: namespace magic keywords.
+
+@homogeneous, @heterogeneous (default)
+
+Example:
+
+	synapse xyz:
+
+	  parameters:
+	    w nS = 900 pS  @nest::weight @homogeneous
+	    d ms = .9 ms  @nest::delay @heterogeneous
+	    foo ms = 42 ms  @homogeneous
+	    bar pF = 100. pF  @heterogeneous
+	  end
+
+	  preReceive:
+	    deliver_spike(w, d)
+	  end
+
+	end
+
+
 The NEST target
 ---------------
 
