@@ -131,7 +131,6 @@ class ModelParser(object):
 
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
-        #Logger.freeze_log()
 
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
@@ -139,6 +138,7 @@ class ModelParser(object):
         for synapse in ast.get_synapse_list():
             synapse.accept(ASTSymbolTableVisitor())
             SymbolTable.add_synapse_scope(synapse.get_name(), synapse.get_scope())
+
         # store source paths
         for neuron in ast.get_neuron_list():
             neuron.file_path = file_path
