@@ -3,11 +3,9 @@ Name: stdp_nn - Synapse type for spike-timing dependent plasticity, with nearest
 
 Description:
 
-stdp_synapse is a synapses with spike time dependent plasticity (as defined in [1]). The weight dependence exponent can be set separately for potentiation and depression; see [stdp](stdp_synapse.nestml) for detailed information and references.
+stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1]). The weight dependence exponent can be set separately for potentiation and depression; see [stdp](stdp_synapse.nestml) for detailed information and references.
 
 This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions on interactions between pre- and post spikes.
-
-...
 
 .. figure:: ../doc/fig/stdp-nearest-neighbour.png
    
