@@ -15,17 +15,19 @@ The statements in this block will be triggered when a presynaptic spike arrives.
 deliver_spike(w, d) function
 ----------------------------
 
-After a spike has been received in the `preReceive` block, the weight (and delay) of the neuron are, potentially, updated. The spike then needs to be passed on to the postsynaptic partner. This can be done by calling the `deliver_spike` function with the appropriate (new) weight and delay. Example:
+After a spike has been received in the `preReceive` block, the weight (and delay) of the neuron are, potentially, updated. The spike then needs to be passed on to the postsynaptic partner. This can be done by calling the `deliver_spike` function with the appropriate weight and delay. Example:
 
 .. code::
 
     synapse static:
+        parameters:
+            w nS = 1 nS
+            d ms = 1 ms
+        end
 
         preReceive:
             deliver_spike(w, d)
         end
-
-        [...]
     end
 
 
@@ -106,31 +108,6 @@ and
 
         [...]
     }
-
-
-Magic keyword attributes
-------------------------
-
-@nest:: namespace magic keywords.
-
-@homogeneous, @heterogeneous (default)
-
-Example:
-
-	synapse xyz:
-
-	  parameters:
-	    w nS = 900 pS  @nest::weight @homogeneous
-	    d ms = .9 ms  @nest::delay @heterogeneous
-	    foo ms = 42 ms  @homogeneous
-	    bar pF = 100. pF  @heterogeneous
-	  end
-
-	  preReceive:
-	    deliver_spike(w, d)
-	  end
-
-	end
 
 
 The NEST target
