@@ -48,7 +48,7 @@ synapse stdp_nn:
 
   equations:
     # Kplus: all-to-all trace
-    #shape Kplus_kernel = exp(-t / tau_plus)
+    #kernel Kplus_kernel = exp(-t / tau_plus)
     #inline Kplus real = convolve(Kplus_kernel, pre_spikes)
     Kplus' = -Kplus / tau_plus
   end

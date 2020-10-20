@@ -66,9 +66,9 @@ synapse stdp:
 
   equations:
     # pre_trace: all-to-all trace
-    #shape pre_trace_kernel' = -Kplus_kernel / tau_plus
+    #kernel pre_trace_kernel' = -Kplus_kernel / tau_plus
     #pre_trace' = -pre_trace / tau_plus
-    shape pre_trace_kernel = exp(-t / tau_plus)
+    kernel pre_trace_kernel = exp(-t / tau_plus)
     inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
 
     # nearest-neighbour trace of postsynaptic neuron
