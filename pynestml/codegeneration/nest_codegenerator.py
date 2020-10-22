@@ -354,9 +354,6 @@ class NESTCodeGenerator(CodeGenerator):
                         var = _expr.get_variable()
                     elif isinstance(_expr, ASTVariable):
                         var = _expr
-                    '''else:
-                        print("XXX: _expr = " + str(_expr))
-                        import pdb;pdb.set_trace()'''
 
                     if var:
                         print("\tcollected dependent variable: " +str(var))
@@ -563,9 +560,6 @@ class NESTCodeGenerator(CodeGenerator):
                         var = _expr.get_variable()
                     elif isinstance(_expr, ASTVariable):
                         var = _expr
-                    '''else:
-                        print("XXX: _expr = " + str(_expr))
-                        import pdb;pdb.set_trace()'''
 
                     if var \
                      and get_post_port_by_name(synapse.get_input_blocks(), var.name):
@@ -684,7 +678,7 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_ext_var.accept(ASTSymbolTableVisitor())
 
                     if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
-                        print("!! replacement made in expression: " + str(synapse.get_parent(_expr)))
+                        print("!! replacement made (var = " + str(ast_ext_var.get_name()) + ") in expression: " + str(synapse.get_parent(_expr)))
                         _expr.set_variable(ast_ext_var)
                     elif isinstance(_expr, ASTVariable):
                         if isinstance(synapse.get_parent(_expr), ASTAssignment):
@@ -1019,7 +1013,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.numeric_solver[neuron.get_name()] = numeric_solver
         self.remove_initial_values_for_kernels(neuron)
         kernels = self.remove_kernel_definitions_from_equations_block(neuron)
-        self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], kernels)
+        self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver])
         self.remove_ode_definitions_from_equations_block(neuron)
         self.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
@@ -1081,12 +1075,12 @@ class NESTCodeGenerator(CodeGenerator):
             
             self.remove_initial_values_for_kernels(synapse)
             kernels = self.remove_kernel_definitions_from_equations_block(synapse)
-            self.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver], kernels)
+            self.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
             self.remove_ode_definitions_from_equations_block(synapse)
             self.create_initial_values_for_kernels(synapse, [analytic_solver, numeric_solver], kernels)
             self.replace_variable_names_in_expressions(synapse, [analytic_solver, numeric_solver])
             self.add_timestep_symbol(synapse)
-            #self.update_symbol_table(synapse, kernel_buffers)
+            self.update_symbol_table(synapse, kernel_buffers)
 
             #print("NEST codegenerator: Adding ode-toolbox processed kernels to AST...")
             #self.add_kernel_odes(synapse, [analytic_solver, numeric_solver], kernel_buffers)
@@ -1096,7 +1090,7 @@ class NESTCodeGenerator(CodeGenerator):
                 #print("NEST codegenerator: Adding propagators...")
                 synapse = add_declarations_to_internals(synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
-            #self.update_symbol_table(synapse, kernel_buffers)
+            self.update_symbol_table(synapse, kernel_buffers)
             #self.remove_kernel_definitions_from_equations_block(synapse, self.analytic_solver["state_variables"])
 
             #if not self.numeric_solver is None:
@@ -1109,6 +1103,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             #print("NEST codegenerator step 6...")
             spike_updates, post_spike_updates = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+
+
+
 
         return spike_updates, post_spike_updates
 
@@ -1432,14 +1429,13 @@ class NESTCodeGenerator(CodeGenerator):
         for decl in decl_to_remove:
             neuron.get_initial_blocks().get_declarations().remove(decl)
 
-    def update_initial_values_for_odes(self, neuron, solver_dicts, kernels):
+    def update_initial_values_for_odes(self, neuron, solver_dicts):
         """
-        Update initial values for original ODE declarations (e.g. g_in, V_m', g_ahp'') that are present in the model
+        Update initial values for original ODE declarations (e.g. V_m', g_ahp'') that are present in the model
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
         equations_block = neuron.get_equations_block()
-
         for iv_decl in neuron.get_initial_blocks().get_declarations():
             for var in iv_decl.get_variables():
                 var_name = var.get_complete_name()
