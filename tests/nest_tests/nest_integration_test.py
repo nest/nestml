@@ -218,9 +218,9 @@ class NestIntegrationTest(unittest.TestCase):
             nest.Connect(multimeter1, neuron1)
             nest.Connect(multimeter2, neuron2)
 
-            sd_reference = nest.Create('spike_detector')
+            sd_reference = nest.Create('spike_recorder')
             nest.Connect(neuron1, sd_reference)
-            sd_testant = nest.Create('spike_detector')
+            sd_testant = nest.Create('spike_recorder')
             nest.Connect(neuron2, sd_testant)
 
             nest.Simulate(t_stop)
