@@ -22,14 +22,15 @@ synapse stdp_nn:
   initial_values:
     w nS = 1.234 nS
     pre_handled boolean = True
-    Kplus real = 0.
-    # N.B. Kminus is in postsynaptic partner; using `get_nn_post_trace()`
+    pre_trace real = 0.
+    post_trace real = 0.
   end
 
   parameters:
     the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
     lambda real = .01
-    tau_plus ms = 20 ms
+    tau_tr_pre ms = 20 ms
+    tau_tr_post ms = 20 ms
     alpha real = 1.
     mu_plus real = 1.
     mu_minus real = 1.
@@ -45,27 +46,33 @@ synapse stdp_nn:
   end
 
   equations:
-    # Kplus: all-to-all trace
-    #kernel Kplus_kernel = exp(-t / tau_plus)
-    #inline Kplus real = convolve(Kplus_kernel, pre_spikes)
-    Kplus' = -Kplus / tau_plus
+    pre_trace' = -pre_trace / tau_tr_pre
+    post_trace' = -post_trace / tau_tr_post
   end
 
   input:
     pre_spikes nS <- spike
+    post_spikes nS <- post spike
   end
 
+  output: spike
+
   postReceive:
-    skip boolean = (nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_RESTRICTED_SYMMETRIC) and pre_handled
-    
+    if nearest_neighbour_behaviour == ALL_TO_ALL:
+      post_trace += 1.
+    else:
+      post_trace = 1.
+    end
+
+    # potentiate synapse
+    skip boolean = (nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_RESTRICTED_SYMMETRIC) and pre_handled    
     if not skip:
-        # potentiate synapse
-        w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * Kplus ))
+        w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
         w = min(Wmax, w_)
         
         if nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_PRESYN_CENTERED:
             # According to the presynaptic-centered nearest-neighbour scheme, a postsynaptic spike erases the state of the synapse, and all the preceding presynaptic spikes are forgotten.
-            Kplus = 0
+            post_trace = 0
         end
         
         pre_handled = True
@@ -73,14 +80,12 @@ synapse stdp_nn:
   end
 
   preReceive:
-    post_trace real
-
-    if nearest_neighbour_behaviour == ALL_TO_ALL:
-      post_trace = get_post_trace()
+    if nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_RESTRICTED_SYMMETRIC:
+        pre_trace = 1
     else:
-      post_trace = get_nn_post_trace()
+        pre_trace += 1
     end
-
+    
     # depress synapse
     skip boolean = (nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_RESTRICTED_SYMMETRIC) and (not pre_handled)    # skip depression if no postsynaptic spikes were handled since last pre spike
     if not skip:
@@ -88,12 +93,6 @@ synapse stdp_nn:
         w = max(Wmin, w_)
     end
 
-    if nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_RESTRICTED_SYMMETRIC:
-        Kplus = 1
-    else:
-        Kplus += 1
-    end
-    
     pre_handled = False
     
     # deliver spike to postsynaptic partner

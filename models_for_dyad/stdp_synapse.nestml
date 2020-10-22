@@ -14,7 +14,6 @@ Van Rossum STDP     [4]  mu_plus = 0 mu_minus = 1
 
 Parameters:
 
-tau_plus   ms   - Time constant of STDP window, potentiation in ms (tau_minus defined in post-synaptic neuron)
 lambda     real - Step size
 alpha      real - Asymmetry parameter (scales depressing increments as alpha*lambda)
 mu_plus    real - Weight dependence exponent, potentiation
@@ -48,17 +47,13 @@ synapse stdp:
 
   initial_values:
     w nS = 1.234 nS
-    post_trace_ real = 0.
-    post_trace_nn real = 0.
   end
 
   parameters:
     the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
     lambda real = .01
-    tau_plus ms = 20 ms
     tau_tr_pre ms = 20 ms
     tau_tr_post ms = 20 ms
-    tau_tr_post_nn ms = 20 ms
     alpha real = 1.
     mu_plus real = 1.
     mu_minus real = 1.
@@ -67,23 +62,12 @@ synapse stdp:
   end
 
   equations:
-    # pre_trace: all-to-all trace
-    #kernel pre_trace_kernel' = -Kplus_kernel / tau_plus
-    #pre_trace' = -pre_trace / tau_plus
-
     kernel pre_trace_kernel = exp(-t / tau_tr_pre)
     inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
 
-    kernel post_trace_kernel = exp(-t / tau_tr_post)
-
-    # nearest-neighbour trace of postsynaptic neuron
-    post_trace_nn' = post_trace_nn / tau_tr_post_nn
-
     # all-to-all trace of postsynaptic neuron
+    kernel post_trace_kernel = exp(-t / tau_tr_post)
     inline post_trace real = convolve(post_trace_kernel, post_spikes)
-
-    # all-to-all trace of postsynaptic neuron (alternative)
-    post_trace_' = post_trace_ / tau_plus
   end
 
   input:
@@ -97,12 +81,6 @@ synapse stdp:
     # potentiate synapse
     w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     w = min(Wmax, w_)
-
-    # update nearest neighbour trace
-    post_trace_nn = 1.
-
-    # update alternative all-to-all trace
-    post_trace_ += 1.
   end
 
   preReceive:
