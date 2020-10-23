@@ -86,15 +86,15 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.Connect(multimeter[0], neuron1, "one_to_one")
         nest.Connect(multimeter[1], neuron2)
 
-        spikedetector = nest.Create("spike_detector")
-        nest.Connect(neuron1, spikedetector)
+        spike_recorder = nest.Create("spike_recorder")
+        nest.Connect(neuron1, spike_recorder)
         nest.Simulate(t_simulation)
 
         dmm = nest.GetStatus(multimeter)[1]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
 
-        dSD = nest.GetStatus(spikedetector, keys='events')[0]
+        dSD = nest.GetStatus(spike_recorder, keys='events')[0]
         spikes = dSD['senders']
         ts = dSD["times"]
 
