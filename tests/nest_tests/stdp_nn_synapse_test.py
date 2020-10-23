@@ -98,8 +98,8 @@ class STDPSynapseTest(unittest.TestCase):
         pre_parrot_ref = nest.Create("parrot_neuron")
         post_parrot_ref = nest.Create("parrot_neuron")
         # mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1 })
-        spikedet_pre = nest.Create("spike_detector", params={'precise_times': True})
-        spikedet_post = nest.Create("spike_detector", params={'precise_times': True})
+        spikedet_pre = nest.Create("spike_recorder", params={'precise_times': True})
+        spikedet_post = nest.Create("spike_recorder", params={'precise_times': True})
 
         nest.Connect(pre_sg, pre_parrot, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_parrot, "one_to_one", syn_spec={"delay": 1.})
