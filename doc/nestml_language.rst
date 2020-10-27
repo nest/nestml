@@ -271,6 +271,8 @@ Names of functions and input ports must also satisfy this pattern. The type of t
     e string = "foo"
     f mV = -2e12 mV
 
+It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed, and all occurrences of the symbol in the model will try to be resolved first to a variable name, and if that fails, will try to be resolved to a physical unit. Variable (and shape, and parameter) definitions will thus have precedence when resolving symbols.
+
 Documentation strings
 ~~~~~~~~~~~~~~~~~~~~~
 
