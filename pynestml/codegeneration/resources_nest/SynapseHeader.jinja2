@@ -495,6 +495,16 @@ assert(0);
   {
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
+
+{%- if dyadic_neuron_partner is defined %}
+    try {
+      dynamic_cast<{{dyadic_neuron_partner}}&>(t);
+    }
+    catch (std::bad_cast exp) {
+      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{dyadic_neuron_partner}}'.\n";
+      exit(1);
+    }
+{%- endif %}
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
