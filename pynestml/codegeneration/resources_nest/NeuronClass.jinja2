@@ -161,7 +161,7 @@ namespace nest
 /* ----------------------------------------------------------------
  * Default and copy constructor for node, and destructor
  * ---------------------------------------------------------------- */
-{{neuronName}}::{{neuronName}}():Archiving_Node(), P_(), S_(), B_(*this)
+{{neuronName}}::{{neuronName}}() : Structural_Plasticity_Node(), P_(), S_(), B_(*this)
 {
 
   recordablesMap_.create();
@@ -201,10 +201,16 @@ namespace nest
 {%-   endif %}
 {%- endfor %}
 {%- endfilter %}
+
+{%- if dyadic_neuron_partner is defined %}
+  n_incoming_ = 0;
+  max_delay_ = 0;
+  last_spike_ = -1.;
+{%- endif %}
 }
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
-  Archiving_Node(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
+  Structural_Plasticity_Node(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
   // copy parameter struct P_
 {%- filter indent(2, True) %}
 {%- for parameter in neuron.get_parameter_non_alias_symbols() %}
@@ -229,6 +235,12 @@ S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
 V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
 {%- endfilter %}
+
+{%- if dyadic_neuron_partner is defined %}
+  n_incoming_ = __n.n_incoming;
+  max_delay_ = __n.max_delay_;
+  last_spike_ = __n.last_spike_;
+{%- endif %}
 }
 
 {{neuronName}}::~{{neuronName}}(){ {% if useGSL %}
@@ -259,7 +271,11 @@ void {{neuronName}}::init_buffers_(){
   {{ printer.print_buffer_initialization(buffer) }}
   {% endfor %}
   B_.logger_.reset(); // includes resize
-  Archiving_Node::clear_history();
+
+{%- if dyadic_neuron_partner is defined %}
+  clear_history();
+{%- endif %}
+
   {% if useGSL %}
   if ( B_.__s == 0 ){
     B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
@@ -420,4 +436,178 @@ void {{neuronName}}::handle(nest::CurrentEvent& e){
                weight * current );
 {%- endfor %}
 }
+{%- endif %}
+
+
+
+{%- if dyadic_synapse_partner is defined %}
+
+
+inline double
+{{neuronName}}::get_spiketime_ms() const
+{
+  return last_spike_;
+}
+
+
+void
+{{neuronName}}::register_stdp_connection( double t_first_read, double delay )
+{
+  // Mark all entries in the deque, which we will not read in future as read by
+  // this input input, so that we savely increment the incoming number of
+  // connections afterwards without leaving spikes in the history.
+  // For details see bug #218. MH 08-04-22
+
+  for ( std::deque< histentry >::iterator runner = history_.begin();
+        runner != history_.end() and ( t_first_read - runner->t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps() );
+        ++runner )
+  {
+    ( runner->access_counter_ )++;
+  }
+
+  n_incoming_++;
+
+  max_delay_ = std::max( delay, max_delay_ );
+}
+
+
+void
+{{neuronName}}::get_history( double t1,
+  double t2,
+  std::deque< histentry >::iterator* start,
+  std::deque< histentry >::iterator* finish )
+{
+  *finish = history_.end();
+  if ( history_.empty() )
+  {
+    *start = *finish;
+    return;
+  }
+  std::deque< histentry >::reverse_iterator runner = history_.rbegin();
+  const double t2_lim = t2 + nest::kernel().connection_manager.get_stdp_eps();
+  const double t1_lim = t1 + nest::kernel().connection_manager.get_stdp_eps();
+  while ( runner != history_.rend() and runner->t_ >= t2_lim )
+  {
+    ++runner;
+  }
+  *finish = runner.base();
+  while ( runner != history_.rend() and runner->t_ >= t1_lim )
+  {
+    runner->access_counter_++;
+    ++runner;
+  }
+  *start = runner.base();
+}
+
+void
+{{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
+{
+  Structural_Plasticity_Node::set_spiketime( t_sp, offset );
+
+  const double t_sp_ms = t_sp.get_ms() - offset;
+
+  if ( n_incoming_ )
+  {
+    // prune all spikes from history which are no longer needed
+    // only remove a spike if:
+    // - its access counter indicates it has been read out by all connected
+    //   STDP synapses, and
+    // - there is another, later spike, that is strictly more than
+    //   (max_delay_ + eps) away from the new spike (at t_sp_ms)
+    while ( history_.size() > 1 )
+    {
+      const double next_t_sp = history_[ 1 ].t_;
+      if ( history_.front().access_counter_ >= n_incoming_
+        and t_sp_ms - next_t_sp > max_delay_ + nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        history_.pop_front();
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    // update spiking history
+
+{%- include "directives/AnalyticIntegrationStep_begin.jinja2" -%}
+{%- include "directives/AnalyticIntegrationStep_end.jinja2" -%}
+
+// XXX: HERE BE DYNAMICAL UPDATE EXPRESSIONS GENERATED FROM ODE-TOOLBOX OUTPUT.
+
+
+        /**
+         * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
+        **/
+
+        const double old___h = V_.__h;
+        V_.__h = last_spike_ - t_sp_ms;
+        init_internals_block_symbols();
+{%- filter indent(6, True) %}
+{%- include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%- if uses_numeric_solver %}
+{%-     include "directives/GSLIntegrationStep.jinja2" %}
+{%- endif %}
+{%- include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endfilter %}
+        V_.__h = old___h;
+        init_internals_block_symbols();  // XXX: can be skipped?
+
+
+        /**
+         * apply spike updates
+        **/
+        
+{%- for spike_update in dyad_spike_updates: %}
+        S_.{{names.name(spike_update.get_variable())}} += 1.;
+{%- endfor %}
+            
+
+//    Kminus_ = Kminus_ * std::exp( ( last_spike_ - t_sp_ms ) * tau_minus_inv_ ) + 1.0;
+//    Kminus_triplet_ = Kminus_triplet_ * std::exp( ( last_spike_ - t_sp_ms ) * tau_minus_triplet_inv_ ) + 1.0;
+    last_spike_ = t_sp_ms;
+    history_.push_back( histentry( last_spike_, Kminus_, Kminus_triplet_, 0 ) );
+  }
+  else
+  {
+    last_spike_ = t_sp_ms;
+  }
+}
+
+
+void
+{{neuronName}}::clear_history()
+{
+  last_spike_ = -1.0;
+  history_.clear();
+}
+
+
+double
+{{neuronName}}::get_XYZ_value( double t )
+{
+  // case when the neuron has not yet spiked
+  if ( history_.empty() )
+  {
+    return INITIAL_VALUE(XYZ); // XXX TODO
+  }
+
+  // search for the latest post spike in the history buffer that came strictly before `t`
+  int i = history_.size() - 1;
+  while ( i >= 0 )
+  {
+    if ( t - history_[ i ].t_ > kernel().connection_manager.get_stdp_eps() )
+    {
+      const double dt = history_[ i ].t_ - t;
+      return ( history_[ i ].Kminus_ * std::exp( dt * tau_minus_inv_ ) );     // XXX: TODO: update dynamics of XYZ be here
+    }
+    --i;
+  }
+
+  // this case occurs when the trace was requested at a time precisely at or
+  // before the first spike in the history
+  return INITIAL_VALUE(XYZ); // XXX TODO
+}
+
+
 {%- endif %}

@@ -130,7 +130,11 @@ NEST target synapses are not allowed to have any internal dynamics (ODEs). This 
 
 
 
+.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
 
+   See panel B.
+
+   Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
 
 
 
@@ -158,7 +162,7 @@ This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
    
-   Figure 7 from Morrison, Diesmann and Gerstner
+   Figure 7 from Morrison, Diesmann and Gerstne [1]_.
 
    Original caption:
 
@@ -168,6 +172,10 @@ This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions
 
 
 
+
+.. [1] Morrison A., Diesmann M., and Gerstner W. (2008) Phenomenological
+       models of synaptic plasticity based on spike timing,
+       Biol. Cybern. 98, 459--478
 
 
 

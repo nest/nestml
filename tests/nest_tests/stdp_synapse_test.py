@@ -38,7 +38,11 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
     def test_nest_stdp_synapse(self):
         neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
+        #neuron_model_name = "iaf_psc_exp"
+        ref_neuron_model_name = "iaf_psc_exp"
         synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
+        #synapse_model_name = "stdp_nestml"
+        ref_synapse_model_name = "stdp_synapse"
         fname_snip = "dyad_test"
 
         nest.set_verbosity("M_ALL")
@@ -54,6 +58,9 @@ class NestSTDPSynapseTest(unittest.TestCase):
         post_spike_times = [6., 8., 10., 13.]
         post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
 
+        pre_spike_times = [3., 7., 17., 25., 26., 27.]    # [ms]
+        post_spike_times = [5., 10., 13., 14., 30.]  # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.r$
+
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
@@ -68,6 +75,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
         wr_ref = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
                        {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
+        nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
+                       {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -79,9 +88,15 @@ class NestSTDPSynapseTest(unittest.TestCase):
         # create parrot neurons and connect spike_generators
         pre_neuron = nest.Create("parrot_neuron")
         post_neuron = nest.Create(neuron_model_name)
+
+        pre_neuron_ref = nest.Create("parrot_neuron")
+        post_neuron_ref = nest.Create(ref_neuron_model_name)
+
         # mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1, 'withtime': True })
         spikedet_pre = nest.Create("spike_recorder")
         spikedet_post = nest.Create("spike_recorder")
+        spikedet_pre_ref = nest.Create("spike_recorder")
+        spikedet_post_ref = nest.Create("spike_recorder")
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
@@ -90,8 +105,16 @@ class NestSTDPSynapseTest(unittest.TestCase):
         nest.Connect(pre_neuron, spikedet_pre)
         nest.Connect(post_neuron, spikedet_post)
 
+        nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
+        nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all", syn_spec={'synapse_model': ref_synapse_model_name})
+
+        nest.Connect(pre_neuron_ref, spikedet_pre_ref)
+        nest.Connect(post_neuron_ref, spikedet_post_ref)
+
         # get STDP synapse and weight before protocol
         syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
+        syn_ref = nest.GetConnections(source=pre_neuron_ref, synapse_model=ref_synapse_model_name)
 
         sim_time = 20.  # np.amax(pre_spike_times) + 5 * delay
         n_steps = int(np.ceil(sim_time / resolution)) + 1
@@ -103,15 +126,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
-            # w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
-            # w_hist_ref.append(nest.GetStatus(syn)[0]['weight'])
+            w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
             w_hist.append(nest.GetStatus(syn)[0]['w'])
-            w_hist_ref.append(nest.GetStatus(syn)[0]['w'])      # XXX
-
-
-        # verify
-        MAX_ABS_ERROR = 1E-6
-        # assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
 
 
         # plot
@@ -143,3 +159,10 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)
+
+
+        # verify
+        MAX_ABS_ERROR = 1E-6
+        assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
+
+

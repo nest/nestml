@@ -33,15 +33,15 @@ except Exception:
     TEST_PLOTS = False
 
 
-class STDPSynapseTest(unittest.TestCase):
+class STDPNNSynapseTest(unittest.TestCase):
 
-    def test_stdp_synapse(self):
+    def test_stdp_nn_synapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "models", "stdp_synapse_nn.nestml")))
         nest_path = "/home/travis/nest_install"
         nest_path = "/home/archels/nest-simulator-build"
         target_path = 'target'
         logging_level = 'INFO'
-        module_name = 'nestmlmodule'
+        module_name = 'models_for_dyad_nnmodule'
         store_log = False
         suffix = '_nestml'
         dev = True
@@ -65,6 +65,9 @@ class STDPSynapseTest(unittest.TestCase):
         pre_spike_times = [3., 5., 7., 11., 15., 17., 20., 21., 22., 23., 26., 28.]	  # [ms]
         post_spike_times = [6., 8., 10., 13.]  # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
 
+        pre_spike_times = [3., 7., 17., 25., 26., 27.]	  # [ms]
+        post_spike_times = [5., 10., 13., 14., 30.]  # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))	 # [ms]
+
         # pre_spike_times = 1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))	  # [ms]
 
 
@@ -80,33 +83,32 @@ class STDPSynapseTest(unittest.TestCase):
 
         wr = nest.Create('weight_recorder')
         wr_ref = nest.Create('weight_recorder')
-        nest.CopyModel("stdp_nn_connection_nestml", "stdp_connection_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 1})
-        nest.CopyModel("stdp_nn_restr_synapse", "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type": 1})
+        nest.CopyModel("stdp_nn_nestml__with_iaf_psc_exp_nestml", "stdp_connection_nestml_rec",
+                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
+        nest.CopyModel("stdp_nn_restr_synapse", "stdp_connection_ref_rec", {"weight_recorder": wr[0], "receptor_type": 0})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
-                             params={"spike_times": pre_spike_times,
-                                     'allow_offgrid_spikes': True})
+                             params={"spike_times": pre_spike_times})
         post_sg = nest.Create("spike_generator",
-                              params={"spike_times": post_spike_times,
-                                      'allow_offgrid_spikes': True})
+                              params={"spike_times": post_spike_times})
 
         # create parrot neurons and connect spike_generators
         pre_parrot = nest.Create("parrot_neuron")
-        post_parrot = nest.Create("parrot_neuron")
+        #post_parrot = nest.Create("parrot_neuron")
+        post_parrot = nest.Create("iaf_psc_exp_nestml__with_stdp_nn_nestml")
         pre_parrot_ref = nest.Create("parrot_neuron")
-        post_parrot_ref = nest.Create("parrot_neuron")
+        post_parrot_ref = nest.Create("iaf_psc_exp_nestml__with_stdp_nn_nestml")
         # mm = nest.Create("multimeter", params={"record_from" : ["V_m"], 'interval' : .1 })
-        spikedet_pre = nest.Create("spike_recorder", params={'precise_times': True})
-        spikedet_post = nest.Create("spike_recorder", params={'precise_times': True})
+        spikedet_pre = nest.Create("spike_recorder")
+        spikedet_post = nest.Create("spike_recorder")
 
         nest.Connect(pre_sg, pre_parrot, "one_to_one", syn_spec={"delay": 1.})
-        nest.Connect(post_sg, post_parrot, "one_to_one", syn_spec={"delay": 1.})
+        nest.Connect(post_sg, post_parrot, "one_to_one", syn_spec={"delay": 1., "weight": 1000.})
         nest.Connect(pre_sg, pre_parrot_ref, "one_to_one", syn_spec={"delay": 1.})
-        nest.Connect(post_sg, post_parrot_ref, "one_to_one", syn_spec={"delay": 1.})
-        nest.Connect(pre_parrot, post_parrot, "all_to_all", syn_spec={'model': 'stdp_connection_nestml_rec'})
-        nest.Connect(pre_parrot_ref, post_parrot_ref, "all_to_all", syn_spec={'model': 'stdp_connection_ref_rec'})
+        nest.Connect(post_sg, post_parrot_ref, "one_to_one", syn_spec={"delay": 1., "weight": 1000.})
+        nest.Connect(pre_parrot, post_parrot, "all_to_all", syn_spec={'synapse_model': 'stdp_connection_nestml_rec'})
+        nest.Connect(pre_parrot_ref, post_parrot_ref, "all_to_all", syn_spec={'synapse_model': 'stdp_connection_ref_rec'})
 
         nest.Connect(pre_parrot, spikedet_pre)
         nest.Connect(post_parrot, spikedet_post)
@@ -157,7 +159,7 @@ class STDPSynapseTest(unittest.TestCase):
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
                 _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
-            fig.savefig("/tmp/stdp_synapse_test.png")
+            fig.savefig("/tmp/stdp_nn_synapse_test.png", dpi=300)
 
 
         # verify

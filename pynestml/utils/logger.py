@@ -18,10 +18,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Mapping, Tuple
+from pynestml.meta_model.ast_node import ASTNode
 import json
 from collections import OrderedDict
 
 from enum import Enum
+
+
+class LoggingLevel(Enum):
+    """
+    Different types of logging levels, this part can be extended.
+    """
+    INFO = 0
+    WARNING = 1
+    ERROR = 2
+    NO = 3
 
 
 class Logger(object):
@@ -63,18 +75,17 @@ class Logger(object):
         return
 
     @classmethod
-    def freeze_log(cls, do_freeze=True):
+    def freeze_log(cls, do_freeze: bool = True):
         """
         Freeze the log: while log is frozen, all logging requests will be ignored.
         """
         cls.log_frozen = do_freeze
 
     @classmethod
-    def get_log(cls):
+    def get_log(cls) -> Mapping[int, Tuple[ASTNode, LoggingLevel, str]]:
         """
         Returns the overall log of messages. The structure of the log is: (NEURON,LEVEL,MESSAGE)
-        :return: dict from id to astnode+message+type.
-        :rtype: dict(int->ASTNode,level,str)
+        :return: mapping from id to ASTNode, log level and message.
         """
         return cls.log
 
@@ -287,13 +298,3 @@ class Logger(object):
             ret += ']'
             parsed = json.loads(ret, object_pairs_hook=OrderedDict)
         return json.dumps(parsed, indent=2, sort_keys=False)
-
-
-class LoggingLevel(Enum):
-    """
-    Different types of logging levels, this part can be extended.
-    """
-    INFO = 0
-    WARNING = 1
-    ERROR = 2
-    NO = 3

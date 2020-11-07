@@ -67,6 +67,8 @@
 
 #define DYAD_POST_TYPE {{ dyadic_neuron_partner }}
 
+#define DEBUG
+
 namespace nest
 {
 
@@ -513,6 +515,9 @@ assert(0);
   {
     // synapse STDP depressing/facilitation dynamics
     const double __t_spike = e.get_stamp().get_ms();
+#ifdef DEBUG
+    std::cout<<"NESTML synapse: handling spike at t = " << __t_spike << std::endl;
+#endif
 
     // use accessor functions (inherited from Connection< >) to obtain delay and target
     Node* __target = get_target( tid );

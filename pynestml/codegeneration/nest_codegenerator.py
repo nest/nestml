@@ -537,6 +537,7 @@ class NESTCodeGenerator(CodeGenerator):
                         neuron_block.get_declarations().append(decl)
                         decl.update_scope(neuron_block.get_scope())
                         decl.accept(ASTSymbolTableVisitor())
+                        decl._is_moved_from_syn_to_neuron = True
 
 
             for state_var in neuron_state_vars:
@@ -776,6 +777,7 @@ class NESTCodeGenerator(CodeGenerator):
             #self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
             new_synapse.set_name(new_synapse_name)
             new_synapse.dyadic_neuron_partner = new_neuron
+            new_neuron.dyadic_synapse_partner = new_synapse
 
             #
             #    add modified versions of neuron and synapse to list
@@ -1276,6 +1278,10 @@ class NESTCodeGenerator(CodeGenerator):
         unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
+
+        if 'dyadic_synapse_partner' in dir(neuron):
+            namespace['dyadic_synapse_partner'] = neuron.dyadic_synapse_partner.get_name()
+#            namespace["dyad_spike_updates"] = neuron.dyad_spike_updates
 
         namespace['neuronName'] = neuron.get_name()
         namespace['neuron'] = neuron
