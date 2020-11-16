@@ -82,6 +82,7 @@ class NESTCodeGenerator(CodeGenerator):
     def __init__(self):
         self.analytic_solver = {}
         self.numeric_solver = {}
+        self.non_equations_state_variables = {}
         # setup the template environment
 
         def raise_helper(msg):
@@ -294,6 +295,16 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_block()
 
         if equations_block is None:
+            self.non_equations_state_variables[neuron.get_name()] = []
+            if neuron.get_initial_values_blocks():
+                for decl in neuron.get_initial_values_blocks().get_declarations():
+                    for var in decl.get_variables():
+                        self.non_equations_state_variables[neuron.get_name()].append(var)
+            if neuron.get_state_blocks():
+                for decl in neuron.get_state_blocks().get_declarations():
+                    for var in decl.get_variables():
+                        self.non_equations_state_variables[neuron.get_name()].append(var)
+
             return []
 
         delta_factors = self.get_delta_factors_(neuron, equations_block)
@@ -306,6 +317,24 @@ class NESTCodeGenerator(CodeGenerator):
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
+
+        self.non_equations_state_variables[neuron.get_name()] = []
+        for decl in neuron.get_initial_values_blocks().get_declarations():
+            for var in decl.get_variables():
+                # check if this variable is not in equations
+                if not neuron.get_equations_blocks():
+                    self.non_equations_state_variables[neuron.get_name()].append(var)
+                    continue
+
+                used_in_eq = False
+                for ode_eq in neuron.get_equations_blocks().get_ode_equations():
+                    if ode_eq.get_lhs().get_name() == var.get_name():
+                        used_in_eq = True
+                        break
+
+                if not used_in_eq:
+                    self.non_equations_state_variables[neuron.get_name()].append(var)
+
         self.remove_initial_values_for_kernels(neuron)
         kernels = self.remove_kernel_definitions_from_equations_block(neuron)
         self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], kernels)
@@ -406,6 +435,8 @@ class NESTCodeGenerator(CodeGenerator):
                 namespace['update_expressions'][sym] = expr_ast
 
             namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
+
+        namespace['non_equations_state_variables'] = self.non_equations_state_variables[neuron.get_name()]
 
         namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
