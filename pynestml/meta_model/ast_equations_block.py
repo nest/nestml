@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_equations_block.py
 #
@@ -21,7 +22,7 @@
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 
 
 class ASTEquationsBlock(ASTNode):
@@ -37,7 +38,7 @@ class ASTEquationsBlock(ASTNode):
           equationsBlock:
             'equations'
             BLOCK_OPEN
-              (inlineExpression | odeEquation | odeShape | NEWLINE)+
+              (inlineExpression | odeEquation | kernel | NEWLINE)+
             BLOCK_CLOSE;
     Attributes:
         declarations = None
@@ -55,9 +56,9 @@ class ASTEquationsBlock(ASTNode):
         assert (declarations is not None and isinstance(declarations, list)), \
             '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(declarations)
         for decl in declarations:
-            assert (decl is not None and (isinstance(decl, ASTOdeShape) or
-                                          isinstance(decl, ASTOdeEquation) or
-                                          isinstance(decl, ASTInlineExpression))), \
+            assert (decl is not None and (isinstance(decl, ASTKernel)
+                                          or isinstance(decl, ASTOdeEquation)
+                                          or isinstance(decl, ASTInlineExpression))), \
                 '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(*args, **kwargs)
         self.declarations = declarations
@@ -73,14 +74,14 @@ class ASTEquationsBlock(ASTNode):
         if self.declarations:
             declarations_dup = [decl.clone() for decl in self.declarations]
         dup = ASTEquationsBlock(declarations=declarations_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                # ASTNode common attributes:
+                                source_position=self.source_position,
+                                scope=self.scope,
+                                comment=self.comment,
+                                pre_comments=[s for s in self.pre_comments],
+                                in_comment=self.in_comment,
+                                post_comments=[s for s in self.post_comments],
+                                implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -88,7 +89,7 @@ class ASTEquationsBlock(ASTNode):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTOdeShape)
+        :rtype: list(ASTInlineExpression|ASTOdeEquation|ASTKernel)
         """
         return self.declarations
 
@@ -119,15 +120,15 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_ode_shapes(self):
+    def get_kernels(self):
         """
-        Returns a list of all ode shapes in this block.
-        :return: a list of all ode shapes.
-        :rtype: list(ASTOdeShape)
+        Returns a list of all kernels in this block.
+        :return: a list of all kernels.
+        :rtype: list(ASTKernel)
         """
         ret = list()
         for decl in self.get_declarations():
-            if isinstance(decl, ASTOdeShape):
+            if isinstance(decl, ASTKernel):
                 ret.append(decl)
         return ret
 

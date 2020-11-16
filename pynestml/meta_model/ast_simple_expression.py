@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_simple_expression.py
 #
@@ -27,6 +28,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.cloning_helpers import clone_numeric_literal
+
 
 class ASTSimpleExpression(ASTExpressionNode):
     """
@@ -115,21 +117,22 @@ class ASTSimpleExpression(ASTExpressionNode):
             boolean_literal = True
         if self.is_boolean_false:
             boolean_literal = False
-        assert function_call_dup or (boolean_literal is not None) or (numeric_literal_dup is not None) or self.is_inf_literal or variable_dup or self.string
+        assert function_call_dup or (boolean_literal is not None) or (
+            numeric_literal_dup is not None) or self.is_inf_literal or variable_dup or self.string
         dup = ASTSimpleExpression(function_call=function_call_dup,
-         boolean_literal=boolean_literal,
-         numeric_literal=numeric_literal_dup,
-         is_inf=self.is_inf_literal,
-         variable=variable_dup,
-         string=self.string,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                  boolean_literal=boolean_literal,
+                                  numeric_literal=numeric_literal_dup,
+                                  is_inf=self.is_inf_literal,
+                                  variable=variable_dup,
+                                  string=self.string,
+                                  # ASTNode common attributes:
+                                  source_position=self.source_position,
+                                  scope=self.scope,
+                                  comment=self.comment,
+                                  pre_comments=[s for s in self.pre_comments],
+                                  in_comment=self.in_comment,
+                                  post_comments=[s for s in self.post_comments],
+                                  implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -218,7 +221,7 @@ class ASTSimpleExpression(ASTExpressionNode):
     def has_unit(self):
         """
         Returns whether this is a numeric literal with a defined unit.
-        :return: True if numeric literal with unit, otherwise False. 
+        :return: True if numeric literal with unit, otherwise False.
         :rtype: bool
         """
         return self.variable is not None and self.numeric_literal is not None

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_transformers.py
 #
@@ -29,7 +30,7 @@ from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -145,14 +146,14 @@ def apply_incoming_spikes(neuron: ASTNeuron):
     printer = ExpressionsPrettyPrinter()
     spikes_updates = list()
     for convCall in conv_calls:
-        shape = convCall.get_args()[0].get_variable().get_complete_name()
+        kernel = convCall.get_args()[0].get_variable().get_complete_name()
         buffer = convCall.get_args()[1].get_variable().get_complete_name()
         initial_values = (
             neuron.get_initial_values_blocks().get_declarations() if neuron.get_initial_values_blocks() is not None else list())
         for astDeclaration in initial_values:
             for variable in astDeclaration.get_variables():
-                if re.match(shape + "[\']*", variable.get_complete_name()) or re.match(shape + '__[\\d]+$',
-                                                                                       variable.get_complete_name()):
+                if re.match(kernel + "[\']*", variable.get_complete_name()) or re.match(kernel + '__[\\d]+$',
+                                                                                        variable.get_complete_name()):
                     spikes_updates.append(ModelParser.parse_assignment(
                         variable.get_complete_name() + " += " + buffer + " * " + printer.print_expression(
                             astDeclaration.get_expression())))
@@ -222,7 +223,7 @@ def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
     return False
 
 
-def variable_in_solver(shape_var: str, solver_dicts):
+def variable_in_solver(kernel_var: str, solver_dicts):
     """
     Check if a variable by this name is defined in the ode-toolbox solver results,
     """
@@ -233,8 +234,7 @@ def variable_in_solver(shape_var: str, solver_dicts):
 
         for var_name in solver_dict["state_variables"]:
             var_name_base = var_name.split("__X__")[0]
-            #var_name_base = var_name_base.split("__d")[0]
-            if var_name_base == shape_var:
+            if var_name_base == kernel_var:
                 return True
 
     return False
@@ -249,7 +249,7 @@ def is_ode_variable(var_base_name, neuron):
     return False
 
 
-def variable_in_shapes(var_name: str, shapes):
+def variable_in_kernels(var_name: str, kernels):
     """
     Check if a variable by this name (in ode-toolbox style) is defined in the ode-toolbox solver results
     """
@@ -258,9 +258,9 @@ def variable_in_shapes(var_name: str, shapes):
     var_name_base = var_name_base.split("__d")[0]
     var_name_base = var_name_base.replace("__DOLLAR", "$")
 
-    for shape in shapes:
-        for shape_var in shape.get_variables():
-            if var_name_base == shape_var.get_name():
+    for kernel in kernels:
+        for kernel_var in kernel.get_variables():
+            if var_name_base == kernel_var.get_name():
                 return True
 
     return False
@@ -283,14 +283,14 @@ def get_initial_value_from_ode_toolbox_result(var_name: str, solver_dicts):
     assert False, "Initial value not found for ODE with name \"" + var_name + "\""
 
 
-def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
+def get_kernel_var_order_from_ode_toolbox_result(kernel_var: str, solver_dicts):
     """
     Get the differential order of the variable with the given name from the ode-toolbox results JSON.
 
     N.B. the variable name is given in NESTML notation, e.g. "g_in$"; convert to ode-toolbox export format notation (e.g. "g_in__DOLLAR").
     """
 
-    shape_var = shape_var.replace("$", "__DOLLAR")
+    kernel_var = kernel_var.replace("$", "__DOLLAR")
 
     order = -1
     for solver_dict in solver_dicts:
@@ -300,12 +300,11 @@ def get_shape_var_order_from_ode_toolbox_result(shape_var: str, solver_dicts):
         for var_name in solver_dict["state_variables"]:
             var_name_base = var_name.split("__X__")[0]
             var_name_base = var_name_base.split("__d")[0]
-            if var_name_base == shape_var:
+            if var_name_base == kernel_var:
                 order = max(order, var_name.count("__d") + 1)
 
-    assert order >= 0, "Variable of name \"" + shape_var + "\" not found in ode-toolbox result"
+    assert order >= 0, "Variable of name \"" + kernel_var + "\" not found in ode-toolbox result"
     return order
-
 
 
 def to_ode_toolbox_processed_name(name: str) -> str:
@@ -322,40 +321,41 @@ def to_ode_toolbox_name(name: str) -> str:
     return name.replace("$", "__DOLLAR")
 
 
-def get_expr_from_shape_var(shape, var_name):
+def get_expr_from_kernel_var(kernel, var_name):
     assert type(var_name) == str
-    for var, expr in zip(shape.get_variables(), shape.get_expressions()):
+    for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
         if var.get_complete_name() == var_name:
             return expr
-    assert False, "variable name not found in shape"
+    assert False, "variable name not found in kernel"
 
 
-def construct_shape_X_spike_buf_name(shape_var_name: str, spike_input_port, order: int, diff_order_symbol="__d"):
-    assert type(shape_var_name) is str
+def construct_kernel_X_spike_buf_name(kernel_var_name: str, spike_input_port, order: int, diff_order_symbol="__d"):
+    assert type(kernel_var_name) is str
     assert type(order) is int
     assert type(diff_order_symbol) is str
-    return shape_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
+    return kernel_var_name.replace("$", "__DOLLAR") + "__X__" + str(spike_input_port) + diff_order_symbol * order
 
 
-def replace_rhs_variable(expr, variable_name_to_replace, shape_var, spike_buf):
-    def replace_shape_var(node):
+def replace_rhs_variable(expr, variable_name_to_replace, kernel_var, spike_buf):
+    def replace_kernel_var(node):
         if type(node) is ASTSimpleExpression \
-            and node.is_variable() \
-            and node.get_variable().get_name() == variable_name_to_replace:
+                and node.is_variable() \
+                and node.get_variable().get_name() == variable_name_to_replace:
             var_order = node.get_variable().get_differential_order()
-            new_variable_name = construct_shape_X_spike_buf_name(shape_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
+            new_variable_name = construct_kernel_X_spike_buf_name(
+                kernel_var.get_name(), spike_buf, var_order - 1, diff_order_symbol="'")
             new_variable = ASTVariable(new_variable_name, var_order)
             new_variable.set_source_position(node.get_variable().get_source_position())
             node.set_variable(new_variable)
 
-    expr.accept(ASTHigherOrderVisitor(visit_funcs=replace_shape_var))
+    expr.accept(ASTHigherOrderVisitor(visit_funcs=replace_kernel_var))
 
 
-def replace_rhs_variables(expr, shape_buffers):
+def replace_rhs_variables(expr, kernel_buffers):
     """
-    Replace variable names in definitions of shape dynamics.
+    Replace variable names in definitions of kernel dynamics.
 
-    Say that the shape is
+    Say that the kernel is
 
     .. code-block::
 
@@ -375,46 +375,43 @@ def replace_rhs_variables(expr, shape_buffers):
 
     These equations will later on be fed to ode-toolbox, so we use the symbol "'" to indicate differential order.
 
-    Note that for shapes/systems of ODE of dimension > 1, all variable orders and all variables for this shape will already be present in `shape_buffers`.
+    Note that for kernels/systems of ODE of dimension > 1, all variable orders and all variables for this kernel will already be present in `kernel_buffers`.
     """
-    for shape, spike_buf in shape_buffers:
-        for shape_var in shape.get_variables():
-            variable_name_to_replace = shape_var.get_name()
-            replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace, shape_var=shape_var, spike_buf=spike_buf)
+    for kernel, spike_buf in kernel_buffers:
+        for kernel_var in kernel.get_variables():
+            variable_name_to_replace = kernel_var.get_name()
+            replace_rhs_variable(expr, variable_name_to_replace=variable_name_to_replace,
+                                 kernel_var=kernel_var, spike_buf=spike_buf)
 
 
-def is_delta_shape(shape):
+def is_delta_kernel(kernel):
     """
-    Catches definition of shape, or reference (function call or variable name) of a delta shape function.
+    Catches definition of kernel, or reference (function call or variable name) of a delta kernel function.
     """
-    if type(shape) is ASTOdeShape:
-        if not len(shape.get_variables()) == 1:
-            # delta shape not allowed if more than one variable is defined in this shape
+    if type(kernel) is ASTKernel:
+        if not len(kernel.get_variables()) == 1:
+            # delta kernel not allowed if more than one variable is defined in this kernel
             return False
-        expr = shape.get_expressions()[0]
+        expr = kernel.get_expressions()[0]
     else:
-        expr = shape
+        expr = kernel
 
-    rhs_is_delta_shape = type(expr) is ASTSimpleExpression \
+    rhs_is_delta_kernel = type(expr) is ASTSimpleExpression \
         and expr.is_function_call() \
         and expr.get_function_call().get_scope().resolve_to_symbol(expr.get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
-    rhs_is_multiplied_delta_shape = type(expr) is ASTExpression \
+    rhs_is_multiplied_delta_kernel = type(expr) is ASTExpression \
         and type(expr.get_rhs()) is ASTSimpleExpression \
         and expr.get_rhs().is_function_call() \
         and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
-    #is_name_of_delta_shape = type(expr) is ASTSimpleExpression \
-        #and expr.is_variable() \
-        #and expr.get_variable().get_scope().resolve_to_symbol(expr.get_variable().get_name(), SymbolKind.VARIABLE).is_shape() \
-        #and expr.
-    return rhs_is_delta_shape or rhs_is_multiplied_delta_shape
+    return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
 
-def get_delta_shape_prefactor_expr(shape):
-    assert type(shape) is ASTOdeShape
-    assert len(shape.get_variables()) == 1
-    expr = shape.get_expressions()[0]
+def get_delta_kernel_prefactor_expr(kernel):
+    assert type(kernel) is ASTKernel
+    assert len(kernel.get_variables()) == 1
+    expr = kernel.get_expressions()[0]
     if type(expr) is ASTExpression \
-     and expr.get_rhs().is_function_call() \
-     and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
-     and expr.binary_operator.is_times_op:
+            and expr.get_rhs().is_function_call() \
+            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
+            and expr.binary_operator.is_times_op:
         return str(expr.lhs)

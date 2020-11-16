@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# co_co_shape_type.py
+# co_co_kernel_type.py
 #
 # This file is part of NEST.
 #
@@ -30,9 +31,10 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
-class CoCoShapeType(CoCo):
+
+class CoCoKernelType(CoCo):
     """
-    Ensures that all defined shapes are untyped (for direct functions of time), or have a type equivalent to 1/s**-order, where order is the differential order of the shape (e.g. 2 for ``shape g'' = ...``).
+    Ensures that all defined kernels are untyped (for direct functions of time), or have a type equivalent to 1/s**-order, where order is the differential order of the kernel (e.g. 2 for ``kernel g'' = ...``).
     """
 
     @classmethod
@@ -42,36 +44,37 @@ class CoCoShapeType(CoCo):
         :param node: a single neuron instance.
         :type node: ASTNeuron
         """
-        shape_type_visitor = ShapeTypeVisitor()
-        shape_type_visitor._neuron = node
-        node.accept(shape_type_visitor)
+        kernel_type_visitor = KernelTypeVisitor()
+        kernel_type_visitor._neuron = node
+        node.accept(kernel_type_visitor)
 
 
-class ShapeTypeVisitor(ASTVisitor):
+class KernelTypeVisitor(ASTVisitor):
     """
-    This visitor checks if each shape has the appropriate data type.
+    This visitor checks if each kernel has the appropriate data type.
     """
 
-    _neuron = None  # the parent ASTNeuron containing the shape
+    _neuron = None  # the parent ASTNeuron containing the kernel
 
-    def visit_ode_shape(self, node):
+    def visit_kernel(self, node):
         """
         Checks the coco on the current node.
-        :param node: AST shape object
-        :type node: ASTOdeShape
+        :param node: AST kernel object
+        :type node: ASTKernel
         """
         for var, expr in zip(node.variables, node.expressions):
-            # check shape type
+            # check kernel type
             if (var.get_differential_order() == 0
                 and not type(expr.type) in [IntegerTypeSymbol, RealTypeSymbol]) \
-             or (var.get_differential_order() > 0
-                 and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
+                or (var.get_differential_order() > 0
+                    and not expr.type.is_castable_to(PredefinedTypes.get_type("ms")**-var.get_differential_order())):
                 actual_type_str = str(expr.type)
                 if 'unit' in dir(expr.type) \
-                 and expr.type.unit is not None \
-                 and expr.type.unit.unit is not None:
+                        and expr.type.unit is not None \
+                        and expr.type.unit.unit is not None:
                     actual_type_str = str(expr.type.unit.unit)
-                code, message = Messages.get_shape_wrong_type(var.get_name(), var.get_differential_order(), actual_type_str)
+                code, message = Messages.get_kernel_wrong_type(
+                    var.get_name(), var.get_differential_order(), actual_type_str)
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
 
@@ -84,10 +87,12 @@ class ShapeTypeVisitor(ASTVisitor):
                     Logger.log_message(neuron=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=node.get_source_position())
                     continue
-                assert len(self._neuron.get_initial_blocks().get_declarations()[0].get_variables()) == 1, "Only single variables are supported as targets of an assignment."
+                assert len(self._neuron.get_initial_blocks().get_declarations()[0].get_variables(
+                )) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
                 if not iv.get_type_symbol().get_value().is_castable_to(PredefinedTypes.get_type("ms")**-order):
                     actual_type_str = DebugTypeConverter.convert(iv.get_type_symbol())
                     expected_type_str = "s^-" + str(order)
-                    code, message = Messages.get_shape_iv_wrong_type(iv_name, actual_type_str, expected_type_str)
-                    Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, code=code, message=message)
+                    code, message = Messages.get_kernel_iv_wrong_type(iv_name, actual_type_str, expected_type_str)
+                    Logger.log_message(error_position=node.get_source_position(),
+                                       log_level=LoggingLevel.ERROR, code=code, message=message)

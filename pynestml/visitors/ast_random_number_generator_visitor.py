@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_random_number_generator_visitor.py
 #

@@ -26,7 +26,7 @@ null
 'or'
 'not'
 'recordable'
-'shape'
+'kernel'
 'neuron'
 'state'
 'parameters'
@@ -111,7 +111,7 @@ AND_KEYWORD
 OR_KEYWORD
 NOT_KEYWORD
 RECORDABLE_KEYWORD
-SHAPE_KEYWORD
+KERNEL_KEYWORD
 NEURON_KEYWORD
 STATE_KEYWORD
 PARAMETERS_KEYWORD
@@ -182,7 +182,7 @@ variable
 functionCall
 inlineExpression
 odeEquation
-odeShape
+kernel
 block
 stmt
 compoundStmt

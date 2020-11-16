@@ -41,8 +41,8 @@ neuron iaf_cond_exp:
   end
 
   equations:
-    shape g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
-    shape g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
+    kernel g_in = exp(-t/tau_syn_in) # inputs from the inh conductance
+    kernel g_ex = exp(-t/tau_syn_ex) # inputs from the exc conductance
 
     inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )

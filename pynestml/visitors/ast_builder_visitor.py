@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_builder_visitor.py
 #
@@ -270,8 +271,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         data_type = (self.visit(ctx.dataType()) if ctx.dataType() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
         inlineExpr = ASTNodeFactory.create_ast_inline_expression(is_recordable=is_recordable, variable_name=variable_name,
-                                                              data_type=data_type, expression=expression,
-                                                              source_position=create_source_pos(ctx))
+                                                                 data_type=data_type, expression=expression,
+                                                                 source_position=create_source_pos(ctx))
         update_node_comments(inlineExpr, self.__comments.visit(ctx))
         return inlineExpr
 
@@ -283,8 +284,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(ode_equation, self.__comments.visit(ctx))
         return ode_equation
 
-    # Visit a parse tree produced by PyNESTMLParser#shape.
-    def visitOdeShape(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#kernel.
+    def visitKernel(self, ctx):
         var_nodes = []
         expr_nodes = []
         for var, expr in zip(ctx.variable(), ctx.expression()):
@@ -292,9 +293,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             expr_node = self.visit(expr)
             var_nodes.append(var_node)
             expr_nodes.append(expr_node)
-        shape = ASTNodeFactory.create_ast_ode_shape(variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
-        update_node_comments(shape, self.__comments.visit(ctx))
-        return shape
+        kernel = ASTNodeFactory.create_ast_kernel(
+            variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
+        update_node_comments(kernel, self.__comments.visit(ctx))
+        return kernel
 
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
@@ -521,9 +523,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.odeEquation() is not None:
             for eq in ctx.odeEquation():
                 elements.append(eq)
-        if ctx.odeShape() is not None:
-            for shape in ctx.odeShape():
-                elements.append(shape)
+        if ctx.kernel() is not None:
+            for kernel in ctx.kernel():
+                elements.append(kernel)
         if ctx.inlineExpression() is not None:
             for fun in ctx.inlineExpression():
                 elements.append(fun)

@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+#
+# __init__.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 __all__ = [
 
     'co_co.py',
@@ -18,7 +39,7 @@ __all__ = [
     'co_co_invariant_is_boolean.py',
     'co_co_neuron_name_unique.py',
     'co_co_no_nest_name_space_collision.py',
-    'co_co_no_shapes_except_in_convolve.py',
+    'co_co_no_kernels_except_in_convolve.py',
     'co_co_no_two_neurons_in_set_of_compilation_units.py',
     'co_co_buffer_data_type.py',
     'co_co_parameters_assigned_only_in_parameter_block.py',

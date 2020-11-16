@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_neuron.py
 #
@@ -23,7 +24,7 @@ from typing import Optional, Union, List, Dict
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.variable_symbol import BlockType
@@ -80,16 +81,16 @@ class ASTNeuron(ASTNode):
         :rtype: ASTNeuron
         """
         dup = ASTNeuron(name=self.name,
-         body=self.body.clone(),
-         artifact_name=self.artifact_name,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                        body=self.body.clone(),
+                        artifact_name=self.artifact_name,
+                        # ASTNode common attributes:
+                        source_position=self.source_position,
+                        scope=self.scope,
+                        comment=self.comment,
+                        pre_comments=[s for s in self.pre_comments],
+                        in_comment=self.in_comment,
+                        post_comments=[s for s in self.post_comments],
+                        implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -311,8 +312,8 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE or
-                                                       symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE
+                                                       or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
@@ -394,8 +395,8 @@ class ASTNeuron(ASTNode):
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) \
-             and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.INITIAL_VALUES) \
-             and symbol.is_function:
+                    and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.INITIAL_VALUES) \
+                    and symbol.is_function:
                 ret.append(symbol)
         return ret
 
@@ -502,43 +503,46 @@ class ASTNeuron(ASTNode):
         :rtype: list(VariableSymbol)
         """
 
+        iv_blk = self.get_initial_values_blocks()
+        if iv_blk is None:
+            return []
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
-        iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
                 _syms = [sym for sym in symbols if sym.name == var.get_complete_name()]
-                assert len(_syms) > 0, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
+                assert len(_syms) > 0, "Symbol by name \"" + var.get_complete_name() + \
+                    "\" not found in initial values block"
                 iv_sym = _syms[0]
                 iv_syms.append(iv_sym)
         return iv_syms
 
-    def get_shape_by_name(self, shape_name: str) -> Optional[ASTOdeShape]:
-        assert type(shape_name) is str
-        shape_name = shape_name.split("__X__")[0]
+    def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
+        assert type(kernel_name) is str
+        kernel_name = kernel_name.split("__X__")[0]
 
         if not self.get_equations_block():
             return None
 
         # check if defined as a direct function of time
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in decl.get_variable_names():
+            if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
                 return decl
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape and shape_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
                 return decl
 
         return None
 
 
-    def get_all_shapes(self):
-        shapes = []
+    def get_all_kernels(self):
+        kernels = []
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTOdeShape:
-                shapes.append(decl)
-        return shapes
+            if type(decl) is ASTKernel:
+                kernels.append(decl)
+        return kernels
 
     def get_initial_values_blocks(self):
         """
@@ -658,7 +662,8 @@ class ASTNeuron(ASTNode):
         """
         Create an empty update block. Only makes sense if one does not already exist.
         """
-        assert self.get_update_blocks() is None or len(self.get_update_blocks()) == 0, "create_empty_update_block() called although update block already present"
+        assert self.get_update_blocks() is None or len(self.get_update_blocks(
+        )) == 0, "create_empty_update_block() called although update block already present"
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         block = ASTNodeFactory.create_ast_block([], ASTSourceLocation.get_predefined_source_position())
         update_block = ASTNodeFactory.create_ast_update_block(block, ASTSourceLocation.get_predefined_source_position())
@@ -701,22 +706,24 @@ class ASTNeuron(ASTNode):
         symtable_vistor.block_type_stack.push(BlockType.INITIAL_VALUES)
         declaration.accept(symtable_vistor)
         symtable_vistor.block_type_stack.pop()
-        #self.get_initial_blocks().accept(symtable_vistor)
+        # self.get_initial_blocks().accept(symtable_vistor)
         from pynestml.symbols.symbol import SymbolKind
-        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
-        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
+        assert declaration.get_variables()[0].get_scope().resolve_to_symbol(
+            declaration.get_variables()[0].get_name(), SymbolKind.VARIABLE) is not None
+        assert declaration.get_scope().resolve_to_symbol(declaration.get_variables()[0].get_name(),
+                                                         SymbolKind.VARIABLE) is not None
 
-    def add_shape(self, shape: ASTOdeShape) -> None:
+    def add_kernel(self, kernel: ASTKernel) -> None:
         """
         Adds the handed over declaration to the initial values block.
-        :param shape: a single declaration.
+        :param kernel: a single declaration.
         """
         assert self.get_equations_block() is not None
-        self.get_equations_block().get_declarations().append(shape)
-        shape.update_scope(self.get_equations_blocks().get_scope())
+        self.get_equations_block().get_declarations().append(kernel)
+        kernel.update_scope(self.get_equations_blocks().get_scope())
 
     """
-    The following print methods are used by the backend and represent the comments as stored at the corresponding 
+    The following print methods are used by the backend and represent the comments as stored at the corresponding
     parts of the neuron definition.
     """
 

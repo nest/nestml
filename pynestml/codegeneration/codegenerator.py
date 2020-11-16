@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# codegeneration.py
+# codegenerator.py
 #
 # This file is part of NEST.
 #

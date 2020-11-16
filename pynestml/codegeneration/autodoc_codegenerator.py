@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# autodoc_codegeneration.py
+# autodoc_codegenerator.py
 #
 # This file is part of NEST.
 #
@@ -35,6 +36,7 @@ from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.ode_transformer import OdeTransformer
+
 
 class AutoDocCodeGenerator(CodeGenerator):
 

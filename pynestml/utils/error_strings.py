@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # error_strings.py
 #
@@ -79,7 +80,7 @@ class ErrorStrings(object):
         :param source_position: The location where the error was encountered
         :type source_position: ASTSourceLocation
         :return: the error message
-        :rtype: str 
+        :rtype: str
         """
         error_msg_format = "Cannot perform an arithmetic operation on a non-numeric type: " + type_name
         return cls.code(origin) + cls.SEPARATOR + error_msg_format + "(" + str(source_position) + ")"
@@ -115,7 +116,7 @@ class ErrorStrings(object):
         from pynestml.meta_model.ast_assignment import ASTAssignment
         from pynestml.symbols.symbol import SymbolKind
         assert parent_node is not None and (
-                isinstance(parent_node, ASTExpression) or isinstance(parent_node, ASTAssignment))
+            isinstance(parent_node, ASTExpression) or isinstance(parent_node, ASTAssignment))
 
         target_expression = None
         target_unit = None
@@ -153,9 +154,9 @@ class ErrorStrings(object):
             convertee_expression = parent_node.get_expression()
             convertee_unit = convertee_expression.type.astropy_unit
 
-        assert (target_expression is not None and convertee_expression is not None and
-                operation is not None), "Only call this on an addition/subtraction  or assignment after " \
-                                        "an implicit conversion wrt unit magnitudes has already been determined"
+        assert (target_expression is not None and convertee_expression is not None
+                and operation is not None), "Only call this on an addition/subtraction  or assignment after " \
+                                            "an implicit conversion wrt unit magnitudes has already been determined"
 
         error_msg_format = "Non-matching unit types at '" + str(parent_node)
         error_msg_format += "'. Implicit conversion of rhs to lhs"

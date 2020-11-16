@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_multisynapse_test.py
 #
@@ -27,14 +28,15 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
 
 
 class NestMultiSynapseTest(unittest.TestCase):
 
     def test_multisynapse(self):
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
+        input_path = os.path.join(os.path.realpath(os.path.join(
+            os.path.dirname(__file__), "resources", "iaf_psc_exp_multisynapse.nestml")))
         nest_path = "/home/travis/nest_install"
         target_path = 'target'
         logging_level = 'INFO'
@@ -54,15 +56,16 @@ class NestMultiSynapseTest(unittest.TestCase):
         neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
 
         sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-        nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000., "delay": 0.1})
+        nest.Connect(sg, neuron, syn_spec={"receptor_type": 1, "weight": 1000., "delay": 0.1})
 
         sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-        nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000., "delay": 0.1})
+        nest.Connect(sg2, neuron, syn_spec={"receptor_type": 2, "weight": 1000., "delay": 0.1})
 
         sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-        nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500., "delay": 0.1})
+        nest.Connect(sg3, neuron, syn_spec={"receptor_type": 3, "weight": 500., "delay": 0.1})
 
-        mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1', 'I_shape2__X__spikes2', 'I_shape3__X__spikes3'], 'interval': 0.1})
+        mm = nest.Create('multimeter', params={'record_from': [
+                         'I_kernel1__X__spikes1', 'I_kernel2__X__spikes2', 'I_kernel3__X__spikes3'], 'interval': 0.1})
         nest.Connect(mm, neuron)
 
         vm_1 = nest.Create('voltmeter')
@@ -87,13 +90,13 @@ class NestMultiSynapseTest(unittest.TestCase):
             ax[0].plot(V_m_timevec, V_m, label="V_m")
             ax[0].set_ylabel("voltage")
 
-            ax[1].plot(mm["times"], mm["I_shape1__X__spikes1"], label="I_shape1")
+            ax[1].plot(mm["times"], mm["I_kernel1__X__spikes1"], label="I_kernel1")
             ax[1].set_ylabel("current")
 
-            ax[2].plot(mm["times"], mm["I_shape2__X__spikes2"], label="I_shape2")
+            ax[2].plot(mm["times"], mm["I_kernel2__X__spikes2"], label="I_kernel2")
             ax[2].set_ylabel("current")
 
-            ax[3].plot(mm["times"], mm["I_shape3__X__spikes3"], label="I_shape3")
+            ax[3].plot(mm["times"], mm["I_kernel3__X__spikes3"], label="I_kernel3")
             ax[3].set_ylabel("current")
 
             for _ax in ax:

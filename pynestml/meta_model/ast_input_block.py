@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_input_block.py
 #
@@ -69,14 +70,14 @@ class ASTInputBlock(ASTNode):
         """
         input_definitions_dup = [input_definition.clone() for input_definition in self.input_definitions]
         dup = ASTInputBlock(input_definitions=input_definitions_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                            # ASTNode common attributes:
+                            source_position=self.source_position,
+                            scope=self.scope,
+                            comment=self.comment,
+                            pre_comments=[s for s in self.pre_comments],
+                            in_comment=self.in_comment,
+                            post_comments=[s for s in self.post_comments],
+                            implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

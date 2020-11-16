@@ -114,8 +114,8 @@ Source code
      end
      equations:
        function V_bounded mV = min(V_m,V_peak) # prevent exponential divergence
-       shape g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       shape g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
+       kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+       kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
 
        /* Add functions to simplify the equation definition of V_m*/
        function exp_arg real = (V_bounded - V_th) / Delta_T

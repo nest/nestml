@@ -324,7 +324,7 @@
 			"patterns": [
 				{
 					"name": "storage.type.function.nestml",
-					"match": "\\b(function|shape)\\b"
+					"match": "\\b(function|kernel)\\b"
 				},
 				{
 					"name": "storage.type.class.nestml",
@@ -415,7 +415,7 @@
 			"patterns": [
 				{
 					"name": "meta.function.nestml",
-					"begin": "(?x)\n  \\s*\\b(function|shape)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (\\s+|\\()\n    )\n",
+					"begin": "(?x)\n  \\s*\\b(function|kernel)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (\\s+|\\()\n    )\n",
 					"end": "(?:(=)|(:))",
 					"beginCaptures": {
 						"1": {

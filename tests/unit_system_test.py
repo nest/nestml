@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # unit_system_test.py
 #

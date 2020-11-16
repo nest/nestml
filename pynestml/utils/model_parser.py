@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # model_parser.py
 #
@@ -51,7 +52,7 @@ from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilation
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_ode_shape import ASTOdeShape
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_parameter import ASTParameter
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
@@ -73,6 +74,7 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.error_listener import NestMLErrorListener
 
+
 class ModelParser(object):
 
     @classmethod
@@ -88,7 +90,8 @@ class ModelParser(object):
             input_file = FileStream(file_path)
         except IOError:
             code, message = Messages.get_input_path_not_found(path=file_path)
-            Logger.log_message(neuron=None, code=None, message=message, error_position=None, log_level=LoggingLevel.ERROR)
+            Logger.log_message(neuron=None, code=None, message=message,
+                               error_position=None, log_level=LoggingLevel.ERROR)
             return
         code, message = Messages.get_start_processing_file(file_path)
         Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
@@ -107,7 +110,8 @@ class ModelParser(object):
         stream.fill()
         if lexerErrorListener._error_occurred:
             code, message = Messages.get_lexer_error()
-            Logger.log_message(neuron=None, code=None, message=message, error_position=None, log_level=LoggingLevel.ERROR)
+            Logger.log_message(neuron=None, code=None, message=message,
+                               error_position=None, log_level=LoggingLevel.ERROR)
             return
         # parse the file
         parser = PyNestMLParser(None)
@@ -121,7 +125,8 @@ class ModelParser(object):
         compilation_unit = parser.nestMLCompilationUnit()
         if parserErrorListener._error_occurred:
             code, message = Messages.get_parser_error()
-            Logger.log_message(neuron=None, code=None, message=message, error_position=None, log_level=LoggingLevel.ERROR)
+            Logger.log_message(neuron=None, code=None, message=message,
+                               error_position=None, log_level=LoggingLevel.ERROR)
             return
 
         # create a new visitor and return the new AST
@@ -362,10 +367,10 @@ class ModelParser(object):
         return ret
 
     @classmethod
-    def parse_ode_shape(cls, string):
-        # type: (str) -> ASTOdeShape
+    def parse_kernel(cls, string):
+        # type: (str) -> ASTKernel
         (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.odeShape())
+        ret = builder.visit(parser.kernel())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 

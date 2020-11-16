@@ -271,7 +271,7 @@ class PyNestMLParser ( Parser ):
                      u"'real'", u"'string'", u"'boolean'", u"'void'", u"'function'", 
                      u"'inline'", u"'return'", u"'if'", u"'elif'", u"'else'", 
                      u"'for'", u"'while'", u"'in'", u"'step'", u"'inf'", 
-                     u"'and'", u"'or'", u"'not'", u"'recordable'", u"'shape'", 
+                     u"'and'", u"'or'", u"'not'", u"'recordable'", u"'kernel'", 
                      u"'neuron'", u"'state'", u"'parameters'", u"'internals'", 
                      u"'initial_values'", u"'update'", u"'equations'", u"'input'", 
                      u"'output'", u"'current'", u"'spike'", u"'inhibitory'", 
@@ -291,7 +291,7 @@ class PyNestMLParser ( Parser ):
                       u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD", 
                       u"IN_KEYWORD", u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", 
                       u"OR_KEYWORD", u"NOT_KEYWORD", u"RECORDABLE_KEYWORD", 
-                      u"SHAPE_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD", 
+                      u"KERNEL_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD", 
                       u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", 
                       u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", 
                       u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
@@ -322,7 +322,7 @@ class PyNestMLParser ( Parser ):
     RULE_functionCall = 10
     RULE_inlineExpression = 11
     RULE_odeEquation = 12
-    RULE_odeShape = 13
+    RULE_kernel = 13
     RULE_block = 14
     RULE_stmt = 15
     RULE_compoundStmt = 16
@@ -353,7 +353,7 @@ class PyNestMLParser ( Parser ):
                    u"simpleExpression", u"unaryOperator", u"bitOperator", 
                    u"comparisonOperator", u"logicalOperator", u"variable", 
                    u"functionCall", u"inlineExpression", u"odeEquation", 
-                   u"odeShape", u"block", u"stmt", u"compoundStmt", u"smallStmt", 
+                   u"kernel", u"block", u"stmt", u"compoundStmt", u"smallStmt", 
                    u"assignment", u"declaration", u"returnStmt", u"ifStmt", 
                    u"ifClause", u"elifClause", u"elseClause", u"forStmt", 
                    u"whileStmt", u"nestMLCompilationUnit", u"neuron", u"body", 
@@ -388,7 +388,7 @@ class PyNestMLParser ( Parser ):
     OR_KEYWORD=24
     NOT_KEYWORD=25
     RECORDABLE_KEYWORD=26
-    SHAPE_KEYWORD=27
+    KERNEL_KEYWORD=27
     NEURON_KEYWORD=28
     STATE_KEYWORD=29
     PARAMETERS_KEYWORD=30
@@ -1731,14 +1731,14 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-    class OdeShapeContext(ParserRuleContext):
+    class KernelContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
-            super(PyNestMLParser.OdeShapeContext, self).__init__(parent, invokingState)
+            super(PyNestMLParser.KernelContext, self).__init__(parent, invokingState)
             self.parser = parser
 
-        def SHAPE_KEYWORD(self):
-            return self.getToken(PyNestMLParser.SHAPE_KEYWORD, 0)
+        def KERNEL_KEYWORD(self):
+            return self.getToken(PyNestMLParser.KERNEL_KEYWORD, 0)
 
         def variable(self, i=None):
             if i is None:
@@ -1770,26 +1770,26 @@ class PyNestMLParser ( Parser ):
             return self.getToken(PyNestMLParser.SEMICOLON, 0)
 
         def getRuleIndex(self):
-            return PyNestMLParser.RULE_odeShape
+            return PyNestMLParser.RULE_kernel
 
         def accept(self, visitor):
-            if hasattr(visitor, "visitOdeShape"):
-                return visitor.visitOdeShape(self)
+            if hasattr(visitor, "visitKernel"):
+                return visitor.visitKernel(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def odeShape(self):
+    def kernel(self):
 
-        localctx = PyNestMLParser.OdeShapeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_odeShape)
+        localctx = PyNestMLParser.KernelContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 26, self.RULE_kernel)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 242
-            self.match(PyNestMLParser.SHAPE_KEYWORD)
+            self.match(PyNestMLParser.KERNEL_KEYWORD)
             self.state = 243
             self.variable()
             self.state = 244
@@ -3219,11 +3219,11 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.OdeEquationContext,i)
 
 
-        def odeShape(self, i=None):
+        def kernel(self, i=None):
             if i is None:
-                return self.getTypedRuleContexts(PyNestMLParser.OdeShapeContext)
+                return self.getTypedRuleContexts(PyNestMLParser.KernelContext)
             else:
-                return self.getTypedRuleContext(PyNestMLParser.OdeShapeContext,i)
+                return self.getTypedRuleContext(PyNestMLParser.KernelContext,i)
 
 
         def NEWLINE(self, i=None):
@@ -3258,7 +3258,7 @@ class PyNestMLParser ( Parser ):
             self.state = 424
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.SHAPE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD) | (1 << PyNestMLParser.KERNEL_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
                 self.state = 422
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -3270,9 +3270,9 @@ class PyNestMLParser ( Parser ):
                     self.state = 419
                     self.odeEquation()
                     pass
-                elif token in [PyNestMLParser.SHAPE_KEYWORD]:
+                elif token in [PyNestMLParser.KERNEL_KEYWORD]:
                     self.state = 420
-                    self.odeShape()
+                    self.kernel()
                     pass
                 elif token in [PyNestMLParser.NEWLINE]:
                     self.state = 421

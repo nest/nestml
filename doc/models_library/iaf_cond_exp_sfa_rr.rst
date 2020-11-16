@@ -118,8 +118,8 @@ Source code
        g_rr nS = 0nS # inputs from the rr conductance
      end
      equations:
-       shape g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
-       shape g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
+       kernel g_in = exp(-t / tau_syn_in) # inputs from the inh conductance
+       kernel g_ex = exp(-t / tau_syn_ex) # inputs from the exc conductance
        g_sfa'=-g_sfa / tau_sfa
        g_rr'=-g_rr / tau_rr
        function I_syn_exc pA = convolve(g_ex,spikesExc) * (V_m - E_ex)

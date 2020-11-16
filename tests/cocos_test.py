@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # cocos_test.py
 #
@@ -470,7 +471,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoOdeIncorrectlyTyped.nestml'))
         self.assertTrue(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)) > 0)
+                                                                           LoggingLevel.ERROR)) > 0)
 
     def test_valid_ode_correctly_typed(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -487,7 +488,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoOutputPortDefinedIfEmitCall.nestml'))
         self.assertTrue(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)) > 0)
+                                                                           LoggingLevel.ERROR)) > 0)
 
     def test_invalid_output_port_defined_if_emit_call(self):
         """test that an error is raised when the emit_spike() function is called by the neuron, but a spiking output port is not defined"""
@@ -496,7 +497,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoOutputPortDefinedIfEmitCall-2.nestml'))
         self.assertTrue(len(Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0],
-                                                                            LoggingLevel.ERROR)) > 0)
+                                                                           LoggingLevel.ERROR)) > 0)
 
     def test_valid_output_port_defined_if_emit_call(self):
         """test that no error is raised when the output block is missing, but not emit_spike() functions are called"""
@@ -507,36 +508,35 @@ class CoCosTest(unittest.TestCase):
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_valid_coco_shape_type(self):
+    def test_valid_coco_kernel_type(self):
         """
-        Test the functionality of CoCoShapeType.
+        Test the functionality of CoCoKernelType.
         """
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
-                         'CoCoShapeType.nestml'))
+                         'CoCoKernelType.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
 
-    def test_invalid_coco_shape_type(self):
+    def test_invalid_coco_kernel_type(self):
         """
-        Test the functionality of CoCoShapeType.
+        Test the functionality of CoCoKernelType.
         """
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoShapeType.nestml'))
+                         'CoCoKernelType.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
 
-    def test_invalid_coco_shape_type_initial_values(self):
+    def test_invalid_coco_kernel_type_initial_values(self):
         """
-        Test the functionality of CoCoShapeType.
+        Test the functionality of CoCoKernelType.
         """
         Logger.set_logging_level(LoggingLevel.INFO)
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
-                         'CoCoShapeTypeInitialValues.nestml'))
+                         'CoCoKernelTypeInitialValues.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_neuron(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
-

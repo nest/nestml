@@ -69,8 +69,8 @@ neuron hh_cond_exp_traub:
 
   equations:
     # synapses: exponential conductance
-    shape g_in = exp(-1/tau_syn_in*t)
-    shape g_ex = exp(-1/tau_syn_ex*t)
+    kernel g_in = exp(-1/tau_syn_in*t)
+    kernel g_ex = exp(-1/tau_syn_ex*t)
 
     # Add aliases to simplify the equation definition of V_m
     inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )

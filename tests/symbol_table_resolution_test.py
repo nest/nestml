@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # symbol_table_resolution_test.py
 #

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_neuron_name_unique.py
 #
@@ -24,7 +25,7 @@ from pynestml.utils.messages import Messages
 
 class CoCoNeuronNameUnique(CoCo):
     """
-    This coco ensures that for all elements in a single compile units, the names of all neurons are pairwise 
+    This coco ensures that for all elements in a single compile units, the names of all neurons are pairwise
     distinct.
     Allowed:
         neuron a:

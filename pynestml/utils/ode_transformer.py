@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ode_transformer.py
 #
@@ -68,4 +69,3 @@ class OdeTransformer(object):
         vis = ASTHigherOrderVisitor(visit_funcs=fun)
         ast_node.accept(vis)
         return res
-

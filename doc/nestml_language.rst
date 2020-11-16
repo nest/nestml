@@ -411,7 +411,7 @@ The following functions are predefined in NESTML and can be used out of the box:
      - A Dirac delta impulse function at time t.
    * - ``convolve``
      - f, g
-     - The convolution of shape f with spike input port g.
+     - The convolution of kernel f with spike input port g.
    * - ``info``
      - s
      - Log the string s with logging level "info".
@@ -661,7 +661,7 @@ Within the top-level block, the following blocks may be defined:
 -  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
 -  ``initial_values`` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a ``multimeter``.
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
--  ``equations`` - This block contains shape definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
+-  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
 -  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported. No ``end`` is necessary at the end of this block.
 -  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language. The ``update`` block defines the runtime behavior of the neuron. It contains the logic for state
@@ -711,7 +711,7 @@ Spikes arriving at the input port of a neuron can be written as a spike train *s
 
    \large s(t) = \sum_{i=1}^N \delta(t - t_i)
 
-To model the effect that an arriving spike has on the state of the neuron, a convolution with a shape can be used. The shape defines the postsynaptic response shape, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Shape functions` for how to define a shape.) The convolution of the shape with the spike train is defined as follows:
+To model the effect that an arriving spike has on the state of the neuron, a convolution with a kernel can be used. The kernel defines the postsynaptic response kernel, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Kernel functions` for how to define a kernel.) The convolution of the kernel with the spike train is defined as follows:
 
 .. math::
 
@@ -719,14 +719,14 @@ To model the effect that an arriving spike has on the state of the neuron, a con
 
 where :math:`w_i` is the weight of spike :math:`i`.
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic shape ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a shape and input port as its arguments:
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a kernel and input port as its arguments:
 
 .. code-block:: nestml
 
-   shape G = exp(-t/tau_syn)
+   kernel G = exp(-t/tau_syn)
    V_m' = -V_m/tau_m + convolve(G, spikes)
 
-The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Shapes themselves are always untyped.
+The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
 
 
 Multiple input synapses
@@ -742,15 +742,15 @@ If there is more than one line specifying a `spike` or `current` port with the s
      spikes3 nS <- spike
    end
 
-For the sake of keeping the example simple, we assign a decaying exponential-shaped postsynapic response to each input port, each with a different time constant:
+For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
 
 .. code-block:: nestml
 
    equations:
-     shape I_shape1 = exp(-t / tau_syn1)
-     shape I_shape2 = exp(-t / tau_syn2)
-     shape I_shape3 = -exp(-t / tau_syn3)
-     function I_syn pA = convolve(I_shape1, spikes1) - convolve(I_shape2, spikes2) + convolve(I_shape3, spikes3) + ...
+     kernel I_kernel1 = exp(-t / tau_syn1)
+     kernel I_kernel2 = exp(-t / tau_syn2)
+     kernel I_kernel3 = -exp(-t / tau_syn3)
+     function I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3) + ...
      V_abs' = -V_abs/tau_m + I_syn / C_m
    end
 
@@ -771,13 +771,13 @@ After generating and building the model code, a ``receptor_type`` entry is avail
 
 Note that in multisynapse neurons, receptor ports are numbered starting from 1.
 
-We furthermore wish to record the synaptic currents ``I_shape1``, ``I_shape2`` and ``I_shape3``. During code generation, one buffer is created for each combination of (shape, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the shape with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
+We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
 
 .. code-block:: python
 
-   mm = nest.Create('multimeter', params={'record_from': ['I_shape1__X__spikes1',
-                                                          'I_shape2__X__spikes2',
-                                                          'I_shape3__X__spikes3'],
+   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
+                                                          'I_kernel2__X__spikes2',
+                                                          'I_kernel3__X__spikes3'],
                                           'interval': .1})
    nest.Connect(mm, neuron)
 
@@ -838,7 +838,7 @@ The content of spike and current buffers can be used by just using their plain n
 Inline expressions
 ^^^^^^^^^^^^^^^^^^
 
-In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or shape expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
+In the ``equations`` block, inline expressions may be used to reduce redundancy, or improve legibility in the model code. An inline expression is a named expression, that will be "inlined" (effectively, copied-and-pasted in) when its variable symbol is mentioned in subsequent ODE or kernel expressions. In the following example, the inline expression ``h_inf_T`` is defined, and then used in an ODE definition:
 
 .. code-block:: nestml
 
@@ -848,14 +848,14 @@ In the ``equations`` block, inline expressions may be used to reduce redundancy,
 Because of nested substitutions, inline statements may cause the expressions to grow to large size. In case this becomes a problem, it is recommended to use functions instead.
 
 
-Shape functions
+Kernel functions
 ~~~~~~~~~~~~~~~
 
-A `shape` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying shape could be described as a direct function of time, as follows:
+A `kernel` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying kernel could be described as a direct function of time, as follows:
 
 .. code-block:: nestml
 
-   shape g = exp(-t / tau)
+   kernel g = exp(-t / tau)
 
 with time constant, for example, equal to 20 ms:
 
@@ -865,13 +865,13 @@ with time constant, for example, equal to 20 ms:
      tau ms = 20 ms
    end
 
-The start at time :math:`t \geq 0` is an implicit assumption for all shapes.
+The start at time :math:`t \geq 0` is an implicit assumption for all kernels.
 
-Equivalently, the same exponentially decaying shape can be formulated as a differential equation:
+Equivalently, the same exponentially decaying kernel can be formulated as a differential equation:
 
 .. code-block:: nestml
 
-   shape g' = -g / tau
+   kernel g' = -g / tau
 
 In this case, initial values have to be specified up to the order of the differential equation, e.g.:
 
@@ -883,20 +883,20 @@ In this case, initial values have to be specified up to the order of the differe
 
 Here, the ``1`` defines the peak value of the kernel at :math:`t = 0`.
 
-An example second-order kernel is the dual exponential ("alpha") shape, which can be defined in three equivalent ways.
+An example second-order kernel is the dual exponential ("alpha") kernel, which can be defined in three equivalent ways.
 
 (1) As a direct function of time:
 
     .. code-block:: nestml
 
-       shape g = (e/tau) * t * exp(-t/tau)
+       kernel g = (e/tau) * t * exp(-t/tau)
 
 (2) As a system of coupled first-order differential equations:
 
     .. code-block:: nestml
 
-       shape g' = g$ - g  / tau,
-             g$' = -g$ / tau
+       kernel g' = g$ - g  / tau,
+              g$' = -g$ / tau
 
     with initial values:
 
@@ -913,7 +913,7 @@ An example second-order kernel is the dual exponential ("alpha") shape, which ca
 
     .. code-block:: nestml
 
-       shape g'' = (-2/tau) * g' - 1/tau**2) * g
+       kernel g'' = (-2/tau) * g' - 1/tau**2) * g
 
     with initial values:
 
@@ -924,11 +924,11 @@ An example second-order kernel is the dual exponential ("alpha") shape, which ca
          g' ms**-1 = e / tau
        end
 
-A Dirac delta impulse shape can be defined by using the predefined function ``delta``:
+A Dirac delta impulse kernel can be defined by using the predefined function ``delta``:
 
 .. code-block:: nestml
 
-   shape g = delta(t)
+   kernel g = delta(t)
 
 
 Solver selection

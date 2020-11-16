@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_declaration.py
 #
@@ -55,8 +56,8 @@ class ASTDeclaration(ASTNode):
         invariant = None
     """
 
-    def __init__(self, is_recordable:bool=False, is_function:bool=False, _variables:Optional[List[ASTVariable]]=None, data_type:Optional[ASTDataType]=None, size_parameter:Optional[str]=None,
-                 expression:Optional[ASTExpression]=None, invariant:Optional[ASTExpression]=None, *args, **kwargs):
+    def __init__(self, is_recordable: bool = False, is_function: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
+                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -108,20 +109,20 @@ class ASTDeclaration(ASTNode):
         if self.invariant:
             invariant_dup = self.invariant.clone()
         dup = ASTDeclaration(is_recordable=self.is_recordable,
-         is_function=self.is_function,
-         _variables=variables_dup,
-         data_type=data_type_dup,
-         size_parameter=self.size_parameter,
-         expression=expression_dup,
-         invariant=invariant_dup,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                             is_function=self.is_function,
+                             _variables=variables_dup,
+                             data_type=data_type_dup,
+                             size_parameter=self.size_parameter,
+                             expression=expression_dup,
+                             invariant=invariant_dup,
+                             # ASTNode common attributes:
+                             source_position=self.source_position,
+                             scope=self.scope,
+                             comment=self.comment,
+                             pre_comments=[s for s in self.pre_comments],
+                             in_comment=self.in_comment,
+                             post_comments=[s for s in self.post_comments],
+                             implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 

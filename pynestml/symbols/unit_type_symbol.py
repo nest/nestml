@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # unit_type_symbol.py
 #
@@ -22,6 +23,7 @@ from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
+
 
 class UnitTypeSymbol(TypeSymbol):
 
@@ -95,7 +97,7 @@ class UnitTypeSymbol(TypeSymbol):
         if isinstance(power, ErrorTypeSymbol):
             return power
         if isinstance(power, int) \
-         or isinstance(power, float):
+                or isinstance(power, float):
             return self.to_the_power_of(power)
         return self.binary_operation_not_defined_error('**', power)
 
@@ -167,5 +169,5 @@ class UnitTypeSymbol(TypeSymbol):
             try:
                 self.unit.get_unit().to(_other_type.unit.get_unit())
                 return True
-            except:
+            except BaseException:
                 return False

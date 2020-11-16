@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # error_listener.py
 #
@@ -22,6 +23,7 @@
 This class contains several method used to parse handed over models and returns them as one or more AST trees.
 """
 from antlr4.error.ErrorListener import ConsoleErrorListener, ErrorListener
+
 
 class NestMLErrorListener(ErrorListener):
     """helper class to listen for parser errors and record whether an error has occurred"""

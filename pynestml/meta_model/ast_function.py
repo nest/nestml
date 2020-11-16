@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_function.py
 #
@@ -88,18 +89,18 @@ class ASTFunction(ASTNode):
         if self.parameters:
             parameters_dup = [parameter.clone() for parameter in self.parameters]
         dup = ASTFunction(name=self.name,
-         parameters=parameters_dup,
-         return_type=return_type_dup,
-         block=block_dup,
-         type_symbol=self.type_symbol,
-         # ASTNode common attributes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                          parameters=parameters_dup,
+                          return_type=return_type_dup,
+                          block=block_dup,
+                          type_symbol=self.type_symbol,
+                          # ASTNode common attributes:
+                          source_position=self.source_position,
+                          scope=self.scope,
+                          comment=self.comment,
+                          pre_comments=[s for s in self.pre_comments],
+                          in_comment=self.in_comment,
+                          post_comments=[s for s in self.post_comments],
+                          implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -138,7 +139,7 @@ class ASTFunction(ASTNode):
     def get_return_type(self):
         """
         Returns the return type of function.
-        :return: the return type 
+        :return: the return type
         :rtype: ast_data_type
         """
         return self.return_type
@@ -212,7 +213,7 @@ class ASTFunction(ASTNode):
                 return False
         if self.has_return_type() + other.has_return_type() == 1:
             return False
-        if (self.has_return_type() and other.has_return_type() and
-                not self.get_return_type().equals(other.get_return_type())):
+        if (self.has_return_type() and other.has_return_type()
+                and not self.get_return_type().equals(other.get_return_type())):
             return False
         return self.get_block().equals(other.get_block())

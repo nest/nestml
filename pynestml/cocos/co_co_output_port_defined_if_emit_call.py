@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_output_port_defined_if_emit_call.py
 #

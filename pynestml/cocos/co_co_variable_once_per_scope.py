@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_variable_once_per_scope.py
 #
@@ -54,8 +55,8 @@ class CoCoVariableOncePerScope(CoCo):
                 continue
             for sym2 in scope.get_symbols_in_complete_scope():
                 if sym1 is not sym2 \
-                 and sym1.get_symbol_name() == sym2.get_symbol_name() \
-                 and sym2 not in checked:
+                        and sym1.get_symbol_name() == sym2.get_symbol_name() \
+                        and sym2 not in checked:
                     if sym2.get_symbol_kind() == SymbolKind.TYPE:
                         code, message = Messages.get_variable_with_same_name_as_type(sym1.get_symbol_name())
                         Logger.log_message(error_position=sym1.get_referenced_object().get_source_position(),

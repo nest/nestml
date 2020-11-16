@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # debug_type_converter.py
 #

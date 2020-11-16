@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_declarations_helper.py
 #
@@ -28,7 +29,7 @@ class NestDeclarationsHelper(object):
     """
     This class contains several methods as used during generation of code.
     """
-    
+
     def __init__(self):
         """
         Initialized the declaration helper.

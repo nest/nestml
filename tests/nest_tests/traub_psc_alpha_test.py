@@ -1,6 +1,23 @@
-"""
-traub_psc_alpha_test.py
-"""
+# -*- coding: utf-8 -*-
+#
+# traub_psc_alpha_test.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import nest
@@ -12,9 +29,8 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
-
 
 
 class NestWBCondExpTest(unittest.TestCase):
@@ -25,7 +41,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
+            os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/travis/nest_install"
@@ -53,15 +69,15 @@ class NestWBCondExpTest(unittest.TestCase):
         multimeter = nest.Create("multimeter")
         multimeter.set({"record_from": ["V_m"],
                         "interval": dt})
-        spikedetector = nest.Create("spike_detector")
+        spike_recorder = nest.Create("spike_recorder")
         nest.Connect(multimeter, neuron)
-        nest.Connect(neuron, spikedetector)
+        nest.Connect(neuron, spike_recorder)
         nest.Simulate(t_simulation)
 
         dmm = nest.GetStatus(multimeter)[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
-        dSD = nest.GetStatus(spikedetector, keys='events')[0]
+        dSD = nest.GetStatus(spike_recorder, keys='events')[0]
         spikes = dSD['senders']
         ts = dSD["times"]
 
@@ -71,7 +87,6 @@ class NestWBCondExpTest(unittest.TestCase):
         tolerance_value = 5  # Hz
 
         self.assertLessEqual(expected_value, tolerance_value)
-
 
         if TEST_PLOTS:
 
@@ -89,6 +104,7 @@ class NestWBCondExpTest(unittest.TestCase):
 
             plt.savefig("resources/traub_psc_alpha.png")
             # plt.show()
+
 
 if __name__ == "__main__":
     unittest.main()

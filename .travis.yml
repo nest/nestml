@@ -36,6 +36,7 @@ before_install:
   - pip install -r requirements.txt
   - pip uninstall --yes sympy
   - pip install sympy==1.4
+  - pip install pycodestyle
 
   # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
   - pip uninstall --yes odetoolbox
@@ -56,11 +57,15 @@ before_script:
   - cd ../..
 
 stages:
+  - pycodestyle
   - test
   - integration
 
 jobs:
   include:
+    - stage: pycodestyle
+      script: python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle /home/travis/build/nest/nestml -v --ignore=E241,E501,E303,E714,E713,E714,E252,W503 --exclude=/home/travis/build/nest/nestml/doc,/home/travis/build/nest/nestml/.git,/home/travis/build/nest/nestml/NESTML.egg-info,/home/travis/build/nest/nestml/pynestml/generated,/home/travis/build/nest/nestml/extras,/home/travis/build/nest/nestml/build
+
     - stage: test
       script: pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests
 
@@ -69,10 +74,7 @@ jobs:
         # install nest-simulator
         - pip install cython pytest-xdist
         - cd
-        - git clone https://github.com/nest/nest-simulator
-        - cd nest-simulator
-        - git checkout a19db02876c796eee7de8b6ea8414f188473e10a
-        - cd ..
+        - git clone --depth=1 https://github.com/nest/nest-simulator
         - mkdir nest_install
         - cd nest_install
         - export PYTHON_INCLUDE_DIR=`python3 -c "from sysconfig import get_paths; info = get_paths(); print(info['include'])"`

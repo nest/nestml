@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_no_nest_name_space_collision.py
 #
@@ -36,7 +37,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
       "init_buffers_"
     Allowed:
         function fun(...)
-    Not allowed:    
+    Not allowed:
         function handle(...) <- collision
     """
     nest_name_space = ['update', 'calibrate', 'handle', 'connect_sender', 'check_connection', 'get_status',

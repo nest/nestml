@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 #
-# co_co_odes_have_consistent_units.py
+# co_co_ode_functions_have_consistent_units.py
 #
 # This file is part of NEST.
 #
@@ -23,6 +24,7 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.symbols.symbol import SymbolKind
 from astropy import units
+
 
 class CoCoOdeFunctionsHaveConsistentUnits(CoCo):
     """
@@ -50,5 +52,7 @@ class OdeFunctionConsistentUnitsVisitor(ASTVisitor):
         declared_type = node.get_data_type().type_symbol
         expression_type = node.get_expression().type
         if not expression_type.is_castable_to(declared_type):
-            code, message = Messages.get_ode_function_needs_consistent_units(node.get_variable_name(), declared_type, expression_type)
-            Logger.log_message(error_position=node.get_source_position(), code=code, message=message, log_level=LoggingLevel.ERROR)
+            code, message = Messages.get_ode_function_needs_consistent_units(
+                node.get_variable_name(), declared_type, expression_type)
+            Logger.log_message(error_position=node.get_source_position(), code=code,
+                               message=message, log_level=LoggingLevel.ERROR)

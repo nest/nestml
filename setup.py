@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # setup.py
 #
@@ -50,8 +51,8 @@ setup(
     package_data={"pynestml": ["codegeneration/resources_nest/*.jinja2",
                                "codegeneration/resources_nest/setup/*.jinja2",
                                "codegeneration/resources_nest/directives/*.jinja2"]},
-    data_files = data_files,
-    entry_points = {
+    data_files=data_files,
+    entry_points={
         "console_scripts": [
             "nestml = pynestml.frontend.pynestml_frontend:main",
         ],
@@ -60,4 +61,3 @@ setup(
     install_requires=requirements,
     test_suite="tests",
 )
-

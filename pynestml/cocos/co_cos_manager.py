@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_cos_manager.py
 #
@@ -34,10 +35,10 @@ from pynestml.cocos.co_co_init_vars_with_odes_provided import CoCoInitVarsWithOd
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
-from pynestml.cocos.co_co_no_shapes_except_in_convolve import CoCoNoShapesExceptInConvolve
+from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
 from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
-from pynestml.cocos.co_co_shape_type import CoCoShapeType
+from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
@@ -51,6 +52,7 @@ from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScop
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.meta_model.ast_neuron import ASTNeuron
+
 
 class CoCosManager(object):
     """
@@ -104,7 +106,7 @@ class CoCosManager(object):
     @classmethod
     def check_functions_have_rhs(cls, neuron):
         """
-        Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV 
+        Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV
         :param neuron: a single neuron object
         :type neuron: ast_neuron
         """
@@ -113,7 +115,7 @@ class CoCosManager(object):
     @classmethod
     def check_function_has_max_one_lhs(cls, neuron):
         """
-        Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV 
+        Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
@@ -174,11 +176,11 @@ class CoCosManager(object):
         CoCoBufferQualifierUnique.check_co_co(neuron)
 
     @classmethod
-    def check_shape_type(cls, neuron: ASTNeuron) -> None:
+    def check_kernel_type(cls, neuron: ASTNeuron) -> None:
         """
-        Checks that all defined shapes have type real.
+        Checks that all defined kernels have type real.
         """
-        CoCoShapeType.check_co_co(neuron)
+        CoCoKernelType.check_co_co(neuron)
 
     @classmethod
     def check_parameters_not_assigned_outside_parameters_block(cls, neuron):
@@ -272,13 +274,13 @@ class CoCosManager(object):
         CoCoConvolveCondCorrectlyBuilt.check_co_co(neuron)
 
     @classmethod
-    def check_correct_usage_of_shapes(cls, neuron):
+    def check_correct_usage_of_kernels(cls, neuron):
         """
-        Checks if all shapes are only used in convolve.
+        Checks if all kernels are only used in convolve.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """
-        CoCoNoShapesExceptInConvolve.check_co_co(neuron)
+        CoCoNoKernelsExceptInConvolve.check_co_co(neuron)
 
     @classmethod
     def check_not_two_neurons_across_units(cls, compilation_units):
@@ -330,7 +332,7 @@ class CoCosManager(object):
         CoCoSimpleDeltaFunction.check_co_co(neuron)
 
     @classmethod
-    def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool=False):
+    def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
         :param neuron: a single neuron object.
@@ -352,13 +354,14 @@ class CoCosManager(object):
         cls.check_buffer_types_are_correct(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
-        cls.check_shape_type(neuron)
+        cls.check_kernel_type(neuron)
         cls.check_convolve_cond_curr_is_correct(neuron)
         cls.check_output_port_defined_if_emit_call(neuron)
         if not after_ast_rewrite:
-            cls.check_odes_have_consistent_units(neuron)        # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
+            # units might be incorrect due to e.g. refactoring convolve call (Real type assigned)
+            cls.check_odes_have_consistent_units(neuron)
             cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
-            cls.check_correct_usage_of_shapes(neuron)
+            cls.check_correct_usage_of_kernels(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)
@@ -385,4 +388,3 @@ class CoCosManager(object):
         :type neuron: ast_neuron
         """
         CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
-

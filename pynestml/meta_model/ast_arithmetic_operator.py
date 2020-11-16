@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ast_arithmetic_operator.py
 #
@@ -12,7 +13,7 @@
 #
 # NEST is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -36,7 +37,7 @@ class ASTArithmeticOperator(ASTNode):
         is_pow_op = False  # type:bool
     """
 
-    def __init__(self, is_times_op:bool, is_div_op:bool, is_modulo_op:bool, is_plus_op:bool, is_minus_op:bool, is_pow_op:bool, *args, **kwargs):
+    def __init__(self, is_times_op: bool, is_div_op: bool, is_modulo_op: bool, is_plus_op: bool, is_minus_op: bool, is_pow_op: bool, *args, **kwargs):
         super(ASTArithmeticOperator, self).__init__(*args, **kwargs)
         assert ((is_times_op + is_div_op + is_modulo_op + is_plus_op + is_minus_op + is_pow_op) == 1), \
             '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified!'
@@ -55,22 +56,21 @@ class ASTArithmeticOperator(ASTNode):
         :rtype: ASTArithmeticOperator
         """
         dup = ASTArithmeticOperator(is_times_op=self.is_times_op,
-         is_div_op=self.is_div_op,
-         is_modulo_op=self.is_modulo_op,
-         is_plus_op=self.is_plus_op,
-         is_minus_op=self.is_minus_op,
-         is_pow_op=self.is_pow_op,
-         # ASTNode common attriutes:
-         source_position=self.source_position,
-         scope=self.scope,
-         comment=self.comment,
-         pre_comments=[s for s in self.pre_comments],
-         in_comment=self.in_comment,
-         post_comments=[s for s in self.post_comments],
-         implicit_conversion_factor=self.implicit_conversion_factor)
+                                    is_div_op=self.is_div_op,
+                                    is_modulo_op=self.is_modulo_op,
+                                    is_plus_op=self.is_plus_op,
+                                    is_minus_op=self.is_minus_op,
+                                    is_pow_op=self.is_pow_op,
+                                    # ASTNode common attriutes:
+                                    source_position=self.source_position,
+                                    scope=self.scope,
+                                    comment=self.comment,
+                                    pre_comments=[s for s in self.pre_comments],
+                                    in_comment=self.in_comment,
+                                    post_comments=[s for s in self.post_comments],
+                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
-
 
     def get_parent(self, ast):
         """
@@ -89,6 +89,6 @@ class ASTArithmeticOperator(ASTNode):
         """
         if not isinstance(other, ASTArithmeticOperator):
             return False
-        return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op and
-                self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op and
-                self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)
+        return (self.is_times_op == other.is_times_op and self.is_div_op == other.is_div_op
+                and self.is_modulo_op == other.is_modulo_op and self.is_plus_op == other.is_plus_op
+                and self.is_minus_op == other.is_minus_op and self.is_pow_op == other.is_pow_op)

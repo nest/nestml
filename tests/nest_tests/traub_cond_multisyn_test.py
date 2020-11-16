@@ -1,6 +1,23 @@
-"""
-traub_cond_multisyn_test.py
-"""
+# -*- coding: utf-8 -*-
+#
+# traub_cond_multisyn_test.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import nest
@@ -12,7 +29,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt
     TEST_PLOTS = True
-except:
+except BaseException:
     TEST_PLOTS = False
 
 
@@ -24,7 +41,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-        os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
+            os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = "/home/travis/nest_install"
@@ -60,8 +77,7 @@ class NestWBCondExpTest(unittest.TestCase):
                        "I_syn_nmda", "I_syn_gaba_a", "I_syn_gaba_b"]
         multimeter[1].set({"record_from": record_from,
                            "interval": dt})
-        #! {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
-        # nest.Connect(neuron1, neuron2)
+        # {'AMPA': 1, 'NMDA': 2, 'GABA_A': 3, 'GABA_B': 4}
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 1})  # AMPA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 2})  # NMDA
         nest.Connect(neuron1, neuron2, syn_spec={"receptor_type": 3})  # GABAA
@@ -70,15 +86,15 @@ class NestWBCondExpTest(unittest.TestCase):
         nest.Connect(multimeter[0], neuron1, "one_to_one")
         nest.Connect(multimeter[1], neuron2)
 
-        spikedetector = nest.Create("spike_detector")
-        nest.Connect(neuron1, spikedetector)
+        spike_recorder = nest.Create("spike_recorder")
+        nest.Connect(neuron1, spike_recorder)
         nest.Simulate(t_simulation)
 
         dmm = nest.GetStatus(multimeter)[1]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
 
-        dSD = nest.GetStatus(spikedetector, keys='events')[0]
+        dSD = nest.GetStatus(spike_recorder, keys='events')[0]
         spikes = dSD['senders']
         ts = dSD["times"]
 

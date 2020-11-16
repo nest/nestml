@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # nest_reference_converter.py
 #
@@ -127,10 +128,10 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'std::log10({!s})'
 
         if function_name == PredefinedFunctions.COSH:
-              return 'std::cosh({!s})'
+            return 'std::cosh({!s})'
 
         if function_name == PredefinedFunctions.SINH:
-              return 'std::sinh({!s})'
+            return 'std::sinh({!s})'
 
         if function_name == PredefinedFunctions.TANH:
             return 'std::tanh({!s})'
@@ -150,7 +151,8 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
 
         # suppress prefix for misc. predefined functions
-        function_is_predefined = PredefinedFunctions.get_function(function_name)  # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
+        function_is_predefined = PredefinedFunctions.get_function(function_name)
         if function_is_predefined:
             prefix = ''
 
@@ -186,7 +188,7 @@ class NESTReferenceConverter(IReferenceConverter):
 
             code, message = Messages.get_could_not_resolve(variable_name)
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                              error_position=variable.get_source_position())
+                               error_position=variable.get_source_position())
             return ''
 
         if symbol.is_local():
@@ -210,7 +212,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if symbol.is_function:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
-        if symbol.is_shape():
+        if symbol.is_kernel():
             print("Printing node " + str(symbol.name))
 
         if symbol.is_init_values():
@@ -223,8 +225,8 @@ class NESTReferenceConverter(IReferenceConverter):
             return temp
 
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
-               NestNamesConverter.name(symbol) + \
-               ('[i]' if symbol.has_vector_parameter() else '')
+            NestNamesConverter.name(symbol) + \
+            ('[i]' if symbol.has_vector_parameter() else '')
 
     @classmethod
     def convert_constant(cls, constant_name):
@@ -369,4 +371,3 @@ class NESTReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         return '(' + '%s' + ') ? (' + '%s' + ') : (' + '%s' + ')'
-

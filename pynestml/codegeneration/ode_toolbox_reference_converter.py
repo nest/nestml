@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # ode_toolbox_reference_converter.py
 #

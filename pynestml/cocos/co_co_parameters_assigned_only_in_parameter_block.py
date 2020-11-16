@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # co_co_parameters_assigned_only_in_parameter_block.py
 #
@@ -41,7 +42,7 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
         ...
         update:
            par = 20mV
-        end    
+        end
     """
 
     @classmethod
@@ -69,8 +70,8 @@ class ParametersAssignmentVisitor(ASTVisitor):
         :type node: ast_assignment
         """
         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-        if (symbol is not None and symbol.block_type == BlockType.PARAMETERS and
-                node.get_scope().get_scope_type() != ScopeType.GLOBAL):
+        if (symbol is not None and symbol.block_type == BlockType.PARAMETERS
+                and node.get_scope().get_scope_type() != ScopeType.GLOBAL):
             code, message = Messages.get_assignment_not_allowed(node.get_variable().get_complete_name())
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message,
