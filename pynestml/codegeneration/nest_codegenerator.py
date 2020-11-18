@@ -544,7 +544,7 @@ class NESTCodeGenerator(CodeGenerator):
                 print("Moving state var defining equation(s) " + str(state_var))
                 equations_from_syn_to_neuron(state_var, new_synapse.get_equations_block(), new_neuron.get_equations_block(), var_name_suffix, mode="move")
 
-            print(neuron)
+            new_neuron._transferred_variables = [neuron_state_var + var_name_suffix for neuron_state_var in neuron_state_vars]
 
 
             #
@@ -753,7 +753,7 @@ class NESTCodeGenerator(CodeGenerator):
                 print("Moving parameter with name " + str(state_var) + " from synapse to neuron")
                 param_from_syn_to_neuron(state_var, new_synapse.get_parameter_blocks(), new_neuron.get_parameter_blocks(), var_name_suffix, mode="move")
 
-
+            new_neuron.recursive_vars_used = recursive_vars_used
 
 
             #
@@ -797,6 +797,9 @@ class NESTCodeGenerator(CodeGenerator):
     def generate_code(self, neurons, synapses):
         if self._options and "neuron_synapse_dyads" in self._options:
             neurons, synapses = self.analyse_transform_neuron_synapse_dyads(neurons, synapses)
+        print("After dyad magics, before invoking ODE-toolbox...")
+        print("Dyad neuron:")
+        print(neurons[1])
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -849,6 +852,7 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             spike_updates, post_spike_updates = self.analyse_neuron(neuron)
             neuron.spike_updates = spike_updates
+            neuron.post_spike_updates = post_spike_updates
             # now store the transformed model
             self.store_transformed_model(neuron)
 
@@ -1151,7 +1155,6 @@ class NESTCodeGenerator(CodeGenerator):
         For a handed over neuron, this method generates the corresponding header file.
         :param neuron: a single neuron object.
         """
-        # print("!!!", neuron)
         neuron_h_file = self._template_neuron_h_file.render(self.setup_neuron_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
             f.write(str(neuron_h_file))
@@ -1281,8 +1284,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         if 'dyadic_synapse_partner' in dir(neuron):
             namespace['dyadic_synapse_partner'] = neuron.dyadic_synapse_partner.get_name()
-#            namespace["dyad_spike_updates"] = neuron.dyad_spike_updates
-
+            namespace["dyad_spike_updates"] = neuron.post_spike_updates
+            namespace['transferred_variables'] = neuron._transferred_variables
         namespace['neuronName'] = neuron.get_name()
         namespace['neuron'] = neuron
         namespace['astnode'] = neuron
@@ -1308,13 +1311,32 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
         if namespace['uses_analytic_solver']:
-            namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
+            namespace['analytic_state_variables_moved'] = []
+            if 'dyadic_synapse_partner' in dir(neuron):
+                namespace['analytic_state_variables'] = []
+                for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
+                    moved = False
+                    for mv in neuron.recursive_vars_used:
+                        name_snip = mv + "__"
+                        if name_snip == sv[:len(name_snip)]:
+                            # this variable was moved from synapse to neuron
+                            if not sv in namespace['analytic_state_variables_moved']:
+                                namespace['analytic_state_variables_moved'].append(sv)
+                                moved = True
+                    if not moved:
+                        namespace['analytic_state_variables'].append(sv)
+                        print("analytic_state_variables: " + str(namespace['analytic_state_variables']))
+                namespace['analytic_variable_symbols_moved'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                    sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables_moved']}
+            else:
+                namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
             namespace['analytic_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']}
+
             namespace['update_expressions'] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
-            for sym in namespace['analytic_state_variables']:
+            for sym in namespace['analytic_state_variables'] + namespace['analytic_state_variables_moved']:
                 expr_str = self.analytic_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
@@ -1527,17 +1549,22 @@ class NESTCodeGenerator(CodeGenerator):
         Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
         """
         spike_updates = []
-        post_spike_updates = []
+        post_spike_updates = {}
         initial_values = neuron.get_initial_values_blocks()
 
         for kernel, spike_input_port in kernel_buffers:
-            if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+            if is_delta_kernel(kernel):
                 continue
 
-                if not ("_is_post_port" in dir(spike_input_port.get_variable()) \
-                 and spike_input_port.get_variable()._is_post_port):
-                    # not a post port
-                    raise Exception("Input port " + str(spike_input_port) + " not found")
+            '''if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+                print("failure resolving symbol: "+ str(spike_input_port))
+                # this case covers variables that were moved from synapse to the neuron
+                continue'''
+
+            '''if not ("_is_post_port" in dir(spike_input_port.get_variable()) \
+             and spike_input_port.get_variable()._is_post_port):
+                # not a post port
+                raise Exception("Input port " + str(spike_input_port) + " not found")'''
 
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
              and spike_input_port.get_variable()._is_post_port:
@@ -1547,9 +1574,6 @@ class NESTCodeGenerator(CodeGenerator):
                 buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 
             assert not buffer_type is None
-
-            if is_delta_kernel(kernel):
-                continue
 
             for kernel_var in kernel.get_variables():
                 for var_order in range(get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
@@ -1578,7 +1602,11 @@ class NESTCodeGenerator(CodeGenerator):
                     ast_assignment.update_scope(neuron.get_scope())
                     ast_assignment.accept(ASTSymbolTableVisitor())
 
-                    if "_is_post_port" in dir(spike_input_port.get_variable()) \
+                    if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
+                        print("failure resolving symbol: "+ str(spike_input_port))
+                        # this case covers variables that were moved from synapse to the neuron
+                        post_spike_updates[kernel_var.get_name()] = ast_assignment
+                    elif "_is_post_port" in dir(spike_input_port.get_variable()) \
                      and spike_input_port.get_variable()._is_post_port:
                         print("adding post assignment string: " + str(ast_assignment))
                         spike_updates.append(ast_assignment)

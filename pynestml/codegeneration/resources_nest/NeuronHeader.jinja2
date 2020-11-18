@@ -1,3 +1,4 @@
+
 {#
 /*
 *  NeuronHeader.jinja2
@@ -96,24 +97,21 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 class histentry
 {
 public:
-  histentry( double t, double Kminus, double Kminus_triplet, size_t access_counter );
+  histentry( double t, double {{var}}, size_t access_counter )
+  : t_( t )
+  , {{var}}_( {{var}} ),
+  , access_counter_( access_counter )
+  {
+  }
 
   double t_;              //!< point in time when spike occurred (in ms)
-  double Kminus_;         //!< value of Kminus at that time
-  double Kminus_triplet_; //!< value of triplet STDP Kminus at that time
+{%- for var in transferred_variables %}
+   double {{var}}_;
+{%- endfor %}
   size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
 };
 
-// entry in the history of plasticity rules which consider additional factors
-class histentry_extended
-{
-public:
-  histentry_extended( double t, double dw, size_t access_counter );
 
-  double t_;              //!< point in time when spike occurred (in ms)
-  double dw_;             //!< value dependend on the additional factor
-  size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
-};
 
 {%- endif %}
 
@@ -154,7 +152,7 @@ public:
 
   Receives: {% if is_spike_input %}Spike, {% endif %}{% if is_current_input %}Current,{% endif %} DataLoggingRequest
 */
-class {{neuronName}} : public nest::Structural_Plasticity_Node{
+class {{neuronName}} : public nest::StructuralPlasticityNode{
 public:
   /**
   * The constructor is only used to create the model prototype in the model manager.
@@ -259,6 +257,9 @@ protected:
 {%- endif %}
 
 private:
+  void calibrate_variables(bool exclude_timestep=false);
+
+
 {%- if dyadic_synapse_partner is defined %}
   // support for spike archiving
 
@@ -479,11 +480,11 @@ public: // XXX! TODO: should be private
 
   /* getters/setters for state block */
 
-  {%- for state in neuron.get_state_symbols() -%}
-  {%- with variable = state -%}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {%- endwith -%}
-  {%- endfor -%}
+  {%- for state in neuron.get_state_symbols() %}
+  {%- with variable = state %}
+  {%- include "directives/MemberVariableGetterSetter.jinja2" %}
+  {%- endwith %}
+  {%- endfor %}
 
   /* getters/setters for initial values block (excluding functions) */
 
@@ -505,19 +506,21 @@ public: // XXX! TODO: should be private
 
   /* getters/setters for parameters */
 
-  {% for internal in neuron.get_internal_non_alias_symbols() -%}
-  {% with variable = internal -%}
-  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {% endwith -%}
-  {% endfor -%}
+  {%- for internal in neuron.get_internal_non_alias_symbols() %}
+  {%- with variable = internal %}
+  {%- include "directives/MemberVariableGetterSetter.jinja2" %}
+  {%- endwith %}
+  {%- endfor %}
 
   /* getters/setters for functions */
 
-  {% for funcsym in neuron.get_function_symbols() %}
-  {% with variable = funcsym %}
-  {% include "directives/MemberVariableGetterSetter.jinja2" -%}
-  {% endwith -%}
-  {% endfor %}
+  {%- for funcsym in neuron.get_function_symbols() %}
+  {%- with variable = funcsym %}
+  {# if not "__for" in funcsym.get_symbol_name() #}
+  {%- include "directives/MemberVariableGetterSetter.jinja2" %}
+  {# endif #}
+  {%- endwith -%}
+  {%- endfor %}
 
   /* getters/setters for input buffers */
 
@@ -656,7 +659,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endwith %}
   {%- endfor %}
 
-  Structural_Plasticity_Node::get_status( __d );
+  StructuralPlasticityNode::get_status( __d );
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
@@ -710,7 +713,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   // write them back to (P_, S_) before we are also sure that
   // the properties to be set in the parent class are internally
   // consistent.
-  Structural_Plasticity_Node::set_status(__d);
+  StructuralPlasticityNode::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
   {%- for parameter in neuron.get_parameter_symbols() -%}

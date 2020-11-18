@@ -502,7 +502,7 @@ assert(0);
     try {
       dynamic_cast<{{dyadic_neuron_partner}}&>(t);
     }
-    catch (std::bad_cast exp) {
+    catch (std::bad_cast &exp) {
       std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{dyadic_neuron_partner}}'.\n";
       exit(1);
     }
