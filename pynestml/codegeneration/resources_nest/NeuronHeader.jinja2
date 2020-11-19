@@ -97,9 +97,15 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 class histentry
 {
 public:
-  histentry( double t, double {{var}}, size_t access_counter )
+  histentry( double t,
+{%- for var in transferred_variables %}
+double {{var}},
+{%- endfor %}
+size_t access_counter )
   : t_( t )
-  , {{var}}_( {{var}} ),
+{%- for var in transferred_variables %}
+  , {{var}}_( {{var}} )
+{%- endfor %}
   , access_counter_( access_counter )
   {
   }
@@ -274,6 +280,17 @@ private:
 
   // spiking history needed by stdp synapses
   std::deque< histentry > history_;
+
+  // cache for initial values
+{%- for funcsym in neuron.get_function_symbols() %}
+{%- with var = funcsym %}
+{%- if "__for" in funcsym.get_symbol_name() %}
+double {{var.get_symbol_name()}}__iv;
+{%- endif %}
+{%- endwith %}
+{%- endfor %}
+
+
 {%- endif %}
 
 public: // XXX! TODO: should be private
@@ -534,6 +551,18 @@ public: // XXX! TODO: should be private
   {{printer.print_function_declaration(function)}};
   {% endfor %}
 
+{%- if dyadic_synapse_partner is defined %}
+  {%- for funcsym in neuron.get_function_symbols() %}
+  {%- with var = funcsym %}
+  {%- if "__for" in funcsym.get_symbol_name() %}
+  double get_{{var.get_symbol_name()}}( double t );
+  {%- endif %}
+  {%- endwith %}
+  {%- endfor %}
+{%- endif %}
+
+
+
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,
@@ -559,6 +588,12 @@ public: // XXX! TODO: should be private
   {%- if norm_rng -%}
   librandom::NormalRandomDev normal_dev_; //!< random deviate generator
   {% endif %}
+
+
+
+
+
+
 
 /** @} */
 }; /* neuron {{neuronName}} */

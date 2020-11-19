@@ -202,10 +202,20 @@ namespace nest
 {%- endfor %}
 {%- endfilter %}
 
-{%- if dyadic_neuron_partner is defined %}
+{%- if dyadic_synapse_partner is defined %}
+  // state variables for archiving state for dyadic synaptic partner
   n_incoming_ = 0;
   max_delay_ = 0;
   last_spike_ = -1.;
+
+  // cache initial values
+{%- for funcsym in neuron.get_function_symbols() %}
+{%- with var = funcsym %}
+{%- if "__for" in funcsym.get_symbol_name() %}
+{{var.get_symbol_name()}}__iv = {{names.getter(var)}}();
+{%- endif %}
+{%- endwith %}
+{%- endfor %}                        
 {%- endif %}
 }
 
@@ -477,7 +487,7 @@ void
 {{neuronName}}::register_stdp_connection( double t_first_read, double delay )
 {
   // Mark all entries in the deque, which we will not read in future as read by
-  // this input input, so that we savely increment the incoming number of
+  // this input input, so that we safely increment the incoming number of
   // connections afterwards without leaving spikes in the history.
   // For details see bug #218. MH 08-04-22
 
@@ -599,14 +609,12 @@ void
         S_.{{names.name(spike_update.get_variable())}} += 1.;
 {%- endfor %}
             
-
-//    Kminus_ = Kminus_ * std::exp( ( last_spike_ - t_sp_ms ) * tau_minus_inv_ ) + 1.0;
-//    Kminus_triplet_ = Kminus_triplet_ * std::exp( ( last_spike_ - t_sp_ms ) * tau_minus_triplet_inv_ ) + 1.0;
     last_spike_ = t_sp_ms;
-    history_.push_back( histentry( last_spike_, 
+    history_.push_back( histentry( last_spike_
 {%- for var in transferred_variables %}
-    {{var}},
+    , get_{{var}}()
 {%- endfor %}
+, 0
  ) );
   }
   else
@@ -628,20 +636,22 @@ void
   {%- for funcsym in neuron.get_function_symbols() %}
   {%- with var = funcsym %}
   {%- if "__for" in funcsym.get_symbol_name() %}
+
 double
-{{neuronName}}::get_{{var}}( double t )
+{{neuronName}}::get_{{var.get_symbol_name()}}( double t )
 {
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
-    return INITIAL_VALUE(XYZ); // XXX TODO
+    // return initial value
+    return {{var.get_symbol_name()}}__iv;
   }
 
   // search for the latest post spike in the history buffer that came strictly before `t`
   int i = history_.size() - 1;
   while ( i >= 0 )
   {
-    if ( t - history_[ i ].t_ > kernel().connection_manager.get_stdp_eps() )
+    if ( t - history_[ i ].t_ > nest::kernel().connection_manager.get_stdp_eps() )
     {
 
         /**
@@ -693,9 +703,9 @@ double
     --i;
   }
 
-  // this case occurs when the trace was requested at a time precisely at or
-  // before the first spike in the history
-  return INITIAL_VALUE(XYZ); // XXX TODO
+  // this case occurs when the trace was requested at a time precisely at or before the first spike in the history
+  // return initial value
+    return {{var.get_symbol_name()}}__iv;
 }
   {%- endif -%}
   {%- endwith -%}
