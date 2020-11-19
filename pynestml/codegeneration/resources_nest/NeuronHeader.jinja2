@@ -94,10 +94,10 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 {%- if dyadic_synapse_partner is defined %}
 
 // entry in the spiking history
-class histentry
+class histentry__
 {
 public:
-  histentry( double t,
+  histentry__( double t,
 {%- for var in transferred_variables %}
 double {{var}},
 {%- endfor %}
@@ -223,15 +223,16 @@ public:
 
   /**
    * \fn void get_history(long t1, long t2,
-   * std::deque<Archiver::histentry>::iterator* start,
-   * std::deque<Archiver::histentry>::iterator* finish)
+   * std::deque<Archiver::histentry__>::iterator* start,
+   * std::deque<Archiver::histentry__>::iterator* finish)
    * return the spike times (in steps) of spikes which occurred in the range
    * (t1,t2].
+   * XXX: two underscores to differentiate it from nest::Node::get_history()
    */
-  void get_history( double t1,
+  void get_history__( double t1,
     double t2,
-    std::deque< histentry >::iterator* start,
-    std::deque< histentry >::iterator* finish );
+    std::deque< histentry__ >::iterator* start,
+    std::deque< histentry__ >::iterator* finish );
 
   /**
    * Register a new incoming STDP connection.
@@ -279,7 +280,7 @@ private:
   double last_spike_;
 
   // spiking history needed by stdp synapses
-  std::deque< histentry > history_;
+  std::deque< histentry__ > history_;
 
   // cache for initial values
 {%- for funcsym in neuron.get_function_symbols() %}

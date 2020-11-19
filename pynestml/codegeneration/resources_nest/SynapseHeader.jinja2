@@ -530,8 +530,8 @@ assert(0);
 
     {
       // get spike history in relevant range (t1, t2] from post-synaptic neuron
-      std::deque< histentry >::iterator start;
-      std::deque< histentry >::iterator finish;
+      std::deque< histentry__ >::iterator start;
+      std::deque< histentry__ >::iterator finish;
 
       // For a new synapse, t_lastspike_ contains the point in time of the last
       // spike. So we initially read the
@@ -541,7 +541,7 @@ assert(0);
       // history[0, ..., t_last_spike - dendritic_delay] have been
       // incremented by Archiving_Node::register_stdp_connection(). See bug #218 for
       // details.
-      __target->get_history( t_lastspike_ - __dendritic_delay,
+      __target->get_history__( t_lastspike_ - __dendritic_delay,
         __t_spike - __dendritic_delay,
         &start,
         &finish );
