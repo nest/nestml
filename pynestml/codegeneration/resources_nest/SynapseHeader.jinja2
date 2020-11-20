@@ -520,7 +520,8 @@ assert(0);
 #endif
 
     // use accessor functions (inherited from Connection< >) to obtain delay and target
-    Node* __target = get_target( tid );
+    //Node* __target = get_target( tid );
+    {{dyadic_neuron_partner}}* __target = static_cast<{{dyadic_neuron_partner}}*>(get_target(tid));
     const double __dendritic_delay = get_delay();
 
     if (t_lastspike_ < 0.) {
@@ -803,7 +804,7 @@ void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
  * constructor
 **/
 template < typename targetidentifierT >
-{{synapseName}}< targetidentifierT >::{{synapseName}}()
+{{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
 
 {%- for parameter in synapse.get_parameter_non_alias_symbols() %}
