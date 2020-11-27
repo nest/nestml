@@ -163,7 +163,6 @@ namespace nest
  * ---------------------------------------------------------------- */
 {{neuronName}}::{{neuronName}}() : StructuralPlasticityNode(), P_(), S_(), B_(*this)
 {
-
   recordablesMap_.create();
 
   calibrate();
@@ -566,7 +565,8 @@ void
         **/
 
         const double old___h = V_.__h;
-        V_.__h = last_spike_ - t_sp_ms;
+        V_.__h = t_sp_ms - last_spike_;
+        assert(V_.__h > 0);
         calibrate_variables(true);
 {%- filter indent(6, True) %}
 {#
@@ -640,9 +640,15 @@ void
 double
 {{neuronName}}::get_{{var.get_symbol_name()}}( double t )
 {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: getting value at t = " << t << std::endl;
+#endif
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: \thistory empty, returning initial value = " << {{var.get_symbol_name()}}__iv << std::endl;
+#endif
     // return initial value
     return {{var.get_symbol_name()}}__iv;
   }
@@ -653,13 +659,14 @@ double
   {
     if ( t - history_[ i ].t_ > nest::kernel().connection_manager.get_stdp_eps() )
     {
-
+std::cout<<"{{neuronName}}::get_{{var.get_symbol_name()}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
         /**
          * update state variables transferred from synapse from `history[i].t_` to `t`
         **/
 
         const double old___h = V_.__h;
-        V_.__h = history_[i].t_ - t;
+        V_.__h = t - history_[i].t_;
+        assert(V_.__h > 0);
         calibrate_variables(true);
 {%- filter indent(6, True) %}
 {#
@@ -693,15 +700,18 @@ double
         V_.__h = old___h;
         calibrate_variables(true);
 
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: \treturning " << {{names.getter(var)}}() << std::endl;
+#endif
   return {{names.getter(var)}}();
 
-
-  // {{declarations.print_variable_type(var)}}
-
-
+      // {{declarations.print_variable_type(var)}}
     }
     --i;
   }
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: \tfall-through, returning initial value = " << {{var.get_symbol_name()}}__iv << std::endl;
+#endif
 
   // this case occurs when the trace was requested at a time precisely at or before the first spike in the history
   // return initial value

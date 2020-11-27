@@ -516,7 +516,7 @@ assert(0);
     // synapse STDP depressing/facilitation dynamics
     const double __t_spike = e.get_stamp().get_ms();
 #ifdef DEBUG
-    std::cout<<"NESTML synapse: handling spike at t = " << __t_spike << std::endl;
+    std::cout << "{{synapseName}}::send(): handling pre spike at t = " << __t_spike << std::endl;
 #endif
 
     // use accessor functions (inherited from Connection< >) to obtain delay and target
@@ -525,9 +525,11 @@ assert(0);
     const double __dendritic_delay = get_delay();
 
     if (t_lastspike_ < 0.) {
-        // this is the first preynaptic spike to be processed
+        // this is the first presynaptic spike to be processed
         t_lastspike_ = 0.;
     }
+
+    double timestep = 0;
 
     {
       // get spike history in relevant range (t1, t2] from post-synaptic neuron
@@ -554,6 +556,9 @@ assert(0);
         // start->t_ > t_lastspike_ - dendritic_delay, i.e. minus_dt < 0
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
 
+#ifdef DEBUG
+    std::cout << "{{synapseName}}::send(): \tprocessing post spike at t = " << start->t_ << std::endl;
+#endif
         
         /**
          * update synapse internal state from `t_lastspike_` to `start->t_`
@@ -561,6 +566,7 @@ assert(0);
 
         const double old___h = V_.__h;
         V_.__h = (start->t_ + __dendritic_delay) - t_lastspike_;
+        timestep += V_.__h;
         init_internals_block_symbols();
 {%- filter indent(6, True) %}
 {%- include "directives/AnalyticIntegrationStep_begin.jinja2" %}
@@ -598,7 +604,7 @@ assert(0);
     **/
 
     const double old___h = V_.__h;
-    V_.__h = __t_spike - t_lastspike_;
+    V_.__h = __t_spike - t_lastspike_ - timestep;
     if (V_.__h > 1E-9) {
       init_internals_block_symbols();
 {%- filter indent(6, True) %}
