@@ -38,6 +38,7 @@ class LoggingLevel(Enum):
     ERROR = 2
     NO = 3
 
+
 class Logger:
     """
     This class represents a logger which can be used to print messages to the screen depending on the logging
@@ -234,7 +235,7 @@ class Logger:
         :param node: a single node instance.
         :return: True if errors detected, otherwise False
         """
-        return len(cls.cls.get_all_messages_of_level_and_or_node(node, LoggingLevel.ERROR)) > 0
+        return len(cls.get_all_messages_of_level_and_or_node(node, LoggingLevel.ERROR)) > 0
 
     @classmethod
     def get_json_format(cls) -> str:
