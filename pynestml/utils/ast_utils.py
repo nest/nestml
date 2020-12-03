@@ -19,11 +19,12 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import List, Optional
 
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -204,7 +205,6 @@ class ASTUtils(object):
         """
         ret = list()
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ast_variable import ASTVariable
         res = list()
 
         def loc_get_vars(node):
@@ -279,7 +279,6 @@ class ASTUtils(object):
         :return: the first element with the size parameter
         :rtype: variable_symbol
         """
-        from pynestml.meta_model.ast_variable import ASTVariable
         from pynestml.symbols.symbol import SymbolKind
         variables = (var for var in cls.get_all(ast, ASTVariable) if
                      scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE))
@@ -434,3 +433,13 @@ class ASTUtils(object):
                 if var.get_complete_name() == var_name:
                     return decl
         return None
+
+    @classmethod
+    def all_variables_defined_in_block(cls, block: ASTBlock) -> List[ASTVariable]:
+        if block is None:
+            return []
+        vars = []
+        for decl in block.get_declarations():
+            for var in decl.get_variables():
+                vars.append(var)
+        return vars

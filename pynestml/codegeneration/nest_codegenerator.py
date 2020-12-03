@@ -82,8 +82,11 @@ class NESTCodeGenerator(CodeGenerator):
     def __init__(self):
         self.analytic_solver = {}
         self.numeric_solver = {}
-        self.non_equations_state_variables = {}
-        # setup the template environment
+        self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
+        self._setup_template_env()
+
+    def _setup_template_env(self):
+        """setup the Jinja2 template environment"""
 
         def raise_helper(msg):
             raise TemplateRuntimeError(msg)
@@ -295,15 +298,10 @@ class NESTCodeGenerator(CodeGenerator):
         equations_block = neuron.get_equations_block()
 
         if equations_block is None:
+            # add all declared state variables as none of them are used in equations block
             self.non_equations_state_variables[neuron.get_name()] = []
-            if neuron.get_initial_values_blocks():
-                for decl in neuron.get_initial_values_blocks().get_declarations():
-                    for var in decl.get_variables():
-                        self.non_equations_state_variables[neuron.get_name()].append(var)
-            if neuron.get_state_blocks():
-                for decl in neuron.get_state_blocks().get_declarations():
-                    for var in decl.get_variables():
-                        self.non_equations_state_variables[neuron.get_name()].append(var)
+            self.non_equations_state_variables[neuron.get_name()].extend(ASTUtils.all_variables_defined_in_block(neuron.get_initial_values_blocks()))
+            self.non_equations_state_variables[neuron.get_name()].extend(ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
             return []
 
