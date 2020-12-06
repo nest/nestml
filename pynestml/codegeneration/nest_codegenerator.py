@@ -434,7 +434,10 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
 
-        namespace['non_equations_state_variables'] = self.non_equations_state_variables[neuron.get_name()]
+        # convert variables from ASTVariable instances to strings
+        _names = self.non_equations_state_variables[neuron.get_name()]
+        _names = [to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
+        namespace['non_equations_state_variables'] = _names
 
         namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
