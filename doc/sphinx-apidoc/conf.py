@@ -87,6 +87,8 @@ for root, dirnames, filenames in os.walk(static_docs_dir):
             matches.append(os.path.join(root, filename))
     for filename in fnmatch.filter(filenames, '*.png'):
             matches.append(os.path.join(root, filename))
+    for filename in fnmatch.filter(filenames, '*.ipynb'):
+            matches.append(os.path.join(root, filename))
 print("Matches:")
 print(matches)
 
@@ -126,7 +128,7 @@ os.system('cp -v '
 # The master toctree document.
 master_doc = "index"
 
-source_suffix = ['.rst']
+source_suffix = ['.rst', '.ipynb']
 
 
 # -- General configuration ------------------------------------------------
@@ -141,6 +143,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'nbsphinx',
 ]
 
 mathjax_path = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
