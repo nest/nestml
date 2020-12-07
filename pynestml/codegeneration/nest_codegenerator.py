@@ -705,7 +705,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         decl_to_remove = set()
         for decl in equations_block.get_declarations():
-            if type(decl) is ASTOdeShape:
+            if type(decl) is ASTKernel:
                 decl_to_remove.add(decl)
 
         for decl in decl_to_remove:
