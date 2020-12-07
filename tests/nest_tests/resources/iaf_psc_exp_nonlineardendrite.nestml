@@ -25,7 +25,9 @@ neuron iaf_psc_exp_nonlineardendrite:
 
   initial_values:
     V_m mV = 0 mV         # membrane potential
-    #t_dend_sp ms = 0 ms   # dendritic spike timer
+    t_dend_sp ms = 0 ms   # dendritic spike timer
+    dend_curr_enabled real = 1.   # set to 1 to allow synaptic dendritic currents to contribute to V_m integration, 0 otherwise
+    I_dend_spike pA = 0 pA
   end
 
   equations:
@@ -35,7 +37,7 @@ neuron iaf_psc_exp_nonlineardendrite:
 
     recordable inline I_dend pA = convolve(I_kernel2, I_2)
  
-    inline I_syn pA = convolve(I_kernel1, I_1) + I_dend + convolve(I_kernel3, I_3) + I_e
+    inline I_syn pA = convolve(I_kernel1, I_1) + dend_curr_enabled * I_dend + I_dend_spike + convolve(I_kernel3, I_3) + I_e
 
     V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
   end
@@ -53,8 +55,8 @@ neuron iaf_psc_exp_nonlineardendrite:
 
     # dendritic action potential     
     i_th pA = 60 pA          # current-threshold for a dendritic spike
-    i_dend_sp = 0 pA         # current clamp value for I_dend during a dendritic spike
-    T_dend_sp = 1 ms         # time window over which the dendritic current clamp is active
+    i_dend_sp pA = 150 pA    # current clamp value for I_dend during a dendritic spike
+    T_dend_sp ms = 10 ms     # time window over which the dendritic current clamp is active
   end
 
   input:
@@ -69,14 +71,22 @@ neuron iaf_psc_exp_nonlineardendrite:
     # solve ODEs
     integrate_odes()
 
-    #if t_dend_sp > 0:
-    #  t_dend_sp -= resolution()
-    #elif I_dend > i_th:
+    if t_dend_sp > 0 ms:
+      t_dend_sp -= resolution()
+      if t_dend_sp <= 0 ms:
+        t_dend_sp = 0 ms
+        dend_curr_enabled = 1.
+        I_dend = 0 pA
+        I_dend' = 0 pA/ms
+        I_dend_spike = 0 pA
+      end
+    end
+    
+    if I_dend > i_th:
       # current-threshold, emit a dendritic spike 
-      I_dend = i_dend_sp
-      I_dend' = 0 pA/ms
-    #  t_dend_sp = T_dend_sp
-    #end 
+      t_dend_sp = T_dend_sp
+      I_dend_spike = i_dend_sp
+    end 
 
     # emit somatic spike
     if V_m > V_th:

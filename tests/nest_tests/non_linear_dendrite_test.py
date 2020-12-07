@@ -47,15 +47,16 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         I_dend_internal_name = 'I_kernel2__X__I_2'
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
-        nest_path = "/home/travis/nest_install"
+        #nest_path = "/home/travis/nest_install"
+        nest_path = "/home/archels/nest-simulator-build"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
         store_log = False
         suffix = '_nestml'
         dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        #to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+        #install_nest(target_path, nest_path)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
@@ -67,7 +68,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         nest.Connect(sg, nrn, syn_spec={"receptor_type": 2, "weight": 30., "delay": 1.})
 
         mm = nest.Create('multimeter')
-        mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name]})
+        mm.set({"record_from": [I_dend_alias_name, I_dend_internal_name, 'V_m']})
         nest.Connect(mm, nrn)
 
         nest.Simulate(100.0)
@@ -78,9 +79,10 @@ class NestNonLinearDendriteTest(unittest.TestCase):
 
         if True:
             if TEST_PLOTS:
-                fig, ax = plt.subplots(2, 1)
+                fig, ax = plt.subplots(3, 1)
                 ax[0].plot(timevec, I_dend_alias_ts, label="aliased I_dend")
                 ax[1].plot(timevec, I_dend_internal_ts, label="internal I_dend")
+                ax[2].plot(timevec, mm.get("events")["V_m"], label="V_m")
                 for _ax in ax:
                     _ax.legend()
                     _ax.grid()
