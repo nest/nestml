@@ -47,16 +47,15 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         I_dend_internal_name = 'I_kernel2__X__I_2'
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
-        #nest_path = "/home/travis/nest_install"
-        nest_path = "/home/archels/nest-simulator-build"
+        nest_path = "/home/travis/nest_install"
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
         store_log = False
         suffix = '_nestml'
         dev = True
-        #to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        #install_nest(target_path, nest_path)
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
+        install_nest(target_path, nest_path)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
