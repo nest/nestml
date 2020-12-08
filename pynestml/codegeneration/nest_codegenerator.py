@@ -329,6 +329,11 @@ class NESTCodeGenerator(CodeGenerator):
                     if ode_eq.get_lhs().get_name() == var.get_name():
                         used_in_eq = True
                         break
+                for kern in neuron.get_equations_blocks().get_kernels():
+                    for kern_var in kern.get_variables():
+                        if kern_var.get_name() == var.get_name():
+                            used_in_eq = True
+                            break
 
                 if not used_in_eq:
                     self.non_equations_state_variables[neuron.get_name()].append(var)
