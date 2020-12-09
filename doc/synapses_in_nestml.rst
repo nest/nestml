@@ -38,7 +38,7 @@ Sharing parameters between synapses
 
 If one or more synapse parameters are the same across a population (homogeneous), then sharing the parameter value between all synapses can save vast amounts of memory. To mark a particular parameter as homogeneous, use the `@homogeneous` decorator keyword. This can be done on a per-parameter basis. By default, parameters are heterogeneous and can be set on a per-synapse basis by the user. Example:
 
-.. code:: 
+.. code::
 
     synapse static:
 
@@ -47,7 +47,7 @@ If one or more synapse parameters are the same across a population (homogeneous)
             b real = 100.      @heterogeneous
         end
 
-        [...]
+        ...
     end
 
 will lead to the following C++ code being generated:
@@ -102,9 +102,9 @@ Co-generation of neuron and synapse
 
 Why co-generation? ...
 
-.. figure:: fig/neuron_synapse_co_generation.png
+.. figure:: ../doc/fig/neuron_synapse_co_generation.png
 
-   (a) Without co-generation: neuron and synapse models are treated independently. (b) co-generation: the code generator knows which neuron types will be connected using which synapse types, and treats these as pairs rather than independently.
+(a) Without co-generation: neuron and synapse models are treated independently. (b) co-generation: the code generator knows which neuron types will be connected using which synapse types, and treats these as pairs rather than independently.
 
 
 Just-in-time compilation/build
@@ -118,9 +118,7 @@ NEST target synapses are not allowed to have any internal dynamics (ODEs). This 
 
 .. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
 
-   See panel B.
-
-   Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
+Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
 
 
 
@@ -148,7 +146,7 @@ This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
    
-   Figure 7 from Morrison, Diesmann and Gerstne [1]_.
+   Figure 7 from Morrison, Diesmann and Gerstner [1]_.
 
    Original caption:
 
