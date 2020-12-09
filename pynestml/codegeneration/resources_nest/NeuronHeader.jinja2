@@ -283,10 +283,13 @@ private:
 {%- else %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
-{# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver#}
+{# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver #}
 {%-   if uses_numeric_solver %}
       // numeric solver state variables
 {%-     for variable_name in numeric_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
+{%-     for variable_name in non_equations_state_variables: %}
       {{variable_name}},
 {%-     endfor %}
 {%-   endif %}
