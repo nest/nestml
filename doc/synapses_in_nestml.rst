@@ -17,7 +17,7 @@ The statements in this block will be triggered when a presynaptic spike arrives.
 deliver_spike(w, d) function
 ----------------------------
 
-After a spike has been received in the `preReceive` block, the weight (and delay) of the neuron are, potentially, updated. The spike then needs to be passed on to the postsynaptic partner. This can be done by calling the `deliver_spike` function with the appropriate weight and delay. Example:
+After a spike has been received in the `preReceive` block, the weight (and delay) of the synapse are, potentially, updated. The spike then needs to be passed on to the postsynaptic partner. This can be done by calling the `deliver_spike` function with the appropriate weight and delay. Example:
 
 .. code::
 
@@ -31,25 +31,6 @@ After a spike has been received in the `preReceive` block, the weight (and delay
             deliver_spike(w, d)
         end
     end
-
-
-Link to the simulator namespace
--------------------------------
-
-When generating code, simulators such as NEST need to have a unique internal reference for the parameters that pass through the API involved with sending a spike, namely, the weight and delay of the connection. For this purpose, decorator keywords such as `@nest::weight` exist, which can be used to mark a parameter (which might have a name such as `w` or `wght`) as uniquely corresponding to the NEST namespace name `weight`. Example:
-
-.. code:: 
-
-    synapse static:
-
-        parameters:
-            w nS = 1 nS    @nest::weight
-            d ms = 1 ms    @nest::delay
-        end
-
-        [...]
-    end
-
 
 
 Sharing parameters between synapses
@@ -115,10 +96,16 @@ and
 Generating code
 ###############
 
+
 Co-generation of neuron and synapse
 -----------------------------------
 
 Why co-generation? ...
+
+.. figure:: fig/neuron_synapse_co_generation.png
+
+   (a) Without co-generation: neuron and synapse models are treated independently. (b) co-generation: the code generator knows which neuron types will be connected using which synapse types, and treats these as pairs rather than independently.
+
 
 Just-in-time compilation/build
 
@@ -127,7 +114,6 @@ The NEST target
 ---------------
 
 NEST target synapses are not allowed to have any internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
 
 
 .. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
