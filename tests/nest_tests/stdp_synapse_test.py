@@ -49,21 +49,57 @@ class NestSTDPSynapseTest(unittest.TestCase):
         ref_synapse_model_name = "stdp_synapse"
         fname_snip = "dyad_test"
 
-        nest.set_verbosity("M_ALL")
 
+        post_spike_times = np.arange(1, 20).astype(np.float)
+        pre_spike_times = -2 + np.array([3., 13.])
+
+        #post_spike_times = -2 + np.array([11. ,15., 32.])
+
+        pre_spike_times = [1., 11., 21.]    # [ms]
+        post_spike_times = [6., 16., 26.]  # [ms]
+
+        pre_spike_times = np.array([ 14.])
+        post_spike_times = np.array([3., 4., 9., 10., 11.])
+
+        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
+        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
+
+        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
+        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
+
+        self.run_synapse_test(neuron_model_name=neuron_model_name,
+                              ref_neuron_model_name=ref_neuron_model_name,
+                              synapse_model_name=synapse_model_name,
+                              ref_synapse_model_name=ref_synapse_model_name,
+                              resolution=1., # [ms]
+                              delay=1., # [ms]
+                              pre_spike_times=pre_spike_times,
+                              post_spike_times=post_spike_times,
+                              fname_snip=fname_snip)
+
+    def run_synapse_test(self, neuron_model_name,
+                              ref_neuron_model_name,
+                              synapse_model_name,
+                              ref_synapse_model_name,
+                              resolution=1., # [ms]
+                              delay=1., # [ms]
+                              sim_time=None,  # if None, computed from pre and post spike times
+                              pre_spike_times=None,
+                              post_spike_times=None,
+                              fname_snip=""):
+        
+        if pre_spike_times is None:
+            pre_spike_times = []
+        
+        if post_spike_times is None:
+            post_spike_times = []
+
+        if sim_time is None:
+            sim_time = max(np.amax(pre_spike_times), np.amax(post_spike_times)) + 5 * delay
+
+        nest.set_verbosity("M_ALL")
         nest.ResetKernel()
         nest.Install("models_for_dyadmodule")
-
-        # simulation parameters
-        resolution = 1.	 # [ms]
-        delay = 1.  # [ms]
-
-        pre_spike_times = [3., 5., 7., 11., 15., 17., 20., 21., 22., 23., 26., 28.]       # [ms]
-        post_spike_times = [6., 8., 10., 13.]
-        post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
-        pre_spike_times = [1., 10.]    # [ms]
-        post_spike_times = [5., 15.]  # np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.r$
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -130,7 +166,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
         if sim_ref:
          syn_ref = nest.GetConnections(source=pre_neuron_ref, synapse_model=ref_synapse_model_name)
 
-        sim_time = 20.  # np.amax(pre_spike_times) + 5 * delay
         n_steps = int(np.ceil(sim_time / resolution)) + 1
         t = 0.
         t_hist = []
@@ -146,9 +181,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
              w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
             if sim_mdl:
              w_hist.append(nest.GetStatus(syn)[0]['w'])
-
-
-
 
         # plot
         if TEST_PLOTS:
@@ -170,7 +202,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                _ax.minorticks_on()
+                #_ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + "2.png", dpi=300)
@@ -244,8 +276,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
                 _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
-                _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                _ax.minorticks_on()
+                #_ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
+                #_ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)

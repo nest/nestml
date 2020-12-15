@@ -1306,6 +1306,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+        namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
 
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
@@ -1346,23 +1347,47 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace['propagators'] = self.analytic_solver[neuron.get_name()]["propagators"]
 
-        namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+        namespace['uses_numeric_solver'] = neuron.get_name() in self.numeric_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
         if namespace['uses_numeric_solver']:
-            namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
+
+            namespace['numeric_state_variables_moved'] = []
+            if 'dyadic_synapse_partner' in dir(neuron):
+                namespace['numeric_state_variables'] = []
+                for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
+                    moved = False
+                    for mv in neuron.recursive_vars_used:
+                        name_snip = mv + "__"
+                        if name_snip == sv[:len(name_snip)]:
+                            # this variable was moved from synapse to neuron
+                            if not sv in namespace['numeric_state_variables_moved']:
+                                namespace['numeric_state_variables_moved'].append(sv)
+                                moved = True
+                    if not moved:
+                        namespace['numeric_state_variables'].append(sv)
+                        print("numeric_state_variables: " + str(namespace['numeric_state_variables']))
+                namespace['numeric_variable_symbols_moved'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                    sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables_moved']}
+            else:
+                namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
+
             namespace['numeric_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']}
             assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
             namespace['numeric_update_expressions'] = {}
             for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
-            for sym in namespace['numeric_state_variables']:
+            for sym in namespace['numeric_state_variables'] + namespace['numeric_state_variables_moved']:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
                 # pretend that update expressions are in "equations" block, which should always be present, as differential equations must have been defined to get here
                 expr_ast.update_scope(neuron.get_equations_blocks().get_scope())
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['numeric_update_expressions'][sym] = expr_ast
+
+            namespace['purely_numeric_state_variables_moved'] = list(set(namespace['numeric_state_variables_moved']) - set(namespace['analytic_state_variables_moved']))
+
+
 
             namespace['useGSL'] = namespace['uses_numeric_solver']
             namespace['names'] = GSLNamesConverter()
