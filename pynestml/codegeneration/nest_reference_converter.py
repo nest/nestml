@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
@@ -150,6 +152,12 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
 
+        if function_name == PredefinedFunctions.PRINT:
+            return 'std::cout << {!s}'
+
+        if function_name == PredefinedFunctions.PRINTLN:
+            return 'std::cout << {!s} << endl'
+
         # suppress prefix for misc. predefined functions
         # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
         function_is_predefined = PredefinedFunctions.get_function(function_name)
@@ -225,8 +233,50 @@ class NESTReferenceConverter(IReferenceConverter):
             return temp
 
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
-            NestNamesConverter.name(symbol) + \
-            ('[i]' if symbol.has_vector_parameter() else '')
+               NestNamesConverter.name(symbol) + \
+               ('[i]' if symbol.has_vector_parameter() else '')
+
+    def convert_print_statements(self, function_call):
+        """
+        A wrapper function to convert arguments of a print or println functions
+        :param function_call: print function call
+        :type function_call: ASTFunctionCall
+        :return: the converted print string with corresponding variables, if any
+        :rtype: str
+        """
+        stmt = function_call.get_args()[0].get_string()
+        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
+        scope = function_call.get_scope()
+        return self.convert_print_statements_str(stmt, scope)
+
+    def convert_print_statements_str(self, stmt, scope):
+        """
+        Converts the string argument of the print or println function to NEST processable format
+
+        NESTML: print("Hello World")
+        Converted NEST: std::cout << "Hello World";
+
+        NESTML: print("Value = {var}")
+        Converted NEST: std::cout << "Value = " << var;
+
+        :param stmt: argument to the print or println function
+        :type stmt: str
+        :param scope: scope of the variables in the argument, if any
+        :type scope: Scope
+        :return: the converted string to NEST
+        :rtype: str
+        """
+        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
+        match = pattern.search(stmt)
+        if match:
+            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
+            left, right = stmt.split(match.group(0))
+            fun_left = lambda l: self.convert_print_statements_str(l, scope) + '<< ' if l else ''
+            fun_right = lambda r: ' <<' + self.convert_print_statements_str(r, scope) if r else ''
+            ast_var = ASTVariable(var_name, scope=scope)
+            return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
+        else:
+            return '"' + stmt + '"'  # Add back the double quotes to the string
 
     @classmethod
     def convert_constant(cls, constant_name):
