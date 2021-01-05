@@ -77,7 +77,7 @@ class ExpressionsPrettyPrinter(object):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
-                       self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
+                    self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:
