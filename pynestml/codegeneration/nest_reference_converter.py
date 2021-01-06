@@ -270,7 +270,7 @@ class NESTReferenceConverter(IReferenceConverter):
         match = pattern.search(stmt)
         if match:
             var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
-            left, right = stmt.split(match.group(0))
+            left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
             fun_left = (lambda l: self.convert_print_statements_str(l, scope) + '<< ' if l else '')
             fun_right = (lambda r: ' <<' + self.convert_print_statements_str(r, scope) if r else '')
             ast_var = ASTVariable(var_name, scope=scope)

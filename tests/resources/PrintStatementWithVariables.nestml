@@ -27,13 +27,14 @@ neuron print_test_variables:
 
     parameters:
       V_thr mV = -55 mV
+      t ms = 10 ms
     end
 
     update:
       if V_m > V_thr:
-        print("A spike event with membrane voltage: {V_m}")
+        print("A spike event with membrane voltage: {V_m} and t = {t}")
       else:
-        println("Membrane voltage {V_m} is less than the threshold {V_thr}")
+        println("Membrane voltage {V_m} is less than the threshold {V_thr} and t = {t}")
       end
     end
 end
