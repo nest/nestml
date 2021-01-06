@@ -271,8 +271,8 @@ class NESTReferenceConverter(IReferenceConverter):
         if match:
             var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
             left, right = stmt.split(match.group(0))
-            fun_left = lambda l: self.convert_print_statements_str(l, scope) + '<< ' if l else ''
-            fun_right = lambda r: ' <<' + self.convert_print_statements_str(r, scope) if r else ''
+            fun_left = (lambda l: self.convert_print_statements_str(l, scope) + '<< ' if l else '')
+            fun_right = (lambda r: ' <<' + self.convert_print_statements_str(r, scope) if r else '')
             ast_var = ASTVariable(var_name, scope=scope)
             return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
         else:
