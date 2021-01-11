@@ -360,6 +360,11 @@ class NESTCodeGenerator(CodeGenerator):
                     if ode_eq.get_lhs().get_name() == var.get_name():
                         used_in_eq = True
                         break
+                for kern in neuron.get_equations_blocks().get_kernels():
+                    for kern_var in kern.get_variables():
+                        if kern_var.get_name() == var.get_name():
+                            used_in_eq = True
+                            break
 
                 if not used_in_eq:
                     self.non_equations_state_variables[neuron.get_name()].append(var)
@@ -445,6 +450,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+        namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
 
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
