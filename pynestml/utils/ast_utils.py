@@ -437,6 +437,17 @@ class ASTUtils(object):
         return None
 
     @classmethod
+    def all_variables_defined_in_block(cls, block: ASTBlock) -> List[ASTVariable]:
+        """return a list of all variable declarations in a block"""
+        if block is None:
+            return []
+        vars = []
+        for decl in block.get_declarations():
+            for var in decl.get_variables():
+                vars.append(var)
+        return vars
+
+    @classmethod
     def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
         """
         Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
