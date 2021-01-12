@@ -88,6 +88,7 @@ neuron iaf_psc_exp_nonlineardendrite:
     
     if I_dend > i_th:
       # current-threshold, emit a dendritic action potential
+      dend_curr_enabled = 0.
       t_dend_ap = T_dend_ap
       I_dend_ap = i_dend_ap
     end 
