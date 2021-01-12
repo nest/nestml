@@ -102,6 +102,28 @@ class PrintCodeGeneratorTest(unittest.TestCase):
                 os.pardir, 'target', 'print_test_variables.cpp')))), 'r') as reader:
             self.assertEqual(reader.read().count('std::cout'), 2)
 
+    def test_print_variables_with_different_units(self):
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            'resources', 'PrintVariablesWithDifferentButCompatibleUnits.nestml'))))
+
+        params = list()
+        params.append('--input_path')
+        params.append(input_path)
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append(self.target_path)
+        params.append('--dev')
+        FrontendConfiguration.parse_config(params)
+        compilation_unit = ModelParser.parse_model(input_path)
+
+        nestCodeGenerator = NESTCodeGenerator()
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
+
+        with open(str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+                os.pardir, 'target', 'print_variable.cpp')))), 'r') as reader:
+            self.assertEqual(reader.read().count('std::cout'), 1)
+
     def test_print_statment_in_function(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             'resources', 'PrintStatementInFunction.nestml'))))

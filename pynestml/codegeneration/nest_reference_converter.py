@@ -236,6 +236,19 @@ class NESTReferenceConverter(IReferenceConverter):
             NestNamesConverter.name(symbol) + \
             ('[i]' if symbol.has_vector_parameter() else '')
 
+    def get_unit(self, variable):
+        assert (variable is not None and isinstance(variable, ASTVariable)), \
+            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
+                variable)
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
+
+        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
+        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+            return symbol.get_type_symbol().unit.unit.name
+
+        return ''
+
     def convert_print_statements(self, function_call):
         """
         A wrapper function to convert arguments of a print or println functions
@@ -271,9 +284,10 @@ class NESTReferenceConverter(IReferenceConverter):
         if match:
             var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda l: self.convert_print_statements_str(l, scope) + '<< ' if l else '')
-            fun_right = (lambda r: ' <<' + self.convert_print_statements_str(r, scope) if r else '')
+            fun_left = (lambda l: self.convert_print_statements_str(l, scope) + ' << ' if l else '')
+            fun_right = (lambda r: ' << ' + self.convert_print_statements_str(r, scope) if r else '')
             ast_var = ASTVariable(var_name, scope=scope)
+            right = self.get_unit(ast_var) + right  # concatenate unit with the right part of the string
             return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
         else:
             return '"' + stmt + '"'  # Add back the double quotes to the string
