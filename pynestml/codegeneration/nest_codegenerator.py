@@ -244,8 +244,7 @@ class NESTCodeGenerator(CodeGenerator):
                and isinstance(decl.get_expression(), ASTSimpleExpression) \
                and '__X__' in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
-                func = lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)
-                neuron.accept(ASTHigherOrderVisitor(func))
+                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
 
 
 
