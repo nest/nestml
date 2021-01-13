@@ -61,6 +61,7 @@ sys.path.insert(0, os.path.abspath('../doc/sphinx-apidoc'))
 sys.path.insert(0, os.path.abspath('doc/sphinx-apidoc'))
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('doc'))
 sys.path.insert(0, os.path.abspath('pynestml'))
 sys.path.insert(0, os.path.abspath('pynestml/codegeneration'))
 
