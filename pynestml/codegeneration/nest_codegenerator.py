@@ -1078,7 +1078,7 @@ class NESTCodeGenerator(CodeGenerator):
             analytic_solver, numeric_solver = self.ode_toolbox_analysis(synapse, kernel_buffers)
             self.analytic_solver[synapse.get_name()] = analytic_solver
             self.numeric_solver[synapse.get_name()] = numeric_solver
-            
+
             self.remove_initial_values_for_kernels(synapse)
             kernels = self.remove_kernel_definitions_from_equations_block(synapse)
             self.update_initial_values_for_odes(synapse, [analytic_solver, numeric_solver])
@@ -1205,6 +1205,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
+        namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
 
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = synapse.get_name() in self.analytic_solver.keys() \
@@ -1286,6 +1287,8 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['dyadic_synapse_partner'] = neuron.dyadic_synapse_partner.get_name()
             namespace["dyad_spike_updates"] = neuron.post_spike_updates
             namespace['transferred_variables'] = neuron._transferred_variables
+            namespace['transferred_variables_syms'] =  {var_name: neuron.scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE) for var_name in namespace['transferred_variables']}
+            # {var_name: ASTUtils.get_declaration_by_name(neuron.get_initial_values_blocks(), var_name) for var_name in namespace['transferred_variables']}
         namespace['neuronName'] = neuron.get_name()
         namespace['neuron'] = neuron
         namespace['astnode'] = neuron

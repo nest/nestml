@@ -582,6 +582,7 @@ assert(0);
         /**
          *  NESTML generated postReceive code block begins here!
         **/
+    const double _tr_t = start->t_;
 
 {%- filter indent(6, True) %}
 {%- set dynamics = synapse.get_post_receive() %}
@@ -604,7 +605,7 @@ assert(0);
     **/
 
     const double old___h = V_.__h;
-    V_.__h = __t_spike - t_lastspike_ - timestep;
+    V_.__h = __t_spike - t_lastspike_;
     if (V_.__h > 1E-9) {
       init_internals_block_symbols();
 {%- filter indent(6, True) %}
@@ -622,7 +623,7 @@ assert(0);
     /**
      *  NESTML generated preReceive code block begins here!
     **/
-
+    const double _tr_t = __t_spike - __dendritic_delay;
 {%- filter indent(4,True) %}
 {%- set dynamics = synapse.get_pre_receive() %}
 {%- with ast = dynamics.get_block() %}
@@ -637,7 +638,8 @@ assert(0);
 
 {# {%- for inputLine in synapse.get_spike_buffers() %} #}
 {%- for spike_update in spike_updates: %}
-    S_.{{names.name(spike_update.get_variable())}} += 1.;
+    S_.{{names.name(synapse.get_initial_values_blocks().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
+{#    S_.{{names.name(spike_update.get_variable())}} += 1.; #}
 {%- endfor %}
 
 
