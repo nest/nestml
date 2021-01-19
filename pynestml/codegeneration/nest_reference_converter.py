@@ -156,7 +156,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'std::cout << {!s}'
 
         if function_name == PredefinedFunctions.PRINTLN:
-            return 'std::cout << {!s} << endl'
+            return 'std::cout << {!s} << std::endl'
 
         # suppress prefix for misc. predefined functions
         # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
@@ -266,7 +266,9 @@ class NESTReferenceConverter(IReferenceConverter):
         """
         Converts the string argument of the print or println function to NEST processable format
 
-        NESTML: print("Hello World")
+.. code-block:: nestml
+
+   print("Hello World")
         Converted NEST: std::cout << "Hello World";
 
         NESTML: print("Value = {var}")
@@ -290,7 +292,7 @@ class NESTReferenceConverter(IReferenceConverter):
             right = self.get_unit(ast_var) + right  # concatenate unit with the right part of the string
             return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
         else:
-            return '"' + stmt + '"'  # Add back the double quotes to the string
+            return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
 
     @classmethod
     def convert_constant(cls, constant_name):
