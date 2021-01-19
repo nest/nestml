@@ -22,23 +22,14 @@ import os
 import unittest
 
 from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
-
 from pynestml.utils.model_parser import ModelParser
-
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-
 from pynestml.utils.logger import Logger, LoggingLevel
-
 from pynestml.utils.ast_source_location import ASTSourceLocation
-
 from pynestml.symbol_table.symbol_table import SymbolTable
-
 from pynestml.symbols.predefined_variables import PredefinedVariables
-
 from pynestml.symbols.predefined_types import PredefinedTypes
-
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-
 from pynestml.symbols.predefined_units import PredefinedUnits
 
 

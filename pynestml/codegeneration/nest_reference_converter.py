@@ -236,7 +236,7 @@ class NESTReferenceConverter(IReferenceConverter):
             NestNamesConverter.name(symbol) + \
             ('[i]' if symbol.has_vector_parameter() else '')
 
-    def get_unit(self, variable):
+    def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
                 variable)
@@ -249,7 +249,7 @@ class NESTReferenceConverter(IReferenceConverter):
 
         return ''
 
-    def convert_print_statements(self, function_call):
+    def convert_print_statement(self, function_call):
         """
         A wrapper function to convert arguments of a print or println functions
         :param function_call: print function call
@@ -260,19 +260,20 @@ class NESTReferenceConverter(IReferenceConverter):
         stmt = function_call.get_args()[0].get_string()
         stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
         scope = function_call.get_scope()
-        return self.convert_print_statements_str(stmt, scope)
+        return self.__convert_print_statement_str(stmt, scope)
 
-    def convert_print_statements_str(self, stmt, scope):
+    def __convert_print_statement_str(self, stmt, scope):
         """
         Converts the string argument of the print or println function to NEST processable format
+        Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
 
 .. code-block:: nestml
 
-   print("Hello World")
+        print("Hello World")
         Converted NEST: std::cout << "Hello World";
 
-        NESTML: print("Value = {var}")
-        Converted NEST: std::cout << "Value = " << var;
+        print("Membrane potential = {V_m}")
+        Converted NEST: std::cout << "Membrane potential = " << V_m << " mV";
 
         :param stmt: argument to the print or println function
         :type stmt: str
@@ -286,10 +287,10 @@ class NESTReferenceConverter(IReferenceConverter):
         if match:
             var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
             left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
-            fun_left = (lambda l: self.convert_print_statements_str(l, scope) + ' << ' if l else '')
-            fun_right = (lambda r: ' << ' + self.convert_print_statements_str(r, scope) if r else '')
+            fun_left = (lambda l: self.__convert_print_statement_str(l, scope) + ' << ' if l else '')
+            fun_right = (lambda r: ' << ' + self.__convert_print_statement_str(r, scope) if r else '')
             ast_var = ASTVariable(var_name, scope=scope)
-            right = self.get_unit(ast_var) + right  # concatenate unit with the right part of the string
+            right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
             return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
         else:
             return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
