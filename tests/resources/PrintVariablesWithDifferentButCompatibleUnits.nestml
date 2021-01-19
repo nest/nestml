@@ -23,6 +23,7 @@
 neuron print_variable:
     state:
       V_m V = -50 mV
+      V_thr MA*Ohm = -70 mV
     end
 
     initial_values:
@@ -31,6 +32,6 @@ neuron print_variable:
 
     update:
       V_abs = V_m
-      print("A spike event with membrane voltage: {V_m} and V_abs: {V_abs}")
+      println("Membrane voltage: {V_m}, threshold: {V_thr}, and V_abs: {V_abs}")
     end
 end

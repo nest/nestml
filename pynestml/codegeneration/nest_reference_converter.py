@@ -245,7 +245,7 @@ class NESTReferenceConverter(IReferenceConverter):
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
         symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
         if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
-            return symbol.get_type_symbol().unit.unit.name
+            return symbol.get_type_symbol().unit.unit.to_string()
 
         return ''
 
