@@ -44,7 +44,7 @@ class NestSTNExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models", "terub_stn.nestml")))
         target_path = "target"
         module_name = 'terub_stn_module'
-        nest_path = "/home/travis/nest_install"
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         suffix = '_nestml'
 
         to_nest(input_path=input_path,

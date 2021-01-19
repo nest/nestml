@@ -37,7 +37,7 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
     def test_biexp_synapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(
             __file__), "resources", "BiexponentialPostSynapticResponse.nestml")))
-        nest_path = "/home/travis/nest_install"
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
