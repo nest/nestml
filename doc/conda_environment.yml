@@ -1,0 +1,7 @@
+name: nestml-doc
+dependencies:
+  - python>=3.6
+  - pip
+  - pip:
+    - -r file:../requirements.txt
+
