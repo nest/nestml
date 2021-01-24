@@ -41,7 +41,7 @@ The corresponding event handler has the general structure:
 .. code-block:: nestml
 
    onSpike(pre_spikes):
-     print("Info: processing a predefined spike at time t = {{t}}")
+     print("Info: processing a presynaptic spike at time t = {t}")
      # [...]
      emit_spike(w, d)     
    end
@@ -69,7 +69,7 @@ State variables (in particular, synaptic "trace" variables as often used in plas
    end
 
    onSpike(post_spikes):
-     print("Info: processing a postdefined spike at time t = {{t}}")
+     print("Info: processing a postsynaptic spike at time t = {t}")
      tr_post += 1
    end
 
@@ -100,7 +100,7 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
    end
 
    onSpike(post_spikes):
-     print("Info: processing a postdefined spike at time t = {{t}}")
+     print("Info: processing a postsynaptic spike at time t = {t}")
      # [...]
    end
 
@@ -168,7 +168,6 @@ and
 Generating code
 ###############
 
-
 Co-generation of neuron and synapse
 -----------------------------------
 
@@ -209,21 +208,143 @@ access_counter now has an extra multiplicative factor
 
 
 Examples
---------
+########
 
 Spike-Timing Dependent Plasticity (STDP)
-########################################
+----------------------------------------
+
+... intro to STDP ...
+
+.. figure:: ../doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
+
+   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998) [18], represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The LTP (+) and LTD (-) windows are fitted by the exponential function ∆g = A ± exp(−|∆t|/τ ± ), with parameters A + = 0.86, A − = −0.25, τ + = 19 ms, and τ − = 34 ms. Adopted from Bi and Wang (2002) [21]. 
+
+We will define the model following Rubin et al. 2001.
+
+A pair of spikes in the input and the output cell, at times :math:`t_i` and :math:`t_j` respectively, induces a change :math:`\Delta w` in the weight :math:`w`:
+
+.. math::
+
+   \Delta^\pm w &= \pm \lambda f_\pm(w)K(|t_o - t_i|)
+
+The weight is increased by :math:`\Delta^+ w` when math:`t_o>t_i` and decreased by :math:`\Delta^- w` when :math:`t_i>t_o`. The temporal dependence of the update is defined by the filter kernel :math:`K` which is taken to be :math:`K(t) = \exp(-t/\tau)`. The coefficient :math:`\lambda\in\mathbb{R}` sets the magnitude of the update. The functions :math:`f_\pm(w)` determine the relative magnitude of the changes in the positive and negative direction. These are here taken as
+
+.. math::
+
+    f_+(w) &= (1 - w)^{\mu_+}
+    f_-(w) &= \alpha w^{\mu_-}
+
+with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP (for further references, see https://nest-simulator.readthedocs.io/en/nest-2.20.1/models/stdp.html?highlight=stdp#_CPPv4I0EN4nest14STDPConnectionE).
+
+To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These maintain a history of neuron spikes, being incremented by 1 whenever a spike is generated, and decaying back to zero exponentially; in other words, a convolution between the exponentially decaying kernel and the emitted spike train:
+
+.. math::
+
+   \text{tr_{pre}} &= K \ast \sum_i \delta_{pre,i}
+
+and
+
+.. math::
+
+   \text{tr_{post}} &= K \ast \sum_i \delta_{post,i}
+
+These are implemented in the NESTML model as follows:
+
+.. code-block:: nestml
+
+   equations:
+     # all-to-all trace of presynaptic neuron
+     kernel pre_tr_kernel = exp(-t / tau_tr_pre)
+     inline pre_tr real = convolve(pre_tr_kernel, pre_spikes)
+
+     # all-to-all trace of postsynaptic neuron
+     kernel post_tr_kernel = exp(-t / tau_tr_post)
+     inline post_tr real = convolve(post_tr_kernel, post_spikes)
+   end
+
+with time constants defined as parameters:
+
+.. code-block:: nestml
+
+   parameters:
+     tau_tr_pre ms = 20 ms
+     tau_tr_post ms = 20 ms
+   end
+
+With the traces in place, the weight updates can then be expressed closely following the mathematical definitions (repeated here for convenience).
+
+Begin by defining the weight and its initial value:
+
+.. code-block:: nestml
+
+   initial_values:
+     w nS = 1. nS
+   end
+
+The update rule for facilitation:
+
+.. math::
+
+   \Delta^+ w = \lambda * (1 - w)^{\mu_{plus}} * \text{pre\_trace}
+
+Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
+
+.. code-block:: nestml
+
+   onReceive(post_spikes):
+     # potentiate synapse
+     w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+     w = min(Wmax, w_)
+   end
+
+
+The update rule for depression:
+
+.. math::
+
+   \Delta^- w = w - \alpha * \lambda * w^{\mu_{minus}} * \text{post\_trace}
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+     # depress synapse
+     w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+     w = max(Wmin, w_)
+
+     # deliver spike to postsynaptic partner
+     deliver_spike(w, the_delay)
+   end
+
+Finally, parameters are defined:
+
+.. code-block:: nestml
+
+   parameters:
+     lambda real = .01
+     tau_tr_pre ms = 20 ms
+     tau_tr_post ms = 20 ms
+     alpha real = 1.
+     mu_plus real = 1.
+     mu_minus real = 1.
+     Wmax nS = 100 nS
+     Wmin nS = 0 nS
+   end
+
+The NESTML STDP synapse integration test (``tests/nest_tests/stdp_synapse_test.py``) runs the model through several pre- and postsynaptic spike sequences, and checks the results with respect to a reference model:
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp_synapse_test.png
    
    STDP synapse test
 
+By observing the weight change for different pairs of pre-post spikes, we can verify that our model approximates the correct STDP window.
+
+........
 
 
 
 
 STDP synapse with nearest-neighbour spike pairing
-#################################################
+-------------------------------------------------
 
 *See [stdp_nn.nestml](stdp_nn.nestml).*
 
@@ -242,7 +363,7 @@ This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions
 
 
 Triplet-rule STDP synapse
-#########################
+-------------------------
 
 Two traces, with different time constants, are defined for both pre- and postsynaptic partners.
 
@@ -300,7 +421,7 @@ The weight update rules can then be expressed in terms of the traces (and some o
 
 
 TODO list
----------
+#########
 
 - NESTML only has support for a single, unnamed output port.
 
@@ -362,3 +483,5 @@ References
        Biol. Cybern. 98, 459--478
 
 .. [2] Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
+
+.. [3] Rubin, Lee and Sompolinsky. Equilibrium Properties of Temporally Asymmetric Hebbian Plasticity. Physical Review Letters, 8 Jan 2001, Vol 86, No 2
