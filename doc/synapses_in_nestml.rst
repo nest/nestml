@@ -225,14 +225,16 @@ A pair of spikes in the input and the output cell, at times :math:`t_i` and :mat
 
 .. math::
 
-   \Delta^\pm w &= \pm \lambda f_\pm(w)K(|t_o - t_i|)
+   \Delta^\pm w = \pm \lambda f_\pm(w) K(|t_o - t_i|)
 
 The weight is increased by :math:`\Delta^+ w` when math:`t_o>t_i` and decreased by :math:`\Delta^- w` when :math:`t_i>t_o`. The temporal dependence of the update is defined by the filter kernel :math:`K` which is taken to be :math:`K(t) = \exp(-t/\tau)`. The coefficient :math:`\lambda\in\mathbb{R}` sets the magnitude of the update. The functions :math:`f_\pm(w)` determine the relative magnitude of the changes in the positive and negative direction. These are here taken as
 
 .. math::
 
-    f_+(w) &= (1 - w)^{\mu_+}
-    f_-(w) &= \alpha w^{\mu_-}
+   \begin{align}
+   f_+(w) &= (1 - w)^{\mu_+}
+   f_-(w) &= \alpha w^{\mu_-}
+   \end{align}
 
 with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP (for further references, see https://nest-simulator.readthedocs.io/en/nest-2.20.1/models/stdp.html?highlight=stdp#_CPPv4I0EN4nest14STDPConnectionE).
 
@@ -240,7 +242,7 @@ To implement the kernel, we use two extra state variables, one presynaptic so-ca
 
 .. math::
 
-   \text{tr_{pre}} &= K \ast \sum_i \delta_{pre,i}
+   \text{tr\_pre} = K \ast \sum_i \delta_{pre,i}
 
 and
 
@@ -285,7 +287,7 @@ The update rule for facilitation:
 
 .. math::
 
-   \Delta^+ w = \lambda * (1 - w)^{\mu_{plus}} * \text{pre\_trace}
+   \Delta^+ w = \lambda (1 - w)^{\mu_{plus}} \text{pre\_trace}
 
 Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
 
@@ -302,7 +304,7 @@ The update rule for depression:
 
 .. math::
 
-   \Delta^- w = w - \alpha * \lambda * w^{\mu_{minus}} * \text{post\_trace}
+   \Delta^- w = w - \alpha \lambda w^{\mu_{minus}} \text{post\_trace}
 
 .. code-block:: nestml
 
