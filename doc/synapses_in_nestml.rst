@@ -4,7 +4,7 @@ Modeling synapses in NESTML
 Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants. Third-factor plasticity rules, such as dopamine-modulated STDP, are planned.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/synapse_conceptual.png
-   :scale: 30 %
+   :scale: 10 %
    :align: center
 
    Conceptual illustration of synapse model (highlighted in green).
@@ -336,7 +336,7 @@ Finally, parameters are defined:
 
 The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window.
 
-.. figure:: stdp_test_window.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/c4c47d053077b11ad385d5f882696248a55b31af/doc/fig/stdp_test_window.png
 
    STDP window, obtained from numerical simulation, for purely additive STDP (mu_minus = mu_plus = 0)
 
