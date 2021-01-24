@@ -3,7 +3,7 @@ Modeling synapses in NESTML
 
 Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants. Third-factor plasticity rules, such as dopamine-modulated STDP, are planned.
 
-.. figure:: ../doc/fig/synapse_conceptual.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/synapse_conceptual.png
 
    Conceptual illustration of synapse model (highlighted in green).
 
@@ -173,7 +173,7 @@ Co-generation of neuron and synapse
 
 Why co-generation? ...
 
-.. figure:: ../doc/fig/neuron_synapse_co_generation.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/neuron_synapse_co_generation.png
 
    (a) Without co-generation: neuron and synapse models are treated independently. (b) co-generation: the code generator knows which neuron types will be connected using which synapse types, and treats these as pairs rather than independently.
 
@@ -215,7 +215,7 @@ Spike-Timing Dependent Plasticity (STDP)
 
 ... intro to STDP ...
 
-.. figure:: ../doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
 
    Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998) [18], represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The LTP (+) and LTD (-) windows are fitted by the exponential function ∆g = A ± exp(−|∆t|/τ ± ), with parameters A + = 0.86, A − = −0.25, τ + = 19 ms, and τ − = 34 ms. Adopted from Bi and Wang (2002) [21]. 
 
@@ -227,12 +227,12 @@ A pair of spikes in the input and the output cell, at times :math:`t_i` and :mat
 
    \Delta^\pm w = \pm \lambda f_\pm(w) K(|t_o - t_i|)
 
-The weight is increased by :math:`\Delta^+ w` when math:`t_o>t_i` and decreased by :math:`\Delta^- w` when :math:`t_i>t_o`. The temporal dependence of the update is defined by the filter kernel :math:`K` which is taken to be :math:`K(t) = \exp(-t/\tau)`. The coefficient :math:`\lambda\in\mathbb{R}` sets the magnitude of the update. The functions :math:`f_\pm(w)` determine the relative magnitude of the changes in the positive and negative direction. These are here taken as
+The weight is increased by :math:`\Delta^+ w` when :math:`t_o>t_i` and decreased by :math:`\Delta^- w` when :math:`t_i>t_o`. The temporal dependence of the update is defined by the filter kernel :math:`K` which is taken to be :math:`K(t) = \exp(-t/\tau)`. The coefficient :math:`\lambda\in\mathbb{R}` sets the magnitude of the update. The functions :math:`f_\pm(w)` determine the relative magnitude of the changes in the positive and negative direction. These are here taken as
 
 .. math::
 
    \begin{align}
-   f_+(w) &= (1 - w)^{\mu_+}
+   f_+(w) &= (1 - w)^{\mu_+}\\
    f_-(w) &= \alpha w^{\mu_-}
    \end{align}
 
@@ -242,13 +242,13 @@ To implement the kernel, we use two extra state variables, one presynaptic so-ca
 
 .. math::
 
-   \text{tr\_pre} = K \ast \sum_i \delta_{pre,i}
+   \text{tr_pre} = K \ast \sum_i \delta_{pre,i}
 
 and
 
 .. math::
 
-   \text{tr_{post}} &= K \ast \sum_i \delta_{post,i}
+   \text{tr_post} = K \ast \sum_i \delta_{post,i}
 
 These are implemented in the NESTML model as follows:
 
