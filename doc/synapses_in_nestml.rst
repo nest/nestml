@@ -1,7 +1,13 @@
 Modeling synapses in NESTML
 ===========================
 
-A synapse shares many of the same behaviours of a neuron: it has parameters and internal state variables, can communicate over input and output ports, and its dynamics and responses can be described by differential equations, kernels and as an algorithm. Typically, there is a single spiking input port and a single spiking output port.
+Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants. Third-factor plasticity rules, such as dopamine-modulated STDP, are planned.
+
+.. figure:: ../doc/fig/synapse_conceptual.png
+
+   Conceptual illustration of synapse model (highlighted in green).
+
+From the modeling point of view, a synapse shares many of the same behaviours of a neuron: it has parameters and internal state variables, can communicate over input and output ports, and its dynamics and responses can be described by differential equations, kernels and as an algorithm. Typically, there is a single spiking input port and a single spiking output port.
 
 .. Attention:: The NEST Simulator platform target has some additional constraints, such as precluding updates on a regular time grid. See :ref:`The NEST target` for more details.
 
@@ -84,7 +90,7 @@ Equivalently, the trace can be defined as a convolution between a trace kernel a
 Postsynaptic spike event handler
 --------------------------------
 
-Some plasticity rules are defined in terms of postsynaptic spike activity. A corresponding additional spiking input port and event handler can be defined in the NESTML model:
+Some plasticity rules are defined in terms of postsynaptic spike activity. A corresponding additional spiking input port and event handler (and convolutions) can be defined in the NESTML model:
 
 .. code-block:: nestml
 
@@ -198,7 +204,8 @@ access_counter now has an extra multiplicative factor
 
 .. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
 
-Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
+   Potjans et al. 2010
+
 
 
 Examples
@@ -262,9 +269,19 @@ Two traces, with different time constants, are defined for both pre- and postsyn
      inline tr_o2 real = convolve(tr_o2_kernel, post_spikes)
    end
 
-The weight update rules can then be expressed in terms of the traces:
+The weight update rules can then be expressed in terms of the traces (and some other parameters):
 
 .. code-block:: nestml
+
+   parameters:
+     A2_plus real = 7.5e-10
+     A3_plus real = 9.3e-3
+     A2_minus real = 7e-3
+     A3_minus real = 2.3e-4
+
+     Wmax nS = 100 nS
+     Wmin nS = 0 nS
+   end
 
    postReceive:
      # potentiate synapse
@@ -282,25 +299,27 @@ The weight update rules can then be expressed in terms of the traces:
    end
 
 
-
-
-
-
 TODO list
 ---------
 
 - NESTML only has support for a single, unnamed output port.
 
+  Compare
+
   .. code-block:: nestml
 
      output: spike
+
+  and
+
+  .. code-block:: nestml
 
      output:
        out_spikes -> spike
      end
 
-- spike vs. event: consistent use
-- onEvent(in_port_name) instead of preReceive, postReceive
+- *spike* vs. *event:* consistent use
+- onEvent(in_port_name) instead of preReceive, postReceive. Compare
 
   .. code-block:: nestml
 
@@ -317,6 +336,23 @@ TODO list
        # [...]
      end
 
+  and
+
+  .. code-block:: nestml
+
+     input:
+       pre_spikes nS <- spike
+       post_spikes nS <- spike
+     end
+     
+     onReceive(pre_spikes):
+       # [...]
+     end
+     
+     onReceive(post_spikes):
+       # [...]
+     end
+
 
 References
 ----------
@@ -325,5 +361,4 @@ References
        models of synaptic plasticity based on spike timing,
        Biol. Cybern. 98, 459--478
 
-
-
+.. [2] Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
