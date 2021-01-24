@@ -4,6 +4,8 @@ Modeling synapses in NESTML
 Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants. Third-factor plasticity rules, such as dopamine-modulated STDP, are planned.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/synapse_conceptual.png
+   :scale: 30 %
+   :align: center
 
    Conceptual illustration of synapse model (highlighted in green).
 
@@ -40,7 +42,7 @@ The corresponding event handler has the general structure:
 
 .. code-block:: nestml
 
-   onSpike(pre_spikes):
+   onReceive(pre_spikes):
      print("Info: processing a presynaptic spike at time t = {t}")
      # [...]
      emit_spike(w, d)     
@@ -68,7 +70,7 @@ State variables (in particular, synaptic "trace" variables as often used in plas
      tr_post real = 0
    end
 
-   onSpike(post_spikes):
+   onReceive(post_spikes):
      print("Info: processing a postsynaptic spike at time t = {t}")
      tr_post += 1
    end
@@ -99,7 +101,7 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
      post_spikes nS < spike
    end
 
-   onSpike(post_spikes):
+   onReceive(post_spikes):
      print("Info: processing a postsynaptic spike at time t = {t}")
      # [...]
    end
@@ -332,15 +334,11 @@ Finally, parameters are defined:
      Wmin nS = 0 nS
    end
 
-The NESTML STDP synapse integration test (``tests/nest_tests/stdp_synapse_test.py``) runs the model through several pre- and postsynaptic spike sequences, and checks the results with respect to a reference model:
+The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window.
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp_synapse_test.png
-   
-   STDP synapse test
+.. figure:: stdp_test_window.png
 
-By observing the weight change for different pairs of pre-post spikes, we can verify that our model approximates the correct STDP window.
-
-........
+   STDP window, obtained from numerical simulation, for purely additive STDP (mu_minus = mu_plus = 0)
 
 
 
