@@ -7,7 +7,7 @@ Conceptually, a synapse model formalises the interaction between two (or more) n
    :scale: 10 %
    :align: center
 
-   Conceptual illustration of synapse model (highlighted in green).
+   Conceptual illustration of synapse model (highlighted in green). Presynaptic neuron on the left, postsynaptic neuron on the right.
 
 From the modeling point of view, a synapse shares many of the same behaviours of a neuron: it has parameters and internal state variables, can communicate over input and output ports, and its dynamics and responses can be described by differential equations, kernels and as an algorithm. Typically, there is a single spiking input port and a single spiking output port.
 
@@ -50,7 +50,7 @@ The corresponding event handler has the general structure:
 
 The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
 
-.. code::
+.. code-block:: nestml
 
    state:
      w nS = 1 nS
@@ -112,21 +112,16 @@ Sharing parameters between synapses
 
 If one or more synapse parameters are the same across a population (homogeneous), then sharing the parameter value between all synapses can save vast amounts of memory. To mark a particular parameter as homogeneous, use the `@homogeneous` decorator keyword. This can be done on a per-parameter basis. By default, parameters are heterogeneous and can be set on a per-synapse basis by the user. Example:
 
-.. code::
+.. code-block:: nestml
 
-    synapse static:
-
-        parameters:
-            a real = 3.14159   @homogeneous
-            b real = 100.      @heterogeneous
-        end
-
-        ...
-    end
+   parameters:
+     a real = 3.14159   @homogeneous
+     b real = 100.      @heterogeneous
+   end
 
 will lead to the following C++ code being generated:
 
-.. code:: C++
+.. code-block:: C++
 
     class static_connectionCommonSynapseProperties : public CommonSynapseProperties
     {
@@ -145,7 +140,7 @@ will lead to the following C++ code being generated:
 
 and
 
-.. code:: C++
+.. code-block:: C++
 
     class static_connection : public Connection
     {
@@ -217,7 +212,7 @@ Spike-Timing Dependent Plasticity (STDP)
 
 ... intro to STDP ...
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
 
    Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998) [18], represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The LTP (+) and LTD (-) windows are fitted by the exponential function ∆g = A ± exp(−|∆t|/τ ± ), with parameters A + = 0.86, A − = −0.25, τ + = 19 ms, and τ − = 34 ms. Adopted from Bi and Wang (2002) [21]. 
 
@@ -334,13 +329,11 @@ Finally, parameters are defined:
      Wmin nS = 0 nS
    end
 
-The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window.
+The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window. Note that the dendritic delay in this example has been set to 10 ms, to make its effect on the STDP window more clear: it is not centered around zero, but shifted to the left by the dendritic delay.
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/c4c47d053077b11ad385d5f882696248a55b31af/doc/fig/stdp_test_window.png
 
    STDP window, obtained from numerical simulation, for purely additive STDP (mu_minus = mu_plus = 0)
-
-
 
 
 STDP synapse with nearest-neighbour spike pairing
@@ -350,18 +343,58 @@ This synapse model extends the STDP model by restrictions on interactions betwee
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/1c692f7ce70a548103b4cc1572a05a2aed3b27a4/doc/fig/stdp-nearest-neighbour.png
    
-   Figure 7 from Morrison, Diesmann and Gerstner [1]_.
+   Figure 7 from Morrison, Diesmann and Gerstner [1]_. Original caption: "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron j and a postsynaptic neuron i. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)"
 
-   Original caption:
-
-   Phenomenological models of synaptic plasticity based on spike timing", Biological Cybernetics 98 (2008). "Examples of nearest neighbor spike pairing schemes for a pre-synaptic neuron j and a postsynaptic neuron i. In each case, the dark gray indicate which pairings contribute toward depression of a synapse, and light gray indicate which pairings contribute toward potentiation. **(a)** Symmetric interpretation: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (Morrison et al. 2007). **(b)** Presynaptic centered interpretation: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike (Izhikevich and Desai 2003; Burkitt et al. 2004: Model II). **(c)** Reduced symmetric interpretation: as in **(b)** but only for immediate pairings (Burkitt et al. 2004: Model IV, also implemented in hardware by Schemmel et al. 2006)
 
 Nearest-neighbour symmetric
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Symmetric: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (fig. 7A in [1]_).
+This variant corresponds to panel 7A in [1]_: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike.
 
-Both traces are reset to 1 instead of incremented by 1.
+To implement this rule, the postsynaptic trace is reset to 1 instead of incremented by 1.
+
+.. code-block:: nestml
+
+   onReceive(post_spikes):
+     post_trace = 1
+     [...]
+   end
+
+The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
+
+The full model can be downloaded here: `syn_stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
+
+
+Presynaptic centered
+~~~~~~~~~~~~~~~~~~~~
+
+This variant corresponds to panel 7B in [1]_: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike.
+
+To implement this rule, the postsynaptic trace is reset to 1 instead of incremented by 1. Additionally, when a postsynaptic spike occurs, the presynaptic trace is reset to zero, thus "forgetting" presynaptic spike history.
+
+.. code-block:: nestml
+
+   onReceive(post_spikes):
+     post_tr = 1
+
+     if not pre_handled:
+         w = # [...] potentiate the synapse here per the usual STDP rule
+         pre_tr = 0   # reset pre trace
+         pre_handled = True
+     end
+   end
+
+The remainder of the model is the same as the :ref:`Nearest-neighbour symmetric` variant.
+
+The full model can be downloaded here: `syn_stdp_nn_presyn_centr.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
+
+
+Restricted symmetric
+~~~~~~~~~~~~~~~~~~~~
+
+This variant corresponds to panel 7C in [1]_: like the :ref:`Nearest-neighbour symmetric` rule, but only for immediate pairings.
+
+To implement this rule, both traces are reset to 1 instead of incremented by 1.
 
 .. code-block:: nestml
 
@@ -385,10 +418,9 @@ An extra boolean state variable is used to indicate whether the last presynaptic
 
    onReceive(post_spikes):
      [...]
-     # potentiate synapse
+
      if not pre_handled:
-         w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-         w = min(Wmax, w_)
+         w = # [...] potentiate the synapse here per the usual STDP rule
          pre_handled = True
      end
    end
@@ -396,19 +428,17 @@ An extra boolean state variable is used to indicate whether the last presynaptic
    onReceive(pre_spikes):
      [...]
 
-     # depress synapse
-     if pre_handled:   # skip depression if no postsynaptic spikes were handled since last pre spike
-         w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
-         w = max(Wmin, w_)
+     if pre_handled:   # skip depression if no post spikes were handled since last pre spike
+         w = # [...] depress the weight synapse per the usual STDP rule
      end
 
      pre_handled = False
 
-     # deliver spike to postsynaptic partner
-     deliver_spike(w, the_delay)
+     [...]
    end
 
-The full model can be found in `syn_stdp_nn.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml`__.
+The full model can be downloaded here: `syn_stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
+
 
 
 Triplet-rule STDP synapse
