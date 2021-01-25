@@ -25,7 +25,7 @@ import nest
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'resources', 'PrintVariables.nestml'))))
+    'resources', 'PrintVariables.nestml'))))
 nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 target_path = 'target'
 logging_level = 'INFO'
