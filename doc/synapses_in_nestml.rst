@@ -210,6 +210,8 @@ Examples
 Spike-Timing Dependent Plasticity (STDP)
 ----------------------------------------
 
+Experiments have shown that synaptic strength changes as a function of the precise spike timing of the presynaptic and postsynaptic neurons.
+
 ... intro to STDP ...
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
@@ -284,7 +286,7 @@ The update rule for facilitation:
 
 .. math::
 
-   \Delta^+ w = \lambda (1 - w)^{\mu_{plus}} \text{pre_trace}
+   \Delta^+ w = \lambda \cdot (1 - w)^{\mu_{plus}} \cdot \text{pre_trace}
 
 Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
 
@@ -301,7 +303,7 @@ The update rule for depression:
 
 .. math::
 
-   \Delta^- w = w - \alpha \lambda w^{\mu_{minus}} \text{post_trace}
+   \Delta^- w = w - \alpha \cdot \lambda \cdot w^{\mu_{minus}} \cdot \text{post_trace}
 
 .. code-block:: nestml
 
@@ -440,11 +442,16 @@ An extra boolean state variable is used to indicate whether the last presynaptic
 The full model can be downloaded here: `syn_stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
 
 
-
 Triplet-rule STDP synapse
 -------------------------
 
-Two traces, with different time constants, are defined for both pre- and postsynaptic partners.
+Traditional STDP models express the weight change as a function of pairs of pre- and postsynaptic spikes, but these fall short in accounting for the frequency dependence of weight changes. To improve the fit between model and empirical data, [4]_ propose a "triplet" rule, which considers sets of three spikes, that is, two pre and one post, or one pre and two post.
+
+.. figure:: https://www.jneurosci.org/content/jneuro/26/38/9673/F1.large.jpg?width=800&height=600&carousel=1
+
+   Figure 1 from [4]_.
+
+Two traces, with different time constants, are defined for both pre- and postsynaptic partners. The temporal evolution of the traces is illustrated in panels B and C: for the all-to-all variant of the rule, each trace is incremented by 1 upon a spike (panel B), whereas for the nearest-neighbour variant, each trace is reset to 1 upon a spike (panel C). The weight updates are then computed as a function of the trace values and four coefficients: a depression pair term :math:`A_2^-` and triplet term :math:`A_3^-`, and a facilitation pair term :math:`A_2^+` and triplet term :math:`A_3^+`. A presynaptic spike after a postsynaptic one induces depression, if the temporal difference is not much larger than :math:`\tau_-` (pair term, :math:`A_2^−`). The presence of a previous presynaptic spike gives an additional contribution (2-pre-1-post triplet term, :math:`A_3^−`) if the interval between the two presynaptic spikes is not much larger than :math:`\tau_x`. Similarly, the triplet term for potentiation depends on one presynaptic spike but two postsynaptic spikes. The presynaptic spike must occur before the second postsynaptic one with a temporal difference not much larger than :math:`\tau_+`.
 
 .. code-block:: nestml
 
@@ -469,7 +476,7 @@ Two traces, with different time constants, are defined for both pre- and postsyn
      inline tr_o2 real = convolve(tr_o2_kernel, post_spikes)
    end
 
-The weight update rules can then be expressed in terms of the traces (and some other parameters):
+The weight update rules can then be expressed in terms of the traces and parameters, directly following the formulation in the paper (eqs. 3 and 4, [4]_):
 
 .. code-block:: nestml
 
@@ -564,3 +571,5 @@ References
 .. [2] Front. Comput. Neurosci., 23 November 2010 | https://doi.org/10.3389/fncom.2010.00141 Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity, Wiebke Potjans, Abigail Morrison and Markus Diesmann
 
 .. [3] Rubin, Lee and Sompolinsky. Equilibrium Properties of Temporally Asymmetric Hebbian Plasticity. Physical Review Letters, 8 Jan 2001, Vol 86, No 2
+
+.. [4] Pfister JP, Gerstner W (2006). Triplets of spikes in a model of spike timing-dependent plasticity.  The Journal of Neuroscience 26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
