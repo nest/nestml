@@ -210,21 +210,19 @@ Examples
 Spike-Timing Dependent Plasticity (STDP)
 ----------------------------------------
 
-Experiments have shown that synaptic strength changes as a function of the precise spike timing of the presynaptic and postsynaptic neurons.
-
-... intro to STDP ...
+Experiments have shown that synaptic strength changes as a function of the precise spike timing of the presynaptic and postsynaptic neurons. If the pre neuron fires an action potential strictly before the post neuron, the synapse connecting them will be strengthened ("facilitated"). If the pre neuron fires after the post neuron, the synapse will be weakened ("depressed"). The depression and facilitation effects become stronger when the spikes occurred closer together in time. This is illustrated by empirical results (open circles), fitted by exponential curves (solid lines).
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
 
-   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998) [18], represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The LTP (+) and LTD (-) windows are fitted by the exponential function ∆g = A ± exp(−|∆t|/τ ± ), with parameters A + = 0.86, A − = −0.25, τ + = 19 ms, and τ − = 34 ms. Adopted from Bi and Wang (2002) [21]. 
+   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998) [18], represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The LTP (+) and LTD (-) windows are fitted by the exponential function ∆g = A ± exp(−|∆t|/τ), with parameters A + = 0.86, A − = −0.25, τ + = 19 ms, and τ − = 34 ms. Adopted from Bi and Wang (2002).
 
-We will define the model following Rubin et al. 2001.
+We will define the theoretical model following [3]_.
 
 A pair of spikes in the input and the output cell, at times :math:`t_i` and :math:`t_j` respectively, induces a change :math:`\Delta w` in the weight :math:`w`:
 
 .. math::
 
-   \Delta^\pm w = \pm \lambda f_\pm(w) K(|t_o - t_i|)
+   \Delta^\pm w = \pm \lambda \cdot f_\pm(w) \cdot K(|t_o - t_i|)
 
 The weight is increased by :math:`\Delta^+ w` when :math:`t_o>t_i` and decreased by :math:`\Delta^- w` when :math:`t_i>t_o`. The temporal dependence of the update is defined by the filter kernel :math:`K` which is taken to be :math:`K(t) = \exp(-t/\tau)`. The coefficient :math:`\lambda\in\mathbb{R}` sets the magnitude of the update. The functions :math:`f_\pm(w)` determine the relative magnitude of the changes in the positive and negative direction. These are here taken as
 
