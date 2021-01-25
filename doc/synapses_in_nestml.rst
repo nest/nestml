@@ -162,48 +162,6 @@ and
     }
 
 
-Generating code
-###############
-
-Co-generation of neuron and synapse
------------------------------------
-
-Why co-generation? ...
-
-.. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/neuron_synapse_co_generation.png
-
-   (a) Without co-generation: neuron and synapse models are treated independently. (b) co-generation: the code generator knows which neuron types will be connected using which synapse types, and treats these as pairs rather than independently.
-
-
-Just-in-time compilation/build
-
-
-Identifying pre- and postsynaptic partners
-------------------------------------------
-
-JSON code generator options using the key ``neuron_synapse_dyads``:
-
-.. code-block:: json
-
-   {
-     "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]
-   }
-
-
-The NEST target
----------------
-
-NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
-
-access_counter now has an extra multiplicative factor
-
-
-.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
-
-   Potjans et al. 2010
-
-
-
 Examples
 ########
 
@@ -437,6 +395,8 @@ An extra boolean state variable is used to indicate whether the last presynaptic
      [...]
    end
 
+The remainder of the model is the same as the :ref:`Nearest-neighbour symmetric` variant.
+
 The full model can be downloaded here: `syn_stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
 
 
@@ -504,6 +464,44 @@ The weight update rules can then be expressed in terms of the traces and paramet
    end
 
 
+Generating code
+###############
+
+Co-generation of neuron and synapse
+-----------------------------------
+
+Most plasticity models, including all of the STDP variants discussed above, depend on the storage and maintenance of "trace" values, that record the history of pre- and postsynaptic spiking activity. The trace dynamics and parameters are part of the synaptic plasticity rule that is being modeled, so logically belong in the NESTML synapse model. However, if each synapse maintains pre- and post traces for its connected partners, and considering that a single neuron may have on the order of thousands of synapses connected to it, these traces would be stored and computed redundantly. Instead of keeping them as part of the synaptic state during simulation, they more logically belong to the neuronal state.
+
+To prevent this redundancy, a fully automated dependency analysis is run during code generation, that identifies those variables that depend exclusively on postsynaptic spikes, and moves them into the postsynaptic neuron model. For this to work, the postsynaptic neuron model used needs to be known at the time of synaptic code generation. Thus, we need to generate code "in tandem" now for connected neuron and synapse models, hence the name "co-generation".
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/d4bf4f521d726dd638e8a264c7253a5746bcaaae/doc/fig/neuron_synapse_co_generation.png
+
+   (a) Without co-generation: neuron and synapse models are treated independently. (b) co-generation: the code generator knows which neuron types will be connected using which synapse types, and treats these as pairs rather than independently.
+
+To indicate which neurons will be connected to by which synapses during simulation, a list of such (neuron, synapse) pairs is passed to the code generator. This list is encoded as a JSON file. For example, if we want to use the "stdp" synapse model, connected to an "iaf_psc_exp" neuron, we would write the following:
+
+.. code-block:: json
+
+   {
+     "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]
+   }
+
+Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
+
+
+The NEST target
+---------------
+
+NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
+
+Note that ``access_counter`` now has an extra multiplicative factor equal to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
+
+.. figure:: https://www.frontiersin.org/files/Articles/1382/fncom-04-00141-r1/image_m/fncom-04-00141-g003.jpg
+
+   Potjans et al. 2010
+
+
+
 TODO list
 #########
 
@@ -558,6 +556,47 @@ TODO list
        # [...]
      end
 
+- Third-factor plasticity rules
+
+  For example, weight updates in the "Clopath synapse" model depend also on the postsynaptic membrane potential.
+
+  .. code-block:: nestml
+
+     input:
+       pre_spikes nS <- spike
+       post_spikes nS <- spike
+       post_V_m mV <- continous
+     end
+
+  and "connect" by specifying in the JSON code generator options file:
+
+  .. code-block:: json
+
+    {
+      "connections": [{"from": ["iaf_psc_exp", "V_m"],
+                       "to": ["stdp_nestml", "post_V_m"]}]
+    }
+
+  Another example: dopamine-modulated STDP.
+
+  .. code-block:: nestml
+
+     input:
+       pre_spikes nS <- spike
+       post_spikes nS <- spike
+       dopa_concentr mV <- continous
+     end
+     
+  This requires an extra component to obtain the dopamine concentration from; in NEST, this is called the "volume transmitter". It receives spikes and convolves these with a kernel to obtain a continuous dopamine concentration value.
+
+  .. code-block:: json
+
+    {
+      "connections": [{"from": ["dopa_volume_transmitter (?!)", "C_dopa"],
+                       "to": ["stdp_nestml", "dopa_concentr"]}]
+    }
+   
+   
 
 References
 ----------
