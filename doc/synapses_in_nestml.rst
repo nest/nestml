@@ -98,7 +98,7 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
 
    input:
      pre_spikes nS <- spike  # (same as before)
-     post_spikes nS < spike
+     post_spikes nS <- post spike
    end
 
    onReceive(post_spikes):
@@ -486,6 +486,12 @@ To indicate which neurons will be connected to by which synapses during simulati
      "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]
    }
 
+This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_codegenerator_opts_triplet.json``:
+
+.. code::
+
+   nestml --input_path my_models/ --codegen_opts=nest_codegenerator_opts_triplet.json
+
 Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
 
 
@@ -505,6 +511,32 @@ Note that ``access_counter`` now has an extra multiplicative factor equal to the
 TODO list
 #########
 
+- *spike* vs. *event:* consistent use
+
+- Use JSON file also for identifying pre. vs post ports. Current:
+
+  .. code-block:: nestml
+
+     input:
+       post_spikes nS <- post spike
+     end
+
+  Desired:
+
+  .. code-block:: nestml
+
+     input:
+       post_spikes nS <- spike
+     end
+
+  with
+
+  .. code-block:: json
+
+    {
+        ???
+    }
+
 - NESTML only has support for a single, unnamed output port.
 
   Compare
@@ -521,7 +553,6 @@ TODO list
        out_spikes -> spike
      end
 
-- *spike* vs. *event:* consistent use
 - onEvent(in_port_name) instead of preReceive, postReceive. Compare
 
   .. code-block:: nestml
@@ -545,7 +576,7 @@ TODO list
 
      input:
        pre_spikes nS <- spike
-       post_spikes nS <- spike
+       post_spikes nS <- post spike
      end
      
      onReceive(pre_spikes):
@@ -564,7 +595,7 @@ TODO list
 
      input:
        pre_spikes nS <- spike
-       post_spikes nS <- spike
+       post_spikes nS <- post spike
        post_V_m mV <- continous
      end
 
@@ -583,7 +614,7 @@ TODO list
 
      input:
        pre_spikes nS <- spike
-       post_spikes nS <- spike
+       post_spikes nS <- post spike
        dopa_concentr mV <- continous
      end
      
