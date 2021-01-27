@@ -31,7 +31,7 @@ class PrintStatementTest(unittest.TestCase):
         self.output_path = "output.txt"
 
         with open(self.output_path, 'w') as outfile:
-            subprocess.run(['python', input_path], text=True, stdout=outfile)
+            subprocess.run(['python', input_path], stdout=outfile)
 
         with open(self.output_path, 'r') as reader:
             lines = list(reader.readlines())
