@@ -448,13 +448,13 @@ The weight update rules can then be expressed in terms of the traces and paramet
      Wmin nS = 0 nS
    end
 
-   postReceive:
+   onReceive(post_spikes):
      # potentiate synapse
      w_ nS = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
      w = min(Wmax, w_)
    end
 
-   preReceive:
+   onReceive(pre_spikes):
      # depress synapse
      w_ nS = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
      w = max(Wmin, w_)
@@ -534,8 +534,10 @@ TODO list
   .. code-block:: json
 
     {
-        ???
+        "post_ports": {"stdp_nestml": ["post_spikes"]}
     }
+
+  if the name of the NESTML synapse model is "stdp_nestml".
 
 - NESTML only has support for a single, unnamed output port.
 

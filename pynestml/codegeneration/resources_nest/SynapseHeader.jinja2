@@ -582,6 +582,9 @@ assert(0);
         /**
          *  NESTML generated postReceive code block begins here!
         **/
+
+std::cout << "\tFacilitating, old w = " << S_.w << ", lambda = " << P_.lambda << ", mu_plus = " << P_.mu_plus << ", pre_tr = " << get_pre_trace();
+
     const double _tr_t = start->t_;
 
 {%- filter indent(6, True) %}
@@ -590,6 +593,8 @@ assert(0);
 {%-     include "directives/Block.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
+
+std::cout << ", new w = " << S_.w << std::endl;
 
         /**
          * internal state has now been fully updated to `start->t_ + __dendritic_delay`
@@ -623,14 +628,19 @@ assert(0);
     /**
      *  NESTML generated preReceive code block begins here!
     **/
+
+
     const double _tr_t = __t_spike - __dendritic_delay;
+
+std::cout << "\tDepressing, old w = " << S_.w << ", alpha = " << P_.alpha << ", lambda = " << P_.lambda << ", mu_minus = " << P_.mu_minus << ", post_tr = " << ((DYAD_POST_TYPE*)(__target))->get_post_trace__for_stdp_nestml(_tr_t);
+
 {%- filter indent(4,True) %}
 {%- set dynamics = synapse.get_pre_receive() %}
 {%- with ast = dynamics.get_block() %}
 {%-     include "directives/Block.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
-
+std::cout <<", new w = " << S_.w << std::endl;
 
     /**
      *  update all convolutions with pre spikes

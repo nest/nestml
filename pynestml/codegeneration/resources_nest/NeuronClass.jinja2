@@ -611,9 +611,27 @@ void
 
 
 
+// update only synapse->neuron moved variables; back-up and restore the rest
+double ode_state_bak[State_::STATE_VEC_SIZE];
+
+{%-   for variable_name in numeric_state_variables %}
+ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
+{%-     endfor %}
+
 {%- if uses_numeric_solver %}
-{%-     include "directives/GSLIntegrationStep.jinja2" %}   // XXX: TODO: jinja2 exclude synapse->neuron moved variables here
+{%-     include "directives/GSLIntegrationStep.jinja2" %}
 {%- endif %}
+
+// restore non-synapse->neuron-moved variables
+{%-   for variable_name in numeric_state_variables %}
+S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+{%-     endfor %}
+
+// restore variables solved analytically
+{%-   for variable_name in numeric_state_variables %}
+S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+{%-     endfor %}
+
 
 
 /* replace analytically solvable variables with precisely integrated values  */

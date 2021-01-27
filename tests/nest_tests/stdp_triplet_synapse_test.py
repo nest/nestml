@@ -63,6 +63,9 @@ class NestSTDPSynapseTest(unittest.TestCase):
         pre_spike_times = [4., 5., 6., 9., 12., 15., 16., 18.]
         post_spike_times = [6., 11., 14., 17., 20., 23., 27.]
 
+#Actual pre spike times: [ 3.  4.  5.  6.  7.  8. 14. 15.]
+#Actual post spike times: [ 4.  7. 10. 13. 16. 19.]
+
         '''pre_spike_times = np.array([ 14.])
         post_spike_times = np.array([3., 4., 9., 10., 11.])
 
@@ -72,13 +75,26 @@ class NestSTDPSynapseTest(unittest.TestCase):
         post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
         '''
+        pre_spike_times=np.array([  2.,   3.,   7.,   8.,   9.,  10.,  12.,  17.,  19.,  21.,  22.,  24.,  25.,  26.,
+          28.,  30.,  36.,  37.,  38.,  40.,  43.,  46.,  47.,  48.,  49.,  50.,  51.,  52.,
+            53.,  55.,  58.,  59.,  60.,  62.,  64.,  65.,  66.,  67.,  68.,  69.,  71.,  72.,
+              76.,  77.,  78.,  82.,  83.,  84.,  85.,  86.,  87.,  88.,  92.,  96.,  99., 105.,
+               113., 114., 121., 122., 124., 129., 135., 140., 152., 161., 167., 170., 183., 186.,
+                192., 202., 218., 224., 303., 311.])
+        post_spike_times = np.array([  2.,   4.,   5.,   8.,   9.,  12.,  13.,  14.,  17.,  18.,  19.,  21.,  24.,  25.,
+          26.,  28.,  30.,  32.,  34.,  37.,  38.,  40.,  42.,  44.,  45.,  46.,  49.,  50.,
+            51.,  53.,  55.,  56.,  60.,  61.,  67.,  68.,  72.,  73.,  74.,  76.,  77.,  78.,
+              79.,  81.,  82.,  84.,  87.,  88.,  93.,  95.,  96.,  98.,  99., 100., 109., 110.,
+               111., 115., 116., 118., 120., 121., 124., 125., 127., 128., 140., 144., 149., 150.,
+                152., 155., 156., 157., 163., 164., 168., 172., 204., 206., 216., 239., 243.])
 
         self.run_synapse_test(neuron_model_name=neuron_model_name,
                               ref_neuron_model_name=ref_neuron_model_name,
                               synapse_model_name=synapse_model_name,
                               ref_synapse_model_name=ref_synapse_model_name,
-                              resolution=1., # [ms]
+                              resolution=.1, # [ms]
                               delay=1., # [ms]
+                              sim_time=20.,
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
                               fname_snip=fname_snip)
@@ -135,6 +151,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
+        #nest.SetKernelStatus({"local_num_threads": 2})
         nest.Install("models_triplet_dyadmodule")
 
         print("Pre spike times: " + str(pre_spike_times))
@@ -144,7 +161,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         post_weights = {'parrot': []}
 
-        nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
         wr = nest.Create('weight_recorder')
@@ -167,8 +183,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         # create parrot neurons and connect spike_generators
         if sim_mdl:
          pre_neuron = nest.Create("parrot_neuron")
-         post_neuron = nest.Create(neuron_model_name)
-         post_neuron.set(nestml_neuron_params)
+         post_neuron = nest.Create(neuron_model_name, params=nestml_neuron_params)
 
         if sim_ref:
          pre_neuron_ref = nest.Create("parrot_neuron")
@@ -177,25 +192,25 @@ class NestSTDPSynapseTest(unittest.TestCase):
         if sim_mdl:
          spikedet_pre = nest.Create("spike_recorder")
          spikedet_post = nest.Create("spike_recorder")
-         mm = nest.Create("multimeter", params={"record_from" : ["V_m", "tr_o1_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml", "tr_o2_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"]})
+         mm = nest.Create("multimeter", params={"record_from" : ["V_m", "tr_o1_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml", "tr_o2_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"],
+                                                "interval": resolution})
         if sim_ref:
          spikedet_pre_ref = nest.Create("spike_recorder")
          spikedet_post_ref = nest.Create("spike_recorder")
-         mm_ref = nest.Create("multimeter", params={"record_from" : ["V_m"]})
-
+         mm_ref = nest.Create("multimeter", params={"record_from" : ["V_m"],
+                                                    "interval": resolution})
 
         if sim_mdl:
          nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
          nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec'})
+         nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'stdp_nestml_rec'})
          nest.Connect(mm, post_neuron)
-
          nest.Connect(pre_neuron, spikedet_pre)
          nest.Connect(post_neuron, spikedet_post)
         if sim_ref:
          nest.Connect(pre_sg, pre_neuron_ref, "one_to_one", syn_spec={"delay": 1.})
          nest.Connect(post_sg, post_neuron_ref, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-         nest.Connect(pre_neuron_ref, post_neuron_ref, "all_to_all", syn_spec={'synapse_model': 'stdp_ref_rec'})
+         nest.Connect(pre_neuron_ref, post_neuron_ref, "one_to_one", syn_spec={'synapse_model': 'stdp_ref_rec'})
          nest.Connect(pre_neuron_ref, spikedet_pre_ref)
          nest.Connect(post_neuron_ref, spikedet_post_ref)
          nest.Connect(mm_ref, post_neuron_ref)
@@ -217,9 +232,9 @@ class NestSTDPSynapseTest(unittest.TestCase):
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
-            if sim_ref:
+            if sim_ref and nest.GetStatus(syn_ref):
              w_hist_ref.append(nest.GetStatus(syn_ref)[0]['weight'])
-            if sim_mdl:
+            if sim_mdl and nest.GetStatus(syn):
              w_hist.append(nest.GetStatus(syn)[0]['w'])
 
         # plot
@@ -246,7 +261,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 #_ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
-            fig.savefig("/tmp/stdp_triplet_test" + fname_snip + "2.png", dpi=300)
+            fig.savefig("/tmp/stdp_triplet_test" + fname_snip + "_V_m.png", dpi=300)
 
         # plot
         if TEST_PLOTS:
@@ -305,10 +320,10 @@ class NestSTDPSynapseTest(unittest.TestCase):
             ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["tr_o1_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"], label="nestml post tr")
             ax2.set_ylabel("Post spikes")
 
-            if sim_mdl:
+            if sim_mdl and w_hist:
              ax3.plot(t_hist, w_hist, marker="o", label="nestml")
-            if sim_ref:
-              ax3.plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
+            if sim_ref and w_hist_ref:
+             ax3.plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
 
             ax3.set_xlabel("Time [ms]")
             ax3.set_ylabel("w")
