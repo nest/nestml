@@ -807,6 +807,12 @@ class NESTCodeGenerator(CodeGenerator):
                     odetoolbox_indict["parameters"][var.get_complete_name(
                     )] = gsl_printer.print_expression(decl.get_expression())
 
+        # add "current" type input ports to parameters with zero value, to prevent unknown terms from preventing an analytic solution
+        if neuron.get_input_blocks() is not None:
+            for input_port in neuron.get_input_blocks().get_input_ports():
+                if input_port.is_current():
+                    odetoolbox_indict["parameters"][input_port.get_name()] = "0"
+
         return odetoolbox_indict
 
     def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:

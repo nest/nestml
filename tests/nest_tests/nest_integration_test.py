@@ -47,7 +47,7 @@ class NestIntegrationTest(unittest.TestCase):
         models = []
 
         models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
-        models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
+        models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, 1E-3))
         models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
 
         models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
