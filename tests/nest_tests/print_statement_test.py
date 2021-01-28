@@ -27,7 +27,7 @@ class PrintStatementTest(unittest.TestCase):
 
     def test_print_statement(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            'print_variable_script.py'))))
+            'resources', 'print_variable_script.py'))))
         self.output_path = "output.txt"
 
         with open(self.output_path, 'w') as outfile:
