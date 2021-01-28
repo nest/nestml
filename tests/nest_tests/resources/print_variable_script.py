@@ -21,11 +21,11 @@
 
 import os
 import nest
+import shutil
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-    '', 'PrintVariables.nestml'))))
+input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), 'PrintVariables.nestml')))
 nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 target_path = '../target'
 logging_level = 'INFO'
@@ -43,3 +43,6 @@ nest.Install(module_name)
 
 neuron = nest.Create("print_variable_nestml")
 nest.Simulate(0.1)
+
+if os.path.exists(target_path):
+    shutil.rmtree(target_path)
