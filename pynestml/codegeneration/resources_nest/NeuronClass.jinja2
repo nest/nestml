@@ -296,14 +296,6 @@ void {{neuronName}}::calibrate() {
 {%- endfor %}
 {%- endfilter %}
 
-{%- filter indent(2,True) %}
-{%- for variable in neuron.get_state_non_alias_symbols() %}
-{%-   if variable.has_vector_parameter() %}
-{%-     include "directives/Calibrate.jinja2" %}
-{%-   endif %}
-{%- endfor %}
-{%- endfilter %}
-
 {%- for buffer in neuron.get_input_buffers() %}
 {%-   if buffer.has_vector_parameter() %}
   B_.{{buffer.get_symbol_name()}}.resize(P_.{{buffer.get_vector_parameter()}});

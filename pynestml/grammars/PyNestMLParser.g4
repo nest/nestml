@@ -100,12 +100,16 @@ parser grammar PyNestMLParser;
 
   logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
+  indexParameter : (NAME | UNSIGNED_INTEGER);
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
-  variable : name=NAME (DIFFERENTIAL_ORDER)*;
+  variable : name=NAME
+  (LEFT_SQUARE_BRACKET sizeParameter=indexParameter RIGHT_SQUARE_BRACKET)?
+  (DIFFERENTIAL_ORDER)*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
