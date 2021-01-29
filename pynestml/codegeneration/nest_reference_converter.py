@@ -267,11 +267,12 @@ class NESTReferenceConverter(IReferenceConverter):
         Converts the string argument of the print or println function to NEST processable format
         Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
 
-.. code-block:: nestml
+        .. code-block:: nestml
 
         print("Hello World")
         Converted NEST: std::cout << "Hello World";
 
+        .. code-block:: C++
         print("Membrane potential = {V_m}")
         Converted NEST: std::cout << "Membrane potential = " << V_m << " mV";
 

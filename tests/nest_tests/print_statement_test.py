@@ -24,6 +24,9 @@ import unittest
 
 
 class PrintStatementTest(unittest.TestCase):
+    """
+    Test to validate the output of NEST cout statements converted from the corresponding NESTML print() functions.
+    """
 
     def test_print_statement(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
