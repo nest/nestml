@@ -122,7 +122,7 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 
   Receives: {% if is_spike_input %}Spike, {% endif %}{% if is_current_input %}Current,{% endif %} DataLoggingRequest
 */
-class {{neuronName}} : public nest::ArchivingNode{
+class {{neuronName}} : public nest::{{neuron_parent_class}}{
 public:
   /**
   * The constructor is only used to create the model prototype in the model manager.
@@ -565,7 +565,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endwith %}
   {%- endfor %}
 
-  ArchivingNode::get_status( __d );
+  {{neuron_parent_class}}::get_status( __d );
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
@@ -619,7 +619,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   // write them back to (P_, S_) before we are also sure that
   // the properties to be set in the parent class are internally
   // consistent.
-  ArchivingNode::set_status(__d);
+  {{neuron_parent_class}}::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
   {%- for parameter in neuron.get_parameter_symbols() -%}
