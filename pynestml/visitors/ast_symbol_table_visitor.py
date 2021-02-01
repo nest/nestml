@@ -56,9 +56,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :rtype: ast_neuron
         """
         # set current processed neuron
-        Logger.set_current_astnode(node)
+        Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
+        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
         node.update_scope(scope)
@@ -95,7 +95,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             assign_ode_to_variables(equation_block)
         if not self.after_ast_rewrite_:
             CoCosManager.post_ode_specification_checks(node)
-        Logger.set_current_astnode(None)
+        Logger.set_current_node(None)
         return
 
     def visit_neuron_body(self, node):
@@ -118,9 +118,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # set current processed synapse
         # Logger.set_current_synapse(node)
         print("In ASTSymbolTableVisitor::visit_synapse()")
-        Logger.set_current_astnode(node)
+        Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(astnode=node, code=code, error_position=node.get_source_position(),
+        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
         # before starting the work on the synapse, make everything which was implicit explicit
         # but if we have a model without an equations block, just skip this step
@@ -142,7 +142,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def endvisit_synapse(self, node):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.post_symbol_table_builder_checks(node)
-        Logger.set_current_astnode(None)
+        Logger.set_current_node(None)
 
 
     def endvisit_synapse_body(self, node):

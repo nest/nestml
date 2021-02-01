@@ -188,7 +188,7 @@ def process():
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())
-                    Logger.log_message(astnode=neuron, code=code, message=message,
+                    Logger.log_message(node=neuron, code=code, message=message,
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
@@ -197,7 +197,7 @@ def process():
             for synapse in synapses:
                 if Logger.has_errors(synapse):
                     code, message = Messages.get_synapse_contains_errors(synapse.get_name())
-                    Logger.log_message(astnode=synapse, code=code, message=message,
+                    Logger.log_message(node=synapse, code=code, message=message,
                                        error_position=synapse.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     synapses.remove(synapse)

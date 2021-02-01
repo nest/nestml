@@ -68,7 +68,7 @@ class CoCoAllVariablesDefined(CoCo):
                     if symbol is None:
                         # symbol has not been defined; neither as a variable name nor as a type symbol
                         code, message = Messages.get_variable_not_defined(var.get_name())
-                        Logger.log_message(astnode=node, code=code, message=message, log_level=LoggingLevel.ERROR,
+                        Logger.log_message(node=node, code=code, message=message, log_level=LoggingLevel.ERROR,
                                            error_position=var.get_source_position())
                 # first check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
@@ -86,7 +86,7 @@ class CoCoAllVariablesDefined(CoCo):
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))
                             and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS, BlockType.INITIAL_VALUES])):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
-                        Logger.log_message(astnode=node, message=message, error_position=var.get_source_position(),
+                        Logger.log_message(node=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
                     # todo: we should not check this for invariants
@@ -94,7 +94,7 @@ class CoCoAllVariablesDefined(CoCo):
                             and not symbol.get_referenced_object().get_source_position().is_added_source_position()):
                         code, message = Messages.get_variable_defined_recursively(var.get_name())
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
-                                           get_source_position(), log_level=LoggingLevel.ERROR, astnode=node)
+                                           get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
         # now check for each assignment whether the left hand side variable is defined
         vis = ASTAssignedVariableDefinedVisitor(node)
@@ -113,7 +113,7 @@ class ASTAssignedVariableDefinedVisitor(ASTVisitor):
         if symbol is None:
             code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR, astnode=self.neuron)
+                               log_level=LoggingLevel.ERROR, node=self.neuron)
 
 
 class ASTExpressionCollectorVisitor(ASTVisitor):

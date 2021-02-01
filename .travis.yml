@@ -72,7 +72,7 @@ jobs:
     - stage: integration
       install:
         # install nest-simulator
-        - pip install cython pytest-xdist
+        - pip install cython
         - cd
         - git clone --depth=1 https://github.com/nest/nest-simulator
         - mkdir nest_install
@@ -106,5 +106,10 @@ jobs:
         - export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
         - echo $PYNESTKERNEL_LOCATION
         - export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
-        - pytest -s  -o log_cli=true -o log_cli_level="DEBUG" --forked $TRAVIS_BUILD_DIR/tests/nest_tests
-
+        # tests have to run in separate processes, hence the loop over files. This works better than pytest-xdist and pytest-forked, because they cannot show debug (stdout) output.
+        - |
+          rc=0
+          for fn in $TRAVIS_BUILD_DIR/tests/nest_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+          done;
+          exit $rc

@@ -406,6 +406,9 @@ public: // XXX! TODO: should be private
 {%-     for variable_name in numeric_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
+{%-     for variable_name in non_equations_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
 {%-   endif %}
       STATE_VEC_SIZE
     };

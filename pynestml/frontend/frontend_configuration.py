@@ -23,7 +23,6 @@ import os
 import re
 
 import pynestml
-from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.utils.logger import Logger
@@ -207,6 +206,8 @@ appropriate numeric solver otherwise.
     def handle_target(cls, target):
         if target is None or target.upper() == 'NONE':
             target = ''     # make sure `target` is always a string
+
+        from pynestml.codegeneration.codegenerator import CodeGenerator
 
         if target.upper() not in CodeGenerator.get_known_targets():
             code, message = Messages.get_unknown_target(target)

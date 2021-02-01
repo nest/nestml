@@ -131,9 +131,15 @@ class UnitSystemTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'DeclarationWithSameVariableNameAsUnit.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+<<<<<<< HEAD
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_astnode(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
+=======
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
+>>>>>>> upstream/master
 
     def test_expression_after_magnitude_conversion_in_standalone_function_call(self):
         model = ModelParser.parse_model(

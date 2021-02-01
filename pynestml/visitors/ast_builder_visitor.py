@@ -254,7 +254,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
-                                                  source_position=create_source_pos(ctx),)
+                                                  source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
@@ -478,9 +478,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # update the comments
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.set_current_astnode(neuron)
+        Logger.set_current_node(neuron)
         CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=neuron)
-        Logger.set_current_astnode(neuron)
+        Logger.set_current_node(neuron)
         # now the meta_model seems to be correct, return it
         return neuron
 
@@ -538,10 +538,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(synapse, self.__comments.visit(ctx))
 
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.set_current_astnode(synapse)
+        Logger.set_current_node(synapse)
         CoCoEachSynapseBlockUniqueAndDefined.check_co_co(node=synapse)
         # now the meta_model seems to be correct, return it
-        Logger.set_current_astnode(synapse)
+        Logger.set_current_node(synapse)
 
         return synapse
 
