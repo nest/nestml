@@ -120,10 +120,9 @@ neuron iaf_psc_exp:
   output: spike
 
   update:
-    integrate_odes()
-
-    if r > 0:
-      V_abs = V_reset
+    if r == 0: # neuron not refractory, so evolve V
+      integrate_odes()
+    else:
       r = r - 1 # neuron is absolute refractory
     end
 

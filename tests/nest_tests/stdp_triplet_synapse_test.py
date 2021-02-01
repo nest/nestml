@@ -43,7 +43,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
     def test_nest_stdp_synapse(self):
         neuron_model_name = "iaf_psc_exp_nestml__with_stdp_triplet_nestml"
         #neuron_model_name = "iaf_psc_exp"
-        ref_neuron_model_name = "iaf_psc_exp"
+        #ref_neuron_model_name = "iaf_psc_exp"
+        ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
         synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_exp_nestml"
         #synapse_model_name = "stdp_nestml"
         ref_synapse_model_name = "stdp_triplet_synapse"
@@ -92,9 +93,9 @@ class NestSTDPSynapseTest(unittest.TestCase):
                               ref_neuron_model_name=ref_neuron_model_name,
                               synapse_model_name=synapse_model_name,
                               ref_synapse_model_name=ref_synapse_model_name,
-                              resolution=.1, # [ms]
+                              resolution=1., # [ms]
                               delay=1., # [ms]
-                              sim_time=20.,
+                              sim_time=None, #20.,
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
                               fname_snip=fname_snip)
@@ -153,6 +154,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         nest.ResetKernel()
         #nest.SetKernelStatus({"local_num_threads": 2})
         nest.Install("models_triplet_dyadmodule")
+        nest.Install("nestml_non_jit_module")
 
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
@@ -187,7 +189,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         if sim_ref:
          pre_neuron_ref = nest.Create("parrot_neuron")
-         post_neuron_ref = nest.Create(ref_neuron_model_name, params=nest_neuron_params)
+         post_neuron_ref = nest.Create(ref_neuron_model_name)# XXX, params=nest_neuron_params)
+         post_neuron_ref.set(nest_neuron_params)
 
         if sim_mdl:
          spikedet_pre = nest.Create("spike_recorder")

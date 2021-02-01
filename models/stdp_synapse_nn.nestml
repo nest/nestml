@@ -72,7 +72,7 @@ synapse stdp_nn:
         
         if nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_PRESYN_CENTERED:
             # According to the presynaptic-centered nearest-neighbour scheme, a postsynaptic spike erases the state of the synapse, and all the preceding presynaptic spikes are forgotten.
-            post_trace = 0
+            pre_trace = 0
         end
         
         pre_handled = True
