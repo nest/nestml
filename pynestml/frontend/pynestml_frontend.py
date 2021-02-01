@@ -59,7 +59,7 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         Suffix which will be appended to the model's name (internal use to avoid naming conflicts with existing NEST models).
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
-    codegen_opts : str, optional
+    codegen_opts_fn : str, optional
         Path to a JSON file containing additional options for the target code generator.
     '''
     # if target_path is not None and not os.path.isabs(target_path):
@@ -92,9 +92,9 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     if dev:
         args.append(qualifier_dev_arg)
 
-    if codegen_opts:
+    if codegen_opts_fn:
         args.append(qualifier_codegen_opts_arg)
-        args.append(codegen_opts)
+        args.append(codegen_opts_fn)
 
     FrontendConfiguration.parse_config(args)
     if not process() == 0:
