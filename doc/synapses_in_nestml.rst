@@ -19,6 +19,14 @@ Key to writing the synapse model is the requirement that the event handler for t
 Writing the NESTML model
 ########################
 
+The top-level element of the model is ``synapse``, followed by a name. All other blocks appear inside of here.
+
+.. code-block:: nestml
+
+   synapse stdp:
+     # [...]
+   end
+
 Input and output ports
 ----------------------
 
