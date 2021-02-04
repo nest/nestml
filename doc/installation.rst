@@ -14,12 +14,11 @@ The easiest way to install NESTML is to use the `Python Package Index (PyPI) <ht
 
    sudo apt install python3-pip
 
-
 NESTML can then be installed into your local user directory via:
 
 .. code-block:: bash
 
-   pip install nestml --user
+   pip install nestml
 
 
 Installing the latest development version from GitHub

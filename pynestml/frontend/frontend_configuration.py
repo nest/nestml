@@ -37,7 +37,7 @@ help_module = 'Indicates the name of the module. Optional. If not indicated, the
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
 help_suffix = 'A suffix string that will be appended to the name of all generated models.'
 help_dev = 'Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.'
-help_codegen_opts_arg = 'Path to a JSON file containing additional options for the target code generator.'
+help_codegen_opts = 'Path to a JSON file containing additional options for the target platform code generator.'
 
 qualifier_input_path_arg = '--input_path'
 qualifier_target_path_arg = '--target_path'
@@ -94,7 +94,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
-        cls.argument_parser.add_argument(qualifier_codegen_opts_arg, metavar='PATH', type=str, help=help_codegen_opts_arg, default='')
+        cls.argument_parser.add_argument(qualifier_codegen_opts_arg, metavar='PATH', type=str, help=help_codegen_opts, default='')
         parsed_args = cls.argument_parser.parse_args(args)
 
         # initialize the logger
@@ -182,25 +182,31 @@ appropriate numeric solver otherwise.
 
     @classmethod
     def handle_module_name(cls, module_name, input_path):
-        # parse or compose the module name
+        """parse or compose the module name"""
         if module_name is not None:
             if not module_name.endswith('module'):
-                raise Exception('Invalid module name specified ("' + module_name + '"): the module name should end with the word "module"')
+                raise Exception('Invalid module name specified ("' + module_name
+                                + '"): the module name should end with the word "module"')
             if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', module_name):
-                raise Exception('The specified module name ("' + module_name + '") cannot be parsed as a C variable name')
+                raise Exception('The specified module name ("' + module_name
+                                + '") cannot be parsed as a C variable name')
             cls.module_name = module_name
         elif os.path.isfile(input_path):
             cls.module_name = 'nestmlmodule'
-            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
+                               + cls.module_name + '"', log_level=LoggingLevel.INFO)
         elif os.path.isdir(input_path):
             cls.module_name = os.path.basename(os.path.normpath(input_path))
             if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
-                raise Exception('No module name specified; tried to use the input directory name ("' + cls.module_name + '"), but it cannot be parsed as a C variable name')
+                raise Exception('No module name specified; tried to use the input directory name ("'
+                                + cls.module_name + '"), but it cannot be parsed as a C variable name')
             if not cls.module_name.endswith('module'):
                 cls.module_name += 'module'
-            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "' + cls.module_name + '"', log_level=LoggingLevel.INFO)
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
+                               + cls.module_name + '"', log_level=LoggingLevel.INFO)
         else:
             assert False  # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
+
 
     @classmethod
     def handle_target(cls, target):

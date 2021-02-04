@@ -161,7 +161,7 @@ namespace nest
 /* ----------------------------------------------------------------
  * Default and copy constructor for node, and destructor
  * ---------------------------------------------------------------- */
-{{neuronName}}::{{neuronName}}() : StructuralPlasticityNode(), P_(), S_(), B_(*this)
+{{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
   recordablesMap_.create();
 
@@ -219,7 +219,7 @@ namespace nest
 }
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
-  StructuralPlasticityNode(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
+  {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
   // copy parameter struct P_
 {%- filter indent(2, True) %}
 {%- for parameter in neuron.get_parameter_non_alias_symbols() %}
@@ -534,7 +534,7 @@ void
 void
 {{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
 {
-    StructuralPlasticityNode::set_spiketime( t_sp, offset );
+    {{neuron_parent_class}}::set_spiketime( t_sp, offset );
 
     unsigned int num_transferred_variables = 0;
 {#- for var in transferred_variables #}
