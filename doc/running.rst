@@ -95,7 +95,12 @@ If no errors occur, the output will be generated into the specified target direc
 
    install_nest(models_path, nest_path)
 
-Here, ``models_path`` should be set to the ``target`` directory of ``to_nest()``, and ``nest_path`` points to the directory where NEST is installed (e.g., ``/home/nest/work/nest-install``).
+Here, ``models_path`` should be set to the ``target`` directory of ``to_nest()``, and ``nest_path`` points to the directory where NEST is installed (e.g., ``/home/nest/work/nest-install``). This path can conveniently be obtained from the ``nest`` module as follows:
+
+.. code-block:: python
+
+   import nest
+   nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
 A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is ``nestmlmodule``.
 

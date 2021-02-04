@@ -450,9 +450,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # update the comments
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
-        Logger.set_current_neuron(neuron)
+        Logger.set_current_node(neuron)
         CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
-        Logger.set_current_neuron(neuron)
+        Logger.set_current_node(neuron)
         # now the meta_model seems to be correct, return it
         return neuron
 

@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -99,7 +100,8 @@ class ExpressionsPrettyPrinter(object):
                 return op % rhs
             # encapsulated in brackets
             elif node.is_encapsulated:
-                return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression(), prefix=prefix)
+                return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression(),
+                                                                                               prefix=prefix)
             # logical not
             elif node.is_logical_not:
                 op = self.reference_converter.convert_logical_not()
@@ -138,7 +140,10 @@ class ExpressionsPrettyPrinter(object):
         """
         function_name = self.reference_converter.convert_function_call(function_call, prefix=prefix)
         if ASTUtils.needs_arguments(function_call):
-            return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+            if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
+                return function_name.format(self.reference_converter.convert_print_statement(function_call))
+            else:
+                return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
         else:
             return function_name
 
@@ -167,3 +172,5 @@ class TypesPrinter(object):
             return 'false'
         elif isinstance(element, int) or isinstance(element, float):
             return str(element)
+        elif isinstance(element, str):
+            return element

@@ -148,7 +148,9 @@ class PredefinedFunctions(object):
         """
         Registers the print-line function.
         """
-        symbol = FunctionSymbol(name=cls.PRINTLN, param_types=list(),
+        params = list()
+        params.append(PredefinedTypes.get_string_type())
+        symbol = FunctionSymbol(name=cls.PRINTLN, param_types=params,
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.PRINTLN] = symbol
