@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Any, List, Mapping, Optional
+from typing import Any, Mapping, Optional, Sequence
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -45,6 +45,14 @@ class CodeGenerator:
         if options:
             self.set_options(options)
 
+    def generate_code(self, neurons) -> None:
+        """the base CodeGenerator class does not generate any code"""
+        pass
+
+    def generate_neuron_code(self, neuron) -> None:
+        """the base CodeGenerator class does not generate any code"""
+        pass
+
     def set_options(self, options: Mapping[str, Any]):
         if not "_default_options" in dir(self.__class__):
             assert "Code generator class \"" + str(self.__class__) + "\" does not support setting options."
@@ -55,12 +63,12 @@ class CodeGenerator:
     def get_option(self, k):
         return self._options[k]
 
-    def generate_neurons(self, neurons: List[ASTNeuron]):
+    def generate_neurons(self, neurons: Sequence[ASTNeuron]):
         """
         Generate code for the given neurons.
 
         :param neurons: a list of neurons.
-        :type neurons: List[ASTNeuron]
+        :type neurons: Sequence[ASTNeuron]
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 

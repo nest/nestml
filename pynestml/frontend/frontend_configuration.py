@@ -104,7 +104,6 @@ appropriate numeric solver otherwise.
         cls.handle_input_path(parsed_args.input_path)
         cls.handle_target(parsed_args.target)
         cls.handle_target_path(parsed_args.target_path)
-
         cls.handle_module_name(parsed_args.module_name, parsed_args.input_path)
         cls.handle_codegen_opts(parsed_args.codegen_opts)
 
