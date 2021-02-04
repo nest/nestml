@@ -271,7 +271,24 @@ Names of functions and input ports must also satisfy this pattern. The type of t
     e string = "foo"
     f mV = -2e12 mV
 
-It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed, and all occurrences of the symbol in the model will try to be resolved first to a variable name, and if that fails, will try to be resolved to a physical unit. Variable (and shape, and parameter) definitions will thus have precedence when resolving symbols.
+It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
+
+For example, the following model will result in one warning and one error:
+
+.. code-block:: nestml
+
+   neuron test:
+     state:
+       ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
+       foo s = 0 s     # foo has units of time (seconds)
+     end
+
+     update:
+       ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
+       foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
+     end
+   end
+
 
 Documentation strings
 ~~~~~~~~~~~~~~~~~~~~~
