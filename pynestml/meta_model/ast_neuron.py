@@ -21,7 +21,6 @@
 
 from typing import Optional, Union, List, Dict
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel

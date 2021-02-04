@@ -122,7 +122,7 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 
   Receives: {% if is_spike_input %}Spike, {% endif %}{% if is_current_input %}Current,{% endif %} DataLoggingRequest
 */
-class {{neuronName}} : public nest::Archiving_Node{
+class {{neuronName}} : public nest::ArchivingNode{
 public:
   /**
   * The constructor is only used to create the model prototype in the model manager.
@@ -283,10 +283,13 @@ private:
 {%- else %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
-{# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver#}
+{# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver #}
 {%-   if uses_numeric_solver %}
       // numeric solver state variables
 {%-     for variable_name in numeric_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
+{%-     for variable_name in non_equations_state_variables: %}
       {{variable_name}},
 {%-     endfor %}
 {%-   endif %}
@@ -562,7 +565,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endwith %}
   {%- endfor %}
 
-  Archiving_Node::get_status( __d );
+  ArchivingNode::get_status( __d );
 
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
@@ -616,7 +619,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   // write them back to (P_, S_) before we are also sure that
   // the properties to be set in the parent class are internally
   // consistent.
-  Archiving_Node::set_status(__d);
+  ArchivingNode::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
   {%- for parameter in neuron.get_parameter_symbols() -%}

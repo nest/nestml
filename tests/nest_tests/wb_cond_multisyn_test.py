@@ -46,7 +46,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models", "wb_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        nest_path = "/home/travis/nest_install"
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         suffix = '_nestml'
 
         to_nest(input_path=input_path,

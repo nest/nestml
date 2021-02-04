@@ -55,9 +55,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :rtype: ast_neuron
         """
         # set current processed neuron
-        Logger.set_current_neuron(node)
+        Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
-        Logger.log_message(neuron=node, code=code, error_position=node.get_source_position(),
+        Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
                            message=message, log_level=LoggingLevel.INFO)
         scope = Scope(scope_type=ScopeType.GLOBAL, source_position=node.get_source_position())
         node.update_scope(scope)
@@ -94,7 +94,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             assign_ode_to_variables(equation_block)
         if not self.after_ast_rewrite_:
             CoCosManager.post_ode_specification_checks(node)
-        Logger.set_current_neuron(None)
+        Logger.set_current_node(None)
         return
 
     def visit_body(self, node):

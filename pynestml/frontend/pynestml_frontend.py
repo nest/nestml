@@ -164,7 +164,7 @@ def process():
             for neuron in neurons:
                 if Logger.has_errors(neuron):
                     code, message = Messages.get_neuron_contains_errors(neuron.get_name())
-                    Logger.log_message(neuron=neuron, code=code, message=message,
+                    Logger.log_message(node=neuron, code=code, message=message,
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
