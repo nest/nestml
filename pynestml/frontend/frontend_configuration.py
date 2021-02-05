@@ -249,7 +249,7 @@ appropriate numeric solver otherwise.
                     cls.paths_to_compilation_units.append(os.path.join(_path, fn))
             else:
                 # input_path should be either a file or a directory
-                code, message = Messages.get_input_path_not_found(path=cls.provided_input_path)
+                code, message = Messages.get_input_path_not_found(path=_path)
                 Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
                 raise InvalidPathException(message)
 
