@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
@@ -151,6 +153,12 @@ class NESTReferenceConverter(IReferenceConverter):
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
 
+        if function_name == PredefinedFunctions.PRINT:
+            return 'std::cout << {!s}'
+
+        if function_name == PredefinedFunctions.PRINTLN:
+            return 'std::cout << {!s} << std::endl'
+
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
             return '''
         set_delay( {1!s} );
@@ -247,6 +255,73 @@ e();
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
             NestNamesConverter.name(symbol) + \
             ('[i]' if symbol.has_vector_parameter() else '')
+
+    def __get_unit_name(self, variable):
+        assert (variable is not None and isinstance(variable, ASTVariable)), \
+            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
+                variable)
+        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
+
+        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
+        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
+            return symbol.get_type_symbol().unit.unit.to_string()
+
+        return ''
+
+    def convert_print_statement(self, function_call):
+        """
+        A wrapper function to convert arguments of a print or println functions
+        :param function_call: print function call
+        :type function_call: ASTFunctionCall
+        :return: the converted print string with corresponding variables, if any
+        :rtype: str
+        """
+        stmt = function_call.get_args()[0].get_string()
+        stmt = stmt[stmt.index('"') + 1: stmt.rindex('"')]  # Remove the double quotes from the string
+        scope = function_call.get_scope()
+        return self.__convert_print_statement_str(stmt, scope)
+
+    def __convert_print_statement_str(self, stmt, scope):
+        """
+        Converts the string argument of the print or println function to NEST processable format
+        Variables are resolved to NEST processable format and printed with physical units as mentioned in model, separated by a space
+
+        .. code-block:: nestml
+
+            print("Hello World")
+
+        .. code-block:: C++
+
+            std::cout << "Hello World";
+
+        .. code-block:: nestml
+
+            print("Membrane potential = {V_m}")
+
+        .. code-block:: C++
+
+            std::cout << "Membrane potential = " << V_m << " mV";
+
+        :param stmt: argument to the print or println function
+        :type stmt: str
+        :param scope: scope of the variables in the argument, if any
+        :type scope: Scope
+        :return: the converted string to NEST
+        :rtype: str
+        """
+        pattern = re.compile(r'\{[a-zA-Z_][a-zA-Z0-9_]*\}')  # Match the variables enclosed within '{ }'
+        match = pattern.search(stmt)
+        if match:
+            var_name = match.group(0)[match.group(0).find('{') + 1:match.group(0).find('}')]
+            left, right = stmt.split(match.group(0), 1)  # Split on the first occurrence of a variable
+            fun_left = (lambda l: self.__convert_print_statement_str(l, scope) + ' << ' if l else '')
+            fun_right = (lambda r: ' << ' + self.__convert_print_statement_str(r, scope) if r else '')
+            ast_var = ASTVariable(var_name, scope=scope)
+            right = ' ' + self.__get_unit_name(ast_var) + right  # concatenate unit separated by a space with the right part of the string
+            return fun_left(left) + self.convert_name_reference(ast_var) + fun_right(right)
+        else:
+            return '"' + stmt + '"'  # format bare string in C++ (add double quotes)
 
     @classmethod
     def convert_constant(cls, constant_name):
