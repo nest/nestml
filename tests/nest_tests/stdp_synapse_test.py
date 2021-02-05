@@ -40,27 +40,45 @@ sim_ref = True
 
 class NestSTDPSynapseTest(unittest.TestCase):
 
+    neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
+    #ref_neuron_model_name = "iaf_psc_exp"
+    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit" # XXX SHOULD BE ME
+    #ref_neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml" # XXX REMOVE ME
+    #synapse_model_name = "stdp_nestml"
+    synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
+    ref_synapse_model_name = "stdp_synapse"
+
+    def setUp(self):
+        """Generate the neuron model code"""
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+
+        # generate the "non-jit" model, that relies on ArchivingNode
+        to_nest(input_path="models/iaf_psc_exp.nestml",
+                target_path="/tmp/nestml-non-jit",
+                logging_level="INFO",
+                module_name="nestml_non_jit_module",
+                suffix="_nestml_non_jit",
+                codegen_opts={"neuron_parent_class": "ArchivingNode",
+                              "neuron_parent_class_include": "archiving_node.h"})
+        install_nest("/tmp/nestml-non-jit", nest_path)
+
+        # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
+        to_nest(input_path=["models/iaf_psc_exp.nestml", "models/stdp_synapse.nestml"],
+                target_path="/tmp/nestml-jit",
+                logging_level="INFO",
+                module_name="nestml_jit_module",
+                suffix="_nestml",
+                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                              "neuron_parent_class_include": "structural_plasticity_node.h",
+                              "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]})
+        install_nest("/tmp/nestml-jit", nest_path)
+
     def test_nest_stdp_synapse(self):
-        neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
-        #ref_neuron_model_name = "iaf_psc_exp"
-        ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit" # XXX SHOULD BE ME
-        #ref_neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml" # XXX REMOVE ME
-        #synapse_model_name = "stdp_nestml"
-        synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
-        ref_synapse_model_name = "stdp_synapse"
+
         fname_snip = "dyad_test"
-
-
-        post_spike_times = np.arange(1, 20).astype(np.float)
-        pre_spike_times = -2 + np.array([3., 13.])
-
-        #post_spike_times = -2 + np.array([11. ,15., 32.])
 
         pre_spike_times = [1., 11., 21.]    # [ms]
         post_spike_times = [6., 16., 26.]  # [ms]
-
-        pre_spike_times = np.array([ 14.])
-        post_spike_times = np.array([3., 4., 9., 10., 11.])
 
         post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
@@ -80,13 +98,12 @@ class NestSTDPSynapseTest(unittest.TestCase):
  116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
  188., 194., 202., 245., 249., 289., 454.])
 
-        self.run_synapse_test(neuron_model_name=neuron_model_name,
-                              ref_neuron_model_name=ref_neuron_model_name,
-                              synapse_model_name=synapse_model_name,
-                              ref_synapse_model_name=ref_synapse_model_name,
+        self.run_synapse_test(neuron_model_name=self.neuron_model_name,
+                              ref_neuron_model_name=self.ref_neuron_model_name,
+                              synapse_model_name=self.synapse_model_name,
+                              ref_synapse_model_name=self.ref_synapse_model_name,
                               resolution=.5, # [ms]
                               delay=1.5, # [ms]
-                              sim_time = 60., # XXX REMOVE ME
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
                               fname_snip=fname_snip)
@@ -113,7 +130,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
-        nest.Install("models_for_dyadmodule")
+        nest.Install("nestml_jit_module")
         nest.Install("nestml_non_jit_module")
 
         print("Pre spike times: " + str(pre_spike_times))
@@ -296,9 +313,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 _ax.legend()
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)
 
-
         # verify
         MAX_ABS_ERROR = 1E-6
         assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
-
-
