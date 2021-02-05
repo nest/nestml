@@ -21,7 +21,7 @@
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
-class ErrorStrings(object):
+class ErrorStrings:
     """
     These error strings are part of the type calculation system and are kept separated from the message class
     for the sake of a clear and direct maintenance of type system as an individual component.

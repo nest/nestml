@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
@@ -75,11 +77,10 @@ class ASTStmt(ASTNode):
 
         return dup
 
-    def get_parent(self, ast=None):
+    def get_parent(self, ast: ASTNode=None) -> Optional[ASTNode]:
         """
         Returns the parent node of a handed over AST object.
         """
-        # type: ASTNode -> ASTNode
         if self.small_stmt is ast:
             return self
         if self.small_stmt is not None and self.small_stmt.get_parent(ast) is not None:
@@ -88,6 +89,7 @@ class ASTStmt(ASTNode):
             return self
         if self.compound_stmt is not None and self.compound_stmt.get_parent(ast) is not None:
             return self.compound_stmt.get_parent(ast)
+        return None
 
     def is_small_stmt(self):
         return self.small_stmt is not None

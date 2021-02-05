@@ -48,7 +48,7 @@ qualifier_suffix_arg = '--suffix'
 qualifier_dev_arg = '--dev'
 
 
-class FrontendConfiguration(object):
+class FrontendConfiguration:
     """
     This class encapsulates all settings as handed over to the frontend at start of the toolchain.
     """
@@ -185,7 +185,7 @@ appropriate numeric solver otherwise.
         return cls.module_name
 
     @classmethod
-    def is_dev(cls):
+    def get_is_dev(cls):
         """
         Returns whether the development mode has been enabled.
         :return: True if development mode is enabled, otherwise False.

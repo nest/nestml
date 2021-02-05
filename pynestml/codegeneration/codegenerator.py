@@ -19,16 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
+from typing import Sequence
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CodeGenerator():
+class CodeGenerator:
 
     def __init__(self, target):
         if not target.upper() in self.get_known_targets():
@@ -45,12 +46,11 @@ class CodeGenerator():
         targets = [s.upper() for s in targets]
         return targets
 
-    def generate_neurons(self, neurons: List[ASTNode]):
+    def generate_neurons(self, neurons: Sequence[ASTNeuron]):
         """
         Generate code for the given neurons.
 
-        :param neurons: a list of neurons.
-        :type neurons: List[ASTNode]
+        :param neurons: a list of neurons
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
@@ -60,13 +60,12 @@ class CodeGenerator():
                 code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-    def generate_code(self, neurons):
+    def generate_code(self, neurons: Sequence[ASTNeuron]):
         """
         Generate code for the given neurons and (depending on the target) generate an index page, module entrypoint or
         similar that incorporates an enumeration of all neurons.
 
         :param neurons: a list of neurons.
-        :type neurons: List[ASTNode]
         """
         if self._target.upper() == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator

@@ -19,13 +19,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Dict, List, Mapping, Optional, Sequence, Union
+
 import copy
 import json
 import datetime
 import os
 import re
 import sympy
-from typing import Optional, Union, List, Dict, Mapping
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
@@ -54,6 +55,7 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
@@ -837,8 +839,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         return inline_expressions
 
-    def replace_inline_expressions_through_defining_expressions(self, definitions, inline_expressions):
-        # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
+    def replace_inline_expressions_through_defining_expressions(self,
+                                                                definitions: Sequence[ASTOdeEquation],
+                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
         """
         Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 

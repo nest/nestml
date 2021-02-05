@@ -105,7 +105,7 @@ class MessageCode(Enum):
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
 
 
-class Messages(object):
+class Messages:
     """
     This class contains a collection of error messages which enables a centralized maintaining and modifications of
     those.

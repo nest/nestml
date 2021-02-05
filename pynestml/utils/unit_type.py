@@ -22,7 +22,7 @@ from astropy.units.core import PrefixUnit, Unit, IrreducibleUnit, CompositeUnit
 from astropy.units.quantity import Quantity
 
 
-class UnitType(object):
+class UnitType:
     """
     This class is used to encapsulate the functionality of astropy.units in a new layer which provided additional functionality as required during context checks.
 
