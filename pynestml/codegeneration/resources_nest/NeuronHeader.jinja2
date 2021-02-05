@@ -77,7 +77,7 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 {% endif %}
 
 // Includes from nestkernel:
-#include "archiving_node.h"
+#include "{{neuron_parent_class_include}}"
 #include "connection.h"
 #include "event.h"
 #include "nest_types.h"

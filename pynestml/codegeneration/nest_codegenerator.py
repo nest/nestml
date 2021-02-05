@@ -78,10 +78,12 @@ class NESTCodeGenerator(CodeGenerator):
 
     Options:
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
+    - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     """
 
     _default_options = {
-        "neuron_parent_class": "ArchivingNode"
+        "neuron_parent_class": "ArchivingNode",
+        "neuron_parent_class_include": "archiving_node.h"
     }
 
     _variable_matching_template = r'(\b)({})(\b)'
@@ -423,7 +425,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
+
         namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
+        namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')
 
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
