@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Any, Mapping, Optional
+
 import argparse  # used for parsing of input arguments
 import os
 import re
@@ -64,7 +67,7 @@ class FrontendConfiguration(object):
     store_log = False
     suffix = ''
     is_dev = False
-    codegen_opts = {}
+    codegen_opts = {}  # type: Mapping[str, Any]
     codegen_opts_fn = ''
 
     @classmethod
@@ -167,7 +170,7 @@ appropriate numeric solver otherwise.
         return cls.module_name
 
     @classmethod
-    def is_dev(cls):
+    def get_is_dev(cls):
         """
         Returns whether the development mode has been enabled.
         :return: True if development mode is enabled, otherwise False.
@@ -181,7 +184,7 @@ appropriate numeric solver otherwise.
         return cls.codegen_opts
 
     @classmethod
-    def set_codegen_opts(cls, codgen_opts):
+    def set_codegen_opts(cls, codegen_opts):
         """Set the code generator options dictionary"""
         cls.codegen_opts = codegen_opts
 
@@ -191,7 +194,7 @@ appropriate numeric solver otherwise.
         if codegen_opts_fn and not os.path.isfile(codegen_opts_fn):
             raise Exception('The specified code generator options file ("' + codegen_opts_fn + '") cannot be found')
         cls.codegen_opts_fn = codegen_opts_fn
-        cls.codegen_opts = None
+        cls.codegen_opts = {}
         if cls.codegen_opts_fn:
             # load optional code generator options from JSON
             import json
