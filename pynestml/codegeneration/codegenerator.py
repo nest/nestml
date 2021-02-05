@@ -48,6 +48,14 @@ class CodeGenerator:
         if options:
             self.set_options(options)
 
+    def generate_code(self, neurons) -> None:
+        """the base CodeGenerator class does not generate any code"""
+        pass
+
+    def generate_neuron_code(self, neuron) -> None:
+        """the base CodeGenerator class does not generate any code"""
+        pass
+
     def set_options(self, options: Mapping[str, Any]):
         if not "_default_options" in dir(self.__class__):
             assert "Code generator class \"" + str(self.__class__) + "\" does not support setting options."

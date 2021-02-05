@@ -89,6 +89,9 @@ This operation expects the same set of arguments as in the case of command line 
    * - dev
      - boolean
      - False
+   * - codegen_opts
+     - Optional[Mapping[str, Any]]
+     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator.
 
 If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
 
