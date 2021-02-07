@@ -496,7 +496,7 @@ To indicate which neurons will be connected to by which synapses during simulati
 
 This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_codegenerator_opts_triplet.json``:
 
-.. code::
+.. code:: sh
 
    nestml --input_path my_models/ --codegen_opts=nest_codegenerator_opts_triplet.json
 
@@ -506,7 +506,26 @@ Further integration with NEST Simulator is planned, to achieve a just-in-time co
 The NEST target
 ---------------
 
+Event-based updating
+~~~~~~~~~~~~~~~~~~~~
+
 NEST target synapses are not allowed to have any time-based internal dynamics (ODEs). This is due to the fact that synapses are, unlike nodes, not updated on a regular time grid.
+
+
+Dendritic delay
+~~~~~~~~~~~~~~~
+
+In NEST, all synapses are expected to specify a nonzero dendritic delay, that is, the delay between arrival of a spike at the dendritic spine and the time at which its effects are felt at the soma (or conversely, the delay between a somatic action potential and the arrival at the dendritic spine due to dendritic backpropagation). To indicate that a given parameter is specifying this NEST-specific delay value, use an annotation:
+
+.. code:: nestml
+
+   parameters:
+     dend_delay ms = 1 ms     @nest::delay
+   end
+
+
+Implementation notes
+~~~~~~~~~~~~~~~~~~~~
 
 Note that ``access_counter`` now has an extra multiplicative factor equal to the number of trace values that exist, so that spikes are removed from the history only after they have been read out for the sake of computing each trace.
 
