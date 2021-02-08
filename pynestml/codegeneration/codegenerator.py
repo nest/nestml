@@ -46,11 +46,11 @@ class CodeGenerator:
             self.set_options(options)
 
     def generate_code(self, neurons) -> None:
-        """the base CodeGenerator class does not generate any code"""
+        """the base class CodeGenerator does not generate any code"""
         pass
 
     def generate_neuron_code(self, neuron) -> None:
-        """the base CodeGenerator class does not generate any code"""
+        """the base class CodeGenerator does not generate any code"""
         pass
 
     def set_options(self, options: Mapping[str, Any]):
