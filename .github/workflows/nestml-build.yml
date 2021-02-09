@@ -6,6 +6,8 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
 
     steps:
       # Checkout the repository contents
