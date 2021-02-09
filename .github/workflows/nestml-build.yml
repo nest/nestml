@@ -1,6 +1,5 @@
 name: NESTML build
 env:
-  NEST_INSTALL: $(cd $GITHUB_WORKSPACE/.. && pwd)/nest-install
   PYTHONPATH: ${{ github.workspace }}/build/python
 on: push
 
@@ -34,7 +33,7 @@ jobs:
           echo java -cp \"`pwd`/antlr-4.8-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
-          export PATH=$PATH:`pwd`
+          export PATH=$PATH:`pwd` >> $GITHUB_ENV
 
       # Install Python dependencies
       - name: Python dependecies
@@ -57,6 +56,7 @@ jobs:
       - name: Generate Lexer and Parser using Antlr4
         run: |
           cd $GITHUB_WORKSPACE
+          echo "PATH = $PATH"
           find pynestml/generated -not -name __init__.py -a -not -name generated -delete
           cd pynestml/grammars
           ./generate_lexer_parser
@@ -82,6 +82,7 @@ jobs:
           git clone --depth=1 https://github.com/nest/nest-simulator
           NEST_SIMULATOR=$(pwd)/nest-simulator
           echo "NEST_SIMULATOR = $NEST_SIMULATOR"
+          export NEST_INSTALL=$(cd $GITHUB_WORKSPACE/.. && pwd)/nest-install >> $GITHUB_ENV
           echo "NEST_INSTALL = $NEST_INSTALL"
           mkdir $NEST_INSTALL
           cd $NEST_INSTALL
