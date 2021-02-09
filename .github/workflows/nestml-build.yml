@@ -45,17 +45,20 @@ jobs:
           python -m pip install pycodestyle
 
       - name: Install latest ode-toolbox
+        if: ${{ always() }}
         run: |
           python -m pip uninstall --yes odetoolbox
           python -m pip install git+https://github.com/nest/ode-toolbox.git
 
       - name: Install NESTML
+        if: ${{ always() }}
         run: |
           echo PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
       - name: Generate Lexer and Parser using Antlr4
+        if: ${{ always() }}
         run: |
           cd $GITHUB_WORKSPACE
           echo "PATH = $PATH"
@@ -65,6 +68,7 @@ jobs:
 
       # Static code analysis
       - name: Static code style analysis
+        if: ${{ always() }}
         run: |
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           echo "github.workspace = ${{ github.workspace }}"
@@ -72,11 +76,13 @@ jobs:
 
       # Tests
       - name: Run unit tests
+        if: ${{ always() }}
         run: |
           pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests
 
       # Install NEST simulator
       - name: NEST simulator
+        if: ${{ always() }}
         run: |
           python -m pip install cython
           cd $GITHUB_WORKSPACE/..
@@ -93,6 +99,7 @@ jobs:
 
       # Install NESTML (repeated)
       - name: Install NESTML
+        if: ${{ always() }}
         run: |
           echo PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
@@ -100,6 +107,7 @@ jobs:
 
       # Integration tests
       - name: Run integration tests
+        if: ${{ always() }}
         run: |
           cd $GITHUB_WORKSPACE
           nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
