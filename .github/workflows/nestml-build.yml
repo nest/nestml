@@ -90,10 +90,10 @@ jobs:
 
       # Install NESTML (repeated)
       - name: Install NESTML
-          run: |
-            export PYTHONPATH=$PYTHONPATH:`pwd`
-            echo $PYTHONPATH
-            python setup.py install
+        run: |
+          export PYTHONPATH=$PYTHONPATH:`pwd`
+          echo $PYTHONPATH
+          python setup.py install
 
       # Integration tests
       - name: Run integration tests
