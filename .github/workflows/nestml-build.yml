@@ -49,7 +49,7 @@ jobs:
 
       - name: Install NESTML
         run: |
-          export PYTHONPATH=$PYTHONPATH:`pwd`
+          export PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
@@ -92,7 +92,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=$PYTHONPATH:`pwd`
+          export PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
