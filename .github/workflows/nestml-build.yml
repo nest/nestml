@@ -1,0 +1,116 @@
+name: NESTML build
+env:
+  NEST_INSTALL: $(cd $GITHUB_WORKSPACE/.. && pwd)/nest-install
+  PYTHONPATH: ${{ github.workspace }}/build/python
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v2
+
+      # Setup Python version
+      - name: Setup Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt install python3-all-dev python3-matplotlib python3-numpy python3-scipy
+
+      # Install Antlr4
+      - name: Install Antlr4
+        run: |
+          sudo apt install openjdk-8-jre
+          wget http://www.antlr.org/download/antlr-4.8-complete.jar
+          echo \#\!/bin/bash > antlr4
+          echo java -cp \"`pwd`/antlr-4.8-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo >> antlr4
+          chmod +x antlr4
+          export PATH=$PATH:`pwd`
+
+      # Install Python dependencies
+      - name: Python dependecies
+        run: |
+          python -m pip install --upgrade pip pytest
+          python -m pip install -r requirements.txt
+          python -m pip install pycodestyle
+
+      - name: Install latest ode-toolbox
+        run: |
+          python -m pip uninstall --yes odetoolbox
+          python -m pip install git+https://github.com/nest/ode-toolbox.git
+
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=$PYTHONPATH:`pwd`
+          echo $PYTHONPATH
+          python setup.py install
+
+      - name: Generate Lexer and Parser using Antlr4
+        run: |
+          cd $GITHUB_WORKSPACE
+          find pynestml/generated -not -name __init__.py -a -not -name generated -delete
+          cd pynestml/grammars
+          ./generate_lexer_parser
+
+      # Static code analysis
+      - name: Static code style analysis
+        run: |
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          echo "github.workspace = ${{ github.workspace }}"
+          python3 extras/codeanalysis/check_copyright_headers.py && python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E303,E714,E713,E714,E252,W503 --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github
+
+      # Tests
+      - name: Run unit tests
+        run: |
+          pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests
+
+      # Install NEST simulator
+      - name: NEST simulator
+        run: |
+          python -m pip install cython
+          cd $GITHUB_WORKSPACE/..
+          echo "Current directory: `pwd`"
+          git clone --depth=1 https://github.com/nest/nest-simulator
+          NEST_SIMULATOR=$(pwd)/nest-simulator
+          echo "NEST_SIMULATOR = $NEST_SIMULATOR"
+          echo "NEST_INSTALL = $NEST_INSTALL"
+          mkdir $NEST_INSTALL
+          cd $NEST_INSTALL
+          cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
+          make && make install
+
+      # Install NESTML (repeated)
+      - name: Install NESTML
+          run: |
+            export PYTHONPATH=$PYTHONPATH:`pwd`
+            echo $PYTHONPATH
+            python setup.py install
+
+      # Integration tests
+      - name: Run integration tests
+        run: |
+          cd $GITHUB_WORKSPACE
+          nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
+          cd target
+          cmake -Dwith-nest=$NEST_INSTALL/bin/nest-config .
+          make && make install
+          cd ..
+          export PYNESTKERNEL_LOCATION=`find $NEST_INSTALL/lib -name pynestkernel.so`
+          export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
+          echo $PYNESTKERNEL_LOCATION
+          export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
+        # Loop over each test
+          rc=0
+          for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+          done;
+          exit $rc
