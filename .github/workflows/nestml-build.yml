@@ -33,7 +33,7 @@ jobs:
           echo java -cp \"`pwd`/antlr-4.8-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
-          export PATH=$PATH:`pwd` >> $GITHUB_ENV
+          echo PATH=$PATH:`pwd` >> $GITHUB_ENV
 
       # Install Python dependencies
       - name: Python dependecies
@@ -49,7 +49,7 @@ jobs:
 
       - name: Install NESTML
         run: |
-          export PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
+          echo PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
@@ -82,7 +82,7 @@ jobs:
           git clone --depth=1 https://github.com/nest/nest-simulator
           NEST_SIMULATOR=$(pwd)/nest-simulator
           echo "NEST_SIMULATOR = $NEST_SIMULATOR"
-          export NEST_INSTALL=$(cd $GITHUB_WORKSPACE/.. && pwd)/nest-install >> $GITHUB_ENV
+          echo NEST_INSTALL=$(cd $GITHUB_WORKSPACE/.. && pwd)/nest-install >> $GITHUB_ENV
           echo "NEST_INSTALL = $NEST_INSTALL"
           mkdir $NEST_INSTALL
           cd $NEST_INSTALL
@@ -92,7 +92,7 @@ jobs:
       # Install NESTML (repeated)
       - name: Install NESTML
         run: |
-          export PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
+          echo PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
