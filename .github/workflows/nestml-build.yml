@@ -108,7 +108,6 @@ jobs:
           export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
           echo $PYNESTKERNEL_LOCATION
           export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
-        # Loop over each test
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
