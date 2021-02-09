@@ -46,7 +46,7 @@ Adapted by: Philipp Weidel
 synapse stdp:
 
   initial_values:
-    w nS = 1.234 nS
+    w nS = 1 nS
   end
 
   parameters:
