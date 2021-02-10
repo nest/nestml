@@ -3,6 +3,6 @@ sympy >= 1.1.1
 antlr4-python3-runtime >= 4.7
 setuptools
 Jinja2 >= 2.10
-typing
+typing; python_version<"3.5"
 astropy
 odetoolbox >= 2.0
