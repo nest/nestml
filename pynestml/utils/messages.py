@@ -103,6 +103,7 @@ class MessageCode(Enum):
     KERNEL_WRONG_TYPE = 73
     KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
+    NO_FILES_IN_INPUT_PATH = 76
 
 
 class Messages(object):
@@ -1151,9 +1152,13 @@ class Messages(object):
         message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
 
-
     @classmethod
     def get_could_not_determine_cond_based(cls, type_str, name):
         message = "Unable to determine based on type '" + type_str + \
             "' of variable '" + name + "' whether conductance-based or current-based"
         return MessageCode.LEXER_ERROR, message
+
+    @classmethod
+    def get_no_files_in_input_path(cls, path: str):
+        message = "No files found matching '*.nestml' in provided input path '" + path + "'"
+        return MessageCode.NO_FILES_IN_INPUT_PATH, message
