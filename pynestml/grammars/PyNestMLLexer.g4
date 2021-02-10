@@ -30,7 +30,7 @@ lexer grammar PyNestMLLexer;
 
   ML_COMMENT : ('/*' .*? '*/' | '"""' .*? '"""')-> channel(2);
 
-  NEWLINE : ('\r' '\n' | '\r' | '\n' );
+  NEWLINE : '\r'? '\n';
 
   WS : (' ' | '\t')->channel(1);
 
