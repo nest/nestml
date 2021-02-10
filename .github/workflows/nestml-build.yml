@@ -96,7 +96,7 @@ jobs:
           git clone --depth=1 https://github.com/nest/nest-simulator
 
           mkdir nest_install
-          echo "NEST_INSTALL = $NEST_INSTALL" >> $GITHUB_ENV
+          echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
           cd nest_install
           cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
           make && make install
