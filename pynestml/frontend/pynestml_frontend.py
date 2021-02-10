@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Mapping, Optional, Sequence, Union
+
 import os
 import sys
 
@@ -26,7 +28,8 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
-    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, qualifier_dev_arg
+    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
+    qualifier_dev_arg, qualifier_codegen_opts_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -37,14 +40,14 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(input_path, target_path=None, logging_level='ERROR',
-            module_name=None, store_log=False, suffix="", dev=False):
+def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
+            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
     ----------
-    input_path : str
-        Path to the NESTML file or to a folder containing NESTML files to convert to NEST code.
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
     logging_level : str, optional (default: 'ERROR')
@@ -57,13 +60,19 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         Suffix which will be appended to the model's name (internal use to avoid naming conflicts with existing NEST models).
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
     '''
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
     args = list()
     args.append(qualifier_input_path_arg)
-    args.append(str(input_path))
+    if type(input_path) is str:
+        args.append(str(input_path))
+    else:
+        for s in input_path:
+            args.append(s)
 
     if target_path is not None:
         args.append(qualifier_target_path_arg)
@@ -89,6 +98,10 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
         args.append(qualifier_dev_arg)
 
     FrontendConfiguration.parse_config(args)
+
+    if codegen_opts:
+        FrontendConfiguration.set_codegen_opts(codegen_opts)
+
     if not process() == 0:
         raise Exception("Error(s) occurred while processing the model")
 
@@ -117,11 +130,16 @@ def install_nest(models_path, nest_path):
 
 
 def main():
-    """Returns the process exit code: 0 for success, > 0 for failure"""
+    """
+    Entry point for the command-line application.
+
+    Returns
+    -------
+    The process exit code: 0 for success, > 0 for failure
+    """
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
-    except InvalidPathException:
-        print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
+    except InvalidPathException as e:
         return 1
     # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
@@ -170,7 +188,8 @@ def process():
                     neurons.remove(neuron)
                     errors_occurred = True
         # perform code generation
-        _codeGenerator = CodeGenerator(target=FrontendConfiguration.get_target())
+        _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target(),
+                                                        options=FrontendConfiguration.get_codegen_opts())
         _codeGenerator.generate_code(neurons)
         for neuron in neurons:
             if Logger.has_errors(neuron):
