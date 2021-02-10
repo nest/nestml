@@ -384,52 +384,40 @@ Restricted symmetric
 
 This variant corresponds to panel 7C in [1]_: like the :ref:`Nearest-neighbour symmetric` rule, but only for immediate pairings.
 
-To implement this rule, both traces are reset to 1 instead of incremented by 1.
+To implement this rule, depression and facilitation are gated through a boolean, ``pre_handled``, which ensures that each postsynaptic spike can only pair with a single presynaptic spike.
 
 .. code-block:: nestml
+
+   initial_values:
+     # [...]
+     pre_handled boolean = True
+   end
 
    onReceive(pre_spikes):
-     pre_trace = 1.
-     [...]
+    # [...]
+
+    # depress synapse
+    if pre_handled:
+      w = ...  # depression step (omitted)
+    end
+
+    # [...]
    end
 
    onReceive(post_spikes):
-     post_trace = 1.
-     [...]
-   end
-
-An extra boolean state variable is used to indicate whether the last presynaptic spike was already handled.
-
-.. code-block:: nestml
-
-   state:
-     pre_handled = True
-   end
-
-   onReceive(post_spikes):
-     [...]
+     # [...]
 
      if not pre_handled:
-         w = # [...] potentiate the synapse here per the usual STDP rule
-         pre_handled = True
-     end
-   end
-
-   onReceive(pre_spikes):
-     [...]
-
-     if pre_handled:   # skip depression if no post spikes were handled since last pre spike
-         w = # [...] depress the weight synapse per the usual STDP rule
+       w = ...  # potentiation step (omitted)
+       pre_handled = True
      end
 
-     pre_handled = False
-
-     [...]
+     # [...]
    end
 
-The remainder of the model is the same as the :ref:`Nearest-neighbour symmetric` variant.
+The remainder of the model is the same as the :ref:`Presynaptic centered` variant.
 
-The full model can be downloaded here: `syn_stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
+The full model can be downloaded here: `stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_nn_restr_symm.nestml>`_.
 
 
 Triplet-rule STDP synapse

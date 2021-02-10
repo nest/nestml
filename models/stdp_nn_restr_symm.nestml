@@ -1,5 +1,5 @@
 /*
-Name: stdp_nn_pre_centered - Synapse type for spike-timing dependent plasticity, with nearest-neighbour spike pairing.
+Name: stdp_nn_restr_symmetric - Synapse type for spike-timing dependent plasticity, with nearest-neighbour spike pairing.
 
 Description:
 
@@ -7,7 +7,7 @@ stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1
 
 This synapse model extends the [stdp](stdp_synapse.nestml) model by restrictions on interactions between pre- and post spikes.
 
-This variant corresponds to panel 7B in [1].
+This variant corresponds to panel 7C in [1].
 
 Symmetric: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike (fig. 7A in [1])
 
@@ -21,12 +21,13 @@ Symmetric: each presynaptic spike is paired with the last postsynaptic spike, an
 
 SeeAlso: stdp
 */
-synapse stdp_nn_pre_centered:
+synapse stdp_nn_restr_symm:
 
   initial_values:
     w nS = 1 nS
     pre_trace real = 0.
     post_trace real = 0.
+    pre_handled boolean = True
   end
 
   parameters:
@@ -60,18 +61,23 @@ synapse stdp_nn_pre_centered:
     post_trace = 1
 
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-    w = min(Wmax, w_)
-
-    pre_trace = 0
+    if not pre_handled:
+      w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+      w = min(Wmax, w_)
+      pre_handled = True
+    end
   end
 
   preReceive:
-    pre_trace += 1
+    pre_trace = 1
 
     # depress synapse
-    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
-    w = max(Wmin, w_)
+    if pre_handled:
+      w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+      w = max(Wmin, w_)
+    end
+
+    pre_handled = False
 
     # deliver spike to postsynaptic partner
     deliver_spike(w, the_delay)
