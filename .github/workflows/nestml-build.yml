@@ -104,7 +104,7 @@ jobs:
       - name: Install NESTML
         if: ${{ always() }}
         run: |
-          export PYTHONPATH=${{ env.PYTHONPATH}}:${{ env.NEST_INSTALL }}/lib/python3.7/site-packages:/opt/hostedtoolcache/Python/3.7.9/x64/lib/python3.7/site-packages
+          export PYTHONPATH=${{ env.PYTHONPATH}}:${{ env.NEST_INSTALL }}/lib/python3.7/site-packages
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
 
