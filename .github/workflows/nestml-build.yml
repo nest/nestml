@@ -85,12 +85,13 @@ jobs:
         if: ${{ always() }}
         run: |
           python -m pip install cython
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           cd $GITHUB_WORKSPACE/..
           echo "Current directory: `pwd`"
           git clone --depth=1 https://github.com/nest/nest-simulator
           NEST_SIMULATOR=$(pwd)/nest-simulator
           echo "NEST_SIMULATOR = $NEST_SIMULATOR"
-          echo NEST_INSTALL=$(cd $GITHUB_WORKSPACE/.. && pwd)/nest-install >> $GITHUB_ENV
+          echo NEST_INSTALL=$(pwd)/nest-install >> $GITHUB_ENV
           echo "NEST_INSTALL = $NEST_INSTALL"
           mkdir $NEST_INSTALL
           cd $NEST_INSTALL
