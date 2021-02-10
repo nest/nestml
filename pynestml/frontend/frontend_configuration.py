@@ -18,7 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import argparse  # used for parsing of input arguments
+
+from typing import Sequence
+
+import argparse
+import glob
 import os
 import re
 
@@ -29,7 +33,7 @@ from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages, MessageCode
 
-help_input_path = 'Path to a single file or a directory containing the source models.'
+help_input_path = 'One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching \'*.nestml\'.'
 help_target_path = 'Path to a target directory where models should be generated to. Standard is "target".'
 help_target = 'Name of the target platform to build code for. Default is NEST.'
 help_logging = 'Indicates which messages shall be logged and printed to the screen. Standard is ERROR.'
@@ -54,7 +58,7 @@ class FrontendConfiguration(object):
     """
     argument_parser = None
     paths_to_compilation_units = None
-    provided_path = None
+    provided_input_path = None
     logging_level = None
     target = None
     target_path = None
@@ -80,7 +84,7 @@ appropriate numeric solver otherwise.
 
  Version ''' + str(pynestml.__version__), formatter_class=argparse.RawDescriptionHelpFormatter)
 
-        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH',
+        cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', nargs='+',
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
         cls.argument_parser.add_argument(qualifier_target_arg, choices=[
@@ -110,34 +114,22 @@ appropriate numeric solver otherwise.
                 raise Exception('The specified module name ("' + parsed_args.module_name
                                 + '") cannot be parsed as a C variable name')
             cls.module_name = parsed_args.module_name
-        elif os.path.isfile(parsed_args.input_path):
+        else:
             cls.module_name = 'nestmlmodule'
             Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
                                + cls.module_name + '"', log_level=LoggingLevel.INFO)
-        elif os.path.isdir(parsed_args.input_path):
-            cls.module_name = os.path.basename(os.path.normpath(parsed_args.input_path))
-            if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', cls.module_name):
-                raise Exception('No module name specified; tried to use the input directory name ("'
-                                + cls.module_name + '"), but it cannot be parsed as a C variable name')
-            if not cls.module_name.endswith('module'):
-                cls.module_name += 'module'
-            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
-                               + cls.module_name + '"', log_level=LoggingLevel.INFO)
-        else:
-            assert False  # input_path should be either a file or a directory; failure should have been caught already by handle_input_path()
 
         cls.store_log = parsed_args.store_log
         cls.suffix = parsed_args.suffix
         cls.is_dev = parsed_args.dev
 
     @classmethod
-    def get_path(cls):
+    def get_provided_input_path(cls) -> Sequence[str]:
         """
-        Returns the path to the handed over directory or file.
-        :return: a single path
-        :rtype: str
+        Returns the list of file and directory names as supplied by the user.
+        :return: a list of file and directory names
         """
-        return cls.provided_path
+        return cls.provided_input_path
 
     @classmethod
     def get_files(cls):
@@ -226,27 +218,46 @@ appropriate numeric solver otherwise.
             os.makedirs(cls.target_path)
 
     @classmethod
-    def handle_input_path(cls, path):
-        if path is None or path == '':
-            # check if the mandatory path arg has been handed over, just terminate
-            raise InvalidPathException('No input path specified.')
+    def handle_input_path(cls, path) -> None:
+        """
+        Sets cls.paths_to_compilation_units with a list of absolute paths to NESTML files.
+
+        Use glob to search directories recursively.
+        """
+        cls.provided_input_path = path
+
+        if not path or path == ['']:
+            # mandatory path arg has not been handed over
+            code, message = Messages.get_input_path_not_found(path="")
+            Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
+            raise InvalidPathException(message)
+
+        if type(path) is str:
+            path = [path]
 
         cls.paths_to_compilation_units = list()
-        if os.path.isabs(path):
-            cls.provided_path = path
-        else:
-            # a relative path, reconstruct it. get the parent dir where models, pynestml etc. is located
-            pynestml_dir = os.getcwd()
-            cls.provided_path = os.path.join(pynestml_dir, path)
+        for _path in path:
+            if not os.path.isabs(_path):
+                # turn relative to absolute path
+                pynestml_dir = os.getcwd()
+                _path = os.path.join(pynestml_dir, _path)
 
-        if os.path.isfile(cls.provided_path):
-            cls.paths_to_compilation_units.append(cls.provided_path)
-        elif os.path.isdir(cls.provided_path):
-            for filename in os.listdir(cls.provided_path):
-                if filename.endswith('.nestml'):
-                    cls.paths_to_compilation_units.append(os.path.join(cls.provided_path, filename))
-        else:
-            # input_path should be either a file or a directory
-            code, message = Messages.get_input_path_not_found(path=cls.provided_path)
+            if os.path.isfile(_path):
+                cls.paths_to_compilation_units.append(_path)
+            elif os.path.isdir(_path):
+                for fn in glob.glob(os.path.join(_path, "**", "*.nestml"), recursive=True):
+                    cls.paths_to_compilation_units.append(os.path.join(_path, fn))
+            else:
+                # input_path should be either a file or a directory
+                code, message = Messages.get_input_path_not_found(path=_path)
+                Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
+                raise InvalidPathException(message)
+
+        if not cls.paths_to_compilation_units:
+            code, message = Messages.get_no_files_in_input_path(" ".join(path))
             Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
-            raise Exception(message)
+            raise InvalidPathException(message)
+
+        Logger.log_message(message="List of files that will be processed:", log_level=LoggingLevel.INFO)
+        for fn in cls.paths_to_compilation_units:
+            Logger.log_message(message=fn, log_level=LoggingLevel.INFO)

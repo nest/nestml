@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Union, Sequence
+
 import os
 import sys
 
@@ -37,14 +39,14 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(input_path, target_path=None, logging_level='ERROR',
+def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False):
     '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
     ----------
-    input_path : str
-        Path to the NESTML file or to a folder containing NESTML files to convert to NEST code.
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
     logging_level : str, optional (default: 'ERROR')
@@ -63,7 +65,11 @@ def to_nest(input_path, target_path=None, logging_level='ERROR',
     #    return
     args = list()
     args.append(qualifier_input_path_arg)
-    args.append(str(input_path))
+    if type(input_path) is str:
+        args.append(str(input_path))
+    else:
+        for s in input_path:
+            args.append(s)
 
     if target_path is not None:
         args.append(qualifier_target_path_arg)
@@ -120,8 +126,7 @@ def main():
     """Returns the process exit code: 0 for success, > 0 for failure"""
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
-    except InvalidPathException:
-        print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.get_path())
+    except InvalidPathException as e:
         return 1
     # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
