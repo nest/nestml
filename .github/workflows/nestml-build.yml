@@ -117,13 +117,14 @@ jobs:
           cd $GITHUB_WORKSPACE
           nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
           cd target
-          cmake -Dwith-nest=$NEST_INSTALL/bin/nest-config .
+          echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
+          cmake -Dwith-nest=${{ env.NEST_INSTALL }}/bin/nest-config .
           make && make install
           cd ..
           export PYNESTKERNEL_LOCATION=`find $NEST_INSTALL/lib -name pynestkernel.so`
           export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
           echo $PYNESTKERNEL_LOCATION
-          export PYTHONPATH=$PYTHONPATH:$PYNESTKERNEL_LOCATION
+          export PYTHONPATH=${{ env.PYTHONPATH }}:$PYNESTKERNEL_LOCATION
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
