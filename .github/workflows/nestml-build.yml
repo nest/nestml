@@ -53,7 +53,7 @@ jobs:
       - name: Install NESTML
         if: ${{ always() }}
         run: |
-          echo PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
+          echo PYTHONPATH=${{ env.PYTHONPATH }}:`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
@@ -106,8 +106,6 @@ jobs:
       - name: Install NESTML
         if: ${{ always() }}
         run: |
-          echo PYTHONPATH=$PYTHONPATH:`pwd` >> $GITHUB_ENV
-          echo $PYTHONPATH
           python setup.py install
 
       # Integration tests
@@ -123,8 +121,9 @@ jobs:
           cd ..
           export PYNESTKERNEL_LOCATION=`find $NEST_INSTALL/lib -name pynestkernel.so`
           export PYNESTKERNEL_LOCATION=`dirname $PYNESTKERNEL_LOCATION`
-          echo $PYNESTKERNEL_LOCATION
+          echo "PYNESTKERNEL_LOCATION = $PYNESTKERNEL_LOCATION"
           export PYTHONPATH=${{ env.PYTHONPATH }}:$PYNESTKERNEL_LOCATION
+          echo "PYTHONPATH = $PYTHONPATH"
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
