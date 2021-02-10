@@ -356,23 +356,27 @@ Presynaptic centered
 
 This variant corresponds to panel 7B in [1]_: each presynaptic spike is paired with the last postsynaptic spike and the next postsynaptic spike.
 
-To implement this rule, the postsynaptic trace is reset to 1 instead of incremented by 1. Additionally, when a postsynaptic spike occurs, the presynaptic trace is reset to zero, thus "forgetting" presynaptic spike history.
+To implement this rule, the postsynaptic trace is reset to 1 upon a spike, whereas the presynaptic trace is incremented by 1. Additionally, when a postsynaptic spike occurs, the presynaptic trace is reset to zero, thus "forgetting" presynaptic spike history.
 
 .. code-block:: nestml
 
    onReceive(post_spikes):
      post_tr = 1
 
-     if not pre_handled:
-         w = # [...] potentiate the synapse here per the usual STDP rule
-         pre_tr = 0   # reset pre trace
-         pre_handled = True
-     end
+     w = ...  # facilitation step (omitted)
+
+     pre_tr = 0
    end
 
-The remainder of the model is the same as the :ref:`Nearest-neighbour symmetric` variant.
+   onReceive(pre_spikes):
+     pre_tr += 1
 
-The full model can be downloaded here: `syn_stdp_nn_presyn_centr.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
+     w = ...  # depression step (omitted)
+   end
+
+The remainder of the model is the same as the all-to-all STDP synapse.
+
+The full model can be downloaded here: `stdp_nn_pre_centered.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_nn_pre_centered.nestml>`_.
 
 
 Restricted symmetric
