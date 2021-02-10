@@ -33,7 +33,8 @@ where arguments are:
      - (Optional) A suffix string that will be appended to the name of all generated models.
    * - ``--dev``
      - (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
-
+   * - ``--codegen_opts``
+     - (Optional) Path to a JSON file containing additional options for the target platform code generator.
 
 Generated artifacts are copied to the selected target directory (default is ``target``). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 
@@ -88,6 +89,9 @@ This operation expects the same set of arguments as in the case of command line 
    * - dev
      - boolean
      - False
+   * - codegen_opts
+     - Optional[Mapping[str, Any]]
+     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator.
 
 If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
 

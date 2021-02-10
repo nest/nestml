@@ -25,7 +25,7 @@ import datetime
 import os
 import re
 import sympy
-from typing import Optional, Union, List, Dict, Mapping
+from typing import Any, Dict, List, Mapping, Optional, Union
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
@@ -75,11 +75,21 @@ from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumbe
 class NESTCodeGenerator(CodeGenerator):
     """
     Code generator for a C++ NEST extension module.
+
+    Options:
+    - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
+    - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     """
+
+    _default_options = {
+        "neuron_parent_class": "ArchivingNode",
+        "neuron_parent_class_include": "archiving_node.h"
+    }
 
     _variable_matching_template = r'(\b)({})(\b)'
 
-    def __init__(self):
+    def __init__(self, options: Optional[Mapping[str, Any]]=None):
+        super().__init__("NEST", options)
         self.analytic_solver = {}
         self.numeric_solver = {}
         self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
@@ -415,6 +425,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
+
+        namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
+        namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')
 
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol

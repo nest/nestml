@@ -2,7 +2,7 @@ language: python
 
 sudo: true
 
-python: "3.6"
+python: "3.8"
 
 addons:
   apt:
@@ -78,15 +78,23 @@ jobs:
         - mkdir nest_install
         - cd nest_install
         - export PYTHON_INCLUDE_DIR=`python3 -c "from sysconfig import get_paths; info = get_paths(); print(info['include'])"`
-        - echo $PYTHON_INCLUDE_DIR
-        - export PYTHON_LIB_DIR=`find /usr/lib/x86_64-linux-gnu -name "libpython3*.so"`
-        - echo $PYTHON_LIB_DIR
+        - echo "--> Detected PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR"
+        - export PYTHON_LIB_DIR_BASE=lib`basename $PYTHON_INCLUDE_DIR`
+        - echo "--> Detected PYTHON_LIB_DIR_BASE=$PYTHON_LIB_DIR_BASE"
+        - export PYTHON_LIB_DIR=$(dirname `sed 's/include/lib/' <<< $PYTHON_INCLUDE_DIR`)
+        - echo "--> Detected PYTHON_LIB_DIR=$PYTHON_LIB_DIR"
+        - export PYTHON_LIBRARY=`find $PYTHON_LIB_DIR \( -name $PYTHON_LIB_DIR_BASE.so -o -name $PYTHON_LIB_DIR_BASE.dylib \) -print -quit`
+        - echo "--> Detected PYTHON_LIBRARY=$PYTHON_LIBRARY"
+        - export CONFIGURE_PYTHON="-DPYTHON_LIBRARY=$PYTHON_LIBRARY -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR"
         - cmake -DCMAKE_INSTALL_PREFIX=~/nest_install -DPYTHON_LIBRARY=$PYTHON_LIB_DIR -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR ~/nest-simulator
         - make && make install 
 
         # install NESTML itself
         - cd $TRAVIS_BUILD_DIR
-        - export PYTHONPATH=$PYTHONPATH:/home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages
+        - PYPATH=`find /home/travis/virtualenv -name "site-packages" | grep "python3.8" | head -n 1`
+        - echo $PYPATH
+        - export PYTHONPATH=$PYTHONPATH:$PYPATH
+        - echo "--> Detected PYTHONPATH=$PYTHONPATH"
         - echo $PYTHONPATH
         - python setup.py install
 

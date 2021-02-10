@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 import argparse
 import glob
@@ -41,6 +41,7 @@ help_module = 'Indicates the name of the module. Optional. If not indicated, the
 help_log = 'Indicates whether a log file containing all messages shall be stored. Standard is NO.'
 help_suffix = 'A suffix string that will be appended to the name of all generated models.'
 help_dev = 'Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.'
+help_codegen_opts = 'Path to a JSON file containing additional options for the target platform code generator.'
 
 qualifier_input_path_arg = '--input_path'
 qualifier_target_path_arg = '--target_path'
@@ -50,6 +51,7 @@ qualifier_module_name_arg = '--module_name'
 qualifier_store_log_arg = '--store_log'
 qualifier_suffix_arg = '--suffix'
 qualifier_dev_arg = '--dev'
+qualifier_codegen_opts_arg = '--codegen_opts'
 
 
 class FrontendConfiguration(object):
@@ -66,6 +68,8 @@ class FrontendConfiguration(object):
     store_log = False
     suffix = ''
     is_dev = False
+    codegen_opts = {}  # type: Mapping[str, Any]
+    codegen_opts_fn = ''
 
     @classmethod
     def parse_config(cls, args):
@@ -95,6 +99,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_store_log_arg, action='store_true', help=help_log)
         cls.argument_parser.add_argument(qualifier_suffix_arg, metavar='SUFFIX', type=str, help=help_suffix, default='')
         cls.argument_parser.add_argument(qualifier_dev_arg, action='store_true', help=help_dev)
+        cls.argument_parser.add_argument(qualifier_codegen_opts_arg, metavar='PATH', type=str, help=help_codegen_opts, default='', dest='codegen_opts_fn')
         parsed_args = cls.argument_parser.parse_args(args)
 
         # initialize the logger
@@ -104,20 +109,8 @@ appropriate numeric solver otherwise.
         cls.handle_input_path(parsed_args.input_path)
         cls.handle_target(parsed_args.target)
         cls.handle_target_path(parsed_args.target_path)
-
-        # parse or compose the module name
-        if parsed_args.module_name is not None:
-            if not parsed_args.module_name.endswith('module'):
-                raise Exception('Invalid module name specified ("' + parsed_args.module_name
-                                + '"): the module name should end with the word "module"')
-            if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', parsed_args.module_name):
-                raise Exception('The specified module name ("' + parsed_args.module_name
-                                + '") cannot be parsed as a C variable name')
-            cls.module_name = parsed_args.module_name
-        else:
-            cls.module_name = 'nestmlmodule'
-            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
-                               + cls.module_name + '"', log_level=LoggingLevel.INFO)
+        cls.handle_module_name(parsed_args.module_name)
+        cls.handle_codegen_opts_fn(parsed_args.codegen_opts_fn)
 
         cls.store_log = parsed_args.store_log
         cls.suffix = parsed_args.suffix
@@ -177,13 +170,58 @@ appropriate numeric solver otherwise.
         return cls.module_name
 
     @classmethod
-    def is_dev(cls):
+    def get_is_dev(cls):
         """
         Returns whether the development mode has been enabled.
         :return: True if development mode is enabled, otherwise False.
         :rtype: bool
         """
         return cls.is_dev
+
+    @classmethod
+    def get_codegen_opts(cls):
+        """Get the code generator options dictionary"""
+        return cls.codegen_opts
+
+    @classmethod
+    def set_codegen_opts(cls, codegen_opts):
+        """Set the code generator options dictionary"""
+        cls.codegen_opts = codegen_opts
+
+    @classmethod
+    def handle_codegen_opts_fn(cls, codegen_opts_fn):
+        """If a filename of a JSON file containing code generator options is passed on the command line, read it into a Python dictionary"""
+        if codegen_opts_fn and not os.path.isfile(codegen_opts_fn):
+            raise Exception('The specified code generator options file ("' + codegen_opts_fn + '") cannot be found')
+        cls.codegen_opts_fn = codegen_opts_fn
+        cls.codegen_opts = {}
+        if cls.codegen_opts_fn:
+            # load optional code generator options from JSON
+            import json
+            if FrontendConfiguration.codegen_opts_fn:
+                with open(FrontendConfiguration.codegen_opts_fn) as json_file:
+                    cls.codegen_opts = json.load(json_file)
+            Logger.log_message(message='Loaded code generator options from file: ' + FrontendConfiguration.codegen_opts_fn,
+                               log_level=LoggingLevel.INFO)
+            if not cls.codegen_opts:
+                raise Exception('Errors occurred while processing code generator options file')
+
+    @classmethod
+    def handle_module_name(cls, module_name):
+        """parse or compose the module name"""
+        if module_name is not None:
+            if not module_name.endswith('module'):
+                raise Exception('Invalid module name specified ("' + module_name
+                                + '"): the module name should end with the word "module"')
+            if not re.match(r'[a-zA-Z_][a-zA-Z0-9_]*\Z', module_name):
+                raise Exception('The specified module name ("' + module_name
+                                + '") cannot be parsed as a C variable name')
+            cls.module_name = module_name
+        else:
+            cls.module_name = 'nestmlmodule'
+            Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
+                               + cls.module_name + '"', log_level=LoggingLevel.INFO)
+
 
     @classmethod
     def handle_target(cls, target):
