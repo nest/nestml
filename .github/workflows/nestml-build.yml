@@ -1,6 +1,4 @@
 name: NESTML build
-env:
-  PYTHONPATH: ${{ github.workspace }}/build/python
 on: push
 
 jobs:
@@ -53,7 +51,7 @@ jobs:
       - name: Install NESTML
         if: ${{ always() }}
         run: |
-          echo PYTHONPATH=${{ env.PYTHONPATH }}:`pwd` >> $GITHUB_ENV
+          echo PYTHONPATH=`pwd` >> $GITHUB_ENV
           echo $PYTHONPATH
           python setup.py install
 
@@ -106,6 +104,8 @@ jobs:
       - name: Install NESTML
         if: ${{ always() }}
         run: |
+          export PYTHONPATH=${{ env.PYTHONPATH}}:/opt/hostedtoolcache/Python/3.7.9/x64/lib/python3.7/site-packages
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
 
       # Integration tests
@@ -126,6 +126,6 @@ jobs:
           echo "PYTHONPATH = $PYTHONPATH"
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
-              python -m pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
