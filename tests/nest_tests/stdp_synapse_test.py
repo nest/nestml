@@ -41,10 +41,8 @@ sim_ref = True
 class NestSTDPSynapseTest(unittest.TestCase):
 
     neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
-    #ref_neuron_model_name = "iaf_psc_exp"
-    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit" # XXX SHOULD BE ME
-    #ref_neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml" # XXX REMOVE ME
-    #synapse_model_name = "stdp_nestml"
+    ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
+
     synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
     ref_synapse_model_name = "stdp_synapse"
 

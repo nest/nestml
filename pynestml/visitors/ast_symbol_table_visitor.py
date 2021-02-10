@@ -117,7 +117,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         # set current processed synapse
         # Logger.set_current_synapse(node)
-        print("In ASTSymbolTableVisitor::visit_synapse()")
         Logger.set_current_node(node)
         code, message = Messages.get_start_building_symbol_table()
         Logger.log_message(node=node, code=code, error_position=node.get_source_position(),
@@ -240,7 +239,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ASTPreReceive
         """
         self.block_type_stack.push(BlockType.LOCAL)
-        scope = Scope(scope_type=ScopeType.UPDATE, enclosing_scope=node.get_scope(),
+        scope = Scope(scope_type=ScopeType.PRE_RECEIVE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_block().update_scope(scope)
@@ -257,7 +256,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ASTPostReceive
         """
         self.block_type_stack.push(BlockType.LOCAL)
-        scope = Scope(scope_type=ScopeType.UPDATE, enclosing_scope=node.get_scope(),
+        scope = Scope(scope_type=ScopeType.POST_RECEIVE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_block().update_scope(scope)

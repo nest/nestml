@@ -282,12 +282,8 @@ private:
   std::deque< histentry__ > history_;
 
   // cache for initial values
-{%- for funcsym in neuron.get_function_symbols() %}
-{%- with var = funcsym %}
-{%- if "__for" in funcsym.get_symbol_name() %}
-double {{var.get_symbol_name()}}__iv;
-{%- endif %}
-{%- endwith %}
+{%- for var in transferred_variables %}
+  double {{var}}__iv;
 {%- endfor %}
 
 
@@ -540,11 +536,22 @@ public: // XXX! TODO: should be private
 
   {%- for funcsym in neuron.get_function_symbols() %}
   {%- with variable = funcsym %}
-  {# if not "__for" in funcsym.get_symbol_name() #}
+  {%- if not "__for" in funcsym.get_symbol_name() %}
   {%- include "directives/MemberVariableGetterSetter.jinja2" %}
-  {# endif #}
-  {%- endwith -%}
+  {%- endif %}
+  {%- endwith %}
   {%- endfor %}
+
+  {%- if dyadic_synapse_partner is defined %}
+
+  /* getters/setters for variables transferred from synapse */
+
+  {%- for var in transferred_variables %}
+
+  double get_{{var}}( double t );
+
+  {%- endfor %}
+  {%- endif %}
 
   /* getters/setters for input buffers */
 
@@ -557,17 +564,6 @@ public: // XXX! TODO: should be private
   {% for function in neuron.get_functions() %}
   {{printer.print_function_declaration(function)}};
   {% endfor %}
-
-{%- if dyadic_synapse_partner is defined %}
-  {%- for funcsym in neuron.get_function_symbols() %}
-  {%- with var = funcsym %}
-  {%- if "__for" in funcsym.get_symbol_name() %}
-  double get_{{var.get_symbol_name()}}( double t );
-  {%- endif %}
-  {%- endwith %}
-  {%- endfor %}
-{%- endif %}
-
 
 
   /**

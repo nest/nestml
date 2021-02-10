@@ -1,3 +1,4 @@
+#define DEBUG 1
 {#
 /*
 *  NeuronClass.jinja2
@@ -208,11 +209,13 @@ namespace nest
   last_spike_ = -1.;
 
   // cache initial values
-{%- for funcsym in neuron.get_function_symbols() %}
-{%- with var = funcsym %}
-{%- if "__for" in funcsym.get_symbol_name() %}
-{{var.get_symbol_name()}}__iv = {{names.getter(var)}}();
+
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
 {%- endif %}
+  {{var}}__iv = {{names.getter(var_sym)}}();
 {%- endwith %}
 {%- endfor %}                        
 {%- endif %}
@@ -537,18 +540,9 @@ void
     {{neuron_parent_class}}::set_spiketime( t_sp, offset );
 
     unsigned int num_transferred_variables = 0;
-{#- for var in transferred_variables #}
-{%- for funcsym in neuron.get_function_symbols() %}
-{%- with var = funcsym %}
-{%- if "__for" in funcsym.get_symbol_name() %}
+{%- for var in transferred_variables %}
     ++num_transferred_variables;
-{%- endif %}
-{%- endwith %}
 {%- endfor %}
-
-
-
-
 
     const double t_sp_ms = t_sp.get_ms() - offset;
 
@@ -652,6 +646,10 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
          * apply spike updates
         **/
 
+{%- for stmt in spike_update_stmts %}
+{{printer.print_node(stmt)}};
+{%- endfor %}
+
 {%- for _, spike_update in dyad_spike_updates.items() %}
         S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
 {%- endfor %}
@@ -679,25 +677,31 @@ void
 }
 
 
-{#- for var in transferred_variables #}
-  {%- for funcsym in neuron.get_function_symbols() %}
-  {%- with var = funcsym %}
-  {%- if "__for" in funcsym.get_symbol_name() %}
+{#
+	generate getter functions for the transferred variables
+#}
+
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
 
 double
-{{neuronName}}::get_{{var.get_symbol_name()}}( double t )
+{{neuronName}}::get_{{var}}( double t )
 {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: getting value at t = " << t << std::endl;
+  std::cout << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
 #endif
   // case when the neuron has not yet spiked
   if ( history_.empty() )
   {
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: \thistory empty, returning initial value = " << {{var.get_symbol_name()}}__iv << std::endl;
+  std::cout << "{{neuronName}}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
 #endif
     // return initial value
-    return {{var.get_symbol_name()}}__iv;
+    return {{var}}__iv;
   }
 
   // search for the latest post spike in the history buffer that came strictly before `t`
@@ -707,15 +711,15 @@ double
     if ( t - history_[ i ].t_ > nest::kernel().connection_manager.get_stdp_eps() )
     {
 #ifdef DEBUG
-        std::cout<<"{{neuronName}}::get_{{var.get_symbol_name()}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+        std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
         /**
          * update state variables transferred from synapse from `history[i].t_` to `t`
         **/
 
-{%- for var in numeric_state_variables_moved %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_[ i ].{{var}}_;
+{%- for var_ in numeric_state_variables_moved %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
         const double old___h = V_.__h;
@@ -775,25 +779,23 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}
         calibrate_variables(true);
 
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: \treturning " << {{names.getter(var)}}() << std::endl;
+  std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{names.getter(var_sym)}}() << std::endl;
 #endif
-  return {{names.getter(var)}}();
+  return {{names.getter(var_sym)}}();
 
-      // {{declarations.print_variable_type(var)}}
+      // {{declarations.print_variable_type(var_sym)}}
     }
     --i;
   }
 #ifdef DEBUG
-  std::cout << "{{neuronName}}::get_{{var.get_symbol_name()}}: \tfall-through, returning initial value = " << {{var.get_symbol_name()}}__iv << std::endl;
+  std::cout << "{{neuronName}}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
 #endif
 
   // this case occurs when the trace was requested at a time precisely at or before the first spike in the history
   // return initial value
-    return {{var.get_symbol_name()}}__iv;
+    return {{var}}__iv;
 }
-  {%- endif -%}
-  {%- endwith -%}
-  {%- endfor %}
-
+{%- endwith -%}
+{%- endfor %}
 
 {%- endif %}

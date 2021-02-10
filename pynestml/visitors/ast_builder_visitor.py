@@ -379,7 +379,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         #   for ch in ctx.parentCtx.children])
         # if is_homogeneous:
         #     print("\t----> is homogeneous")
-        # import pdb;pdb.set_trace()
 
 
 

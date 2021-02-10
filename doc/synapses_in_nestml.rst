@@ -317,9 +317,29 @@ Nearest-neighbour symmetric
 
 This variant corresponds to panel 7A in [1]_: each presynaptic spike is paired with the last postsynaptic spike, and each postsynaptic spike is paired with the last presynaptic spike.
 
-To implement this rule, the postsynaptic trace is reset to 1 instead of incremented by 1.
+To implement this rule, the pre- and postsynaptic traces are reset to 1 instead of incremented by 1. To implement this in the model, we define the traces are state variables and ODEs, instead of convolutions:
 
 .. code-block:: nestml
+
+   state:
+     [...]
+     pre_trace real = 0.
+     post_trace real = 0.
+   end
+
+   equations:
+     pre_trace' = -pre_trace / tau_tr_pre
+     post_trace' = -post_trace / tau_tr_post
+   end
+
+Resetting to 1 can then be done by assignment in the pre- and post-event handler blocks:
+
+.. code-block:: nestml
+
+   onReceive(pre_spikes):
+     pre_trace = 1
+     [...]
+   end
 
    onReceive(post_spikes):
      post_trace = 1
@@ -328,7 +348,7 @@ To implement this rule, the postsynaptic trace is reset to 1 instead of incremen
 
 The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
 
-The full model can be downloaded here: `syn_stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_synapse_nn.nestml>`_.
+The full model can be downloaded here: `stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/c4c47d053077b11ad385d5f882696248a55b31af/models/stdp_nn_symm.nestml>`_.
 
 
 Presynaptic centered

@@ -33,10 +33,10 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
 
-def symbol_by_name(name, symbols):
+def symbol_by_name(name, symbols, symbol_kind):
     """get a symbol from a list of symbols by the given name"""
     for sym in symbols:
-        if sym.name == name:
+        if sym.name == name and sym.get_symbol_kind() == symbol_kind:
             return sym
     return None
 
@@ -451,16 +451,16 @@ class ASTNeuronOrSynapse(ASTNode):
                 ret.append(symbol)
         return ret"""
 
+        from pynestml.symbols.symbol import SymbolKind
         iv_syms = []
         symbols = self.get_scope().get_symbols_in_this_scope()
 
         iv_blk = self.get_initial_values_blocks()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
-                iv_sym = symbol_by_name(var.get_complete_name(), symbols)
+                iv_sym = symbol_by_name(var.get_complete_name(), symbols, SymbolKind.VARIABLE)
                 assert not iv_sym is None, "Symbol by name \"" + var.get_complete_name() + "\" not found in initial values block"
                 iv_syms.append(iv_sym)
-
         return iv_syms
 
     def get_initial_values_blocks(self):
@@ -711,14 +711,15 @@ class ASTNeuronOrSynapse(ASTNode):
         kernel_name = kernel_name.split("__X__")[0]
 
         # check if defined as a direct function of time
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
-                return decl
+        if self.get_equations_block():
+            for decl in self.get_equations_block().get_declarations():
+                if type(decl) is ASTKernel and kernel_name in decl.get_variable_names():
+                    return decl
 
-        # check if defined for a higher order of differentiation
-        for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
-                return decl
+            # check if defined for a higher order of differentiation
+            for decl in self.get_equations_block().get_declarations():
+                if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+                    return decl
 
         return None
 

@@ -490,3 +490,13 @@ class ASTUtils(object):
                 if var.get_complete_name() == var_name:
                     return decl
         return None
+
+    @classmethod
+    def all_variables_defined_in_block(cls, block: Optional[ASTBlock]) -> List[ASTVariable]:
+        if block is None:
+            return []
+        vars = []
+        for decl in block.get_declarations():
+            for var in decl.get_variables():
+                vars.append(var)
+        return vars

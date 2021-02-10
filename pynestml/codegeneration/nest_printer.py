@@ -167,9 +167,24 @@ class NestPrinter(object):
             ret = self.print_stmt(node)
         return ret
 
+    def print_simple_expression(self, node, prefix=""):
+        return self.print_expression(node, prefix=prefix)
+
+    def print_small_stmt(self, node, prefix=""):
+        if node.is_assignment():
+            return self.print_assignment(node.assignment, prefix=prefix)
+
+    def print_stmt(self, node, prefix=""):
+        if node.is_small_stmt:
+            return self.print_small_stmt(node.small_stmt, prefix=prefix)
+
     def print_assignment(self, node, prefix=""):
         # type: (ASTAssignment) -> str
-        ret = self.print_node(node.lhs) + ' '
+        #ret = print_origin(node.lhs) + self.print_node(node.lhs) + ' '
+        from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
+        symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
+        symbol.block_type = BlockType.INITIAL_VALUES
+        ret = self.print_origin(symbol) + GSLNamesConverter.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:

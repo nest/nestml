@@ -632,7 +632,7 @@ std::cout << ", new w = " << S_.w << std::endl;
 
     const double _tr_t = __t_spike - __dendritic_delay;
 
-std::cout << "\tDepressing, old w = " << S_.w << ", alpha = " << P_.alpha << ", lambda = " << P_.lambda << ", mu_minus = " << P_.mu_minus << ", post_tr = " << ((DYAD_POST_TYPE*)(__target))->get_post_trace__for_stdp_nestml(_tr_t);
+//std::cout << "\tDepressing, old w = " << S_.w << ", alpha = " << P_.alpha << ", lambda = " << P_.lambda << ", mu_minus = " << P_.mu_minus << ", post_tr = " << ((DYAD_POST_TYPE*)(__target))->get_post_trace__for_stdp_nestml(_tr_t);
 
 {%- filter indent(4,True) %}
 {%- set dynamics = synapse.get_pre_receive() %}

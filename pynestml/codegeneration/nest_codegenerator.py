@@ -649,9 +649,25 @@ class NESTCodeGenerator(CodeGenerator):
                         stmt.update_scope(neuron_block.get_scope())
                         stmt.accept(ASTSymbolTableVisitor())
 
+            new_neuron.moved_spike_updates = []
+            
             for state_var in neuron_state_vars:
                 print("Moving onPost updates for " + str(state_var))
-                move_updates_syn_neuron(state_var, new_synapse.get_post_receive(), new_neuron.get_update_blocks(), var_name_suffix)
+                """move_updates_syn_neuron(state_var, new_synapse.get_post_receive(), new_neuron.get_update_blocks(), var_name_suffix)"""
+
+                if new_synapse.get_post_receive():
+                    stmts = get_statements_from_block(state_var, new_synapse.get_post_receive())
+                    if stmts:
+                        print("Moving state var updates for " + state_var + " from synapse to neuron")
+                        for stmt in stmts:
+                            vars_used.extend(collect_variable_names_in_expression(stmt))
+                            new_synapse.get_post_receive().get_block().stmts.remove(stmt)
+                            add_suffix_to_variable_names(stmt, suffix=var_name_suffix)
+#                            neuron_block.get_block().stmts.append(stmt)
+                            stmt.update_scope(new_neuron.get_update_blocks().get_scope())
+                            stmt.accept(ASTSymbolTableVisitor())
+                            new_neuron.moved_spike_updates.append(stmt)
+
 
             #
             #    move variable definitions from synapse to neuron
@@ -1023,7 +1039,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.non_equations_state_variables[neuron.get_name()].extend(ASTUtils.all_variables_defined_in_block(neuron.get_initial_values_blocks()))
             self.non_equations_state_variables[neuron.get_name()].extend(ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
-            return []
+            return [], []
 
         delta_factors = self.get_delta_factors_(neuron, equations_block)
         kernel_buffers = self.generate_kernel_buffers_(neuron, equations_block)
@@ -1098,7 +1114,7 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
         equations_block = synapse.get_equations_block()
-
+        spike_updates, post_spike_updates = [], []
         if equations_block is not None:
             delta_factors = self.get_delta_factors_(synapse, equations_block)
             kernel_buffers = self.generate_kernel_buffers_(synapse, equations_block)
@@ -1150,9 +1166,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             #print("NEST codegenerator step 6...")
             spike_updates, post_spike_updates = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
-
-
-
 
         return spike_updates, post_spike_updates
 
@@ -1327,6 +1340,10 @@ class NESTCodeGenerator(CodeGenerator):
         if 'dyadic_synapse_partner' in dir(neuron):
             namespace['dyadic_synapse_partner'] = neuron.dyadic_synapse_partner.get_name()
             namespace["dyad_spike_updates"] = neuron.post_spike_updates
+            if "moved_spike_updates" in dir(neuron):
+                namespace["spike_update_stmts"] = neuron.moved_spike_updates
+            else:
+                namespace["spike_update_stmts"] = []
             namespace['transferred_variables'] = neuron._transferred_variables
             namespace['transferred_variables_syms'] =  {var_name: neuron.scope.resolve_to_symbol(var_name, SymbolKind.VARIABLE) for var_name in namespace['transferred_variables']}
             # {var_name: ASTUtils.get_declaration_by_name(neuron.get_initial_values_blocks(), var_name) for var_name in namespace['transferred_variables']}

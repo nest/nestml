@@ -25,6 +25,7 @@ synapse stdp_nn_symm:
 
   initial_values:
     w nS = 1 nS
+    pre_trace real = 0.
     post_trace real = 0.
   end
 
@@ -41,10 +42,10 @@ synapse stdp_nn_symm:
   end
 
   equations:
-    kernel pre_trace_kernel = exp(-t / tau_tr_pre)
-    inline pre_trace real = convolve(pre_trace_kernel, pre_spikes)
+    # nearest-neighbour trace of presynaptic neuron
+    pre_trace' = -pre_trace / tau_tr_pre
 
-    # nearest neighbour trace of postsynaptic neuron
+    # nearest-neighbour trace of postsynaptic neuron
     post_trace' = -post_trace / tau_tr_post
   end
 
@@ -64,6 +65,8 @@ synapse stdp_nn_symm:
   end
 
   preReceive:
+    pre_trace = 1
+
     # depress synapse
     w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     w = max(Wmin, w_)
