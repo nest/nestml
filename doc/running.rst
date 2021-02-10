@@ -18,7 +18,7 @@ where arguments are:
    * - ``-h`` or ``--help``
      - Print help message.
    * - ``--input_path``
-     - Path to the source file or directory containing the model.
+     - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching '*.nestml'.
    * - ``--target_path``
      - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
    * - ``--target``
@@ -72,7 +72,7 @@ This operation expects the same set of arguments as in the case of command line 
      - Type
      - Default
    * - input_path
-     - string
+     - str or Sequence[str]
      - *no default*
    * - target_path
      - string

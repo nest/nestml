@@ -458,7 +458,7 @@ class NESTCodeGenerator(CodeGenerator):
         _names = [to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
         namespace['non_equations_state_variables'] = _names
 
-        namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+        namespace['uses_numeric_solver'] = neuron.get_name() in self.numeric_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
@@ -509,7 +509,7 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, debug=FrontendConfiguration.logging_level == "DEBUG")
+        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -521,7 +521,7 @@ class NESTCodeGenerator(CodeGenerator):
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
             solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True,
-                                     disable_analytic_solver=True, debug=FrontendConfiguration.logging_level == "DEBUG")
+                                     disable_analytic_solver=True, log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:

@@ -1,9 +1,10 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.7.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.9
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
 import sys
+
 
 def serializedATN():
     with StringIO() as buf:
@@ -447,9 +448,10 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input, output=sys.stdout):
         super(PyNestMLParser, self).__init__(input, output=output)
-        self.checkVersion("4.7.1")
+        self.checkVersion("4.9")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
+
 
 
 
@@ -544,6 +546,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class UnitTypeContext(ParserRuleContext):
 
@@ -706,6 +709,7 @@ class PyNestMLParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
+
     class UnitTypeExponentContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -762,6 +766,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ExpressionContext(ParserRuleContext):
 
@@ -1049,6 +1054,7 @@ class PyNestMLParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
+
     class SimpleExpressionContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1159,6 +1165,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class UnaryOperatorContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1220,6 +1227,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class BitOperatorContext(ParserRuleContext):
 
@@ -1298,6 +1306,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ComparisonOperatorContext(ParserRuleContext):
 
@@ -1393,6 +1402,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class LogicalOperatorContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1446,6 +1456,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class VariableContext(ParserRuleContext):
 
@@ -1501,6 +1512,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class FunctionCallContext(ParserRuleContext):
 
@@ -1583,6 +1595,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class InlineExpressionContext(ParserRuleContext):
 
@@ -1668,6 +1681,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class OdeEquationContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1730,6 +1744,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class KernelContext(ParserRuleContext):
 
@@ -1828,6 +1843,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class BlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1896,6 +1912,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class StmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1950,6 +1967,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class CompoundStmtContext(ParserRuleContext):
 
@@ -2014,6 +2032,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class SmallStmtContext(ParserRuleContext):
 
@@ -2089,6 +2108,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class AssignmentContext(ParserRuleContext):
 
@@ -2180,6 +2200,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class DeclarationContext(ParserRuleContext):
 
@@ -2333,6 +2354,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class ReturnStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2381,6 +2403,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class IfStmtContext(ParserRuleContext):
 
@@ -2455,6 +2478,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class IfClauseContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2508,6 +2532,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ElifClauseContext(ParserRuleContext):
 
@@ -2563,6 +2588,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class ElseClauseContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2610,6 +2636,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ForStmtContext(ParserRuleContext):
 
@@ -2725,6 +2752,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class WhileStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2783,6 +2811,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class NestMLCompilationUnitContext(ParserRuleContext):
 
@@ -2857,6 +2886,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class NeuronContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2904,6 +2934,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class BodyContext(ParserRuleContext):
 
@@ -3038,6 +3069,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class BlockWithVariablesContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3137,6 +3169,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class UpdateBlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3189,6 +3222,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class EquationsBlockContext(ParserRuleContext):
 
@@ -3295,6 +3329,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class InputBlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3377,6 +3412,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class InputPortContext(ParserRuleContext):
 
@@ -3495,6 +3531,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class InputQualifierContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3548,6 +3585,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class OutputBlockContext(ParserRuleContext):
 
@@ -3612,6 +3650,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class FunctionContext(ParserRuleContext):
 
@@ -3727,6 +3766,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ParameterContext(ParserRuleContext):
 
