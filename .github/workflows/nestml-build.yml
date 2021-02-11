@@ -24,10 +24,16 @@ jobs:
           sudo apt-get install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
           sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy
 
+      # Install Java
+      - name: Install Java 8
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '8.0.x'
+          java-package: jre
+
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          sudo apt-get install openjdk-8-jre
           wget http://www.antlr.org/download/antlr-4.8-complete.jar
           echo \#\!/bin/bash > antlr4
           echo java -cp \"`pwd`/antlr-4.8-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
