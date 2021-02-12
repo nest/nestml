@@ -127,10 +127,4 @@ jobs:
       - name: Run integration tests
         run: |
           cd $GITHUB_WORKSPACE
-          rc=0
-          echo "Running integration tests"
-          for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
-              echo "Filename: ${fn}"
-              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
-          done;
-          exit $rc
+          pytest -s  -o log_cli=true -o log_cli_level="DEBUG" --forked $GITHUB_WORKSPACE/tests/nest_tests
