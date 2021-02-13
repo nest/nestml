@@ -71,7 +71,7 @@ parser grammar PyNestMLParser;
          | left=expression comparisonOperator right=expression
          | logicalNot=NOT_KEYWORD term=expression
          | left=expression logicalOperator right=expression
-         | condition=expression QUESTION ifTrue=expression COLON ifNot=expression
+         | condition=expression NEWLINE* QUESTION NEWLINE* ifTrue=expression NEWLINE* COLON NEWLINE* ifNot=expression
          | simpleExpression
          ;
 

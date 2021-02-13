@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import glob
 import os
 import unittest
 
@@ -36,24 +36,29 @@ class LexerParserTest(unittest.TestCase):
     """
 
     def test(self):
-        for filename in os.listdir(
-                os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models')))):
-            if filename.endswith(".nestml"):
-                print("Processing " + filename)
-                input_file = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
-                lexer = PyNestMLLexer(input_file)
-                lexer._errHandler = BailErrorStrategy()
-                lexer._errHandler.reset(lexer)
-                # create a token stream
-                stream = CommonTokenStream(lexer)
-                stream.fill()
-                # parse the file
-                parser = PyNestMLParser(stream)
-                parser._errHandler = BailErrorStrategy()
-                parser._errHandler.reset(parser)
-                compilation_unit = parser.nestMLCompilationUnit()
-                assert compilation_unit is not None
+        model_files = []
+        for dir in ['models',
+                    os.path.join('tests', 'nest_tests', 'resources'),
+                    os.path.join('tests', 'valid')]:
+            model_files += glob.glob(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', dir, '*.nestml'))))
+
+        assert len(model_files) > 0
+
+        for filename in model_files:
+            print("Processing " + os.path.basename(filename))
+            input_file = FileStream(filename)
+            lexer = PyNestMLLexer(input_file)
+            lexer._errHandler = BailErrorStrategy()
+            lexer._errHandler.reset(lexer)
+            # create a token stream
+            stream = CommonTokenStream(lexer)
+            stream.fill()
+            # parse the file
+            parser = PyNestMLParser(stream)
+            parser._errHandler = BailErrorStrategy()
+            parser._errHandler.reset(parser)
+            compilation_unit = parser.nestMLCompilationUnit()
+            assert compilation_unit is not None
 
 
 if __name__ == '__main__':
