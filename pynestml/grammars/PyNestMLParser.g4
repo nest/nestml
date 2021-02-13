@@ -122,7 +122,7 @@ parser grammar PyNestMLParser;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
+  kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA NEWLINE* variable EQUALS expression)* (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
