@@ -74,6 +74,7 @@ class Logger:
         cls.log = {}
         cls.log_frozen = False
 
+    @classmethod
     def freeze_log(cls, do_freeze: bool = True):
         """
         Freeze the log: while log is frozen, all logging requests will be ignored.

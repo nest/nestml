@@ -24,6 +24,7 @@ import os
 import unittest
 
 from antlr4 import *
+from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -38,17 +39,21 @@ class LexerParserTest(unittest.TestCase):
         for filename in os.listdir(
                 os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
+                print("Processing " + filename)
                 input_file = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
-                # print('Start parsing ' + filename),
                 lexer = PyNestMLLexer(input_file)
+                lexer._errHandler = BailErrorStrategy()
+                lexer._errHandler.reset(lexer)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
+                stream.fill()
                 # parse the file
-                tree = PyNestMLParser(stream)
-                # print(' ...done')
-                self.assertTrue(tree is not None)
-        return
+                parser = PyNestMLParser(stream)
+                parser._errHandler = BailErrorStrategy()
+                parser._errHandler.reset(parser)
+                compilation_unit = parser.nestMLCompilationUnit()
+                assert compilation_unit is not None
 
 
 if __name__ == '__main__':
