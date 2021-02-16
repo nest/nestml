@@ -130,6 +130,6 @@ jobs:
           cd $GITHUB_WORKSPACE
           rc=0
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
-              pytest -s -o log_cli=true -o log_cli_level="INFO" ${fn} || rc=1
+              pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
