@@ -13,10 +13,10 @@ jobs:
         uses: actions/checkout@v2
 
       # Setup Python version
-      - name: Setup Python 3.7
+      - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.8
 
       # Install dependencies
       - name: Install apt dependencies
@@ -127,4 +127,8 @@ jobs:
       - name: Run integration tests
         run: |
           cd $GITHUB_WORKSPACE
-          pytest -s  -o log_cli=true -o log_cli_level="DEBUG" --forked $GITHUB_WORKSPACE/tests/nest_tests
+          rc=0
+          for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
+              pytest -s -o log_cli=true -o log_cli_level="INFO" ${fn} || rc=1
+          done;
+          exit $rc
