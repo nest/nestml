@@ -64,7 +64,7 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.port_signal_type import PortSignalType
 
 
-class ASTNodeFactory():
+class ASTNodeFactory:
     """
     An implementation of the factory pattern for an easier initialization of new AST nodes.
     """

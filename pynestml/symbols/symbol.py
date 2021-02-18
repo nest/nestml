@@ -23,7 +23,7 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 
 
-class Symbol(object):
+class Symbol:
     """
     This abstract class represents a super-class for all concrete symbols as stored in a symbol table.
     Attributes:
@@ -69,11 +69,10 @@ class Symbol(object):
         """
         return self.scope
 
-    def get_symbol_name(self):
+    def get_symbol_name(self) -> str:
         """
         Returns the name of this symbol.
         :return: the name of the symbol.
-        :rtype: str
         """
         return self.name
 

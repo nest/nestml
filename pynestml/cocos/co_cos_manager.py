@@ -54,7 +54,7 @@ from pynestml.cocos.co_co_function_argument_template_types_consistent import CoC
 from pynestml.meta_model.ast_neuron import ASTNeuron
 
 
-class CoCosManager(object):
+class CoCosManager:
     """
     This class provides a set of context conditions which have to hold for each neuron instance.
     """

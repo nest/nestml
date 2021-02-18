@@ -19,9 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Sequence
+
 import datetime
 import os
-from typing import List
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -49,14 +50,14 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         self._printer = LatexExpressionPrinter()
 
-    def generate_code(self, neurons: List[ASTNeuron]):
+    def generate_code(self, neurons: Sequence[ASTNeuron]):
         """
         Generate model documentation and index page for each neuron that is provided.
         """
         self.generate_index(neurons)
         self.generate_neurons(neurons)
 
-    def generate_index(self, neurons: List[ASTNeuron]):
+    def generate_index(self, neurons: Sequence[ASTNeuron]):
         """
         Generate index (list) of all neuron models with links to their generated documentation.
         """
@@ -68,7 +69,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         """
         Generate model documentation for neuron model.
         :param neuron: a single neuron object.
-        :type neuron: ASTNeuron
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
@@ -81,7 +81,6 @@ class AutoDocCodeGenerator(CodeGenerator):
         Returns a namespace for Jinja2 neuron model documentation template.
 
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
         :return: a map from name to functionality.
         :rtype: dict
         """
@@ -108,12 +107,11 @@ class AutoDocCodeGenerator(CodeGenerator):
 
         return namespace
 
-    def setup_index_generation_helpers(self, neurons: List[ASTNeuron]):
+    def setup_index_generation_helpers(self, neurons: Sequence[ASTNeuron]):
         """
         Returns a namespace for Jinja2 neuron model index page template.
 
         :param neurons: a list of neuron instances
-        :type neurons: List[ASTNeuron]
         :return: a map from name to functionality.
         :rtype: dict
         """

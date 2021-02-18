@@ -45,11 +45,11 @@ class CodeGenerator:
         if options:
             self.set_options(options)
 
-    def generate_code(self, neurons) -> None:
+    def generate_code(self, neurons: Sequence[ASTNeuron]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 
-    def generate_neuron_code(self, neuron) -> None:
+    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 
@@ -68,7 +68,6 @@ class CodeGenerator:
         Generate code for the given neurons.
 
         :param neurons: a list of neurons.
-        :type neurons: Sequence[ASTNeuron]
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 

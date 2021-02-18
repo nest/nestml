@@ -54,7 +54,7 @@ qualifier_dev_arg = '--dev'
 qualifier_codegen_opts_arg = '--codegen_opts'
 
 
-class FrontendConfiguration(object):
+class FrontendConfiguration:
     """
     This class encapsulates all settings as handed over to the frontend at start of the toolchain.
     """
