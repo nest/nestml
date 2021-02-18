@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.codegeneration.debug_type_converter import DebugTypeConverter
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -54,7 +56,7 @@ class KernelTypeVisitor(ASTVisitor):
     This visitor checks if each kernel has the appropriate data type.
     """
 
-    _neuron = None  # the parent ASTNeuron containing the kernel
+    _neuron: Optional[ASTNeuron] = None  # the parent ASTNeuron containing the kernel
 
     def visit_kernel(self, node):
         """

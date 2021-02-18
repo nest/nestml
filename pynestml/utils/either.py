@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Either(object):
+class Either:
     """
     Objects of these class are either values or error messages.
     Attributes:

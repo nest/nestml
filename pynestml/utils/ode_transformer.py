@@ -26,7 +26,7 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 
-class OdeTransformer(object):
+class OdeTransformer:
     """
     This class contains several methods as used to transform ODEs.
     """

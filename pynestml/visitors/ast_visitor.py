@@ -60,7 +60,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 
-class ASTVisitor(object):
+class ASTVisitor:
     """
     This class represents a standard implementation of a visitor as used to create concrete instances.
     Attributes:

@@ -19,24 +19,22 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
-import json
+from typing import Any, Dict, List, Mapping, Optional, Sequence
+
 import datetime
 import os
 import re
 import sympy
-from typing import Optional, Union, List, Dict, Mapping
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
 
 import pynestml
 
-from pynestml.codegeneration.ast_transformers import add_assignment_to_update_block, add_declarations_to_internals, add_declaration_to_initial_values, declaration_in_initial_values, get_delta_kernel_prefactor_expr, is_delta_kernel, replace_rhs_variables, replace_rhs_variable, construct_kernel_X_spike_buf_name, get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, is_ode_variable, variable_in_solver, variable_in_neuron_initial_values
+from pynestml.codegeneration.ast_transformers import add_declarations_to_internals, add_declaration_to_initial_values, declaration_in_initial_values, is_delta_kernel, replace_rhs_variables, construct_kernel_X_spike_buf_name, get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, is_ode_variable, variable_in_solver
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
-from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
 from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
@@ -46,20 +44,16 @@ from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
-from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
-from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableType, VariableSymbol
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger
@@ -75,11 +69,21 @@ from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumbe
 class NESTCodeGenerator(CodeGenerator):
     """
     Code generator for a C++ NEST extension module.
+
+    Options:
+    - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
+    - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     """
+
+    _default_options = {
+        "neuron_parent_class": "ArchivingNode",
+        "neuron_parent_class_include": "archiving_node.h"
+    }
 
     _variable_matching_template = r'(\b)({})(\b)'
 
-    def __init__(self):
+    def __init__(self, options: Optional[Mapping[str, Any]]=None):
+        super().__init__("NEST", options)
         self.analytic_solver = {}
         self.numeric_solver = {}
         self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
@@ -447,6 +451,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
 
+        namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
+        namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')
+
         namespace['PredefinedUnits'] = pynestml.symbols.predefined_units.PredefinedUnits
         namespace['UnitTypeSymbol'] = pynestml.symbols.unit_type_symbol.UnitTypeSymbol
         namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
@@ -476,7 +483,7 @@ class NESTCodeGenerator(CodeGenerator):
         _names = [to_ode_toolbox_processed_name(var.get_complete_name()) for var in _names]
         namespace['non_equations_state_variables'] = _names
 
-        namespace['uses_numeric_solver'] = neuron.get_name() in self.analytic_solver.keys() \
+        namespace['uses_numeric_solver'] = neuron.get_name() in self.numeric_solver.keys() \
             and self.numeric_solver[neuron.get_name()] is not None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
@@ -570,7 +577,6 @@ class NESTCodeGenerator(CodeGenerator):
                 kernel_var_order = kernel_var.get_differential_order()
                 for order in range(kernel_var_order):
                     symbol_name = kernel_var.get_name() + "'" * order
-                    symbol = equations_block.get_scope().resolve_to_symbol(symbol_name, SymbolKind.VARIABLE)
                     symbols_to_remove.add(symbol_name)
 
         decl_to_remove = set()
@@ -593,7 +599,6 @@ class NESTCodeGenerator(CodeGenerator):
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
-        equations_block = neuron.get_equations_block()
 
         if neuron.get_initial_blocks() is None:
             return
@@ -683,7 +688,6 @@ class NESTCodeGenerator(CodeGenerator):
         Note that for kernels, `initial_values` actually contains the increment upon spike arrival, rather than the initial value of the corresponding ODE dimension.
         """
         spike_updates = []
-        initial_values = neuron.get_initial_values_blocks()
 
         for kernel, spike_input_port in kernel_buffers:
             if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
@@ -871,14 +875,15 @@ class NESTCodeGenerator(CodeGenerator):
 
         return inline_expressions
 
-    def replace_inline_expressions_through_defining_expressions(self, definitions, inline_expressions):
-        # type: (list(ASTOdeEquation), list(ASTInlineExpression)) -> list(ASTInlineExpression)
+    def replace_inline_expressions_through_defining_expressions(self,
+                                                                definitions: Sequence[ASTOdeEquation],
+                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
         """
         Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 
-        :param definitions: A sorted list with entries {"symbol": "name", "definition": "expression"} that should be made free from.
-        :param inline_expressions: A sorted list with entries {"symbol": "name", "definition": "expression"} with inline_expressions which must be replaced in `definitions`.
-        :return: A list with definitions. Expressions in `definitions` don't depend on inline_expressions from `inline_expressions`.
+        :param definitions: A list of ODE definitions (**updated in-place**).
+        :param inline_expressions: A list of inline expression definitions.
+        :return: A list of updated ODE definitions (same as the ``definitions`` parameter).
         """
         for m in inline_expressions:
             source_position = m.get_source_position()
