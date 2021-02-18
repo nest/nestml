@@ -34,15 +34,15 @@ jobs:
       # Install Antlr4
       - name: Install Antlr4
         run: |
-          wget http://www.antlr.org/download/antlr-4.8-complete.jar
+          wget http://www.antlr.org/download/antlr-4.9.1-complete.jar
           echo \#\!/bin/bash > antlr4
-          echo java -cp \"`pwd`/antlr-4.8-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
+          echo java -cp \"`pwd`/antlr-4.9.1-complete.jar:$CLASSPATH\" org.antlr.v4.Tool \"\$@\" >> antlr4
           echo >> antlr4
           chmod +x antlr4
           echo PATH=$PATH:`pwd` >> $GITHUB_ENV
 
       # Install Python dependencies
-      - name: Python dependecies
+      - name: Python dependencies
         run: |
           python -m pip install --upgrade pip pytest
           python -m pip install -r requirements.txt
@@ -78,7 +78,7 @@ jobs:
       # Install NEST simulator
       - name: NEST simulator
         run: |
-          python -m pip install cython pytest-xdist
+          python -m pip install cython
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           cd $GITHUB_WORKSPACE/..
           NEST_SIMULATOR=$(pwd)/nest-simulator
