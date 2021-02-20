@@ -21,7 +21,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class IReferenceConverter(object):
+class IReferenceConverter:
     """This class represents a abstract super class for all possible reference converters, e.g. for nest, SpiNNaker or LEMS.
     """
 

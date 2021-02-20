@@ -26,7 +26,7 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class LoggingHelper(object):
+class LoggingHelper:
     @staticmethod
     def drop_missing_type_error(_assignment):
         code, message = Messages.get_type_could_not_be_derived(_assignment.get_expression())

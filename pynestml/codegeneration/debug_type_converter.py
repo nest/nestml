@@ -31,7 +31,7 @@ from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.utils.either import Either
 
 
-class DebugTypeConverter():
+class DebugTypeConverter:
     """
     Convert NESTML types to a string format that is suitable for info/warning/error messages.
     """
