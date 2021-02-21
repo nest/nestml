@@ -47,7 +47,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         I_dend_internal_name = 'I_kernel2__X__I_2'  # alias for the synaptic current
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
-        nest_path = "/home/travis/nest_install"
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
