@@ -251,7 +251,6 @@ class NESTCodeGenerator(CodeGenerator):
                 neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
 
 
-
     def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """
         Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted

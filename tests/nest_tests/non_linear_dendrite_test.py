@@ -76,24 +76,23 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         I_dend_alias_ts = mm.get("events")[I_dend_alias_name]
         I_dend_internal_ts = mm.get("events")[I_dend_internal_name]
 
-        if True:
-            if TEST_PLOTS:
-                fig, ax = plt.subplots(3, 1)
-                ax[0].plot(timevec, I_dend_alias_ts, label="aliased I_dend_syn")
-                ax[0].plot(timevec, I_dend_internal_ts, label="internal I_dend_syn")
-                ax[0].legend()
-                ax_ = ax[0].twinx()
-                ax_.plot(timevec, mm.get("events")["dend_curr_enabled"])
-                ax_.set_ylabel("dend_curr_enabled")
-                ax[1].plot(timevec, mm.get("events")["I_dend_ap"])
-                ax[1].set_ylabel("I_dend_AP")
-                ax[2].plot(timevec, mm.get("events")["V_m"], label="V_m")
-                for _ax in ax:
-                    _ax.legend()
-                    _ax.grid()
-                plt.ylabel("Dendritic current $I_{dend}$")
-                plt.suptitle("Reset of synaptic integration after dendritic spike")
-                plt.savefig("/tmp/nestml_triplet_stdp_test.png")
+        if TEST_PLOTS:
+            fig, ax = plt.subplots(3, 1)
+            ax[0].plot(timevec, I_dend_alias_ts, label="aliased I_dend_syn")
+            ax[0].plot(timevec, I_dend_internal_ts, label="internal I_dend_syn")
+            ax[0].legend()
+            ax_ = ax[0].twinx()
+            ax_.plot(timevec, mm.get("events")["dend_curr_enabled"])
+            ax_.set_ylabel("dend_curr_enabled")
+            ax[1].plot(timevec, mm.get("events")["I_dend_ap"])
+            ax[1].set_ylabel("I_dend_AP")
+            ax[2].plot(timevec, mm.get("events")["V_m"], label="V_m")
+            for _ax in ax:
+                _ax.legend()
+                _ax.grid()
+            plt.ylabel("Dendritic current $I_{dend}$")
+            plt.suptitle("Reset of synaptic integration after dendritic spike")
+            plt.savefig("/tmp/nestml_triplet_stdp_test.png")
 
         assert np.all(I_dend_alias_ts == I_dend_internal_ts), "Variable " + str(I_dend_alias_name) + " and (internal) variable " + str(I_dend_internal_name) + " should measure the same thing, but discrepancy in values occurred."
 
