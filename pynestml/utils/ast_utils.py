@@ -22,8 +22,11 @@
 from typing import List, Optional
 
 from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
@@ -31,7 +34,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
-class ASTUtils(object):
+class ASTUtils:
     """
     A collection of helpful methods.
     """
@@ -87,14 +90,11 @@ class ASTUtils(object):
         return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
-    def is_spike_input(cls, body):
-        # type: (ASTBody) -> bool
+    def is_spike_input(cls, body: ASTBody) -> bool:
         """
         Checks if the handed over neuron contains a spike input buffer.
         :param body: a single body element.
-        :type body: ast_body
         :return: True if spike buffer is contained, otherwise false.
-        :rtype: bool
         """
         from pynestml.meta_model.ast_body import ASTBody
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
@@ -435,7 +435,8 @@ class ASTUtils(object):
         return None
 
     @classmethod
-    def all_variables_defined_in_block(cls, block: ASTBlock) -> List[ASTVariable]:
+    def all_variables_defined_in_block(cls, block: Optional[ASTBlock]) -> List[ASTVariable]:
+        """return a list of all variable declarations in a block"""
         if block is None:
             return []
         vars = []
@@ -443,3 +444,14 @@ class ASTUtils(object):
             for var in decl.get_variables():
                 vars.append(var)
         return vars
+
+    @classmethod
+    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
+        """
+        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
+        """
+        if isinstance(inline_expr.get_expression(), ASTSimpleExpression) \
+           and inline_expr.get_expression().is_function_call() \
+           and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+            return True
+        return False

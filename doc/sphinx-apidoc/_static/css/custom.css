@@ -134,3 +134,6 @@ code.descclassname {
    }
 }
 
+.section ul li {
+    margin-bottom: 1em;
+}

@@ -70,7 +70,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 
-class NestPrinter(object):
+class NestPrinter:
     """
     This class contains all methods as required to transform
     """
@@ -169,8 +169,7 @@ class NestPrinter(object):
             ret = self.print_stmt(node)
         return ret
 
-    def print_assignment(self, node, prefix=""):
-        # type: (ASTAssignment) -> str
+    def print_assignment(self, node: ASTAssignment, prefix: str="") -> str:
         ret = self.print_node(node.lhs) + ' '
         if node.is_compound_quotient:
             ret += '/='
@@ -185,15 +184,13 @@ class NestPrinter(object):
         ret += ' ' + self.print_node(node.rhs)
         return ret
 
-    def print_variable(self, node):
-        # type: (ASTVariable) -> str
+    def print_variable(self, node: ASTVariable) -> str:
         ret = node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"
         return ret
 
-    def print_expression(self, node, prefix=""):
-        # type: (ASTExpressionNode) -> str
+    def print_expression(self, node: ASTExpressionNode, prefix: str="") -> str:
         """
         Pretty Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -203,8 +200,7 @@ class NestPrinter(object):
         """
         return self.expression_pretty_printer.print_expression(node, prefix=prefix)
 
-    def print_method_call(self, node):
-        # type: (ASTFunctionCall) -> str
+    def print_method_call(self, node: ASTFunctionCall) -> str:
         """
         Prints a single handed over function call.
         :param node: a single function call.

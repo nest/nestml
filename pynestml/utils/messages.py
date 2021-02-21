@@ -106,7 +106,7 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
 
 
-class Messages(object):
+class Messages:
     """
     This class contains a collection of error messages which enables a centralized maintaining and modifications of
     those.

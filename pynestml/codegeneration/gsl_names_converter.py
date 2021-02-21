@@ -22,7 +22,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.symbols.variable_symbol import VariableSymbol
 
 
-class GSLNamesConverter(object):
+class GSLNamesConverter:
     """
     A GSL names converter as use to transform names to GNU Scientific Library.
     """

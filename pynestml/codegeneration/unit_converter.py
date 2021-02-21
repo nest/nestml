@@ -21,7 +21,7 @@
 from astropy import units
 
 
-class UnitConverter(object):
+class UnitConverter:
     """
     Calculates the factor needed to convert a given unit to its
     NEST counterpart. I.e.: potentials are expressed as mV, consultancies as nS etc.

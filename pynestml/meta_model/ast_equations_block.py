@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Sequence
+
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -108,11 +110,10 @@ class ASTEquationsBlock(ASTNode):
                 return decl.get_parent(ast)
         return None
 
-    def get_ode_equations(self):
+    def get_ode_equations(self) -> Sequence[ASTOdeEquation]:
         """
         Returns a list of all ode equations in this block.
         :return: a list of all ode equations.
-        :rtype: list(ASTOdeEquations)
         """
         ret = list()
         for decl in self.get_declarations():
@@ -120,11 +121,10 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_kernels(self):
+    def get_kernels(self) -> Sequence[ASTKernel]:
         """
         Returns a list of all kernels in this block.
         :return: a list of all kernels.
-        :rtype: list(ASTKernel)
         """
         ret = list()
         for decl in self.get_declarations():
@@ -132,11 +132,10 @@ class ASTEquationsBlock(ASTNode):
                 ret.append(decl)
         return ret
 
-    def get_inline_expressions(self):
+    def get_inline_expressions(self) -> Sequence[ASTInlineExpression]:
         """
         Returns a list of all inline expressions in this block.
         :return: a list of all inline expressions.
-        :rtype: list(ASTInlineExpression)
         """
         ret = list()
         for decl in self.get_declarations():
@@ -151,13 +150,11 @@ class ASTEquationsBlock(ASTNode):
         del self.declarations
         self.declarations = list()
 
-    def equals(self, other):
+    def equals(self, other: Any) -> bool:
         """
         The equals method.
         :param other: a different object.
-        :type other: object
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTEquationsBlock):
             return False
