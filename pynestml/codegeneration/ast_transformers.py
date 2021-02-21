@@ -124,6 +124,9 @@ def add_declaration_to_initial_values(neuron: ASTNeuron, variable: str, initial_
 def declaration_in_initial_values(neuron: ASTNeuron, variable_name: str) -> bool:
     assert type(variable_name) is str
 
+    if neuron.get_initial_values_blocks() is None:
+        return False
+
     for decl in neuron.get_initial_values_blocks().get_declarations():
         for var in decl.get_variables():
             if var.get_complete_name() == variable_name:

@@ -224,10 +224,39 @@ class NESTCodeGenerator(CodeGenerator):
 
         return kernel_buffers
 
+    def replace_convolution_aliasing_inlines(self, neuron):
+        """
+        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
+        """
+        def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+                if var.get_name() == replace_var_name:
+                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(), differential_order=0)
+                    ast_variable.set_source_position(var.get_source_position())
+                    _expr.set_variable(ast_variable)
+
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+                if var.get_name() == replace_var_name:
+                    var.set_name(replace_with_var_name + '__d' * var.get_differential_order())
+                    var.set_differential_order(0)
+
+        for decl in neuron.get_equations_block().get_declarations():
+            from pynestml.utils.ast_utils import ASTUtils
+            if isinstance(decl, ASTInlineExpression) \
+               and isinstance(decl.get_expression(), ASTSimpleExpression) \
+               and '__X__' in str(decl.get_expression()):
+                replace_with_var_name = decl.get_expression().get_variable().get_name()
+                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
+
+
     def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """
         Replace all occurrences of variables names in NESTML format (e.g. `g_ex$''`)` with the ode-toolbox formatted
         variable name (e.g. `g_ex__DOLLAR__d__d`).
+
+        Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -270,7 +299,7 @@ class NESTCodeGenerator(CodeGenerator):
                 buffer_var = construct_kernel_X_spike_buf_name(
                     var.get_name(), spike_input_port, var.get_differential_order() - 1)
                 if is_delta_kernel(kernel):
-                    # delta kernel are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
+                    # delta kernels are treated separately, and should be kept out of the dynamics (computing derivates etc.) --> set to zero
                     _expr.set_variable(None)
                     _expr.set_numeric_literal(0)
                 else:
@@ -348,6 +377,7 @@ class NESTCodeGenerator(CodeGenerator):
         self.remove_ode_definitions_from_equations_block(neuron)
         self.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+        self.replace_convolution_aliasing_inlines(neuron)
         self.add_timestep_symbol(neuron)
 
         if self.analytic_solver[neuron.get_name()] is not None:
@@ -562,12 +592,15 @@ class NESTCodeGenerator(CodeGenerator):
         for decl in decl_to_remove:
             neuron.get_initial_blocks().get_declarations().remove(decl)
 
-    def update_initial_values_for_odes(self, neuron, solver_dicts, kernels):
+    def update_initial_values_for_odes(self, neuron, solver_dicts, kernels) -> None:
         """
         Update initial values for original ODE declarations (e.g. g_in, V_m', g_ahp'') that are present in the model
         before ODE-toolbox processing, with the formatted variable names and initial values returned by ODE-toolbox.
         """
         assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
+
+        if neuron.get_initial_blocks() is None:
+            return
 
         for iv_decl in neuron.get_initial_blocks().get_declarations():
             for var in iv_decl.get_variables():

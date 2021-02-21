@@ -95,13 +95,13 @@ class CoCosManager:
         CoCoVariableOncePerScope.check_co_co(neuron)
 
     @classmethod
-    def check_variables_defined_before_usage(cls, neuron):
+    def check_variables_defined_before_usage(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
         Checks that all variables are defined before being used.
         :param neuron: a single neuron.
         :type neuron: ast_neuron
         """
-        CoCoAllVariablesDefined.check_co_co(neuron)
+        CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
 
     @classmethod
     def check_functions_have_rhs(cls, neuron):
@@ -341,7 +341,7 @@ class CoCosManager:
         cls.check_function_defined(neuron)
         cls.check_function_declared_and_correctly_typed(neuron)
         cls.check_variables_unique_in_scope(neuron)
-        cls.check_variables_defined_before_usage(neuron)
+        cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
         cls.check_functions_have_rhs(neuron)
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)
@@ -368,7 +368,6 @@ class CoCosManager:
         cls.check_expression_correct(neuron)
         cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
-        return
 
     @classmethod
     def post_ode_specification_checks(cls, neuron):

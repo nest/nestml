@@ -40,7 +40,8 @@ before_install:
 
   # install latest odetoolbox from git master (N.B. GSL/PyGSL installation is skipped as NESTML ignores stiffness test result)
   - pip uninstall --yes odetoolbox
-  - pip install git+https://github.com/nest/ode-toolbox.git
+  - pip install https://github.com/clinssen/ode-toolbox/archive/log_level.zip
+
 
 install:
   # in install, we install NESTML itself

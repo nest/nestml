@@ -724,7 +724,7 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
 Integrating spiking input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spikes arriving at the input port of a neuron can be written as a spike train *s(t)*:
+Spikes arriving at the input port of a neuron can be written as a spike train :math:`s(t)`:
 
 .. math::
 
@@ -738,15 +738,63 @@ To model the effect that an arriving spike has on the state of the neuron, a con
 
 where :math:`w_i` is the weight of spike :math:`i`.
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a kernel and input port as its arguments:
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
-   kernel G = exp(-t/tau_syn)
-   V_m' = -V_m/tau_m + convolve(G, spikes)
+   equations:
+     kernel G = exp(-t/tau_syn)
+     V_m' = -V_m/tau_m + convolve(G, spikes)
+   end
 
 The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
 
+
+(Re)setting synaptic integration state
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spikes``. During code generation, a new state variable called ``G__conv__spikes`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spikes_GABA``, then the resulting generated variable would be called ``G__conv__spikes_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
+
+The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow refering to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
+
+For example, suppose we define:
+
+.. code-block:: nestml
+
+   inline g_dend pA = convolve(G, spikes)
+
+Then the name ``g_dend`` can be used as a target for assignment:
+
+.. code-block:: nestml
+
+   update:
+     g_dend = 42 pA
+   end
+
+This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
+
+.. code-block:: nestml
+
+   kernel H'' = (-2/tau_syn) * H' - 1/tau_syn**2) * H
+
+We can define an inline expression with the same port as before, ``spikes``:
+
+.. code-block:: nestml
+
+   inline h_dend pA = convolve(H, spikes)
+
+The name ``h_dend`` now acts as an alias for this particular convolution. We can now assign to the inline defined variable up to the order of the kernel:
+
+.. code-block:: nestml
+
+   update:
+     h_dend = 42 pA
+     h_dend' = 10 pA/ms
+   end
+
+For more information, see the :doc:`Active dendrite tutorial <tutorial/active_dendrite_tutorial>`
+
+   
 
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
