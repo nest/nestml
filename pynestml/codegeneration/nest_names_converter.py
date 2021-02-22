@@ -22,7 +22,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
 
 
-class NestNamesConverter(object):
+class NestNamesConverter:
     """
     This class provides several methods which can be used to convert names of objects to the corresponding
     nest representation.

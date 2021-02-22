@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.codegeneration.debug_type_converter import DebugTypeConverter
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -54,7 +56,7 @@ class KernelTypeVisitor(ASTVisitor):
     This visitor checks if each kernel has the appropriate data type.
     """
 
-    _neuron = None  # the parent ASTNeuron containing the kernel
+    _neuron: Optional[ASTNeuron] = None  # the parent ASTNeuron containing the kernel
 
     def visit_kernel(self, node):
         """
@@ -84,7 +86,7 @@ class KernelTypeVisitor(ASTVisitor):
                 decl = ASTUtils.get_declaration_by_name(self._neuron.get_initial_blocks(), iv_name)
                 if decl is None:
                     code, message = Messages.get_variable_not_defined(iv_name)
-                    Logger.log_message(neuron=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
+                    Logger.log_message(node=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=node.get_source_position())
                     continue
                 assert len(self._neuron.get_initial_blocks().get_declarations()[0].get_variables(

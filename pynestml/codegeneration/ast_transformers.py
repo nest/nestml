@@ -124,42 +124,15 @@ def add_declaration_to_initial_values(neuron: ASTNeuron, variable: str, initial_
 def declaration_in_initial_values(neuron: ASTNeuron, variable_name: str) -> bool:
     assert type(variable_name) is str
 
+    if neuron.get_initial_values_blocks() is None:
+        return False
+
     for decl in neuron.get_initial_values_blocks().get_declarations():
         for var in decl.get_variables():
             if var.get_complete_name() == variable_name:
                 return True
 
     return False
-
-
-def apply_incoming_spikes(neuron: ASTNeuron):
-    """
-    Adds a set of update instructions to the handed over neuron.
-    :param neuron: a single neuron instance
-    :type neuron: ASTNeuron
-    :return: the modified neuron
-    :rtype: ASTNeuron
-    """
-    assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
-        '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(neuron)
-    conv_calls = OdeTransformer.get_sum_function_calls(neuron)
-    printer = ExpressionsPrettyPrinter()
-    spikes_updates = list()
-    for convCall in conv_calls:
-        kernel = convCall.get_args()[0].get_variable().get_complete_name()
-        buffer = convCall.get_args()[1].get_variable().get_complete_name()
-        initial_values = (
-            neuron.get_initial_values_blocks().get_declarations() if neuron.get_initial_values_blocks() is not None else list())
-        for astDeclaration in initial_values:
-            for variable in astDeclaration.get_variables():
-                if re.match(kernel + "[\']*", variable.get_complete_name()) or re.match(kernel + '__[\\d]+$',
-                                                                                        variable.get_complete_name()):
-                    spikes_updates.append(ModelParser.parse_assignment(
-                        variable.get_complete_name() + " += " + buffer + " * " + printer.print_expression(
-                            astDeclaration.get_expression())))
-    for update in spikes_updates:
-        add_assignment_to_update_block(update, neuron)
-    return neuron
 
 
 def add_assignment_to_update_block(assignment: ASTAssignment, neuron: ASTNeuron) -> ASTNeuron:

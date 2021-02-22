@@ -328,7 +328,7 @@ class VariableSymbol(Symbol):
         if is_cond_based == is_curr_based:
             code, message = Messages.get_could_not_determine_cond_based(
                 type_str=self.type_symbol.print_nestml_type(), name=self.name)
-            Logger.log_message(neuron=None, code=code, message=message, log_level=LoggingLevel.WARNING,
+            Logger.log_message(node=None, code=code, message=message, log_level=LoggingLevel.WARNING,
                                error_position=ASTSourceLocation.get_added_source_position())
             return False
 
