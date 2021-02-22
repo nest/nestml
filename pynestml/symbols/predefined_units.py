@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Sequence
+
 from astropy import units as u
 
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -25,13 +28,13 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.unit_type import UnitType
 
 
-class PredefinedUnits(object):
+class PredefinedUnits:
     """
     This class represents a collection of physical units. Units can be retrieved by means of get_unit(name).
     Attribute:
         name2unit (dict):  Dict of all predefined units, map from name to unit object.
     """
-    name2unit = None
+    name2unit = {}   # type: Mapping[str, UnitType]
 
     @classmethod
     def register_units(cls):
@@ -53,13 +56,11 @@ class PredefinedUnits(object):
                     cls.name2unit[str(unit_name)] = temp_unit
 
     @classmethod
-    def get_unit(cls, name):
+    def get_unit(cls, name: str) -> UnitType:
         """
         Returns a single UnitType if the corresponding unit has been predefined.
         :param name: the name of a unit
-        :type name: str
         :return: a single UnitType object, or None
-        :rtype: UnitType
         """
         if name in cls.name2unit.keys():
             return cls.name2unit[name]
@@ -69,31 +70,27 @@ class PredefinedUnits(object):
             return None
 
     @classmethod
-    def is_unit(cls, name):
+    def is_unit(cls, name: str) -> bool:
         """
         Indicates whether the handed over name represents a stored unit.
         :param name: a single name
-        :type name: str
         :return: True if unit name, otherwise False.
-        :rtype: bool
         """
         return name in cls.name2unit.keys()
 
     @classmethod
-    def register_unit(cls, unit):
+    def register_unit(cls, unit: UnitType) -> None:
         """
         Registers the handed over unit in the set of the predefined units.
         :param unit: a single unit type.
-        :type unit: UnitType
         """
         if unit.get_name() is not cls.name2unit.keys():
             cls.name2unit[unit.get_name()] = unit
 
     @classmethod
-    def get_units(cls):
+    def get_units(cls) -> Sequence[UnitType]:
         """
         Returns the list of all currently defined units.
         :return: a list of all defined units.
-        :rtype: list(UnitType)
         """
         return cls.name2unit

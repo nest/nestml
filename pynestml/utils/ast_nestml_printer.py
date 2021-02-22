@@ -60,7 +60,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 
-class ASTNestMLPrinter(object):
+class ASTNestMLPrinter:
     """
     This class can be used to print any ast node to a human readable and NestML conform syntax. The entry point is
     the print_node() operation.

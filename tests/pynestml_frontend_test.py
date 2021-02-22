@@ -80,29 +80,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
             params.append('xyzzy')
             FrontendConfiguration.parse_config(params)
 
-    def test_module_name_parsing_input_path_is_file(self):
-        h, path = tempfile.mkstemp(prefix='nestml')
-        basename = os.path.basename(os.path.normpath(path))
-
-        params = list()
-        params.append('--input_path')
-        params.append(path)
-        FrontendConfiguration.parse_config(params)
-        assert FrontendConfiguration.module_name == 'nestmlmodule'
-
-    def test_module_name_parsing_input_path_is_dir(self):
-        path = tempfile.mkdtemp(prefix='nestml')
-        basename = os.path.basename(os.path.normpath(path))
-
-        params = list()
-        params.append('--input_path')
-        params.append(path)
-        params.append('--logging_level')
-        params.append('INFO')
-        FrontendConfiguration.parse_config(params)
-        assert FrontendConfiguration.module_name == basename + 'module'
-
-    def test_module_name_parsing_input_path_is_wrong_dir(self):
+    def test_input_path_handling_empty_dir(self):
         with pytest.raises(Exception):
             path = tempfile.mkdtemp(prefix='nestml-')
 
@@ -113,10 +91,50 @@ class PyNestMLFrontendTest(unittest.TestCase):
             params.append('INFO')
             FrontendConfiguration.parse_config(params)
 
+    def test_input_path_handling_dir_one_file(self):
+        path = tempfile.mkdtemp(prefix='nestml-')
+        fd, fpath = tempfile.mkstemp(dir=path, suffix='.nestml')
+        with open(fpath, 'w') as f:
+            f.write('neuron foo:\nend\n')
+            os.close(fd)
+
+        params = list()
+        params.append('--input_path')
+        params.append(path)
+        params.append('--logging_level')
+        params.append('INFO')
+        FrontendConfiguration.parse_config(params)
+
+        assert len(FrontendConfiguration.paths_to_compilation_units) == 1
+
+    def test_input_path_handling_dir_two_files(self):
+        path = tempfile.mkdtemp(prefix='nestml-')
+        fd, fpath = tempfile.mkstemp(dir=path, suffix='.nestml')
+        with open(fpath, 'w') as f:
+            f.write('neuron foo:\nend\n')
+            os.close(fd)
+        fd, fpath = tempfile.mkstemp(dir=path, suffix='.nestml')
+        with open(fpath, 'w') as f:
+            f.write('neuron bar:\nend\n')
+            os.close(fd)
+
+        params = list()
+        params.append('--input_path')
+        params.append(path)
+        params.append('--logging_level')
+        params.append('INFO')
+        FrontendConfiguration.parse_config(params)
+
+        assert len(FrontendConfiguration.paths_to_compilation_units) == 2
+
     def tearDown(self):
         # clean up
         import shutil
-        shutil.rmtree(FrontendConfiguration.target_path)
+        if FrontendConfiguration.target_path:
+            try:
+                shutil.rmtree(FrontendConfiguration.target_path)
+            except Exception:
+                pass
 
 
 if __name__ == '__main__':

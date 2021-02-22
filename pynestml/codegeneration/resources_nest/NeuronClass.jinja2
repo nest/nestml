@@ -161,7 +161,7 @@ namespace nest
 /* ----------------------------------------------------------------
  * Default and copy constructor for node, and destructor
  * ---------------------------------------------------------------- */
-{{neuronName}}::{{neuronName}}():ArchivingNode(), P_(), S_(), B_(*this)
+{{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
 
   recordablesMap_.create();
@@ -204,7 +204,7 @@ namespace nest
 }
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
-  ArchivingNode(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
+  {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
   // copy parameter struct P_
 {%- filter indent(2, True) %}
 {%- for parameter in neuron.get_parameter_non_alias_symbols() %}
@@ -259,7 +259,7 @@ void {{neuronName}}::init_buffers_(){
   {{ printer.print_buffer_initialization(buffer) }}
   {% endfor %}
   B_.logger_.reset(); // includes resize
-  ArchivingNode::clear_history();
+  {{neuron_parent_class}}::clear_history();
   {% if useGSL %}
   if ( B_.__s == 0 ){
     B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );

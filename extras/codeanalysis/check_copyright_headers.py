@@ -42,7 +42,7 @@ import re
 EXIT_SUCCESS = 0
 EXIT_BAD_HEADER = 1
 
-source_dir = "/home/travis/build/nest/nestml"
+source_dir = os.getcwd()
 
 exclude_dirs = [
     '.git',

@@ -19,38 +19,55 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
+from __future__ import annotations
+from typing import Any, Mapping, Optional, Sequence
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CodeGenerator():
+class CodeGenerator:
 
-    def __init__(self, target):
+    _default_options: Mapping[str, Any] = {}
+
+    def __init__(self, target, options: Optional[Mapping[str, Any]]=None):
         if not target.upper() in self.get_known_targets():
             code, msg = Messages.get_unknown_target(target)
             Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
-            self._target = ""
             raise InvalidTargetException()
 
         self._target = target
+        if "_default_options" in dir(self.__class__):
+            self._options = dict(self.__class__._default_options)
+        if options:
+            self.set_options(options)
 
-    @staticmethod
-    def get_known_targets():
-        targets = ["NEST", "autodoc", ""]     # include the empty string here to represent "no code generated"
-        targets = [s.upper() for s in targets]
-        return targets
+    def generate_code(self, neurons: Sequence[ASTNeuron]) -> None:
+        """the base class CodeGenerator does not generate any code"""
+        pass
 
-    def generate_neurons(self, neurons: List[ASTNode]):
+    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
+        """the base class CodeGenerator does not generate any code"""
+        pass
+
+    def set_options(self, options: Mapping[str, Any]):
+        if not "_default_options" in dir(self.__class__):
+            assert "Code generator class \"" + str(self.__class__) + "\" does not support setting options."
+        for k in options.keys():
+            assert k in self.__class__._default_options, "Option \"" + str(k) + "\" does not exist in code generator"
+        self._options.update(options)
+
+    def get_option(self, k):
+        return self._options[k]
+
+    def generate_neurons(self, neurons: Sequence[ASTNeuron]):
         """
         Generate code for the given neurons.
 
         :param neurons: a list of neurons.
-        :type neurons: List[ASTNode]
         """
         from pynestml.frontend.frontend_configuration import FrontendConfiguration
 
@@ -60,24 +77,26 @@ class CodeGenerator():
                 code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
-    def generate_code(self, neurons):
-        """
-        Generate code for the given neurons and (depending on the target) generate an index page, module entrypoint or
-        similar that incorporates an enumeration of all neurons.
+    @staticmethod
+    def get_known_targets():
+        targets = ["NEST", "autodoc", ""]     # include the empty string here to represent "no code generated"
+        targets = [s.upper() for s in targets]
+        return targets
 
-        :param neurons: a list of neurons.
-        :type neurons: List[ASTNode]
-        """
-        if self._target.upper() == "NEST":
+    @staticmethod
+    def from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+        """Static factory method that returns a new instance of a child class of CodeGenerator"""
+        assert target_name.upper() in CodeGenerator.get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+        if target_name.upper() == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
-            _codeGenerator = NESTCodeGenerator()
-            _codeGenerator.generate_code(neurons)
-        elif self._target.upper() == "AUTODOC":
+            return NESTCodeGenerator(options)
+        elif target_name.upper() == "AUTODOC":
             from pynestml.codegeneration.autodoc_codegenerator import AutoDocCodeGenerator
-            _codeGenerator = AutoDocCodeGenerator()
-            _codeGenerator.generate_code(neurons)
-        else:
+            assert options is None or options == {}, "\"autodoc\" code generator does not support options"
+            return AutoDocCodeGenerator()
+        elif target_name == "":
             # dummy/null target: user requested to not generate any code
-            assert self._target == ""
             code, message = Messages.get_no_code_generated()
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+            return CodeGenerator("", options)
+        assert False  # cannot reach here due to earlier assert -- silence static checker warnings

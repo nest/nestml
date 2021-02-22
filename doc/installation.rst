@@ -1,7 +1,7 @@
 Installing NESTML
 =================
 
-Please note that only Python 3 is supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
+Please note that only Python 3.8 (and later versions) are supported. The instructions below assume that ``python`` is aliased to or refers to ``python3``, and ``pip`` to ``pip3``.
 
 Installing the latest release from PyPI
 ---------------------------------------
@@ -14,12 +14,11 @@ The easiest way to install NESTML is to use the `Python Package Index (PyPI) <ht
 
    sudo apt install python3-pip
 
-
 NESTML can then be installed into your local user directory via:
 
 .. code-block:: bash
 
-   pip install nestml --user
+   pip install nestml
 
 
 Installing the latest development version from GitHub

@@ -18,7 +18,7 @@ where arguments are:
    * - ``-h`` or ``--help``
      - Print help message.
    * - ``--input_path``
-     - Path to the source file or directory containing the model.
+     - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching '*.nestml'.
    * - ``--target_path``
      - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
    * - ``--target``
@@ -33,7 +33,8 @@ where arguments are:
      - (Optional) A suffix string that will be appended to the name of all generated models.
    * - ``--dev``
      - (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
-
+   * - ``--codegen_opts``
+     - (Optional) Path to a JSON file containing additional options for the target platform code generator.
 
 Generated artifacts are copied to the selected target directory (default is ``target``). In order to install the models into NEST, the following commands have to be executed from within the target directory:
 
@@ -71,7 +72,7 @@ This operation expects the same set of arguments as in the case of command line 
      - Type
      - Default
    * - input_path
-     - string
+     - str or Sequence[str]
      - *no default*
    * - target_path
      - string
@@ -88,6 +89,9 @@ This operation expects the same set of arguments as in the case of command line 
    * - dev
      - boolean
      - False
+   * - codegen_opts
+     - Optional[Mapping[str, Any]]
+     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator.
 
 If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
 
