@@ -375,10 +375,11 @@ class ASTNestMLPrinter:
     def print_for_stmt(self, node):
         # type: (ASTForStmt) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent)
         ret += ('for ' + node.get_variable() + ' in ' + self.print_node(node.get_start_from()) + '...'
                 + self.print_node(node.get_end_at()) + ' step '
                 + str(node.get_step()) + ':' + print_sl_comment(node.in_comment) + '\n')
-        ret += self.print_node(node.get_block()) + 'end\n'
+        ret += self.print_node(node.get_block()) + print_n_spaces(self.indent) + 'end\n'
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
