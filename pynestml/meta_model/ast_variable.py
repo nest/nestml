@@ -141,24 +141,22 @@ class ASTVariable(ASTNode):
         """
         Updates the current type symbol to the handed over one.
         :param type_symbol: a single type symbol object.
-        :rtype type_symbol: type_symbol
+        :type type_symbol: type_symbol
         """
         assert (type_symbol is not None and isinstance(type_symbol, Either)), \
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
         self.type_symbol = type_symbol
 
-    def get_size_parameter(self):
+    def get_size_parameter(self) -> str:
         """
         Returns the size parameter of the variable
         :return: the size parameter
-        :rtype: str
         """
         return self.size_parameter
 
     def set_size_parameter(self, size_parameter):
         """
         Updates the size parameter of the variable
-        :return:
         """
         self.size_parameter = size_parameter
 

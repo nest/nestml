@@ -475,7 +475,7 @@ class NestPrinter:
     def print_vector_declaration(self, variable: VariableSymbol) -> str:
         """
         Prints the vector declaration
-        :param variable: Variable with the vector
+        :param variable: Vector variable
         :return: the corresponding vector declaration statement
         """
         assert isinstance(variable, VariableSymbol), \
