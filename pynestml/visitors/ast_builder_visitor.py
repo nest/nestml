@@ -50,7 +50,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         for child in ctx.neuron():
             neurons.append(self.visit(child))
         # extract the name of the artifact from the context
-        artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        if hasattr(ctx.start.source[1], 'fileName'):
+            artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        else:
+            artifact_name = 'parsed_from_string'
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_neurons=neurons,
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
