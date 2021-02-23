@@ -55,7 +55,7 @@ class NestMLPrinterTest(unittest.TestCase):
                 '/* post1\n' \
                 '* post2\n' \
                 '*/\n\n'
-        model = ModelParser.parse_block_with_variables(block)
+        model = ModelParser.parse_body(block)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(block, model_printer.print_node(model))
 
@@ -68,11 +68,11 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_assignment_with_comments(self):
         assignment = '\n' \
-                     '/* pre */\n' \
-                     'a = b # in\n' \
-                     '/* post */\n' \
+                     '  /* pre */\n' \
+                     '  a = b # in\n' \
+                     '  /* post */\n' \
                      '\n'
-        model = ModelParser.parse_assignment(assignment)
+        model = ModelParser.parse_block(assignment)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(assignment, model_printer.print_node(model))
 
@@ -93,7 +93,7 @@ class NestMLPrinterTest(unittest.TestCase):
                      '  return normalisation_factor\n' \
                      'end\n' \
                      '/*post func*/\n\n'
-        model = ModelParser.parse_function(t_function)
+        model = ModelParser.parse_body(t_function)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(t_function, model_printer.print_node(model))
 
@@ -107,10 +107,10 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(t_function, model_printer.print_node(model))
 
     def test_function_call_with_comments(self):
-        function_call = '\n/* pre */\n' \
-                        'min(1,2) # in\n' \
-                        '/* post */\n\n'
-        model = ModelParser.parse_stmt(function_call)
+        function_call = '\n  /* pre */\n' \
+                        '  min(1,2) # in\n' \
+                        '  /* post */\n\n'
+        model = ModelParser.parse_block(function_call)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(function_call, model_printer.print_node(model))
 
@@ -125,7 +125,7 @@ class NestMLPrinterTest(unittest.TestCase):
                  'neuron test: # in\n' \
                  'end\n' \
                  '/*post*/\n\n'
-        model = ModelParser.parse_neuron(neuron)
+        model = ModelParser.parse_nestml_compilation_unit(neuron)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(neuron, model_printer.print_node(model))
 
@@ -138,10 +138,10 @@ class NestMLPrinterTest(unittest.TestCase):
 
     def test_declaration_with_comments(self):
         declaration = '\n' \
-                      '/*pre*/\n' \
-                      'test mV = 10mV # in\n' \
-                      '/*post*/\n\n'
-        model = ModelParser.parse_declaration(declaration)
+                      '  /*pre*/\n' \
+                      '  test mV = 10mV # in\n' \
+                      '  /*post*/\n\n'
+        model = ModelParser.parse_block(declaration)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(declaration, model_printer.print_node(model))
 
@@ -156,7 +156,7 @@ class NestMLPrinterTest(unittest.TestCase):
                 'equations: # in\n' \
                 'end\n' \
                 '/*post*/\n\n'
-        model = ModelParser.parse_equations_block(block)
+        model = ModelParser.parse_body(block)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(block, model_printer.print_node(model))
 
@@ -168,11 +168,11 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(block, model_printer.print_node(model))
 
     def test_for_stmt_with_comments(self):
-        stmt = '\n/*pre*/\n' \
-               'for i in 10 - 3.14...10 + 3.14 step -1: # in\n' \
-               'end\n' \
-               '/*post*/\n\n'
-        model = ModelParser.parse_for_stmt(stmt)
+        stmt = '\n  /*pre*/\n' \
+               '  for i in 10 - 3.14...10 + 3.14 step -1: # in\n' \
+               '  end\n' \
+               '  /*post*/\n\n'
+        model = ModelParser.parse_block(stmt)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(stmt, model_printer.print_node(model))
 
@@ -184,11 +184,11 @@ class NestMLPrinterTest(unittest.TestCase):
         self.assertEqual(stmt, model_printer.print_node(model))
 
     def test_while_stmt_with_comments(self):
-        stmt = '\n/*pre*/\n' \
-               'while true: # in \n' \
-               'end\n' \
-               '/*post*/\n\n'
-        model = ModelParser.parse_while_stmt(stmt)
+        stmt = '\n  /*pre*/\n' \
+               '  while true: # in \n' \
+               '  end\n' \
+               '  /*post*/\n\n'
+        model = ModelParser.parse_block(stmt)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(stmt, model_printer.print_node(model))
 
@@ -204,7 +204,7 @@ class NestMLPrinterTest(unittest.TestCase):
                 'update: # in\n' \
                 'end\n' \
                 '/*post*/\n\n'
-        model = ModelParser.parse_update_block(block)
+        model = ModelParser.parse_body(block)
         model_printer = ASTNestMLPrinter()
         self.assertEqual(block, model_printer.print_node(model))
 

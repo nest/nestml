@@ -71,7 +71,7 @@ parser grammar PyNestMLParser;
          | left=expression comparisonOperator right=expression
          | logicalNot=NOT_KEYWORD term=expression
          | left=expression logicalOperator right=expression
-         | condition=expression QUESTION ifTrue=expression COLON ifNot=expression
+         | condition=expression NEWLINE* QUESTION NEWLINE* ifTrue=expression NEWLINE* COLON NEWLINE* ifNot=expression
          | simpleExpression
          ;
 
@@ -122,7 +122,7 @@ parser grammar PyNestMLParser;
 
   odeEquation : lhs=variable EQUALS rhs=expression (SEMICOLON)?;
 
-  kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA variable EQUALS expression)* (SEMICOLON)?;
+  kernel : KERNEL_KEYWORD variable EQUALS expression (COMMA NEWLINE* variable EQUALS expression)* (SEMICOLON)?;
 
   /*********************************************************************************************************************
   * Procedural-Language
