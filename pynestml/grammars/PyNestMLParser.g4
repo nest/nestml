@@ -100,7 +100,7 @@ parser grammar PyNestMLParser;
 
   logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
-  indexParameter : (NAME | UNSIGNED_INTEGER);
+  indexParameter : (sizeStr=NAME | sizeInt=UNSIGNED_INTEGER);
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
@@ -167,7 +167,6 @@ parser grammar PyNestMLParser;
     (isRecordable=RECORDABLE_KEYWORD)? (isFunction=FUNCTION_KEYWORD)?
     variable (COMMA variable)*
     dataType
-    (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     ( EQUALS rhs = expression)?
     (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?;
 

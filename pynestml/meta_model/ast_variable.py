@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from copy import copy
+from typing import Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.either import Either
@@ -39,7 +40,7 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, type_symbol=None, *args, **kwargs):
+    def __init__(self, name, differential_order=0, type_symbol=None, size_parameter: Optional[str] = None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the variable
@@ -57,6 +58,7 @@ class ASTVariable(ASTNode):
         self.name = name
         self.differential_order = differential_order
         self.type_symbol = type_symbol
+        self.size_parameter = size_parameter
 
     def clone(self):
         """
@@ -65,6 +67,7 @@ class ASTVariable(ASTNode):
         return ASTVariable(name=self.name,
                            differential_order=self.differential_order,
                            type_symbol=self.type_symbol,
+                           size_parameter=self.size_parameter,
                            # ASTNode common attriutes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
@@ -138,11 +141,26 @@ class ASTVariable(ASTNode):
         """
         Updates the current type symbol to the handed over one.
         :param type_symbol: a single type symbol object.
-        :type type_symbol: type_symbol
+        :rtype type_symbol: type_symbol
         """
         assert (type_symbol is not None and isinstance(type_symbol, Either)), \
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
         self.type_symbol = type_symbol
+
+    def get_size_parameter(self):
+        """
+        Returns the size parameter of the variable
+        :return: the size parameter
+        :rtype: str
+        """
+        return self.size_parameter
+
+    def set_size_parameter(self, size_parameter):
+        """
+        Updates the size parameter of the variable
+        :return:
+        """
+        self.size_parameter = size_parameter
 
     def get_parent(self, ast):
         """

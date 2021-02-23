@@ -471,3 +471,28 @@ class NestPrinter:
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         return '//!< Buffer incoming ' + ast_buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
+
+    def print_vector_declaration(self, variable: VariableSymbol) -> str:
+        """
+        Prints the vector declaration
+        :param variable: Variable with the vector
+        :return: the corresponding vector declaration statement
+        """
+        assert isinstance(variable, VariableSymbol), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+        vector_parameter = variable.get_vector_parameter()
+        vector_variable = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
+        vector_variable_name = NestNamesConverter.convert_to_cpp_name(vector_variable.get_complete_name())
+        symbol = vector_variable.get_scope().resolve_to_symbol(vector_variable_name, SymbolKind.VARIABLE)
+        size_param = ""
+        if symbol is not None:
+            # size parameter is a variable
+            size_param += self.print_origin(symbol) + vector_parameter
+        else:
+            # size parameter is an integer
+            size_param += vector_parameter
+
+        decl_str = self.print_origin(variable) + variable.get_symbol_name() + \
+            ".resize(" + size_param + ", " + self.print_expression(variable.get_declaring_expression()) + \
+            ");"
+        return decl_str

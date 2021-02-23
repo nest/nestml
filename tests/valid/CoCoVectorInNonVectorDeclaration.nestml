@@ -28,7 +28,6 @@
 neuron CoCoVectorInNonVectorDeclaration:
     state:
         ten integer = 10
-        g_ex mV [ten] = 10mV
-        g_in mV [ten]= g_ex + g_ex # vector = vector + vector, thus everything is correct
+        g_ex [ten] mV = 10mV
     end
 end
