@@ -1587,7 +1587,7 @@ class PyNestMLParser ( Parser ):
             super(PyNestMLParser.VariableContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.name = None # Token
-            self.sizeParameter = None # IndexParameterContext
+            self.vectorParameter = None # IndexParameterContext
 
         def NAME(self):
             return self.getToken(PyNestMLParser.NAME, 0)
@@ -1635,7 +1635,7 @@ class PyNestMLParser ( Parser ):
                 self.state = 235
                 self.match(PyNestMLParser.LEFT_SQUARE_BRACKET)
                 self.state = 236
-                localctx.sizeParameter = self.indexParameter()
+                localctx.vectorParameter = self.indexParameter()
                 self.state = 237
                 self.match(PyNestMLParser.RIGHT_SQUARE_BRACKET)
 

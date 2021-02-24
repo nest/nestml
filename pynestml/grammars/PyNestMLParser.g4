@@ -104,11 +104,11 @@ parser grammar PyNestMLParser;
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
-    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
+    @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
   variable : name=NAME
-  (LEFT_SQUARE_BRACKET sizeParameter=indexParameter RIGHT_SQUARE_BRACKET)?
+  (LEFT_SQUARE_BRACKET vectorParameter=indexParameter RIGHT_SQUARE_BRACKET)?
   (DIFFERENTIAL_ORDER)*;
 
   /**
@@ -159,7 +159,6 @@ parser grammar PyNestMLParser;
     @attribute isFunction: Is true iff. declaration is a function.
     @attribute variable: List with variables.
     @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
-    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
     @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */

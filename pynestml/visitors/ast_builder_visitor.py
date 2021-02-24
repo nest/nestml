@@ -249,17 +249,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
     def visitVariable(self, ctx):
-        size_parameter = None
-        if ctx.sizeParameter is not None:
-            if ctx.sizeParameter.sizeStr is not None:
-                size_parameter = ctx.sizeParameter.sizeStr.text
-            elif ctx.sizeParameter.sizeInt is not None:
-                size_parameter = ctx.sizeParameter.sizeInt.text
+        vector_parameter = None
+        if ctx.vectorParameter is not None:
+            if ctx.vectorParameter.sizeStr is not None:
+                vector_parameter = ctx.vectorParameter.sizeStr.text
+            elif ctx.vectorParameter.sizeInt is not None:
+                vector_parameter = ctx.vectorParameter.sizeInt.text
 
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
-                                                  size_parameter=size_parameter,
+                                                  vector_parameter=vector_parameter,
                                                   source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.

@@ -40,13 +40,15 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, type_symbol=None, size_parameter: Optional[str] = None, *args, **kwargs):
+    def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None, vector_parameter: Optional[str] = None, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the variable
         :type name: str
         :param differential_order: the differential order of the variable.
         :type differential_order: int
+        :param type_symbol: the type of the variable
+        :param vector_parameter: the vector parameter of the variable
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
@@ -58,7 +60,7 @@ class ASTVariable(ASTNode):
         self.name = name
         self.differential_order = differential_order
         self.type_symbol = type_symbol
-        self.size_parameter = size_parameter
+        self.vector_parameter = vector_parameter
 
     def clone(self):
         """
@@ -67,7 +69,7 @@ class ASTVariable(ASTNode):
         return ASTVariable(name=self.name,
                            differential_order=self.differential_order,
                            type_symbol=self.type_symbol,
-                           size_parameter=self.size_parameter,
+                           vector_parameter=self.vector_parameter,
                            # ASTNode common attriutes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
@@ -147,18 +149,18 @@ class ASTVariable(ASTNode):
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
         self.type_symbol = type_symbol
 
-    def get_size_parameter(self) -> str:
+    def get_vector_parameter(self) -> str:
         """
-        Returns the size parameter of the variable
-        :return: the size parameter
+        Returns the vector parameter of the variable
+        :return: the vector parameter
         """
-        return self.size_parameter
+        return self.vector_parameter
 
-    def set_size_parameter(self, size_parameter):
+    def set_size_parameter(self, vector_parameter):
         """
-        Updates the size parameter of the variable
+        Updates the vector parameter of the variable
         """
-        self.size_parameter = size_parameter
+        self.vector_parameter = vector_parameter
 
     def get_parent(self, ast):
         """

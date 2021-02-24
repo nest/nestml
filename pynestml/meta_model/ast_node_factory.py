@@ -343,9 +343,9 @@ class ASTNodeFactory:
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
-    def create_ast_variable(cls, name, differential_order=0, size_parameter=None, source_position=None):
+    def create_ast_variable(cls, name, differential_order=0, vector_parameter=None, source_position=None):
         # type: (str,int,ASTSourceLocation) -> ASTVariable
-        return ASTVariable(name, differential_order, size_parameter=size_parameter, source_position=source_position)
+        return ASTVariable(name, differential_order, vector_parameter=vector_parameter, source_position=source_position)
 
     @classmethod
     def create_ast_while_stmt(cls,
