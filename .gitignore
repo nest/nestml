@@ -26,3 +26,5 @@ venv
 *.gdf
 *~
 *.iml
+/generated/
+/NESTML.egg-info/
