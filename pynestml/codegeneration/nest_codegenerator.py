@@ -114,6 +114,19 @@ class NESTCodeGenerator(CodeGenerator):
         # setup the neuron implementation template
         self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
         self._printer = ExpressionsPrettyPrinter()
+        
+        self.loadCMStuff(env)
+
+    def loadCMStuff(self, env):
+        #env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
+        self._template_etype_cpp_file = env.get_template('cm_etypeClass.jinja2')
+        self._template_etype_h_file = env.get_template('cm_etypeHeader.jinja2')
+        self._template_main_cpp_file = env.get_template('cm_mainClass.jinja2')
+        self._template_main_h_file = env.get_template('cm_mainHeader.jinja2')
+        self._template_syns_cpp_file = env.get_template('cm_synsClass.jinja2')
+        self._template_syns_h_file = env.get_template('cm_synsHeader.jinja2')
+        self._template_tree_cpp_file = env.get_template('cm_treeClass.jinja2')
+        self._template_tree_h_file = env.get_template('cm_treeHeader.jinja2')
 
     def generate_code(self, neurons):
         self.analyse_transform_neurons(neurons)
@@ -398,6 +411,8 @@ class NESTCodeGenerator(CodeGenerator):
             os.makedirs(FrontendConfiguration.get_target_path())
         self.generate_model_h_file(neuron)
         self.generate_neuron_cpp_file(neuron)
+        self.generate_cm_h_file(neuron)
+        self.generate_cm_cpp_file(neuron)
 
     def generate_model_h_file(self, neuron: ASTNeuron) -> None:
         """
@@ -416,6 +431,43 @@ class NESTCodeGenerator(CodeGenerator):
         neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
             f.write(str(neuron_cpp_file))
+   
+    def generate_cm_h_file(self, neuron: ASTNeuron) -> None:
+        """
+        For a handed over neuron, this method generates the corresponding header file.
+        :param neuron: a single neuron object.
+        """
+        print("generate_cm_h_file,", FrontendConfiguration.get_target_path())
+        neuron_etype_h_file = self._template_etype_h_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_etype.h')), 'w+') as f:
+            f.write(str(neuron_etype_h_file))
+        neuron_main_h_file = self._template_main_h_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_main.h')), 'w+') as f:
+            f.write(str(neuron_main_h_file))
+        neuron_syns_h_file = self._template_syns_h_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_syns.h')), 'w+') as f:
+            f.write(str(neuron_syns_h_file))
+        neuron_tree_h_file = self._template_tree_h_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_tree.h')), 'w+') as f:
+            f.write(str(neuron_tree_h_file))
+
+    def generate_cm_cpp_file(self, neuron: ASTNeuron) -> None:
+        """
+        For a handed over neuron, this method generates the corresponding implementation file.
+        :param neuron: a single neuron object.
+        """
+        neuron_etype_cpp_file = self._template_etype_cpp_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_etype.cpp')), 'w+') as f:
+            f.write(str(neuron_etype_cpp_file))
+        neuron_main_cpp_file = self._template_main_cpp_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_main.cpp')), 'w+') as f:
+            f.write(str(neuron_main_cpp_file))
+        neuron_syns_cpp_file = self._template_syns_cpp_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_syns.cpp')), 'w+') as f:
+            f.write(str(neuron_syns_cpp_file))
+        neuron_tree_cpp_file = self._template_tree_cpp_file.render(self.setup_generation_helpers(neuron))
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_tree.cpp')), 'w+') as f:
+            f.write(str(neuron_tree_cpp_file))
 
     def setup_generation_helpers(self, neuron: ASTNeuron) -> Dict:
         """
