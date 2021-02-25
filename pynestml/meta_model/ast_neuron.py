@@ -636,6 +636,18 @@ class ASTNeuron(ASTNode):
                 return True
         return False
 
+    def use_vectors(self) -> bool:
+        """
+        This method indicates if the neuron has variables defined as vectors.
+        :return: True if vectors are defined, false otherwise.
+        """
+        state_symbols = self.get_state_symbols()
+        for symbol in state_symbols:
+            if symbol.has_vector_parameter():
+                return True
+
+        return False
+
     def get_parameter_invariants(self):
         """
         Returns a list of all invariants of all parameters.

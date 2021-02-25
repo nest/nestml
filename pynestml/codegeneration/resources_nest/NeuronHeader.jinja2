@@ -213,8 +213,14 @@ private:
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
+  {% if (neuron.use_vectors()) -%}
+  friend class nest::DynamicRecordablesMap< {{neuronName}} >;
+  friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
+  friend class nest::DataAccessFunctor< {{neuronName}} >;
+  {% else -%}
   friend class nest::RecordablesMap<{{neuronName}}>;
   friend class nest::UniversalDataLogger<{{neuronName}}>;
+  {% endif -%}
 
   /**
   * Free parameters of the neuron.
@@ -272,6 +278,9 @@ private:
   */
   struct State_{
 {%- if not useGSL %}
+{%- if neuron.use_vectors() %}
+    {%- include "directives/VectorVariablesEnum.jinja2" %}
+{%- endif %}
 {%-   filter indent(4,True) %}
 {%-   for variable in neuron.get_state_non_alias_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
@@ -281,6 +290,9 @@ private:
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
+{%- if neuron.use_vectors() %}
+    {%- include "directives/VectorVariablesEnum.jinja2" %}
+{%- endif %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
 {# N.B. numeric solver contains all state variables, including those that will be solved by analytic solver #}
@@ -341,7 +353,12 @@ private:
     Buffers_(const Buffers_ &, {{neuronName}} &);
 
     /** Logger for all analog data */
+    {% if (neuron.use_vectors()) -%}
+    nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
+    {% else -%}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
+    {% endif %}
+
     {% if ((neuron.get_multiple_receptors())|length > 1) or neuron.is_array_buffer() %}
     std::vector<long> receptor_types_;
     {% endif %}
@@ -456,7 +473,17 @@ private:
   Buffers_    B_;  //!< Buffers.
 
   //! Mapping of recordables names to access functions
+  {% if neuron.use_vectors() -%}
+  static nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
+  nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
+  std::string get_var_name(size_t elem, std::string var_name);
+  void insert_recordables(size_t first=0);
+
+  //TODO: write get_state_element function
+
+  {% else -%}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
+  {% endif %}
 
   {% if useGSL -%}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
