@@ -64,7 +64,7 @@ std::pair< double, double > nest::EType::f_numstep(const double v_comp, const do
         h_Na_ += (1. - p_h_Na) *  h_inf_Na;
 
         // compute the conductance of the sodium channel
-        double g_Na = gbar_Na_ * pow(m_Na_, 3) * h_Na_;
+        double g_Na = gbar_Na_ * pow(m_Na_, 3) * h_Na_; // make flexible for different ion channels
 
         // add to variables for numerical integration
         g_val += g_Na / 2.;
