@@ -1,4 +1,4 @@
-* :doc:`Izhikevich tutorial </tutorials/izhikevich/izhikevich_tutorial>`
+* :doc:`Izhikevich tutorial </tutorials/izhikevich/nestml_izhikevich_tutorial>`
 
   Learn how to write the Izhikevich spiking neuron model in NESTML.
 
