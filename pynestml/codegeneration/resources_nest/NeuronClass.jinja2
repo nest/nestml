@@ -69,22 +69,34 @@
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
+{%- if has_vectors %}
+nest::DynamicRecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
+{%- else %}
 nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
-
+{%- endif %}
 namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
-  template <> void RecordablesMap<{{neuronName}}>::create(){
+  {%- if has_vectors %}
+  template <> void DynamicRecordablesMap<{{neuronName}}>::create({{neuronName}}& host) {
+  {%- else %}
+  template <> void RecordablesMap<{{neuronName}}>::create() {
+  {%- endif %}
   // use standard names where you can for consistency!
 
   // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
+{%- if has_vectors %}
+{%- for variable in neuron.get_state_non_alias_symbols() %}
+{%-   include "directives/DynamicRecordCallback.jinja2" %}
+{%- endfor %}
+{%- else %}
 {%- for variable in neuron.get_state_non_alias_symbols() %}
 {%-   include "directives/RecordCallback.jinja2" %}
 {%- endfor %}
+{%- endif %}
 {%- endfilter %}
-
   // initial values for state variables in ODE or kernel
 {%- filter indent(2,True) %}
 {%- for variable in neuron.get_initial_values_non_alias_symbols() %}
@@ -116,8 +128,45 @@ namespace nest
 {%-   endwith %}
 {%- endfor %}
 {%- endfilter %}
+
+  // Add vector variables
+{%- filter indent(2,True) %}
+{%- if has_vectors %}
+  host.insert_recordables();
+{%- endif %}
+{%- endfilter %}
   }
 }
+
+{%- if has_vectors %}
+  std::string {{neuronName}}::get_var_name(size_t elem, std::string var_name)
+  {
+    std::stringstream n;
+    n << var_name << elem + 1;
+    return n.str();
+  }
+
+  void {{neuronName}}::insert_recordables(size_t first)
+  {
+    {%- for variable in neuron.get_vector_state_symbols() %}
+      {%- set size = variable.get_vector_parameter() %}
+        {%- if size|int == 0 -%}
+          {%- set size = printer.print_vector_size_parameter(variable) -%}
+        {%- endif %}
+      for (size_t i = 0; i < {{size}}; i++)
+      {
+        size_t elem = {{neuronName}}::State_::{{names.name(variable).upper()}} + i;
+        recordablesMap_.insert(get_var_name(i, "{{names.name(variable).upper()}}_"), this->get_data_access_functor(elem));
+      }
+    {%- endfor %}
+  }
+
+  nest::DataAccessFunctor< {{neuronName}} >
+  {{neuronName}}::get_data_access_functor( size_t elem )
+  {
+    return nest::DataAccessFunctor< {{neuronName}} >( *this, elem );
+  }
+{%- endif %}
 
 /* ----------------------------------------------------------------
  * Default constructors defining default parameters and state
@@ -163,8 +212,11 @@ namespace nest
  * ---------------------------------------------------------------- */
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
-
+{%- if has_vectors %}
+  recordablesMap_.create(*this);
+{%- else %}
   recordablesMap_.create();
+{%- endif %}
 
   calibrate();
 

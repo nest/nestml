@@ -368,6 +368,19 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
+    def get_vector_state_symbols(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all state symbols that are vectors
+        :return: a list of vector state symbols
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        vector_state_symbols = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.STATE and \
+                    not symbol.is_predefined and symbol.has_vector_parameter():
+                vector_state_symbols.append(symbol)
+        return vector_state_symbols
+
     def get_internal_symbols(self):
         """
         Returns a list of all internals symbol defined in the model.
@@ -636,7 +649,7 @@ class ASTNeuron(ASTNode):
                 return True
         return False
 
-    def use_vectors(self) -> bool:
+    def has_vectors(self) -> bool:
         """
         This method indicates if the neuron has variables defined as vectors.
         :return: True if vectors are defined, false otherwise.

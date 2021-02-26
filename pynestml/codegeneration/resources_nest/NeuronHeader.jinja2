@@ -213,7 +213,7 @@ private:
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
-  {% if (neuron.use_vectors()) -%}
+  {% if (has_vectors) -%}
   friend class nest::DynamicRecordablesMap< {{neuronName}} >;
   friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
   friend class nest::DataAccessFunctor< {{neuronName}} >;
@@ -278,7 +278,7 @@ private:
   */
   struct State_{
 {%- if not useGSL %}
-{%- if neuron.use_vectors() %}
+{%- if has_vectors %}
     {% include "directives/StateVariablesEnum.jinja2" %}
 {%- endif %}
 {%-   filter indent(4,True) %}
@@ -290,7 +290,7 @@ private:
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
-{%- if neuron.use_vectors() %}
+{%- if has_vectors %}
     {%- include "directives/VectorVariablesEnum.jinja2" %}
 {%- endif %}
     //! Symbolic indices to the elements of the state vector y
@@ -353,7 +353,7 @@ private:
     Buffers_(const Buffers_ &, {{neuronName}} &);
 
     /** Logger for all analog data */
-    {% if (neuron.use_vectors()) -%}
+    {% if (has_vectors) -%}
     nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
     {% else -%}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
@@ -473,7 +473,7 @@ private:
   Buffers_    B_;  //!< Buffers.
 
   //! Mapping of recordables names to access functions
-  {% if neuron.use_vectors() -%}
+  {% if has_vectors -%}
   static nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
   nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
   std::string get_var_name(size_t elem, std::string var_name);
@@ -491,9 +491,13 @@ private:
       else if
     {%- endif -%}
     {%- if variable.has_vector_parameter() -%}
-      (elem >= State::{{names.name(variable).upper()}} && elem < {{names.name(variable).upper()}} + {{variable.get_vector_parameter()}})
+      {%- set size =  variable.get_vector_parameter() -%}
+        {%- if size|int == 0 -%}
+          {%- set size = printer.print_vector_size_parameter(variable) -%}
+        {%- endif -%}
+      (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
       {
-        return S_.{{names.name(variable)}}[ elem - State::{{names.name(variable).upper()}}];
+        return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
       }
     {%- else -%}
       (elem == State_::{{names.name(variable).upper()}})
@@ -504,10 +508,6 @@ private:
     {%-     endif -%}
     {%- endfor %}
   }
-
-  std::string get_var_name(size_t elem, std::string var_name);
-  void insert_recordables(size_t first=0);
-
   {%- else -%}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
   {% endif -%}
