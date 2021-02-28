@@ -75,4 +75,4 @@ class VectorCodeGenerationTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         import shutil
-        # shutil.rmtree(self.target_path)
+        shutil.rmtree(self.target_path)
