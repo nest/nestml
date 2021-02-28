@@ -479,38 +479,8 @@ private:
   std::string get_var_name(size_t elem, std::string var_name);
   void insert_recordables(size_t first=0);
 
-  //TODO: write get_state_element function
-  inline double get_state_element(size_t elem)
-  {
-    {%- for variable in neuron.get_state_symbols() %}
-    {%  set varDomain = declarations.get_domain_from_type(variable.get_type_symbol()) -%}
-    {%  if varDomain == "double" and variable.is_recordable -%}
-    {%- if loop.index == 1 -%}
-      if
-    {%- else -%}
-      else if
-    {%- endif -%}
-    {%- if variable.has_vector_parameter() -%}
-      {%- set size =  variable.get_vector_parameter() -%}
-        {%- if size|int == 0 -%}
-          {%- set size = printer.print_vector_size_parameter(variable) -%}
-        {%- endif -%}
-      (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
-      {
-        return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
-      }
-    {%- else -%}
-      (elem == State_::{{names.name(variable).upper()}})
-      {
-        return S_.{{names.name(variable)}};
-      }
-    {%-  endif -%}
-    {%-     endif -%}
-    {%- endfor %}
-    else {
-        return 0;
-    }
-  }
+  {%- include "directives/DynamicStateElement.jinja2" %}
+
   {%- else -%}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
   {% endif -%}
