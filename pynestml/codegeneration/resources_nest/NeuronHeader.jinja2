@@ -507,6 +507,9 @@ private:
     {%-  endif -%}
     {%-     endif -%}
     {%- endfor %}
+    else {
+        return 0;
+    }
   }
   {%- else -%}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;

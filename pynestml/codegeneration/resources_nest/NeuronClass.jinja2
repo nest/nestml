@@ -151,7 +151,7 @@ namespace nest
     {%- for variable in neuron.get_vector_state_symbols() %}
       {%- set size = variable.get_vector_parameter() %}
         {%- if size|int == 0 -%}
-          {%- set size = printer.print_vector_size_parameter(variable) -%}
+          {%- set size = utils.get_numeric_vector_size(variable) -%}
         {%- endif %}
       for (size_t i = 0; i < {{size}}; i++)
       {
