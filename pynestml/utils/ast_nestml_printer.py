@@ -657,26 +657,24 @@ def print_ml_comments(comments, indent=0, is_post=False):
     if comments is None or len(list(comments)) == 0:
         return ''
     ret = ''
-    if len(comments) > 0 and not is_post:
-        ret += '\n'
     for comment in comments:
-        ret += print_n_spaces(indent) + '/*'
+        if "\"\"\"" in comment:
+            return comment + '\n'
         for c_line in comment.splitlines(True):
             if c_line == '\n':
-                ret += print_n_spaces(indent) + '*' + '\n'
+                ret += print_n_spaces(indent) + '#' + '\n'
                 continue
             elif c_line.lstrip() == '':
                 continue
-            if comment.splitlines(True).index(c_line) != 0:
-                ret += print_n_spaces(indent)
-                ret += ('*  ' if c_line[len(c_line) - len(c_line.lstrip())] != '*' and len(
-                    comment.splitlines(True)) > 1 else '')
-            ret += c_line
+            ret += print_n_spaces(indent)
+            if c_line[len(c_line) - len(c_line.lstrip())] != '#':
+                ret += '#'
+            ret += c_line + '\n'
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
-        ret += '*/\n'
     if len(comments) > 0 and is_post:
         ret += '\n'
+
     return ret
 
 

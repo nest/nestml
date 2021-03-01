@@ -1,30 +1,36 @@
-/**
- * 
- *  iaf_psc_exp_nonlineardendrite.nestml
- *
- *  Neuron model used in ``non_linear_dendrite_test.py``.
- *
- *  A dendritic action potential occurs when the net synaptic current exceeds the threshold value ``i_th``. An extra, pulse-shaped dendritic current is then activated with amplitude ``I_dend_ap`` and duration ``T_dend_ap``.
- *
- *  For more detailed information and references, please see the active dendrite tutorial at ``doc/tutorials/active_dendrite/nestml_active_dendrite_tutorial.ipynb``.
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-*/
+""" 
+iaf_psc_exp_nonlineardendrite.nestml
+####################################
+
+Description
++++++++++++
+
+Neuron model used in ``non_linear_dendrite_test.py``.
+
+A dendritic action potential occurs when the net synaptic current exceeds the threshold value ``i_th``. An extra, pulse-shaped dendritic current is then activated with amplitude ``I_dend_ap`` and duration ``T_dend_ap``.
+
+For more detailed information and references, please see the active dendrite tutorial at ``doc/tutorials/active_dendrite/nestml_active_dendrite_tutorial.ipynb``.
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
 neuron iaf_psc_exp_nonlineardendrite:
 
   initial_values:

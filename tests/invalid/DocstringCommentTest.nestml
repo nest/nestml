@@ -1,15 +1,14 @@
 """
-CoCoValueAssignedToBuffer.nestml
-################################
+DocstringCommentTest.nestml
+###########################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if assignment of values to buffers
-is detected.
+This model is used to test whether docstring comments are detected at any place other than just before the neuron keyword.
 
-Positive case.
+Negative case.
 
 
 Copyright statement
@@ -32,12 +31,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoValueAssignedToBuffer:
-    input:
-        spikeInh integer <- inhibitory spike
-    end
-
-    update: # buffer not assigned, thus everything is correct
-        test integer = spikeInh  + 10
-    end
+neuron docstringCommentTest:
+  initial_values:
+    """hello"""
+    # foo
+    test boolean = True #inline comment ok
+    # foo
+    # bar
+  end
 end

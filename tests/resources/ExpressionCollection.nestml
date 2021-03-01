@@ -1,28 +1,16 @@
-/*
- *
- *  ExpressionCollection.nestml
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * This test neuron is used to test if parsing of expression works as required.
- * For more details see ExpressionParserTest.py. It is used to test the following part of the grammar:
- * expression : leftParentheses='(' term=expression rightParentheses=')'
+"""
+ExpressionCollection.nestml
+###########################
+
+
+Description
++++++++++++
+
+This test neuron is used to test if parsing of expression works as required.
+
+For more details see ExpressionParserTest.py. It is used to test the following part of the grammar:
+
+expression : leftParentheses='(' term=expression rightParentheses=')'
          | <assoc=right> left=expression powOp='**' right=expression
          | unaryOperator term=expression
          | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
@@ -34,9 +22,29 @@
          | condition=expression '?' ifTrue=expression ':' ifNot=expression
          | simpleExpression
          ;
- * and the respective sub-rules.
-*/
+and the respective sub-rules.
 
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
 neuron ExpressionCollection:
     update:
         #neuron aeif_cond_alpha_neuron

@@ -30,8 +30,10 @@ lexer grammar PyNestMLLexer;
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
+  DOCSTRING_TRIPLEQUOTE : '"""';
+  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE ('\r'? '\n') -> channel(2);
 
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) ('\r'? '\n') -> channel(2);
 
   NEWLINE : '\r'? '\n';
 
@@ -110,7 +112,6 @@ lexer grammar PyNestMLLexer;
   COLON : ':';
   SEMICOLON : ';';
   DIFFERENTIAL_ORDER : '\'';
-  DOCSTRING_TRIPLEQUOTE : '"""';
 
 
   /**
