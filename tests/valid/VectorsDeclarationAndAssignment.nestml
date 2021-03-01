@@ -36,8 +36,4 @@ neuron vector_declaration:
         taus [15] ms = 2 ms
         V_thr mV = -55 mV
     end
-
-    update:
-        # g_ex [0] = 22 mV
-    end
 end
