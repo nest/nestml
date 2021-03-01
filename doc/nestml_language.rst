@@ -1053,13 +1053,14 @@ Setting and retrieving model properties
 Recording values with devices
 -----------------------------
 
--  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
--  The ``recordable`` keyword can be used to also make variables in other blocks (``parameters, internals``) available to recording devices.
+-  All values in the ``state`` and ``initial_values`` blocks are recordable by a ``multimeter`` in NEST.
+-  The ``recordable`` keyword can be used to also make ``inline`` expressions in ``equations`` block available to recording devices.
 
 .. code-block:: nestml
 
-   parameters:
-     recordable t_ref ms = 5 ms
+   equations:
+     ...
+     recordable inline V_m mV = V_abs + V_reset
    end
 
 
