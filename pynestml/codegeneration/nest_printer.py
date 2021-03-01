@@ -370,7 +370,7 @@ class NestPrinter:
         for typeSym in function_symbol.get_parameter_types():
             # create the type name combination, e.g. double Tau
             declaration += PyNestml2NestTypeConverter.convert(typeSym) + ' ' + \
-                           params[function_symbol.get_parameter_types().index(typeSym)]
+                params[function_symbol.get_parameter_types().index(typeSym)]
             # if not the last component, separate by ','
             if function_symbol.get_parameter_types().index(typeSym) < \
                     len(function_symbol.get_parameter_types()) - 1:
@@ -502,7 +502,7 @@ class NestPrinter:
             '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
 
         decl_str = self.print_origin(variable) + variable.get_symbol_name() + \
-                   ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
-                   self.print_expression(variable.get_declaring_expression()) + \
-                   ");"
+            ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
+            self.print_expression(variable.get_declaring_expression()) + \
+            ");"
         return decl_str
