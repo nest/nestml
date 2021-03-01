@@ -34,6 +34,9 @@ except BaseException:
 
 
 class RecordableVariablesTest(unittest.TestCase):
+    """
+    Test to check the recordable variables: from state and initial_values block and inline expressions in the equations block
+    """
 
     def test_recordable_variables(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
