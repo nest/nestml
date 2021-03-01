@@ -195,10 +195,12 @@ parser grammar PyNestMLParser;
   * NestML-Language
   *********************************************************************************************************************/
 
+  docstring : DOCSTRING_TRIPLEQUOTE docstr=(.*?) DOCSTRING_TRIPLEQUOTE -> channel(2);
+
   /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestMLCompilationUnit: (neuron | NEWLINE )* EOF;
+  nestMLCompilationUnit : docstring? (neuron | NEWLINE )* EOF;
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
