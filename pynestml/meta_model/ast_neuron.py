@@ -26,6 +26,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
@@ -522,7 +523,7 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         for decl in iv_blk.get_declarations():
             for var in decl.get_variables():
-                _syms = [sym for sym in symbols if sym.name == var.get_complete_name()]
+                _syms = [sym for sym in symbols if sym.name == var.get_complete_name() and sym.get_symbol_kind() == SymbolKind.VARIABLE]
                 assert len(_syms) > 0, "Symbol by name \"" + var.get_complete_name() + \
                     "\" not found in initial values block"
                 iv_sym = _syms[0]
