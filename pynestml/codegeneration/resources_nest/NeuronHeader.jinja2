@@ -109,13 +109,6 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
   {% endif -%}
   {% endfor %}
 
-  Initial values:
-  {% for init in neuron.get_initial_values_symbols() -%}
-  {% if init.has_comment() -%}
-    {{init.get_symbol_name()}} [{{init.get_type_symbol().print_symbol()}}] {{init.print_comment()}}
-  {% endif -%}
-  {% endfor %}
-
   References: Empty
 
   Sends: {{outputEvent}}
@@ -276,9 +269,6 @@ private:
 {%-   for variable in neuron.get_state_non_alias_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
-{%-   for variable in neuron.get_initial_values_symbols() %}
-{%-     include "directives/MemberDeclaration.jinja2" %}
-{%-   endfor %}
 {%-   endfilter %}
 {%- else %}
     //! Symbolic indices to the elements of the state vector y
@@ -396,7 +386,7 @@ private:
 
   /* getters/setters for initial values block (excluding functions) */
 
-  {%- for init in neuron.get_non_function_initial_values_symbols() %}
+  {%- for init in neuron.get_non_function_state_symbols() %}
   {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- with variable = init %}
   {%- include "directives/MemberVariableGetterSetter.jinja2" %}
@@ -555,7 +545,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endfor %}
 
   // initial values for state variables in ODE or kernel
-  {%- for init in neuron.get_initial_values_non_alias_symbols() %}
+  {%- for init in neuron.get_state_non_alias_symbols() %}
   {%- with variable = init %}
   {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- filter indent(2,True) %}
@@ -605,7 +595,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endfor %}
 
   // initial values for state variables in ODE or kernel
-  {%- for init in neuron.get_initial_values_non_alias_symbols() %}
+  {%- for init in neuron.get_state_non_alias_symbols() %}
   {%- with variable = init %}
   {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- filter indent(2,True) %}
@@ -638,7 +628,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endwith %}
   {%- endfor %}
 
-  {%- for init in neuron.get_initial_values_non_alias_symbols() %}
+  {%- for init in neuron.get_state_non_alias_symbols() %}
   {%- with variable = init %}
   {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   {%- filter indent(2,True) %}

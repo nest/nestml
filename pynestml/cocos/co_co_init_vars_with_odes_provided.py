@@ -76,17 +76,17 @@ class InitVarsVisitor(ASTVisitor):
         for var in node.get_variables():
             symbol = node.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
             # first check that all initial value variables have a lhs
-            if symbol is not None and symbol.is_init_values() and not node.has_expression():
+            if symbol is not None and symbol.is_state() and not node.has_expression():
                 code, message = Messages.get_no_rhs(symbol.get_symbol_name())
                 Logger.log_message(error_position=var.get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.WARNING)
             # now check that they have been provided with an ODE
-            if symbol is not None and symbol.is_init_values() \
+            if symbol is not None and symbol.is_state() \
                     and not (symbol.is_ode_defined() or symbol.is_kernel()) and not symbol.is_function:
                 code, message = Messages.get_no_ode(symbol.get_symbol_name())
                 Logger.log_message(error_position=var.get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.WARNING)
-            if symbol is not None and symbol.is_init_values() and not symbol.has_initial_value():
+            if symbol is not None and symbol.is_state() and not symbol.has_initial_value():
                 code, message = Messages.get_no_init_value(symbol.get_symbol_name())
                 Logger.log_message(error_position=var.get_source_position(), code=code,
                                    message=message, log_level=LoggingLevel.WARNING)

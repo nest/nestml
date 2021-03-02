@@ -67,7 +67,7 @@ class EquationsOnlyForInitValues(ASTVisitor):
         :type node: ast_ode_equation
         """
         symbol = node.get_scope().resolve_to_symbol(node.get_lhs().get_name_of_lhs(), SymbolKind.VARIABLE)
-        if symbol is not None and not symbol.is_init_values():
+        if symbol is not None and not symbol.is_state():
             code, message = Messages.get_equation_var_not_in_init_values_block(node.get_lhs().get_name_of_lhs())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_source_position(),
