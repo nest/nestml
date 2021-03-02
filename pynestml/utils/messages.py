@@ -104,6 +104,7 @@ class MessageCode(Enum):
     KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
     NO_FILES_IN_INPUT_PATH = 76
+    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 77
 
 
 class Messages:
@@ -1162,3 +1163,8 @@ class Messages:
     def get_no_files_in_input_path(cls, path: str):
         message = "No files found matching '*.nestml' in provided input path '" + path + "'"
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
+
+    @classmethod
+    def get_equtions_defined_but_integrate_odes_not_called(cls):
+        message = "Equations defined but integrate_odes() not called"
+        return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message

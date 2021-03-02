@@ -43,4 +43,8 @@ neuron CoCoConvolveNotCorrectlyProvided:
     input:
         spikeExc integer  <- excitatory spike
     end
+
+    update:
+        integrate_odes()
+    end
 end
