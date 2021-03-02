@@ -45,8 +45,8 @@ Logger.init_logger(LoggingLevel.INFO)
 
 
 class ASTBuildingTest(unittest.TestCase):
-    @classmethod
-    def test(cls):
+
+    def test(self):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
@@ -54,13 +54,21 @@ class ASTBuildingTest(unittest.TestCase):
                 input_file = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 lexer = PyNestMLLexer(input_file)
+                lexer._errHandler = BailErrorStrategy()
+                lexer._errHandler.reset(lexer)
+
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 stream.fill()
+
                 # parse the file
                 parser = PyNestMLParser(stream)
+                parser._errHandler = BailErrorStrategy()
+                parser._errHandler.reset(parser)
+
                 # process the comments
                 compilation_unit = parser.nestMLCompilationUnit()
+
                 # now build the meta_model
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)
