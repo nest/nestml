@@ -66,7 +66,6 @@ class ASTBuildingTest(unittest.TestCase):
                 parser._errHandler = BailErrorStrategy()
                 parser._errHandler.reset(parser)
 
-                # process the comments
                 compilation_unit = parser.nestMLCompilationUnit()
 
                 # now build the meta_model
