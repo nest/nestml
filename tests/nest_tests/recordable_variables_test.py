@@ -21,6 +21,7 @@
 import unittest
 import os
 import nest
+import numpy as np
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
@@ -67,11 +68,14 @@ class RecordableVariablesTest(unittest.TestCase):
 
         # Get the recordable variables
         events = nest.GetStatus(mm)[0]["events"]
+        V_reset = nest.GetStatus(neuron, "V_reset")
         V_m = events["V_m"]
         self.assertIsNotNone(V_m)
 
         V_abs = events["V_abs"]
         self.assertIsNotNone(V_abs)
 
+        np.testing.assert_allclose(V_m, V_abs + V_reset)
+
         V_ex = events["V_ex"]
-        self.assertEqual(V_ex[-1], -10.0)
+        np.testing.assert_almost_equal(V_ex[-1], -10)
