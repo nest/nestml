@@ -95,12 +95,21 @@ class NESTCodeGenerator(CodeGenerator):
         def raise_helper(msg):
             raise TemplateRuntimeError(msg)
 
-        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
+        #jinja2 environment aware of resources_nest and resources_nest/cm_templates
+        env = Environment(loader=FileSystemLoader(
+                [
+                    os.path.join(os.path.dirname(__file__), 'resources_nest'),
+                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_templates'),
+                ]
+            ))
         env.globals['raise'] = raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel
-        setup_env = Environment(loader=FileSystemLoader(os.path.join(
-            os.path.dirname(__file__), 'resources_nest', 'setup')))
+        
+        #separate jinja2 environment aware of the setup directory
+        setup_env = Environment(loader=FileSystemLoader(
+            os.path.join(os.path.dirname(__file__), 'resources_nest', 'setup'),))
         setup_env.globals['raise'] = raise_helper
+        
         # setup the cmake template
         self._template_cmakelists = setup_env.get_template('CMakeLists.jinja2')
         # setup the module class template
@@ -118,7 +127,6 @@ class NESTCodeGenerator(CodeGenerator):
         self.loadCMStuff(env)
 
     def loadCMStuff(self, env):
-        #env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
         self._template_etype_cpp_file = env.get_template('cm_etypeClass.jinja2')
         self._template_etype_h_file = env.get_template('cm_etypeHeader.jinja2')
         self._template_main_cpp_file = env.get_template('cm_mainClass.jinja2')
