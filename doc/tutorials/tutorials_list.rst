@@ -6,7 +6,7 @@
 
   Learn how to model a dendritic action potential in an existing NESTML neuron.
 
-* :doc:`Ornstein-Uhlenbeck noise <ornstein_uhlenbeck_noise/nestml_ou_noise_tutorial.ipynb>`
+* :doc:`Ornstein-Uhlenbeck noise </tutorials/ornstein_uhlenbeck_noise/nestml_ou_noise_tutorial>`
 
   Implement the Ornstein-Uhlenbeck process in NESTML and use it to inject a noise current into a neuron.
 
