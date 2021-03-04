@@ -80,14 +80,14 @@ namespace nest
 
   // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
-{%- for variable in neuron.get_state_non_alias_symbols() %}
+{%- for variable in neuron.get_state_symbols() %}
 {%-   include "directives/RecordCallback.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
   // initial values for state variables in ODE or kernel
 {%- filter indent(2,True) %}
-{%- for variable in neuron.get_state_non_alias_symbols() %}
+{%- for variable in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable.name)) %}
 {%-     include "directives/RecordCallback.jinja2" %}
 {%-   endif %}
@@ -175,7 +175,7 @@ namespace nest
 
   // initial values for parameters
 {%- filter indent(2, True) %}
-{%- for parameter in neuron.get_parameter_non_alias_symbols() -%}
+{%- for parameter in neuron.get_parameter_symbols() -%}
 {%-   with variable = parameter %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%-   endwith %}
@@ -184,7 +184,7 @@ namespace nest
 
   // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
-{%- for state in neuron.get_state_non_alias_symbols() %}
+{%- for state in neuron.get_state_symbols() %}
 {%-   with variable = state %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%-   endwith %}
@@ -193,7 +193,7 @@ namespace nest
 
   // initial values for state variables in ODE or kernel
 {%- filter indent(2,True) %}
-{%- for init in neuron.get_state_non_alias_symbols() %}
+{%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 {%-     with variable = init -%}
 {%-       include "directives/MemberInitialization.jinja2" %}
@@ -207,25 +207,25 @@ namespace nest
   {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
   // copy parameter struct P_
 {%- filter indent(2, True) %}
-{%- for parameter in neuron.get_parameter_non_alias_symbols() %}
+{%- for parameter in neuron.get_parameter_symbols() %}
 P_.{{names.name(parameter)}} = __n.P_.{{names.name(parameter)}};
 {%- endfor %}
 {%- endfilter %}
 
   // copy state struct S_
 {%- filter indent(2, True) %}
-{%- for state in neuron.get_state_non_alias_symbols() %}
+{%- for state in neuron.get_state_symbols() %}
 S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
 {%- endfor %}
 {%- endfilter %}
 
 {%- filter indent(2, True) %}
-{%- for init in neuron.get_state_non_alias_symbols() %}
+{%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
 S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
 {%-   endif %}
 {%- endfor %}
-{%- for internal in neuron.get_internal_non_alias_symbols() %}
+{%- for internal in neuron.get_internal_symbols() %}
 V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
 {%- endfilter %}
@@ -291,13 +291,13 @@ void {{neuronName}}::calibrate() {
   B_.logger_.init();
 
 {%- filter indent(2,True) %}
-{%- for variable in neuron.get_internal_non_alias_symbols() %}
+{%- for variable in neuron.get_internal_symbols() %}
 {%-   include "directives/Calibrate.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
 
 {%- filter indent(2,True) %}
-{%- for variable in neuron.get_state_non_alias_symbols() %}
+{%- for variable in neuron.get_state_symbols() %}
 {%-   if variable.has_vector_parameter() %}
 {%-     include "directives/Calibrate.jinja2" %}
 {%-   endif %}

@@ -421,43 +421,6 @@ class ASTNeuron(ASTNode):
                         log_level=LoggingLevel.ERROR)
         return ret
 
-    def get_parameter_non_alias_symbols(self):
-        """
-        Returns a list of all variable symbols representing non-function parameter variables.
-        :return: a list of variable symbols
-        :rtype: list(VariableSymbol)
-        """
-        ret = list()
-        for param in self.get_parameter_symbols():
-            if not param.is_function and not param.is_predefined:
-                ret.append(param)
-        return ret
-
-    def get_state_non_alias_symbols(self):
-        """
-        Returns a list of all variable symbols representing non-function state variables.
-        :return: a list of variable symbols
-        :rtype: list(VariableSymbol)
-        """
-        ret = list()
-        for param in self.get_state_symbols():
-            if not param.is_function and not param.is_predefined:
-                ret.append(param)
-        return ret
-
-    def get_internal_non_alias_symbols(self):
-        """
-        Returns a list of all variable symbols representing non-function internal variables.
-        :return: a list of variable symbols
-        :rtype: list(VariableSymbol)
-        """
-        ret = list()
-        for param in self.get_internal_symbols():
-            if not param.is_function and not param.is_predefined:
-                ret.append(param)
-
-        return ret
-
     # def get_initial_values_symbols(self):
     #     """
     #     Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the
