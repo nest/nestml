@@ -1054,7 +1054,7 @@ Recording values with devices
 -----------------------------
 
 -  All values in the ``state`` and ``initial_values`` blocks are recordable by a ``multimeter`` in NEST.
--  The ``recordable`` keyword can be used to also make ``inline`` expressions in ``equations`` block available to recording devices.
+-  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
 
 .. code-block:: nestml
 
