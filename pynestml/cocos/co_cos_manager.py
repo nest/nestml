@@ -31,7 +31,6 @@ from pynestml.cocos.co_co_function_have_rhs import CoCoFunctionHaveRhs
 from pynestml.cocos.co_co_function_max_one_lhs import CoCoFunctionMaxOneLhs
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
 from pynestml.cocos.co_co_illegal_expression import CoCoIllegalExpression
-from pynestml.cocos.co_co_init_vars_with_odes_provided import CoCoInitVarsWithOdesProvided
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
@@ -237,15 +236,6 @@ class CoCosManager:
         CoCoBufferDataType.check_co_co(neuron)
 
     @classmethod
-    def check_init_vars_with_odes_provided(cls, neuron):
-        """
-        Checks that all initial variables have a rhs and are provided with the corresponding ode declaration.
-        :param neuron: a single neuron object.
-        :type neuron: ast_neuron
-        """
-        CoCoInitVarsWithOdesProvided.check_co_co(neuron)
-
-    @classmethod
     def check_user_defined_function_correctly_built(cls, neuron):
         """
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
@@ -368,16 +358,6 @@ class CoCosManager:
         cls.check_expression_correct(neuron)
         cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
-
-    @classmethod
-    def post_ode_specification_checks(cls, neuron):
-        """
-        Checks the following constraints:
-            cls.check_init_vars_with_odes_provided
-        :param neuron: a single neuron object.
-        :type neuron: ast_neuron
-        """
-        cls.check_init_vars_with_odes_provided(neuron)
 
     @classmethod
     def check_function_argument_template_types_consistent(cls, neuron):

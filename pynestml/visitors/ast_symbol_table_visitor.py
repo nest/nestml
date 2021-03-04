@@ -92,8 +92,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
             assign_ode_to_variables(equation_block)
-        if not self.after_ast_rewrite_:
-            CoCosManager.post_ode_specification_checks(node)
         Logger.set_current_node(None)
         return
 
