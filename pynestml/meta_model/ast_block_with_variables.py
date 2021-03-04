@@ -36,7 +36,7 @@ class ASTBlockWithVariables(ASTNode):
     attribute AliasDecl: a list with variable declarations
     Grammar:
          blockWithVariables:
-            blockType=('state'|'parameters'|'internals'|'initial_values')
+            blockType=('state'|'parameters'|'internals')
             BLOCK_OPEN
               (declaration | NEWLINE)*
             BLOCK_CLOSE;

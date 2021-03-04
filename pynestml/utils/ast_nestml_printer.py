@@ -226,8 +226,7 @@ class ASTNestMLPrinter:
         # ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_block_with_variables(self, node):
-        # type: (ASTBlockWithVariables) -> str
+    def print_block_with_variables(self, node: ASTBlockWithVariables) -> str:
         temp_indent = self.indent
         self.inc_indent()
         ret = print_ml_comments(node.pre_comments, temp_indent, False)
@@ -236,10 +235,8 @@ class ASTNestMLPrinter:
             ret += 'state'
         elif node.is_parameters:
             ret += 'parameters'
-        elif node.is_internals:
-            ret += 'internals'
         else:
-            ret += 'initial_values'
+            ret += 'internals'
         ret += ':' + print_sl_comment(node.in_comment) + '\n'
         if node.get_declarations() is not None:
             for decl in node.get_declarations():
