@@ -5,24 +5,22 @@ aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
 Description
 +++++++++++
 
-aeif_cond_alpha is the adaptive exponential integrate and fire neuron according
-to Brette and Gerstner (2005).
-Synaptic conductances are modelled as alpha-functions.
+aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005). aeif_cond_exp is the adaptive exponential integrate-and-fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
 
 The membrane potential is given by the following differential equation:
 
 .. math::
 
- C_m \frac{dV}{dt} =
- -g_L(V-E_L)+g_L\Delta_T\exp\left(\frac{V-V_{th}}{\Delta_T}\right) -
- g_e(t)(V-E_e) \\
-                                                     -g_i(t)(V-E_i)-w +I_e
+   C dV/dt= -g_L(V_m-E_L)+g_L*\Delta_T*\exp((V_m-V_T)/\Delta_T)-g_e(t)(V_m-E_e) \\
+                                                     -g_i(t)(V_m-E_i)-w +I_e
 
 and
 
 .. math::
 
- \tau_w \frac{dw}{dt} = a(V-E_L) - w
+   \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
+
+Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
 
 
 References
@@ -41,7 +39,7 @@ iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_alpha:
 
   initial_values:
-    V_m mV = E_L      # Membrane potential
+    V_m mV = E_L       # Membrane potential
     w pA = 0 pA        # Spike-adaptation current
   end
 
@@ -57,12 +55,12 @@ neuron aeif_cond_alpha:
     inline I_syn_inh pA =   convolve(g_in, spikesInh) * ( V_bounded - E_in )
 
     V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
-    w' = (a*(V_m - E_L) - w)/tau_w
+    w' = (a*(V_bounded - E_L) - w)/tau_w
   end
 
   parameters:
     # membrane parameters
-    C_m   pF = 281.0 pF       # Membrane Capacitance
+    C_m pF = 281.0 pF         # Membrane Capacitance
     t_ref ms = 0.0 ms         # Refractory period
     V_reset mV = -60.0 mV     # Reset Potential
     g_L nS = 30.0 nS          # Leak Conductance
@@ -70,7 +68,7 @@ neuron aeif_cond_alpha:
 
     # spike adaptation parameters
     a nS = 4 nS               # Subthreshold adaptation
-    b pA = 80.5 pA            # pike-triggered adaptation
+    b pA = 80.5 pA            # Spike-triggered adaptation
     Delta_T mV = 2.0 mV       # Slope factor
     tau_w ms = 144.0 ms       # Adaptation time constant
     V_th mV = -50.4 mV        # Threshold Potential
