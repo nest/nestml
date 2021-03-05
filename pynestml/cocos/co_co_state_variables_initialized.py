@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_all_variables_defined.py
+# co_co_state_variables_initialized.py
 #
 # This file is part of NEST.
 #

@@ -287,13 +287,6 @@ private:
     };
     //! state vector, must be C-array for GSL solver
     double ode_state[STATE_VEC_SIZE];
-    
-    // state variables from state block
-{%-   filter indent(4,True) %}
-{%-   for variable in neuron.get_state_symbols() %}
-{%-     include "directives/MemberDeclaration.jinja2" %}
-{%-   endfor %}
-{%-   endfilter %}
 {%- endif %}
 
     State_();
@@ -383,16 +376,6 @@ private:
   {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
-
-  /* getters/setters for initial values block (excluding functions) */
-
-  {%- for init in neuron.get_non_function_state_symbols() %}
-  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
-  {%- with variable = init %}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" %}
-  {%- endwith %}
-  {%- endif %}
-  {%- endfor %}
 
   /* getters/setters for parameters */
 
@@ -535,23 +518,12 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables not in ODE or kernel
+  // initial values for state variables in ODE or kernel
   {%- for state in neuron.get_state_symbols() %}
   {%- with variable = state %}
   {%- filter indent(2,True) %}
   {%- include "directives/WriteInDictionary.jinja2" %}
   {%- endfilter %}
-  {%- endwith %}
-  {%- endfor %}
-
-  // initial values for state variables in ODE or kernel
-  {%- for init in neuron.get_state_symbols() %}
-  {%- with variable = init %}
-  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
-  {%- filter indent(2,True) %}
-  {%- include "directives/WriteInDictionary.jinja2" %}
-  {%- endfilter %}
-  {%- endif %}
   {%- endwith %}
   {%- endfor %}
 
@@ -585,23 +557,12 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endwith %}
   {%- endfor %}
 
-  // initial values for state variables not in ODE or kernel
+  // initial values for state variables in ODE or kernel
   {%- for state in neuron.get_state_symbols() %}
   {%- with variable = state %}
   {%- filter indent(2,True) %}
   {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
   {%- endfilter %}
-  {%- endwith %}
-  {%- endfor %}
-
-  // initial values for state variables in ODE or kernel
-  {%- for init in neuron.get_state_symbols() %}
-  {%- with variable = init %}
-  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
-  {%- filter indent(2,True) %}
-  {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
-  {%- endfilter %}
-  {%- endif %}
   {%- endwith %}
   {%- endfor %}
 
