@@ -20,7 +20,7 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 */
 neuron test_random:
-  initial_values:
+  state:
     p mV = random_normal(500 mV, 25 mV)
     q real = random_normal(500, 25)
     r real = random_uniform(0, 1)

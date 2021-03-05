@@ -33,7 +33,7 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 {%- endfor %}
 
 {%- for variable_name in non_equations_state_variables: %}
-{%-   set variable_sym = neuron.get_initial_values_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+{%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
   f[{{names.array_index(variable_sym)}}] = 0.;
 {%- endfor %}
 

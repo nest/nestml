@@ -26,11 +26,11 @@
 */
 
 neuron CoCoConvolveNotCorrectlyProvided:
-    state:
+    parameters:
         g_ex mV = 10mV
     end
 
-    initial_values:
+    state:
         V_m mV = 10mV
     end
 

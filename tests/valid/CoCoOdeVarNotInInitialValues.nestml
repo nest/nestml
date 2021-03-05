@@ -26,7 +26,7 @@
 */
 
 neuron CoCoOdeVarNotInInitialValues:
-    initial_values: # variable is now defined in the initial block, thus everything is correct.
+    state: # variable is now defined in the initial block, thus everything is correct.
         V_m mV = 10mV
     end
 

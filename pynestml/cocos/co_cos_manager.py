@@ -257,7 +257,7 @@ class CoCosManager:
     @classmethod
     def check_initial_ode_initial_values(cls, neuron):
         """
-        Checks if variables of odes are declared in the initial_values block.
+        Checks if variables of odes are declared in the state block.
         :param neuron: a single neuron object.
         :type neuron: ast_neuron
         """

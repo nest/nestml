@@ -30,9 +30,7 @@ wb_cond_multisyn
 neuron wb_cond_multisyn:
   state:
     r integer # number of steps in the current refractory phase
-  end
 
-  initial_values:
     V_m mV = -65. mV # Membrane potential
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Inactivation variable h for Na
     Act_n real = alpha_n_init / (alpha_n_init + beta_n_init)  # Activation variable n for K

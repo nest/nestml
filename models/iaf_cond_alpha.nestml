@@ -44,10 +44,7 @@ Schrader, Plesser
 neuron iaf_cond_alpha:
 
   state:
-    r integer      # counts number of tick during the refractory period
-  end
-
-  initial_values:
+    r integer = 0      # counts number of tick during the refractory period
     V_m mV = E_L   # membrane potential
   end
 

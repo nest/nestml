@@ -421,30 +421,6 @@ class ASTNeuron(ASTNode):
                         log_level=LoggingLevel.ERROR)
         return ret
 
-    # def get_initial_values_symbols(self):
-    #     """
-    #     Returns a list of all initial values symbol defined in the model. Note that the order here is the same as the
-    #     order by which the symbols are defined in the model: this is important if a particular variable is defined in
-    #     terms of another (earlier) variable.
-    #
-    #     :return: a list of initial values symbols.
-    #     :rtype: list(VariableSymbol)
-    #     """
-    #
-    #     iv_blk = self.get_state_blocks()
-    #     if iv_blk is None:
-    #         return []
-    #     iv_syms = []
-    #     symbols = self.get_scope().get_symbols_in_this_scope()
-    #     for decl in iv_blk.get_declarations():
-    #         for var in decl.get_variables():
-    #             _syms = [sym for sym in symbols if sym.name == var.get_complete_name() and sym.get_symbol_kind() == SymbolKind.VARIABLE]
-    #             assert len(_syms) > 0, "Symbol by name \"" + var.get_complete_name() + \
-    #                 "\" not found in initial values block"
-    #             iv_sym = _syms[0]
-    #             iv_syms.append(iv_sym)
-    #     return iv_syms
-
     def get_kernel_by_name(self, kernel_name: str) -> Optional[ASTKernel]:
         assert type(kernel_name) is str
         kernel_name = kernel_name.split("__X__")[0]

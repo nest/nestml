@@ -35,7 +35,7 @@ iaf_cond_alpha
 """
 neuron iaf_chxk_2008:
 
-  initial_values:
+  state:
     V_m mV = E_L   # membrane potential
     g_ahp nS = 0 nS      # AHP conductance
     g_ahp' nS/ms = 0 nS/ms   # AHP conductance

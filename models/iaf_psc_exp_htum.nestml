@@ -56,9 +56,7 @@ neuron iaf_psc_exp_htum:
   state:
     r_tot  integer = 0
     r_abs  integer = 0
-  end
 
-  initial_values:
     V_m mV = 0.0 mV # Membrane potential
   end
 

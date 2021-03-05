@@ -36,17 +36,17 @@
 
 neuron expressionType_test:
     state:
-       time s
-       resist Ohm
-       amps A
-       volts V
-       charge C
-       mass kg
-       distance m
-       force N
-       testint integer
-       timesquared s**2
-       velocity m/s
+       time s = 2 s
+       resist Ohm = 1 Ohm
+       amps A = 0.1 A
+       volts V = -0.5 V
+       charge C = 0.03 C
+       mass kg = 0.15 kg
+       distance m = 0.33 m
+       force N = 1.5 N
+       testint integer = 8
+       timesquared s**2 = 1.44 s**2
+       velocity m/s = 23.5 m/s
     end
 
     function foo(_mass kg, _dist m, _time s) N :

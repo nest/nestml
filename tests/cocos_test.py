@@ -343,7 +343,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 2)
 
     def test_valid_init_values_have_rhs_and_ode(self):
         Logger.set_logging_level(LoggingLevel.INFO)

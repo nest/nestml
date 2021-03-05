@@ -14,9 +14,6 @@ For more information about "multisynapse" models, please refer to the NESTML doc
 neuron iaf_psc_exp_multisynapse_neuron:
   state:
     r integer                  # counts number of tick during the refractory period
-  end
-
-  initial_values:
     V_abs mV = 0 mV  # membrane potential
   end
 
