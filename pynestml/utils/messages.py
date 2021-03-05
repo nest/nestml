@@ -104,6 +104,7 @@ class MessageCode(Enum):
     KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
     NO_FILES_IN_INPUT_PATH = 76
+    STATE_VARIABLES_NOT_INITIALZED = 77
 
 
 class Messages:
@@ -1162,3 +1163,8 @@ class Messages:
     def get_no_files_in_input_path(cls, path: str):
         message = "No files found matching '*.nestml' in provided input path '" + path + "'"
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
+
+    @classmethod
+    def get_state_variables_not_initialized(cls, var_name: str):
+        message = "The variable `\'%s\' is not initialized." % var_name
+        return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message

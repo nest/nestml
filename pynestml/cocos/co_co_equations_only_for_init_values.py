@@ -28,17 +28,17 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 class CoCoEquationsOnlyForInitValues(CoCo):
     """
     This coco ensures that ode equations are only provided for variables which have been defined in the
-    initial_values block.
+    state block.
     Allowed:
-        initial_values:
-            V_m mV = 10mV
+        state:
+            V_m mV = 10 mV
         end
         equations:
             V_m' = ....
         end
     Not allowed:
         state:
-            V_m mV = 10mV
+            V_abs = 5 mV
         end
         equations:
             V_m' = ....
@@ -57,7 +57,7 @@ class CoCoEquationsOnlyForInitValues(CoCo):
 
 class EquationsOnlyForInitValues(ASTVisitor):
     """
-    This visitor ensures that for all ode equations exists an initial value.
+    This visitor ensures that for all ode equations exists an initial value in the state block.
     """
 
     def visit_ode_equation(self, node):
