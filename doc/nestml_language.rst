@@ -439,10 +439,10 @@ The following functions are predefined in NESTML and can be used out of the box:
      - Log the string s with logging level "warning".
    * - ``print``
      - s
-     - Print the string s to stdout (no line break at the end).
+     - Print the string s to stdout (no line break at the end). See :ref:`print function` for more information.
    * - ``println``
      - s
-     - Print the string s to stdout (with a line break at the end).
+     - Print the string s to stdout (with a line break at the end). See :ref:`print function` for more information.
    * - ``integrate_odes``
      -
      - This function can be used to integrate all stated differential equations of the equations block.
@@ -474,6 +474,35 @@ e.g.
    else:
      return b
    end
+
+print function
+^^^^^^^^^^^^^^
+
+The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on ``update`` block.
+
+Example:
+
+.. code-block:: nestml
+
+    update:
+        print("Hello World")
+        ...
+        println("Another statement")
+    end
+
+Variables defined in the model can be printed by enclosing them in ``{`` and ``}``.
+
+For example:
+
+.. code-block:: nestml
+
+    update:
+        ...
+        print("A spike event with membrane voltage: {V_m}")
+        ...
+        println("Membrane voltage {V_m} is less than the threshold {V_thr}")
+      end
+    end
 
 Control structures
 ~~~~~~~~~~~~~~~~~~
