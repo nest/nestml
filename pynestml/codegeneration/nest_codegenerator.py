@@ -118,13 +118,21 @@ class NESTCodeGenerator(CodeGenerator):
         self._template_module_header = env.get_template('ModuleHeader.jinja2')
         # setup the SLI_Init file
         self._template_sli_init = setup_env.get_template('SLI_Init.jinja2')
-        # setup the neuron header template
-        self._template_neuron_h_file = env.get_template('NeuronHeader.jinja2')
-        # setup the neuron implementation template
-        self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
-        self._printer = ExpressionsPrettyPrinter()
         
-        self.loadCMStuff(env)
+        self.cm_mode = True
+        if self.cm_mode:
+            # setup the neuron header template
+            self._template_neuron_h_file = env.get_template('NeuronHeaderCm.jinja2')
+            # setup the neuron implementation template
+            self._template_neuron_cpp_file = env.get_template('NeuronClassCm.jinja2')
+            self.loadCMStuff(env)
+        else:
+            # setup the neuron header template
+            self._template_neuron_h_file = env.get_template('NeuronHeader.jinja2')
+            # setup the neuron implementation template
+            self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
+        
+        self._printer = ExpressionsPrettyPrinter()
 
     def loadCMStuff(self, env):
         self._template_etype_cpp_file = env.get_template('cm_etypeClass.jinja2')
@@ -417,10 +425,15 @@ class NESTCodeGenerator(CodeGenerator):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        self.generate_model_h_file(neuron)
-        self.generate_neuron_cpp_file(neuron)
-        self.generate_cm_h_file(neuron)
-        self.generate_cm_cpp_file(neuron)
+
+        if self.cm_mode:
+            self.generate_model_h_file(neuron)
+            self.generate_neuron_cpp_file(neuron)
+            self.generate_cm_h_files(neuron)
+            self.generate_cm_cpp_files(neuron)
+        else:
+            self.generate_model_h_file(neuron)
+            self.generate_neuron_cpp_file(neuron)
 
     def generate_model_h_file(self, neuron: ASTNeuron) -> None:
         """
@@ -440,12 +453,12 @@ class NESTCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
             f.write(str(neuron_cpp_file))
    
-    def generate_cm_h_file(self, neuron: ASTNeuron) -> None:
+    def generate_cm_h_files(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding header file.
         :param neuron: a single neuron object.
         """
-        print("generate_cm_h_file,", FrontendConfiguration.get_target_path())
+        print("generate_cm_h_files,", FrontendConfiguration.get_target_path())
         neuron_etype_h_file = self._template_etype_h_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_etype.h')), 'w+') as f:
             f.write(str(neuron_etype_h_file))
@@ -459,7 +472,7 @@ class NESTCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'neuron_tree.h')), 'w+') as f:
             f.write(str(neuron_tree_h_file))
 
-    def generate_cm_cpp_file(self, neuron: ASTNeuron) -> None:
+    def generate_cm_cpp_files(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding implementation file.
         :param neuron: a single neuron object.
@@ -571,6 +584,9 @@ class NESTCodeGenerator(CodeGenerator):
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
+        
+
+
 
         return namespace
 

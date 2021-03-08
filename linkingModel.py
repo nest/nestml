@@ -12,8 +12,9 @@ NESTSIM_INSTALL_SUFFIX = "/nest-simulator/build_master_nompi/install"
 NESTML_HOME = THESIS_HOME + NESTML_HOME_SUFFIX
 NESTSIM_HOME = THESIS_HOME + NESTSIM_INSTALL_SUFFIX
 
-GEN_DIR = os.path.join(NESTML_HOME, "generated")
-MODEL_FILE = os.path.join(NESTML_HOME, "models/iaf_psc_exp.nestml")
+GEN_DIR = os.path.join(NESTML_HOME , "generated")
+# MODEL_FILE = os.path.join(NESTML_HOME, "models/iaf_psc_exp.nestml")
+MODEL_FILE = os.path.join(NESTML_HOME, "models/cm_model.nestml")
 
 #cleanup
 try:

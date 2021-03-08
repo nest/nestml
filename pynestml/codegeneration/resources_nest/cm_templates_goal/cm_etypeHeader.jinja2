@@ -60,11 +60,6 @@ public:
 
     void add_spike(){};
     std::pair< double, double > f_numstep(const double v_comp, const double lag);
-    
-    // function declarations
-    {% for function in neuron.get_functions() %}
-    {{printer.print_function_declaration(function)}};
-    {% endfor %}
 };
 
 }//
