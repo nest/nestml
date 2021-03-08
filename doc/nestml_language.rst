@@ -677,8 +677,7 @@ Block types
 Within the top-level block, the following blocks may be defined:
 
 -  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
--  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
--  ``initial_values`` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a ``multimeter``.
+-  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
@@ -755,7 +754,7 @@ The type of the convolution is equal to the type of the second parameter, that i
 
 When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spikes``. During code generation, a new state variable called ``G__conv__spikes`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spikes_GABA``, then the resulting generated variable would be called ``G__conv__spikes_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
 
-The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow refering to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
+The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
 
 For example, suppose we define:
 
@@ -897,7 +896,7 @@ in the ``equations`` block,
 
    V mV = 0 mV
 
-has to be stated in the ``initial_values`` block. Otherwise, an error message is generated.
+has to be defined in the ``state`` block. Otherwise, an error message is generated.
 
 The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
@@ -940,11 +939,11 @@ Equivalently, the same exponentially decaying kernel can be formulated as a diff
 
    kernel g' = -g / tau
 
-In this case, initial values have to be specified up to the order of the differential equation, e.g.:
+In this case, initial values have to be specified in the ``state`` block up to the order of the differential equation, e.g.:
 
 .. code-block:: nestml
 
-   initial_values:
+   state:
      g real = 1
    end
 
@@ -969,7 +968,7 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
 
     .. code-block:: nestml
 
-       initial_values:
+       state:
          g real = 0
          g$ real = 1
        end
@@ -986,7 +985,7 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
 
     .. code-block:: nestml
 
-       initial_values:
+       state:
          g real = 0
          g' ms**-1 = e / tau
        end
@@ -1045,7 +1044,7 @@ In order to model refractory and non-refractory states, two variables are necess
 Setting and retrieving model properties
 ---------------------------------------
 
--  All variables in the ``state``, ``parameters`` and ``initial_values`` blocks are added to the status dictionary of the neuron.
+-  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
 -  Values can be set using ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>`` is the name of the corresponding NESTML variable.
 -  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This call will return the value of the corresponding NESTML variable.
 
@@ -1053,7 +1052,7 @@ Setting and retrieving model properties
 Recording values with devices
 -----------------------------
 
--  All values in the ``state`` and ``initial_values`` blocks are recordable by a ``multimeter`` in NEST.
+-  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
 -  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
 
 .. code-block:: nestml
@@ -1067,7 +1066,7 @@ Recording values with devices
 Guards
 ------
 
-Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through  guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
+Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
 
 ::
 
