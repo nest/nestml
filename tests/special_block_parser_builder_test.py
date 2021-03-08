@@ -57,16 +57,21 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
             os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                                       'BlockTest.nestml')))
         lexer = PyNestMLLexer(input_file)
+        lexer._errHandler = BailErrorStrategy()
+        lexer._errHandler.reset(lexer)
+
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
+
         # parse the file
         parser = PyNestMLParser(stream)
-        # print('done')
+        parser._errHandler = BailErrorStrategy()
+        parser._errHandler.reset(parser)
+
         compilation_unit = parser.nestMLCompilationUnit()
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        # print('done')
         self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 
