@@ -490,9 +490,7 @@ Example:
         println("Another statement")
     end
 
-Variables defined in the model can be printed by enclosing them in ``{`` and ``}``.
-
-For example:
+Variables defined in the model can be printed by enclosing them in ``{`` and ``}``. For example, variables ``V_m`` and ``V_thr`` used in the model can be printed as:
 
 .. code-block:: nestml
 
