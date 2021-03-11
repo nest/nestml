@@ -116,13 +116,13 @@ Source code
       kernel g_ex = exp(-1/tau_syn_ex*t)
 
       # Add aliases to simplify the equation definition of V_m
-      inline exp_arg real = (V_bounded-V_th)/Delta_T
-      inline I_spike pA = g_L*Delta_T*exp(exp_arg)
-      inline I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
-      inline I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
+      inline exp_arg real = (V_bounded - V_th) / Delta_T
+      inline I_spike pA = g_L * Delta_T * exp(exp_arg)
+      inline I_syn_exc pA = convolve(g_ex, spikeExc) * (V_bounded - E_ex)
+      inline I_syn_inh pA = convolve(g_in, spikeInh) * (V_bounded - E_in)
 
-      V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
-      w' = (a*(V_bounded - E_L) - w)/tau_w
+      V_m' = (-g_L * (V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim) / C_m
+      w' = (a * (V_bounded - E_L) - w) / tau_w
    end
 
    parameters:
