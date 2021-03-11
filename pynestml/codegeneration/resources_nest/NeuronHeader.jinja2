@@ -372,9 +372,11 @@ private:
   /* getters/setters for state block */
 
   {%- for state in neuron.get_state_symbols() -%}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
   {%- with variable = state -%}
   {%- include "directives/MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
+  {%- endif -%}
   {%- endfor -%}
 
   /* getters/setters for parameters */
@@ -521,9 +523,11 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   // initial values for state variables in ODE or kernel
   {%- for state in neuron.get_state_symbols() %}
   {%- with variable = state %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
   {%- filter indent(2,True) %}
   {%- include "directives/WriteInDictionary.jinja2" %}
   {%- endfilter %}
+  {%- endif -%}
   {%- endwith %}
   {%- endfor %}
 
@@ -560,9 +564,11 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   // initial values for state variables in ODE or kernel
   {%- for state in neuron.get_state_symbols() %}
   {%- with variable = state %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
   {%- filter indent(2,True) %}
   {%- include "directives/ReadFromDictionaryToTmp.jinja2" %}
   {%- endfilter %}
+  {%- endif %}
   {%- endwith %}
   {%- endfor %}
 
@@ -583,15 +589,7 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
 
   {%- for state in neuron.get_state_symbols() -%}
   {%- with variable = state %}
-  {%- filter indent(2,True) %}
-  {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
-  {%- endfilter %}
-  {%- endwith %}
-  {%- endfor %}
-
-  {%- for init in neuron.get_state_symbols() %}
-  {%- with variable = init %}
-  {%- if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
+  {%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
   {%- filter indent(2,True) %}
   {%- include "directives/AssignTmpDictionaryValue.jinja2" %}
   {%- endfilter %}
