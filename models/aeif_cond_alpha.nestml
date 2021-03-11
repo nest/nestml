@@ -5,7 +5,7 @@ aeif_cond_alpha - Conductance based exponential integrate-and-fire neuron model
 Description
 +++++++++++
 
-aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005). aeif_cond_exp is the adaptive exponential integrate-and-fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
+aeif_cond_alpha is the adaptive exponential integrate and fire neuron according to Brette and Gerstner (2005), with post-synaptic conductances in the form of a bi-exponential ("alpha") function.
 
 The membrane potential is given by the following differential equation:
 
