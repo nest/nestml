@@ -24,6 +24,7 @@ import pytest
 import unittest
 
 from antlr4 import *
+from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.generated.PyNestMLParser import PyNestMLParser
@@ -65,16 +66,19 @@ class DocstringCommentTest(unittest.TestCase):
 
     def run_docstring_test(self, case: str):
         assert case in ['valid', 'invalid']
-        # print('Start creating AST for ' + filename + ' ...'),
         input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), case)),
                          'DocstringCommentTest.nestml'))
         lexer = PyNestMLLexer(input_file)
+        lexer._errHandler = BailErrorStrategy()
+        lexer._errHandler.reset(lexer)
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
         # parse the file
         parser = PyNestMLParser(stream)
+        parser._errHandler = BailErrorStrategy()
+        parser._errHandler.reset(parser)
         compilation_unit = parser.nestMLCompilationUnit()
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)

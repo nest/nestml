@@ -200,13 +200,13 @@ def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
             break
         # a newline by itself separates elements
         if possibleCommentToken.channel == 0 and is_newline(possibleCommentToken):
-            if not temp is None:
+            if temp is not None:
                 comments.append(temp)
             break
         # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
         # in the same line, since in this case, the comments does not belong to us
         if possibleCommentToken.channel == 2:
-            if not temp is None:
+            if temp is not None:
                 comments.append(temp)
             if strip_delim:
                 temp = replace_delimiters(possibleCommentToken.text)

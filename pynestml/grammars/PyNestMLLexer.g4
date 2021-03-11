@@ -22,21 +22,20 @@
 
 lexer grammar PyNestMLLexer;
 
+  DOCSTRING_TRIPLEQUOTE : '"""';
+  NEWLINE : '\r'? '\n';
+
   // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2
   channels {COMMENT}
 
   WS : (' ' | '\t') -> channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
-  LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
+  LINE_ESCAPE : '\\' NEWLINE -> channel(1);
 
-  DOCSTRING_TRIPLEQUOTE : '"""';
-  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE ('\r'? '\n') -> channel(2);
+  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) ('\r'? '\n') -> channel(2);
-
-  NEWLINE : '\r'? '\n';
-
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) NEWLINE -> channel(2);
 
   END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';

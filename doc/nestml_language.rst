@@ -318,10 +318,12 @@ Each neuron model may be documented by a block of text in reStructuredText forma
 This documentation block is rendered as HTML on the [NESTML Models Library](https://nestml.readthedocs.io/en/latest/models_library/index.html).
 
 
-Documenting model elements
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Comments in the model
+~~~~~~~~~~~~~~~~~~~~~
 
-Declarations can be enriched with special comments which are printed into the generated NEST code. To do so, ``#`` is used to introduce one or more lines of comment in strategic locations. Example of single or multi-line comments:
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+
+Example of single or multi-line comments:
 
 .. code-block:: nestml
 
