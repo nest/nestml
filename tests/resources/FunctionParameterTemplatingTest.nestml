@@ -31,8 +31,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron templated_function_parameters_type_test:
     state:
-       force N
-       foo real
+       force N = 1.5 N
+       foo real = 10
     end
 
     update:

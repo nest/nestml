@@ -38,7 +38,7 @@ neuron CoCoConvolveNotCorrectlyParametrized:
         tau ms = 20 ms
     end
 
-    initial_values:
+    state:
         G real = 1.
     end
 

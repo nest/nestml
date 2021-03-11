@@ -32,8 +32,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron commentTest:
 
-  #init_values comment ok
-  initial_values:
+  #state comment ok
+  state:
     #pre comment not ok
 
     #pre comment 1 ok

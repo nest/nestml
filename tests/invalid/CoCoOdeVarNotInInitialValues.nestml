@@ -33,8 +33,12 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoOdeVarNotInInitialValues:
+    parameters:
+        V_m mV = -50 mV
+    end
+
     state:
-        V_m mV = 10mV
+        V_abs mV = 10mV
     end
 
     equations:

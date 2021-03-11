@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoOdeVarNotInInitialValues:
-    initial_values: # variable is now defined in the initial block, thus everything is correct.
+    state: # variable is now defined in the initial block, thus everything is correct.
         V_m mV = 10mV
     end
 

@@ -26,10 +26,8 @@ SeeAlso: hh_cond_exp_traub
 
 neuron traub_cond_multisyn:
   state:
-    r integer # number of steps in the current refractory phase
-  end
+    r integer = 0 # number of steps in the current refractory phase
 
-  initial_values:
     V_m mV = -70. mV # Membrane potential
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )     # Activation variable m for Na

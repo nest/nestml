@@ -31,7 +31,7 @@ class ASTDeclaration(ASTNode):
     """
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
-    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    'a,b,c real = 0'.
     @attribute function is true iff. declaration is an function.
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'

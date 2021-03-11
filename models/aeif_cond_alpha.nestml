@@ -40,7 +40,7 @@ iaf_cond_alpha, aeif_cond_exp
 """
 neuron aeif_cond_alpha:
 
-  initial_values:
+  state:
     V_m mV = E_L      # Membrane potential
     w pA = 0 pA        # Spike-adaptation current
   end

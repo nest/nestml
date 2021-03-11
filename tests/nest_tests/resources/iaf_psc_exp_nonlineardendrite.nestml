@@ -33,7 +33,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron iaf_psc_exp_nonlineardendrite:
 
-  initial_values:
+  state:
     V_m mV = 0 mV         # membrane potential
     t_dend_ap ms = 0 ms   # dendritic action potential timer
     dend_curr_enabled real = 1.   # set to 1 to allow synaptic dendritic currents to contribute to V_m integration, 0 otherwise

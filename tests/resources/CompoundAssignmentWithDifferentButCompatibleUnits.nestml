@@ -25,7 +25,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron BlockTest:
     state:
-        lhs V
+        lhs V = 0 V
     end
 
     update:

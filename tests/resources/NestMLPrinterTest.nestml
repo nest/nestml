@@ -40,14 +40,6 @@ neuron aeif_cond_alpha_implicit:
   end
   # state post
 
-  # initial val pre
-  initial_values: # initial val in
-    # init val pre
-    V_m mV = 10mV # init val in
-    # init val post
-  end
-  # initial val post
-
   # eq pre
   equations: # eq in
 

@@ -38,7 +38,7 @@ neuron CoCoKernelCorrectlyTyped:
         tau ms = 10 ms
     end
 
-    initial_values: # variable is now defined in the initial block, thus everything is correct.
+    state: # variable is now defined in the initial block, thus everything is correct.
         g real = 1
         g' real = 1
     end

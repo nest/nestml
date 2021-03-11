@@ -64,7 +64,6 @@ lexer grammar PyNestMLLexer;
   STATE_KEYWORD : 'state';
   PARAMETERS_KEYWORD : 'parameters';
   INTERNALS_KEYWORD : 'internals';
-  INITIAL_VALUES_KEYWORD : 'initial_values';
   UPDATE_KEYWORD : 'update';
   EQUATIONS_KEYWORD : 'equations';
   INPUT_KEYWORD : 'input';
