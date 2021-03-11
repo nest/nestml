@@ -56,10 +56,8 @@ Schrader
 neuron hh_cond_exp_traub:
 
   state:
-    r integer # counts number of tick during the refractory period
-  end
+    r integer = 0 # counts number of tick during the refractory period
 
-  initial_values:
     V_m mV = E_L #  Membrane potential
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )

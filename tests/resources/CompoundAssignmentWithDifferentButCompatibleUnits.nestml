@@ -22,7 +22,7 @@
 */
 neuron BlockTest:
     state:
-        lhs V
+        lhs V = 0 V
     end
 
     update:

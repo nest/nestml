@@ -252,14 +252,6 @@ class VariableSymbol(Symbol):
         """
         return self.variable_type == VariableType.KERNEL
 
-    def is_init_values(self) -> bool:
-        """
-        Returns whether this variable belongs to the definition of a initial value.
-        :return: True if part of a initial value, otherwise False.
-        :rtype: bool
-        """
-        return self.block_type == BlockType.INITIAL_VALUES
-
     def print_symbol(self):
         if self.get_referenced_object() is not None:
             source_position = str(self.get_referenced_object().get_source_position())
@@ -430,10 +422,9 @@ class BlockType(Enum):
     STATE = 1
     PARAMETERS = 2
     INTERNALS = 3
-    INITIAL_VALUES = 4
-    EQUATION = 5
-    LOCAL = 6
-    INPUT_BUFFER_CURRENT = 7
-    INPUT_BUFFER_SPIKE = 8
-    OUTPUT = 9
-    PREDEFINED = 10
+    EQUATION = 4
+    LOCAL = 5
+    INPUT_BUFFER_CURRENT = 6
+    INPUT_BUFFER_SPIKE = 7
+    OUTPUT = 8
+    PREDEFINED = 9
