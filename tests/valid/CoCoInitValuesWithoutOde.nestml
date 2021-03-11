@@ -26,7 +26,7 @@
 */
 
 neuron CoCoInitValuesWithoutOde:
-    initial_values:
+    state:
         V_m mV = 10mV
     end
 

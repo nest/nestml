@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoOdeVarNotInInitialValues.nestml
+ *  CoCoStateVariablesInitialized.nestml
  *
  *  This file is part of NEST.
  *
@@ -25,12 +25,10 @@
  * Positive case
 */
 
-neuron CoCoOdeVarNotInInitialValues:
-    state: # variable is now defined in the initial block, thus everything is correct.
-        V_m mV = 10mV
-    end
-
-    equations:
-        V_m' = 10 mV / s
+neuron CoCoStateVariablesInitialized:
+    state:
+        V_m mV = 10 mV
+        V_abs mV = -10 mV
+        r integer = 5
     end
 end

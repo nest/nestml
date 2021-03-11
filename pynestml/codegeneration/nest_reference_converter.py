@@ -223,7 +223,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if symbol.is_kernel():
             print("Printing node " + str(symbol.name))
 
-        if symbol.is_init_values():
+        if symbol.is_state():
             temp = NestPrinter.print_origin(symbol, prefix=prefix)
             if self.uses_gsl:
                 temp += GSLNamesConverter.name(symbol)

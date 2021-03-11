@@ -102,9 +102,9 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
-                                        is_initial_values=False, declarations=None, source_position=None):
+                                        declarations=None, source_position=None):
         # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
-        return ASTBlockWithVariables(is_state, is_parameters, is_internals, is_initial_values, declarations,
+        return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations,
                                      source_position=source_position)
 
     @classmethod

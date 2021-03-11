@@ -21,7 +21,7 @@
 */
 
 neuron logarithm_function_test:
-  initial_values:
+  state:
     x real = 0.
     ln_state real = 0.
     log10_state real = 0.

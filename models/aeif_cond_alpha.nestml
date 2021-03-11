@@ -11,14 +11,16 @@ The membrane potential is given by the following differential equation:
 
 .. math::
 
-   C dV/dt= -g_L(V_m-E_L)+g_L*\Delta_T*\exp((V_m-V_T)/\Delta_T)-g_e(t)(V_m-E_e) \\
-                                                     -g_i(t)(V_m-E_i)-w +I_e
+   C_m \frac{dV_m}{dt} =
+   -g_L(V_m-E_L)+g_L\Delta_T\exp\left(\frac{V_m-V_{th}}{\Delta_T}\right) -
+ g_e(t)(V_m-E_e) \\
+                                                     -g_i(t)(V_m-E_i)-w + I_e
 
 and
 
 .. math::
 
-   \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
+ \tau_w \frac{dw}{dt} = a(V_m-E_L) - w
 
 Note that the membrane potential can diverge to positive infinity due to the exponential term. To avoid numerical instabilities, instead of :math:`V_m`, the value :math:`\min(V_m,V_{peak})` is used in the dynamical equations.
 
@@ -31,6 +33,7 @@ References
        activity. Journal of Neurophysiology. 943637-3642
        DOI: https://doi.org/10.1152/jn.00686.2005
 
+
 See also
 ++++++++
 
@@ -38,15 +41,15 @@ iaf_cond_alpha, aeif_cond_exp
 """
 neuron aeif_cond_alpha:
 
-  initial_values:
+  state:
     V_m mV = E_L       # Membrane potential
     w pA = 0 pA        # Spike-adaptation current
   end
 
   equations:
     inline V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
-    kernel g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
-    kernel g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+    kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
+    kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
 
     # Add inlines to simplify the equation definition of V_m
     inline exp_arg real = (V_bounded - V_th) / Delta_T
@@ -85,12 +88,10 @@ neuron aeif_cond_alpha:
   end
 
   internals:
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude conductance excursion
     PSConInit_E nS/ms = nS * e / tau_syn_ex
 
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude conductance excursion
     PSConInit_I nS/ms = nS * e / tau_syn_in
 
     # refractory time in steps
@@ -100,8 +101,8 @@ neuron aeif_cond_alpha:
   end
 
   input:
-    spikesInh nS  <- inhibitory spike
-    spikesExc nS  <- excitatory spike
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
     I_stim pA <- current
   end
 
@@ -111,8 +112,8 @@ neuron aeif_cond_alpha:
     integrate_odes()
 
     if r > 0: # refractory
-      r = r - 1 # decrement refractory ticks count
-      V_m = V_reset
+      r -= 1 # decrement refractory ticks count
+      V_m = V_reset # clamp potential
     elif V_m >= V_peak: # threshold crossing detection
       r = RefractoryCounts
       V_m = V_reset # clamp potential

@@ -2,10 +2,8 @@
 
 neuron biexp_postsynaptic_response:
   state:
-    r integer             # counts number of tick during the refractory period
-  end
+    r integer = 0         # counts number of tick during the refractory period
 
-  initial_values:
     g_in real = 0        # inputs from the inhibitory conductance
     g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
 

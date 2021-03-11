@@ -45,10 +45,8 @@ iaf_cond_exp, iaf_cond_alpha
 """
 neuron iaf_cond_beta:
   state:
-    r integer             # counts number of tick during the refractory period
-  end
+    r integer = 0             # counts number of tick during the refractory period
 
-  initial_values:
     V_m mV = E_L              # membrane potential
 
     # inputs from the inhibitory conductance

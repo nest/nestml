@@ -336,7 +336,7 @@
 				},
 				{
 					"name": "keyword.control.block.nestml",
-					"match": "(?x)\n  \\b(?<!\\.)( initial_values | equations | parameters | internals | input | output | update | state | end)\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)( equations | parameters | internals | input | output | update | state | end)\\b\n"
 				}
 			]
 		},

@@ -42,7 +42,7 @@ References
 """
 neuron izhikevich:
 
-  initial_values:
+  state:
     V_m mV = V_m_init         # Membrane potential
     U_m real = b * V_m_init   # Membrane potential recovery variable
   end

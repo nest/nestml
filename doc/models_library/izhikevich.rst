@@ -100,53 +100,55 @@ Source code
 
 .. code:: nestml
 
-   neuron izhikevich:
-     initial_values:
-       V_m mV = V_m_init # Membrane potential
-       U_m real = b * V_m_init # Membrane potential recovery variable
-     end
-     equations:
-       V_m'=(0.04 * V_m * V_m / mV + 5.0 * V_m + (140 - U_m) * mV + ((I_e + I_stim) * GOhm)) / ms
-       U_m'=a * (b * V_m - U_m * mV) / (mV * ms)
-     end
+    neuron izhikevich:
 
-     parameters:
-       a real = 0.02 # describes time scale of recovery variable
-       b real = 0.2 # sensitivity of recovery variable
-       c mV = -65mV # after-spike reset value of V_m
-       d real = 8.0 # after-spike reset value of U_m
-       V_m_init mV = -70mV # initial membrane potential
-       V_min mV = -inf * mV # Absolute lower value for the membrane potential.
+      state:
+        V_m mV = V_m_init         # Membrane potential
+        U_m real = b * V_m_init   # Membrane potential recovery variable
+      end
 
-       /* constant external input current*/
-       I_e pA = 0pA
-     end
-     input:
-       spikes mV <-spike
-       I_stim pA <-current
-     end
+      equations:
+        V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (I_e + I_stim) * GOhm ) ) / ms
+        U_m' = a*(b*V_m-U_m * mV) / (mV*ms)
+      end
 
-     output: spike
+      parameters:
+        a real = 0.02        # describes time scale of recovery variable
+        b real = 0.2         # sensitivity of recovery variable
+        c mV = -65 mV        # after-spike reset value of V_m
+        d real = 8.0         # after-spike reset value of U_m
+        V_m_init mV = -65 mV # initial membrane potential
+        V_min mV = -inf * mV # Absolute lower value for the membrane potential.
 
-     update:
-       integrate_odes()
-       /* Add synaptic current*/
+        # constant external input current
+        I_e pA = 0 pA
+      end
 
-       /* Add synaptic current*/
-       V_m += spikes
+      input:
+        spikes mV <- spike
+        I_stim pA <- current
+      end
 
-       /* lower bound of membrane potential*/
-       V_m = (V_m < V_min)?V_min:V_m
+      output: spike
 
-       /* threshold crossing*/
-       if V_m >= 30mV:
-         V_m = c
-         U_m += d
-         emit_spike()
-       end
-     end
+      update:
+        integrate_odes()
+        # Add synaptic current
+        V_m += spikes
 
-   end
+        # lower bound of membrane potential
+        V_m = (V_m < V_min)? V_min : V_m
+
+        # threshold crossing
+        if V_m >= 30 mV:
+          V_m = c
+          U_m += d
+          emit_spike()
+        end
+
+      end
+
+    end
 
 
 
