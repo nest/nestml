@@ -230,8 +230,6 @@ class ASTNeuron(ASTNode):
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTEquationsBlock):
                 self.get_body().get_body_elements().remove(elem)
-                self.get_body().get_body_elements().remove(elem)
-                self.get_body().get_body_elements().remove(elem)
 
     def get_initial_value(self, variable_name):
         assert type(variable_name) is str

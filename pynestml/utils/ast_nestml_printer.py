@@ -236,6 +236,7 @@ class ASTNestMLPrinter:
         elif node.is_parameters:
             ret += 'parameters'
         else:
+            assert node.is_internals
             ret += 'internals'
         ret += ':' + print_sl_comment(node.in_comment) + '\n'
         if node.get_declarations() is not None:
