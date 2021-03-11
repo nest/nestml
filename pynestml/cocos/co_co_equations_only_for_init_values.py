@@ -38,7 +38,7 @@ class CoCoEquationsOnlyForInitValues(CoCo):
         end
     Not allowed:
         state:
-            V_abs = 5 mV
+            V_abs mV = 5 mV
         end
         equations:
             V_m' = ....

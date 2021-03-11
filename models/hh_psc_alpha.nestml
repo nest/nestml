@@ -45,7 +45,7 @@ hh_cond_exp_traub
 """
 neuron hh_psc_alpha:
   state:
-    r integer = 0# number of steps in the current refractory phase
+    r integer = 0 # number of steps in the current refractory phase
 
     V_m mV = V_m_init # Membrane potential
 
