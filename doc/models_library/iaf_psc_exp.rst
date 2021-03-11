@@ -100,59 +100,62 @@ Source code
 .. code:: nestml
 
    neuron iaf_psc_exp:
-     state:
-       r integer  # counts number of tick during the refractory period
-     end
-     initial_values:
-       V_abs mV = 0mV
-       function V_m mV = V_abs + E_L # Membrane potential.
-     end
-     equations:
-       kernel I_kernel_in = exp(-t / tau_syn_in)
-       kernel I_kernel_ex = exp(-t / tau_syn_ex)
-       function I_syn pA = convolve(I_kernel_in,in_spikes) + convolve(I_kernel_ex,ex_spikes)
-       V_abs'=-V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
-     end
+      state:
+        r integer = 0  # counts number of tick during the refractory period
+        V_abs mV = 0 mV
+      end
 
-     parameters:
-       C_m pF = 250pF # Capacity of the membrane
-       tau_m ms = 10ms # Membrane time constant.
-       tau_syn_in ms = 2ms # Time constant of synaptic current.
-       tau_syn_ex ms = 2ms # Time constant of synaptic current.
-       t_ref ms = 2ms # Duration of refractory period
-       E_L mV = -70mV # Resting potential.
-       function V_reset mV = -70mV - E_L # reset value of the membrane potential
-       function Theta mV = -55mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-       /* I.e. the real threshold is (E_L_+V_th_)*/
+      equations:
+        kernel I_kernel_in = exp(-1/tau_syn_in*t)
+        kernel I_kernel_ex = exp(-1/tau_syn_ex*t)
+        recordable inline V_m mV = V_abs + E_L # Membrane potential.
+        inline I_syn pA = convolve(I_kernel_in, in_spikes) + convolve(I_kernel_ex, ex_spikes) + I_e + I_stim
+        V_abs' = -V_abs / tau_m + I_syn / C_m
+      end
 
-       /* constant external input current*/
-       I_e pA = 0pA
-     end
-     internals:
-       RefractoryCounts integer = steps(t_ref) # refractory time in steps
-     end
-     input:
-       ex_spikes pA <-excitatory spike
-       in_spikes pA <-inhibitory spike
-       I_stim pA <-current
-     end
+      parameters:
+        C_m pF = 250 pF       # Capacity of the membrane
+        tau_m ms = 10 ms      # Membrane time constant
+        tau_syn_in ms = 2 ms  # Time constant of synaptic current
+        tau_syn_ex ms = 2 ms  # Time constant of synaptic current
+        t_ref ms = 2 ms       # Duration of refractory period
+        E_L  mV = -70 mV      # Resting potential
+        V_reset mV = -70 mV - E_L # reset value of the membrane potential
+        Theta   mV = -55 mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL (!).
+                                       # I.e. the real threshold is (E_L_+V_th_)
 
-     output: spike
+        # constant external input current
+        I_e pA = 0 pA
+      end
 
-     update:
-       if r == 0: # neuron not refractory, so evolve V
-         integrate_odes()
-       else:
-         r = r - 1 # neuron is absolute refractory
-       end
-       if V_abs >= Theta: # threshold crossing
-         r = RefractoryCounts
-         V_abs = V_reset
-         emit_spike()
-       end
-     end
+      internals:
+        RefractoryCounts integer = steps(t_ref) # refractory time in steps
+      end
 
-   end
+      input:
+        ex_spikes pA <- excitatory spike
+        in_spikes pA <- inhibitory spike
+        I_stim pA <- current
+      end
+
+      output: spike
+
+      update:
+        if r == 0: # neuron not refractory, so evolve V
+          integrate_odes()
+        else:
+          r = r - 1 # neuron is absolute refractory
+        end
+
+        if V_abs >= Theta: # threshold crossing
+          r = RefractoryCounts
+          V_abs = V_reset
+          emit_spike()
+        end
+
+      end
+
+    end
 
 
 

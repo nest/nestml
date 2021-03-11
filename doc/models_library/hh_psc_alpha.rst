@@ -125,45 +125,38 @@ Source code
 
    neuron hh_psc_alpha:
      state:
-       r integer  # number of steps in the current refractory phase
-     end
-     initial_values:
+       r integer = 0 # number of steps in the current refractory phase
+
        V_m mV = -65.0mV # Membrane potential
-       function alpha_n_init real = (0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0))
-       function beta_n_init real = 0.125 * exp(-(V_m / mV + 65.0) / 80.0)
-       function alpha_m_init real = (0.1 * (V_m / mV + 40.0)) / (1.0 - exp(-(V_m / mV + 40.0) / 10.0))
-       function beta_m_init real = 4.0 * exp(-(V_m / mV + 65.0) / 18.0)
-       function alpha_h_init real = 0.07 * exp(-(V_m / mV + 65.0) / 20.0)
-       function beta_h_init real = 1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0))
        Act_m real = alpha_m_init / (alpha_m_init + beta_m_init) # Activation variable m for Na
        Inact_h real = alpha_h_init / (alpha_h_init + beta_h_init) # Inactivation variable h for Na
        Act_n real = alpha_n_init / (alpha_n_init + beta_n_init) # Activation variable n for K
      end
-     equations:
 
-       /* synapses: alpha functions*/
+     equations:
+       # synapses: alpha functions
        kernel I_syn_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
        kernel I_syn_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-       function I_syn_exc pA = convolve(I_syn_ex,spikeExc)
-       function I_syn_inh pA = convolve(I_syn_in,spikeInh)
-       function I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
-       function I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
-       function I_L pA = g_L * (V_m - E_L)
+       inline I_syn_exc pA = convolve(I_syn_ex,spikeExc)
+       inline I_syn_inh pA = convolve(I_syn_in,spikeInh)
+       inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Inact_h * (V_m - E_Na)
+       inline I_K pA = g_K * Act_n * Act_n * Act_n * Act_n * (V_m - E_K)
+       inline I_L pA = g_L * (V_m - E_L)
        V_m'=(-(I_Na + I_K + I_L) + I_e + I_stim + I_syn_inh + I_syn_exc) / C_m
 
-       /* Act_n*/
-       function alpha_n real = (0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0))
-       function beta_n real = 0.125 * exp(-(V_m / mV + 65.0) / 80.0)
+       # Act_n
+       inline alpha_n real = (0.01 * (V_m / mV + 55.0)) / (1.0 - exp(-(V_m / mV + 55.0) / 10.0))
+       inline beta_n real = 0.125 * exp(-(V_m / mV + 65.0) / 80.0)
        Act_n'=(alpha_n * (1 - Act_n) - beta_n * Act_n) / ms # n-variable
 
-       /* Act_m*/
-       function alpha_m real = (0.1 * (V_m / mV + 40.0)) / (1.0 - exp(-(V_m / mV + 40.0) / 10.0))
-       function beta_m real = 4.0 * exp(-(V_m / mV + 65.0) / 18.0)
+       # Act_m
+       inline alpha_m real = (0.1 * (V_m / mV + 40.0)) / (1.0 - exp(-(V_m / mV + 40.0) / 10.0))
+       inline beta_m real = 4.0 * exp(-(V_m / mV + 65.0) / 18.0)
        Act_m'=(alpha_m * (1 - Act_m) - beta_m * Act_m) / ms # m-variable
 
-       /* Inact_h'*/
-       function alpha_h real = 0.07 * exp(-(V_m / mV + 65.0) / 20.0)
-       function beta_h real = 1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0))
+       # Inact_h'
+       inline alpha_h real = 0.07 * exp(-(V_m / mV + 65.0) / 20.0)
+       inline beta_h real = 1.0 / (1.0 + exp(-(V_m / mV + 35.0) / 10.0))
        Inact_h'=(alpha_h * (1 - Inact_h) - beta_h * Inact_h) / ms # h-variable
      end
 
@@ -179,12 +172,14 @@ Source code
        tau_syn_ex ms = 0.2ms # Rise time of the excitatory synaptic alpha function i
        tau_syn_in ms = 2.0ms # Rise time of the inhibitory synaptic alpha function
 
-       /* constant external input current*/
+       # constant external input current
        I_e pA = 0pA
      end
+
      internals:
        RefractoryCounts integer = steps(t_ref) # refractory time in steps
      end
+
      input:
        spikeInh pA <-inhibitory spike
        spikeExc pA <-excitatory spike
@@ -196,9 +191,8 @@ Source code
      update:
        U_old mV = V_m
        integrate_odes()
-       /* sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...*/
 
-       /* sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...*/
+       # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
        if r > 0: # is refractory?
          r -= 1
        elif V_m > 0mV and U_old > V_m:
