@@ -475,10 +475,10 @@ e.g.
      return b
    end
 
-print function
+Printing output to the console
 ^^^^^^^^^^^^^^
 
-The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on ``update`` block.
+The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on the ``update`` block.
 
 Example:
 
