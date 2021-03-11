@@ -22,11 +22,11 @@
 
 lexer grammar PyNestMLLexer;
 
-  DOCSTRING_TRIPLEQUOTE : '"""';
-  NEWLINE : '\r'? '\n';
-
   // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2
   channels {COMMENT}
+
+  DOCSTRING_TRIPLEQUOTE : '"""';
+  NEWLINE : '\r'? '\n';
 
   WS : (' ' | '\t') -> channel(1);
 
