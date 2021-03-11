@@ -43,7 +43,7 @@ class CoCoIntegrateOdesCalledIfEquationsDefined(CoCo):
         integrate_odes_called_visitor = IntegrateOdesCalledVisitor()
         node.accept(integrate_odes_called_visitor)
         if equations_defined_visitor.equations_defined() and not integrate_odes_called_visitor.integrate_odes_called():
-            code, message = Messages.get_equtions_defined_but_integrate_odes_not_called()
+            code, message = Messages.get_equations_defined_but_integrate_odes_not_called()
             Logger.log_message(code=code, message=message,
                                error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)
 

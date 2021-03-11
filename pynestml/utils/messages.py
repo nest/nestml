@@ -1165,6 +1165,6 @@ class Messages:
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
 
     @classmethod
-    def get_equtions_defined_but_integrate_odes_not_called(cls):
+    def get_equations_defined_but_integrate_odes_not_called(cls):
         message = "Equations defined but integrate_odes() not called"
         return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message
