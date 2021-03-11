@@ -41,7 +41,7 @@ Out of the box, use any of :doc:`over 20 models <models_library/index>` that com
 Tutorials
 #########
 
- .. include:: tutorials/tutorials_list.rst
+.. include:: tutorials/tutorials_list.rst
 
 
 NESTML language and toolchain development

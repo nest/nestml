@@ -140,6 +140,10 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
                 get_post_comments(ctx, self.__tokens))
 
 
+def is_newline(tok):
+    return tok.text in ['\n', '\r\n']
+
+
 def get_comments(ctx, tokens):
     """
     Returns all previously, in-line and pos comments.
@@ -181,7 +185,7 @@ def get_pre_comment(ctx, tokens):
     for possibleCommentToken in reversed(tokens[0:tokens.index(ctx.start)]):
         # if we hit a normal token (i.e. not whitespace, not newline and not token) then stop, since we reached
         # the next previous element, thus the next comments belong to this element
-        if possibleCommentToken.channel == 0:
+        if possibleCommentToken.channel == 0 and (not is_newline(possibleCommentToken)):
             break
         # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
         # in the same line, since in this case, the comments does not belong to us
@@ -198,7 +202,7 @@ def get_pre_comment(ctx, tokens):
             break
         # we have found a new line token. thus if we have stored a comment on the stack, its ok to store it in
         # our element, since it does not belong to a declaration in its line
-        if possibleCommentToken.channel == 3:
+        if is_newline(possibleCommentToken):
             if temp is not None:
                 comments.append(temp)
             eol = True
@@ -222,14 +226,14 @@ def __no_definitions_before(ctx, tokens):
     :rtype: bool
     """
     for token in tokens[0:tokens.index(ctx.start)]:
-        if token.channel == 0:
+        if token.channel == 0 and (not is_newline(token)):
             return False
     return True
 
 
 def get_in_comments(ctx, tokens):
     """
-    Returns the sole comment if one is defined in the same line, e.g. function a mV = 10mV # comment
+    Returns the sole comment if one is defined in the same line, e.g. ``a = 10 mV # comment``
     :param ctx: a context
     :type ctx: ctx
     :param tokens: list of token objects
@@ -240,7 +244,7 @@ def get_in_comments(ctx, tokens):
     for possibleComment in tokens[tokens.index(ctx.start):]:
         if possibleComment.channel == 2:
             return replace_delimiters(possibleComment.text)
-        if possibleComment.channel == 3:  # channel 3 == new line, thus the one line comment ends here
+        if is_newline(possibleComment):  # new line, thus the one line comment ends here
             break
     return None
 
@@ -260,7 +264,7 @@ def get_post_comments(ctx, tokens):
     # first find out where the next line start, since we want to avoid to see comments, which have
     # been stated in the same line, as comments which are stated after the element
     for possibleToken in tokens[tokens.index(ctx.stop) + 1:]:
-        if possibleToken.channel == 3:
+        if is_newline(possibleToken):
             next_line_start_index = tokens.index(possibleToken)
             break
     first_line = False
@@ -271,13 +275,13 @@ def get_post_comments(ctx, tokens):
             first_line = False
 
         # we found a white line, thus a comment separator
-        if possibleCommentToken.channel == 3 and first_line:
+        if is_newline(possibleCommentToken) and first_line:
             break
-        elif possibleCommentToken.channel == 3:
+        elif is_newline(possibleCommentToken):
             first_line = True
 
         # if we see a different element, i.e. that we have reached the next declaration and should stop
-        if possibleCommentToken.channel == 0:
+        if possibleCommentToken.channel == 0 and (not is_newline(possibleCommentToken)):
             break
 
     return comments if len(comments) > 0 else list()
