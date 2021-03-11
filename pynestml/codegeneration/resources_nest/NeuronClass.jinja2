@@ -93,20 +93,6 @@ namespace nest
 {%-   endif %}
 {%- endfor %}
 {%- endfilter %}
-  
-  // internals
-{%- filter indent(2,True) %}
-{%- for variable in neuron.get_internal_symbols() %}
-{%-   include "directives/RecordCallback.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-  
-  // parameters
-{%- filter indent(2,True) %}
-{%- for variable in neuron.get_parameter_symbols() %}
-{%-   include "directives/RecordCallback.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
 
   // function symbols
 {%- filter indent(2,True) %}
