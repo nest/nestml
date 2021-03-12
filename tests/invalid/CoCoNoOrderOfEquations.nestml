@@ -39,4 +39,8 @@ neuron CoCoNoOrderOfEquations:
     equations:
         V_m = 10 mV / s # here, we did not specified the order of equation
     end
+
+    update:
+        integrate_odes()
+    end
 end

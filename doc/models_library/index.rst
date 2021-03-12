@@ -128,16 +128,38 @@ Source file: `iaf_chxk_2008.nestml <https://www.github.com/nest/nestml/blob/mast
           :alt: iaf_chxk_2008
 
 
-:doc:`hh_cond_exp_destexhe <hh_cond_exp_destexhe>`
---------------------------------------------------
+:doc:`aeif_cond_exp <aeif_cond_exp>`
+------------------------------------
 
-Source file: `hh_cond_exp_destexhe.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_cond_exp_destexhe.nestml>`_
+Source file: `aeif_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/aeif_cond_exp.nestml>`_
+
+.. list-table::
+
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[aeif_cond_exp]_synaptic_response_small.png
+          :alt: aeif_cond_exp
+
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[aeif_cond_exp]_f-I_curve_small.png
+          :alt: aeif_cond_exp
 
 
 :doc:`aeif_cond_alpha <aeif_cond_alpha>`
 ----------------------------------------
 
 Source file: `aeif_cond_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/aeif_cond_alpha.nestml>`_
+
+.. list-table::
+
+   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[aeif_cond_alpha]_synaptic_response_small.png
+          :alt: aeif_cond_alpha
+
+     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[aeif_cond_alpha]_f-I_curve_small.png
+          :alt: aeif_cond_alpha
+
+
+:doc:`hh_cond_exp_destexhe <hh_cond_exp_destexhe>`
+--------------------------------------------------
+
+Source file: `hh_cond_exp_destexhe.nestml <https://www.github.com/nest/nestml/blob/master/models/hh_cond_exp_destexhe.nestml>`_
 
 
 :doc:`izhikevich_psc_alpha <izhikevich_psc_alpha>`
@@ -168,12 +190,6 @@ Source file: `iaf_cond_exp_sfa_rr.nestml <https://www.github.com/nest/nestml/blo
 ----------------------------
 
 Source file: `terub_gpe.nestml <https://www.github.com/nest/nestml/blob/master/models/terub_gpe.nestml>`_
-
-
-:doc:`aeif_cond_exp <aeif_cond_exp>`
-------------------------------------
-
-Source file: `aeif_cond_exp.nestml <https://www.github.com/nest/nestml/blob/master/models/aeif_cond_exp.nestml>`_
 
 
 :doc:`terub_stn <terub_stn>`

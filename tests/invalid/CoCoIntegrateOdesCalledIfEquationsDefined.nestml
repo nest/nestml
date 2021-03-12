@@ -1,14 +1,14 @@
 """
-CoCoNoOrderOfEquations.nestml
-#############################
+CoCoIntegrateOdesCalledIfEquationsDefined.nestml
+################################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if the order of equations is correct.
+This model is used to test the check that integrate_odes() is called if one or more dynamical equations are defined.
 
-Positive case.
+Negative case.
 
 
 Copyright statement
@@ -31,16 +31,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoNoOrderOfEquations:
+neuron CoCoIntegrateOdesCalledIfEquationsDefined:
     state:
-        V_m mV = 10mV
+        x real = 1.
+        y integer = 0
     end
 
     equations:
-        V_m' = 10 mV / s # rhs is provided with an order > 0, thus everything is correct
+        x' = -x / (10 ms)
     end
 
     update:
-        integrate_odes()
+        y = min(x, y)
     end
 end

@@ -41,4 +41,8 @@ neuron CoCoOdeCorrectlyTyped:
     equations:
         V_m' = (10 pA) / (100 pF)
     end
+
+    update:
+        integrate_odes()
+    end
 end
