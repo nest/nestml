@@ -57,19 +57,15 @@ class NestIntegrationTest(unittest.TestCase):
         models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
         models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
         models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
+        models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
+        models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
 
         # --------------
         # XXX: TODO!
 
-        # models.append(("aeif_cond_alpha", "aeif_cond_alpha_implicit_nestml", 1.e-3, 1E-3))
-        # models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
-        # models.append(("aeif_cond_exp", "aeif_cond_exp_implicit_nestml", 1.e-3, 1E-3))
-        # models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
-        # models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_implicit_nestml", 1.e-3, 1E-3))
         # models.append(("hh_cond_exp_traub", "hh_cond_exp_traub_nestml", 1.e-3, 1E-3))
         # models.append(("ht_neuron", "hill_tononi_nestml", None, 1E-3))
         # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_nestml", 1.e-3, 1E-3))
-        # models.append(("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit_nestml", 1.e-3, 1E-3))
         # models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
         # models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
