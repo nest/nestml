@@ -26,16 +26,17 @@ lexer grammar PyNestMLLexer;
   channels {COMMENT}
 
   DOCSTRING_TRIPLEQUOTE : '"""';
-  NEWLINE : '\r'? '\n';
 
   WS : (' ' | '\t') -> channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
-  LINE_ESCAPE : '\\' NEWLINE -> channel(1);
+  LINE_ESCAPE : '\\' ('\r'? '\n') -> channel(1);
 
-  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE -> channel(2);
+  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE ('\r'? '\n')+? -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) NEWLINE -> channel(2);
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) ('\r'? '\n') -> channel(2);
+
+  NEWLINE : '\r'? '\n';
 
   END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';
