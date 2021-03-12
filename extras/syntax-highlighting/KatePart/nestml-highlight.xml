@@ -47,7 +47,6 @@
 		<item>state</item>
 		<item>parameters</item>
 		<item>internals</item>
-		<item>initial_values</item>
 		<item>update</item>
 		<item>equations</item>
 		<item>input</item>

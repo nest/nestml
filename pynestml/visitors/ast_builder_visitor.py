@@ -502,13 +502,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
         if block_type == 'state':
-            ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, declarations, source_pos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, declarations, source_pos)
         elif block_type == 'parameters':
-            ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, False, declarations, source_pos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, declarations, source_pos)
         elif block_type == 'internals':
-            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, declarations, source_pos)
-        elif block_type == 'initial_values':
-            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, declarations, source_pos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, declarations, source_pos)
         else:
             raise RuntimeError('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
         update_node_comments(ret, self.__comments.visit(ctx))

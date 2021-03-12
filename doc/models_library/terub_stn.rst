@@ -115,142 +115,151 @@ Source code
 
 .. code:: nestml
 
-   neuron terub_stn:
-     state:
-       r integer  # counts number of tick during the refractory period
-     end
-     initial_values:
-       V_m mV = E_L # Membrane potential
-       gate_h real = 0.0 # gating variable h
-       gate_n real = 0.0 # gating variable n
-       gate_r real = 0.0 # gating variable r
-       Ca_con real = 0.0 # gating variable r
-     end
-     equations:
+    neuron terub_stn:
+      state:
+        r integer = 0 # counts number of tick during the refractory period
 
-       /*time constants for slow gating variables*/
-       function tau_n_0 ms = 1.0ms
-       function tau_n_1 ms = 100.0ms
-       function theta_n_tau mV = -80.0mV
-       function sigma_n_tau mV = -26.0mV
-       function tau_h_0 ms = 1.0ms
-       function tau_h_1 ms = 500.0ms
-       function theta_h_tau mV = -57.0mV
-       function sigma_h_tau mV = -3.0mV
-       function tau_r_0 ms = 7.1ms # Guo 7.1 Terman02 40.0
-       function tau_r_1 ms = 17.5ms
-       function theta_r_tau mV = 68.0mV
-       function sigma_r_tau mV = -2.2mV
+        V_m mV = E_L #  Membrane potential
+        gate_h real = 0.0 # gating variable h
+        gate_n real = 0.0 # gating variable n
+        gate_r real = 0.0 # gating variable r
+        Ca_con real = 0.0 # gating variable r
+      end
 
-       /*steady state values for gating variables*/
-       function theta_a mV = -63.0mV
-       function sigma_a mV = 7.8mV
-       function theta_h mV = -39.0mV
-       function sigma_h mV = -3.1mV
-       function theta_m mV = -30.0mV
-       function sigma_m mV = 15.0mV
-       function theta_n mV = -32.0mV
-       function sigma_n mV = 8.0mV
-       function theta_r mV = -67.0mV
-       function sigma_r mV = -2.0mV
-       function theta_s mV = -39.0mV
-       function sigma_s mV = 8.0mV
-       function theta_b real = 0.25 # Guo 0.25 Terman02 0.4
-       function sigma_b real = 0.07 # Guo 0.07 Terman02 -0.1
+      equations:
+        #Parameters for Terman Rubin STN Neuron
 
-       /*time evolvement of gating variables*/
-       function phi_h real = 0.75
-       function phi_n real = 0.75
-       function phi_r real = 0.5 # Guo 0.5 Terman02 0.2
+        #time constants for slow gating variables
+        inline tau_n_0 ms = 1.0 ms
+        inline tau_n_1 ms = 100.0 ms
+        inline theta_n_tau mV = -80.0 mV
+        inline sigma_n_tau mV = -26.0 mV
 
-       /* Calcium concentration and afterhyperpolarization current*/
-       function epsilon 1/ms = 5e-05 / ms # 1/ms Guo 0.00005 Terman02 0.0000375
-       function k_Ca real = 22.5
-       function k1 real = 15.0
-       function I_ex_mod pA = -convolve(g_ex,spikeExc) * V_m
-       function I_in_mod pA = convolve(g_in,spikeInh) * (V_m - E_gs)
-       function tau_n ms = tau_n_0 + tau_n_1 / (1.0 + exp(-(V_m - theta_n_tau) / sigma_n_tau))
-       function tau_h ms = tau_h_0 + tau_h_1 / (1.0 + exp(-(V_m - theta_h_tau) / sigma_h_tau))
-       function tau_r ms = tau_r_0 + tau_r_1 / (1.0 + exp(-(V_m - theta_r_tau) / sigma_r_tau))
-       function a_inf real = 1.0 / (1.0 + exp(-(V_m - theta_a) / sigma_a))
-       function h_inf real = 1.0 / (1.0 + exp(-(V_m - theta_h) / sigma_h))
-       function m_inf real = 1.0 / (1.0 + exp(-(V_m - theta_m) / sigma_m))
-       function n_inf real = 1.0 / (1.0 + exp(-(V_m - theta_n) / sigma_n))
-       function r_inf real = 1.0 / (1.0 + exp(-(V_m - theta_r) / sigma_r))
-       function s_inf real = 1.0 / (1.0 + exp(-(V_m - theta_s) / sigma_s))
-       function b_inf real = 1.0 / (1.0 + exp((gate_r - theta_b) / sigma_b)) - 1.0 / (1.0 + exp(-theta_b / sigma_b))
-       function I_Na pA = g_Na * m_inf * m_inf * m_inf * gate_h * (V_m - E_Na)
-       function I_K pA = g_K * gate_n * gate_n * gate_n * gate_n * (V_m - E_K)
-       function I_L pA = g_L * (V_m - E_L)
-       function I_T pA = g_T * a_inf * a_inf * a_inf * b_inf * b_inf * (V_m - E_Ca)
-       function I_Ca pA = g_Ca * s_inf * s_inf * (V_m - E_Ca)
-       function I_ahp pA = g_ahp * (Ca_con / (Ca_con + k1)) * (V_m - E_K)
+        inline tau_h_0 ms = 1.0 ms
+        inline tau_h_1 ms = 500.0 ms
+        inline theta_h_tau mV = -57.0 mV
+        inline sigma_h_tau mV = -3.0 mV
 
-       /* V dot -- synaptic input are currents, inhib current is negative*/
-       V_m'=(-(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_ex_mod + I_in_mod) / C_m
+        inline tau_r_0 ms = 7.1 ms # Guo 7.1 Terman02 40.0
+        inline tau_r_1 ms = 17.5 ms
+        inline theta_r_tau mV = 68.0 mV
+        inline sigma_r_tau mV = -2.2 mV
 
-       /*channel dynamics*/
-       gate_h'=phi_h * ((h_inf - gate_h) / tau_h) # h-variable
-       gate_n'=phi_n * ((n_inf - gate_n) / tau_n) # n-variable
-       gate_r'=phi_r * ((r_inf - gate_r) / tau_r) # r-variable
+        #steady state values for gating variables
+        inline theta_a mV = -63.0 mV
+        inline sigma_a mV = 7.8 mV
+        inline theta_h mV = -39.0 mV
+        inline sigma_h mV = -3.1 mV
+        inline theta_m mV = -30.0 mV
+        inline sigma_m mV = 15.0 mV
+        inline theta_n mV = -32.0 mV
+        inline sigma_n mV = 8.0 mV
+        inline theta_r mV = -67.0 mV
+        inline sigma_r mV = -2.0 mV
+        inline theta_s mV = -39.0 mV
+        inline sigma_s mV = 8.0 mV
 
-       /*Calcium concentration*/
-       Ca_con'=epsilon * ((-I_Ca - I_T) / pA - k_Ca * Ca_con)
+        inline theta_b real = 0.25 # Guo 0.25 Terman02 0.4
+        inline sigma_b real = 0.07 # Guo 0.07 Terman02 -0.1
 
-       /* synapses: alpha functions*/
-       /* alpha function for the g_in*/
-       kernel g_in = (e / tau_syn_in) * t * exp(-t / tau_syn_in)
-       /* alpha function for the g_ex*/
+        #time evolvement of gating variables
+        inline phi_h real = 0.75
+        inline phi_n real = 0.75
+        inline phi_r real = 0.5 # Guo 0.5 Terman02 0.2
 
-       /* alpha function for the g_ex*/
-       kernel g_ex = (e / tau_syn_ex) * t * exp(-t / tau_syn_ex)
-     end
+        # Calcium concentration and afterhyperpolarization current
+        inline epsilon 1/ms = 0.00005 / ms # 1/ms Guo 0.00005 Terman02 0.0000375
+        inline k_Ca real = 22.5
+        inline k1 real = 15.0
 
-     parameters:
-       E_L mV = -60mV # Resting membrane potential.
-       g_L nS = 2.25nS # Leak conductance.
-       C_m pF = 1.0pF # Capacity of the membrane.
-       E_Na mV = 55mV # Sodium reversal potential.
-       g_Na nS = 37.5nS # Sodium peak conductance.
-       E_K mV = -80.0mV # Potassium reversal potential.
-       g_K nS = 45.0nS # Potassium peak conductance.
-       E_Ca mV = 120mV # Calcium reversal potential.
-       g_Ca nS = 140nS # Calcium peak conductance.
-       g_T nS = 0.5nS # T-type Calcium channel peak conductance.
-       g_ahp nS = 9nS # afterpolarization current peak conductance.
-       tau_syn_ex ms = 1.0ms # Rise time of the excitatory synaptic alpha function.
-       tau_syn_in ms = 0.08ms # Rise time of the inhibitory synaptic alpha function.
-       E_gs mV = -85.0mV # reversal potential for inhibitory input (from GPe)
-       t_ref ms = 2ms # refractory time
+        inline I_ex_mod pA = -convolve(g_ex, spikeExc) * V_m
+        inline I_in_mod pA = convolve(g_in, spikeInh) * (V_m - E_gs)
 
-       /* constant external input current*/
-       I_e pA = 0pA
-     end
-     internals:
-       refractory_counts integer = steps(t_ref)
-     end
-     input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
-       I_stim pA <-current
-     end
+        inline tau_n ms = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
+        inline tau_h ms = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
+        inline tau_r ms = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
 
-     output: spike
+        inline a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
+        inline h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
+        inline m_inf real = 1. / (1. + exp(-(V_m-theta_m)/sigma_m))
+        inline n_inf real = 1. / (1. + exp(-(V_m-theta_n)/sigma_n))
+        inline r_inf real = 1. / (1. + exp(-(V_m-theta_r)/sigma_r))
+        inline s_inf real = 1. / (1. + exp(-(V_m-theta_s)/sigma_s))
+        inline b_inf real = 1. / (1. + exp((gate_r-theta_b)/sigma_b)) - 1. / (1. + exp(-theta_b/sigma_b))
 
-     update:
-       U_old mV = V_m
-       integrate_odes()
+        inline I_Na  pA =  g_Na  * m_inf * m_inf * m_inf * gate_h    * (V_m - E_Na)
+        inline I_K   pA =  g_K   * gate_n * gate_n * gate_n * gate_n * (V_m - E_K )
+        inline I_L   pA =  g_L                                 * (V_m - E_L )
+        inline I_T   pA =  g_T   *a_inf*a_inf*a_inf*b_inf*b_inf* (V_m - E_Ca)
+        inline I_Ca  pA =  g_Ca  * s_inf * s_inf               * (V_m - E_Ca)
+        inline I_ahp pA =  g_ahp * (Ca_con / (Ca_con + k1))    * (V_m - E_K )
 
-       /* sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...*/
-       if r > 0:
-         r -= 1
-       elif V_m > 0mV and U_old > V_m:
-         r = refractory_counts
-         emit_spike()
-       end
-     end
+        # V dot -- synaptic input are currents, inhib current is negative
+        V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_e + I_stim + I_ex_mod + I_in_mod) / C_m
 
-   end
+        #channel dynamics
+        gate_h' = phi_h *((h_inf-gate_h) / tau_h)  # h-variable
+        gate_n' = phi_n *((n_inf-gate_n) / tau_n)  # n-variable
+        gate_r' = phi_r *((r_inf-gate_r) / tau_r)  # r-variable
+
+        #Calcium concentration
+        Ca_con' = epsilon*( (-I_Ca  - I_T ) / pA - k_Ca * Ca_con)
+
+        # synapses: alpha functions
+        ## alpha function for the g_in
+        kernel g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+        ## alpha function for the g_ex
+        kernel g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+      end
+
+      parameters:
+        E_L        mV = -60 mV  # Resting membrane potential.
+        g_L        nS = 2.25 nS # Leak conductance.
+        C_m        pF = 1.0 pF # Capacity of the membrane.
+        E_Na       mV = 55 mV   # Sodium reversal potential.
+        g_Na       nS = 37.5 nS # Sodium peak conductance.
+        E_K        mV = -80.0 mV# Potassium reversal potential.
+        g_K        nS = 45.0 nS # Potassium peak conductance.
+        E_Ca       mV = 140 mV  # Calcium reversal potential.
+        g_Ca       nS = 0.5 nS  # Calcium peak conductance.
+        g_T        nS = 0.5 nS  # T-type Calcium channel peak conductance.
+        g_ahp      nS = 9 nS    # afterpolarization current peak conductance.
+        tau_syn_ex ms = 1.0 ms  # Rise time of the excitatory synaptic alpha function.
+        tau_syn_in ms = 0.08 ms # Rise time of the inhibitory synaptic alpha function.
+        E_gs       mV = -85.0 mV# reversal potential for inhibitory input (from GPe)
+        t_ref      ms = 2 ms    # refractory time
+
+        # constant external input current
+        I_e pA = 0 pA
+      end
+
+      internals:
+        refractory_counts integer = steps(t_ref)
+      end
+
+      input:
+        spikeInh pA <- inhibitory spike
+        spikeExc pA <- excitatory spike
+        I_stim pA <- current
+      end
+
+      output: spike
+
+      update:
+        U_old mV = V_m
+        integrate_odes()
+
+        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+        if r > 0:
+          r -= 1
+        elif V_m > 0 mV and U_old > V_m:
+          r = refractory_counts
+          emit_spike()
+        end
+
+      end
+
+    end
 
 
 

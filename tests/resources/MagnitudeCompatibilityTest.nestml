@@ -24,10 +24,10 @@
 
 neuron expressionType_test:
     state:
-       volts V
-       milliVolts mV
-       bigComplexUnit V/C
-       smallComplelxUnit mV/C
+       volts V = 2 V
+       milliVolts mV = -70 mV
+       bigComplexUnit V/C = -0.1 V/C
+       smallComplelxUnit mV/C = -22 mV/C
     end
 
     update:

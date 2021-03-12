@@ -127,79 +127,86 @@ Source code
 .. code:: nestml
 
    neuron iaf_cond_beta:
-     state:
-       r integer  # counts number of tick during the refractory period
-     end
-     initial_values:
-       V_m mV = E_L # membrane potential
-       g_in nS = 0nS # inputs from the inh conductance
-       g_in__d nS/ms = 0nS / ms # inputs from the inh conductance
-       g_ex nS = 0nS # inputs from the exc conductance
-       g_ex__d nS/ms = 0nS / ms # inputs from the exc conductance
-     end
-     equations:
-       g_in__d'=-g_in__d / tau_syn_rise_I
-       g_in'=g_in__d - g_in / tau_syn_decay_I
-       g_ex__d'=-g_ex__d / tau_syn_rise_E
-       g_ex'=g_ex__d - g_ex / tau_syn_decay_E
-       function I_syn_exc pA = (F_E + convolve(g_ex,spikeExc)) * (V_m - E_ex)
-       function I_syn_inh pA = (F_I + convolve(g_in,spikeInh)) * (V_m - E_in)
-       function I_leak pA = g_L * (V_m - E_L) # pa = nS * mV
-       V_m'=(-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-     end
+      state:
+        r integer = 0             # counts number of tick during the refractory period
 
-     parameters:
-       E_L mV = -85.0mV # Leak reversal Potential (aka resting potential)
-       C_m pF = 250.0pF # Capacity of the membrane
-       t_ref ms = 2.0ms # Refractory period
-       V_th mV = -55.0mV # Threshold Potential
-       V_reset mV = -60.0mV # Reset Potential
-       E_ex mV = 0mV # Excitatory reversal Potential
-       E_in mV = -85.0mV # Inhibitory reversal Potential
-       g_L nS = 16.6667nS # Leak Conductance
-       tau_syn_rise_I ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
-       tau_syn_decay_I ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
-       tau_syn_rise_E ms = 0.2ms # Synaptic Time Constant Excitatory Synapse
-       tau_syn_decay_E ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse
-       F_E nS = 0nS # Constant External input conductance (excitatory).
-       F_I nS = 0nS # Constant External input conductance (inhibitory).
+        V_m mV = E_L              # membrane potential
 
-       /* constant external input current*/
-       I_e pA = 0pA
-     end
-     internals:
+        # inputs from the inhibitory conductance
+        g_in real = 0
+        g_in$ real = g_I_const * (1 / tau_syn_rise_I - 1 / tau_syn_decay_I)
 
-       /* conductance excursion.*/
-       PSConInit_E 1/ms = e / tau_syn_rise_E
+        # inputs from the excitatory conductance
+        g_ex real = 0
+        g_ex$ real = g_E_const * (1 / tau_syn_rise_E - 1 / tau_syn_decay_E)
+      end
 
-       /* Impulse to add to g_in' on spike arrival to evoke unit-amplitude*/
-       /* conductance excursion.*/
-       PSConInit_I 1/ms = e / tau_syn_rise_I
-       RefractoryCounts integer = steps(t_ref) # refractory time in steps
-     end
-     input:
-       spikeInh nS <-inhibitory spike
-       spikeExc nS <-excitatory spike
-       I_stim pA <-current
-     end
+      equations:
+          kernel g_in' = g_in$ - g_in / tau_syn_rise_I,
+                 g_in$' = -g_in$ / tau_syn_decay_I
 
-     output: spike
+          kernel g_ex' = g_ex$ - g_ex / tau_syn_rise_E,
+                 g_ex$' = -g_ex$ / tau_syn_decay_E
 
-     update:
-       integrate_odes()
-       if r != 0: # not refractory
-         r = r - 1
-         V_m = V_reset # clamp potential
-       elif V_m >= V_th:
-         r = RefractoryCounts
-         V_m = V_reset # clamp potential
-         emit_spike()
-       end
-       g_ex__d += spikeExc * PSConInit_E
-       g_in__d += spikeInh * PSConInit_I
-     end
+          inline I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * (V_m - E_ex)
+          inline I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * (V_m - E_in)
+          inline I_leak pA = g_L * (V_m - E_L)  # pA = nS * mV
+          V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_e + I_stim ) / C_m
+      end
 
-   end
+      parameters:
+        E_L mV = -70. mV              # Leak reversal potential (aka resting potential)
+        C_m pF = 250. pF              # Capacitance of the membrane
+        t_ref ms = 2. ms              # Refractory period
+        V_th mV = -55. mV             # Threshold potential
+        V_reset mV = -60. mV          # Reset potential
+        E_ex mV = 0 mV                # Excitatory reversal potential
+        E_in mV = -85. mV             # Inhibitory reversal potential
+        g_L nS = 16.6667 nS           # Leak conductance
+        tau_syn_rise_I ms = .2 ms     # Synaptic time constant excitatory synapse
+        tau_syn_decay_I ms = 2. ms    # Synaptic time constant for inhibitory synapse
+        tau_syn_rise_E ms = .2 ms     # Synaptic time constant excitatory synapse
+        tau_syn_decay_E ms = 2. ms    # Synaptic time constant for inhibitory synapse
+        F_E nS = 0 nS                 # Constant external input conductance (excitatory).
+        F_I nS = 0 nS                 # Constant external input conductance (inhibitory).
+
+        # constant external input current
+        I_e pA = 0 pA
+      end
+
+      internals:
+        # time of peak conductance excursion after spike arrival at t = 0
+        t_peak_E real = tau_syn_decay_E * tau_syn_rise_E * ln(tau_syn_decay_E / tau_syn_rise_E) / (tau_syn_decay_E - tau_syn_rise_E)
+        t_peak_I real = tau_syn_decay_I * tau_syn_rise_I * ln(tau_syn_decay_I / tau_syn_rise_I) / (tau_syn_decay_I - tau_syn_rise_I)
+
+        # normalisation constants to ensure arriving spike yields peak conductance of 1 nS
+        g_E_const real = 1 / (exp(-t_peak_E / tau_syn_decay_E) - exp(-t_peak_E / tau_syn_rise_E))
+        g_I_const real = 1 / (exp(-t_peak_I / tau_syn_decay_I) - exp(-t_peak_I / tau_syn_rise_I))
+
+        RefractoryCounts integer = steps(t_ref) # refractory time in steps
+      end
+
+      input:
+        spikeInh nS <- inhibitory spike
+        spikeExc nS <- excitatory spike
+        I_stim pA <- current
+      end
+
+      output: spike
+
+      update:
+        integrate_odes()
+        if r != 0: # not refractory
+          r =  r - 1
+          V_m = V_reset # clamp potential
+        elif V_m >= V_th:
+          r = RefractoryCounts
+          V_m = V_reset # clamp potential
+          emit_spike()
+        end
+      end
+
+    end
 
 
 

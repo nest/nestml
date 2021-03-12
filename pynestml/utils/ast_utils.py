@@ -350,7 +350,7 @@ class ASTUtils:
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
-            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
+            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
                                                                       ASTSourceLocation.get_added_source_position())
             internal.update_scope(neuron.get_scope())
             neuron.get_body().get_body_elements().append(internal)
@@ -368,27 +368,9 @@ class ASTUtils:
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
-            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
+            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
-        return neuron
-
-    @classmethod
-    def create_initial_values_block(cls, neuron):
-        """
-        Creates a single initial values block in the handed over neuron.
-        :param neuron: a single neuron
-        :type neuron: ast_neuron
-        :return: the modified neuron
-        :rtype: ast_neuron
-        """
-        # local import since otherwise circular dependency
-        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if neuron.get_initial_blocks() is None:
-            initial_values = ASTNodeFactory. \
-                create_ast_block_with_variables(False, False, False, True, list(),
-                                                ASTSourceLocation.get_added_source_position())
-            neuron.get_body().get_body_elements().append(initial_values)
         return neuron
 
     @classmethod

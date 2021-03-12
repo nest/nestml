@@ -359,7 +359,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         self.assertEqual(len(
-            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 3)
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.WARNING)), 2)
 
     def test_valid_init_values_have_rhs_and_ode(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -407,7 +407,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
-                                                                          LoggingLevel.ERROR)), 3)
+                                                                          LoggingLevel.ERROR)), 2)
 
     def test_valid_convolve_correctly_defined(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -556,3 +556,25 @@ class CoCosTest(unittest.TestCase):
                          'CoCoKernelTypeInitialValues.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 4)
+
+    def test_valid_coco_state_variables_initialized(self):
+        """
+        Test that the CoCo condition is applicable for all the variables in the state block initialized with a value
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoStateVariablesInitialized.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    def test_invalid_coco_state_variables_initialized(self):
+        """
+        Test that the CoCo condition is applicable for all the variables in the state block not initialized
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoStateVariablesInitialized.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
