@@ -26,16 +26,18 @@ lexer grammar PyNestMLLexer;
   channels {COMMENT}
 
   DOCSTRING_TRIPLEQUOTE : '"""';
+  fragment NEWLINE_FRAG : '\r'? '\n';  // non-capturing newline, as a helper to define the channel rules
 
   WS : (' ' | '\t') -> channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
-  LINE_ESCAPE : '\\' ('\r'? '\n') -> channel(1);
+  LINE_ESCAPE : '\\' NEWLINE_FRAG -> channel(1);
 
-  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE ('\r'? '\n')+? -> channel(2);
+  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) ('\r'? '\n') -> channel(2);
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) NEWLINE_FRAG -> channel(2);
 
+  // newline is defined as a token
   NEWLINE : '\r'? '\n';
 
   END_KEYWORD : 'end';
