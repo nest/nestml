@@ -31,6 +31,7 @@ from pynestml.cocos.co_co_function_have_rhs import CoCoFunctionHaveRhs
 from pynestml.cocos.co_co_function_max_one_lhs import CoCoFunctionMaxOneLhs
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
 from pynestml.cocos.co_co_illegal_expression import CoCoIllegalExpression
+from pynestml.cocos.co_co_integrate_odes_called_if_equations_defined import CoCoIntegrateOdesCalledIfEquationsDefined
 from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
@@ -245,6 +246,13 @@ class CoCosManager:
         CoCoBufferDataType.check_co_co(neuron)
 
     @classmethod
+    def check_integrate_odes_called_if_equations_defined(cls, neuron):
+        """
+        Ensures that integrate_odes() is called if one or more dynamical equations are defined.
+        """
+        CoCoIntegrateOdesCalledIfEquationsDefined.check_co_co(neuron)
+
+    @classmethod
     def check_user_defined_function_correctly_built(cls, neuron):
         """
         Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
@@ -362,6 +370,7 @@ class CoCosManager:
             cls.check_odes_have_consistent_units(neuron)
             cls.check_ode_functions_have_consistent_units(neuron)        # ODE functions have been removed at this point
             cls.check_correct_usage_of_kernels(neuron)
+            cls.check_integrate_odes_called_if_equations_defined(neuron)
         cls.check_invariant_type_correct(neuron)
         cls.check_vector_in_non_vector_declaration_detected(neuron)
         cls.check_sum_has_correct_parameter(neuron)

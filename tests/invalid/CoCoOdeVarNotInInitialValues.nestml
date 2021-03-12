@@ -37,4 +37,8 @@ neuron CoCoOdeVarNotInInitialValues:
     equations:
         V_m' = 10 mV / s
     end
+
+    update:
+        integrate_odes()
+    end
 end

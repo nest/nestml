@@ -105,6 +105,7 @@ class MessageCode(Enum):
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
+    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
 
 
 class Messages:
@@ -1168,3 +1169,8 @@ class Messages:
     def get_state_variables_not_initialized(cls, var_name: str):
         message = "The variable `\'%s\' is not initialized." % var_name
         return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
+
+    @classmethod
+    def get_equations_defined_but_integrate_odes_not_called(cls):
+        message = "Equations defined but integrate_odes() not called"
+        return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message
