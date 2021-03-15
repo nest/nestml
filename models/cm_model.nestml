@@ -26,7 +26,15 @@ neuron cm_model:
   end
 
   initial_values:
-    
+    // sodium channel
+    //m_Na_ = 0.0
+    //h_Na_ = 0.0
+    //gbar_Na_ = 0.0
+    //e_Na_ = 50.0
+    // potassium channel
+    //n_K_ = 0.0
+    //gbar_K_= 0.0
+    //e_K_ = -85.0
   end
     
     #sodium
@@ -55,7 +63,34 @@ neuron cm_model:
         return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
     end
 
-  equations:
+  equations: 
+    inline cm_p_open_Na = m_Na_^3 * h_Na_^1
+    // extract channel type Na
+    // and expect
+    //      initial value of gbar_Na_ = 0.0
+    //      initial value of e_Na_ = 50.0
+    
+    // extract variables m and h
+    // for variable m expect:
+    //      initial value of m_Na_
+    //      function _m_inf_Na(v_comp real) real
+    //      function _tau_m_Na(v_comp real) real
+    // for variable h expect:
+    //      initial value of h_Na_
+    //      function _h_inf_Na(v_comp real) real
+    //      function _tau_h_Na(v_comp real) real
+    
+    inline p_open_K = n_K_^1
+    // extract channel type K
+    // and expect
+    //      initial value of gbar_K_ = 0.0
+    //      initial value of e_K_ = 50.0
+    
+    // extract variable n
+    // for variable n expect:
+    //      initial value of n_Na_
+    //      function _n_inf_Na(v_comp real) real
+    //      function _tau_n_Na(v_comp real) real
 
   end
 
