@@ -1,7 +1,7 @@
 #include "cm_etype.h"
 
 
-nest::EType::EType()
+nest::{{etypeClassName}}::{{etypeClassName}}()
     // sodium channel
     : m_Na_(0.0)
     , h_Na_(0.0)
@@ -12,7 +12,7 @@ nest::EType::EType()
     , gbar_K_(0.0)
     , e_K_(0.0)
 {}
-nest::EType::EType(const DictionaryDatum& compartment_params)
+nest::{{etypeClassName}}::{{etypeClassName}}(const DictionaryDatum& compartment_params)
     // sodium channel
     : m_Na_(0.0)
     , h_Na_(0.0)
@@ -36,7 +36,7 @@ nest::EType::EType(const DictionaryDatum& compartment_params)
 
 }
 
-std::pair< double, double > nest::EType::f_numstep(const double v_comp, const double dt)
+std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_comp, const double dt)
 {
     double g_val = 0., i_val = 0.;
 
@@ -98,7 +98,7 @@ std::pair< double, double > nest::EType::f_numstep(const double v_comp, const do
 }
 
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_definition(function, neuronName)}}
+{{printer.print_function_definition(function, etypeClassName)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}

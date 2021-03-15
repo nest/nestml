@@ -32,7 +32,7 @@
 
 namespace nest{
 
-class EType{
+class {{etypeClassName}}{
 // Example e-type with a sodium and potassium channel
 private:
     /*
@@ -54,9 +54,9 @@ private:
 
 public:
     // constructor, destructor
-    EType();
-    EType(const DictionaryDatum& compartment_params);
-    ~EType(){};
+    {{etypeClassName}}();
+    {{etypeClassName}}(const DictionaryDatum& compartment_params);
+    ~{{etypeClassName}}(){};
 
     void add_spike(){};
     std::pair< double, double > f_numstep(const double v_comp, const double lag);

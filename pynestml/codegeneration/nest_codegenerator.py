@@ -432,7 +432,7 @@ class NESTCodeGenerator(CodeGenerator):
             self.generate_cm_static_files(neuron)
         else:
             self.generate_model_h_file(neuron)
-            self.generate_model_cpp_file(neuron)
+            self.generate_neuron_cpp_file(neuron)
 
     def generate_model_h_file(self, neuron: ASTNeuron) -> None:
         """
@@ -443,7 +443,7 @@ class NESTCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
             f.write(str(neuron_h_file))
 
-    def generate_model_cpp_file(self, neuron: ASTNeuron) -> None:
+    def generate_neuron_cpp_file(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding implementation file.
         :param neuron: a single neuron object.
@@ -528,6 +528,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
+        namespace['etypeClassName'] = "EType"
         namespace['neuron'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         namespace['printer'] = NestPrinter(unitless_pretty_printer)

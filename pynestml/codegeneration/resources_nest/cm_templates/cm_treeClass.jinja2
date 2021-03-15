@@ -20,7 +20,7 @@ nest::Compartment::Compartment( const long compartment_index,
   , n_passed( 0 )
 {
   syns.resize( 0 );
-  etype = EType();
+  etype = {{etypeClassName}}();
 };
 nest::Compartment::Compartment( const long compartment_index,
                                 const long parent_index,
@@ -41,7 +41,7 @@ nest::Compartment::Compartment( const long compartment_index,
   , n_passed( 0 )
 {
   syns.resize( 0 );
-  etype = EType( compartment_params );
+  etype = {{etypeClassName}}( compartment_params );
 };
 
 void
