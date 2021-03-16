@@ -355,7 +355,7 @@ The declaration of a vector variable consists of the name of the variable follow
 
 .. code-block:: nestml
 
-   parameter:
+   parameters:
      g_ex [20] mV = 10mV
    end
 
