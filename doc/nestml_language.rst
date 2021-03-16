@@ -354,6 +354,7 @@ Variables can be declared as vectors to store an array of values. They can be de
 The declaration of a vector variable consists of the name of the variable followed by the size of the vector enclosed in ``[`` and ``]``. The vector must be initialized with a default value and all the values in the vector will be initialized to the specified initial value. For example,
 
 .. code-block:: nestml
+
    parameter:
      g_ex [20] mV = 10mV
    end
@@ -361,6 +362,7 @@ The declaration of a vector variable consists of the name of the variable follow
 Size of the vector can be a positive integer or a previously declared integer variable. For example, an integer variable named ``ten`` can be used to specify the size of the vector variable ``g_ex`` as:
 
 .. code-block:: nestml
+
    state:
      ten integer = 10
      g_ex [ten] mV = 10mV
