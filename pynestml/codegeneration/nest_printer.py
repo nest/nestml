@@ -478,9 +478,9 @@ class NestPrinter:
         assert isinstance(variable, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
         vector_parameter = variable.get_vector_parameter()
-        vector_variable = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
-        vector_variable_name = NestNamesConverter.convert_to_cpp_name(vector_variable.get_complete_name())
-        symbol = vector_variable.get_scope().resolve_to_symbol(vector_variable_name, SymbolKind.VARIABLE)
+        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
+        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+                                                                    SymbolKind.VARIABLE)
         vector_param = ""
         if symbol is not None:
             # size parameter is a variable

@@ -81,13 +81,6 @@ namespace nest
   // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
 {%- for variable in neuron.get_state_symbols() %}
-{%-   include "directives/RecordCallback.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-
-  // initial values for state variables in ODE or kernel
-{%- filter indent(2,True) %}
-{%- for variable in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable.name)) %}
 {%-     include "directives/RecordCallback.jinja2" %}
 {%-   endif %}
@@ -163,15 +156,6 @@ namespace nest
 {%- filter indent(2, True) %}
 {%- for parameter in neuron.get_parameter_symbols() -%}
 {%-   with variable = parameter %}
-{%-     include "directives/MemberInitialization.jinja2" %}
-{%-   endwith %}
-{%- endfor %}
-{%- endfilter %}
-
-  // initial values for state variables not in ODE or kernel
-{%- filter indent(2,True) %}
-{%- for state in neuron.get_state_symbols() %}
-{%-   with variable = state %}
 {%-     include "directives/MemberInitialization.jinja2" %}
 {%-   endwith %}
 {%- endfor %}

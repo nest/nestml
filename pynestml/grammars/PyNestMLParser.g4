@@ -104,7 +104,7 @@ parser grammar PyNestMLParser;
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
-    @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
+    @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptors]'.
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
   variable : name=NAME

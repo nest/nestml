@@ -346,6 +346,25 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
 
+Vectors
+~~~~~~~
+
+Variables can be declared as vectors to store an array of values. They can be declared in the ``parameters``, ``state``, and ``internals`` blocks. See :ref:`Block types` for more information on different types of blocks available in NESTML.
+The declaration of a vector variable consists of the name of the variable followed by the size of the vector enclosed in ``[`` and ``]``. The vector must be initialized with a default value and all the values in the vector will be initialized to the specified initial value. For example,
+
+.. code-block:: nestml
+    parameter:
+        g_ex [20] mV = 10mV
+    end
+
+Size of the vector can be a positive integer or a previously declared integer variable. For example, an integer variable named ``ten`` can be used to specify the size of the vector variable ``g_ex`` as:
+
+.. code-block:: nestml
+    state:
+        ten integer = 10
+        g_ex [ten] mV = 10mV
+    end
+
 Functions
 ~~~~~~~~~
 
