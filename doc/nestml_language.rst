@@ -290,48 +290,74 @@ For example, the following model will result in one warning and one error:
    end
 
 
-Documentation strings
+Documentation string
+~~~~~~~~~~~~~~~~~~~~
+
+Each neuron model may be documented by a block of text in reStructuredText format. Following [PEP 257 "Docstring Conventions"](https://www.python.org/dev/peps/pep-0257/), this block should be enclosed in triple double quotes (``"""``...``"""``) and appear directly before the definition of the neuron. For example:
+
+.. code-block:: nestml
+
+   """
+   iaf_psc_custom: My customized version of iaf_psc
+   ################################################
+   
+   Description
+   +++++++++++
+   
+   Long description follows here. We can typeset LaTeX math:
+   
+   .. math::
+
+      E = mc^2
+   
+   """
+   neuron iaf_psc_custom:
+     # [...]
+   end
+
+This documentation block is rendered as HTML on the [NESTML Models Library](https://nestml.readthedocs.io/en/latest/models_library/index.html).
+
+
+Comments in the model
 ~~~~~~~~~~~~~~~~~~~~~
 
-Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments (``"""..."""``) or Java-style comments (``/* ... */``) can be used.
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+
+Example of single or multi-line comments:
 
 .. code-block:: nestml
 
    var1 real # single line comment
 
-   /* This is 
-   *  a comment
-   *  over several lines.
-   */
-   var2 real
-   """
-   This is a multiline comment in Python syntax.
-   """
+   # This is 
+   #  a comment
+   #   over several lines.
 
-To enable NESTML to recognize the commented element uniquely, the following approach has to be used: there should be no white line separating the comment and its target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target. For example:
 
 .. code-block:: nestml
 
    V_m mV = -55 mV # I am a comment of the membrane potential
 
-   /* I am not a comment of the membrane potential. A white line separates us. */ 
+   # I am not a comment of the membrane potential. A white line separates us.
 
 If a comment shall be attached to an element, no white lines are allowed.
 
 .. code-block:: nestml
 
-   V_m mV = -55mV # I am a comment of the membrane potential
-   /* I am a comment of the membrane potential.*/ 
+   V_m mV = -55 mV # I am a comment of the membrane potential
+   # I am a comment of the membrane potential.
 
 Whitelines are therefore used to separate comment targets:
 
 .. code-block:: nestml
 
-   V_m mV = -55mV
-   /* I am a comment of the membrane potential.*/ 
+   V_m mV = -55 mV
+   # I am a comment of the membrane potential.
 
-   /* I am a comment of the resting potential.*/
-   V_rest mV = -60mV
+   # I am a comment of the resting potential.
+   V_rest mV = -60 mV
+
 
 Assignments
 ~~~~~~~~~~~

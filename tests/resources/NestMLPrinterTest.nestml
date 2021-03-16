@@ -1,110 +1,118 @@
-/**
- *
- *  NestMLPrinterTest.nestml
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  Test whether the NestML printer and beautifier works as intended.
- */
- /*neuron pre*/
+"""
+NestMLPrinterTest.nestml
+########################
+
+
+Description
++++++++++++
+
+Test whether the NestML printer and beautifier works as intended.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+# neuron pre
 neuron aeif_cond_alpha_implicit:
 
-  /*state pre*/
+  # state pre
   state: # state in
-    /*state var decl pre*/
+    # state var decl pre
     r integer  # state var decl comment
-    /*state var decl post*/
+    # state var decl post
   end
-  /*state post*/
+  # state post
 
-  /*eq pre*/
+  # eq pre
   equations: # eq in
 
-    /*inline pre*/
+    # inline pre
     inline V_bounded mV = min(0,1) # inline in
-    /*inline post*/
+    # inline post
 
-    /*kernel pre*/
+    # kernel pre
     kernel V_M'' = 1 # kernel in
-    /*kernel post*/
+    # kernel post
 
-    /*ode pre*/
+    # ode pre
     V_m'= 1 # ode in
-    /*ode post*/
+    # ode post
 
   end
-  /*eq post*/
+  # eq post
 
-  /*parameters pre*/
+  # parameters pre
   parameters: # parameters in
-    /*par decl pre*/
+    # par decl pre
     C_m pF = 281.0pF # par decl in
-    /*par decl post*/
+    # par decl post
   end
-  /*parameters post*/
+  # parameters post
 
-  /*int pre*/
+  # int pre
   internals: # int in
-    /*int decl pre*/
+    # int decl pre
     RefractoryCounts integer = steps(1) # int decl in
-    /*int decl post*/
+    # int decl post
   end
-  /*int post*/
+  # int post
 
-  /*input pre*/
+  # input pre
   input:
-    /*input decl pre*/
+    # input decl pre
     spikesInh nS <-inhibitory spike # input decl in
-    /*input decl post*/
+    # input decl post
   end
-  /*input post*/
+  # input post
 
-  /*output pre*/
+  # output pre
   output: spike # output in
-  /*output post*/
+  # output post
 
-  /*update pre*/
+  # update pre
   update: # update in
 
-    /*stmt1 pre*/
+    # stmt1 pre
     integrate_odes() # stmt1 in
-    /*stmt1 post*/
+    # stmt1 post
 
-    /*stmt2 pre*/
+    # stmt2 pre
     if r > 0: # stmt2 in
-    /*stmt2 post*/
+    # stmt2 post
 
-      /*stmt3 pre*/
+      # stmt3 pre
       r -= 1 # stmt3 in
-      /*stmt3 post*/
+      # stmt3 post
 
-    /*stmt4 pre*/
+    # stmt4 pre
     elif V_m >= V_peak: # stmt4 in
 
-      /*stmt5 pre*/
+      # stmt5 pre
       r = RefractoryCounts # stmt5 pre
-      /*stmt5 pre*/
+      # stmt5 pre
 
     end
-    /*stmt2 post*/
+    # stmt2 post
 
   end
-  /*update post*/
+  # update post
 
 end
-/*neuron post*/
+# neuron post

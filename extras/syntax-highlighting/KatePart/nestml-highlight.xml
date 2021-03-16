@@ -3334,25 +3334,13 @@
         <Int attribute="Int" context="#stay" />
 
         <DetectChar attribute="Comment" char="#" context="Hash comment"/>
-        <!-- ''' -->
-        <StringDetect attribute="Comment" String="'''" context="Multiline comment S"/>
         <!-- """ -->
         <StringDetect attribute="Comment" String="&quot;&quot;&quot;" context="Multiline comment D"/>
-        <!-- /*  */ -->
-        <StringDetect attribute="Comment" context="Multiline comment C" String="/*" />
 
         <DetectChar attribute="String" context="string" char="&quot;" />
       </context>
 
       <context name="Hash comment" attribute="Comment" lineEndContext="#pop">
-      </context>
-
-      <context name="Multiline comment C" attribute="Comment" lineEndContext="#stay" noIndentationBasedFolding="true">
-          <StringDetect attribute="Comment" String="*/" context="#pop"/>
-      </context>
-
-      <context name="Multiline comment S" attribute="Comment" lineEndContext="#stay" noIndentationBasedFolding="true">
-          <StringDetect attribute="Comment" String="'''" context="#pop"/>
       </context>
 
       <context name="Multiline comment D" attribute="Comment" lineEndContext="#stay" noIndentationBasedFolding="true">
@@ -3383,9 +3371,7 @@
    <general>
     <comments>
       <comment name="singleLine" start="#" />
-      <comment name="multiLine" start="/*" end="*/" />
       <comment name="multiLine" start="&quot;&quot;&quot;" end="&quot;&quot;&quot;" />
-      <comment name="multiLine" start="'''" end="'''" />
     </comments>
     <keywords casesensitive="1"/>
   </general>

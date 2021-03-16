@@ -198,7 +198,7 @@ parser grammar PyNestMLParser;
   /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestMLCompilationUnit: (neuron | NEWLINE )* EOF;
+  nestMLCompilationUnit : (neuron | NEWLINE )* EOF;
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
