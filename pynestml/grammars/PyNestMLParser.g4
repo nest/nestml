@@ -231,7 +231,7 @@ parser grammar PyNestMLParser;
     @attribute declaration: A list of corresponding declarations.
   */
   blockWithVariables:
-    blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD | INITIAL_VALUES_KEYWORD)
+    blockType=(STATE_KEYWORD | PARAMETERS_KEYWORD | INTERNALS_KEYWORD)
     COLON
       (declaration | NEWLINE)*
     END_KEYWORD;

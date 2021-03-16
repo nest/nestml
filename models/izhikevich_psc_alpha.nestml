@@ -46,10 +46,7 @@ Hanuschkin, Morrison, Kunkel
 neuron izhikevich_psc_alpha:
 
   state:
-    r integer # number of steps in the current refractory phase
-  end
-
-  initial_values:
+    r integer = 0 # number of steps in the current refractory phase
     V_m mV = -65 mV # Membrane potential
     U_m pA = 0 pA   # Membrane potential recovery variable
   end

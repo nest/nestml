@@ -25,11 +25,15 @@
 */
 
 neuron CoCoNoOrderOfEquations:
-    initial_values:
+    state:
         V_m mV = 10mV
     end
 
     equations:
         V_m = 10 mV / s # here, we did not specified the order of equation
+    end
+
+    update:
+        integrate_odes()
     end
 end

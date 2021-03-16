@@ -26,11 +26,19 @@
 */
 
 neuron CoCoOdeVarNotInInitialValues:
+    parameters:
+        V_m mV = -50 mV
+    end
+
     state:
-        V_m mV = 10mV
+        V_abs mV = 10mV
     end
 
     equations:
         V_m' = 10 mV / s
+    end
+
+    update:
+        integrate_odes()
     end
 end

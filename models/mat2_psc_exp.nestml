@@ -50,14 +50,11 @@ Thomas Pfeil (modified iaf_psc_exp model of Moritz Helias)
 neuron mat2_psc_exp:
 
   state:
-    V_th_alpha_1 mV # Two-timescale adaptive threshold
-    V_th_alpha_2 mV # Two-timescale adaptive threshold
+    V_th_alpha_1 mV = 0 mV # Two-timescale adaptive threshold
+    V_th_alpha_2 mV = 0 mV # Two-timescale adaptive threshold
 
-    r integer                               # counts number of tick during the refractory period
-  end
-
-  initial_values:
-    V_abs mV  = 0 mV # Membrane potential
+    r integer = 0 # counts number of tick during the refractory period
+    V_abs mV = 0 mV # Membrane potential
     V_m mV = V_abs + E_L    # Relative membrane potential.
                             # I.e. the real threshold is (V_m-E_L).
   end
@@ -66,8 +63,6 @@ neuron mat2_psc_exp:
     kernel I_kernel_in = exp(-1/tau_syn_in*t)
     kernel I_kernel_ex = exp(-1/tau_syn_ex*t)
 
-    # V_th_alpha_1' = -V_th_alpha_1/tau_1
-    # V_th_alpha_2' = -V_th_alpha_2/tau_2
     inline I_syn pA = convolve(I_kernel_in, in_spikes) + convolve(I_kernel_ex, ex_spikes)
     V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
   end

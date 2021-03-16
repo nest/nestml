@@ -53,16 +53,25 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 input_file = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 lexer = PyNestMLLexer(input_file)
+                lexer._errHandler = BailErrorStrategy()
+                lexer._errHandler.reset(lexer)
+
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 stream.fill()
+
                 # parse the file
                 parser = PyNestMLParser(stream)
+                parser._errHandler = BailErrorStrategy()
+                parser._errHandler.reset(parser)
+
                 # process the comments
                 compilation_unit = parser.nestMLCompilationUnit()
+
                 # create a new visitor and return the new AST
                 ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
                 ast = ast_builder_visitor.visit(compilation_unit)
+
                 # update the corresponding symbol tables
                 SymbolTable.initialize_symbol_table(ast.get_source_position())
                 symbol_table_visitor = ASTSymbolTableVisitor()
