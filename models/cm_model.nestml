@@ -25,16 +25,24 @@ neuron cm_model:
     
   end
 
+    # sodium channel
+    # m_Na_ = 0.0
+    # h_Na_ = 0.0
+    # gbar_Na_ = 0.0
+    # e_Na_ = 50.0
+    # potassium channel
+    # n_K_ = 0.0
+    # gbar_K_= 0.0
+    # e_K_ = -85.0
   initial_values:
-    // sodium channel
-    //m_Na_ = 0.0
-    //h_Na_ = 0.0
-    //gbar_Na_ = 0.0
-    //e_Na_ = 50.0
-    // potassium channel
-    //n_K_ = 0.0
-    //gbar_K_= 0.0
-    //e_K_ = -85.0
+    e_Na_ real = 50.0
+    m_Na_ real = 0.0
+    h_Na_ real = 0.0
+    gbar_Na_ real = 0.0
+    
+    e_K_ real = -85.0
+    gbar_K_ real = 0.0
+    n_K_ real = 0.0
   end
     
     #sodium
@@ -64,33 +72,34 @@ neuron cm_model:
     end
 
   equations: 
-    inline cm_p_open_Na = m_Na_^3 * h_Na_^1
-    // extract channel type Na
-    // and expect
-    //      initial value of gbar_Na_ = 0.0
-    //      initial value of e_Na_ = 50.0
+    inline cm_p_open_Na real = m_Na_**3 * h_Na_**1 
+    #inline cm_p_open_Ca real = r_Na_**3 * s_Ca_**1 
+    # extract channel type Na
+    # and expect
+    #      initial value of gbar_Na_ = 0.0
+    #      initial value of e_Na_ = 50.0
     
-    // extract variables m and h
-    // for variable m expect:
-    //      initial value of m_Na_
-    //      function _m_inf_Na(v_comp real) real
-    //      function _tau_m_Na(v_comp real) real
-    // for variable h expect:
-    //      initial value of h_Na_
-    //      function _h_inf_Na(v_comp real) real
-    //      function _tau_h_Na(v_comp real) real
+    # extract variables m and h
+    # for variable m expect:
+    #      initial value of m_Na_
+    #      function _m_inf_Na(v_comp real) real
+    #      function _tau_m_Na(v_comp real) real
+    # for variable h expect:
+    #      initial value of h_Na_
+    #      function _h_inf_Na(v_comp real) real
+    #      function _tau_h_Na(v_comp real) real
     
-    inline p_open_K = n_K_^1
-    // extract channel type K
-    // and expect
-    //      initial value of gbar_K_ = 0.0
-    //      initial value of e_K_ = 50.0
+    inline cm_p_open_K real = n_K_**1
+    # extract channel type K
+    # and expect
+    #      initial value of gbar_K_ = 0.0
+    #      initial value of e_K_ = 50.0
     
-    // extract variable n
-    // for variable n expect:
-    //      initial value of n_Na_
-    //      function _n_inf_Na(v_comp real) real
-    //      function _tau_n_Na(v_comp real) real
+    # extract variable n
+    # for variable n expect:
+    #      initial value of n_Na_
+    #      function _n_inf_Na(v_comp real) real
+    #      function _tau_n_Na(v_comp real) real
 
   end
 

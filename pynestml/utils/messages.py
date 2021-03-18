@@ -20,6 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from enum import Enum
 from typing import Tuple
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from collections.abc import Iterable
 
 
 class MessageCode(Enum):
@@ -104,6 +106,9 @@ class MessageCode(Enum):
     KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
     NO_FILES_IN_INPUT_PATH = 76
+    BAD_CM_VARIABLE_NAME = 77
+    CM_FUNCTION_MISSING = 78
+    CM_INITIAL_VALUES_MISSING = 79
 
 
 class Messages:
@@ -1151,6 +1156,7 @@ class Messages:
         """
         message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
+    
 
     @classmethod
     def get_could_not_determine_cond_based(cls, type_str, name):
@@ -1162,3 +1168,54 @@ class Messages:
     def get_no_files_in_input_path(cls, path: str):
         message = "No files found matching '*.nestml' in provided input path '" + path + "'"
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
+    
+    @classmethod
+    def get_cm_inline_expression_variable_name_must_end_with_channel_name(cls, cm_inline_expr, bad_variable_name, ion_channel_name):
+        """
+        Indicates that if you defined an inline expression inside the equations block
+        and it is called cm_p_open_{x}
+        then all variable names in that expression must end with _{x}
+        For example with "cm_p_open_Na" can only contain variables ending with "_Na"
+        :param name: the name of the inline expression with bad variable name format
+        :type name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (cm_inline_expr is not None and isinstance(cm_inline_expr, ASTInlineExpression)),\
+            '(PyNestML.Utils.Message) No ASTInlineExpression provided (%s)!' % type(cm_inline_expr)
+        
+        assert (bad_variable_name is not None and isinstance(bad_variable_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(bad_variable_name)
+
+        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)
+        
+        message = "Bad variable name '"+ bad_variable_name 
+        message += "' inside declaration of '" + cm_inline_expr.variable_name+"'. "
+        message += "\nVariable names are expected to match ion channel name, meaning they must have suffix '"+ion_channel_name+"' here"
+        
+        return MessageCode.BAD_CM_VARIABLE_NAME, message
+    
+    @classmethod
+    def get_expected_cm_function_missing(cls, ion_channel_name, function_name):
+        assert (function_name is not None and isinstance(function_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(function_name)
+        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)            
+        message = "Implementation of a function called '"+ function_name +"' not found. It is expected because of the ion channel '"+ion_channel_name+"'"
+        return MessageCode.CM_FUNCTION_MISSING, message
+    
+    @classmethod
+    def get_expected_cm_initial_values_missing(cls, not_yet_found_variables, expected_initial_variables_to_reason):
+        assert (not_yet_found_variables is not None and isinstance(not_yet_found_variables, Iterable)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(not_yet_found_variables)
+        assert (expected_initial_variables_to_reason is not None and isinstance(expected_initial_variables_to_reason, dict)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(expected_initial_variables_to_reason)            
+        
+        message = "The following initial values for compartmental model variables not found:\n"
+        for missing_var in not_yet_found_variables:
+            message += "Initial value for variable with name '" + missing_var + "' not found but expected to exist because of position " 
+            message += str(expected_initial_variables_to_reason[missing_var].get_source_position())+"\n"
+            
+            
+        return MessageCode.CM_INITIAL_VALUES_MISSING, message
