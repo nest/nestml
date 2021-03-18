@@ -112,8 +112,17 @@ class CoCosManager:
         If such expression is found
         -finds all Variables x used in that expression
         -makes sure following functions are defined:
+        
         _x_inf_{channelType}(v_comp real) real
         _tau_x_{channelType}(v_comp real) real
+        
+        -makes sure that all Variables x are defined in initial values block
+        -in addition makes sure that initial block contains
+        
+        gbar_x
+        e_x
+        
+        underscores at the end of those variables are tolerated
         :param neuron: a single neuron.
         :type neuron: ast_neuron
         """

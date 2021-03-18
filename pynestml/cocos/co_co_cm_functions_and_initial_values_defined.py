@@ -19,19 +19,21 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
-from pynestml.meta_model.ast_declaration import ASTDeclaration
-from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
 from collections import defaultdict
 
 
 class CoCoCmFunctionsAndVariablesDefined(CoCo):
+    
+    inline_expression_prefix = "cm_p_open_"
+    padding_character = "_"
+    
+    
     """
     This class represents a constraint condition which ensures that 
     all variables x as used in the inline expression cm_p_open_{channelType}
@@ -55,20 +57,25 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         function _tau_h_Na(v_comp real) real: 
             return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
         end
+        
+    Moreover it checks if all expected initial values are defined
+    And that variables are properly named
+    Example:
+        inline cm_p_open_Na real = m_Na_**3 * h_Na_**1
+        
+        #causes to requirement for following entries in the initial values block
+        
+        gbar_Na
+        e_Na
+        m_Na_
+        h_Na_
+    
     """
-
+    
+    
+    #returns any inline cm_p_open_{channelType} found in the node
     @classmethod
-    def check_co_co(cls, node: ASTNode, after_ast_rewrite: bool):
-        """
-        Checks if this coco applies for the handed over neuron. 
-        Models which do not have cm_p_open_{channelType}
-        inside ASTEquationsBlock are not relevant
-        :param node: a single neuron instance.
-        :type node: ast_neuron
-        """
-        
-        inline_expression_prefix = "cm_p_open_"
-        
+    def getRelevantInlineExpressions(cls, node):
         # search for inline expressions inside equations block
         inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsBlockCollectorVisitor()
         node.accept(inline_expressions_inside_equations_block_collector_visitor)
@@ -78,62 +85,122 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         relevant_inline_expressions = defaultdict(lambda:list())
         for expression, variables in inline_expressions_dict.items():
             inline_expression_name = expression.variable_name
-            if inline_expression_name.startswith(inline_expression_prefix):
+            if inline_expression_name.startswith(cls.inline_expression_prefix):
                 relevant_inline_expressions[expression] = variables
+                
+        return relevant_inline_expressions
+    
+    @classmethod
+    def cm_expression_to_channel_name(cls, expr):
+        assert(isinstance(expr, ASTInlineExpression))
+        return expr.variable_name[len(cls.inline_expression_prefix):].strip(cls.padding_character)
+
+    # extract channel name from inline expression name
+    # i.e  cm_p_open_Na -> channel name is Na
+    @classmethod
+    def extract_pure_cm_variable_name(cls, varname, ic_name):
+        varname = varname.strip(cls.padding_character)
+        assert(varname.endswith(ic_name))
+        return varname[:-len(ic_name)].strip(cls.padding_character)
+    
+    @classmethod
+    def getExpectedGbarName(cls, ion_channel_name):
+        return "gbar"+cls.padding_character+ion_channel_name+cls.padding_character
+    
+    @classmethod
+    def getExpectedEquilibirumVarName(cls, ion_channel_name):
+        return "e"+cls.padding_character+ion_channel_name+cls.padding_character
+    
+    @classmethod
+    def getExpectedTauFunctionName(cls, ion_channel_name, pure_cm_variable_name):
+        return cls.padding_character+"tau"+cls.padding_character+pure_cm_variable_name+cls.padding_character+ion_channel_name
+    
+    
+    @classmethod
+    def getExpectedInfFunctionName(cls, ion_channel_name, pure_cm_variable_name):
+        return cls.padding_character+pure_cm_variable_name+cls.padding_character+"inf"+cls.padding_character + ion_channel_name
+    
+    
+    # calculate function names that must be implemented
+    # i.e 
+    # m_Na_**3 * h_Na_**1 
+    # leads to expect
+    # _m_inf_Na(v_comp real) real
+    # _tau_m_Na(v_comp real) real
+    @classmethod
+    def getExpectedFunctionNamesForChannels(cls, relevant_inline_expressions_to_variables):
+        expected_function_names_to_channels = defaultdict()
         
-        # extract channel name from inline expression name
-        # i.e  cm_p_open_Na -> channel name is _Na
-        # then calculate function names that must be implemented
-        # i.e 
-        # m_Na_**3 * h_Na_**1 
-        # leads to expect
-        # _m_inf_Na(v_comp real) real
-        # _tau_m_Na(v_comp real) real
-        
-        def cm_expression_to_channel_name(expr):
-            return expr.variable_name[len(inline_expression_prefix):].strip("_")
-        
-        def get_pure_variable_name(varname, ic_name):
-            varname = varname.strip("_")
-            assert(varname.endswith(ic_name))
-            return varname[:-len(ic_name)].strip("_")
-        
-        expected_initial_variables_to_reason = defaultdict(lambda:list())
-        channel_names_to_expected_function_names = defaultdict(lambda:list())
-        for cm_expression, variables in relevant_inline_expressions.items():
-            ion_channel_name = cm_expression_to_channel_name(cm_expression)
-            expected_initial_variables_to_reason["gbar_"+ion_channel_name+"_"] = cm_expression
-            expected_initial_variables_to_reason["e_"+ion_channel_name+"_"] = cm_expression
-            
-            expected_function_names = []
+        for cm_expression, variables in relevant_inline_expressions_to_variables.items():
+            ion_channel_name = cls.cm_expression_to_channel_name(cm_expression)
+
             for variable_used in variables:
-                variable_name = variable_used.name.strip("_")
+                variable_name = variable_used.name.strip(cls.padding_character)
+                if not variable_name.endswith(ion_channel_name):
+                    continue
+                
+                pure_cm_variable_name = cls.extract_pure_cm_variable_name(variable_name, ion_channel_name)
+                
+                expected_inf_function_name = cls.getExpectedInfFunctionName(ion_channel_name, pure_cm_variable_name)
+                expected_function_names_to_channels[expected_inf_function_name] = ion_channel_name
+                expected_tau_function_name = cls.getExpectedTauFunctionName(ion_channel_name, pure_cm_variable_name)
+                expected_function_names_to_channels[expected_tau_function_name] = ion_channel_name
+        
+        return expected_function_names_to_channels
+
+    @classmethod
+    def getAndCheckExpectedVariableNamesAndReasons(cls, node, relevant_inline_expressions_to_variables):
+        expected_initial_variables_to_reason = defaultdict()
+
+        for cm_expression, variables in relevant_inline_expressions_to_variables.items():
+            ion_channel_name = cls.cm_expression_to_channel_name(cm_expression)
+            
+            expected_initial_variables_to_reason[cls.getExpectedGbarName(ion_channel_name)] = cm_expression
+            expected_initial_variables_to_reason[cls.getExpectedEquilibirumVarName(ion_channel_name)] = cm_expression
+            
+            for variable_used in variables:
+                variable_name = variable_used.name.strip(cls.padding_character)
                 if not variable_name.endswith(ion_channel_name):
                     code, message = Messages.get_cm_inline_expression_variable_name_must_end_with_channel_name(cm_expression, variable_name, ion_channel_name)
                     Logger.log_message(code=code, message=message, error_position=variable_used.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
                     continue
 
-                expected_initial_variables_to_reason[variable_used.name] = variable_used    
+                expected_initial_variables_to_reason[variable_used.name] = variable_used 
                 
-                pure_variable_name = get_pure_variable_name(variable_name, ion_channel_name)
-                expected_inf_function_name = "_"+pure_variable_name+"_inf_"+ion_channel_name
-                expected_tau_function_name = "_tau_"+pure_variable_name+"_"+ion_channel_name
-                expected_function_names.append(expected_inf_function_name)
-                expected_function_names.append(expected_tau_function_name)
-            channel_names_to_expected_function_names[ion_channel_name] = expected_function_names
+        return expected_initial_variables_to_reason   
+
+    @classmethod
+    def check_co_co(cls, node: ASTNode, after_ast_rewrite: bool):
+        """
+        Checks if this coco applies for the handed over neuron. 
+        Models which do not have inline cm_p_open_{channelType}
+        inside ASTEquationsBlock are not relevant
+        :param node: a single neuron instance.
+        :type node: ast_neuron
+        """
         
-        #get functions and collect their names    
+        # get inline cm_p_open_{channelType} expressions
+        relevant_inline_expressions_to_variables = cls.getRelevantInlineExpressions(node)
+
+        # get a dict {expected_function_name : channel_name_that_caused_expectation}
+        expected_function_names_for_channels = cls.getExpectedFunctionNamesForChannels(relevant_inline_expressions_to_variables)
+
+        # get functions and collect their names    
         declared_functions = node.get_functions()
         declared_function_names = [declared_function.name for declared_function in declared_functions]
         
-        for ion_channel_name, expected_function_names in channel_names_to_expected_function_names.items():
-            for expected_function_name in expected_function_names:
-                if expected_function_name not in declared_function_names:
-                    code, message = Messages.get_expected_cm_function_missing(ion_channel_name, expected_function_name)
-                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
+        # check for missing functions
+        for expected_function_name, ion_channel_name in expected_function_names_for_channels.items():
+            if expected_function_name not in declared_function_names:
+                code, message = Messages.get_expected_cm_function_missing(ion_channel_name, expected_function_name)
+                Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-        relevant_function_names = [f for f in declared_functions if f.name in expected_function_names]    
-        #maybe check if function has exactly one argument, but may not be needed
+        # maybe check if function has exactly one argument, but may not be needed to do
+        # relevant_function_names = [f for f in declared_functions if f.name in expected_function_names_for_channels.keys()]    
+        
+        # get expected variables and also throw errors if naming expecations not met
+        # a dict {expected_variable_name : ASTVariable_or_ASTInlineExpression_that_caused_expectation}
+        expected_initial_variables_to_reason = cls.getAndCheckExpectedVariableNamesAndReasons(node, relevant_inline_expressions_to_variables)
         
         #now check for existence of expected_initial_variables_to_reason
         initial_values_missing_visitor = InitialValueMissingVisitor(expected_initial_variables_to_reason)
@@ -160,7 +227,8 @@ class InitialValueMissingVisitor(ASTVisitor):
     def visit_variable(self, node):
         if self.inside_block_with_variables and \
         self.inside_declaration and\
-        self.current_block_with_variables is not None:
+        self.current_block_with_variables is not None and\
+        self.current_block_with_variables.is_initial_values:
             varname = node.name
             if varname in self.not_yet_found_variables:
                 Logger.log_message(message="Expected initial variable '"+varname+"' found" ,

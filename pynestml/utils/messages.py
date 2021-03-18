@@ -1202,7 +1202,7 @@ class Messages:
             '(PyNestML.Utils.Message) No str provided (%s)!' % type(function_name)
         assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
             '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)            
-        message = "Implementation of a function called '"+ function_name +"' not found. It is expected because of the ion channel '"+ion_channel_name+"'"
+        message = "Implementation of a function called '"+ function_name +"' not found. It is expected because of variables used in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
     
     @classmethod
