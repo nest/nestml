@@ -554,32 +554,6 @@ TODO list
 
 - *spike* vs. *event:* consistent use
 
-- Use JSON file also for identifying pre. vs post ports. Current:
-
-  .. code-block:: nestml
-
-     input:
-       post_spikes nS <- post spike
-     end
-
-  Desired:
-
-  .. code-block:: nestml
-
-     input:
-       post_spikes nS <- spike
-     end
-
-  with
-
-  .. code-block:: json
-
-    {
-        "post_ports": {"stdp_nestml": ["post_spikes"]}
-    }
-
-  if the name of the NESTML synapse model is "stdp_nestml".
-
 - NESTML only has support for a single, unnamed output port.
 
   Compare
@@ -630,45 +604,6 @@ TODO list
        # [...]
      end
 
-- Third-factor plasticity rules
-
-  For example, weight updates in the "Clopath synapse" model depend also on the postsynaptic membrane potential.
-
-  .. code-block:: nestml
-
-     input:
-       pre_spikes nS <- spike
-       post_spikes nS <- post spike
-       post_V_m mV <- continous
-     end
-
-  and "connect" by specifying in the JSON code generator options file:
-
-  .. code-block:: json
-
-    {
-      "connections": [{"from": ["iaf_psc_exp", "V_m"],
-                       "to": ["stdp_nestml", "post_V_m"]}]
-    }
-
-  Another example: dopamine-modulated STDP.
-
-  .. code-block:: nestml
-
-     input:
-       pre_spikes nS <- spike
-       post_spikes nS <- post spike
-       dopa_concentr mV <- continous
-     end
-     
-  This requires an extra component to obtain the dopamine concentration from; in NEST, this is called the "volume transmitter". It receives spikes and convolves these with a kernel to obtain a continuous dopamine concentration value.
-
-  .. code-block:: json
-
-    {
-      "connections": [{"from": ["dopa_volume_transmitter (?!)", "C_dopa"],
-                       "to": ["stdp_nestml", "dopa_concentr"]}]
-    }
    
    
 
