@@ -88,18 +88,14 @@ namespace nest
   // initial values for state variables not in ODE or kernel
 {%- filter indent(2,True) %}
 {%- if has_vectors %}
-{%- for variable in neuron.get_state_non_alias_symbols() %}
+{%- for variable in neuron.get_state_symbols() %}
 {%-   include "directives/DynamicRecordCallback.jinja2" %}
 {%- endfor %}
 {%- else %}
-{%- endif %}
-  // initial values for state variables in ODE or kernel
-{%- filter indent(2,True) %}
-{%- for variable in neuron.get_initial_values_non_alias_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(variable.name)) %}
+{%- for variable in neuron.get_state_symbols() %}
 {%-     include "directives/RecordCallback.jinja2" %}
-{%-   endif %}
 {%- endfor %}
+{%- endif %}
 {%- endfilter %}
 
   // function symbols
@@ -318,14 +314,6 @@ void {{neuronName}}::calibrate() {
 {%- filter indent(2,True) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   include "directives/Calibrate.jinja2" %}
-{%- endfor %}
-{%- endfilter %}
-
-{%- filter indent(2,True) %}
-{%- for variable in neuron.get_state_symbols() %}
-{%-   if variable.has_vector_parameter() %}
-{%-     include "directives/Calibrate.jinja2" %}
-{%-   endif %}
 {%- endfor %}
 {%- endfilter %}
 
