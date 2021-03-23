@@ -18,6 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import List, Optional
+
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 
 
@@ -26,138 +29,146 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
     This visitor iterates over a given parse tree and inspects the corresponding stream of tokens in order
     to update all nodes by their corresponding tokens.
     Attributes:
-        __tokens (list): A list of all tokens representing the model.
     """
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, strip_delim: bool = True):
+        """
+        Parameters
+        ----------
+        tokens
+            A list of all tokens representing the model.
+        strip_delim
+            Whether to strip the comment delimiters (``#`` and ``\"\"\"``...``\"\"\"``).
+        """
+
         self.__tokens = tokens
+        self.__strip_delim = strip_delim
 
     def visitBlockWithVariables(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitBlock(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitNeuron(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitOdeEquation(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitInlineExpression(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitKernel(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitStmt(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitSmallStmt(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitCompoundStmt(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitInputPort(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitDeclaration(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitAssignment(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitUpdateBlock(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitEquationsBlock(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitInputBlock(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitOutputBlock(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitFunctionCall(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitFunction(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitForStmt(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitWhileStmt(self, ctx):
-        return (get_comments(ctx, self.__tokens), get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+        return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
     def visitIfClause(self, ctx):
         temp = list()
-        temp.extend(get_pre_comment(ctx, self.__tokens))
-        temp.append(get_in_comments(ctx, self.__tokens))
+        temp.extend(get_pre_comments(ctx, self.__tokens, self.__strip_delim))
+        temp.append(get_in_comment(ctx, self.__tokens, self.__strip_delim))
         # for if clauses no post comments are supported
-        return (temp, get_pre_comment(ctx, self.__tokens),
-                get_in_comments(ctx, self.__tokens), list())
+        return (temp, get_pre_comments(ctx, self.__tokens, self.__strip_delim),
+                get_in_comment(ctx, self.__tokens, self.__strip_delim), list())
 
     def visitElifClause(self, ctx):
-        temp = get_in_comments(ctx, self.__tokens)
+        temp = get_in_comment(ctx, self.__tokens, self.__strip_delim)
         if temp is None:
             temp = list()
         else:
             temp = list(temp)
         # for elif clauses, only in comments are supported
-        return (temp, list(), get_in_comments(ctx, self.__tokens),
+        return (temp, list(), get_in_comment(ctx, self.__tokens, self.__strip_delim),
                 list())
 
     def visitElseClause(self, ctx):
-        temp = get_in_comments(ctx, self.__tokens)
+        temp = get_in_comment(ctx, self.__tokens, self.__strip_delim)
         if temp is None:
             temp = list()
         else:
             temp = list(temp)
-        return (temp, list(), get_in_comments(ctx, self.__tokens),
-                get_post_comments(ctx, self.__tokens))
+        return (temp, list(), get_in_comment(ctx, self.__tokens, self.__strip_delim),
+                get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
 
 def is_newline(tok):
     return tok.text in ['\n', '\r\n']
 
 
-def get_comments(ctx, tokens):
+def get_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     """
-    Returns all previously, in-line and pos comments.
+    Returns all pre-, inline and post-comments.
     :param ctx: a context
     :type ctx: ctx
     :param tokens: list of token objects
     :type tokens: list(Tokens)
     :return: a list of comments
-    :rtype: list(str)
     """
     ret = list()
-    pre_comments = get_pre_comment(ctx, tokens)
-    in_comment = get_in_comments(ctx, tokens)
-    post_comments = get_post_comments(ctx, tokens)
+    pre_comments = get_pre_comments(ctx, tokens, strip_delim=strip_delim)
+    in_comment = get_in_comment(ctx, tokens, strip_delim=strip_delim)
+    post_comments = get_post_comments(ctx, tokens, strip_delim=strip_delim)
     if pre_comments is not None:
         ret.extend(pre_comments)
     if in_comment is not None:
@@ -167,49 +178,55 @@ def get_comments(ctx, tokens):
     return ret
 
 
-def get_pre_comment(ctx, tokens):
+def get_pre_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     """
-    Returns the comment which has been stated before this element but also before the next previous token.
+    Returns the comment which has been started before this element but also before the next previous token.
     :param ctx: a context
     :type ctx: ctx
     :param tokens: list of token objects
     :type tokens: list(Tokens)
-    :return: the corresponding comment or None
-    :rtype: str
+    :return: the corresponding comments
     """
     # first find the position of this token in the stream
     comments = list()
     empty_before = __no_definitions_before(ctx, tokens)
-    eol = False
     temp = None
     for possibleCommentToken in reversed(tokens[0:tokens.index(ctx.start)]):
-        # if we hit a normal token (i.e. not whitespace, not newline and not token) then stop, since we reached
-        # the next previous element, thus the next comments belong to this element
+        # skip whitespaces
+        if possibleCommentToken.channel == 1:
+            continue
+        # if we hit a normal token (i.e. not whitespace and not newline) then stop
         if possibleCommentToken.channel == 0 and (not is_newline(possibleCommentToken)):
+            break
+        # a newline by itself separates elements
+        if possibleCommentToken.channel == 0 and is_newline(possibleCommentToken):
+            if temp is not None:
+                comments.append(temp)
             break
         # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
         # in the same line, since in this case, the comments does not belong to us
         if possibleCommentToken.channel == 2:
-            # if it is something on the comment channel -> get it
-            temp = replace_delimiters(possibleCommentToken.text)
-            eol = False
-        # skip whitespaces
-        if possibleCommentToken.channel == 1:
-            continue
-        # if the previous token was an EOL and and this token is neither a white space nor a comment, thus
-        # it is yet another newline,stop (two lines separate a two elements)
-        elif eol and not empty_before:
-            break
-        # we have found a new line token. thus if we have stored a comment on the stack, its ok to store it in
-        # our element, since it does not belong to a declaration in its line
-        if is_newline(possibleCommentToken):
             if temp is not None:
                 comments.append(temp)
-            eol = True
-            continue
-    # this last part is required in the case, that the very fist token is a comment
+            if strip_delim:
+                temp = replace_delimiters(possibleCommentToken.text)
+            else:
+                temp = possibleCommentToken.text
+    # this last part is required in the case, that the very first token is a comment
     if empty_before and temp is not None and temp not in comments:
         comments.append(temp)
+    # strip leading newlines -- this removes the newline after an opening ``"""`` if present
+    for i, comment in enumerate(comments):
+        if len(comment) > 0 and comment[0] == '\n':
+            comments[i] = comment[1:]
+        if len(comment) > 1 and comment[0] == '\r' and comment[1] == '\n':
+            comments[i] = comment[2:]
+    # strip trailing newlines
+    for i, comment in enumerate(comments):
+        if len(comment) > 0 and comment[-1] == '\n':
+            comments[i] = comment[:-1]
+        if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
+            comments[i] = comment[:-2]
     # we reverse it in order to get the right order of comments
     return list(reversed(comments)) if len(comments) > 0 else list()
 
@@ -231,7 +248,7 @@ def __no_definitions_before(ctx, tokens):
     return True
 
 
-def get_in_comments(ctx, tokens):
+def get_in_comment(ctx, tokens, strip_delim: bool = True) -> Optional[str]:
     """
     Returns the sole comment if one is defined in the same line, e.g. ``a = 10 mV # comment``
     :param ctx: a context
@@ -239,60 +256,83 @@ def get_in_comments(ctx, tokens):
     :param tokens: list of token objects
     :type tokens: list(Tokens)
     :return: a comment
-    :rtype: str
     """
     for possibleComment in tokens[tokens.index(ctx.start):]:
         if possibleComment.channel == 2:
-            return replace_delimiters(possibleComment.text)
+            if strip_delim:
+                comment = replace_delimiters(possibleComment.text)
+            else:
+                comment = possibleComment.text
+            if len(comment) > 0 and comment[-1] == '\n':
+                comment = comment[:-1]
+            if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
+                comment = comment[:-2]
+            return comment
         if is_newline(possibleComment):  # new line, thus the one line comment ends here
             break
     return None
 
 
-def get_post_comments(ctx, tokens):
+def get_post_comments(ctx, tokens, strip_delim: bool = True) -> List[str]:
     """
-    Returns the comment which has been stated after the current token but in the same line.
+    Returns comments which have been stated after the current token but not in the same line.
+
     :param ctx: a context
     :type ctx: ctx
     :param tokens: list of token objects
     :type tokens: list(Tokens)
-    :return: the corresponding comment or None
-    :rtype: str
+    :return: the corresponding comments
     """
     comments = list()
     next_line_start_index = -1
     # first find out where the next line start, since we want to avoid to see comments, which have
     # been stated in the same line, as comments which are stated after the element
+    prev_token_was_comment = False
     for possibleToken in tokens[tokens.index(ctx.stop) + 1:]:
-        if is_newline(possibleToken):
-            next_line_start_index = tokens.index(possibleToken)
+        if possibleToken.channel == 0 or is_newline(possibleToken):
+            next_line_start_index = tokens.index(possibleToken) + 1
             break
+        if possibleToken.channel == 2:
+            if prev_token_was_comment:
+                # two comments in a row, first one is inline comment, second is post comment
+                next_line_start_index = tokens.index(possibleToken)
+                break
+            prev_token_was_comment = True
     first_line = False
     for possibleCommentToken in tokens[next_line_start_index:]:
         if possibleCommentToken.channel == 2:
             # if it is a comment on the comment channel -> get it
-            comments.append(replace_delimiters(possibleCommentToken.text))
-            first_line = False
+            if strip_delim:
+                comments.append(replace_delimiters(possibleCommentToken.text))
+            else:
+                comments.append(possibleCommentToken.text)
 
         # we found a white line, thus a comment separator
-        if is_newline(possibleCommentToken) and first_line:
+        if is_newline(possibleCommentToken):
             break
-        elif is_newline(possibleCommentToken):
-            first_line = True
 
         # if we see a different element, i.e. that we have reached the next declaration and should stop
         if possibleCommentToken.channel == 0 and (not is_newline(possibleCommentToken)):
             break
+    # strip newlines
+    for i, comment in enumerate(comments):
+        if len(comment) > 0 and comment[-1] == '\n':
+            comments[i] = comment[:-1]
+        if len(comment) > 1 and comment[-1] == '\n' and comment[-2] == '\r':
+            comments[i] = comment[:-2]
 
     return comments if len(comments) > 0 else list()
 
 
-def replace_delimiters(comment):
-    # type: (str) -> str
+def replace_delimiters(comment: str) -> str:
     """
-    Returns the raw comment, i.e., without the comment-tags /* ..*/, \""" ""\" and #
+    Returns the raw comment, i.e., without the comment delimiters (``#`` or ``\"\"\"``...``\"\"\"``).
     """
-    ret = comment
-    ret = ret.replace('/*', '').replace('*/', '')
-    ret = ret.replace('"""', '')
-    return ret.replace('#', '')
+    if len(comment) > 2 and comment[:2] == "\"\"\"":
+        # it's a docstring comment
+        return comment.replace("\"\"\"", "")
+    # it's a hash comment
+    if len(comment) > 0 and comment[0] == "#":
+        # strip initial character hash
+        comment = comment[1:]
+    return comment.replace('\n#', '').replace('\r\n#', '')
