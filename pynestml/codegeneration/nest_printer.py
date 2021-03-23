@@ -169,7 +169,7 @@ class NestPrinter:
             ret = self.print_stmt(node)
         return ret
 
-    def print_assignment(self, node: ASTAssignment, prefix: str="") -> str:
+    def print_assignment(self, node: ASTAssignment, prefix: str = "") -> str:
         ret = self.print_node(node.lhs) + ' '
         if node.is_compound_quotient:
             ret += '/='
@@ -190,7 +190,7 @@ class NestPrinter:
             ret += "__d"
         return ret
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str="") -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
         Pretty Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -469,14 +469,12 @@ class NestPrinter:
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         return '//!< Buffer incoming ' + ast_buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
 
-    def print_vector_declaration(self, variable: VariableSymbol) -> str:
+    def print_vector_size_parameter(self, variable: VariableSymbol) -> str:
         """
-        Prints the vector declaration
+        Prints NEST compatible vector size parameter
         :param variable: Vector variable
-        :return: the corresponding vector declaration statement
+        :return: vector size parameter
         """
-        assert isinstance(variable, VariableSymbol), \
-            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
         vector_parameter = variable.get_vector_parameter()
         vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
         symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
@@ -489,7 +487,19 @@ class NestPrinter:
             # size parameter is an integer
             vector_param += vector_parameter
 
+        return vector_param
+
+    def print_vector_declaration(self, variable: VariableSymbol) -> str:
+        """
+        Prints the vector declaration
+        :param variable: Vector variable
+        :return: the corresponding vector declaration statement
+        """
+        assert isinstance(variable, VariableSymbol), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+
         decl_str = self.print_origin(variable) + variable.get_symbol_name() + \
-            ".resize(" + vector_param + ", " + self.print_expression(variable.get_declaring_expression()) + \
+            ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
+            self.print_expression(variable.get_declaring_expression()) + \
             ");"
         return decl_str

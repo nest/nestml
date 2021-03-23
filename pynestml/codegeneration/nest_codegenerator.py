@@ -448,6 +448,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
+        namespace['has_vectors'] = neuron.has_vectors()
 
         namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
         namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')

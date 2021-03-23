@@ -25,14 +25,15 @@
  * Positive case.
 */
 
-neuron CoCoVectorInNonVectorDeclaration:
+neuron vector_declaration:
     state:
+        g_in [20] mV = 11mV
         ten integer = 10
-        g_ex [ten] mV = 10mV
-        g_in [20] mV = 15mV
+        g_ex [ten] mV = 1mV
     end
 
-    update:
-        g_ex [0] = 22 mV
+    parameters:
+        taus [15] ms = 2 ms
+        V_thr mV = -55 mV
     end
 end
