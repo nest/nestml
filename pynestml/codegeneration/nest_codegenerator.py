@@ -65,7 +65,6 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
-
 class NESTCodeGenerator(CodeGenerator):
     """
     Code generator for a C++ NEST extension module.
@@ -104,6 +103,7 @@ class NESTCodeGenerator(CodeGenerator):
             ))
         env.globals['raise'] = raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel
+        env.globals["isinstance"] = isinstance
         
         #separate jinja2 environment aware of the setup directory
         setup_env = Environment(loader=FileSystemLoader(
@@ -369,6 +369,7 @@ class NESTCodeGenerator(CodeGenerator):
         delta_factors = self.get_delta_factors_(neuron, equations_block)
         kernel_buffers = self.generate_kernel_buffers_(neuron, equations_block)
         self.replace_convolve_calls_with_buffers_(neuron, equations_block, kernel_buffers)
+        # self.analyze_inline_expressions_for_compartmental_model(neuron)
         self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         self.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
@@ -606,6 +607,8 @@ class NESTCodeGenerator(CodeGenerator):
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
+        
+        namespace['cm_info'] = cm_coco_logic.neuron_to_cm_info[neuron.name]
 
         return namespace
 
@@ -951,20 +954,31 @@ class NESTCodeGenerator(CodeGenerator):
         :param inline_expressions: A sorted list with entries ASTInlineExpression.
         :return: A list with ASTInlineExpressions. Defining expressions don't depend on each other.
         """
+        # compare all inline expresisons with each other
+        # to figure out if one contains the other
         for source in inline_expressions:
             source_position = source.get_source_position()
             for target in inline_expressions:
+                # find first(source) inside second(target)
+                # replace source name with the actual expression behind it
                 matcher = re.compile(self._variable_matching_template.format(source.get_variable_name()))
                 target_definition = str(target.get_expression())
                 target_definition = re.sub(matcher, "(" + str(source.get_expression()) + ")", target_definition)
+                
+                #parse as new combined expression
                 target.expression = ModelParser.parse_expression(target_definition)
+                
+                # adjust scope for root node in the target
                 target.expression.update_scope(source.get_scope())
+                
+                #recreate symbol table to detect all new symbols
                 target.expression.accept(ASTSymbolTableVisitor())
 
                 def log_set_source_position(node):
                     if node.get_source_position().is_added_source_position():
                         node.set_source_position(source_position)
 
+                # now recursively recalculate scopes for subnodes
                 target.expression.accept(ASTHigherOrderVisitor(visit_funcs=log_set_source_position))
 
         return inline_expressions

@@ -11,6 +11,25 @@ nest::{{etypeClassName}}::{{etypeClassName}}()
     , n_K_(0.0)
     , gbar_K_(0.0)
     , e_K_(0.0)
+    
+    /*
+    {%- for ion_channel_name, channel_info in cm_info.items() %}
+        // {{ion_channel_name}} channel
+        {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+            // state variable {{pure_variable_name -}}
+            {% set variable = variable_info["initial_value_variable"] %}
+            {% set rhs_expression = variable_info["rhs_expression"] %}
+            {{- variable.name}}({{printer.print_expression(rhs_expression) -}}), 
+        {%- endfor -%}
+        {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+            // channel parameter {{variable_type -}}
+            {% set variable = variable_info["initial_value_variable"] %}
+            {% set rhs_expression = variable_info["rhs_expression"] -%}
+            {# there is no print_node() for ASTSimpleExpression case but this works#}
+            {{- variable.name}}({{printer.print_expression(rhs_expression) -}}), 
+        {%- endfor -%}
+    {% endfor -%}
+    */
 {}
 nest::{{etypeClassName}}::{{etypeClassName}}(const DictionaryDatum& compartment_params)
     // sodium channel

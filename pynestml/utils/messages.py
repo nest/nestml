@@ -22,6 +22,7 @@ from enum import Enum
 from typing import Tuple
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from collections.abc import Iterable
+from pynestml.meta_model.ast_variable import ASTVariable
 
 
 class MessageCode(Enum):
@@ -1197,12 +1198,16 @@ class Messages:
         return MessageCode.BAD_CM_VARIABLE_NAME, message
     
     @classmethod
-    def get_expected_cm_function_missing(cls, ion_channel_name, function_name):
+    def get_expected_cm_function_missing(cls, ion_channel_name, variable, function_name):
         assert (function_name is not None and isinstance(function_name, str)),\
             '(PyNestML.Utils.Message) No str provided (%s)!' % type(function_name)
         assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)            
-        message = "Implementation of a function called '"+ function_name +"' not found. It is expected because of variables used in the ion channel '"+ion_channel_name+"'"
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)     
+        assert (variable is not None and isinstance(variable, ASTVariable)),\
+            '(PyNestML.Utils.Message) No ASTVariable provided (%s)!' % type(variable)
+                   
+        message = "Implementation of a function called '" + function_name + "' not found. "
+        message += "It is expected because of variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
     
     @classmethod
