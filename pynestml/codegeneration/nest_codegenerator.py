@@ -65,6 +65,8 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
+from pynestml.cocos.co_co_cm_functions_and_initial_values_defined import CoCoCmFunctionsAndVariablesDefined as cm_coco_logic
+
 class NESTCodeGenerator(CodeGenerator):
     """
     Code generator for a C++ NEST extension module.
@@ -944,6 +946,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return odetoolbox_indict
     
+
     def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
         """
         Make inline_expressions self contained, i.e. without any references to other inline_expressions.
