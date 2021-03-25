@@ -65,8 +65,6 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
-from pynestml.cocos.co_co_cm_functions_and_initial_values_defined import CoCoCmFunctionsAndVariablesDefined as cm_coco_logic
-
 class NESTCodeGenerator(CodeGenerator):
     """
     Code generator for a C++ NEST extension module.
@@ -946,23 +944,6 @@ class NESTCodeGenerator(CodeGenerator):
 
         return odetoolbox_indict
     
-    # def analyze_inline_expressions_for_compartmental_model(self, neuron: ASTNeuron) -> List[ASTInlineExpression]:
-        # # get inline cm_p_open_{channelType} expressions
-        # # relevant_inline_expressions_to_variables[expression] -> variable list
-        # relevant_inline_expressions_to_variables = cm_coco_logic.getRelevantInlineExpressions(neuron)
-        #
-        # # get a dict {expected_function_name : channel_name_that_caused_expectation}
-        # expected_function_names_for_channels = cm_coco_logic.getExpectedFunctionNamesForChannels(relevant_inline_expressions_to_variables)
-        #
-        # # get functions and collect their names    
-        # declared_functions = neuron.get_functions()
-        # cm_functions = [declared_function for declared_function in declared_functions]
-        #
-        # # get expected variables and also throw errors if naming expecations not met
-        # # a dict {expected_variable_name : ASTVariable_or_ASTInlineExpression_that_caused_expectation}
-        # expected_initial_variables_to_reason = cm_coco_logic.getAndCheckExpectedVariableNamesAndReasons(neuron, relevant_inline_expressions_to_variables)
-
-
     def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
         """
         Make inline_expressions self contained, i.e. without any references to other inline_expressions.
