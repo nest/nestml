@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# print_function_code_generator_test.py
+# expressions_code_generator_test.py
 #
 # This file is part of NEST.
 #
