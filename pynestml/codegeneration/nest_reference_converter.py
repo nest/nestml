@@ -433,7 +433,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if op.is_div_op:
             return '%s' + ' / ' + '%s'
         if op.is_modulo_op:
-            return '%s' + ' % ' + '%s'
+            return '%s' + ' %% ' + '%s'
         if op.is_pow_op:
             return 'pow' + '(%s, %s)'
         raise RuntimeError('Cannot determine arithmetic operator!')

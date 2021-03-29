@@ -47,16 +47,27 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron ExpressionCollection:
     state:
-        r integer # counts number of tick during the refractory period
-        I_syn_ex pA  # inputs from the exc spikes
-        I_syn_ex' pA/ms  # inputs from the exc spikes
-        I_syn_in pA  # inputs from the inh spikes
-        I_syn_in' pA/ms  # inputs from the inh spikes
-        r_potassium integer
+        r integer = 2 # counts number of tick during the refractory period
+        I_syn_ex pA = -0.5 pA # inputs from the exc spikes
+        I_syn_ex' pA/ms = 0.12 pA/ms  # inputs from the exc spikes
+        I_syn_in pA = 0.055 pA # inputs from the inh spikes
+        I_syn_in' pA/ms = 0.01 pA/ms # inputs from the inh spikes
+        r_potassium integer = 1
         g_spike boolean = false
 
-        g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS
-        g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms
+        g_AMPA nS = 0.
+        g_NMDA nS = 0.
+        g_GABAA nS = 0.
+        g_GABAB nS = 0.
+        IKNa_D nS = 0.
+        IT_m nS = 0.
+        IT_h nS = 0.
+        Ih_m nS = 0.
+
+        g_AMPA' nS/ms = 0.
+        g_NMDA' nS/ms = 0.
+        g_GABAA' nS/ms = 0.
+        g_GABAB' nS/ms = 0.
     end
 
     parameters:
@@ -462,6 +473,8 @@ neuron ExpressionCollection:
 
         r -= 1
         r_potassium -= 1
+
+        test72 integer = (r - r_potassium) % r
 
         test77 real =  alpha_m_init / ( alpha_m_init + beta_m_init )
         test78 real = alpha_h_init / ( alpha_h_init + beta_h_init )
