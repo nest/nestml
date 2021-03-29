@@ -2,85 +2,152 @@
 
 
 nest::{{etypeClassName}}::{{etypeClassName}}()
-    // sodium channel
-    : m_Na_(0.0)
-    , h_Na_(0.0)
-    , gbar_Na_(0.0)
-    , e_Na_(0.0)
-    // potassium channel
-    , n_K_(0.0)
-    , gbar_K_(0.0)
-    , e_K_(0.0)
-    
-    /*
-    {%- for ion_channel_name, channel_info in cm_info.items() %}
-        // {{ion_channel_name}} channel
-        {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
-            // state variable {{pure_variable_name -}}
-            {% set variable = variable_info["initial_value_variable"] %}
-            {% set rhs_expression = variable_info["rhs_expression"] %}
-            {{- variable.name}}({{printer.print_expression(rhs_expression) -}}), 
-        {%- endfor -%}
-        {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
-            // channel parameter {{variable_type -}}
-            {% set variable = variable_info["initial_value_variable"] %}
-            {% set rhs_expression = variable_info["rhs_expression"] -%}
-            {# there is no print_node() for ASTSimpleExpression case but this works#}
-            {{- variable.name}}({{printer.print_expression(rhs_expression) -}}), 
-        {%- endfor -%}
-    {% endfor -%}
-    */
+{%- with %}
+{%- set default_init_value = 0.0 %}
+{%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
+    // {{ion_channel_name}} channel
+    {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        // state variable {{pure_variable_name -}}
+        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {% if loop.first and outer_loop_first %}: {% else %}, {% endif %}
+        {{- variable.name}}({{ default_init_value -}}) 
+    {%- endfor -%}
+    {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+        // channel parameter {{variable_type -}}
+        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        ,{{- variable.name}}({{default_init_value -}}) 
+    {%- endfor %}
+{% endfor -%}
+{% endwith %}
 {}
 nest::{{etypeClassName}}::{{etypeClassName}}(const DictionaryDatum& compartment_params)
-    // sodium channel
-    : m_Na_(0.0)
-    , h_Na_(0.0)
-    , gbar_Na_(0.0)
-    , e_Na_(50.)
-    // potassium channel
-    , n_K_(0.0)
-    , gbar_K_(0.0)
-    , e_K_(-85.)
+{% for ion_channel_name, channel_info in cm_info.items() %}
+    {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
+    // {{ion_channel_name}} channel
+    {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        // state variable {{pure_variable_name -}}
+        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        {% if loop.first and outer_loop_first %}: {% else %}, {% endif %}
+        {{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
+    {%- endfor -%}
+    {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+        // channel parameter {{variable_type -}}
+        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set rhs_expression = variable_info["rhs_expression"] %}
+        ,{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
+    {%- endfor %}
+{% endfor -%}
 {
-    // update sodium channel parameters
-    if( compartment_params->known( "g_Na" ) )
-        gbar_Na_ = getValue< double >( compartment_params, "g_Na" );
-    if( compartment_params->known( "e_Na" ) )
-        e_Na_ = getValue< double >( compartment_params, "e_Na" );
-    // update potassium channel parameters
-    if( compartment_params->known( "g_K" ) )
-        gbar_K_ = getValue< double >( compartment_params, "g_K" );
-    if( compartment_params->known( "e_K" ) )
-        e_K_ = getValue< double >( compartment_params, "e_K" );
 
+{%- set current_conductance_name_prefix = "g" %}
+{%- set current_voltage_name_prefix = "e" %}
+{% macro render_channel_variable_name(variable_type, ion_channel_name) -%}
+    {%- if variable_type == "gbar" -%}
+        {{ current_conductance_name_prefix~"_"~ion_channel_name }}
+    {%- elif variable_type == "e" -%}
+        {{ current_voltage_name_prefix~"_"~ion_channel_name }}
+    {%- endif -%}
+{%- endmacro %}
+
+
+
+
+{%- with %}
+{%- for ion_channel_name, channel_info in cm_info.items() %}
+    // update {{ion_channel_name}} channel parameters
+    {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
+        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set dynamic_variable = render_channel_variable_name(variable_type, ion_channel_name) %}
+        // {{ ion_channel_name}} channel parameter {{dynamic_variable }} 
+        if( compartment_params->known( "{{dynamic_variable}}" ) )
+            {{variable.name}} = getValue< double >( compartment_params, "{{dynamic_variable}}" );
+    {%- endfor -%}
+{%- endfor -%}
+{% endwith %}
 }
 
 std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_comp, const double dt)
 {
     double g_val = 0., i_val = 0.;
 
+{% macro render_state_variable_name(pure_variable_name, ion_channel_name) -%}
+    {{ pure_variable_name~"_"~ion_channel_name~"_" }}
+{%- endmacro %}
+
+{%- with %}
+{%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- set inline_expression = channel_info["ASTInlineExpression"] %}
+    // {{ion_channel_name}} channel
+    {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
+        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set dynamic_variable = render_channel_variable_name(variable_type, ion_channel_name) %}
+        {% if variable_type == "gbar" -%}
+            if ({{variable.name}} > 1e-9)
+        {
+        {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+            // activation and timescale of state variable {{pure_variable_name}}
+            {%- set inner_variable = variable_info["ASTVariable"] %}
+            {%- set expected_functions_info = variable_info["expected_functions"] %}
+            {%- for expected_function_type, expected_function_info in expected_functions_info.items() %}
+                {%- set result_variable_name = expected_function_info["result_variable_name"] %}
+                {%- set function_to_call = expected_function_info["ASTFunction"] %}
+                {%- set function_parameters = function_to_call.get_parameters() %}
+                // {{expected_function_type}}
+                double {{ result_variable_name }} = {{function_to_call.get_name()}}(
+                {%- for parameter in function_parameters -%}
+                    {{- parameter.name }}
+                {%- endfor -%}
+                );
+
+        {%- endfor %}
+        
+        {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+            // advance state variable {{pure_variable_name}} one timestep
+            {%- set inner_variable = variable_info["ASTVariable"] %}
+            {%- set expected_functions_info = variable_info["expected_functions"] %}
+            {%- set tau_result_variable_name = expected_functions_info["tau"]["result_variable_name"] %}
+            {%- set inf_result_variable_name = expected_functions_info["inf"]["result_variable_name"] %}
+            {%- set p_open = "p_"~pure_variable_name~"_"~ion_channel_name %}
+            {%- set state_variable = render_state_variable_name(pure_variable_name, ion_channel_name) %}
+            //test
+            double {{p_open}} = exp(-dt / {{tau_result_variable_name}});
+            {{state_variable}} *= {{p_open}} ;
+            {{state_variable}} += (1. - {{p_open}}) *  {{inf_result_variable_name}};
+        {%- endfor %}
+        
+        /*
+            // compute the conductance of the {{ion_channel_name}} channel
+            double g_Na = gbar_Na_ * {{ printer.print_expression(inline_expression.expression) }}; 
+        */
+        
+
+    {%- endfor %}
+    
+            // compute the conductance of the sodium channel
+            double g_Na = gbar_Na_ * pow(m_Na_, 3) * h_Na_; // make flexible for different ion channels
+    
+            // add to variables for numerical integration
+            g_val += g_Na / 2.;
+            i_val += g_Na * ( e_Na_ - v_comp / 2. );
+        }
+        {%- endif -%}
+    {%- endfor -%}
+    
+    
+    
+    
+{%- endfor -%}
+{% endwith %}
+*/
     /*
     Sodium channel
     */
     if (gbar_Na_ > 1e-9)
     {
-        // activation and timescale of state variable 'm'
-        double m_inf_Na = _m_inf_Na(v_comp);
-        double tau_m_Na = _tau_m_Na(v_comp);
-        
-        // activation and timescale of state variable 'h'
-        double h_inf_Na = _h_inf_Na(v_comp);
-        double tau_h_Na = _tau_h_Na(v_comp);
-
-        // advance state variable 'm' one timestep
-        double p_m_Na = exp(-dt / tau_m_Na);
-        m_Na_ *= p_m_Na ;
-        m_Na_ += (1. - p_m_Na) *  m_inf_Na;
-
-        // advance state variable 'h' one timestep
-        double p_h_Na = exp(-dt / tau_h_Na);
-        h_Na_ *= p_h_Na ;
-        h_Na_ += (1. - p_h_Na) *  h_inf_Na;
 
         // compute the conductance of the sodium channel
         double g_Na = gbar_Na_ * pow(m_Na_, 3) * h_Na_; // make flexible for different ion channels
@@ -95,14 +162,6 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
     */
     if (gbar_K_ > 1e-9)
     {
-        // activation and timescale of state variable 'm'
-        double n_inf_K = _n_inf_K(v_comp);
-        double tau_n_K = _tau_n_K(v_comp);
-
-        // advance state variable 'm' one timestep
-        double p_n_K = exp(-dt / tau_n_K);
-        n_K_ *= p_n_K;
-        n_K_ += (1. - p_n_K) *  n_inf_K;
 
         // compute the conductance of the potassium channel
         double g_K = gbar_K_ * n_K_;

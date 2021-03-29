@@ -146,12 +146,21 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     
     @classmethod
     def getExpectedTauFunctionName(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.tau_sring+cls.padding_character+pure_variable_name+cls.padding_character+ion_channel_name
+        return cls.padding_character+cls.getExpectedTauResultVariableName(ion_channel_name, pure_variable_name)
     
     
     @classmethod
     def getExpectedInfFunctionName(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+pure_variable_name+cls.padding_character+cls.inf_string+cls.padding_character + ion_channel_name
+        return cls.padding_character+cls.getExpectedInfResultVariableName(ion_channel_name, pure_variable_name)
+
+    @classmethod
+    def getExpectedTauResultVariableName(cls, ion_channel_name, pure_variable_name):
+        return cls.tau_sring+cls.padding_character+pure_variable_name+cls.padding_character+ion_channel_name
+    
+    
+    @classmethod
+    def getExpectedInfResultVariableName(cls, ion_channel_name, pure_variable_name):
+        return pure_variable_name+cls.padding_character+cls.inf_string+cls.padding_character + ion_channel_name
     
     
     # calculate function names that must be implemented
@@ -269,8 +278,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
                 "someinvalidname" 
@@ -284,8 +293,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 },
                 ...
@@ -307,7 +316,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             "channel_variables":
             {
                 "gbar":{"expected_name": "gbar_Na_"},
-                "inf":{"expected_name": "e_Na_"}
+                "e":{"expected_name": "e_Na_"}
             }
             "inner_variables": 
             {
@@ -317,8 +326,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
                 "someinvalidname" 
@@ -332,8 +341,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 },
                 ...
@@ -428,8 +437,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
                 "someinvalidname" 
@@ -443,8 +452,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 },
                 ...
@@ -478,7 +487,14 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                         else:
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"] = function_name_to_function[expected_function_name]
-                            ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["name"] = expected_function_name
+                            ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["function_name"] = expected_function_name
+                            if function_type == "tau":                                              
+                                ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedTauResultVariableName(ion_channel_name,pure_variable_name)
+                            elif function_type == "inf":
+                                ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedInfResultVariableName(ion_channel_name,pure_variable_name)
+                            else:
+                                raise RuntimeError('This should never happen! Unsupported function type '+function_type+' from variable ' + pure_variable_name)    
+        
         return ret
     
     @classmethod
@@ -514,7 +530,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             "channel_variables":
             {
                 "gbar":{"expected_name": "gbar_Na_"},
-                "inf":{"expected_name": "e_Na_"}
+                "e":{"expected_name": "e_Na_"}
             }
             "inner_variables": 
             {
@@ -524,8 +540,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
                 "someinvalidname" 
@@ -539,8 +555,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     "is_valid": True,
                     "expected_functions":
                     {
-                        "tau": {"ASTFunction": ASTFunction, "name": str},
-                        "inf": {"ASTFunction": ASTFunction, "name": str}
+                        "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
+                        "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 },
                 ...
@@ -565,7 +581,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                             "initial_value_variable": ASTVariable,
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         },
-                "inf":  {
+                "e":  {
                             "expected_name": "e_Na_",
                             "initial_value_variable": ASTVariable,
                             "rhs_expression": ASTSimpleExpression or ASTExpression
@@ -576,19 +592,20 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
+                    "initial_value_variable": ASTVariable,
                     "is_valid": True,
                     "expected_functions":
                     {
                         "tau":  {
                                     "ASTFunction": ASTFunction, 
-                                    "name": str, 
-                                    "initial_value_variable": ASTVariable,
+                                    "function_name": str, 
+                                    "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
                                     "ASTFunction": ASTFunction, 
-                                    "name": str, 
-                                    "initial_value_variable": ASTVariable,
+                                    "function_name": str, 
+                                    "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
                     }
@@ -601,19 +618,20 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
+                    "initial_value_variable": ASTVariable,
                     "is_valid": True,
                     "expected_functions":
                     {
                         "tau":  {
                                     "ASTFunction": ASTFunction, 
-                                    "name": str, 
-                                    "initial_value_variable": ASTVariable,
+                                    "function_name": str, 
+                                    "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 },
                         "inf":  {
                                     "ASTFunction": ASTFunction, 
-                                    "name": str, 
-                                    "initial_value_variable": ASTVariable,
+                                    "function_name": str, 
+                                    "result_variable_name": str,
                                     "rhs_expression": ASTSimpleExpression or ASTExpression
                                 }
                     }
