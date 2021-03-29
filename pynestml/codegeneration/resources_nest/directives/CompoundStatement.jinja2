@@ -8,11 +8,11 @@
 {%- include "directives/IfStatement.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_for_stmt() -%}
-{%- with ast = stmt.get_for_stmt() -%}}
+{%- with ast = stmt.get_for_stmt() -%}
 {%- include "directives/ForStatement.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.is_while_stmt() -%}
-{%- with ast = stmt.get_while_stmt() -%}}
+{%- with ast = stmt.get_while_stmt() -%}
 {%- include "directives/WhileStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}
