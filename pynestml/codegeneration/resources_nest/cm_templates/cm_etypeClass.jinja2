@@ -45,13 +45,31 @@ nest::{{etypeClassName}}::{{etypeClassName}}(const DictionaryDatum& compartment_
 
 {%- set current_conductance_name_prefix = "g" %}
 {%- set current_voltage_name_prefix = "e" %}
-{% macro render_channel_variable_name(variable_type, ion_channel_name) -%}
+{% macro render_dynamic_channel_variable_name(variable_type, ion_channel_name) -%}
     {%- if variable_type == "gbar" -%}
         {{ current_conductance_name_prefix~"_"~ion_channel_name }}
     {%- elif variable_type == "e" -%}
         {{ current_voltage_name_prefix~"_"~ion_channel_name }}
     {%- endif -%}
 {%- endmacro %}
+
+{% macro render_static_channel_variable_name(variable_type, ion_channel_name) -%}
+
+{%- with %}
+{%- for ion_channel_nm, channel_info in cm_info.items() -%}
+    {%- if ion_channel_nm == ion_channel_name -%}
+        {%- for variable_tp, variable_info in channel_info["channel_variables"].items() -%}
+            {%- if variable_tp == variable_type -%}
+                {%- set variable = variable_info["initial_value_variable"] -%}
+                {{ variable.name }}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endfor -%}
+{% endwith %} 
+   
+{%- endmacro %}
+
 
 
 
@@ -61,7 +79,7 @@ nest::{{etypeClassName}}::{{etypeClassName}}(const DictionaryDatum& compartment_
     // update {{ion_channel_name}} channel parameters
     {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
         {%- set variable = variable_info["initial_value_variable"] %}
-        {%- set dynamic_variable = render_channel_variable_name(variable_type, ion_channel_name) %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
         // {{ ion_channel_name}} channel parameter {{dynamic_variable }} 
         if( compartment_params->known( "{{dynamic_variable}}" ) )
             {{variable.name}} = getValue< double >( compartment_params, "{{dynamic_variable}}" );
@@ -84,9 +102,10 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
     // {{ion_channel_name}} channel
     {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
         {%- set variable = variable_info["initial_value_variable"] %}
-        {%- set dynamic_variable = render_channel_variable_name(variable_type, ion_channel_name) %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
         {% if variable_type == "gbar" -%}
-            if ({{variable.name}} > 1e-9)
+            {%- set gbar_variable = variable %}
+            if ({{gbar_variable.name}} > 1e-9)
         {
         {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
             // activation and timescale of state variable {{pure_variable_name}}
@@ -119,57 +138,24 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
             {{state_variable}} += (1. - {{p_open}}) *  {{inf_result_variable_name}};
         {%- endfor %}
         
-        /*
-            // compute the conductance of the {{ion_channel_name}} channel
-            double g_Na = gbar_Na_ * {{ printer.print_expression(inline_expression.expression) }}; 
-        */
+            {%- set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
+            // compute the conductance of the {{ion_channel_name}} channel     
+            double {{ g_dynamic }} = {{gbar_variable.name}} * {{ channel_info["cleaned_p_expression_string"] }}; 
         
+            // add to variables for numerical integration
+            {%- set e_channel = render_static_channel_variable_name("e", ion_channel_name) %}
+            g_val += {{ g_dynamic }} / 2.;
+            i_val += {{ g_dynamic }} * ( {{e_channel}} - v_comp / 2. );
 
     {%- endfor %}
     
-            // compute the conductance of the sodium channel
-            double g_Na = gbar_Na_ * pow(m_Na_, 3) * h_Na_; // make flexible for different ion channels
-    
-            // add to variables for numerical integration
-            g_val += g_Na / 2.;
-            i_val += g_Na * ( e_Na_ - v_comp / 2. );
         }
         {%- endif -%}
     {%- endfor -%}
     
-    
-    
-    
 {%- endfor -%}
 {% endwith %}
-*/
-    /*
-    Sodium channel
-    */
-    if (gbar_Na_ > 1e-9)
-    {
 
-        // compute the conductance of the sodium channel
-        double g_Na = gbar_Na_ * pow(m_Na_, 3) * h_Na_; // make flexible for different ion channels
-
-        // add to variables for numerical integration
-        g_val += g_Na / 2.;
-        i_val += g_Na * ( e_Na_ - v_comp / 2. );
-    }
-
-    /*
-    Potassium channel
-    */
-    if (gbar_K_ > 1e-9)
-    {
-
-        // compute the conductance of the potassium channel
-        double g_K = gbar_K_ * n_K_;
-
-        // add to variables for numerical integration
-        g_val += g_K / 2.;
-        i_val += g_K * ( e_K_ - v_comp / 2. );
-    }
 
     return std::make_pair(g_val, i_val);
 

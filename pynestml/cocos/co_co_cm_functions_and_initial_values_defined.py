@@ -18,16 +18,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from _collections import defaultdict
 from collections import defaultdict
 import copy
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
-from _collections import defaultdict
 
 
 class CoCoCmFunctionsAndVariablesDefined(CoCo):
@@ -89,7 +91,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         {
             "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": [ASTVariable, ASTVariable, ASTVariable, ...]
+            "inner_variables": [ASTVariable, ASTVariable, ASTVariable, ...],
             
         },
         "K":
@@ -120,7 +122,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             info["ASTInlineExpression"] = inline_expression
             info["inner_variables"] = inner_variables
             cm_info[info["channel_name"]] = info
-                
+ 
         return cm_info
     
     @classmethod
@@ -229,6 +231,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     }
     
     """
+    #todo: make sure function has exactly one argument, if it's related to inner variables
     @classmethod
     def calcExpectedFunctionNamesForChannels(cls, cm_info):
         variables_procesed = defaultdict()
@@ -765,4 +768,5 @@ class ASTInlineExpressionInsideEquationsBlockCollectorVisitor(ASTVisitor):
     
     def endvisit_equations_block(self, node):
         self.inside_equations_block = False
+                
 

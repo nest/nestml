@@ -611,6 +611,21 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
         
         namespace['cm_info'] = cm_coco_logic.neuron_to_cm_info[neuron.name]
+        
+        # workaround to correct something like pow(S_.m_Na_, 3) * pow(S_.h_Na_, 1) 
+        # we want pow(m_Na_, 3) * pow(h_Na_, 1)
+        
+        for ion_channel_name, channel_info in namespace['cm_info'].items():
+            # i.e pow(S_.m_Na_, 3) * pow(S_.h_Na_, 1)
+            expression_code = namespace['printer'].print_expression(channel_info["ASTInlineExpression"].expression, "")
+            # now remove those prefixes
+            for pure_variable_name, variable_info in channel_info["inner_variables"].items():
+                variable = variable_info["ASTVariable"]
+                symbol = variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE)
+                origin = NestPrinter.print_origin(symbol)
+                expression_code = expression_code.replace(origin, "")
+                
+            namespace['cm_info'][ion_channel_name]["cleaned_p_expression_string"] = expression_code
 
         return namespace
 
