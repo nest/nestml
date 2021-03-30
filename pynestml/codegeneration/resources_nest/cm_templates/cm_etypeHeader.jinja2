@@ -29,28 +29,37 @@
 #include "doubledatum.h"
 #include "integerdatum.h"
 
+{% macro render_variable_type(variable) -%}
+{%- with -%}
+    {%- set symbol = variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE) -%}
+    {{ type_converter.convert(symbol.type_symbol) }}
+{%- endwith -%} 
+{%- endmacro %}
+
 
 namespace nest{
 
 class {{etypeClassName}}{
 // Example e-type with a sodium and potassium channel
 private:
-    /*
-    Sodium channel
-    */
-    // state variables sodium channel
-    double m_Na_, h_Na_;
-    // parameters sodium channel (maximal conductance, reversal potential)
-    double gbar_Na_, e_Na_;
 
-    /*
-    Potassium channel
-    */
-    // state variables potassium channels
-    double n_K_;
-    // parameters potassium channel (maximal conductance, reversal potential)
-    double gbar_K_, e_K_;
-
+{%- with %}
+{%- set default_init_value = 0.0 %}
+{%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
+    // {{ion_channel_name}} channel state variables
+    {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        // state variable {{pure_variable_name -}}
+        {%- set variable = variable_info["initial_value_variable"] %}
+    {{render_variable_type(variable)}} {{ variable.name}};
+    {%- endfor -%}
+    {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+        // parameter {{variable_type -}}
+        {%- set variable = variable_info["initial_value_variable"] %}
+    {{render_variable_type(variable)}} {{ variable.name}};
+    {%- endfor %}
+{% endfor -%}
+{% endwith -%}
 
 public:
     // constructor, destructor

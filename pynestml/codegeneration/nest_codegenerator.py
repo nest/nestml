@@ -66,6 +66,7 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
 from pynestml.cocos.co_co_cm_functions_and_initial_values_defined import CoCoCmFunctionsAndVariablesDefined as cm_coco_logic
+from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -532,6 +533,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['neuronName'] = neuron.get_name()
         namespace['etypeClassName'] = "EType"
+        namespace['type_converter'] = PyNestml2NestTypeConverter()
         namespace['neuron'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         namespace['printer'] = NestPrinter(unitless_pretty_printer)
@@ -622,11 +624,12 @@ class NESTCodeGenerator(CodeGenerator):
             for pure_variable_name, variable_info in channel_info["inner_variables"].items():
                 variable = variable_info["ASTVariable"]
                 symbol = variable.get_scope().resolve_to_symbol(variable.name, SymbolKind.VARIABLE)
+                #print (namespace['type_converter'].convert(symbol.type_symbol))
                 origin = NestPrinter.print_origin(symbol)
                 expression_code = expression_code.replace(origin, "")
                 
             namespace['cm_info'][ion_channel_name]["cleaned_p_expression_string"] = expression_code
-
+        
         return namespace
 
     def ode_toolbox_analysis(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
