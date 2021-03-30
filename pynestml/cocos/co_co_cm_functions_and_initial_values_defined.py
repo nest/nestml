@@ -231,7 +231,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     }
     
     """
-    #todo: make sure function has exactly one argument, if it's related to inner variables
+
+    #todo: enforce unique variable names
     @classmethod
     def calcExpectedFunctionNamesForChannels(cls, cm_info):
         variables_procesed = defaultdict()
@@ -491,8 +492,13 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"] = function_name_to_function[expected_function_name]
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["function_name"] = expected_function_name
-                            #todo: cheick if function has exactly one argument
                             
+                            # function must have exactly one argument
+                            astfun = ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"]
+                            if len(astfun.parameters) != 1:
+                                code, message = Messages.get_expected_cm_function_wrong_args_count(ion_channel_name, variable_info["ASTVariable"], astfun)
+                                Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
+                        
                             if function_type == "tau":                                              
                                 ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedTauResultVariableName(ion_channel_name,pure_variable_name)
                             elif function_type == "inf":

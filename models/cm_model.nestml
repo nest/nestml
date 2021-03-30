@@ -43,6 +43,12 @@ neuron cm_model:
     e_K_ real = -85.0
     gbar_K_ real = 0.0
     n_K_ real = 0.0
+    
+    e_Es_ real = 23.0
+    gbar_Es_ real = 0.0
+    q_Es_ real = 0.0
+    
+    
   end
     
     #sodium
@@ -70,6 +76,15 @@ neuron cm_model:
     function _tau_n_K(v_comp real) real:
         return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
     end
+    
+    #potassium
+    function _q_inf_Es(v_comp real) real:
+        return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
+    end
+    
+    function _tau_q_Es(v_comp real) real:
+        return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
+    end
 
   equations: 
     inline cm_p_open_Na real = m_Na_**3 * h_Na_**1 
@@ -90,6 +105,7 @@ neuron cm_model:
     #      function _tau_h_Na(v_comp real) real
     
     inline cm_p_open_K real = n_K_**1
+    # inline cm_p_open_Es real = q_Es_**1
     # extract channel type K
     # and expect
     #      initial value of gbar_K_ = 0.0

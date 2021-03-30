@@ -23,6 +23,7 @@ from typing import Tuple
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from collections.abc import Iterable
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_function import ASTFunction
 
 
 class MessageCode(Enum):
@@ -1208,6 +1209,19 @@ class Messages:
                    
         message = "Implementation of a function called '" + function_name + "' not found. "
         message += "It is expected because of variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
+        return MessageCode.CM_FUNCTION_MISSING, message
+    
+    @classmethod
+    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name, variable, astfun):
+        assert (astfun is not None and isinstance(astfun, ASTFunction)),\
+            '(PyNestML.Utils.Message) No ASTFunction provided (%s)!' % type(ASTFunction)
+        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)     
+        assert (variable is not None and isinstance(variable, ASTVariable)),\
+            '(PyNestML.Utils.Message) No ASTVariable provided (%s)!' % type(variable)
+                   
+        message = "Function '" + astfun.name + "' is expected to have exactly one Argument. "
+        message += "It is related to variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
     
     @classmethod
