@@ -51,6 +51,7 @@ neuron expressionType_test:
        distance m = 0.33 m
        force N = 1.5 N
        testint integer = 8
+       testint2 integer = 3
        timesquared s**2 = 1.44 s**2
        velocity m/s = 23.5 m/s
     end
@@ -61,6 +62,7 @@ neuron expressionType_test:
 
     update:
         #time = (charge/amps)
+        testint = testint % testint2
         testint = 2
         timesquared = time**2
         velocity = distance/time 
