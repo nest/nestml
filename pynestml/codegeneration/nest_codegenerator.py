@@ -511,7 +511,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["recordable_functions"] = [sym for sym in neuron.get_function_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable]
 
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
-        namespace["state_syms_with_iv"] = [sym for sym in neuron.get_state_symbols() if sym.has_declaring_expression()]
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
