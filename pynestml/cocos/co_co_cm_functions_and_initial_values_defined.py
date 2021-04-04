@@ -232,7 +232,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     
     """
 
-    #todo: enforce unique variable names
+    #todo: enforce unique variable names per channel, i.e n and m , not n and n
+    #todo: also enforce method return type double
     @classmethod
     def calcExpectedFunctionNamesForChannels(cls, cm_info):
         variables_procesed = defaultdict()

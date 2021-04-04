@@ -146,6 +146,7 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
         {%- endfor -%}
         );
         {%- endfor %}
+            {%- endfor %}
         
         {% for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
         // advance state variable {{pure_variable_name}} one timestep
@@ -153,11 +154,11 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
             {%- set expected_functions_info = variable_info["expected_functions"] %}
             {%- set tau_result_variable_name = expected_functions_info["tau"]["result_variable_name"] %}
             {%- set inf_result_variable_name = expected_functions_info["inf"]["result_variable_name"] %}
-            {%- set p_open = "p_"~pure_variable_name~"_"~ion_channel_name %}
+            {%- set propagator = "p_"~pure_variable_name~"_"~ion_channel_name %}
             {%- set state_variable = render_state_variable_name(pure_variable_name, ion_channel_name) %}
-        {{render_inline_expression_type(inline_expression)}} {{p_open}} = exp(-dt / {{tau_result_variable_name}}); //
-        {{state_variable}} *= {{p_open}} ;
-        {{state_variable}} += (1. - {{p_open}}) *  {{inf_result_variable_name}};
+        {{render_inline_expression_type(inline_expression)}} {{propagator}} = exp(-dt / {{tau_result_variable_name}}); //
+        {{state_variable}} *= {{propagator}} ;
+        {{state_variable}} += (1. - {{propagator}}) *  {{inf_result_variable_name}};
         {%- endfor %}
         
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
@@ -169,7 +170,6 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
         g_val += {{ g_dynamic }} / 2.;
         i_val += {{ g_dynamic }} * ( {{e_channel}} - v_comp / 2. );
 
-    {%- endfor %}
     
     }
         {%- endif -%}
