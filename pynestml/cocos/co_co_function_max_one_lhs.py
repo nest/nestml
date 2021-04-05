@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -48,15 +50,13 @@ class FunctionMaxOneLhs(ASTVisitor):
     This visitor ensures that every function has exactly one lhs.
     """
 
-    def visit_declaration(self, node):
+    def visit_declaration(self, node: ASTDeclaration):
         """
         Checks the coco.
         :param node: a single declaration.
-        :type node: ast_declaration
         """
         if node.is_function and len(node.get_variables()) > 1:
             code, message = Messages.get_several_lhs(list((var.get_name() for var in node.get_variables())))
             Logger.log_message(error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR,
                                code=code, message=message)
-        return

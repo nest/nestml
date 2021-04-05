@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -44,14 +46,12 @@ class FunctionRhsVisitor(ASTVisitor):
     This visitor ensures that everything declared as function has a rhs.
     """
 
-    def visit_declaration(self, node):
+    def visit_declaration(self, node: ASTDeclaration):
         """
         Checks if the coco applies.
         :param node: a single declaration.
-        :type node: ASTDeclaration.
         """
         if node.is_function and not node.has_expression():
             code, message = Messages.get_no_rhs(node.get_variables()[0].get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                code=code, message=message)
-        return

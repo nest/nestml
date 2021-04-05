@@ -395,10 +395,10 @@ private:
   {% endwith -%}
   {% endfor -%}
 
-  /* getters/setters for functions */
+  /* getters/setters for inline expressions */
 
-  {% for funcsym in neuron.get_function_symbols() %}
-  {% with variable = funcsym %}
+  {% for sym in neuron.get_inline_expression_symbols() %}
+  {% with variable = sym %}
   {% include "directives/MemberVariableGetterSetter.jinja2" -%}
   {% endwith -%}
   {% endfor %}

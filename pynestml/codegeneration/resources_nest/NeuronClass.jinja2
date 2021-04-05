@@ -65,7 +65,7 @@
 
 #include "{{neuronName}}.h"
 
-{% set stateSize = neuron.get_non_function_state_symbols()|length %}
+{% set stateSize = neuron.get_non_inline_state_symbols()|length %}
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -96,8 +96,8 @@ namespace nest
 
   // function symbols
 {%- filter indent(2,True) %}
-{%- for funcsym in neuron.get_function_symbols() %}
-{%-   with variable = funcsym %}
+{%- for sym in neuron.get_inline_expression_symbols() %}
+{%-   with variable = sym %}
 {%-     include "directives/RecordCallback.jinja2" %}
 {%-   endwith %}
 {%- endfor %}

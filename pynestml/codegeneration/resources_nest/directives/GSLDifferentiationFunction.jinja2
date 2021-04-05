@@ -11,20 +11,13 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
   // not the state vector in the node, node.S_.ode_state[].
 
 {%- for ode in neuron.get_equations_blocks().get_declarations() %}
-{%-   for function in utils.get_alias_symbols(ode) %}
-{%-     if not function.is_equation() %}
-{%-       set declaringExpression = function.get_declaring_expression() %}
-  double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression, prefix="node.")}};
+{%-   for inline_expr in utils.get_inline_expression_symbols(ode) %}
+{%-     if not inline_expr.is_equation() %}
+{%-       set declaring_expr = inline_expr.get_declaring_expression() %}
+  double {{names.name(inline_expr)}} = {{printerGSL.print_expression(declaring_expr, prefix="node.")}};
 {%-     endif %}
 {%-   endfor %}
 {%- endfor %}
-
-{# todo by kp: this part is no longer required since we make all functions self contained
-{%- for function in neuron.get_function_symbols() %}
-{%-   set declaringExpression = function.get_declaring_expression() %}
-  double {{names.name(function)}} = {{printerGSL.print_expression(declaringExpression, prefix="node.")}};
-{%- endfor %}
-#}
 
 {%- for variable_name in numeric_state_variables: %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
