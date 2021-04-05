@@ -190,7 +190,7 @@ class NestPrinter:
             ret += "__d"
         return ret
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str="") -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str="", with_origins = True) -> str:
         """
         Pretty Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -198,7 +198,7 @@ class NestPrinter:
         :return: the corresponding string representation
         :rtype: str
         """
-        return self.expression_pretty_printer.print_expression(node, prefix=prefix)
+        return self.expression_pretty_printer.print_expression(node, prefix=prefix, with_origins = with_origins)
 
     def print_method_call(self, node: ASTFunctionCall) -> str:
         """

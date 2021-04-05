@@ -169,7 +169,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
-    def convert_name_reference(self, variable, prefix=''):
+    def convert_name_reference(self, variable, prefix='', with_origins = True):
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
@@ -210,7 +210,8 @@ class NESTReferenceConverter(IReferenceConverter):
             s = ""
             if not units_conversion_factor == 1:
                 s += "(" + str(units_conversion_factor) + " * "
-            s += NestPrinter.print_origin(symbol, prefix=prefix) + NestNamesConverter.buffer_value(symbol)
+            s += NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else ''
+            s += NestNamesConverter.buffer_value(symbol)
             if symbol.has_vector_parameter():
                 s += '[i]'
             if not units_conversion_factor == 1:
@@ -224,7 +225,7 @@ class NESTReferenceConverter(IReferenceConverter):
             print("Printing node " + str(symbol.name))
 
         if symbol.is_init_values():
-            temp = NestPrinter.print_origin(symbol, prefix=prefix)
+            temp = NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else ''
             if self.uses_gsl:
                 temp += GSLNamesConverter.name(symbol)
             else:
@@ -232,7 +233,7 @@ class NESTReferenceConverter(IReferenceConverter):
             temp += ('[i]' if symbol.has_vector_parameter() else '')
             return temp
 
-        return NestPrinter.print_origin(symbol, prefix=prefix) + \
+        return NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else '' + \
             NestNamesConverter.name(symbol) + \
             ('[i]' if symbol.has_vector_parameter() else '')
 

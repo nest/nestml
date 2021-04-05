@@ -43,7 +43,7 @@ class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
         super(UnitlessExpressionPrinter, self).__init__(
             reference_converter=reference_converter, types_printer=types_printer)
 
-    def print_expression(self, node, prefix=''):
+    def print_expression(self, node, prefix='', with_origins = True):
         """Print an expression.
 
         Parameters
@@ -70,4 +70,4 @@ class UnitlessExpressionPrinter(ExpressionsPrettyPrinter):
                     # case for a literal unit, e.g. "ms"
                     return str(UnitConverter.get_factor(PredefinedUnits.get_unit(node.variable.get_complete_name()).get_unit()))
 
-        return super(UnitlessExpressionPrinter, self).print_expression(node, prefix=prefix)
+        return super(UnitlessExpressionPrinter, self).print_expression(node, prefix=prefix, with_origins = with_origins)

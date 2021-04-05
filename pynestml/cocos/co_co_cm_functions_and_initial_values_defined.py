@@ -89,7 +89,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "inner_variables": [ASTVariable, ASTVariable, ASTVariable, ...],
             
@@ -118,10 +117,10 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         cm_info = defaultdict()        
         for inline_expression, inner_variables in relevant_inline_expressions_to_variables.items():
             info = defaultdict()
-            info["channel_name"] = cls.cm_expression_to_channel_name(inline_expression)
+            channel_name = cls.cm_expression_to_channel_name(inline_expression)
             info["ASTInlineExpression"] = inline_expression
             info["inner_variables"] = inner_variables
-            cm_info[info["channel_name"]] = info
+            cm_info[channel_name] = info
  
         return cm_info
     
@@ -177,7 +176,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "inner_variables": [ASTVariable, ASTVariable, ASTVariable, ...]
             
@@ -192,7 +190,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "inner_variables": 
             {
@@ -273,7 +270,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "inner_variables": 
             {
@@ -316,7 +312,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "channel_variables":
             {
@@ -390,7 +385,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "inner_variables": 
             {
@@ -432,7 +426,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "inner_variables": 
             {
@@ -537,7 +530,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "channel_variables":
             {
@@ -584,7 +576,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     {
         "Na":
         {
-            "channel_name" : "Na",
             "ASTInlineExpression": ASTInlineExpression,
             "channel_variables":
             {

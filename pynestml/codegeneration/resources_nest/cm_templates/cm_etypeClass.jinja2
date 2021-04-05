@@ -163,7 +163,7 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
         
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
         // compute the conductance of the {{ion_channel_name}} channel     
-        {{render_inline_expression_type(inline_expression)}} {{ g_dynamic }} = {{gbar_variable.name}} * {{ channel_info["cleaned_p_expression_string"] }}; 
+        {{render_inline_expression_type(inline_expression)}} {{ g_dynamic }} = {{gbar_variable.name}} * {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }}; 
     
         // add to variables for numerical integration
         {%- set e_channel = render_static_channel_variable_name("e", ion_channel_name) %}

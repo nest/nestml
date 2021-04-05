@@ -52,7 +52,7 @@ class ExpressionsPrettyPrinter:
         else:
             self.types_printer = TypesPrinter()
 
-    def print_expression(self, node, prefix=''):
+    def print_expression(self, node, prefix='', with_origins = True):
         """Print an expression.
 
         Parameters
@@ -69,16 +69,16 @@ class ExpressionsPrettyPrinter:
         """
         if (node.get_implicit_conversion_factor() is not None) \
                 and (not node.get_implicit_conversion_factor() == 1):
-            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, prefix=prefix) + ')'
+            return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node, prefix=prefix, with_origins=with_origins) + ')'
         else:
-            return self.__do_print(node, prefix=prefix)
+            return self.__do_print(node, prefix=prefix, with_origins = with_origins)
 
-    def __do_print(self, node: ASTExpressionNode, prefix: str='') -> str:
+    def __do_print(self, node: ASTExpressionNode, prefix: str='', with_origins = True) -> str:
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
-                    self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
+                    self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins = with_origins)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:
@@ -90,7 +90,8 @@ class ExpressionsPrettyPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
+                return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, 
+                                                                       with_origins = with_origins)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
             raise Exception('Unknown node type')
@@ -98,27 +99,28 @@ class ExpressionsPrettyPrinter:
             # a unary operator
             if node.is_unary_operator():
                 op = self.reference_converter.convert_unary_op(node.get_unary_operator())
-                rhs = self.print_expression(node.get_expression(), prefix=prefix)
+                rhs = self.print_expression(node.get_expression(), prefix=prefix, with_origins = with_origins)
                 return op % rhs
             # encapsulated in brackets
             elif node.is_encapsulated:
                 return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression(),
-                                                                                               prefix=prefix)
+                                                                                               prefix=prefix, 
+                                                                                               with_origins = with_origins)
             # logical not
             elif node.is_logical_not:
                 op = self.reference_converter.convert_logical_not()
-                rhs = self.print_expression(node.get_expression(), prefix=prefix)
+                rhs = self.print_expression(node.get_expression(), prefix=prefix, with_origins = with_origins)
                 return op % rhs
             # compound rhs with lhs + rhs
             elif node.is_compound_expression():
-                lhs = self.print_expression(node.get_lhs(), prefix=prefix)
+                lhs = self.print_expression(node.get_lhs(), prefix=prefix, with_origins = with_origins)
                 op = self.reference_converter.convert_binary_op(node.get_binary_operator())
-                rhs = self.print_expression(node.get_rhs(), prefix=prefix)
+                rhs = self.print_expression(node.get_rhs(), prefix=prefix, with_origins = with_origins)
                 return op % (lhs, rhs)
             elif node.is_ternary_operator():
-                condition = self.print_expression(node.get_condition(), prefix=prefix)
-                if_true = self.print_expression(node.get_if_true(), prefix=prefix)
-                if_not = self.print_expression(node.if_not, prefix=prefix)
+                condition = self.print_expression(node.get_condition(), prefix=prefix, with_origins = with_origins)
+                if_true = self.print_expression(node.get_if_true(), prefix=prefix, with_origins = with_origins)
+                if_not = self.print_expression(node.if_not, prefix=prefix, with_origins = with_origins)
                 return self.reference_converter.convert_ternary_operator() % (condition, if_true, if_not)
             raise Exception('Unknown node type')
         else:
