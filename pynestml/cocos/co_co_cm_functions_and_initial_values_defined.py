@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from _collections import defaultdict
 from collections import defaultdict
 import copy
 
@@ -229,8 +228,6 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     
     """
 
-    #todo: enforce unique variable names per channel, i.e n and m , not n and n
-    #todo: also enforce method return type double
     @classmethod
     def calcExpectedFunctionNamesForChannels(cls, cm_info):
         variables_procesed = defaultdict()
@@ -238,6 +235,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         for ion_channel_name, channel_info in cm_info.items():
             cm_expression = channel_info["ASTInlineExpression"]
             variables = channel_info["inner_variables"]
+            variable_names_seen = set()
+            
             variables_info = defaultdict()
 
             for variable_used in variables:
@@ -247,6 +246,14 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     variables_info[variable_name]["ASTVariable"] = variable_used
                     variables_info[variable_name]["is_valid"] = False
                     continue
+                
+                # enforce unique variable names per channel, i.e n and m , not n and n
+                if variable_name in variable_names_seen:
+                    code, message = Messages.get_cm_inline_expression_variable_used_mulitple_times(cm_expression, variable_name, ion_channel_name)
+                    Logger.log_message(code=code, message=message, error_position=variable_used.get_source_position(), log_level=LoggingLevel.ERROR, node=variable_used)
+                    continue
+                else:
+                    variable_names_seen.add(variable_name)
                 
                 pure_variable_name = cls.extract_pure_variable_name(variable_name, ion_channel_name)
                 expected_inf_function_name = cls.getExpectedInfFunctionName(ion_channel_name, pure_variable_name)
@@ -491,6 +498,11 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                             astfun = ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"]
                             if len(astfun.parameters) != 1:
                                 code, message = Messages.get_expected_cm_function_wrong_args_count(ion_channel_name, variable_info["ASTVariable"], astfun)
+                                Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
+                        
+                            # function must return real
+                            if not astfun.get_return_type().is_real:
+                                code, message = Messages.get_expected_cm_function_bad_return_type(ion_channel_name, astfun)
                                 Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
                         
                             if function_type == "tau":                                              

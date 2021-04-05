@@ -50,7 +50,6 @@
 
 nest::{{etypeClassName}}::{{etypeClassName}}()
 {% with %}
-{%- set default_init_value = 0.0 %}
 {%- for ion_channel_name, channel_info in cm_info.items() %}
     {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
     

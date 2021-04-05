@@ -111,6 +111,10 @@ class MessageCode(Enum):
     BAD_CM_VARIABLE_NAME = 77
     CM_FUNCTION_MISSING = 78
     CM_INITIAL_VALUES_MISSING = 79
+    CM_FUNCTION_BAD_NUMBER_ARGS = 80
+    CM_FUNCTION_BAD_RETURN_TYPE = 81
+    CM_VARIABLE_NAME_MULTI_USE = 82
+    
 
 
 class Messages:
@@ -1178,8 +1182,6 @@ class Messages:
         and it is called cm_p_open_{x}
         then all variable names in that expression must end with _{x}
         For example with "cm_p_open_Na" can only contain variables ending with "_Na"
-        :param name: the name of the inline expression with bad variable name format
-        :type name: str
         :return: a message
         :rtype: (MessageCode,str)
         """
@@ -1197,6 +1199,23 @@ class Messages:
         message += "\nVariable names are expected to match ion channel name, meaning they must have suffix '"+ion_channel_name+"' here"
         
         return MessageCode.BAD_CM_VARIABLE_NAME, message
+    
+    @classmethod
+    def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr, bad_variable_name, ion_channel_name):
+        assert (cm_inline_expr is not None and isinstance(cm_inline_expr, ASTInlineExpression)),\
+            '(PyNestML.Utils.Message) No ASTInlineExpression provided (%s)!' % type(cm_inline_expr)
+        
+        assert (bad_variable_name is not None and isinstance(bad_variable_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(bad_variable_name)
+
+        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)
+        
+        message = "Variable name '"+ bad_variable_name + "' seems to be used multiple times"
+        message += "' inside inline expression '" + cm_inline_expr.variable_name+"'. "
+        message += "\nVariables are not allowed to occur multiple times here."
+        
+        return MessageCode.CM_VARIABLE_NAME_MULTI_USE, message
     
     @classmethod
     def get_expected_cm_function_missing(cls, ion_channel_name, variable, function_name):
@@ -1222,7 +1241,17 @@ class Messages:
                    
         message = "Function '" + astfun.name + "' is expected to have exactly one Argument. "
         message += "It is related to variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
-        return MessageCode.CM_FUNCTION_MISSING, message
+        return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
+    
+    @classmethod
+    def get_expected_cm_function_bad_return_type(cls, ion_channel_name, astfun):
+        assert (astfun is not None and isinstance(astfun, ASTFunction)),\
+            '(PyNestML.Utils.Message) No ASTFunction provided (%s)!' % type(ASTFunction)
+        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)     
+                   
+        message = "'"+ion_channel_name + "' channel function '" + astfun.name + "' must return real. "
+        return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message    
     
     @classmethod
     def get_expected_cm_initial_values_missing(cls, not_yet_found_variables, expected_initial_variables_to_reason):
