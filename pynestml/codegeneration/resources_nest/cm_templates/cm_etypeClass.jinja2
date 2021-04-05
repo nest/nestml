@@ -60,14 +60,14 @@ nest::{{etypeClassName}}::{{etypeClassName}}()
     {%- set variable = variable_info["initial_value_variable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     {% if loop.first and outer_loop_first %}: {% else %}, {% endif %}
-    {{- variable.name}}({{ default_init_value -}}) 
+    {{- variable.name}}({{ printer.print_expression(rhs_expression) -}}) 
     {%- endfor -%}
     
     {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
     // channel parameter {{variable_type -}}
     {%- set variable = variable_info["initial_value_variable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
-    ,{{- variable.name}}({{default_init_value -}}) 
+    ,{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
     {%- endfor -%}
     
 {% endfor -%}
