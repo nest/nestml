@@ -131,17 +131,16 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_declaration(cls,
-                               is_recordable=False,  # type: bool
-                               is_function=False,  # type: bool
+                               is_recordable: bool=False,
+                               is_inline_expression: bool=False,
                                variables=None,  # type: list
                                data_type=None,  # type: ASTDataType
                                size_parameter=None,  # type: str
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                source_position=None  # type: ASTSourceLocation
-                               ):  # type: (...) -> ASTDeclaration
-        return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant,
-                              source_position=source_position)
+                               ) -> ASTDeclaration:
+        return ASTDeclaration(is_recordable, is_inline_expression, variables, data_type, size_parameter, expression, invariant, source_position=source_position)
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):

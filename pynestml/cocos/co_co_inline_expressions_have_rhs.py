@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_function_max_one_lhs.py
+# co_co_inline_expressions_have_rhs.py
 #
 # This file is part of NEST.
 #
@@ -21,42 +21,37 @@
 
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoFunctionMaxOneLhs(CoCo):
+class CoCoInlineExpressionsHaveRhs(CoCo):
     """
-    This coco ensures that whenever a function (aka alias) is declared, only one left-hand side is present.
-    Allowed:
-        function V_rest mV = V_m - 55mV
-    Not allowed:
-        function V_reset,V_rest mV = V_m - 55mV
+    This coco ensures that all inline expressions have a rhs.
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTNeuron):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ast_neuron
         """
-        node.accept(FunctionMaxOneLhs())
+        node.accept(InlineRhsVisitor())
 
 
-class FunctionMaxOneLhs(ASTVisitor):
+class InlineRhsVisitor(ASTVisitor):
     """
-    This visitor ensures that every function has exactly one lhs.
+    This visitor ensures that everything declared as inline expression has a rhs.
     """
 
     def visit_declaration(self, node: ASTDeclaration):
         """
-        Checks the coco.
+        Checks if the coco applies.
         :param node: a single declaration.
         """
-        if node.is_function and len(node.get_variables()) > 1:
-            code, message = Messages.get_several_lhs(list((var.get_name() for var in node.get_variables())))
-            Logger.log_message(error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR,
+        if node.is_inline_expression and not node.has_expression():
+            code, message = Messages.get_no_rhs(node.get_variables()[0].get_name())
+            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                code=code, message=message)

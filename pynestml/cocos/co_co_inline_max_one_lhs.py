@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_function_have_rhs.py
+# co_co_inline_max_one_lhs.py
 #
 # This file is part of NEST.
 #
@@ -26,9 +26,13 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoFunctionHaveRhs(CoCo):
+class CoCoInlineMaxOneLhs(CoCo):
     """
-    This coco ensures that all function declarations, e.g., function V_rest mV = V_m - 55mV, have a rhs.
+    This coco ensures that whenever an inline expression is declared, only one left-hand side is present.
+    Allowed:
+        inline V_rest mV = V_m - 55mV
+    Not allowed:
+        inline V_reset, V_rest mV = V_m - 55mV
     """
 
     @classmethod
@@ -38,20 +42,21 @@ class CoCoFunctionHaveRhs(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(FunctionRhsVisitor())
+        node.accept(InlineMaxOneLhs())
 
 
-class FunctionRhsVisitor(ASTVisitor):
+class InlineMaxOneLhs(ASTVisitor):
     """
-    This visitor ensures that everything declared as function has a rhs.
+    This visitor ensures that every inline expression has exactly one lhs.
     """
 
     def visit_declaration(self, node: ASTDeclaration):
         """
-        Checks if the coco applies.
+        Checks the coco.
         :param node: a single declaration.
         """
-        if node.is_function and not node.has_expression():
-            code, message = Messages.get_no_rhs(node.get_variables()[0].get_name())
-            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+        if node.is_inline_expression and len(node.get_variables()) > 1:
+            code, message = Messages.get_several_lhs(list((var.get_name() for var in node.get_variables())))
+            Logger.log_message(error_position=node.get_source_position(),
+                               log_level=LoggingLevel.ERROR,
                                code=code, message=message)

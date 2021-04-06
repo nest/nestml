@@ -151,8 +151,8 @@ parser grammar PyNestMLParser;
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
-    @attribute isRecordable: Is true iff. declaration is track-able.
-    @attribute isFunction: Is true iff. declaration is a function.
+    @attribute isRecordable: Is true iff. declaration is recordable.
+    @attribute isInlineExpression: Is true iff. declaration is an inline expression.
     @attribute variable: List with variables.
     @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
     @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
@@ -160,14 +160,14 @@ parser grammar PyNestMLParser;
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
   declaration :
-    (isRecordable=RECORDABLE_KEYWORD)? (isFunction=FUNCTION_KEYWORD)?
+    (isRecordable=RECORDABLE_KEYWORD)? (isInlineExpression=INLINE_KEYWORD)?
     variable (COMMA variable)*
     dataType
     (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     ( EQUALS rhs = expression)?
     (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?;
 
-  /** ATReturnStmt Models the return statement in a function.
+  /** ASTReturnStmt Models the return statement in a function.
     @expression An optional return expression, e.g., return tempVar
    */
   returnStmt : RETURN_KEYWORD expression?;
@@ -208,11 +208,11 @@ parser grammar PyNestMLParser;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
-    @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute equationsBlock: A block of ode declarations.
     @attribute inputBlock: A block of input buffer declarations.
     @attribute outputBlock: A block of output declarations.
-    @attribute function: A block declaring a used-defined function.
+    @attribute updateBlock: A single update block containing the dynamic behavior.
+    @attribute function: A block declaring a user-defined function.
   */
   body: COLON
          (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
@@ -246,7 +246,7 @@ parser grammar PyNestMLParser;
                 block
                 END_KEYWORD;
 
-  /** ASTEquationsBlock A block declaring special functions:
+  /** ASTEquationsBlock A block declaring equations, kernels and inline expressions:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
          V' = -1/Tau * V + 1/C_m * (convolve(G, spikes) + I_e + I_stim)
@@ -305,7 +305,7 @@ parser grammar PyNestMLParser;
       end
     @attribute name: The name of the function.
     @attribute parameters: List with function parameters.
-    @attribute returnType: An arbitrary return type, e.g. String or mV.
+    @attribute returnType: An arbitrary return type, e.g. string or mV.
     @attribute block: Implementation of the function.
   */
   function: FUNCTION_KEYWORD NAME LEFT_PAREN (parameter (COMMA parameter)*)? RIGHT_PAREN (returnType=dataType)?
