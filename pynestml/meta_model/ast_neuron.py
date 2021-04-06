@@ -324,7 +324,7 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_state_symbols(self) -> Iterable[VariableSymbol]:
+    def get_state_symbols(self) -> List[VariableSymbol]:
         """
         Returns a list of all state symbol defined in the model.
         :return: a list of state symbols.
@@ -352,7 +352,7 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_inline_expression_symbols(self) -> Iterable[VariableSymbol]:
+    def get_inline_expression_symbols(self) -> List[VariableSymbol]:
         """
         Returns a list of all inline expression symbols defined in the model.
         :return: a list of symbols
@@ -441,7 +441,7 @@ class ASTNeuron(ASTNode):
                 kernels.append(decl)
         return kernels
 
-    def get_non_inline_state_symbols(self) -> Iterable[VariableSymbol]:
+    def get_non_inline_state_symbols(self) -> List[VariableSymbol]:
         """
         Returns a list of all state symbols as defined in the model which are not marked as inline expressions.
         :return: a list of symbols
