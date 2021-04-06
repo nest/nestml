@@ -21,8 +21,6 @@
 
 from typing import Tuple
 
-import copy
-
 from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 from antlr4.error.ErrorListener import ConsoleErrorListener
@@ -138,10 +136,6 @@ class ModelParser:
 
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
-        log_to_restore = copy.deepcopy(Logger.get_log())
-        counter = Logger.curr_message
-
-        Logger.set_log(log_to_restore, counter)
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
