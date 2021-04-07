@@ -536,9 +536,9 @@ public: // XXX! TODO: should be private
 
   {%- for funcsym in neuron.get_function_symbols() %}
   {%- with variable = funcsym %}
-  {%- if not "__for" in funcsym.get_symbol_name() %}
+  {#- if not "__for" in funcsym.get_symbol_name() #}
   {%- include "directives/MemberVariableGetterSetter.jinja2" %}
-  {%- endif %}
+  {#- endif #}
   {%- endwith %}
   {%- endfor %}
 
