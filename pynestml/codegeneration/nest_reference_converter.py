@@ -200,7 +200,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return ''
 
         if symbol.is_local():
-            return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
+            return variable_name + ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
 
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
@@ -212,7 +212,7 @@ class NESTReferenceConverter(IReferenceConverter):
                 s += "(" + str(units_conversion_factor) + " * "
             s += NestPrinter.print_origin(symbol, prefix=prefix) + NestNamesConverter.buffer_value(symbol)
             if symbol.has_vector_parameter():
-                s += '[i]'
+                s += '[' + variable.get_vector_parameter() + ']'
             if not units_conversion_factor == 1:
                 s += ")"
             return s
@@ -229,12 +229,12 @@ class NESTReferenceConverter(IReferenceConverter):
                 temp += GSLNamesConverter.name(symbol)
             else:
                 temp += NestNamesConverter.name(symbol)
-            temp += ('[i]' if symbol.has_vector_parameter() else '')
+            temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
             NestNamesConverter.name(symbol) + \
-            ('[i]' if symbol.has_vector_parameter() else '')
+            ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
 
     def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \
