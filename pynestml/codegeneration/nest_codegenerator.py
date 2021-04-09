@@ -1454,9 +1454,11 @@ class NESTCodeGenerator(CodeGenerator):
                 expr_ast.accept(ASTSymbolTableVisitor())
                 namespace['numeric_update_expressions'][sym] = expr_ast
 
-            namespace['purely_numeric_state_variables_moved'] = list(set(namespace['numeric_state_variables_moved']) - set(namespace['analytic_state_variables_moved']))
-
-
+            if namespace['uses_numeric_solver']:
+                if 'analytic_state_variables_moved' in namespace.keys():
+                    namespace['purely_numeric_state_variables_moved'] = list(set(namespace['numeric_state_variables_moved']) - set(namespace['analytic_state_variables_moved']))
+                else:
+                    namespace['purely_numeric_state_variables_moved'] = namespace['numeric_state_variables_moved']
 
             namespace['useGSL'] = namespace['uses_numeric_solver']
             namespace['names'] = GSLNamesConverter()
