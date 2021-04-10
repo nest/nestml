@@ -197,7 +197,7 @@ class ASTUtils:
         return expr
 
     @classmethod
-    def get_inline_expression_symbols(cls, ast: ASTNode) -> Iterable[VariableSymbol]:
+    def get_inline_expression_symbols(cls, ast: ASTNode) -> List[VariableSymbol]:
         """
         For the handed over AST node, this method collects all inline expression variable symbols in it.
         :param ast: a single AST node
