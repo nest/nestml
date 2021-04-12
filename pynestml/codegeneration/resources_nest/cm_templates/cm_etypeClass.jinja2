@@ -1,4 +1,4 @@
-#include "cm_etype.h"
+#include "{{etypeFileName}}.h"
 
 {% macro render_variable_type(variable) -%}
 {%- with -%}
@@ -183,7 +183,7 @@ std::pair< double, double > nest::{{etypeClassName}}::f_numstep(const double v_c
 }
 
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_definition(function, etypeClassName)}}
+{{printer.print_function_definition(function, "nest::"+etypeClassName)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}

@@ -105,11 +105,13 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         node.accept(inline_expressions_inside_equations_block_collector_visitor)
         inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
         
+        is_compartmental_model = False
         # filter for cm_p_open_{channelType}
         relevant_inline_expressions_to_variables = defaultdict(lambda:list())
         for expression, variables in inline_expressions_dict.items():
             inline_expression_name = expression.variable_name
             if inline_expression_name.startswith(cls.inline_expression_prefix):
+                is_compartmental_model = True
                 relevant_inline_expressions_to_variables[expression] = variables
         
         #create info structure
@@ -120,7 +122,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             info["ASTInlineExpression"] = inline_expression
             info["inner_variables"] = inner_variables
             cm_info[channel_name] = info
- 
+        node.is_compartmental_model = is_compartmental_model
         return cm_info
     
     @classmethod
@@ -515,7 +517,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         return ret
     
     @classmethod
-    def check_co_co(cls, node: ASTNode, after_ast_rewrite: bool):
+    def check_co_co(cls, node: ASTNode):
         """
         Checks if this coco applies for the handed over neuron. 
         Models which do not have inline cm_p_open_{channelType}
