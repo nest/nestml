@@ -69,9 +69,7 @@
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
-{%- if has_vectors %}
-nest::DynamicRecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
-{%- else %}
+{%- if not has_vectors %}
 nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
 {%- endif %}
 namespace nest
@@ -226,6 +224,11 @@ namespace nest
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
   {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
+
+{%- if has_vectors %}
+  recordablesMap_.create(*this);
+{%- endif %}
+
   // copy parameter struct P_
 {%- filter indent(2, True) %}
 {%- for parameter in neuron.get_parameter_symbols() %}

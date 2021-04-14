@@ -449,7 +449,7 @@ private:
 
   //! Mapping of recordables names to access functions
   {% if has_vectors -%}
-  static nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
+  nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
   nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
   std::string get_var_name(size_t elem, std::string var_name);
   void insert_recordables(size_t first=0);
