@@ -66,7 +66,7 @@
 
 {% for neuron in neurons %}
     {%- if neuron.is_compartmental_model -%}
-#include "{{sharedFileNamesCm["main"]}}.h"
+#include "{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h"
     {% else -%}
 #include "{{neuron.get_name()}}.h"
     {% endif -%}
@@ -133,7 +133,7 @@ void
 {
   {% for neuron in neurons %}
     {%- if neuron.is_compartmental_model -%}
-nest::kernel().model_manager.register_node_model<nest::cm_main>("cm_main");
+nest::kernel().model_manager.register_node_model<nest::{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}>("{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}");
     {% else -%}
 nest::kernel().model_manager.register_node_model<{{neuron.get_name()}}>("{{neuron.get_name()}}");
     {% endif -%}

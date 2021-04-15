@@ -527,6 +527,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         """
         
         cm_info = cls.calcRelevantInlineExpressions(node)
+        
         cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
         cm_info = cls.checkAndFindFunctions(node, cm_info)
         cm_info = cls.getAndCheckExpectedVariableNamesAndReasons(node, cm_info)

@@ -1,5 +1,5 @@
 /*
- *  cm_main.cpp
+ *  {{neuronSpecificFileNamesCm["main"]}}.cpp
  *
  *  This file is part of NEST.
  *
@@ -19,7 +19,7 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "cm_main.h"
+#include "{{neuronSpecificFileNamesCm["main"]}}.h"
 
 
 namespace nest
@@ -28,7 +28,7 @@ namespace nest
 
 template <>
 void
-DynamicRecordablesMap< cm_main >::create( cm_main& host)
+DynamicRecordablesMap< {{neuronSpecificFileNamesCm["main"]}} >::create( {{neuronSpecificFileNamesCm["main"]}}& host)
 {
 }
 
@@ -36,7 +36,7 @@ DynamicRecordablesMap< cm_main >::create( cm_main& host)
  * Default and copy constructor for node
  * ---------------------------------------------------------------- */
 
-nest::cm_main::cm_main()
+nest::{{neuronSpecificFileNamesCm["main"]}}::{{neuronSpecificFileNamesCm["main"]}}()
   : ArchivingNode()
   , c_tree_()
   , syn_receptors_( 0 )
@@ -46,7 +46,7 @@ nest::cm_main::cm_main()
   recordablesMap_.create( *this );
 }
 
-nest::cm_main::cm_main( const cm_main& n )
+nest::{{neuronSpecificFileNamesCm["main"]}}::{{neuronSpecificFileNamesCm["main"]}}( const {{neuronSpecificFileNamesCm["main"]}}& n )
   : ArchivingNode( n )
   , c_tree_( n.c_tree_ )
   , syn_receptors_( n.syn_receptors_ )
@@ -60,29 +60,29 @@ nest::cm_main::cm_main( const cm_main& n )
  * ---------------------------------------------------------------- */
 
 void
-nest::cm_main::init_state_( const Node& proto )
+nest::{{neuronSpecificFileNamesCm["main"]}}::init_state_( const Node& proto )
 {
 }
 
 void
-nest::cm_main::init_buffers_()
+nest::{{neuronSpecificFileNamesCm["main"]}}::init_buffers_()
 {
   logger_.reset();
   ArchivingNode::clear_history();
 }
 
 void
-cm_main::add_compartment( const long compartment_idx, const long parent_compartment_idx, const DictionaryDatum& compartment_params )
+{{neuronSpecificFileNamesCm["main"]}}::add_compartment( const long compartment_idx, const long parent_compartment_idx, const DictionaryDatum& compartment_params )
 {
   c_tree_.add_compartment( compartment_idx, parent_compartment_idx, compartment_params);
 
   // to enable recording the voltage of the current compartment
   recordablesMap_.insert( "V_m_" + std::to_string(compartment_idx),
-                          DataAccessFunctor< cm_main >( *this, compartment_idx ) );
+                          DataAccessFunctor< {{neuronSpecificFileNamesCm["main"]}} >( *this, compartment_idx ) );
 }
 
 size_t
-cm_main::add_receptor( const long compartment_idx, const std::string& type )
+{{neuronSpecificFileNamesCm["main"]}}::add_receptor( const long compartment_idx, const std::string& type )
 {
   std::shared_ptr< Synapse > syn;
   if ( type == "AMPA" )
@@ -116,7 +116,7 @@ cm_main::add_receptor( const long compartment_idx, const std::string& type )
 }
 
 void
-nest::cm_main::calibrate()
+nest::{{neuronSpecificFileNamesCm["main"]}}::calibrate()
 {
   logger_.init();
   c_tree_.init();
@@ -127,7 +127,7 @@ nest::cm_main::calibrate()
  */
 
 void
-nest::cm_main::update( Time const& origin, const long from, const long to )
+nest::{{neuronSpecificFileNamesCm["main"]}}::update( Time const& origin, const long from, const long to )
 {
   assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
@@ -155,7 +155,7 @@ nest::cm_main::update( Time const& origin, const long from, const long to )
 }
 
 void
-nest::cm_main::handle( SpikeEvent& e )
+nest::{{neuronSpecificFileNamesCm["main"]}}::handle( SpikeEvent& e )
 {
   if ( e.get_weight() < 0 )
   {
@@ -170,7 +170,7 @@ nest::cm_main::handle( SpikeEvent& e )
 }
 
 void
-nest::cm_main::handle( CurrentEvent& e )
+nest::{{neuronSpecificFileNamesCm["main"]}}::handle( CurrentEvent& e )
 {
   assert( e.get_delay_steps() > 0 );
 
@@ -182,7 +182,7 @@ nest::cm_main::handle( CurrentEvent& e )
 }
 
 void
-nest::cm_main::handle( DataLoggingRequest& e )
+nest::{{neuronSpecificFileNamesCm["main"]}}::handle( DataLoggingRequest& e )
 {
   logger_.handle( e );
 }

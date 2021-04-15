@@ -158,13 +158,15 @@ class NESTCodeGenerator(CodeGenerator):
                      }
         neuron_name_to_filename = dict()
         for neuron in neurons:
-            neuron_name_to_filename[neuron.get_name()] = self.get_etype_file_name_prefix(neuron)
+            neuron_name_to_filename[neuron.get_name()] = {
+                    "etype": self.get_etype_file_name_prefix(neuron),
+                    "main": self.get_cm_main_file_prefix(neuron),
+                    "tree": self.get_cm_tree_file_prefix(neuron)
+                }
         
-        namespace['neuronNameToFileName'] = neuron_name_to_filename
+        namespace['perNeuronFileNamesCm'] = neuron_name_to_filename
         namespace['sharedFileNamesCm'] = {
-            "main": self.get_cm_main_file_prefix(),
             "syns": self.get_cm_syns_file_prefix(),
-            "tree": self.get_cm_tree_file_prefix()
         }
         
         if not os.path.exists(FrontendConfiguration.get_target_path()):
@@ -473,9 +475,9 @@ class NESTCodeGenerator(CodeGenerator):
         
         #i.e neuron_etype_cm_model.h
         neuron_etype_h_file_name = self.get_etype_file_name_prefix(neuron)+".h"
-        neuron_main_h_file_name = self.get_cm_main_file_prefix()+".h"
+        neuron_main_h_file_name = self.get_cm_main_file_prefix(neuron)+".h"
         neuron_syns_h_file_name = self.get_cm_syns_file_prefix()+".h"
-        neuron_tree_h_file_name = self.get_cm_tree_file_prefix()+".h"
+        neuron_tree_h_file_name = self.get_cm_tree_file_prefix(neuron)+".h"
         
         neuron_etype_h_file = self._cm_template_etype_h_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_etype_h_file_name)), 'w+') as f:
@@ -493,14 +495,14 @@ class NESTCodeGenerator(CodeGenerator):
     def get_etype_file_name_prefix(self, neuron):
         return "neuron_etype_" + neuron.get_name()
     
-    def get_cm_main_file_prefix(self):
-        return "neuron_main"
+    def get_cm_main_file_prefix(self, neuron):
+        return "neuron_main_" + neuron.get_name()
     
     def get_cm_syns_file_prefix(self):
         return "neuron_syns"
     
-    def get_cm_tree_file_prefix(self):
-        return "neuron_tree"
+    def get_cm_tree_file_prefix(self, neuron):
+        return "neuron_tree_" + neuron.get_name()
         
     def generate_cm_cpp_files(self, neuron: ASTNeuron) -> None:
         """
@@ -509,9 +511,9 @@ class NESTCodeGenerator(CodeGenerator):
         """
         #i.e neuron_etype_cm_model.cpp
         neuron_etype_cpp_file_name = self.get_etype_file_name_prefix(neuron)+".cpp"
-        neuron_main_cpp_file_name = self.get_cm_main_file_prefix()+".cpp"
+        neuron_main_cpp_file_name = self.get_cm_main_file_prefix(neuron)+".cpp"
         neuron_syns_cpp_file_name = self.get_cm_syns_file_prefix()+".cpp"
-        neuron_tree_cpp_file_name = self.get_cm_tree_file_prefix()+".cpp"
+        neuron_tree_cpp_file_name = self.get_cm_tree_file_prefix(neuron)+".cpp"
         
         neuron_etype_cpp_file = self._cm_template_etype_cpp_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_etype_cpp_file_name)), 'w+') as f:
@@ -625,6 +627,18 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
         
         namespace['cm_info'] = cm_coco_logic.neuron_to_cm_info[neuron.name]
+        
+        neuron_specific_filenames = {
+            "etype": self.get_etype_file_name_prefix(neuron),
+            "main": self.get_cm_main_file_prefix(neuron),
+            "tree": self.get_cm_tree_file_prefix(neuron)
+        }
+        
+        namespace['neuronSpecificFileNamesCm'] = neuron_specific_filenames
+        namespace['sharedFileNamesCm'] = {
+            "syns": self.get_cm_syns_file_prefix(),
+        }
+        
         
         return namespace
 

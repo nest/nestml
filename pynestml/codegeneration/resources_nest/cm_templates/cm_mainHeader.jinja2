@@ -1,5 +1,5 @@
 /*
- *  cm_main.h
+ *  {{neuronSpecificFileNamesCm["etype"]}}.h
  *
  *  This file is part of NEST.
  *
@@ -29,8 +29,12 @@
 #include "nest_types.h"
 #include "universal_data_logger.h"
 
-#include "cm_tree.h"
-#include "cm_syns.h"
+//#include "cm_tree.h"
+//#include "cm_syns.h"
+
+#include "{{neuronSpecificFileNamesCm["tree"]}}.h"
+#include "{{sharedFileNamesCm["syns"]}}.h"
+
 
 namespace nest
 {
@@ -46,7 +50,7 @@ Currently, AMPA, GABA or AMPA+NMDA receptors.
 Description
 +++++++++++
 
-`cm_main` is an implementation of a compartmental model. Users can
+`{{neuronSpecificFileNamesCm["main"]}}` is an implementation of a compartmental model. Users can
 define the structure of the neuron, i.e., soma and dendritic tree by
 adding compartments. Each compartment can be assigned receptors,
 currently modeled by AMPA, GABA or NMDA dynamics.
@@ -61,7 +65,7 @@ Usage
 The structure of the dendrite is user defined. Thus after creation of the neuron
 in the standard manner
 
->>> cm =  nest.Create('cm_main')
+>>> cm =  nest.Create('{{neuronSpecificFileNamesCm["main"]}}')
 
 users add compartments using the `nest.add_compartment()` function
 
@@ -127,12 +131,12 @@ NEURON simulator ;-D
 
 EndUserDocs*/
 
-class cm_main : public ArchivingNode
+class {{neuronSpecificFileNamesCm["main"]}} : public ArchivingNode
 {
 
 public:
-  cm_main();
-  cm_main( const cm_main& );
+  {{neuronSpecificFileNamesCm["main"]}}();
+  {{neuronSpecificFileNamesCm["main"]}}( const {{neuronSpecificFileNamesCm["main"]}}& );
 
   using Node::handle;
   using Node::handles_test_event;
@@ -167,21 +171,21 @@ private:
   double get_state_element( size_t elem){return c_tree_.get_compartment_voltage(elem);}
 
   // The next classes need to be friends to access the State_ class/member
-  friend class DataAccessFunctor< cm_main >;
-  friend class DynamicRecordablesMap< cm_main >;
-  friend class DynamicUniversalDataLogger< cm_main >;
+  friend class DataAccessFunctor< {{neuronSpecificFileNamesCm["main"]}} >;
+  friend class DynamicRecordablesMap< {{neuronSpecificFileNamesCm["main"]}} >;
+  friend class DynamicUniversalDataLogger< {{neuronSpecificFileNamesCm["main"]}} >;
 
   //! Mapping of recordables names to access functions
-  DynamicRecordablesMap< cm_main > recordablesMap_;
+  DynamicRecordablesMap< {{neuronSpecificFileNamesCm["main"]}} > recordablesMap_;
   //! Logger for all analog data
-  DynamicUniversalDataLogger< cm_main > logger_;
+  DynamicUniversalDataLogger< {{neuronSpecificFileNamesCm["main"]}} > logger_;
 
   double V_th_;
 };
 
 
 inline port
-nest::cm_main::send_test_event( Node& target, rport receptor_type, synindex, bool )
+nest::{{neuronSpecificFileNamesCm["main"]}}::send_test_event( Node& target, rport receptor_type, synindex, bool )
 {
   SpikeEvent e;
   e.set_sender( *this );
@@ -189,7 +193,7 @@ nest::cm_main::send_test_event( Node& target, rport receptor_type, synindex, boo
 }
 
 inline port
-cm_main::handles_test_event( SpikeEvent&, rport receptor_type )
+{{neuronSpecificFileNamesCm["main"]}}::handles_test_event( SpikeEvent&, rport receptor_type )
 {
   if ( ( receptor_type < 0 ) or ( receptor_type >= static_cast< port >( syn_receptors_.size() ) ) )
   {
@@ -199,7 +203,7 @@ cm_main::handles_test_event( SpikeEvent&, rport receptor_type )
 }
 
 inline port
-cm_main::handles_test_event( CurrentEvent&, rport receptor_type )
+{{neuronSpecificFileNamesCm["main"]}}::handles_test_event( CurrentEvent&, rport receptor_type )
 {
   // if get_compartment returns nullptr, raise the error
   if ( !c_tree_.get_compartment( long(receptor_type), c_tree_.get_root(), 0 ) )
@@ -210,7 +214,7 @@ cm_main::handles_test_event( CurrentEvent&, rport receptor_type )
 }
 
 inline port
-cm_main::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
+{{neuronSpecificFileNamesCm["main"]}}::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 {
   if ( receptor_type != 0 )
   {
@@ -220,7 +224,7 @@ cm_main::handles_test_event( DataLoggingRequest& dlr, rport receptor_type )
 }
 
 inline void
-cm_main::get_status( DictionaryDatum& d ) const
+{{neuronSpecificFileNamesCm["main"]}}::get_status( DictionaryDatum& d ) const
 {
   def< double >( d, names::V_th, V_th_ );
   ArchivingNode::get_status( d );
@@ -228,7 +232,7 @@ cm_main::get_status( DictionaryDatum& d ) const
 }
 
 inline void
-cm_main::set_status( const DictionaryDatum& d )
+{{neuronSpecificFileNamesCm["main"]}}::set_status( const DictionaryDatum& d )
 {
   updateValue< double >( d, names::V_th, V_th_ );
   ArchivingNode::set_status( d );

@@ -64,7 +64,9 @@ set( MODULE_SOURCES
     {%- for neuron in neurons %}
         {%- if neuron.is_compartmental_model -%}
             {%- set what_happened.cm_neuron_exists = True %}
-    {{neuronNameToFileName[neuron.get_name()]}}.cpp {{neuronNameToFileName[neuron.get_name()]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["etype"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["etype"]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.h
         {%- else -%}
             {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
         {%- endif -%}
