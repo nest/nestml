@@ -2289,7 +2289,7 @@ class PyNestMLParser ( Parser ):
             super(PyNestMLParser.DeclarationContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.isRecordable = None # Token
-            self.isFunction = None # Token
+            self.isInlineExpression = None # Token
             self.sizeParameter = None # Token
             self.rhs = None # ExpressionContext
             self.invariant = None # ExpressionContext
@@ -2372,9 +2372,9 @@ class PyNestMLParser ( Parser ):
             self.state = 325
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.FUNCTION_KEYWORD:
+            if _la==PyNestMLParser.INLINE_KEYWORD:
                 self.state = 324
-                localctx.isFunction = self.match(PyNestMLParser.FUNCTION_KEYWORD)
+                localctx.isInlineExpression = self.match(PyNestMLParser.INLINE_KEYWORD)
 
 
             self.state = 327

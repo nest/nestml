@@ -47,7 +47,7 @@ class GSLNamesConverter:
         :return: the corresponding string format
         :rtype: str
         """
-        if symbol.is_state() and not symbol.is_function:
+        if symbol.is_state() and not symbol.is_inline_expression:
             return 'ode_state[State_::' + NestNamesConverter.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
         else:
             return NestNamesConverter.name(symbol)

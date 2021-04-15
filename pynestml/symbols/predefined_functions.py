@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Mapping
+
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 

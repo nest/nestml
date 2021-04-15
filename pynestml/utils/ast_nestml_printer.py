@@ -308,8 +308,8 @@ class ASTNestMLPrinter:
         ret += print_n_spaces(self.indent)
         if node.is_recordable:
             ret += 'recordable '
-        if node.is_function:
-            ret += 'function '
+        if node.is_inline_expression:
+            ret += 'inline '
         for var in node.get_variables():
             ret += self.print_node(var)
             if node.get_variables().index(var) < len(node.get_variables()) - 1:

@@ -1,4 +1,4 @@
-{%- if variable.is_function and not utils.contains_sum_call(variable) %}
+{%- if variable.is_inline_expression and not utils.contains_convolve_call(variable) %}
 inline {{declarations.print_variable_type(variable)}} {{names.getter(variable)}}() const
 {
   return {{printer.print_expression(variable.get_declaring_expression())}};

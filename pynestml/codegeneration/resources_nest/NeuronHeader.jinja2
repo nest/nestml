@@ -440,11 +440,11 @@ private:
 {%- endfor %}
 {%- endfilter %}
   // -------------------------------------------------------------------------
-  //   Getters/setters for functions
+  //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
-{%- for funcsym in neuron.get_function_symbols() %}
-{%- with variable = funcsym %}
+{%- for sym in neuron.get_inline_expression_symbols() %}
+{%- with variable = sym %}
 {%- include "directives/MemberVariableGetterSetter.jinja2" %}
 {%- endwith %}
 {%- endfor %}
