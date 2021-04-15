@@ -81,10 +81,10 @@ namespace nest
     insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
-{%- if recordable_functions|length > 0 %}
+{%- if recordable_inline_expressions|length > 0 %}
 
-    // add functions to recordables map
-{%- for sym in recordable_functions %}
+    // add recordable inline expressions to recordables map
+{%- for sym in recordable_inline_expressions %}
 	insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
