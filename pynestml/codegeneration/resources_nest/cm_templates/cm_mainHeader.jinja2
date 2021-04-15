@@ -19,18 +19,15 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef IAF_NEAT_H
-#define IAF_NEAT_H
+{% set unique_string = neuron.get_name() %}
+#ifndef IAF_NEAT_H_{{unique_string |upper }}
+#define IAF_NEAT_H_{{unique_string |upper }}
 
 // Includes from nestkernel:
 #include "archiving_node.h"
 #include "event.h"
 #include "nest_types.h"
 #include "universal_data_logger.h"
-
-//#include "cm_tree.h"
-//#include "cm_syns.h"
 
 #include "{{neuronSpecificFileNamesCm["tree"]}}.h"
 #include "{{sharedFileNamesCm["syns"]}}.h"
@@ -164,7 +161,7 @@ private:
 
   void update( Time const&, const long, const long );
 
-  CompTree c_tree_;
+  CompTree{{unique_string}} c_tree_;
   std::vector< std::shared_ptr< Synapse > > syn_receptors_;
 
   // To record variables with DataAccessFunctor

@@ -35,11 +35,11 @@
     {{ type_converter.convert(symbol.type_symbol) }}
 {%- endwith -%} 
 {%- endmacro %}
-
+{% set unique_string = neuron.get_name() %}
 
 namespace nest{
 
-class {{etypeClassName}}{
+class {{etypeClassName~unique_string}}{
 // Example e-type with a sodium and potassium channel
 private:
 
@@ -62,9 +62,9 @@ private:
 
 public:
     // constructor, destructor
-    {{etypeClassName}}();
-    {{etypeClassName}}(const DictionaryDatum& compartment_params);
-    ~{{etypeClassName}}(){};
+    {{etypeClassName~unique_string}}();
+    {{etypeClassName~unique_string}}(const DictionaryDatum& compartment_params);
+    ~{{etypeClassName~unique_string}}(){};
 
     void add_spike(){};
     std::pair< double, double > f_numstep(const double v_comp, const double lag);

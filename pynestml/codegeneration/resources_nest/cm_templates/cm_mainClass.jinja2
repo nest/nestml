@@ -20,7 +20,7 @@
  *
  */
 #include "{{neuronSpecificFileNamesCm["main"]}}.h"
-
+{% set unique_string = neuron.get_name() %}
 
 namespace nest
 {
@@ -109,7 +109,7 @@ size_t
   const size_t syn_idx = syn_receptors_.size();
   syn_receptors_.push_back( syn );
 
-  Compartment* compartment = c_tree_.get_compartment( compartment_idx );
+  Compartment{{unique_string}}* compartment = c_tree_.get_compartment( compartment_idx );
   compartment->syns.push_back( syn );
 
   return syn_idx;
@@ -177,7 +177,7 @@ nest::{{neuronSpecificFileNamesCm["main"]}}::handle( CurrentEvent& e )
   const double c = e.get_current();
   const double w = e.get_weight();
 
-  Compartment* compartment = c_tree_.get_compartment( e.get_rport() );
+  Compartment{{unique_string}}* compartment = c_tree_.get_compartment( e.get_rport() );
   compartment->currents.add_value( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), w * c );
 }
 

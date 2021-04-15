@@ -15,6 +15,7 @@ NESTSIM_HOME = THESIS_HOME + NESTSIM_INSTALL_SUFFIX
 GEN_DIR = os.path.join(NESTML_HOME , "generated")
 # MODEL_FILE = os.path.join(NESTML_HOME, "models/iaf_psc_exp.nestml")
 MODEL_FILE = os.path.join(NESTML_HOME, "models/cm_model.nestml")
+# MODEL_FILE = os.path.join(NESTML_HOME, "models/iaf_cond_beta.nestml")
 
 #cleanup
 try:
@@ -32,7 +33,7 @@ except OSError:
 else:
     print ("Successfully created directory %s " % GEN_DIR)
     
-to_nest(input_path=MODEL_FILE, target_path=GEN_DIR)
+to_nest(input_path=MODEL_FILE, target_path=GEN_DIR, suffix="_abc")
 install_nest(GEN_DIR, NESTSIM_HOME)
 
 
