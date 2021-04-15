@@ -1,7 +1,8 @@
 {#
   Creates GSL implementation of the differentiation step for the system of ODEs.
 -#}
-extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], double f[], void* pnode){
+extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], double f[], void* pnode)
+{
   typedef {{neuronName}}::State_ State_;
   // get access to node so we can almost work as in a member function
   assert( pnode );
@@ -19,17 +20,16 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 {%-   endfor %}
 {%- endfor %}
 
-{%- for variable_name in numeric_state_variables: %}
+{%- for variable_name in numeric_state_variables %}
 {%-   set update_expr = numeric_update_expressions[variable_name] %}
 {%-   set variable_sym = numeric_variable_symbols[variable_name] %}
   f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
 {%- endfor %}
 
-{%- for variable_name in non_equations_state_variables: %}
+{%- for variable_name in non_equations_state_variables %}
 {%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
   f[{{names.array_index(variable_sym)}}] = 0.;
 {%- endfor %}
 
   return GSL_SUCCESS;
 }
-

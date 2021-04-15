@@ -59,19 +59,22 @@ lexers["nestml"] = NESTMLLexer(startinline=True)
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../doc/sphinx-apidoc'))
 sys.path.insert(0, os.path.abspath('doc/sphinx-apidoc'))
+sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('doc'))
 sys.path.insert(0, os.path.abspath('pynestml'))
 sys.path.insert(0, os.path.abspath('pynestml/codegeneration'))
 
+print("sys.path: " + str(sys.path))
 
+print("Running sphinx-apidoc...")
 os.system("sphinx-apidoc --module-first -o "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml')
  + " "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml'))	# in-source generation of necessary .rst files
 
-
+print("Copying documentation files...")
 import fnmatch
 import os
 
