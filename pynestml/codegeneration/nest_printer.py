@@ -467,4 +467,4 @@ class NestPrinter:
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        return '//!< Buffer incoming ' + ast_buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
+        return '//!< Buffer for input (type: ' + ast_buffer.get_type_symbol().get_symbol_name() + ')'
