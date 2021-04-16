@@ -67,14 +67,14 @@ set( MODULE_SOURCES
     {{perNeuronFileNamesCm[neuron.get_name()]["etype"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["etype"]}}.h
     {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h
     {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.h
-        {%- else -%}
-            {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
-        {%- endif -%}
+        {%- else %}
+    {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
+        {% endif -%}
     {% endfor -%}
     {%- if what_happened.cm_neuron_exists -%}
         {%- for cm_file_name in sharedFileNamesCm.values() %}
     {{cm_file_name}}.cpp {{cm_file_name}}.h
-        {%- endfor -%}
+        {% endfor -%}
     {%- endif %}
     )
 

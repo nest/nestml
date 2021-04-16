@@ -233,7 +233,7 @@ class NESTReferenceConverter(IReferenceConverter):
             temp += ('[i]' if symbol.has_vector_parameter() else '')
             return temp
 
-        return NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else '' + \
+        return (NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else '') + \
             NestNamesConverter.name(symbol) + \
             ('[i]' if symbol.has_vector_parameter() else '')
 

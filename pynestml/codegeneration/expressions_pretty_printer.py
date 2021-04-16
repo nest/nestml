@@ -22,6 +22,7 @@
 from typing import Tuple
 
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
+from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -90,8 +91,13 @@ class ExpressionsPrettyPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, 
-                                                                       with_origins = with_origins)
+                # NESTReferenceConverter takes the extra with_origins parameter 
+                # which is used in cm models
+                if isinstance(self.reference_converter, NESTReferenceConverter):
+                    return self.reference_converter.convert_name_reference\
+                    (node.get_variable(), prefix=prefix, with_origins = with_origins)
+                else:
+                    return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
             raise Exception('Unknown node type')
