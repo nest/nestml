@@ -114,6 +114,7 @@ class MessageCode(Enum):
     CM_FUNCTION_BAD_NUMBER_ARGS = 80
     CM_FUNCTION_BAD_RETURN_TYPE = 81
     CM_VARIABLE_NAME_MULTI_USE = 82
+    CM_NO_VALUE_ASSIGNMENT = 83
     
 
 
@@ -1268,3 +1269,14 @@ class Messages:
             
             
         return MessageCode.CM_INITIAL_VALUES_MISSING, message
+    
+    @classmethod
+    def get_cm_variable_value_missing(cls, varname):
+        assert (varname is not None and isinstance(varname, str)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(varname)
+            
+        message = "The following variable has no value assinged: "+varname+"\n"
+        
+        return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
+        
+    

@@ -116,7 +116,7 @@ std::pair< double, double > nest::{{etypeClassName~cm_unique_suffix}}::f_numstep
     double g_val = 0., i_val = 0.;
     
 {%- macro render_state_variable_name(pure_variable_name, ion_channel_name) -%}
-    {{ pure_variable_name~"_"~ion_channel_name~"_" }}
+    {{ pure_variable_name~"_"~ion_channel_name }}
 {%- endmacro -%}
 
 {%- with %}

@@ -53,8 +53,8 @@ class CoCoCompartmentalModel(CoCo):
     (which is searched for inside ASTEquationsBlock)
     have the following compartmental model functions defined
 
-        _x_inf_{channelType}(v_comp real) real
-        _tau_x_{channelType}(v_comp real) real
+        x_inf_{channelType}(v_comp real) real
+        tau_x_{channelType}(v_comp real) real
     
 
     Example:
@@ -63,11 +63,11 @@ class CoCoCompartmentalModel(CoCo):
         end
         
         # triggers requirements for functions such as
-        function _h_inf_Na(v_comp real) real:
+        function h_inf_Na(v_comp real) real:
             return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
         end
     
-        function _tau_h_Na(v_comp real) real: 
+        function tau_h_Na(v_comp real) real: 
             return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
         end
         
@@ -164,27 +164,29 @@ class CoCoCompartmentalModel(CoCo):
         return cls.equilibrium_string+cls.padding_character+ion_channel_name
     
     # generate tau function name from ion channel name
-    # i.e  Na, p -> _tau_p_Na
-    @classmethod
-    def getExpectedTauFunctionName(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.getExpectedTauResultVariableName(ion_channel_name, pure_variable_name)
-    
-    # generate inf function name from ion channel name and pure variable name
-    # i.e  Na, p -> _p_inf_Na  
-    @classmethod
-    def getExpectedInfFunctionName(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.getExpectedInfResultVariableName(ion_channel_name, pure_variable_name)
-
-    # generate tau variable name from ion channel name and pure variable name
     # i.e  Na, p -> tau_p_Na
     @classmethod
     def getExpectedTauResultVariableName(cls, ion_channel_name, pure_variable_name):
+        return cls.padding_character+cls.getExpectedTauFunctionName(ion_channel_name, pure_variable_name)
+    
+    # generate tau variable name (stores return value) 
+    # from ion channel name and pure variable name
+    # i.e  Na, p -> _tau_p_Na
+    @classmethod
+    def getExpectedTauFunctionName(cls, ion_channel_name, pure_variable_name):
         return cls.tau_sring+cls.padding_character+pure_variable_name+cls.padding_character+ion_channel_name
     
-    # generate inf variable name from ion channel name and pure variable name
-    # i.e  Na, p -> p_inf_Na    
+    # generate inf function name from ion channel name and pure variable name
+    # i.e  Na, p -> p_inf_Na  
     @classmethod
     def getExpectedInfResultVariableName(cls, ion_channel_name, pure_variable_name):
+        return cls.padding_character+cls.getExpectedInfFunctionName(ion_channel_name, pure_variable_name)
+
+    # generate inf variable name (stores return value) 
+    # from ion channel name and pure variable name
+    # i.e  Na, p -> _p_inf_Na    
+    @classmethod
+    def getExpectedInfFunctionName (cls, ion_channel_name, pure_variable_name):
         return pure_variable_name+cls.padding_character+cls.inf_string+cls.padding_character + ion_channel_name
     
     
@@ -192,8 +194,8 @@ class CoCoCompartmentalModel(CoCo):
     # i.e 
     # m_Na**3 * h_Na**1 
     # expects
-    # _m_inf_Na(v_comp real) real
-    # _tau_m_Na(v_comp real) real
+    # m_inf_Na(v_comp real) real
+    # tau_m_Na(v_comp real) real
     """
     analyzes any inline cm_p_open_{channelType} for expected function names
     input:
@@ -766,7 +768,12 @@ class InitialValueMissingVisitor(ASTVisitor):
                         for pure_variable_name, variable_info in channel_info["inner_variables"].items():
                             if variable_info["ASTVariable"].name == varname:
                                 cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["initial_value_variable"] = node
-                                cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["rhs_expression"] = self.current_declaration.get_expression()
+                                rhs_expression = self.current_declaration.get_expression()
+                                if rhs_expression is None:
+                                    code, message = Messages.get_cm_variable_value_missing(varname)
+                                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
+
+                                cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["rhs_expression"] = rhs_expression
                 self.cm_info = cm_info_updated 
                 
         if self.inside_parameter_block and self.inside_declaration:
@@ -787,7 +794,12 @@ class InitialValueMissingVisitor(ASTVisitor):
                         for variable_type, variable_info in channel_info["channel_variables"].items():
                             if variable_info["expected_name"] == varname:
                                 cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["parameter_block_variable"] = node
-                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["rhs_expression"] = self.current_declaration.get_expression()
+                                rhs_expression = self.current_declaration.get_expression()
+                                if rhs_expression is None:
+                                    code, message = Messages.get_cm_variable_value_missing(varname)
+                                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
+
+                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["rhs_expression"] = rhs_expression
                 self.cm_info = cm_info_updated             
 
     def endvisit_neuron(self, node):
@@ -830,10 +842,8 @@ class ASTInlineExpressionInsideEquationsBlockCollectorVisitor(ASTVisitor):
         self.current_inline_expression = None
 
     def visit_variable(self, node):
-        if self.inside_equations_block and \
-            self.inside_inline_expression and \
-            self.current_inline_expression is not None:
-                self.inline_expressions_to_variables[self.current_inline_expression].append(node)
+        if self.inside_equations_block and self.inside_inline_expression and self.current_inline_expression is not None:
+            self.inline_expressions_to_variables[self.current_inline_expression].append(node)
                 
     def visit_inline_expression(self, node):
         self.inside_inline_expression = True
