@@ -26,18 +26,18 @@ neuron cm_model:
   end
 
   initial_values:
-    e_Na_ real = 50.0
+    e_Na real = 50.0
     m_Na_ real = 0.0
     h_Na_ real = 0.0
-    gbar_Na_ real = 0.0
+    gbar_Na real = 0.0
     
-    e_K_ real = -85.0
-    gbar_K_ real = 0.0
+    e_K real = -85.0
+    gbar_K real = 0.0
     n_K_ real = 0.0
     
     # some Einsteinium for testing purposes ;D
-    e_Es_ real = 23.0
-    gbar_Es_ real = 0.0
+    e_Es real = 23.0
+    gbar_Es real = 0.0
     q_Es_ real = 0.0
     
     
@@ -83,8 +83,8 @@ neuron cm_model:
     
     # extract channel type Na
     # and expect
-    #      initial value of gbar_Na_ = 0.0
-    #      initial value of e_Na_ = 50.0
+    #      initial value of gbar_Na = 0.0
+    #      initial value of e_Na = 50.0
     
     # extract variables m and h
     # for variable m expect:
@@ -99,8 +99,8 @@ neuron cm_model:
     inline cm_p_open_K real = n_K_**1
     # extract channel type K
     # and expect
-    #      initial value of gbar_K_ = 0.0
-    #      initial value of e_K_ = 50.0
+    #      initial value of gbar_K = 0.0
+    #      initial value of e_K = 50.0
     
     # extract variable n
     # for variable n expect:
@@ -115,6 +115,8 @@ neuron cm_model:
   end
 
   parameters:
+  
+    testparam real = 0.0
 
   end
 
@@ -143,17 +145,17 @@ neuron cm_modelx:
   end
 
   initial_values:
-    e_Na_ real = 50.0
+    e_Na real = 50.0
     m_Na_ real = 0.0
     h_Na_ real = 0.0
-    gbar_Na_ real = 0.0
+    gbar_Na real = 0.0
     
-    e_K_ real = -85.0
-    gbar_K_ real = 0.0
+    e_K real = -85.0
+    gbar_K real = 0.0
     n_K_ real = 0.0
     
-    e_Es_ real = 23.0
-    gbar_Es_ real = 0.0
+    e_Es real = 23.0
+    gbar_Es real = 0.0
     q_Es_ real = 0.0
     
     

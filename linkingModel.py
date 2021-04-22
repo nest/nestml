@@ -39,16 +39,16 @@ def linkModel(nestml_model = "cm_model.nestml"):
     #...
 
 # random examples to try
-# linkModel("cm_model.nestml")
+linkModel("cm_model.nestml")
 # linkModel("hh_cond_exp_traub.nestml")
 
-#comment this out if you don't want to test linking of all existing models
-for filename in os.listdir(NESTML_MODELS_HOME):
-    if filename.endswith(".nestml"): #and filename not in ("hh_cond_exp_traub.nestml",): 
-        print(f"-------------- linking {filename}")
-        linkModel(filename)
-        print(f"-------------- linking {filename} finished")
-
+# #comment this out if you don't want to test linking of all existing models
+# for filename in os.listdir(NESTML_MODELS_HOME):
+    # if filename.endswith(".nestml"): #and filename not in ("hh_cond_exp_traub.nestml",): 
+        # print(f"-------------- linking {filename}")
+        # linkModel(filename)
+        # print(f"-------------- linking {filename} finished")
+        #
 
 
 

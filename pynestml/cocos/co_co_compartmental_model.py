@@ -152,16 +152,16 @@ class CoCoCompartmentalModel(CoCo):
         return varname[:-len(ic_name)].strip(cls.padding_character)
     
     # generate gbar variable name from ion channel name
-    # i.e  Na -> gbar_Na_
+    # i.e  Na -> gbar_Na
     @classmethod
     def getExpectedGbarName(cls, ion_channel_name):
-        return cls.gbar_string+cls.padding_character+ion_channel_name+cls.padding_character
+        return cls.gbar_string+cls.padding_character+ion_channel_name
     
     # generate equilibrium variable name from ion channel name
-    # i.e  Na -> e_Na_
+    # i.e  Na -> e_Na
     @classmethod
     def getExpectedEquilibirumVarName(cls, ion_channel_name):
-        return cls.equilibrium_string+cls.padding_character+ion_channel_name+cls.padding_character
+        return cls.equilibrium_string+cls.padding_character+ion_channel_name
     
     # generate tau function name from ion channel name
     # i.e  Na, p -> _tau_p_Na
@@ -190,7 +190,7 @@ class CoCoCompartmentalModel(CoCo):
     
     # calculate function names that must be implemented
     # i.e 
-    # m_Na_**3 * h_Na_**1 
+    # m_Na**3 * h_Na**1 
     # expects
     # _m_inf_Na(v_comp real) real
     # _tau_m_Na(v_comp real) real
@@ -354,8 +354,8 @@ class CoCoCompartmentalModel(CoCo):
             "ASTInlineExpression": ASTInlineExpression,
             "channel_variables":
             {
-                "gbar":{"expected_name": "gbar_Na_"},
-                "e":{"expected_name": "e_Na_"}
+                "gbar":{"expected_name": "gbar_Na"},
+                "e":{"expected_name": "e_Na"}
             }
             "inner_variables": 
             {
@@ -562,7 +562,7 @@ class CoCoCompartmentalModel(CoCo):
         cm_info = cls.detectCMInlineExpressions(neuron)
         
         # further computation not necessary if there were no cm neurons
-        if not cm_info: return {}
+        if not cm_info: cls.neuron_to_cm_info[neuron.name] = dict()
         
         cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
         cm_info = cls.checkAndFindFunctions(neuron, cm_info)
@@ -588,8 +588,8 @@ class CoCoCompartmentalModel(CoCo):
             "ASTInlineExpression": ASTInlineExpression,
             "channel_variables":
             {
-                "gbar":{"expected_name": "gbar_Na_"},
-                "e":{"expected_name": "e_Na_"}
+                "gbar":{"expected_name": "gbar_Na"},
+                "e":{"expected_name": "e_Na"}
             }
             "inner_variables": 
             {
@@ -635,12 +635,12 @@ class CoCoCompartmentalModel(CoCo):
             "channel_variables":
             {
                 "gbar": {
-                            "expected_name": "gbar_Na_",
+                            "expected_name": "gbar_Na",
                             "initial_value_variable": ASTVariable,
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         },
                 "e":  {
-                            "expected_name": "e_Na_",
+                            "expected_name": "e_Na",
                             "initial_value_variable": ASTVariable,
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         }
