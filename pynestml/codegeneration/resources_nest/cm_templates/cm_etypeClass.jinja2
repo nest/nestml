@@ -47,8 +47,8 @@
 {% endwith %} 
    
 {%- endmacro %}
-{% set unique_string = neuron.get_name() %}
-nest::{{etypeClassName~unique_string}}::{{etypeClassName~unique_string}}()
+
+nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}()
 {% with %}
 {%- for ion_channel_name, channel_info in cm_info.items() %}
     {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
@@ -72,7 +72,7 @@ nest::{{etypeClassName~unique_string}}::{{etypeClassName~unique_string}}()
 {% endfor -%}
 {% endwith %}
 {}
-nest::{{etypeClassName~unique_string}}::{{etypeClassName~unique_string}}(const DictionaryDatum& compartment_params)
+nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}(const DictionaryDatum& compartment_params)
 {% for ion_channel_name, channel_info in cm_info.items() %}
     {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
     
@@ -111,7 +111,7 @@ nest::{{etypeClassName~unique_string}}::{{etypeClassName~unique_string}}(const D
 {% endwith %}
 }
 
-std::pair< double, double > nest::{{etypeClassName~unique_string}}::f_numstep(const double v_comp, const double dt)
+std::pair< double, double > nest::{{etypeClassName~cm_unique_suffix}}::f_numstep(const double v_comp, const double dt)
 {
     double g_val = 0., i_val = 0.;
     
@@ -183,7 +183,7 @@ std::pair< double, double > nest::{{etypeClassName~unique_string}}::f_numstep(co
 }
 
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_definition(function, "nest::"+etypeClassName~unique_string)}}
+{{printer.print_function_definition(function, "nest::"+etypeClassName~cm_unique_suffix)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}

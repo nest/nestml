@@ -35,14 +35,14 @@ class CoCoBufferQualifierUnique(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, neuron):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ast_neuron
+        :param neuron: a single neuron instance.
+        :type neuron: ast_neuron
         """
-        cls.neuronName = node.get_name()
-        node.accept(BufferQualifierUniqueVisitor())
+        cls.neuronName = neuron.get_name()
+        neuron.accept(BufferQualifierUniqueVisitor())
 
 
 class BufferQualifierUniqueVisitor(ASTVisitor):

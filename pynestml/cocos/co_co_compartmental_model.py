@@ -22,29 +22,34 @@ from collections import defaultdict
 import copy
 
 from pynestml.cocos.co_co import CoCo
-from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoCmFunctionsAndVariablesDefined(CoCo):
+class CoCoCompartmentalModel(CoCo):
     
     inline_expression_prefix = "cm_p_open_"
     padding_character = "_"
     inf_string = "inf"
     tau_sring = "tau"
     gbar_string = "gbar"
-    e_string = "e"
+    equilibrium_string = "e"
     
     neuron_to_cm_info = {}
     
     """
-    This class represents a constraint condition which ensures that 
-    all variables x as used in the inline expression cm_p_open_{channelType}
+    This class represents a constraint condition while also analyzing the neuron.
+    
+    If an inline expression name is found that starts with the value 
+    as specified via inline_expression_prefix ("cm_p_open_")
+    The neuron is marked as compartmental model via neuron.is_compartmental_model = True
+    Otherwise neuron.is_compartmental_model = False and further checks will skip
+    
+    If compartmental model neuron is detected it triggers further analysis:
+    It ensures that all variables x as used in the inline expression cm_p_open_{channelType}
     (which is searched for inside ASTEquationsBlock)
     have the following compartmental model functions defined
 
@@ -57,7 +62,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             inline cm_p_open_Na real = m_Na_**3 * h_Na_**1
         end
         
-        #causes to require
+        # triggers requirements for functions such as
         function _h_inf_Na(v_comp real) real:
             return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
         end
@@ -66,17 +71,23 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
         end
         
-    Moreover it checks if all expected initial values are defined
-    And that variables are properly named
+    Moreover it checks if all expected initial values are defined,
+    that variables are properly named,
+    that no variable repeats inside the key inline expression that triggers cm mechanism
     Example:
         inline cm_p_open_Na real = m_Na_**3 * h_Na_**1
         
-        #causes to requirement for following entries in the initial values block
+        #causes the requirement for following entries in the initial values block
         
         gbar_Na
         e_Na
         m_Na_
         h_Na_
+    
+    Not allowed examples:
+        inline cm_p_open_Na real = p_Na_**3 * p**1
+        inline cm_p_open_Na real = p_Na_**3 * p_Ca_**1
+        inline cm_p_open_Na real = p_Na_**3 + p_Na_**1
     
     """
     
@@ -84,7 +95,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
 
     """
     analyzes any inline cm_p_open_{channelType}
-    and returns returns
+    and returns 
     {
         "Na":
         {
@@ -99,10 +110,10 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     }
     """
     @classmethod
-    def calcRelevantInlineExpressions(cls, node):
+    def detectCMInlineExpressions(cls, neuron):
         # search for inline expressions inside equations block
         inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsBlockCollectorVisitor()
-        node.accept(inline_expressions_inside_equations_block_collector_visitor)
+        neuron.accept(inline_expressions_inside_equations_block_collector_visitor)
         inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
         
         is_compartmental_model = False
@@ -122,44 +133,56 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             info["ASTInlineExpression"] = inline_expression
             info["inner_variables"] = inner_variables
             cm_info[channel_name] = info
-        node.is_compartmental_model = is_compartmental_model
+        neuron.is_compartmental_model = is_compartmental_model
         return cm_info
     
+    # extract channel name from inline expression name
+    # i.e  cm_p_open_Na -> channel name is Na
     @classmethod
     def cm_expression_to_channel_name(cls, expr):
         assert(isinstance(expr, ASTInlineExpression))
         return expr.variable_name[len(cls.inline_expression_prefix):].strip(cls.padding_character)
 
-    # extract channel name from inline expression name
-    # i.e  cm_p_open_Na -> channel name is Na
+    # extract pure variable name from inline expression variable name
+    # i.e  p_Na -> pure variable name is p
     @classmethod
     def extract_pure_variable_name(cls, varname, ic_name):
         varname = varname.strip(cls.padding_character)
         assert(varname.endswith(ic_name))
         return varname[:-len(ic_name)].strip(cls.padding_character)
     
+    # generate gbar variable name from ion channel name
+    # i.e  Na -> gbar_Na_
     @classmethod
     def getExpectedGbarName(cls, ion_channel_name):
         return cls.gbar_string+cls.padding_character+ion_channel_name+cls.padding_character
     
+    # generate equilibrium variable name from ion channel name
+    # i.e  Na -> e_Na_
     @classmethod
     def getExpectedEquilibirumVarName(cls, ion_channel_name):
-        return cls.e_string+cls.padding_character+ion_channel_name+cls.padding_character
+        return cls.equilibrium_string+cls.padding_character+ion_channel_name+cls.padding_character
     
+    # generate tau function name from ion channel name
+    # i.e  Na, p -> _tau_p_Na
     @classmethod
     def getExpectedTauFunctionName(cls, ion_channel_name, pure_variable_name):
         return cls.padding_character+cls.getExpectedTauResultVariableName(ion_channel_name, pure_variable_name)
     
-    
+    # generate inf function name from ion channel name and pure variable name
+    # i.e  Na, p -> _p_inf_Na  
     @classmethod
     def getExpectedInfFunctionName(cls, ion_channel_name, pure_variable_name):
         return cls.padding_character+cls.getExpectedInfResultVariableName(ion_channel_name, pure_variable_name)
 
+    # generate tau variable name from ion channel name and pure variable name
+    # i.e  Na, p -> tau_p_Na
     @classmethod
     def getExpectedTauResultVariableName(cls, ion_channel_name, pure_variable_name):
         return cls.tau_sring+cls.padding_character+pure_variable_name+cls.padding_character+ion_channel_name
     
-    
+    # generate inf variable name from ion channel name and pure variable name
+    # i.e  Na, p -> p_inf_Na    
     @classmethod
     def getExpectedInfResultVariableName(cls, ion_channel_name, pure_variable_name):
         return pure_variable_name+cls.padding_character+cls.inf_string+cls.padding_character + ion_channel_name
@@ -168,7 +191,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     # calculate function names that must be implemented
     # i.e 
     # m_Na_**3 * h_Na_**1 
-    # leads to expect
+    # expects
     # _m_inf_Na(v_comp real) real
     # _tau_m_Na(v_comp real) real
     """
@@ -228,6 +251,10 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         }
     }
     
+    "is_valid" is needed to throw an error message later
+    we just don't want to throw it here yet because it would 
+    otherwise make it difficult to generate understandable error messages
+    
     """
 
     @classmethod
@@ -275,6 +302,9 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         return cm_info
 
     """
+    generate Errors on invalid variable names
+    and add channel_variables section to each channel
+    
     input:
     {
         "Na":
@@ -365,7 +395,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     
     """
     @classmethod
-    def getAndCheckExpectedVariableNamesAndReasons(cls, node, cm_info):
+    def addChannelVariablesSectionAndEnforceProperVariableNames(cls, node, cm_info):
         ret = copy.copy(cm_info)
 
         channel_variables = defaultdict()
@@ -373,8 +403,8 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
             channel_variables[ion_channel_name] = defaultdict()
             channel_variables[ion_channel_name][cls.gbar_string] = defaultdict()
             channel_variables[ion_channel_name][cls.gbar_string]["expected_name"] = cls.getExpectedGbarName(ion_channel_name)
-            channel_variables[ion_channel_name][cls.e_string] = defaultdict()
-            channel_variables[ion_channel_name][cls.e_string]["expected_name"] = cls.getExpectedEquilibirumVarName(ion_channel_name)
+            channel_variables[ion_channel_name][cls.equilibrium_string] = defaultdict()
+            channel_variables[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.getExpectedEquilibirumVarName(ion_channel_name)
 
             for pure_variable_name, variable_info in channel_info["inner_variables"].items():
                 variable_used = variable_info["ASTVariable"]
@@ -390,6 +420,9 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         return ret 
     
     """
+    checks if all expected functions exist and have the proper naming and signature
+    also finds their corresponding ASTFunction objects
+    
     input
     {
         "Na":
@@ -473,10 +506,10 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
     }
     """  
     @classmethod
-    def checkAndFindFunctions(cls, node, cm_info):
+    def checkAndFindFunctions(cls, neuron, cm_info):
         ret = copy.copy(cm_info)
         # get functions and collect their names    
-        declared_functions = node.get_functions()
+        declared_functions = neuron.get_functions()
         
         function_name_to_function = {}
         for declared_function in declared_functions:
@@ -490,7 +523,7 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
                     for function_type, expected_function_name in variable_info["expected_functions"].items():
                         if expected_function_name not in function_name_to_function.keys():
                             code, message = Messages.get_expected_cm_function_missing(ion_channel_name, variable_info["ASTVariable"], expected_function_name)
-                            Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
+                            Logger.log_message(code=code, message=message, error_position=neuron.get_source_position(), log_level=LoggingLevel.ERROR, node=neuron)
                         else:
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
                             ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"] = function_name_to_function[expected_function_name]
@@ -517,30 +550,37 @@ class CoCoCmFunctionsAndVariablesDefined(CoCo):
         return ret
     
     @classmethod
-    def check_co_co(cls, node: ASTNode):
+    def check_co_co(cls, neuron: ASTNode):
         """
         Checks if this coco applies for the handed over neuron. 
         Models which do not have inline cm_p_open_{channelType}
         inside ASTEquationsBlock are not relevant
-        :param node: a single neuron instance.
-        :type node: ast_neuron
+        :param neuron: a single neuron instance.
+        :type neuron: ast_neuron
         """
         
-        cm_info = cls.calcRelevantInlineExpressions(node)
+        cm_info = cls.detectCMInlineExpressions(neuron)
+        
+        # further computation not necessary if there were no cm neurons
+        if not cm_info: return
         
         cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
-        cm_info = cls.checkAndFindFunctions(node, cm_info)
-        cm_info = cls.getAndCheckExpectedVariableNamesAndReasons(node, cm_info)
+        cm_info = cls.checkAndFindFunctions(neuron, cm_info)
+        cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
         
-        #now check for existence of expected_initial_variables and add their ASTVariable objects to cm_info
+        # now check for existence of expected_initial_variables 
+        # and add their ASTVariable objects to cm_info
         initial_values_missing_visitor = InitialValueMissingVisitor(cm_info)
-        node.accept(initial_values_missing_visitor)
+        neuron.accept(initial_values_missing_visitor)
         
-        cls.neuron_to_cm_info[node.name] = initial_values_missing_visitor.cm_info
-
-
+        cls.neuron_to_cm_info[neuron.name] = initial_values_missing_visitor.cm_info
 
 """
+    Finds the actual ASTVariables in initial values
+    For each expected variable extract their right hand side expression
+    which contains the desired initial value the variable should be set to
+    
+    
     cm_info input
     {
         "Na":
@@ -754,7 +794,10 @@ class InitialValueMissingVisitor(ASTVisitor):
     def endvisit_block_with_variables(self, node):
         self.inside_block_with_variables = False
         self.current_block_with_variables = None
-
+"""
+for each inline expression inside the equations block,
+collect all ASTVariables that are present inside
+"""
 class ASTInlineExpressionInsideEquationsBlockCollectorVisitor(ASTVisitor):
 
     def __init__(self):

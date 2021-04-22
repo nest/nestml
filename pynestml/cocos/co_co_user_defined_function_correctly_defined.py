@@ -71,7 +71,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif symbol is not None and userDefinedFunction.has_return_type() and \
                     not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
                 code, message = Messages.get_no_return()
-                Logger.log_message(node=_neuron, code=code, message=message,
+                Logger.log_message(neuron=_neuron, code=code, message=message,
                                    error_position=userDefinedFunction.get_source_position(),
                                    log_level=LoggingLevel.ERROR)
         return

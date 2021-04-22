@@ -34,13 +34,13 @@ class CoCoFunctionCallsConsistent(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, neuron):
         """
         Checks the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param neuron: a single neuron instance.
+        :type neuron: ASTNeuron
         """
-        node.accept(FunctionCallConsistencyVisitor())
+        neuron.accept(FunctionCallConsistencyVisitor())
 
 
 class FunctionCallConsistencyVisitor(ASTVisitor):

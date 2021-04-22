@@ -30,14 +30,14 @@ class CoCoFunctionUnique(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, neuron):
         """
         Checks if each function is defined uniquely.
-        :param node: a single neuron
-        :type node: ast_neuron
+        :param neuron: a single neuron
+        :type neuron: ast_neuron
         """
         checked_funcs_names = list()
-        for func in node.get_functions():
+        for func in neuron.get_functions():
             if func.get_name() not in checked_funcs_names:
                 symbols = func.get_scope().resolve_to_all_symbols(func.get_name(), SymbolKind.FUNCTION)
                 if isinstance(symbols, list) and len(symbols) > 1:

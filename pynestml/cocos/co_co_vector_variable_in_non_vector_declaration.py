@@ -35,15 +35,15 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, neuron):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param neuron: a single neuron instance.
+        :type neuron: ASTNeuron
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
-        node.accept(VectorInDeclarationVisitor())
+        assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(neuron)
+        neuron.accept(VectorInDeclarationVisitor())
         return
 
 

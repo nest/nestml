@@ -25,15 +25,6 @@ neuron cm_model:
     
   end
 
-    # sodium channel
-    # m_Na_ = 0.0
-    # h_Na_ = 0.0
-    # gbar_Na_ = 0.0
-    # e_Na_ = 50.0
-    # potassium channel
-    # n_K_ = 0.0
-    # gbar_K_= 0.0
-    # e_K_ = -85.0
   initial_values:
     e_Na_ real = 50.0
     m_Na_ real = 0.0
@@ -44,6 +35,7 @@ neuron cm_model:
     gbar_K_ real = 0.0
     n_K_ real = 0.0
     
+    # some Einsteinium for testing purposes ;D
     e_Es_ real = 23.0
     gbar_Es_ real = 0.0
     q_Es_ real = 0.0
@@ -77,7 +69,7 @@ neuron cm_model:
         return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
     end
     
-    #potassium
+    #Einsteinium ;D
     function _q_inf_Es(v_comp real) real:
         return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
     end
@@ -88,7 +80,7 @@ neuron cm_model:
 
   equations: 
     inline cm_p_open_Na real = m_Na_**3 * h_Na_**1 
-    #inline cm_p_open_Ca real = r_Na_**3 * s_Ca_**1 
+    
     # extract channel type Na
     # and expect
     #      initial value of gbar_Na_ = 0.0
@@ -105,7 +97,6 @@ neuron cm_model:
     #      function _tau_h_Na(v_comp real) real
     
     inline cm_p_open_K real = n_K_**1
-    # inline cm_p_open_Es real = q_Es_**1
     # extract channel type K
     # and expect
     #      initial value of gbar_K_ = 0.0
@@ -116,6 +107,10 @@ neuron cm_model:
     #      initial value of n_Na_
     #      function _n_inf_Na(v_comp real) real
     #      function _tau_n_Na(v_comp real) real
+    
+    # uncomment for testing various things
+    # inline cm_p_open_Ca real = r_Na_**3 * s_Ca_**1 
+    # inline cm_p_open_Es real = q_Es_**1
 
   end
 
@@ -139,6 +134,7 @@ neuron cm_model:
 
 end
 
+#second neuron to test multiple neurons per file
 neuron cm_modelx:
 
   state:
@@ -146,15 +142,6 @@ neuron cm_modelx:
     
   end
 
-    # sodium channel
-    # m_Na_ = 0.0
-    # h_Na_ = 0.0
-    # gbar_Na_ = 0.0
-    # e_Na_ = 50.0
-    # potassium channel
-    # n_K_ = 0.0
-    # gbar_K_= 0.0
-    # e_K_ = -85.0
   initial_values:
     e_Na_ real = 50.0
     m_Na_ real = 0.0
@@ -197,46 +184,10 @@ neuron cm_modelx:
     function _tau_n_K(v_comp real) real:
         return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
     end
-    
-    #potassium
-    function _q_inf_Es(v_comp real) real:
-        return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
-    end
-    
-    function _tau_q_Es(v_comp real) real:
-        return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
-    end
 
   equations: 
     inline cm_p_open_Na real = m_Na_**3 * h_Na_**1 
-    #inline cm_p_open_Ca real = r_Na_**3 * s_Ca_**1 
-    # extract channel type Na
-    # and expect
-    #      initial value of gbar_Na_ = 0.0
-    #      initial value of e_Na_ = 50.0
-    
-    # extract variables m and h
-    # for variable m expect:
-    #      initial value of m_Na_
-    #      function _m_inf_Na(v_comp real) real
-    #      function _tau_m_Na(v_comp real) real
-    # for variable h expect:
-    #      initial value of h_Na_
-    #      function _h_inf_Na(v_comp real) real
-    #      function _tau_h_Na(v_comp real) real
-    
     inline cm_p_open_K real = n_K_**1
-    # inline cm_p_open_Es real = q_Es_**1
-    # extract channel type K
-    # and expect
-    #      initial value of gbar_K_ = 0.0
-    #      initial value of e_K_ = 50.0
-    
-    # extract variable n
-    # for variable n expect:
-    #      initial value of n_Na_
-    #      function _n_inf_Na(v_comp real) real
-    #      function _tau_n_Na(v_comp real) real
 
   end
 

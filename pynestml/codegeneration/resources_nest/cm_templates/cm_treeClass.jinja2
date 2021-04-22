@@ -1,8 +1,7 @@
 #include "{{neuronSpecificFileNamesCm["tree"]}}.h"
 
-{% set unique_string = neuron.get_name() %}
 // compartment compartment functions ///////////////////////////////////////////
-nest::Compartment{{unique_string}}::Compartment{{unique_string}}( const long compartment_index,
+nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
                                 const long parent_index )
   : xx_( 0.0 )
   , yy_( 0.0 )
@@ -20,9 +19,9 @@ nest::Compartment{{unique_string}}::Compartment{{unique_string}}( const long com
   , n_passed( 0 )
 {
   syns.resize( 0 );
-  etype = {{etypeClassName~unique_string}}();
+  etype = {{etypeClassName~cm_unique_suffix}}();
 };
-nest::Compartment{{unique_string}}::Compartment{{unique_string}}( const long compartment_index,
+nest::Compartment{{cm_unique_suffix}}::Compartment{{cm_unique_suffix}}( const long compartment_index,
                                 const long parent_index,
 			                    const DictionaryDatum& compartment_params )
   : xx_( 0.0 )
@@ -41,11 +40,11 @@ nest::Compartment{{unique_string}}::Compartment{{unique_string}}( const long com
   , n_passed( 0 )
 {
   syns.resize( 0 );
-  etype = {{etypeClassName~unique_string}}( compartment_params );
+  etype = {{etypeClassName~cm_unique_suffix}}( compartment_params );
 };
 
 void
-nest::Compartment{{unique_string}}::init()
+nest::Compartment{{cm_unique_suffix}}::init()
 {
     v_comp = el;
 
@@ -60,7 +59,7 @@ nest::Compartment{{unique_string}}::init()
 
 // for matrix construction
 void
-nest::Compartment{{unique_string}}::construct_matrix_element( const long lag )
+nest::Compartment{{cm_unique_suffix}}::construct_matrix_element( const long lag )
 {
     const double dt = Time::get_resolution().get_ms();
 
@@ -120,7 +119,7 @@ nest::Compartment{{unique_string}}::construct_matrix_element( const long lag )
 
 
 // compartment tree functions //////////////////////////////////////////////////
-nest::CompTree{{unique_string}}::CompTree{{unique_string}}()
+nest::CompTree{{cm_unique_suffix}}::CompTree{{cm_unique_suffix}}()
   : root_( 0, -1)
 {
   compartments_.resize( 0 );
@@ -133,16 +132,16 @@ root shoud have -1 as parent index. Add root compartment first.
 Assumes parent of compartment is already added
 */
 void
-nest::CompTree{{unique_string}}::add_compartment( const long compartment_index,
+nest::CompTree{{cm_unique_suffix}}::add_compartment( const long compartment_index,
                                  const long parent_index,
 			                     const DictionaryDatum& compartment_params)
 {
-    Compartment{{unique_string}}* compartment = new Compartment{{unique_string}}( compartment_index, parent_index,
+    Compartment{{cm_unique_suffix}}* compartment = new Compartment{{cm_unique_suffix}}( compartment_index, parent_index,
                 				   compartment_params);
 
     if( parent_index >= 0 )
     {
-        Compartment{{unique_string}}* parent = get_compartment( parent_index );
+        Compartment{{cm_unique_suffix}}* parent = get_compartment( parent_index );
         parent->children.push_back( *compartment );
     }
     else
@@ -162,17 +161,17 @@ The overloaded functions looks only in the subtree of the provided compartment,
 and also has the option to throw an error if no compartment corresponding to
 `compartment_index` is found in the tree
 */
-nest::Compartment{{unique_string}}*
-nest::CompTree{{unique_string}}::get_compartment( const long compartment_index )
+nest::Compartment{{cm_unique_suffix}}*
+nest::CompTree{{cm_unique_suffix}}::get_compartment( const long compartment_index )
 {
     return get_compartment( compartment_index, get_root(), 1 );
 }
-nest::Compartment{{unique_string}}*
-nest::CompTree{{unique_string}}::get_compartment( const long compartment_index,
-                                 Compartment{{unique_string}}* compartment,
+nest::Compartment{{cm_unique_suffix}}*
+nest::CompTree{{cm_unique_suffix}}::get_compartment( const long compartment_index,
+                                 Compartment{{cm_unique_suffix}}* compartment,
                                  const long raise_flag )
 {
-    Compartment{{unique_string}}* r_compartment = nullptr;
+    Compartment{{cm_unique_suffix}}* r_compartment = nullptr;
 
     if( compartment->comp_index == compartment_index )
     {
@@ -200,7 +199,7 @@ nest::CompTree{{unique_string}}::get_compartment( const long compartment_index,
 
 // initialization functions
 void
-nest::CompTree{{unique_string}}::init()
+nest::CompTree{{cm_unique_suffix}}::init()
 {
     set_compartments();
     set_leafs();
@@ -222,7 +221,7 @@ Creates a vector of compartment pointers, organized in the order in which they w
 added by `add_compartment()`
 */
 void
-nest::CompTree{{unique_string}}::set_compartments()
+nest::CompTree{{cm_unique_suffix}}::set_compartments()
 {
     compartments_.clear();
 
@@ -239,7 +238,7 @@ nest::CompTree{{unique_string}}::set_compartments()
 Creates a vector of compartment pointers of compartments that are also leafs of the tree.
 */
 void
-nest::CompTree{{unique_string}}::set_leafs()
+nest::CompTree{{cm_unique_suffix}}::set_leafs()
 {
     leafs_.clear();
     for( auto compartment_it = compartments_.begin();
@@ -257,7 +256,7 @@ nest::CompTree{{unique_string}}::set_leafs()
 Returns vector of voltage values, indices correspond to compartments in `compartments_`
 */
 std::vector< double >
-nest::CompTree{{unique_string}}::get_voltage() const
+nest::CompTree{{cm_unique_suffix}}::get_voltage() const
 {
     std::vector< double > v_comps;
     for( auto compartment_it = compartments_.cbegin();
@@ -273,9 +272,9 @@ nest::CompTree{{unique_string}}::get_voltage() const
 Return voltage of single compartment voltage, indicated by the compartment_index
 */
 double
-nest::CompTree{{unique_string}}::get_compartment_voltage( const long compartment_index )
+nest::CompTree{{cm_unique_suffix}}::get_compartment_voltage( const long compartment_index )
 {
-    const Compartment{{unique_string}}* compartment = get_compartment( compartment_index );
+    const Compartment{{cm_unique_suffix}}* compartment = get_compartment( compartment_index );
     return compartment->v_comp;
 }
 
@@ -283,7 +282,7 @@ nest::CompTree{{unique_string}}::get_compartment_voltage( const long compartment
 Construct the matrix equation to be solved to advance the model one timestep
 */
 void
-nest::CompTree{{unique_string}}::construct_matrix( const long lag )
+nest::CompTree{{cm_unique_suffix}}::construct_matrix( const long lag )
 {
     for( auto compartment_it = compartments_.begin();
          compartment_it != compartments_.end();
@@ -297,9 +296,9 @@ nest::CompTree{{unique_string}}::construct_matrix( const long lag )
 Solve matrix with O(n) algorithm
 */
 void
-nest::CompTree{{unique_string}}::solve_matrix()
+nest::CompTree{{cm_unique_suffix}}::solve_matrix()
 {
-    std::vector< Compartment{{unique_string}}* >::iterator leaf_it = leafs_.begin();
+    std::vector< Compartment{{cm_unique_suffix}}* >::iterator leaf_it = leafs_.begin();
 
     // start the down sweep (puts to zero the sub diagonal matrix elements)
     solve_matrix_downsweep(leafs_[0], leaf_it);
@@ -308,8 +307,8 @@ nest::CompTree{{unique_string}}::solve_matrix()
     solve_matrix_upsweep(&root_, 0.0);
 };
 void
-nest::CompTree{{unique_string}}::solve_matrix_downsweep( Compartment{{unique_string}}* compartment,
-					     std::vector< Compartment{{unique_string}}* >::iterator leaf_it )
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_downsweep( Compartment{{cm_unique_suffix}}* compartment,
+					     std::vector< Compartment{{cm_unique_suffix}}* >::iterator leaf_it )
 {
     // compute the input output transformation at compartment
     std::pair< double, double > output = compartment->io();
@@ -317,7 +316,7 @@ nest::CompTree{{unique_string}}::solve_matrix_downsweep( Compartment{{unique_str
     // move on to the parent layer
     if( compartment->parent != nullptr )
     {
-        Compartment{{unique_string}}* parent = compartment->parent;
+        Compartment{{cm_unique_suffix}}* parent = compartment->parent;
         // gather input from child layers
         parent->gather_input(output);
         // move on to next compartments
@@ -340,7 +339,7 @@ nest::CompTree{{unique_string}}::solve_matrix_downsweep( Compartment{{unique_str
     }
 };
 void
-nest::CompTree{{unique_string}}::solve_matrix_upsweep( Compartment{{unique_string}}* compartment, double vv )
+nest::CompTree{{cm_unique_suffix}}::solve_matrix_upsweep( Compartment{{cm_unique_suffix}}* compartment, double vv )
 {
     // compute compartment voltage
     vv = compartment->calc_v(vv);
@@ -357,14 +356,14 @@ nest::CompTree{{unique_string}}::solve_matrix_upsweep( Compartment{{unique_strin
 Print the tree graph
 */
 void
-nest::CompTree{{unique_string}}::print_tree() const
+nest::CompTree{{cm_unique_suffix}}::print_tree() const
 {
     // loop over all compartments
     std::printf(">>> CM tree with %d compartments <<<\n", int(compartments_.size()));
     for(int ii=0; ii<int(compartments_.size()); ++ii)
     {
-        Compartment{{unique_string}}* compartment = compartments_[ii];
-        std::cout << "    Compartment{{unique_string}} " << compartment->comp_index << ": ";
+        Compartment{{cm_unique_suffix}}* compartment = compartments_[ii];
+        std::cout << "    Compartment{{cm_unique_suffix}} " << compartment->comp_index << ": ";
         std::cout << "C_m = " << compartment->ca << " nF, ";
         std::cout << "g_L = " << compartment->gl << " uS, ";
         std::cout << "e_L = " << compartment->el << " mV, ";

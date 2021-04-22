@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.cocos.co_co_cm_functions_and_initial_values_defined import CoCoCmFunctionsAndVariablesDefined
+from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_buffer_not_assigned import CoCoBufferNotAssigned
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
@@ -105,10 +105,11 @@ class CoCosManager:
         CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
         
     @classmethod
-    def check_cm_functions_and_variables_defined(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
+    def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
-        Searches ASTEquationsBlock for inline expressions called
-        cm_p_open_{channelType}
+        Searches ASTEquationsBlock for inline expressions that trigger 
+        compartmental model mechanisms
+        
         If such expression is found
         -finds all Variables x used in that expression
         -makes sure following functions are defined:
@@ -116,18 +117,21 @@ class CoCosManager:
         _x_inf_{channelType}(somevariable real) real
         _tau_x_{channelType}(somevariable real) real
         
+        -makes sure that all such functions have exactly one argument and that
+        they return real
+        
         -makes sure that all Variables x are defined in initial values block
         -makes sure that initial block contains
+        
         gbar_{channelType}
         e_{channelType}
-        -makes sure that in such expression every variable is used only once
         
-        underscores at the end of those variables may be tolerated, 
-        but it is not recommended
+        -makes sure that in the key inline expression every variable is used only once
+        
         :param neuron: a single neuron.
         :type neuron: ast_neuron
         """
-        CoCoCmFunctionsAndVariablesDefined.check_co_co(neuron)
+        CoCoCompartmentalModel.check_co_co(neuron)
 
     @classmethod
     def check_functions_have_rhs(cls, neuron):
@@ -368,7 +372,7 @@ class CoCosManager:
         cls.check_function_declared_and_correctly_typed(neuron)
         cls.check_variables_unique_in_scope(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
-        cls.check_cm_functions_and_variables_defined(neuron, after_ast_rewrite)
+        cls.check_compartmental_model(neuron, after_ast_rewrite)
         cls.check_functions_have_rhs(neuron)
         cls.check_function_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)

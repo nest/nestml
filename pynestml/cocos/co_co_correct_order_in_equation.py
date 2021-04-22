@@ -39,13 +39,13 @@ class CoCoCorrectOrderInEquation(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, neuron):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ast_neuron
+        :param neuron: a single neuron instance.
+        :type neuron: ast_neuron
         """
-        node.accept(OrderOfEquationVisitor())
+        neuron.accept(OrderOfEquationVisitor())
 
 
 class OrderOfEquationVisitor(ASTVisitor):

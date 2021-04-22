@@ -14,7 +14,7 @@
 #include <time.h>
 
 // Includes from libnestutil:
-#include "dict_util.h" //reactivated after bug fix
+#include "dict_util.h"
 #include "numerics.h"
 
 // Includes from nestkernel:
@@ -35,11 +35,10 @@
     {{ type_converter.convert(symbol.type_symbol) }}
 {%- endwith -%} 
 {%- endmacro %}
-{% set unique_string = neuron.get_name() %}
 
 namespace nest{
 
-class {{etypeClassName~unique_string}}{
+class {{etypeClassName~cm_unique_suffix}}{
 // Example e-type with a sodium and potassium channel
 private:
 
@@ -62,9 +61,9 @@ private:
 
 public:
     // constructor, destructor
-    {{etypeClassName~unique_string}}();
-    {{etypeClassName~unique_string}}(const DictionaryDatum& compartment_params);
-    ~{{etypeClassName~unique_string}}(){};
+    {{etypeClassName~cm_unique_suffix}}();
+    {{etypeClassName~cm_unique_suffix}}(const DictionaryDatum& compartment_params);
+    ~{{etypeClassName~cm_unique_suffix}}(){};
 
     void add_spike(){};
     std::pair< double, double > f_numstep(const double v_comp, const double lag);

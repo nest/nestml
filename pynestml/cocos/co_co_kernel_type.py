@@ -40,15 +40,15 @@ class CoCoKernelType(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNeuron):
+    def check_co_co(cls, neuron: ASTNeuron):
         """
         Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param neuron: a single neuron instance.
+        :type neuron: ASTNeuron
         """
         kernel_type_visitor = KernelTypeVisitor()
-        kernel_type_visitor._neuron = node
-        node.accept(kernel_type_visitor)
+        kernel_type_visitor._neuron = neuron
+        neuron.accept(kernel_type_visitor)
 
 
 class KernelTypeVisitor(ASTVisitor):

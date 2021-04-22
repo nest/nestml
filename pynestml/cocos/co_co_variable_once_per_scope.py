@@ -31,14 +31,14 @@ class CoCoVariableOncePerScope(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, neuron):
         """
         Checks if each variable is defined at most once per scope. Obviously, this test does not check if a declaration
         is shadowed by an embedded scope.
-        :param node: a single neuron
-        :type node: ast_neuron
+        :param neuron: a single neuron
+        :type neuron: ast_neuron
         """
-        cls.__check_scope(node, node.get_scope())
+        cls.__check_scope(neuron, neuron.get_scope())
 
     @classmethod
     def __check_scope(cls, neuron, scope):

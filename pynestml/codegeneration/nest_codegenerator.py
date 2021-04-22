@@ -65,7 +65,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
-from pynestml.cocos.co_co_cm_functions_and_initial_values_defined import CoCoCmFunctionsAndVariablesDefined as cm_coco_logic
+from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel as cm_coco_cm_info_assembled
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 
 class NESTCodeGenerator(CodeGenerator):
@@ -106,7 +106,6 @@ class NESTCodeGenerator(CodeGenerator):
             ))
         env.globals['raise'] = raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel
-        env.globals["isinstance"] = isinstance
         
         #separate jinja2 environment aware of the setup directory
         setup_env = Environment(loader=FileSystemLoader(
@@ -127,11 +126,12 @@ class NESTCodeGenerator(CodeGenerator):
         # setup the neuron implementation template
         self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
         
-        self.loadCMStuff(env)
+        self.setupCMFiles(env)
         
         self._printer = ExpressionsPrettyPrinter()
 
-    def loadCMStuff(self, env):
+    # setup compartmental model files
+    def setupCMFiles(self, env):
         self._cm_template_etype_cpp_file = env.get_template('cm_etypeClass.jinja2')
         self._cm_template_etype_h_file = env.get_template('cm_etypeHeader.jinja2')
         self._cm_template_main_cpp_file = env.get_template('cm_mainClass.jinja2')
@@ -156,15 +156,20 @@ class NESTCodeGenerator(CodeGenerator):
                      'moduleName': FrontendConfiguration.get_module_name(),
                      'now': datetime.datetime.utcnow()
                      }
+        
+        
+        # neuron specific file names in compartmental case
         neuron_name_to_filename = dict()
         for neuron in neurons:
-            neuron_name_to_filename[neuron.get_name()] = {
-                    "etype": self.get_etype_file_name_prefix(neuron),
-                    "main": self.get_cm_main_file_prefix(neuron),
-                    "tree": self.get_cm_tree_file_prefix(neuron)
-                }
-        
+            if neuron.is_compartmental_model:
+                neuron_name_to_filename[neuron.get_name()] = {
+                        "etype": self.get_etype_file_name_prefix(neuron),
+                        "main": self.get_cm_main_file_prefix(neuron),
+                        "tree": self.get_cm_tree_file_prefix(neuron)
+                    }
         namespace['perNeuronFileNamesCm'] = neuron_name_to_filename
+        
+        # compartmental case files that are not neuron specific
         namespace['sharedFileNamesCm'] = {
             "syns": self.get_cm_syns_file_prefix(),
         }
@@ -381,7 +386,6 @@ class NESTCodeGenerator(CodeGenerator):
         delta_factors = self.get_delta_factors_(neuron, equations_block)
         kernel_buffers = self.generate_kernel_buffers_(neuron, equations_block)
         self.replace_convolve_calls_with_buffers_(neuron, equations_block, kernel_buffers)
-        # self.analyze_inline_expressions_for_compartmental_model(neuron)
         self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
         self.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
@@ -439,7 +443,7 @@ class NESTCodeGenerator(CodeGenerator):
             os.makedirs(FrontendConfiguration.get_target_path())
         ###    
         if neuron.is_compartmental_model:
-            self.generate_cm_static_files(neuron)
+            self.generate_cm_files(neuron)
         else:
             self.generate_model_h_file(neuron)
             self.generate_neuron_cpp_file(neuron)
@@ -462,16 +466,15 @@ class NESTCodeGenerator(CodeGenerator):
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
             f.write(str(neuron_cpp_file))
     
-    def generate_cm_static_files(self, neuron: ASTNeuron) -> None:
+    def generate_cm_files(self, neuron: ASTNeuron) -> None:
         self.generate_cm_h_files(neuron)
         self.generate_cm_cpp_files(neuron)
         
     def generate_cm_h_files(self, neuron: ASTNeuron) -> None:
         """
-        For a handed over neuron, this method generates the corresponding header file.
+        For a handed over cm neuron, this method generates the corresponding header files
         :param neuron: a single neuron object.
         """
-        #print("generate_cm_h_files,", FrontendConfiguration.get_target_path())
         
         #i.e neuron_etype_cm_model.h
         neuron_etype_h_file_name = self.get_etype_file_name_prefix(neuron)+".h"
@@ -545,7 +548,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
-        namespace['etypeClassName'] = "EType"
         namespace['etypeFileName'] = self.get_etype_file_name_prefix(neuron)
         namespace['type_converter'] = PyNestml2NestTypeConverter()
         namespace['neuron'] = neuron
@@ -626,7 +628,9 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(rng_visitor)
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
         
-        namespace['cm_info'] = cm_coco_logic.neuron_to_cm_info[neuron.name]
+        namespace['etypeClassName'] = "EType"
+        namespace['cm_unique_suffix'] = neuron.get_name()
+        namespace['cm_info'] = cm_coco_cm_info_assembled.neuron_to_cm_info[neuron.name]
         
         neuron_specific_filenames = {
             "etype": self.get_etype_file_name_prefix(neuron),
