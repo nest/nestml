@@ -38,7 +38,7 @@
     {%- if ion_channel_nm == ion_channel_name -%}
         {%- for variable_tp, variable_info in channel_info["channel_variables"].items() -%}
             {%- if variable_tp == variable_type -%}
-                {%- set variable = variable_info["initial_value_variable"] -%}
+                {%- set variable = variable_info["parameter_block_variable"] -%}
                 {{ variable.name }}
             {%- endif -%}
         {%- endfor -%}
@@ -64,7 +64,7 @@ nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}()
     
     {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
     // channel parameter {{variable_type -}}
-    {%- set variable = variable_info["initial_value_variable"] %}
+    {%- set variable = variable_info["parameter_block_variable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     ,{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
     {%- endfor -%}
@@ -87,7 +87,7 @@ nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}(c
     
     {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
     // channel parameter {{variable_type -}}
-    {%- set variable = variable_info["initial_value_variable"] %}
+    {%- set variable = variable_info["parameter_block_variable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     ,{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
     {%- endfor %}
@@ -100,7 +100,7 @@ nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}(c
 // update {{ion_channel_name}} channel parameters
     
     {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
-        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
     // {{ ion_channel_name}} channel parameter {{dynamic_variable }} 
     if( compartment_params->known( "{{dynamic_variable}}" ) )
@@ -124,7 +124,7 @@ std::pair< double, double > nest::{{etypeClassName~cm_unique_suffix}}::f_numstep
     {%- set inline_expression = channel_info["ASTInlineExpression"] %}
     // {{ion_channel_name}} channel
     {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
-        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
     {% if variable_type == "gbar" -%}
         {%- set gbar_variable = variable %}

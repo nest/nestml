@@ -1254,16 +1254,17 @@ class Messages:
         return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message    
     
     @classmethod
-    def get_expected_cm_initial_values_missing(cls, not_yet_found_variables, expected_initial_variables_to_reason):
-        assert (not_yet_found_variables is not None and isinstance(not_yet_found_variables, Iterable)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(not_yet_found_variables)
-        assert (expected_initial_variables_to_reason is not None and isinstance(expected_initial_variables_to_reason, dict)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(expected_initial_variables_to_reason)            
+    def get_expected_cm_variables_missing_in_blocks(cls, missing_variable_to_proper_block, expected_variables_to_reason):
+        assert (missing_variable_to_proper_block is not None and isinstance(missing_variable_to_proper_block, Iterable)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(missing_variable_to_proper_block)
+        assert (expected_variables_to_reason is not None and isinstance(expected_variables_to_reason, dict)),\
+            '(PyNestML.Utils.Message) No str provided (%s)!' % type(expected_variables_to_reason)            
         
-        message = "The following initial values for compartmental model variables not found:\n"
-        for missing_var in not_yet_found_variables:
-            message += "Initial value for variable with name '" + missing_var + "' not found but expected to exist because of position " 
-            message += str(expected_initial_variables_to_reason[missing_var].get_source_position())+"\n"
+        message = "The following variables not found:\n"
+        for missing_var, proper_location in missing_variable_to_proper_block.items():
+            message += "Variable with name '" + missing_var 
+            message += "' not found but expected to exist inside of " + proper_location + " because of position " 
+            message += str(expected_variables_to_reason[missing_var].get_source_position())+"\n"
             
             
         return MessageCode.CM_INITIAL_VALUES_MISSING, message

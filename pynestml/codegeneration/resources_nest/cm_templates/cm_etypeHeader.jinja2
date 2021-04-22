@@ -53,7 +53,7 @@ private:
     {%- endfor -%}
     {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
         // parameter {{variable_type -}}
-        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set variable = variable_info["parameter_block_variable"] %}
     {{render_variable_type(variable)}} {{ variable.name}};
     {%- endfor %}
 {% endfor -%}

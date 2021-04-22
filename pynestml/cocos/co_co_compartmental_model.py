@@ -636,12 +636,12 @@ class CoCoCompartmentalModel(CoCo):
             {
                 "gbar": {
                             "expected_name": "gbar_Na",
-                            "initial_value_variable": ASTVariable,
+                            "parameter_block_variable": ASTVariable,
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         },
                 "e":  {
                             "expected_name": "e_Na",
-                            "initial_value_variable": ASTVariable,
+                            "parameter_block_variable": ASTVariable,
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         }
             }
@@ -729,7 +729,8 @@ class InitialValueMissingVisitor(ASTVisitor):
         
         self.not_yet_found_variables = set(self.values_expected_from_channel).union(self.values_expected_from_variables)
         
-        self.inside_block_with_variables = False
+        self.inside_initial_values_block = False
+        self.inside_parameter_block = False
         self.inside_declaration = False
         self.current_block_with_variables = None
         self.current_declaration = None
@@ -743,13 +744,10 @@ class InitialValueMissingVisitor(ASTVisitor):
         self.current_declaration = None
         
     def visit_variable(self, node):
-        if self.inside_block_with_variables and \
-        self.inside_declaration and\
-        self.current_block_with_variables is not None and\
-        self.current_block_with_variables.is_initial_values:
+        if self.inside_initial_values_block and self.inside_declaration:
             varname = node.name
             if varname in self.not_yet_found_variables:
-                Logger.log_message(message="Expected initial variable '"+varname+"' found" ,
+                Logger.log_message(message="Expected initial variable '"+varname+"' found inside initial values block" ,
                                log_level=LoggingLevel.INFO)
                 self.not_yet_found_variables.difference_update({varname})
                 
@@ -759,40 +757,64 @@ class InitialValueMissingVisitor(ASTVisitor):
                 
                 # thought: in my opinion initial values for state variables (m,n,h...)
                 # should be in the state block
-                # and initial values for channel parameters (gbar, e) 
-                # may be meant for the parameters block
                 
                 # now that we found the initial value defintion, extract information into cm_info
                 
-                # channel parameters
-                if varname in self.values_expected_from_channel:
-                    for ion_channel_name, channel_info in self.cm_info.items():
-                        for variable_type, variable_info in channel_info["channel_variables"].items():
-                            if variable_info["expected_name"] == varname:
-                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["initial_value_variable"] = node
-                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["rhs_expression"] = self.current_declaration.get_expression()
                 # state variables
-                elif varname in self.values_expected_from_variables:
+                if varname in self.values_expected_from_variables:
                     for ion_channel_name, channel_info in self.cm_info.items():
                         for pure_variable_name, variable_info in channel_info["inner_variables"].items():
                             if variable_info["ASTVariable"].name == varname:
                                 cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["initial_value_variable"] = node
                                 cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["rhs_expression"] = self.current_declaration.get_expression()
+                self.cm_info = cm_info_updated 
                 
+        if self.inside_parameter_block and self.inside_declaration:
+            varname = node.name
+            if varname in self.not_yet_found_variables:
+                Logger.log_message(message="Expected variable '"+varname+"' found inside parameter block" ,
+                               log_level=LoggingLevel.INFO)
+                self.not_yet_found_variables.difference_update({varname})
+                
+                # make a copy because we can't write into the structure directly
+                # while iterating over it
+                cm_info_updated = copy.copy(self.cm_info)
+                # now that we found the defintion, extract information into cm_info
+
+                # channel parameters
+                if varname in self.values_expected_from_channel:
+                    for ion_channel_name, channel_info in self.cm_info.items():
+                        for variable_type, variable_info in channel_info["channel_variables"].items():
+                            if variable_info["expected_name"] == varname:
+                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["parameter_block_variable"] = node
+                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["rhs_expression"] = self.current_declaration.get_expression()
                 self.cm_info = cm_info_updated             
 
     def endvisit_neuron(self, node):
+        missing_variable_to_proper_block = {}
+        for variable in self.not_yet_found_variables:
+            if variable in self.values_expected_from_channel:
+                missing_variable_to_proper_block[variable] = "parameters block"
+            elif variable in self.values_expected_from_variables:
+                missing_variable_to_proper_block[variable] = "initial block"
+        
         if self.not_yet_found_variables:
-            code, message = Messages.get_expected_cm_initial_values_missing(self.not_yet_found_variables, self.expected_to_object)
+            code, message = Messages.get_expected_cm_variables_missing_in_blocks(missing_variable_to_proper_block, self.expected_to_object)
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
         
     def visit_block_with_variables(self, node):
-        self.inside_block_with_variables = True
+        if node.is_initial_values:
+            self.inside_initial_values_block = True
+        if node.is_parameters: 
+            self.inside_parameter_block = True
         self.current_block_with_variables = node
     
     def endvisit_block_with_variables(self, node):
-        self.inside_block_with_variables = False
+        if node.is_initial_values:
+            self.inside_initial_values_block = False
+        if node.is_parameters: 
+            self.inside_parameter_block = False
         self.current_block_with_variables = None
 """
 for each inline expression inside the equations block,

@@ -26,18 +26,12 @@ neuron cm_model:
   end
 
   initial_values:
-    e_Na real = 50.0
     m_Na_ real = 0.0
     h_Na_ real = 0.0
-    gbar_Na real = 0.0
     
-    e_K real = -85.0
-    gbar_K real = 0.0
     n_K_ real = 0.0
     
     # some Einsteinium for testing purposes ;D
-    e_Es real = 23.0
-    gbar_Es real = 0.0
     q_Es_ real = 0.0
     
     
@@ -116,7 +110,14 @@ neuron cm_model:
 
   parameters:
   
-    testparam real = 0.0
+    e_Na real = 50.0
+    gbar_Na real = 0.0
+    
+    e_K real = -85.0
+    gbar_K real = 0.0
+    
+    e_Es real = 23.0
+    gbar_Es real = 0.0
 
   end
 
@@ -145,19 +146,12 @@ neuron cm_modelx:
   end
 
   initial_values:
-    e_Na real = 50.0
     m_Na_ real = 0.0
     h_Na_ real = 0.0
-    gbar_Na real = 0.0
     
-    e_K real = -85.0
-    gbar_K real = 0.0
     n_K_ real = 0.0
     
-    e_Es real = 23.0
-    gbar_Es real = 0.0
     q_Es_ real = 0.0
-    
     
   end
     
@@ -194,6 +188,15 @@ neuron cm_modelx:
   end
 
   parameters:
+  
+    e_Na real = 50.0
+    gbar_Na real = 0.0
+    
+    e_K real = -85.0
+    gbar_K real = 0.0
+    
+    e_Es real = 23.0
+    gbar_Es real = 0.0
 
   end
 
