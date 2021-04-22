@@ -628,20 +628,21 @@ class NESTCodeGenerator(CodeGenerator):
         neuron.accept(rng_visitor)
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
         
-        namespace['etypeClassName'] = "EType"
-        namespace['cm_unique_suffix'] = neuron.get_name()
-        namespace['cm_info'] = cm_coco_cm_info_assembled.neuron_to_cm_info[neuron.name]
-        
-        neuron_specific_filenames = {
-            "etype": self.get_etype_file_name_prefix(neuron),
-            "main": self.get_cm_main_file_prefix(neuron),
-            "tree": self.get_cm_tree_file_prefix(neuron)
-        }
-        
-        namespace['neuronSpecificFileNamesCm'] = neuron_specific_filenames
-        namespace['sharedFileNamesCm'] = {
-            "syns": self.get_cm_syns_file_prefix(),
-        }
+        if neuron.is_compartmental_model:
+            namespace['etypeClassName'] = "EType"
+            namespace['cm_unique_suffix'] = neuron.get_name()
+            namespace['cm_info'] = cm_coco_cm_info_assembled.neuron_to_cm_info[neuron.name]
+            
+            neuron_specific_filenames = {
+                "etype": self.get_etype_file_name_prefix(neuron),
+                "main": self.get_cm_main_file_prefix(neuron),
+                "tree": self.get_cm_tree_file_prefix(neuron)
+            }
+            
+            namespace['neuronSpecificFileNamesCm'] = neuron_specific_filenames
+            namespace['sharedFileNamesCm'] = {
+                "syns": self.get_cm_syns_file_prefix(),
+            }
         
         
         return namespace

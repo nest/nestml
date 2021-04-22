@@ -562,7 +562,7 @@ class CoCoCompartmentalModel(CoCo):
         cm_info = cls.detectCMInlineExpressions(neuron)
         
         # further computation not necessary if there were no cm neurons
-        if not cm_info: return
+        if not cm_info: return {}
         
         cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
         cm_info = cls.checkAndFindFunctions(neuron, cm_info)
