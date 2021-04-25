@@ -9,7 +9,7 @@ Conceptually, a synapse model formalises the interaction between two (or more) n
    :scale: 10 %
    :align: center
 
-   Conceptual illustration of synapse model (highlighted in green). Presynaptic neuron on the left, postsynaptic neuron on the right.
+   Conceptual illustration of which parts of biophysics are captured by a synapse model. Presynaptic neuron on the left, postsynaptic neuron on the right. Three synapses are shown and highlighted with yellow boxes. *Copyright `Sebastian B.C. Lehmann <mailto:se.lehmann@fz-juelich.de>`_, INM-6, Forschungszentrum Jülich GmbH (CC-BY-SA)*
 
 From the modeling point of view, a synapse shares many of the same behaviours of a neuron: it has parameters and internal state variables, can communicate over input and output ports, and its dynamics and responses can be described by differential equations, kernels and as an algorithm. Typically, there is a single spiking input port and a single spiking output port.
 
