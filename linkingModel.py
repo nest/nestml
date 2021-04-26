@@ -1,13 +1,22 @@
 import os
 from shutil import rmtree 
 from pathlib import Path
-home = str(Path.home())
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+
+"""
+This file is intended to help with testing
+to see if generation and compilation works
+
+You must edit NESTSIM_HOME variable such that it points to your nest location
+"""
 
 NESTML_HOME = os.getcwd()
 NESTML_MODELS_HOME = os.path.join(NESTML_HOME, "models")
 GEN_DIR = os.path.join(NESTML_HOME , "generated")
-NESTSIM_HOME = os.path.join(str(Path.home()), "thesis", "nest-simulator/build_master_nompi/install")
+
+# NESTSIM_HOME: change this variable to fit nest location on your system
+currentUserHome = str(Path.home())
+NESTSIM_HOME = os.path.join(currentUserHome, "thesis", "nest-simulator/build_master_nompi/install")
 
 def linkModel(nestml_model = "cm_model.nestml"):
     
