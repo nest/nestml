@@ -74,14 +74,14 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
-    - **simplify_expr**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
+    - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     """
 
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": False,
-        "simplify_expr": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
     }
 
     _variable_matching_template = r'(\b)({})(\b)'
@@ -544,7 +544,7 @@ class NESTCodeGenerator(CodeGenerator):
         solver_result = analysis(odetoolbox_indict,
                                  disable_stiffness_check=True,
                                  preserve_expressions=self.get_option('preserve_expressions'),
-                                 simplify_expr=self.get_option('simplify_expr'),
+                                 simplify_expression=self.get_option('simplify_expression'),
                                  log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
