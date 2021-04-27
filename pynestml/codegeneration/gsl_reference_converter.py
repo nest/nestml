@@ -91,7 +91,7 @@ class GSLReferenceConverter(IReferenceConverter):
                 s += ")"
             return s
 
-        if symbol.is_local() or symbol.is_function:
+        if symbol.is_local() or symbol.is_inline_expression:
             return variable_name
 
         if symbol.has_vector_parameter():

@@ -19,18 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
@@ -195,15 +197,12 @@ class ASTUtils:
         return expr
 
     @classmethod
-    def get_alias_symbols(cls, ast):
+    def get_inline_expression_symbols(cls, ast: ASTNode) -> List[VariableSymbol]:
         """
-        For the handed over meta_model, this method collects all functions aka. aliases in it.
-        :param ast: a single meta_model node
-        :type ast: AST_
-        :return: a list of all alias variable symbols
-        :rtype: list(VariableSymbol)
+        For the handed over AST node, this method collects all inline expression variable symbols in it.
+        :param ast: a single AST node
+        :return: a list of all inline expression variable symbols
         """
-        ret = list()
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
         res = list()
 
@@ -213,10 +212,11 @@ class ASTUtils:
 
         ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_vars))
 
+        ret = list()
         for var in res:
             if '\'' not in var.get_complete_name():
                 symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-                if symbol is not None and symbol.is_function:
+                if symbol is not None and symbol.is_inline_expression:
                     ret.append(symbol)
         return ret
 
@@ -300,7 +300,6 @@ class ASTUtils:
         :rtype: list(ASTFunctionCall)
         """
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ast_function_call import ASTFunctionCall
         ret = list()
 
         def loc_get_function(node):
@@ -374,11 +373,10 @@ class ASTUtils:
         return neuron
 
     @classmethod
-    def contains_sum_call(cls, variable):
+    def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
         """
-        Indicates whether the declaring rhs of this variable symbol has a x_sum or convolve in it.
+        Indicates whether the declaring rhs of this variable symbol has a convolve() in it.
         :return: True if contained, otherwise False.
-        :rtype: bool
         """
         if not variable.get_declaring_expression():
             return False

@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
 
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
@@ -27,8 +27,7 @@ from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
@@ -325,11 +324,10 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_state_symbols(self):
+    def get_state_symbols(self) -> List[VariableSymbol]:
         """
         Returns a list of all state symbol defined in the model.
         :return: a list of state symbols.
-        :rtype: list(VariableSymbol)
         """
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
@@ -354,19 +352,17 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def get_function_symbols(self):
+    def get_inline_expression_symbols(self) -> List[VariableSymbol]:
         """
-        Returns a list of all function symbols defined in the model.
-        :return: a list of function symbols.
-        :rtype: list(VariableSymbol)
+        Returns a list of all inline expression symbols defined in the model.
+        :return: a list of symbols
         """
-        from pynestml.symbols.variable_symbol import BlockType
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) \
                     and (symbol.block_type == BlockType.EQUATION or symbol.block_type == BlockType.STATE) \
-                    and symbol.is_function:
+                    and symbol.is_inline_expression:
                 ret.append(symbol)
         return ret
 
@@ -445,15 +441,14 @@ class ASTNeuron(ASTNode):
                 kernels.append(decl)
         return kernels
 
-    def get_non_function_state_symbols(self):
+    def get_non_inline_state_symbols(self) -> List[VariableSymbol]:
         """
-        Returns a list of all state symbols as defined in the model which are not marked as functions.
+        Returns a list of all state symbols as defined in the model which are not marked as inline expressions.
         :return: a list of symbols
-        :rtype:list(VariableSymbol)
         """
         ret = list()
         for symbol in self.get_state_symbols():
-            if not symbol.is_function:
+            if not symbol.is_inline_expression:
                 ret.append(symbol)
         return ret
 

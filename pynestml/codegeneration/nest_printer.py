@@ -18,17 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ast_body import ASTBody
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-from pynestml.meta_model.ast_for_stmt import ASTForStmt
-from pynestml.meta_model.ast_function import ASTFunction
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -43,6 +37,7 @@ from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -68,6 +63,8 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 
 
 class NestPrinter:
@@ -467,4 +464,4 @@ class NestPrinter:
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        return '//!< Buffer incoming ' + ast_buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
+        return '//!< Buffer for input (type: ' + ast_buffer.get_type_symbol().get_symbol_name() + ')'
