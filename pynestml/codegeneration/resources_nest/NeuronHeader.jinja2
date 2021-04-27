@@ -216,14 +216,14 @@ private:
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
-  {% if (has_vectors) -%}
+{% if (has_vectors) -%}
   friend class nest::DynamicRecordablesMap< {{neuronName}} >;
   friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
   friend class nest::DataAccessFunctor< {{neuronName}} >;
-  {% else -%}
+{% else -%}
   friend class nest::RecordablesMap<{{neuronName}}>;
   friend class nest::UniversalDataLogger<{{neuronName}}>;
-  {% endif -%}
+{% endif -%}
 
   /**
    * Free parameters of the neuron.
@@ -366,15 +366,15 @@ private:
     /**
      * Logger for all analog data
     **/
-    {% if (has_vectors) -%}
+{%- if (has_vectors) %}
     nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
-    {% else -%}
+{%- else %}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
-    {% endif %}
+{%- endif %}
 
-{% if ((neuron.get_multiple_receptors())|length > 1) or neuron.is_array_buffer() %}
+{%- if ((neuron.get_multiple_receptors())|length > 1) or neuron.is_array_buffer() %}
     std::vector<long> receptor_types_;
-{% endif %}
+{%- endif %}
 
 {%- if ((neuron.get_multiple_receptors())|length > 1) %}
     // -----------------------------------------------------------------------
@@ -503,17 +503,17 @@ private:
   Buffers_    B_;  //!< Buffers.
 
   //! Mapping of recordables names to access functions
-  {% if has_vectors -%}
+{%- if has_vectors %}
   nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
   nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
   std::string get_var_name(size_t elem, std::string var_name);
   void insert_recordables(size_t first=0);
 
-  {%- include "directives/DynamicStateElement.jinja2" %}
+{%- include "directives/DynamicStateElement.jinja2" %}
 
-  {%- else -%}
+{%- else -%}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
-  {% endif -%}
+{%- endif %}
 
 {%- if useGSL %}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
@@ -603,7 +603,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& d
 inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {
   // parameters
-{%- for parameter in neuron.get_parameter_symbols() -%}
+{%- for parameter in neuron.get_parameter_symbols() %}
 {%- with variable = parameter %}
 {%- filter indent(2) %}
 {%- include "directives/WriteInDictionary.jinja2" %}
