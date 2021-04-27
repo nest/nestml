@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_cos_manager import CoCosManager
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.scope import Scope, ScopeType
@@ -148,7 +150,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
             arg.update_scope(scope)
             # create the corresponding variable symbol representing the parameter
             var_symbol = VariableSymbol(element_reference=arg, scope=scope, name=arg.get_name(),
-                                        block_type=BlockType.LOCAL, is_predefined=False, is_function=False,
+                                        block_type=BlockType.LOCAL, is_predefined=False, is_inline_expression=False,
                                         is_recordable=False,
                                         type_symbol=PredefinedTypes.get_type(type_name),
                                         variable_type=VariableType.VARIABLE)
@@ -244,14 +246,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
             arg.update_scope(node.get_scope())
         return
 
-    def visit_declaration(self, node):
+    def visit_declaration(self, node: ASTDeclaration) -> None:
         """
-        Private method: Used to visit a single declaration, update its scope and return the corresponding set of
-        symbols
-        :param node: a declaration object.
-        :type node: ast_declaration
-        :return: the scope is update without a return value.
-        :rtype: void
+        Private method: Used to visit a single declaration, update its scope and return the corresponding set of symbols
+        :param node: a declaration AST node
+        :return: the scope is updated without a return value.
         """
         expression = node.get_expression() if node.has_expression() else None
         visitor = ASTDataTypeVisitor()
@@ -270,8 +269,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),
                                     block_type=self.block_type_stack.top(),
-                                    declaring_expression=expression, is_predefined=False,
-                                    is_function=node.is_function,
+                                    declaring_expression=expression,
+                                    is_predefined=False,
+                                    is_inline_expression=False,
                                     is_recordable=is_recordable,
                                     type_symbol=type_symbol,
                                     initial_value=init_value,
@@ -438,7 +438,8 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                 name=node.get_variable_name(),
                                 block_type=BlockType.EQUATION,
                                 declaring_expression=node.get_expression(),
-                                is_predefined=False, is_function=True,
+                                is_predefined=False,
+                                is_inline_expression=True,
                                 is_recordable=node.is_recordable,
                                 type_symbol=type_symbol,
                                 variable_type=VariableType.VARIABLE)
@@ -462,7 +463,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                         block_type=BlockType.EQUATION,
                                         declaring_expression=expr,
                                         is_predefined=False,
-                                        is_function=False,
+                                        is_inline_expression=False,
                                         is_recordable=True,
                                         type_symbol=PredefinedTypes.get_real_type(),
                                         variable_type=VariableType.KERNEL)
@@ -540,7 +541,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
                                 block_type=buffer_type, vector_parameter=node.get_index_parameter(),
-                                is_predefined=False, is_function=False, is_recordable=False,
+                                is_predefined=False, is_inline_expression=False, is_recordable=False,
                                 type_symbol=type_symbol, variable_type=VariableType.BUFFER)
         symbol.set_comment(node.get_comment())
         node.get_scope().add_symbol(symbol)
