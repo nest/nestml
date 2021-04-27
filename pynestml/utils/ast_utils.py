@@ -129,28 +129,6 @@ class ASTUtils:
         return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
-    def is_get_post_trace(cls, function_call):
-        """
-        Checks if the handed over function call is a get_post_trace function call.
-        :param function_call: a single function call
-        :type function_call: ASTFunctionCall
-        :return: True if ode integration call, otherwise False.
-        :rtype: bool
-        """
-        return function_call.get_name() == PredefinedFunctions.GET_POST_TRACE
-
-    @classmethod
-    def is_get_nn_post_trace(cls, function_call):
-        """
-        Checks if the handed over function call is a get_nn_post_trace function call.
-        :param function_call: a single function call
-        :type function_call: ASTFunctionCall
-        :return: True if ode integration call, otherwise False.
-        :rtype: bool
-        """
-        return function_call.get_name() == PredefinedFunctions.GET_NN_POST_TRACE
-
-    @classmethod
     def is_spike_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
         """
         Checks if the handed over neuron contains a spike input buffer.

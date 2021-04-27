@@ -76,8 +76,6 @@ class PredefinedFunctions:
     MIN = 'min'
     ABS = 'abs'
     INTEGRATE_ODES = 'integrate_odes'
-    GET_POST_TRACE = 'get_post_trace'
-    GET_NN_POST_TRACE = 'get_nn_post_trace'
     CONVOLVE = 'convolve'
     DELIVER_SPIKE = 'deliver_spike'
     name2function = {}   # type: Mapping[str, FunctionSymbol]
@@ -110,8 +108,6 @@ class PredefinedFunctions:
         cls.__register_min_function()
         cls.__register_abs_function()
         cls.__register_integrated_odes_function()
-        cls.__register_get_post_trace_function()
-        cls.__register_get_nn_post_trace_function()
         cls.__register_convolve()
         cls.__register_deliver_spike()
         return
@@ -385,28 +381,6 @@ class PredefinedFunctions:
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.INTEGRATE_ODES] = symbol
-
-    @classmethod
-    def __register_get_post_trace_function(cls):
-        """
-        Registers the get_post_trace function.
-        """
-        params = list()
-        symbol = FunctionSymbol(name=cls.GET_POST_TRACE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.GET_POST_TRACE] = symbol
-
-    @classmethod
-    def __register_get_nn_post_trace_function(cls):
-        """
-        Registers the get_nn_post_trace function.
-        """
-        params = list()
-        symbol = FunctionSymbol(name=cls.GET_NN_POST_TRACE, param_types=params,
-                                return_type=PredefinedTypes.get_real_type(),
-                                element_reference=None, is_predefined=True)
-        cls.name2function[cls.GET_NN_POST_TRACE] = symbol
 
     @classmethod
     def __register_deliver_spike(cls):
