@@ -1051,7 +1051,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param neuron: a single neuron.
         :return: spike_updates: list of spike updates, see documentation for get_spike_update_expressions() for more information.
         """
-        code, message = Messages.get_start_processing_neuron(neuron.get_name())
+        code, message = Messages.get_start_processing_model(neuron.get_name())
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
         equations_block = neuron.get_equations_block()
@@ -1120,7 +1120,7 @@ class NESTCodeGenerator(CodeGenerator):
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
         """
-        code, message = Messages.get_start_processing_synapse(synapse.get_name())
+        code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
         self.add_timestep_symbol(synapse)
@@ -1133,7 +1133,7 @@ class NESTCodeGenerator(CodeGenerator):
         Analyse and transform a single synapse.
         :param synapse: a single synapse.
         """
-        code, message = Messages.get_start_processing_synapse(synapse.get_name())
+        code, message = Messages.get_start_processing_model(synapse.get_name())
         Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
         equations_block = synapse.get_equations_block()

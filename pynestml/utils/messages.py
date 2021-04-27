@@ -39,10 +39,8 @@ class MessageCode(Enum):
     ODE_UPDATED = 10
     NO_VARIABLE_FOUND = 11
     SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
-    NEURON_CONTAINS_ERRORS = 13
-    SYNAPSE_CONTAINS_ERRORS = 130
-    START_PROCESSING_SYNAPSE = 114
-    START_PROCESSING_NEURON = 14
+    MODEL_CONTAINS_ERRORS = 13
+    START_PROCESSING_MODEL = 14
     CODE_SUCCESSFULLY_GENERATED = 15
     MODULE_SUCCESSFULLY_GENERATED = 16
     NO_CODE_GENERATED = 17
@@ -62,9 +60,8 @@ class MessageCode(Enum):
     FUNCTION_REDECLARED = 31
     FUNCTION_NOT_DECLARED = 52
     NO_ODE = 32
-    SYNAPSE_REDECLARED = 340
     NO_INIT_VALUE = 33
-    NEURON_REDECLARED = 34
+    MODEL_REDECLARED = 34
     NEST_COLLISION = 35
     KERNEL_OUTSIDE_CONVOLVE = 36
     NAME_COLLISION = 37
@@ -372,60 +369,28 @@ class Messages:
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod
-    def get_neuron_contains_errors(cls, neuron_name):
+    def get_model_contains_errors(cls, model_name: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that a neuron contains errors thus no code is generated.
-        :param neuron_name: the name of the neuron
-        :type neuron_name: str
+        Returns a message indicating that a model contains errors thus no code is generated.
+        :param model_name: the name of the model
         :return: a message
-        :rtype: (MessageCode,str)
         """
-        assert (neuron_name is not None and isinstance(neuron_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
-        message = 'Neuron \'' + neuron_name + '\' contains errors. No code generated!'
-        return MessageCode.NEURON_CONTAINS_ERRORS, message
+        assert (model_name is not None and isinstance(model_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
+        message = 'Model \'' + model_name + '\' contains errors. No code generated!'
+        return MessageCode.MODEL_CONTAINS_ERRORS, message
 
     @classmethod
-    def get_synapse_contains_errors(cls, synapse_name):
+    def get_start_processing_model(cls, model_name: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that a synapse contains errors thus no code is generated.
-        :param synapse_name: the name of the synapse
-        :type synapse_name: str
+        Returns a message indicating that the processing of a model is started.
+        :param model_name: the name of the model
         :return: a message
-        :rtype: (MessageCode,str)
         """
-        assert (synapse_name is not None and isinstance(synapse_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(synapse_name)
-        message = 'Synapse \'' + synapse_name + '\' contains errors. No code generated!'
-        return MessageCode.SYNAPSE_CONTAINS_ERRORS, message
-
-    @classmethod
-    def get_start_processing_neuron(cls, neuron_name):
-        """
-        Returns a message indicating that the processing of a neuron is started.
-        :param neuron_name: the name of the neuron
-        :type neuron_name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (neuron_name is not None and isinstance(neuron_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
-        message = 'Starts processing of the neuron \'' + neuron_name + '\''
-        return MessageCode.START_PROCESSING_NEURON, message
-
-    @classmethod
-    def get_start_processing_synapse(cls, synapse_name):
-        """
-        Returns a message indicating that the processing of a synapse is started.
-        :param synapse_name: the name of the synapse
-        :type synapse_name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (synapse_name is not None and isinstance(synapse_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(synapse_name)
-        message = 'Starts processing of the synapse \'' + synapse_name + '\''
-        return MessageCode.START_PROCESSING_SYNAPSE, message
+        assert (model_name is not None and isinstance(model_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
+        message = 'Starts processing of the model \'' + model_name + '\''
+        return MessageCode.START_PROCESSING_MODEL, message
 
     @classmethod
     def get_code_generated(cls, model_name, path):
@@ -721,36 +686,18 @@ class Messages:
         return MessageCode.NO_INIT_VALUE, message
 
     @classmethod
-    def get_neuron_redeclared(cls, name):
+    def get_model_redeclared(cls, name: str) -> Tuple[MessageCode, str]:
         """
-        Indicates that a neuron has been redeclared.
-        :param name: the name of the neuron which has been redeclared.
-        :type name: str
+        Indicates that a model has been redeclared.
+        :param name: the name of the model which has been redeclared.
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Neuron \'%s\' redeclared!' % name
-        return MessageCode.NEURON_REDECLARED, message
-
-    @classmethod
-    def get_synapse_redeclared(cls, name):
-        """
-        Indicates that a synapse has been redeclared.
-        :param name: the name of the synapse which has been redeclared.
-        :type name: str
-        :return: a message
-        :rtype: (MessageCode,str)
-        """
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        assert (name is not None and isinstance(name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Synapse \'%s\' redeclared!' % name
-        return MessageCode.SYNAPSE_REDECLARED, message
+        message = 'model \'%s\' redeclared!' % name
+        return MessageCode.MODEL_REDECLARED, message
 
     @classmethod
     def get_nest_collision(cls, name):
