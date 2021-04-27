@@ -208,6 +208,17 @@ class ASTNode(metaclass=ABCMeta):
                    ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
         return ret
 
+    def get_comments(self):
+        comments = list()
+        comments.extend(self.pre_comments)
+        if self.in_comment is not None:
+            comments.append(self.in_comment)
+        comments.extend(self.post_comments)
+        return comments
+
+    def get_post_comments(self):
+        return self.post_comments
+
     def accept(self, visitor):
         """
         Double dispatch for visitor pattern.

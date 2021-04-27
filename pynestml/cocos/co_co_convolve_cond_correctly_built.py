@@ -27,7 +27,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoConvolveCondCorrectlyBuilt(CoCo):
     """
-    This coco ensures that ``convolve`` is correctly called, i.e. that the first argument is the variable from the initial block and the second argument is an input buffer.
+    This coco ensures that ``convolve`` is correctly called, i.e. that the first argument is the variable from the state block and the second argument is an input buffer.
 
     Allowed:
         inline I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
@@ -59,7 +59,7 @@ class ConvolveCheckerVisitor(ASTVisitor):
                                                             SymbolKind.VARIABLE)
             symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
                                                                SymbolKind.VARIABLE)
-            if symbol_var is not None and not symbol_var.is_kernel() and not symbol_var.is_init_values():
+            if symbol_var is not None and not symbol_var.is_kernel() and not symbol_var.is_state():
                 code, message = Messages.get_first_arg_not_kernel_or_equation(func_name)
                 Logger.log_message(code=code, message=message,
                                    error_position=node.get_source_position(), log_level=LoggingLevel.ERROR)

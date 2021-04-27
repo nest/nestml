@@ -36,10 +36,8 @@ aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
 neuron iaf_cond_exp_sfa_rr:
 
   state:
-    r integer    # counts number of tick during the refractory period
-  end
+    r integer = 0   # counts number of tick during the refractory period
 
-  initial_values:
     V_m mV = E_L # membrane potential
     g_sfa nS = 0 nS     # inputs from the sfa conductance
     g_rr nS = 0 nS      # inputs from the rr conductance

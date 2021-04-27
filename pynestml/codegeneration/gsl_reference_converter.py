@@ -73,7 +73,7 @@ class GSLReferenceConverter(IReferenceConverter):
                                error_position=ast_variable.get_source_position())
             return ''
 
-        if symbol.is_init_values():
+        if symbol.is_state():
             return GSLNamesConverter.name(symbol)
 
         if symbol.is_buffer():
@@ -91,7 +91,7 @@ class GSLReferenceConverter(IReferenceConverter):
                 s += ")"
             return s
 
-        if symbol.is_local() or symbol.is_function:
+        if symbol.is_local() or symbol.is_inline_expression:
             return variable_name
 
         if symbol.has_vector_parameter():

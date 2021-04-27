@@ -18,11 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Mapping
+
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 
 
-class PredefinedFunctions(object):
+class PredefinedFunctions:
     """
     This class is used to represent all predefined functions of NESTML.
 
@@ -78,7 +80,7 @@ class PredefinedFunctions(object):
     GET_NN_POST_TRACE = 'get_nn_post_trace'
     CONVOLVE = 'convolve'
     DELIVER_SPIKE = 'deliver_spike'
-    name2function = {}  # a map dict from function-names to symbols
+    name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
     def register_functions(cls):

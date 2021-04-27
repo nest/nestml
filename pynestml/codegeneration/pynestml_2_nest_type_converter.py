@@ -29,7 +29,7 @@ from pynestml.symbols.nest_time_type_symbol import NESTTimeTypeSymbol
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 
 
-class PyNestml2NestTypeConverter(object):
+class PyNestml2NestTypeConverter:
     """
     This class contains a single operation as used to convert nestml types to nest centerpieces.
     """

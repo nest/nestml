@@ -44,7 +44,8 @@ class NESTMLLexer(RegexLexer):
         ],
         'keywords': [
             (words((
-                "recordable", 		"kernel", 		"neuron", 	"synapse",	"state", 		"parameters", 		"internals", 		"initial_values", 		"update", 		"equations", 		"input", 		"output", 		"current", 		"spike", "inhibitory", "excitatory", "onReceive","inline", "end", "function", "return", "if", "elif", "else", "for", "while", "in", "step", "and", "or", "not"), suffix=r'\b'),
+                "recordable", 		"kernel", 		"neuron", 		"synapse", 		"state", 		"parameters", 		"internals", 		"update", 		"equations", 		"input", 		
+                "output", 		"current", 		"spike", "inhibitory", "excitatory", "end", "inline", "onEvent", "onReceive", "preReceive", "postReceive", "function", "return", "if", "elif", "else", "for", "while", "in", "step", "and", "or", "not"), suffix=r'\b'),
              Keyword),
         ],
         'types': [

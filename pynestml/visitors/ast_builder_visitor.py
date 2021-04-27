@@ -54,7 +54,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         for child in ctx.synapse():
             synapses.append(self.visit(child))
         # extract the name of the artifact from the context
-        artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        if hasattr(ctx.start.source[1], 'fileName'):
+            artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        else:
+            artifact_name = 'parsed_from_string'
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_neurons=neurons,
                                                                              list_of_synapses=synapses,
                                                                              source_position=create_source_pos(ctx),
@@ -356,7 +359,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#declaration.
     def visitDeclaration(self, ctx):
         is_recordable = (True if ctx.isRecordable is not None else False)
-        is_function = (True if ctx.isFunction is not None else False)
+        is_inline_expression = (True if ctx.isInlineExpression is not None else False)
 
         decorators = []
         for kw in ctx.anyDecorator():
@@ -369,6 +372,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_param = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
+        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_inline_expression=is_inline_expression,
 
 
         # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
@@ -626,13 +630,11 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         block_type = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         source_pos = create_source_pos(ctx)
         if block_type == 'state':
-            ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, declarations, source_pos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(True, False, False, declarations, source_pos)
         elif block_type == 'parameters':
-            ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, False, declarations, source_pos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, True, False, declarations, source_pos)
         elif block_type == 'internals':
-            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, declarations, source_pos)
-        elif block_type == 'initial_values':
-            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, False, True, declarations, source_pos)
+            ret = ASTNodeFactory.create_ast_block_with_variables(False, False, True, declarations, source_pos)
         else:
             raise RuntimeError('(PyNestML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
         update_node_comments(ret, self.__comments.visit(ctx))

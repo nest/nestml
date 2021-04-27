@@ -21,6 +21,8 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
+from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_node import ASTNode
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -40,7 +42,7 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTNode, after_ast_rewrite: bool):
         """
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
         correct.
@@ -84,7 +86,7 @@ class CoCoAllVariablesDefined(CoCo):
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))
-                            and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS, BlockType.INITIAL_VALUES])):
+                            and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS])):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(node=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
@@ -97,20 +99,39 @@ class CoCoAllVariablesDefined(CoCo):
                                            get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
         # now check for each assignment whether the left hand side variable is defined
-        vis = ASTAssignedVariableDefinedVisitor(node)
+        vis = ASTAssignedVariableDefinedVisitor(node, after_ast_rewrite)
         node.accept(vis)
-        return
 
 
 class ASTAssignedVariableDefinedVisitor(ASTVisitor):
-    def __init__(self, neuron):
+    def __init__(self, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         super(ASTAssignedVariableDefinedVisitor, self).__init__()
         self.neuron = neuron
+        self.after_ast_rewrite = after_ast_rewrite
 
     def visit_assignment(self, node):
         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
                                                     SymbolKind.VARIABLE)
         if symbol is None:
+            if self.after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
+                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                if symbol is not None:
+                    # an inline expression defining this variable name (ignoring differential order) exists
+                    if "__X__" in str(symbol):	 # if this variable was the result of a convolution...
+                        return
+            else:
+                # for kernels, also allow derivatives of that kernel to appear
+                if self.neuron.get_equations_block() is not None:
+                    for inline_expr in self.neuron.get_equations_block().get_inline_expressions():
+                        if node.get_variable().get_name() == inline_expr.variable_name:
+                            from pynestml.utils.ast_utils import ASTUtils
+                            if ASTUtils.inline_aliases_convolution(inline_expr):
+                                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                                if symbol is not None:
+                                    # actually, no problem detected, skip error
+                                    # XXX: TODO: check that differential order is less than or equal to that of the kernel
+                                    return
+
             code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR, node=self.neuron)

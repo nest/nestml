@@ -23,7 +23,7 @@ from enum import Enum
 from pynestml.symbols.symbol import Symbol, SymbolKind
 
 
-class Scope(object):
+class Scope:
     """
     This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and
     a set of sub-scopes with additional elements.

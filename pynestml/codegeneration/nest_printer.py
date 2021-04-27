@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
@@ -68,7 +69,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 
 
-class NestPrinter(object):
+class NestPrinter:
     """
     This class contains all methods as required to transform
     """
@@ -198,15 +199,13 @@ class NestPrinter(object):
         ret += ' ' + self.print_node(node.rhs)
         return ret
 
-    def print_variable(self, node):
-        # type: (ASTVariable) -> str
+    def print_variable(self, node: ASTVariable) -> str:
         ret = node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"
         return ret
 
-    def print_expression(self, node, prefix=""):
-        # type: (ASTExpressionNode) -> str
+    def print_expression(self, node: ASTExpressionNode, prefix: str="") -> str:
         """
         Pretty Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -216,8 +215,7 @@ class NestPrinter(object):
         """
         return self.expression_pretty_printer.print_expression(node, prefix=prefix)
 
-    def print_method_call(self, node):
-        # type: (ASTFunctionCall) -> str
+    def print_method_call(self, node: ASTFunctionCall) -> str:
         """
         Prints a single handed over function call.
         :param node: a single function call.
@@ -271,9 +269,6 @@ class NestPrinter(object):
                 variable_symbol)
 
         if variable_symbol.block_type == BlockType.STATE:
-            return prefix + 'S_.'
-
-        if variable_symbol.block_type == BlockType.INITIAL_VALUES:
             return prefix + 'S_.'
 
         if variable_symbol.block_type == BlockType.EQUATION:
@@ -487,4 +482,4 @@ class NestPrinter(object):
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        return '//!< Buffer incoming ' + ast_buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
+        return '//!< Buffer for input (type: ' + ast_buffer.get_type_symbol().get_symbol_name() + ')'

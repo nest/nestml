@@ -33,7 +33,7 @@ from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages, MessageCode
 
-help_input_path = 'Path to a single file or a directory containing the source models.'
+help_input_path = 'One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching \'*.nestml\'.'
 help_target_path = 'Path to a target directory where models should be generated to. Standard is "target".'
 help_target = 'Name of the target platform to build code for. Default is NEST.'
 help_logging = 'Indicates which messages shall be logged and printed to the screen. Standard is ERROR.'
@@ -54,7 +54,7 @@ qualifier_dev_arg = '--dev'
 qualifier_codegen_opts_arg = '--codegen_opts'
 
 
-class FrontendConfiguration(object):
+class FrontendConfiguration:
     """
     This class encapsulates all settings as handed over to the frontend at start of the toolchain.
     """
@@ -109,7 +109,7 @@ appropriate numeric solver otherwise.
         cls.handle_input_path(parsed_args.input_path)
         cls.handle_target(parsed_args.target)
         cls.handle_target_path(parsed_args.target_path)
-        cls.handle_module_name(parsed_args.module_name, parsed_args.input_path)
+        cls.handle_module_name(parsed_args.module_name)
         cls.handle_codegen_opts_fn(parsed_args.codegen_opts_fn)
 
         cls.store_log = parsed_args.store_log
@@ -207,7 +207,7 @@ appropriate numeric solver otherwise.
                 raise Exception('Errors occurred while processing code generator options file')
 
     @classmethod
-    def handle_module_name(cls, module_name, input_path):
+    def handle_module_name(cls, module_name):
         """parse or compose the module name"""
         if module_name is not None:
             if not module_name.endswith('module'):
@@ -255,7 +255,12 @@ appropriate numeric solver otherwise.
             os.makedirs(cls.target_path)
 
     @classmethod
-    def handle_input_path(cls, path):
+    def handle_input_path(cls, path) -> None:
+        """
+        Sets cls.paths_to_compilation_units with a list of absolute paths to NESTML files.
+
+        Use glob to search directories recursively.
+        """
         cls.provided_input_path = path
 
         if not path or path == ['']:

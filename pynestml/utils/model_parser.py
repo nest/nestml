@@ -18,9 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import copy
 
-from antlr4 import *
+from typing import Tuple
+
+from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 from antlr4.error.ErrorListener import ConsoleErrorListener
 
@@ -74,7 +75,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.error_listener import NestMLErrorListener
 
 
-class ModelParser(object):
+class ModelParser:
 
     @classmethod
     def parse_model(cls, file_path=None):
@@ -469,8 +470,7 @@ class ModelParser(object):
         return ret
 
 
-def tokenize(string):
-    # type: (str) -> (ASTBuilderVisitor,PyNestMLParser)
+def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
     lexer = PyNestMLLexer(InputStream(string))
     # create a token stream
     stream = CommonTokenStream(lexer)

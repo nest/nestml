@@ -237,13 +237,13 @@ e();
                 s += ")"
             return s
 
-        if symbol.is_function:
+        if symbol.is_inline_expression:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_kernel():
-            print("Printing node " + str(symbol.name))
+            assert False, "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
 
-        if symbol.is_init_values():
+        if symbol.is_state():
             temp = NestPrinter.print_origin(symbol, prefix=prefix)
             if self.uses_gsl:
                 temp += GSLNamesConverter.name(symbol)
@@ -453,7 +453,7 @@ e();
         if op.is_div_op:
             return '%s' + ' / ' + '%s'
         if op.is_modulo_op:
-            return '%s' + ' % ' + '%s'
+            return '%s' + ' %% ' + '%s'
         if op.is_pow_op:
             return 'pow' + '(%s, %s)'
         raise RuntimeError('Cannot determine arithmetic operator!')

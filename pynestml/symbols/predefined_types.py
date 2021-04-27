@@ -18,21 +18,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Mapping
+
 from copy import copy
 
 from astropy.units.core import CompositeUnit
 from astropy.units.quantity import Quantity
 
 from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
+from pynestml.symbols.type_symbol import TypeSymbol
+from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.type_dictionary import TypeDictionary
 from pynestml.utils.unit_type import UnitType
 
 
-class PredefinedTypes(object):
+class PredefinedTypes:
     """
     This class represents all types which are predefined in the system.
 
@@ -44,7 +48,7 @@ class PredefinedTypes(object):
         STRING_TYPE   The identifier of the type 'string'. Type: str
         INTEGER_TYPE  The identifier of the type 'integer'. Type: str
     """
-    name2type = {}
+    name2type = {}   # type: Mapping[str, TypeSymbol]
     REAL_TYPE = 'real'
     VOID_TYPE = 'void'
     BOOLEAN_TYPE = 'boolean'

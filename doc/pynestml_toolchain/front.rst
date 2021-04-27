@@ -251,8 +251,6 @@ Given the fact that context conditions have the commonality of checking the cont
 
 -  *CoCoIllegalExpression*: Checks that all expressions are typed according to the left-hand side variable, or are at least castable to each other.
 
--  *CoCoInitVarsWithOdesProvided*: Checks that all variables declared in the *initial values* block are provided with the corresponding ODEs.
-
 -  *CoCoInvariantIsBoolean*: Checks that the type of all given invariants is *boolean*.
 
 -  *CoCoNeuronNameUnique*: Checks that no name collisions of neurons occur. Here, only the names in the same artifact are checked.

@@ -1,6 +1,6 @@
 neuron izhikevich_tutorial:
 
-  initial_values:
+  state:
     v mV = -65 mV    # Membrane potential in mV
 
     # TODO: add new variable u with the type real

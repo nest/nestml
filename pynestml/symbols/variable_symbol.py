@@ -18,8 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from copy import copy
 
+from copy import copy
 from enum import Enum
 
 from pynestml.meta_model.ast_expression import ASTExpression
@@ -27,15 +27,40 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
+from pynestml.symbol_table.scope import Scope
 from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.symbols.symbol import Symbol
-from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.symbol import Symbol, SymbolKind
+from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.symbols.unit_type_symbol import UnitTypeSymbol
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
-from astropy import units
+
+class VariableType(Enum):
+    """
+    Indicates to which type of variable this is.
+    """
+    KERNEL = 0
+    VARIABLE = 1
+    BUFFER = 2
+    EQUATION = 3
+    TYPE = 4
+
+
+class BlockType(Enum):
+    """
+    Indicates in which type of block this variable has been declared.
+    """
+    STATE = 1
+    PARAMETERS = 2
+    INTERNALS = 3
+    EQUATION = 4
+    LOCAL = 5
+    INPUT_BUFFER_CURRENT = 6
+    INPUT_BUFFER_SPIKE = 7
+    OUTPUT = 8
+    PREDEFINED = 9
 
 
 class VariableSymbol(Symbol):
@@ -43,48 +68,37 @@ class VariableSymbol(Symbol):
     This class is used to store a single variable symbol containing all required information.
 
     Attributes:
-        block_type           The type of block in which this symbol has been declared. Type: BlockType
-        vector_parameter     The parameter indicating the position in an array. Type: str
-        declaring_expression The rhs defining the value of this symbol. Type: ASTExpression
-        is_predefined        Indicates whether this symbol is predefined, e.g., t or e. Type: bool
-        is_function          Indicates whether this symbol belongs to a function. Type: bool
-        is_recordable        Indicates whether this symbol belongs to a recordable element. Type: bool
-        type_symbol          The concrete type of this variable.
-        ode_declaration      Used to store the corresponding ode declaration.
+        block_type            The type of block in which this symbol has been declared. Type: BlockType
+        vector_parameter      The parameter indicating the position in an array. Type: str
+        declaring_expression  The rhs defining the value of this symbol. Type: ASTExpression
+        is_predefined         Indicates whether this symbol is predefined, e.g., t or e. Type: bool
+        is_inline_expression  Indicates whether this symbol belongs to an inline expression. Type: bool
+        is_recordable         Indicates whether this symbol belongs to a recordable element. Type: bool
+        type_symbol           The concrete type of this variable.
+        ode_declaration       Used to store the corresponding ode declaration.
         is_conductance_based  Indicates whether this buffer is conductance based.
-        initial_value        Indicates the initial value if such is declared.
-        variable_type        The type of the variable, either a kernel, or buffer or function. Type: VariableType
+        initial_value         Indicates the initial value if such is declared.
+        variable_type         The type of the variable, either a kernel, or buffer or function. Type: VariableType
     """
 
-    def __init__(self, element_reference=None, scope=None, name=None, block_type=None, vector_parameter=None,
-                 declaring_expression=None, is_predefined=False, is_function=False, is_recordable=False,
-                 type_symbol=None, initial_value=None, variable_type=None, decorators=None, namespace_decorators=None):
+    def __init__(self, element_reference=None, scope: Scope=None, name: str=None, block_type: BlockType=None,
+                 vector_parameter: str=None, declaring_expression: ASTExpression=None, is_predefined: bool=False,
+                 is_inline_expression: bool=False, is_recordable: bool=False, type_symbol: TypeSymbol=None,
+                 initial_value: ASTExpression=None, variable_type: VariableType=None, decorators=None, namespace_decorators=None):
         """
         Standard constructor.
         :param element_reference: a reference to the first element where this type has been used/defined
-        :type element_reference: Object (or None, if predefined)
         :param scope: the scope in which this type is defined in
-        :type scope: Scope
         :param name: the name of the type symbol
-        :type name: str
         :param block_type: the type of block in which this element has been defined in
-        :type block_type: BlockType
         :param vector_parameter: the parameter indicating a position in an array
-        :type vector_parameter: str
         :param declaring_expression: a rhs declaring the value of this symbol.
-        :type declaring_expression: ASTExpression
         :param is_predefined: indicates whether this element represents a predefined variable, e.g., e or t
-        :type is_predefined: bool
-        :param is_function: indicates whether this element represents a function (aka. alias)
-        :type is_function: bool
+        :param is_inline_expression: Indicates whether this symbol belongs to an inline expression.
         :param is_recordable: indicates whether this elements is recordable or not.
-        :type is_recordable: bool
         :param type_symbol: a type symbol representing the concrete type of this variable
-        :type type_symbol: type_symbol
         :param initial_value: the initial value if such an exists
-        :type initial_value: ASTExpression
         :param variable_type: the type of the variable
-        :type variable_type: VariableType
         :param decorators: a list of decorator keywords
         :type decorators list
         :param namespace_decorators a list of namespace decorators
@@ -96,7 +110,7 @@ class VariableSymbol(Symbol):
         self.vector_parameter = vector_parameter
         self.declaring_expression = declaring_expression
         self.is_predefined = is_predefined
-        self.is_function = is_function
+        self.is_inline_expression = is_inline_expression
         self.is_recordable = is_recordable
         self.type_symbol = type_symbol
         self.initial_value = initial_value
@@ -291,14 +305,6 @@ class VariableSymbol(Symbol):
         """
         return self.variable_type == VariableType.KERNEL
 
-    def is_init_values(self) -> bool:
-        """
-        Returns whether this variable belongs to the definition of a initial value.
-        :return: True if part of a initial value, otherwise False.
-        :rtype: bool
-        """
-        return self.block_type == BlockType.INITIAL_VALUES
-
     def print_symbol(self):
         if self.get_referenced_object() is not None:
             source_position = str(self.get_referenced_object().get_source_position())
@@ -307,7 +313,7 @@ class VariableSymbol(Symbol):
         vector_value = self.get_vector_parameter() if self.has_vector_parameter() else 'none'
         typ_e = self.get_type_symbol().print_symbol()
         recordable = 'recordable, ' if self.is_recordable else ''
-        func = 'function, ' if self.is_function else ''
+        func = 'inline, ' if self.is_inline_expression else ''
         conductance_based = 'conductance based, ' if self.is_conductance_based else ''
         return 'VariableSymbol[' + self.get_symbol_name() + ', type=' \
                + typ_e + ', ' + str(self.block_type) + ', ' + recordable + func + conductance_based \
@@ -430,7 +436,7 @@ class VariableSymbol(Symbol):
                 and self.get_vector_parameter() == other.get_vector_parameter()
                 and self.declaring_expression == other.declaring_expression
                 and self.is_predefined == other.is_predefined
-                and self.is_function == other.is_function
+                and self.is_inline_expression == other.is_inline_expression
                 and self.is_conductance_based == other.is_conductance_based
                 and self.is_recordable == other.is_recordable)
 
@@ -449,30 +455,3 @@ class VariableSymbol(Symbol):
             ret += (prefix if prefix is not None else '') + comment + \
                    ('\n' if self.get_comment().index(comment) < len(self.get_comment()) - 1 else '')
         return ret
-
-
-class VariableType(Enum):
-    """
-    Indicates to which type of variable this is.
-    """
-    KERNEL = 0
-    VARIABLE = 1
-    BUFFER = 2
-    EQUATION = 3
-    TYPE = 4
-
-
-class BlockType(Enum):
-    """
-    Indicates in which type of block this variable has been declared.
-    """
-    STATE = 1
-    PARAMETERS = 2
-    INTERNALS = 3
-    INITIAL_VALUES = 4
-    EQUATION = 5
-    LOCAL = 6
-    INPUT_BUFFER_CURRENT = 7
-    INPUT_BUFFER_SPIKE = 8
-    OUTPUT = 9
-    PREDEFINED = 10

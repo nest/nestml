@@ -20,7 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Stack(object):
+class Stack:
     """
     This class represents a simple version of a stack.
     """

@@ -271,48 +271,93 @@ Names of functions and input ports must also satisfy this pattern. The type of t
     e string = "foo"
     f mV = -2e12 mV
 
-Documentation strings
+It is legal to define a variable (or kernel, or parameter) with the same name as a physical unit, but this could lead to confusion. For example, defining a variable with name ``b`` creates an ambiguity with the physical unit ``b``, a unit of surface area. In these cases, a warning is issued when the model is processed. The variable (or kernel, and parameter) definitions will then take precedence when resolving symbols: all occurrences of the symbol in the model will be resolved to the variable rather than the unit.
+
+For example, the following model will result in one warning and one error:
+
+.. code-block:: nestml
+
+   neuron test:
+     state:
+       ms mA = 42 mA   # redefine "ms" (from milliseconds unit to variable name)
+       foo s = 0 s     # foo has units of time (seconds)
+     end
+
+     update:
+       ms = 1 mA    # WARNING: Variable 'ms' has the same name as a physical unit!
+       foo = 42 ms  # ERROR: Actual type different from expected. Expected: 's', got: 'mA'!
+     end
+   end
+
+
+Documentation string
+~~~~~~~~~~~~~~~~~~~~
+
+Each neuron model may be documented by a block of text in reStructuredText format. Following [PEP 257 "Docstring Conventions"](https://www.python.org/dev/peps/pep-0257/), this block should be enclosed in triple double quotes (``"""``...``"""``) and appear directly before the definition of the neuron. For example:
+
+.. code-block:: nestml
+
+   """
+   iaf_psc_custom: My customized version of iaf_psc
+   ################################################
+   
+   Description
+   +++++++++++
+   
+   Long description follows here. We can typeset LaTeX math:
+   
+   .. math::
+
+      E = mc^2
+   
+   """
+   neuron iaf_psc_custom:
+     # [...]
+   end
+
+This documentation block is rendered as HTML on the [NESTML Models Library](https://nestml.readthedocs.io/en/latest/models_library/index.html).
+
+
+Comments in the model
 ~~~~~~~~~~~~~~~~~~~~~
 
-Declarations can be enriched with special comments which are then taken into generated NEST code. To do so, ``#`` is used to introduce a single line comment. For multi-line comments, Python style comments (``"""..."""``) or Java-style comments (``/* ... */``) can be used.
+When the character ``#`` appears as the first character on a line (ignoring whitespace), the remainder of that line is allowed to contain any comment string. Comments are not interpreted as part of the model specification, but when a comment is placed in a strategic location, it will be printed into the generated NEST code.
+
+Example of single or multi-line comments:
 
 .. code-block:: nestml
 
    var1 real # single line comment
 
-   /* This is 
-   *  a comment
-   *  over several lines.
-   */
-   var2 real
-   """
-   This is a multiline comment in Python syntax.
-   """
+   # This is 
+   #  a comment
+   #   over several lines.
 
-To enable NESTML to recognize the commented element uniquely, the following approach has to be used: there should be no white line separating the comment and its target. For example:
+To enable NESTML to recognize which element a comment belongs to, the following approach has to be used: there should be no white line separating the comment and its target. For example:
 
 .. code-block:: nestml
 
    V_m mV = -55 mV # I am a comment of the membrane potential
 
-   /* I am not a comment of the membrane potential. A white line separates us. */ 
+   # I am not a comment of the membrane potential. A white line separates us.
 
 If a comment shall be attached to an element, no white lines are allowed.
 
 .. code-block:: nestml
 
-   V_m mV = -55mV # I am a comment of the membrane potential
-   /* I am a comment of the membrane potential.*/ 
+   V_m mV = -55 mV # I am a comment of the membrane potential
+   # I am a comment of the membrane potential.
 
 Whitelines are therefore used to separate comment targets:
 
 .. code-block:: nestml
 
-   V_m mV = -55mV
-   /* I am a comment of the membrane potential.*/ 
+   V_m mV = -55 mV
+   # I am a comment of the membrane potential.
 
-   /* I am a comment of the resting potential.*/
-   V_rest mV = -60mV
+   # I am a comment of the resting potential.
+   V_rest mV = -60 mV
+
 
 Assignments
 ~~~~~~~~~~~
@@ -420,10 +465,10 @@ The following functions are predefined in NESTML and can be used out of the box:
      - Log the string s with logging level "warning".
    * - ``print``
      - s
-     - Print the string s to stdout (no line break at the end).
+     - Print the string s to stdout (no line break at the end). See :ref:`print function` for more information.
    * - ``println``
      - s
-     - Print the string s to stdout (with a line break at the end).
+     - Print the string s to stdout (with a line break at the end). See :ref:`print function` for more information.
    * - ``integrate_odes``
      -
      - This function can be used to integrate all stated differential equations of the equations block.
@@ -455,6 +500,33 @@ e.g.
    else:
      return b
    end
+
+Printing output to the console
+^^^^^^^^^^^^^^
+
+The ``print`` and ``println`` functions print a string to the standard output, with ``println`` printing a line break at the end. They can be used in the ``update`` block. See :ref:`Block types` for more information on the ``update`` block.
+
+Example:
+
+.. code-block:: nestml
+
+    update:
+        print("Hello World")
+        ...
+        println("Another statement")
+    end
+
+Variables defined in the model can be printed by enclosing them in ``{`` and ``}``. For example, variables ``V_m`` and ``V_thr`` used in the model can be printed as:
+
+.. code-block:: nestml
+
+    update:
+        ...
+        print("A spike event with membrane voltage: {V_m}")
+        ...
+        println("Membrane voltage {V_m} is less than the threshold {V_thr}")
+      end
+    end
 
 Control structures
 ~~~~~~~~~~~~~~~~~~
@@ -658,8 +730,7 @@ Block types
 Within the top-level block, the following blocks may be defined:
 
 -  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
--  ``state`` - This block is composed of a list of variable declarations that are supposed to describe parts of the neuron which may change over time.
--  ``initial_values`` - This block describes the initial values of all stated differential equations. Only variables from this block can be further defined with differential equations. The variables in this block can be recorded using a ``multimeter``.
+-  ``state`` - This block is composed of a list of variable declarations that describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
 -  ``internals`` - This block is composed of a list of implementation-dependent helper variables that supposed to be constant during the simulation run. Therefore, their initialization expression can only reference parameters or other internal variables.
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
@@ -705,7 +776,7 @@ The current port symbol (here, `I_stim`) is available as a variable and can be u
 Integrating spiking input
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spikes arriving at the input port of a neuron can be written as a spike train *s(t)*:
+Spikes arriving at the input port of a neuron can be written as a spike train :math:`s(t)`:
 
 .. math::
 
@@ -719,15 +790,63 @@ To model the effect that an arriving spike has on the state of the neuron, a con
 
 where :math:`w_i` is the weight of spike :math:`i`.
 
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Integration into the membrane potential ``V_m`` can be expressed using the ``convolve(f, g)`` function, which takes a kernel and input port as its arguments:
+For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
 
 .. code-block:: nestml
 
-   kernel G = exp(-t/tau_syn)
-   V_m' = -V_m/tau_m + convolve(G, spikes)
+   equations:
+     kernel G = exp(-t/tau_syn)
+     V_m' = -V_m/tau_m + convolve(G, spikes)
+   end
 
 The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
 
+
+(Re)setting synaptic integration state
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spikes``. During code generation, a new state variable called ``G__conv__spikes`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spikes_GABA``, then the resulting generated variable would be called ``G__conv__spikes_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
+
+The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
+
+For example, suppose we define:
+
+.. code-block:: nestml
+
+   inline g_dend pA = convolve(G, spikes)
+
+Then the name ``g_dend`` can be used as a target for assignment:
+
+.. code-block:: nestml
+
+   update:
+     g_dend = 42 pA
+   end
+
+This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
+
+.. code-block:: nestml
+
+   kernel H'' = (-2/tau_syn) * H' - 1/tau_syn**2) * H
+
+We can define an inline expression with the same port as before, ``spikes``:
+
+.. code-block:: nestml
+
+   inline h_dend pA = convolve(H, spikes)
+
+The name ``h_dend`` now acts as an alias for this particular convolution. We can now assign to the inline defined variable up to the order of the kernel:
+
+.. code-block:: nestml
+
+   update:
+     h_dend = 42 pA
+     h_dend' = 10 pA/ms
+   end
+
+For more information, see the :doc:`Active dendrite tutorial <tutorial/active_dendrite_tutorial>`
+
+   
 
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -830,7 +949,7 @@ in the ``equations`` block,
 
    V mV = 0 mV
 
-has to be stated in the ``initial_values`` block. Otherwise, an error message is generated.
+has to be defined in the ``state`` block. Otherwise, an error message is generated.
 
 The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
@@ -873,11 +992,11 @@ Equivalently, the same exponentially decaying kernel can be formulated as a diff
 
    kernel g' = -g / tau
 
-In this case, initial values have to be specified up to the order of the differential equation, e.g.:
+In this case, initial values have to be specified in the ``state`` block up to the order of the differential equation, e.g.:
 
 .. code-block:: nestml
 
-   initial_values:
+   state:
      g real = 1
    end
 
@@ -902,7 +1021,7 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
 
     .. code-block:: nestml
 
-       initial_values:
+       state:
          g real = 0
          g$ real = 1
        end
@@ -919,7 +1038,7 @@ An example second-order kernel is the dual exponential ("alpha") kernel, which c
 
     .. code-block:: nestml
 
-       initial_values:
+       state:
          g real = 0
          g' ms**-1 = e / tau
        end
@@ -978,7 +1097,7 @@ In order to model refractory and non-refractory states, two variables are necess
 Setting and retrieving model properties
 ---------------------------------------
 
--  All variables in the ``state``, ``parameters`` and ``initial_values`` blocks are added to the status dictionary of the neuron.
+-  All variables in the ``state`` and ``parameters`` blocks are added to the status dictionary of the neuron.
 -  Values can be set using ``nest.SetStatus(<gid>, <variable>, <value>)`` where ``<variable>`` is the name of the corresponding NESTML variable.
 -  Values can be read using ``nest.GetStatus(<gid>, <variable>)``. This call will return the value of the corresponding NESTML variable.
 
@@ -987,19 +1106,20 @@ Recording values with devices
 -----------------------------
 
 -  All values in the ``state`` block are recordable by a ``multimeter`` in NEST.
--  The ``recordable`` keyword can be used to also make variables in other blocks (``parameters, internals``) available to recording devices.
+-  The ``recordable`` keyword can be used to also make ``inline`` expressions in the ``equations`` block available to recording devices.
 
 .. code-block:: nestml
 
-   parameters:
-     recordable t_ref ms = 5 ms
+   equations:
+     ...
+     recordable inline V_m mV = V_abs + V_reset
    end
 
 
 Guards
 ------
 
-Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through  guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
+Variables which are defined in the ``state`` and ``parameters`` blocks can optionally be secured through guards. These guards are checked during the call to ``nest.SetStatus()`` in NEST.
 
 ::
 

@@ -66,7 +66,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 
 
-class ASTNestMLPrinter(object):
+class ASTNestMLPrinter:
     """
     This class can be used to print any ast node to a human readable and NestML conform syntax. The entry point is
     the print_node() operation.
@@ -250,8 +250,7 @@ class ASTNestMLPrinter(object):
         # ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
-    def print_block_with_variables(self, node):
-        # type: (ASTBlockWithVariables) -> str
+    def print_block_with_variables(self, node: ASTBlockWithVariables) -> str:
         temp_indent = self.indent
         self.inc_indent()
         ret = print_ml_comments(node.pre_comments, temp_indent, False)
@@ -260,10 +259,9 @@ class ASTNestMLPrinter(object):
             ret += 'state'
         elif node.is_parameters:
             ret += 'parameters'
-        elif node.is_internals:
-            ret += 'internals'
         else:
-            ret += 'initial_values'
+            assert node.is_internals
+            ret += 'internals'
         ret += ':' + print_sl_comment(node.in_comment) + '\n'
         if node.get_declarations() is not None:
             for decl in node.get_declarations():
@@ -343,8 +341,8 @@ class ASTNestMLPrinter(object):
         ret += print_n_spaces(self.indent)
         if node.is_recordable:
             ret += 'recordable '
-        if node.is_function:
-            ret += 'function '
+        if node.is_inline_expression:
+            ret += 'inline '
         for var in node.get_variables():
             ret += self.print_node(var)
             if node.get_variables().index(var) < len(node.get_variables()) - 1:
@@ -408,10 +406,11 @@ class ASTNestMLPrinter(object):
     def print_for_stmt(self, node):
         # type: (ASTForStmt) -> str
         ret = print_ml_comments(node.pre_comments, self.indent, False)
+        ret += print_n_spaces(self.indent)
         ret += ('for ' + node.get_variable() + ' in ' + self.print_node(node.get_start_from()) + '...'
                 + self.print_node(node.get_end_at()) + ' step '
                 + str(node.get_step()) + ':' + print_sl_comment(node.in_comment) + '\n')
-        ret += self.print_node(node.get_block()) + 'end\n'
+        ret += self.print_node(node.get_block()) + print_n_spaces(self.indent) + 'end\n'
         ret += print_ml_comments(node.post_comments, self.indent, True)
         return ret
 
@@ -708,26 +707,24 @@ def print_ml_comments(comments, indent=0, is_post=False):
     if comments is None or len(list(comments)) == 0:
         return ''
     ret = ''
-    if len(comments) > 0 and not is_post:
-        ret += '\n'
     for comment in comments:
-        ret += print_n_spaces(indent) + '/*'
+        if "\"\"\"" in comment:
+            return comment + '\n'
         for c_line in comment.splitlines(True):
             if c_line == '\n':
-                ret += print_n_spaces(indent) + '*' + '\n'
+                ret += print_n_spaces(indent) + '#' + '\n'
                 continue
             elif c_line.lstrip() == '':
                 continue
-            if comment.splitlines(True).index(c_line) != 0:
-                ret += print_n_spaces(indent)
-                ret += ('*  ' if c_line[len(c_line) - len(c_line.lstrip())] != '*' and len(
-                    comment.splitlines(True)) > 1 else '')
-            ret += c_line
+            ret += print_n_spaces(indent)
+            if c_line[len(c_line) - len(c_line.lstrip())] != '#':
+                ret += '#'
+            ret += c_line + '\n'
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
-        ret += '*/\n'
     if len(comments) > 0 and is_post:
         ret += '\n'
+
     return ret
 
 

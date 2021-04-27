@@ -18,10 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Mapping
+
 from pynestml.symbol_table.scope import Scope, ScopeType
 
 
-class SymbolTable(object):
+class SymbolTable:
     """
     This class is used to store a single symbol table, consisting of scope and symbols.
 
@@ -29,7 +32,7 @@ class SymbolTable(object):
         name2neuron_scope A dict from the name of a neuron to the corresponding scope. Type str->Scope
         source_position The source position of the overall compilation unit. Type ASTSourceLocation
     """
-    name2neuron_scope = {}
+    name2neuron_scope = {}   # type: Mapping[str, Scope]
     name2synapse_scope = {}
     source_location = None
 

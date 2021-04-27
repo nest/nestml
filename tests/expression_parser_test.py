@@ -52,21 +52,26 @@ class ExpressionParsingTest(unittest.TestCase):
     """
 
     def test(self):
-        # print('Start Expression Parser Test...'),
         input_file = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'ExpressionCollection.nestml'))
         lexer = PyNestMLLexer(input_file)
+        lexer._errHandler = BailErrorStrategy()
+        lexer._errHandler.reset(lexer)
+
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
+
         # parse the file
         parser = PyNestMLParser(stream)
+        parser._errHandler = BailErrorStrategy()
+        parser._errHandler.reset(parser)
         compilation_unit = parser.nestMLCompilationUnit()
-        # print('done')
+        assert compilation_unit is not None
+
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
-        # print('done')
         self.assertTrue(isinstance(ast, ASTNestMLCompilationUnit))
 
 

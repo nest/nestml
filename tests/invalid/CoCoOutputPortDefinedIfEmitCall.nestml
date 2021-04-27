@@ -1,35 +1,40 @@
-/**
- * 
- *  CoCoOutputPortDefinedIfEmitCall.nestml
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * This model is used to test if broken CoCos are identified correctly. Here, if the output port is not defined. Based on the ``iaf_psc_exp`` model at Sep 2020.
- * Negative case.
-*/
+"""
+CoCoOutputPortDefinedIfEmitCall.nestml
+######################################
+
+
+Description
++++++++++++
+
+This model is used to test if broken CoCos are identified correctly. Here, if the output port is not defined. Based on the ``iaf_psc_exp`` model at Sep 2020.
+
+Negative case.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
 neuron iaf_psc_exp:
 
   state:
-    r integer                               # counts number of tick during the refractory period
-  end
-
-  initial_values:
+    r integer = 0                              # counts number of tick during the refractory period
     V_abs mV = 0 mV
   end
 

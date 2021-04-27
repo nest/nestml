@@ -73,7 +73,7 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.port_signal_type import PortSignalType
 
 
-class ASTNodeFactory():
+class ASTNodeFactory:
     """
     An implementation of the factory pattern for an easier initialization of new AST nodes.
     """
@@ -111,9 +111,9 @@ class ASTNodeFactory():
 
     @classmethod
     def create_ast_block_with_variables(cls, is_state=False, is_parameters=False, is_internals=False,
-                                        is_initial_values=False, declarations=None, source_position=None):
+                                        declarations=None, source_position=None):
         # type: (bool,bool,bool,bool,list(ASTDeclaration),ASTSourceLocation) -> ASTBlockWithVariables
-        return ASTBlockWithVariables(is_state, is_parameters, is_internals, is_initial_values, declarations,
+        return ASTBlockWithVariables(is_state, is_parameters, is_internals, declarations,
                                      source_position=source_position)
 
     @classmethod
@@ -157,8 +157,8 @@ class ASTNodeFactory():
 
     @classmethod
     def create_ast_declaration(cls,
-                               is_recordable=False,  # type: bool
-                               is_function=False,  # type: bool
+                               is_recordable: bool=False,
+                               is_inline_expression: bool=False,
                                variables=None,  # type: list
                                data_type=None,  # type: ASTDataType
                                size_parameter=None,  # type: str
@@ -166,8 +166,8 @@ class ASTNodeFactory():
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                source_position=None,  # type: ASTSourceLocation
                                decorators=None,  # type: list
-                               ):  # type: (...) -> ASTDeclaration
-        return ASTDeclaration(is_recordable, is_function, variables, data_type, size_parameter, expression, invariant, decorators,
+                               ) -> ASTDeclaration:
+        return ASTDeclaration(is_recordable, is_inline_expression, variables, data_type, size_parameter, expression, invariant, decorators,
                               source_position=source_position)
 
     @classmethod

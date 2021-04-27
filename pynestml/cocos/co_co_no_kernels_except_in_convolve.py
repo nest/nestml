@@ -78,7 +78,6 @@ class KernelUsageVisitor(ASTVisitor):
         """
         Visits each kernel and checks if it is used correctly.
         :param node: a single node.
-        :type node: ASTNode
         """
         for kernelName in self.__kernels:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
