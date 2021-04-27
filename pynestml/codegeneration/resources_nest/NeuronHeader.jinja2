@@ -216,14 +216,14 @@ private:
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
-{% if (has_vectors) -%}
+{%- if (has_vectors) %}
   friend class nest::DynamicRecordablesMap< {{neuronName}} >;
   friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
   friend class nest::DataAccessFunctor< {{neuronName}} >;
-{% else -%}
+{%- else %}
   friend class nest::RecordablesMap<{{neuronName}}>;
   friend class nest::UniversalDataLogger<{{neuronName}}>;
-{% endif -%}
+{%- endif %}
 
   /**
    * Free parameters of the neuron.
@@ -287,7 +287,7 @@ private:
   {
 {%- if not useGSL %}
 {%- if has_vectors %}
-    {% include "directives/StateVariablesEnum.jinja2" %}
+{%  include "directives/StateVariablesEnum.jinja2" %}
 {%- endif %}
 {%-   filter indent(4,True) %}
 {%-   for variable in neuron.get_state_symbols() %}
@@ -296,7 +296,7 @@ private:
 {%-   endfilter %}
 {%- else %}
 {%- if has_vectors %}
-    {%- include "directives/VectorVariablesEnum.jinja2" %}
+{%- include "directives/VectorVariablesEnum.jinja2" %}
 {%- endif %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
@@ -343,7 +343,7 @@ private:
   {
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   filter indent(4) %}
-{%-     include "directives/MemberDeclaration.jinja2" -%}
+{%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfilter %}
 {%- endfor %}
   };
@@ -511,7 +511,7 @@ private:
 
 {%- include "directives/DynamicStateElement.jinja2" %}
 
-{%- else -%}
+{%- else %}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
 {%- endif %}
 

@@ -81,7 +81,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endif %}
   {
 
-{%-   if recordable_state_variables|length > 0 %}
+{%- if recordable_state_variables|length > 0 %}
 {%- if has_vectors %}
 {%-   for sym in recordable_state_variables %}
 {%-     if not sym.has_vector_parameter() %}
@@ -125,7 +125,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- for variable in neuron.get_vector_state_symbols() %}
 {%- set size = variable.get_vector_parameter() %}
 {%-   if size|int == 0 -%}
-{%-   set size = utils.get_numeric_vector_size(variable) -%}
+{%-   set size = utils.get_numeric_vector_size(variable) %}
 {%-   endif %}
       for (size_t i = 0; i < {{size}}; i++)
       {
