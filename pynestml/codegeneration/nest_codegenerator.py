@@ -556,8 +556,12 @@ class NESTCodeGenerator(CodeGenerator):
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
-            solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True,
-                                     disable_analytic_solver=True, log_level=FrontendConfiguration.logging_level)
+            solver_result = analysis(odetoolbox_indict,
+                                     disable_stiffness_check=True,
+                                     disable_analytic_solver=True,
+                                     preserve_expressions=self.get_option('preserve_expressions'),
+                                     simplify_expression=self.get_option('simplify_expression'),
+                                     log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:
