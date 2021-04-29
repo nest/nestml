@@ -4,7 +4,7 @@
 -#}
 
 inline double get_state_element(size_t elem)
-{
+  {
 {%- set len = recordable_state_variables | length %}
 {%- for variable in recordable_state_variables %}
 {%-  if loop.index == 1 %}
@@ -21,15 +21,15 @@ inline double get_state_element(size_t elem)
 {%-     if size|int == 0 %}
 {%-     set size = printer.print_vector_size_parameter(variable) %}
 {%-     endif -%}
-      (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
-      {
-        return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
-      }
+    (elem >= State_::{{names.name(variable).upper()}} && elem < State_::{{names.name(variable).upper()}} + {{size}})
+    {
+      return S_.{{names.name(variable)}}[ elem - State_::{{names.name(variable).upper()}}];
+    }
 {%-   else %}
-      (elem == State_::{{names.name(variable).upper()}})
-      {
-        return S_.{{names.name(variable)}};
-      }
+    (elem == State_::{{names.name(variable).upper()}})
+    {
+      return S_.{{names.name(variable)}};
+    }
 {%-   endif %}
 {%- else %}
 {%-   if variable.has_vector_parameter() %}
@@ -43,4 +43,4 @@ inline double get_state_element(size_t elem)
 {%-   endif %}
 {%- endif %}
 {%- endfor %}
-}
+  }

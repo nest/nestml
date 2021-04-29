@@ -509,7 +509,7 @@ private:
   std::string get_var_name(size_t elem, std::string var_name);
   void insert_recordables(size_t first=0);
 
-{%- include "directives/DynamicStateElement.jinja2" %}
+{% include "directives/DynamicStateElement.jinja2" %}
 
 {%- else %}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
