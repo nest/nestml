@@ -23,9 +23,6 @@ neuron cm_model:
   state:
     v_comp real
     
-  end
-
-  initial_values:
     m_Na real = 0.0
     h_Na real = 0.0
     
@@ -34,9 +31,12 @@ neuron cm_model:
     # some Einsteinium for testing purposes ;D
     q_Es real = 0.0
     
-    
   end
-    
+  
+  initial_values:
+  
+  end
+
     #sodium
     function m_inf_Na(v_comp real) real:
         return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
@@ -77,28 +77,28 @@ neuron cm_model:
     
     # extract channel type Na
     # and expect
-    #      initial value of gbar_Na = 0.0
-    #      initial value of e_Na = 50.0
+    #      state variable gbar_Na = 0.0
+    #      state variable of e_Na = 50.0
     
     # extract variables m and h
     # for variable m expect:
-    #      initial value of m_Na_
+    #      state variable of m_Na_
     #      function m_inf_Na(v_comp real) real
     #      function tau_m_Na(v_comp real) real
     # for variable h expect:
-    #      initial value of h_Na_
+    #      state variable of h_Na_
     #      function h_inf_Na(v_comp real) real
     #      function tau_h_Na(v_comp real) real
     
     inline cm_p_open_K real = n_K**1
     # extract channel type K
     # and expect
-    #      initial value of gbar_K = 0.0
-    #      initial value of e_K = 50.0
+    #      state variable of gbar_K = 0.0
+    #      state variable of e_K = 50.0
     
     # extract variable n
     # for variable n expect:
-    #      initial value of n_Na
+    #      state variable of n_Na
     #      function n_inf_Na(v_comp real) real
     #      function tau_n_Na(v_comp real) real
     
@@ -143,9 +143,6 @@ neuron cm_modelx:
   state:
     v_comp real
     
-  end
-
-  initial_values:
     m_Na real = 0.0
     h_Na real = 0.0
     
@@ -153,6 +150,10 @@ neuron cm_modelx:
     
     q_Es real = 0.0
     
+  end
+  
+  initial_values:
+  
   end
     
     #sodium

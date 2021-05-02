@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_cm_functions_and_initial_values_defined.py
+# co_co_compartmental_model.py
 #
 # This file is part of NEST.
 #
@@ -71,13 +71,13 @@ class CoCoCompartmentalModel(CoCo):
             return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
         end
         
-    Moreover it checks if all expected initial values are defined,
+    Moreover it checks if all expected sates are defined,
     that variables are properly named,
     that no variable repeats inside the key inline expression that triggers cm mechanism
     Example:
         inline cm_p_open_Na real = m_Na_**3 * h_Na_**1
         
-        #causes the requirement for following entries in the initial values block
+        #causes the requirement for following entries in the state block
         
         gbar_Na
         e_Na
@@ -570,17 +570,17 @@ class CoCoCompartmentalModel(CoCo):
         cm_info = cls.checkAndFindFunctions(neuron, cm_info)
         cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
         
-        # now check for existence of expected_initial_variables 
+        # now check for existence of expected state variables 
         # and add their ASTVariable objects to cm_info
-        initial_values_missing_visitor = InitialValueMissingVisitor(cm_info)
-        neuron.accept(initial_values_missing_visitor)
+        missing_states_visitor = StateMissingVisitor(cm_info)
+        neuron.accept(missing_states_visitor)
         
-        cls.neuron_to_cm_info[neuron.name] = initial_values_missing_visitor.cm_info
+        cls.neuron_to_cm_info[neuron.name] = missing_states_visitor.cm_info
 
 """
-    Finds the actual ASTVariables in initial values
+    Finds the actual ASTVariables in state block
     For each expected variable extract their right hand side expression
-    which contains the desired initial value the variable should be set to
+    which contains the desired state value 
     
     
     cm_info input
@@ -652,7 +652,7 @@ class CoCoCompartmentalModel(CoCo):
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "initial_value_variable": ASTVariable,
+                    "state_variable": ASTVariable,
                     "is_valid": True,
                     "expected_functions":
                     {
@@ -678,7 +678,7 @@ class CoCoCompartmentalModel(CoCo):
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "initial_value_variable": ASTVariable,
+                    "state_variable": ASTVariable,
                     "is_valid": True,
                     "expected_functions":
                     {
@@ -706,13 +706,13 @@ class CoCoCompartmentalModel(CoCo):
     }
         
 """
-class InitialValueMissingVisitor(ASTVisitor):
+class StateMissingVisitor(ASTVisitor):
 
     def __init__(self, cm_info):
-        super(InitialValueMissingVisitor, self).__init__()
+        super(StateMissingVisitor, self).__init__()
         self.cm_info = cm_info
         
-        # store ASTElement that causes the expecation of existence of an initial value
+        # store ASTElement that causes the expecation of existence of state value
         # needed to generate sufficiently informative error message
         self.expected_to_object = defaultdict() 
         
@@ -731,7 +731,7 @@ class InitialValueMissingVisitor(ASTVisitor):
         
         self.not_yet_found_variables = set(self.values_expected_from_channel).union(self.values_expected_from_variables)
         
-        self.inside_initial_values_block = False
+        self.inside_state_block = False
         self.inside_parameter_block = False
         self.inside_declaration = False
         self.current_block_with_variables = None
@@ -746,10 +746,10 @@ class InitialValueMissingVisitor(ASTVisitor):
         self.current_declaration = None
         
     def visit_variable(self, node):
-        if self.inside_initial_values_block and self.inside_declaration:
+        if self.inside_state_block and self.inside_declaration:
             varname = node.name
             if varname in self.not_yet_found_variables:
-                Logger.log_message(message="Expected initial variable '"+varname+"' found inside initial values block" ,
+                Logger.log_message(message="Expected state variable '"+varname+"' found inside state block" ,
                                log_level=LoggingLevel.INFO)
                 self.not_yet_found_variables.difference_update({varname})
                 
@@ -757,17 +757,14 @@ class InitialValueMissingVisitor(ASTVisitor):
                 # while iterating over it
                 cm_info_updated = copy.copy(self.cm_info)
                 
-                # thought: in my opinion initial values for state variables (m,n,h...)
-                # should be in the state block
-                
-                # now that we found the initial value defintion, extract information into cm_info
+                # now that we found the satate defintion, extract information into cm_info
                 
                 # state variables
                 if varname in self.values_expected_from_variables:
                     for ion_channel_name, channel_info in self.cm_info.items():
                         for pure_variable_name, variable_info in channel_info["inner_variables"].items():
                             if variable_info["ASTVariable"].name == varname:
-                                cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["initial_value_variable"] = node
+                                cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["state_variable"] = node
                                 rhs_expression = self.current_declaration.get_expression()
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(varname)
@@ -808,7 +805,7 @@ class InitialValueMissingVisitor(ASTVisitor):
             if variable in self.values_expected_from_channel:
                 missing_variable_to_proper_block[variable] = "parameters block"
             elif variable in self.values_expected_from_variables:
-                missing_variable_to_proper_block[variable] = "initial block"
+                missing_variable_to_proper_block[variable] = "state block"
         
         if self.not_yet_found_variables:
             code, message = Messages.get_expected_cm_variables_missing_in_blocks(missing_variable_to_proper_block, self.expected_to_object)
@@ -816,15 +813,15 @@ class InitialValueMissingVisitor(ASTVisitor):
 
         
     def visit_block_with_variables(self, node):
-        if node.is_initial_values:
-            self.inside_initial_values_block = True
+        if node.is_state:
+            self.inside_state_block = True
         if node.is_parameters: 
             self.inside_parameter_block = True
         self.current_block_with_variables = node
     
     def endvisit_block_with_variables(self, node):
-        if node.is_initial_values:
-            self.inside_initial_values_block = False
+        if node.is_state:
+            self.inside_state_block = False
         if node.is_parameters: 
             self.inside_parameter_block = False
         self.current_block_with_variables = None

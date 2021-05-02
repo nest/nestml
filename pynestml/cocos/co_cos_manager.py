@@ -120,8 +120,8 @@ class CoCosManager:
         -makes sure that all such functions have exactly one argument and that
         they return real
         
-        -makes sure that all Variables x are defined in initial values block
-        -makes sure that initial block contains
+        -makes sure that all Variables x are defined in state block
+        -makes sure that state block contains
         
         gbar_{channelType}
         e_{channelType}

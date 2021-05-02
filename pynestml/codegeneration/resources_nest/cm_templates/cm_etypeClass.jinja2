@@ -56,7 +56,7 @@ nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}()
     // {{ion_channel_name}} channel
     {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
     // state variable {{pure_variable_name -}}
-    {%- set variable = variable_info["initial_value_variable"] %}
+    {%- set variable = variable_info["state_variable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     {% if loop.first and outer_loop_first %}: {% else %}, {% endif %}
     {{- variable.name}}({{ printer.print_expression(rhs_expression) -}}) 
@@ -79,7 +79,7 @@ nest::{{etypeClassName~cm_unique_suffix}}::{{etypeClassName~cm_unique_suffix}}(c
     // {{ion_channel_name}} channel
     {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
     // state variable {{pure_variable_name -}}
-    {%- set variable = variable_info["initial_value_variable"] %}
+    {%- set variable = variable_info["state_variable"] %}
     {%- set rhs_expression = variable_info["rhs_expression"] %}
     {% if loop.first and outer_loop_first %}: {% else %}, {% endif %}
     {{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 

@@ -48,7 +48,7 @@ private:
     // {{ion_channel_name}} channel state variables
     {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
         // state variable {{pure_variable_name -}}
-        {%- set variable = variable_info["initial_value_variable"] %}
+        {%- set variable = variable_info["state_variable"] %}
     {{render_variable_type(variable)}} {{ variable.name}};
     {%- endfor -%}
     {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
