@@ -1,0 +1,69 @@
+"""
+RecordableVariables.nestml
+##########################
+
+Description
++++++++++++
+
+This model is used to test recording of variables and inline expressions.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron recordable_variables:
+    state:
+      V_ex mV = -5 mV
+      V_abs mV = 0 mV  # membrane potential
+    end
+
+    equations:
+        kernel I_kernel = exp(-1/tau_syn*t)
+        inline I_syn pA = convolve(I_kernel, spikes)
+        recordable inline V_m mV = V_abs + V_reset
+        V_abs' = -V_abs / tau_m + (I_syn + I_e + I_stim) / C_m
+    end
+
+    parameters:
+        tau_m ms = 10 ms
+        tau_syn ms = 2 ms
+        I_e pA = 0 pA
+        C_m pF = 250pF
+        V_reset mV = -70 mV
+        V_thr mV = -55 mV
+    end
+
+    input:
+        spikes pA <- spike
+        I_stim pA <- current
+    end
+
+    update:
+      integrate_odes()
+      V_ex = -10 mV
+
+      if V_abs >= V_thr:
+          V_abs = V_reset
+          emit_spike()
+      end
+    end
+
+    output: spike
+end

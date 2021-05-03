@@ -52,13 +52,21 @@ class ASTCloneTest(unittest.TestCase):
         print('Start creating AST for ' + input_path + ' ...'),
         input_file = FileStream(input_path)
         lexer = PyNestMLLexer(input_file)
+        lexer._errHandler = BailErrorStrategy()
+        lexer._errHandler.reset(lexer)
+
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
+
         # parse the file
         parser = PyNestMLParser(stream)
+        parser._errHandler = BailErrorStrategy()
+        parser._errHandler.reset(parser)
+
         # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
+
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)

@@ -80,16 +80,16 @@ class KernelTypeVisitor(ASTVisitor):
                 Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
                                    code=code, message=message)
 
-            # check types of the initial values
+            # check types of the state variables
             for order in range(var.get_differential_order()):
                 iv_name = var.get_name() + order * "'"
-                decl = ASTUtils.get_declaration_by_name(self._neuron.get_initial_blocks(), iv_name)
+                decl = ASTUtils.get_declaration_by_name(self._neuron.get_state_blocks(), iv_name)
                 if decl is None:
                     code, message = Messages.get_variable_not_defined(iv_name)
                     Logger.log_message(node=self._neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
                                        error_position=node.get_source_position())
                     continue
-                assert len(self._neuron.get_initial_blocks().get_declarations()[0].get_variables(
+                assert len(self._neuron.get_state_blocks().get_declarations()[0].get_variables(
                 )) == 1, "Only single variables are supported as targets of an assignment."
                 iv = decl.get_variables()[0]
                 if not iv.get_type_symbol().get_value().is_castable_to(PredefinedTypes.get_type("ms")**-order):

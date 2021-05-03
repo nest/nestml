@@ -21,7 +21,6 @@ pythonjam
 neuron cm_model:
 
   state:
-    v_comp real
     
     m_Na real = 0.0
     h_Na real = 0.0
@@ -31,10 +30,6 @@ neuron cm_model:
     # some Einsteinium for testing purposes ;D
     q_Es real = 0.0
     
-  end
-  
-  initial_values:
-  
   end
 
     #sodium
@@ -141,7 +136,6 @@ end
 neuron cm_modelx:
 
   state:
-    v_comp real
     
     m_Na real = 0.0
     h_Na real = 0.0
@@ -152,10 +146,6 @@ neuron cm_modelx:
     
   end
   
-  initial_values:
-  
-  end
-    
     #sodium
     function m_inf_Na(v_comp real) real:
         return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))

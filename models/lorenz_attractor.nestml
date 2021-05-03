@@ -1,6 +1,6 @@
 neuron lorenz_attractor:
 
-initial_values:
+state:
   x real = 1
   y real = 1
   z real = 1

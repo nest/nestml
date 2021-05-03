@@ -1,9 +1,10 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.9
+# Generated from PyNestMLParser.g4 by ANTLR 4.9.1
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
 import sys
+
 
 def serializedATN():
     with StringIO() as buf:
@@ -61,30 +62,30 @@ def serializedATN():
         buf.write(u"\'\u0200\13\'\5\'\u0202\n\'\3\'\3\'\5\'\u0206\n\'\3\'")
         buf.write(u"\3\'\3\'\3\'\3(\3(\3(\3(\2\4\4\b)\2\4\6\b\n\f\16\20\22")
         buf.write(u"\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLN\2")
-        buf.write(u"\5\4\2..FF\3\2ST\3\2\37\"\2\u024f\2V\3\2\2\2\4a\3\2\2")
-        buf.write(u"\2\6r\3\2\2\2\b\u0081\3\2\2\2\n\u00cb\3\2\2\2\f\u00d0")
-        buf.write(u"\3\2\2\2\16\u00d7\3\2\2\2\20\u00e0\3\2\2\2\22\u00e4\3")
-        buf.write(u"\2\2\2\24\u00e6\3\2\2\2\26\u00ed\3\2\2\2\30\u00fc\3\2")
-        buf.write(u"\2\2\32\u0106\3\2\2\2\34\u010c\3\2\2\2\36\u0127\3\2\2")
-        buf.write(u"\2 \u012c\3\2\2\2\"\u0131\3\2\2\2$\u0137\3\2\2\2&\u0139")
+        buf.write(u"\5\4\2..FF\3\2ST\3\2 \"\2\u024f\2V\3\2\2\2\4a\3\2\2\2")
+        buf.write(u"\6r\3\2\2\2\b\u0081\3\2\2\2\n\u00cb\3\2\2\2\f\u00d0\3")
+        buf.write(u"\2\2\2\16\u00d7\3\2\2\2\20\u00e0\3\2\2\2\22\u00e4\3\2")
+        buf.write(u"\2\2\24\u00e6\3\2\2\2\26\u00ed\3\2\2\2\30\u00fc\3\2\2")
+        buf.write(u"\2\32\u0106\3\2\2\2\34\u010c\3\2\2\2\36\u0127\3\2\2\2")
+        buf.write(u" \u012c\3\2\2\2\"\u0131\3\2\2\2$\u0137\3\2\2\2&\u0139")
         buf.write(u"\3\2\2\2(\u0144\3\2\2\2*\u0161\3\2\2\2,\u0165\3\2\2\2")
         buf.write(u".\u0171\3\2\2\2\60\u0176\3\2\2\2\62\u017b\3\2\2\2\64")
         buf.write(u"\u017f\3\2\2\2\66\u018e\3\2\2\28\u0198\3\2\2\2:\u019d")
         buf.write(u"\3\2\2\2<\u01a1\3\2\2\2>\u01b0\3\2\2\2@\u01bb\3\2\2\2")
         buf.write(u"B\u01c0\3\2\2\2D\u01cd\3\2\2\2F\u01d8\3\2\2\2H\u01ee")
         buf.write(u"\3\2\2\2J\u01f0\3\2\2\2L\u01f6\3\2\2\2N\u020b\3\2\2\2")
-        buf.write(u"PW\7\t\2\2QW\7\n\2\2RW\7\13\2\2SW\7\f\2\2TW\7\r\2\2U")
-        buf.write(u"W\5\4\3\2VP\3\2\2\2VQ\3\2\2\2VR\3\2\2\2VS\3\2\2\2VT\3")
-        buf.write(u"\2\2\2VU\3\2\2\2W\3\3\2\2\2XY\b\3\1\2YZ\7,\2\2Z[\5\4")
-        buf.write(u"\3\2[\\\7-\2\2\\b\3\2\2\2]^\7S\2\2^_\7J\2\2_b\5\4\3\4")
-        buf.write(u"`b\7R\2\2aX\3\2\2\2a]\3\2\2\2a`\3\2\2\2bn\3\2\2\2cf\f")
-        buf.write(u"\5\2\2dg\7H\2\2eg\7J\2\2fd\3\2\2\2fe\3\2\2\2gh\3\2\2")
-        buf.write(u"\2hm\5\4\3\6ij\f\6\2\2jk\7I\2\2km\5\6\4\2lc\3\2\2\2l")
-        buf.write(u"i\3\2\2\2mp\3\2\2\2nl\3\2\2\2no\3\2\2\2o\5\3\2\2\2pn")
-        buf.write(u"\3\2\2\2qs\t\2\2\2rq\3\2\2\2rs\3\2\2\2st\3\2\2\2tu\7")
+        buf.write(u"PW\7\n\2\2QW\7\13\2\2RW\7\f\2\2SW\7\r\2\2TW\7\16\2\2")
+        buf.write(u"UW\5\4\3\2VP\3\2\2\2VQ\3\2\2\2VR\3\2\2\2VS\3\2\2\2VT")
+        buf.write(u"\3\2\2\2VU\3\2\2\2W\3\3\2\2\2XY\b\3\1\2YZ\7,\2\2Z[\5")
+        buf.write(u"\4\3\2[\\\7-\2\2\\b\3\2\2\2]^\7S\2\2^_\7J\2\2_b\5\4\3")
+        buf.write(u"\4`b\7R\2\2aX\3\2\2\2a]\3\2\2\2a`\3\2\2\2bn\3\2\2\2c")
+        buf.write(u"f\f\5\2\2dg\7H\2\2eg\7J\2\2fd\3\2\2\2fe\3\2\2\2gh\3\2")
+        buf.write(u"\2\2hm\5\4\3\6ij\f\6\2\2jk\7I\2\2km\5\6\4\2lc\3\2\2\2")
+        buf.write(u"li\3\2\2\2mp\3\2\2\2nl\3\2\2\2no\3\2\2\2o\5\3\2\2\2p")
+        buf.write(u"n\3\2\2\2qs\t\2\2\2rq\3\2\2\2rs\3\2\2\2st\3\2\2\2tu\7")
         buf.write(u"S\2\2u\7\3\2\2\2vw\b\5\1\2wx\7,\2\2xy\5\b\5\2yz\7-\2")
         buf.write(u"\2z\u0082\3\2\2\2{|\5\f\7\2|}\5\b\5\13}\u0082\3\2\2\2")
-        buf.write(u"~\177\7\33\2\2\177\u0082\5\b\5\6\u0080\u0082\5\n\6\2")
+        buf.write(u"~\177\7\34\2\2\177\u0082\5\b\5\6\u0080\u0082\5\n\6\2")
         buf.write(u"\u0081v\3\2\2\2\u0081{\3\2\2\2\u0081~\3\2\2\2\u0081\u0080")
         buf.write(u"\3\2\2\2\u0082\u00bf\3\2\2\2\u0083\u0084\f\f\2\2\u0084")
         buf.write(u"\u0085\7I\2\2\u0085\u00be\5\b\5\f\u0086\u008a\f\n\2\2")
@@ -98,16 +99,16 @@ def serializedATN():
         buf.write(u"\2\u0097\u0098\f\7\2\2\u0098\u0099\5\20\t\2\u0099\u009a")
         buf.write(u"\5\b\5\b\u009a\u00be\3\2\2\2\u009b\u009c\f\5\2\2\u009c")
         buf.write(u"\u009d\5\22\n\2\u009d\u009e\5\b\5\6\u009e\u00be\3\2\2")
-        buf.write(u"\2\u009f\u00a3\f\4\2\2\u00a0\u00a2\7\5\2\2\u00a1\u00a0")
+        buf.write(u"\2\u009f\u00a3\f\4\2\2\u00a0\u00a2\7\b\2\2\u00a1\u00a0")
         buf.write(u"\3\2\2\2\u00a2\u00a5\3\2\2\2\u00a3\u00a1\3\2\2\2\u00a3")
         buf.write(u"\u00a4\3\2\2\2\u00a4\u00a6\3\2\2\2\u00a5\u00a3\3\2\2")
-        buf.write(u"\2\u00a6\u00aa\7L\2\2\u00a7\u00a9\7\5\2\2\u00a8\u00a7")
+        buf.write(u"\2\u00a6\u00aa\7L\2\2\u00a7\u00a9\7\b\2\2\u00a8\u00a7")
         buf.write(u"\3\2\2\2\u00a9\u00ac\3\2\2\2\u00aa\u00a8\3\2\2\2\u00aa")
         buf.write(u"\u00ab\3\2\2\2\u00ab\u00ad\3\2\2\2\u00ac\u00aa\3\2\2")
-        buf.write(u"\2\u00ad\u00b1\5\b\5\2\u00ae\u00b0\7\5\2\2\u00af\u00ae")
+        buf.write(u"\2\u00ad\u00b1\5\b\5\2\u00ae\u00b0\7\b\2\2\u00af\u00ae")
         buf.write(u"\3\2\2\2\u00b0\u00b3\3\2\2\2\u00b1\u00af\3\2\2\2\u00b1")
         buf.write(u"\u00b2\3\2\2\2\u00b2\u00b4\3\2\2\2\u00b3\u00b1\3\2\2")
-        buf.write(u"\2\u00b4\u00b8\7M\2\2\u00b5\u00b7\7\5\2\2\u00b6\u00b5")
+        buf.write(u"\2\u00b4\u00b8\7M\2\2\u00b5\u00b7\7\b\2\2\u00b6\u00b5")
         buf.write(u"\3\2\2\2\u00b7\u00ba\3\2\2\2\u00b8\u00b6\3\2\2\2\u00b8")
         buf.write(u"\u00b9\3\2\2\2\u00b9\u00bb\3\2\2\2\u00ba\u00b8\3\2\2")
         buf.write(u"\2\u00bb\u00bc\5\b\5\5\u00bc\u00be\3\2\2\2\u00bd\u0083")
@@ -118,7 +119,7 @@ def serializedATN():
         buf.write(u"\3\2\2\2\u00c2\u00cc\5\26\f\2\u00c3\u00cc\7P\2\2\u00c4")
         buf.write(u"\u00c6\t\3\2\2\u00c5\u00c7\5\24\13\2\u00c6\u00c5\3\2")
         buf.write(u"\2\2\u00c6\u00c7\3\2\2\2\u00c7\u00cc\3\2\2\2\u00c8\u00cc")
-        buf.write(u"\7Q\2\2\u00c9\u00cc\7\30\2\2\u00ca\u00cc\5\24\13\2\u00cb")
+        buf.write(u"\7Q\2\2\u00c9\u00cc\7\31\2\2\u00ca\u00cc\5\24\13\2\u00cb")
         buf.write(u"\u00c2\3\2\2\2\u00cb\u00c3\3\2\2\2\u00cb\u00c4\3\2\2")
         buf.write(u"\2\u00cb\u00c8\3\2\2\2\u00cb\u00c9\3\2\2\2\u00cb\u00ca")
         buf.write(u"\3\2\2\2\u00cc\13\3\2\2\2\u00cd\u00d1\7.\2\2\u00ce\u00d1")
@@ -133,7 +134,7 @@ def serializedATN():
         buf.write(u"\u00e1\7;\2\2\u00e0\u00d9\3\2\2\2\u00e0\u00da\3\2\2\2")
         buf.write(u"\u00e0\u00db\3\2\2\2\u00e0\u00dc\3\2\2\2\u00e0\u00dd")
         buf.write(u"\3\2\2\2\u00e0\u00de\3\2\2\2\u00e0\u00df\3\2\2\2\u00e1")
-        buf.write(u"\21\3\2\2\2\u00e2\u00e5\7\31\2\2\u00e3\u00e5\7\32\2\2")
+        buf.write(u"\21\3\2\2\2\u00e2\u00e5\7\32\2\2\u00e3\u00e5\7\33\2\2")
         buf.write(u"\u00e4\u00e2\3\2\2\2\u00e4\u00e3\3\2\2\2\u00e5\23\3\2")
         buf.write(u"\2\2\u00e6\u00ea\7R\2\2\u00e7\u00e9\7O\2\2\u00e8\u00e7")
         buf.write(u"\3\2\2\2\u00e9\u00ec\3\2\2\2\u00ea\u00e8\3\2\2\2\u00ea")
@@ -144,16 +145,16 @@ def serializedATN():
         buf.write(u"\u00f5\3\2\2\2\u00f5\u00f8\3\2\2\2\u00f6\u00f4\3\2\2")
         buf.write(u"\2\u00f7\u00ef\3\2\2\2\u00f7\u00f8\3\2\2\2\u00f8\u00f9")
         buf.write(u"\3\2\2\2\u00f9\u00fa\7-\2\2\u00fa\27\3\2\2\2\u00fb\u00fd")
-        buf.write(u"\7\34\2\2\u00fc\u00fb\3\2\2\2\u00fc\u00fd\3\2\2\2\u00fd")
-        buf.write(u"\u00fe\3\2\2\2\u00fe\u00ff\7\17\2\2\u00ff\u0100\7R\2")
+        buf.write(u"\7\35\2\2\u00fc\u00fb\3\2\2\2\u00fc\u00fd\3\2\2\2\u00fd")
+        buf.write(u"\u00fe\3\2\2\2\u00fe\u00ff\7\20\2\2\u00ff\u0100\7R\2")
         buf.write(u"\2\u0100\u0101\5\2\2\2\u0101\u0102\7G\2\2\u0102\u0104")
         buf.write(u"\5\b\5\2\u0103\u0105\7N\2\2\u0104\u0103\3\2\2\2\u0104")
         buf.write(u"\u0105\3\2\2\2\u0105\31\3\2\2\2\u0106\u0107\5\24\13\2")
         buf.write(u"\u0107\u0108\7G\2\2\u0108\u010a\5\b\5\2\u0109\u010b\7")
         buf.write(u"N\2\2\u010a\u0109\3\2\2\2\u010a\u010b\3\2\2\2\u010b\33")
-        buf.write(u"\3\2\2\2\u010c\u010d\7\35\2\2\u010d\u010e\5\24\13\2\u010e")
+        buf.write(u"\3\2\2\2\u010c\u010d\7\36\2\2\u010d\u010e\5\24\13\2\u010e")
         buf.write(u"\u010f\7G\2\2\u010f\u011d\5\b\5\2\u0110\u0114\7E\2\2")
-        buf.write(u"\u0111\u0113\7\5\2\2\u0112\u0111\3\2\2\2\u0113\u0116")
+        buf.write(u"\u0111\u0113\7\b\2\2\u0112\u0111\3\2\2\2\u0113\u0116")
         buf.write(u"\3\2\2\2\u0114\u0112\3\2\2\2\u0114\u0115\3\2\2\2\u0115")
         buf.write(u"\u0117\3\2\2\2\u0116\u0114\3\2\2\2\u0117\u0118\5\24\13")
         buf.write(u"\2\u0118\u0119\7G\2\2\u0119\u011a\5\b\5\2\u011a\u011c")
@@ -161,7 +162,7 @@ def serializedATN():
         buf.write(u"\u011b\3\2\2\2\u011d\u011e\3\2\2\2\u011e\u0121\3\2\2")
         buf.write(u"\2\u011f\u011d\3\2\2\2\u0120\u0122\7N\2\2\u0121\u0120")
         buf.write(u"\3\2\2\2\u0121\u0122\3\2\2\2\u0122\35\3\2\2\2\u0123\u0126")
-        buf.write(u"\5 \21\2\u0124\u0126\7\5\2\2\u0125\u0123\3\2\2\2\u0125")
+        buf.write(u"\5 \21\2\u0124\u0126\7\b\2\2\u0125\u0123\3\2\2\2\u0125")
         buf.write(u"\u0124\3\2\2\2\u0126\u0129\3\2\2\2\u0127\u0125\3\2\2")
         buf.write(u"\2\u0127\u0128\3\2\2\2\u0128\37\3\2\2\2\u0129\u0127\3")
         buf.write(u"\2\2\2\u012a\u012d\5$\23\2\u012b\u012d\5\"\22\2\u012c")
@@ -177,8 +178,8 @@ def serializedATN():
         buf.write(u"\3\2\2\2\u013f\u013b\3\2\2\2\u013f\u013c\3\2\2\2\u013f")
         buf.write(u"\u013d\3\2\2\2\u013f\u013e\3\2\2\2\u0140\u0141\3\2\2")
         buf.write(u"\2\u0141\u0142\5\b\5\2\u0142\'\3\2\2\2\u0143\u0145\7")
-        buf.write(u"\34\2\2\u0144\u0143\3\2\2\2\u0144\u0145\3\2\2\2\u0145")
-        buf.write(u"\u0147\3\2\2\2\u0146\u0148\7\16\2\2\u0147\u0146\3\2\2")
+        buf.write(u"\35\2\2\u0144\u0143\3\2\2\2\u0144\u0145\3\2\2\2\u0145")
+        buf.write(u"\u0147\3\2\2\2\u0146\u0148\7\17\2\2\u0147\u0146\3\2\2")
         buf.write(u"\2\u0147\u0148\3\2\2\2\u0148\u0149\3\2\2\2\u0149\u014e")
         buf.write(u"\5\24\13\2\u014a\u014b\7E\2\2\u014b\u014d\5\24\13\2\u014c")
         buf.write(u"\u014a\3\2\2\2\u014d\u0150\3\2\2\2\u014e\u014c\3\2\2")
@@ -190,57 +191,57 @@ def serializedATN():
         buf.write(u"\u015a\3\2\2\2\u015a\u015f\3\2\2\2\u015b\u015c\7\66\2")
         buf.write(u"\2\u015c\u015d\5\b\5\2\u015d\u015e\7\67\2\2\u015e\u0160")
         buf.write(u"\3\2\2\2\u015f\u015b\3\2\2\2\u015f\u0160\3\2\2\2\u0160")
-        buf.write(u")\3\2\2\2\u0161\u0163\7\20\2\2\u0162\u0164\5\b\5\2\u0163")
+        buf.write(u")\3\2\2\2\u0161\u0163\7\21\2\2\u0162\u0164\5\b\5\2\u0163")
         buf.write(u"\u0162\3\2\2\2\u0163\u0164\3\2\2\2\u0164+\3\2\2\2\u0165")
         buf.write(u"\u0169\5.\30\2\u0166\u0168\5\60\31\2\u0167\u0166\3\2")
         buf.write(u"\2\2\u0168\u016b\3\2\2\2\u0169\u0167\3\2\2\2\u0169\u016a")
         buf.write(u"\3\2\2\2\u016a\u016d\3\2\2\2\u016b\u0169\3\2\2\2\u016c")
         buf.write(u"\u016e\5\62\32\2\u016d\u016c\3\2\2\2\u016d\u016e\3\2")
-        buf.write(u"\2\2\u016e\u016f\3\2\2\2\u016f\u0170\7\b\2\2\u0170-\3")
-        buf.write(u"\2\2\2\u0171\u0172\7\21\2\2\u0172\u0173\5\b\5\2\u0173")
+        buf.write(u"\2\2\u016e\u016f\3\2\2\2\u016f\u0170\7\t\2\2\u0170-\3")
+        buf.write(u"\2\2\2\u0171\u0172\7\22\2\2\u0172\u0173\5\b\5\2\u0173")
         buf.write(u"\u0174\7M\2\2\u0174\u0175\5\36\20\2\u0175/\3\2\2\2\u0176")
-        buf.write(u"\u0177\7\22\2\2\u0177\u0178\5\b\5\2\u0178\u0179\7M\2")
+        buf.write(u"\u0177\7\23\2\2\u0177\u0178\5\b\5\2\u0178\u0179\7M\2")
         buf.write(u"\2\u0179\u017a\5\36\20\2\u017a\61\3\2\2\2\u017b\u017c")
-        buf.write(u"\7\23\2\2\u017c\u017d\7M\2\2\u017d\u017e\5\36\20\2\u017e")
-        buf.write(u"\63\3\2\2\2\u017f\u0180\7\24\2\2\u0180\u0181\7R\2\2\u0181")
-        buf.write(u"\u0182\7\26\2\2\u0182\u0183\5\b\5\2\u0183\u0184\7+\2")
-        buf.write(u"\2\u0184\u0185\5\b\5\2\u0185\u0187\7\27\2\2\u0186\u0188")
+        buf.write(u"\7\24\2\2\u017c\u017d\7M\2\2\u017d\u017e\5\36\20\2\u017e")
+        buf.write(u"\63\3\2\2\2\u017f\u0180\7\25\2\2\u0180\u0181\7R\2\2\u0181")
+        buf.write(u"\u0182\7\27\2\2\u0182\u0183\5\b\5\2\u0183\u0184\7+\2")
+        buf.write(u"\2\u0184\u0185\5\b\5\2\u0185\u0187\7\30\2\2\u0186\u0188")
         buf.write(u"\7F\2\2\u0187\u0186\3\2\2\2\u0187\u0188\3\2\2\2\u0188")
         buf.write(u"\u0189\3\2\2\2\u0189\u018a\t\3\2\2\u018a\u018b\7M\2\2")
-        buf.write(u"\u018b\u018c\5\36\20\2\u018c\u018d\7\b\2\2\u018d\65\3")
-        buf.write(u"\2\2\2\u018e\u018f\7\25\2\2\u018f\u0190\5\b\5\2\u0190")
-        buf.write(u"\u0191\7M\2\2\u0191\u0192\5\36\20\2\u0192\u0193\7\b\2")
+        buf.write(u"\u018b\u018c\5\36\20\2\u018c\u018d\7\t\2\2\u018d\65\3")
+        buf.write(u"\2\2\2\u018e\u018f\7\26\2\2\u018f\u0190\5\b\5\2\u0190")
+        buf.write(u"\u0191\7M\2\2\u0191\u0192\5\36\20\2\u0192\u0193\7\t\2")
         buf.write(u"\2\u0193\67\3\2\2\2\u0194\u0197\5:\36\2\u0195\u0197\7")
-        buf.write(u"\5\2\2\u0196\u0194\3\2\2\2\u0196\u0195\3\2\2\2\u0197")
+        buf.write(u"\b\2\2\u0196\u0194\3\2\2\2\u0196\u0195\3\2\2\2\u0197")
         buf.write(u"\u019a\3\2\2\2\u0198\u0196\3\2\2\2\u0198\u0199\3\2\2")
         buf.write(u"\2\u0199\u019b\3\2\2\2\u019a\u0198\3\2\2\2\u019b\u019c")
-        buf.write(u"\7\2\2\3\u019c9\3\2\2\2\u019d\u019e\7\36\2\2\u019e\u019f")
+        buf.write(u"\7\2\2\3\u019c9\3\2\2\2\u019d\u019e\7\37\2\2\u019e\u019f")
         buf.write(u"\7R\2\2\u019f\u01a0\5<\37\2\u01a0;\3\2\2\2\u01a1\u01ab")
-        buf.write(u"\7M\2\2\u01a2\u01aa\7\5\2\2\u01a3\u01aa\5> \2\u01a4\u01aa")
+        buf.write(u"\7M\2\2\u01a2\u01aa\7\b\2\2\u01a3\u01aa\5> \2\u01a4\u01aa")
         buf.write(u"\5B\"\2\u01a5\u01aa\5D#\2\u01a6\u01aa\5J&\2\u01a7\u01aa")
         buf.write(u"\5@!\2\u01a8\u01aa\5L\'\2\u01a9\u01a2\3\2\2\2\u01a9\u01a3")
         buf.write(u"\3\2\2\2\u01a9\u01a4\3\2\2\2\u01a9\u01a5\3\2\2\2\u01a9")
         buf.write(u"\u01a6\3\2\2\2\u01a9\u01a7\3\2\2\2\u01a9\u01a8\3\2\2")
         buf.write(u"\2\u01aa\u01ad\3\2\2\2\u01ab\u01a9\3\2\2\2\u01ab\u01ac")
         buf.write(u"\3\2\2\2\u01ac\u01ae\3\2\2\2\u01ad\u01ab\3\2\2\2\u01ae")
-        buf.write(u"\u01af\7\b\2\2\u01af=\3\2\2\2\u01b0\u01b1\t\4\2\2\u01b1")
-        buf.write(u"\u01b6\7M\2\2\u01b2\u01b5\5(\25\2\u01b3\u01b5\7\5\2\2")
+        buf.write(u"\u01af\7\t\2\2\u01af=\3\2\2\2\u01b0\u01b1\t\4\2\2\u01b1")
+        buf.write(u"\u01b6\7M\2\2\u01b2\u01b5\5(\25\2\u01b3\u01b5\7\b\2\2")
         buf.write(u"\u01b4\u01b2\3\2\2\2\u01b4\u01b3\3\2\2\2\u01b5\u01b8")
         buf.write(u"\3\2\2\2\u01b6\u01b4\3\2\2\2\u01b6\u01b7\3\2\2\2\u01b7")
-        buf.write(u"\u01b9\3\2\2\2\u01b8\u01b6\3\2\2\2\u01b9\u01ba\7\b\2")
+        buf.write(u"\u01b9\3\2\2\2\u01b8\u01b6\3\2\2\2\u01b9\u01ba\7\t\2")
         buf.write(u"\2\u01ba?\3\2\2\2\u01bb\u01bc\7#\2\2\u01bc\u01bd\7M\2")
-        buf.write(u"\2\u01bd\u01be\5\36\20\2\u01be\u01bf\7\b\2\2\u01bfA\3")
+        buf.write(u"\2\u01bd\u01be\5\36\20\2\u01be\u01bf\7\t\2\2\u01bfA\3")
         buf.write(u"\2\2\2\u01c0\u01c1\7$\2\2\u01c1\u01c8\7M\2\2\u01c2\u01c7")
         buf.write(u"\5\30\r\2\u01c3\u01c7\5\32\16\2\u01c4\u01c7\5\34\17\2")
-        buf.write(u"\u01c5\u01c7\7\5\2\2\u01c6\u01c2\3\2\2\2\u01c6\u01c3")
+        buf.write(u"\u01c5\u01c7\7\b\2\2\u01c6\u01c2\3\2\2\2\u01c6\u01c3")
         buf.write(u"\3\2\2\2\u01c6\u01c4\3\2\2\2\u01c6\u01c5\3\2\2\2\u01c7")
         buf.write(u"\u01ca\3\2\2\2\u01c8\u01c6\3\2\2\2\u01c8\u01c9\3\2\2")
         buf.write(u"\2\u01c9\u01cb\3\2\2\2\u01ca\u01c8\3\2\2\2\u01cb\u01cc")
-        buf.write(u"\7\b\2\2\u01ccC\3\2\2\2\u01cd\u01ce\7%\2\2\u01ce\u01d3")
-        buf.write(u"\7M\2\2\u01cf\u01d2\5F$\2\u01d0\u01d2\7\5\2\2\u01d1\u01cf")
+        buf.write(u"\7\t\2\2\u01ccC\3\2\2\2\u01cd\u01ce\7%\2\2\u01ce\u01d3")
+        buf.write(u"\7M\2\2\u01cf\u01d2\5F$\2\u01d0\u01d2\7\b\2\2\u01d1\u01cf")
         buf.write(u"\3\2\2\2\u01d1\u01d0\3\2\2\2\u01d2\u01d5\3\2\2\2\u01d3")
         buf.write(u"\u01d1\3\2\2\2\u01d3\u01d4\3\2\2\2\u01d4\u01d6\3\2\2")
-        buf.write(u"\2\u01d5\u01d3\3\2\2\2\u01d6\u01d7\7\b\2\2\u01d7E\3\2")
+        buf.write(u"\2\u01d5\u01d3\3\2\2\2\u01d6\u01d7\7\t\2\2\u01d7E\3\2")
         buf.write(u"\2\2\u01d8\u01dc\7R\2\2\u01d9\u01da\7\63\2\2\u01da\u01db")
         buf.write(u"\7R\2\2\u01db\u01dd\7\65\2\2\u01dc\u01d9\3\2\2\2\u01dc")
         buf.write(u"\u01dd\3\2\2\2\u01dd\u01df\3\2\2\2\u01de\u01e0\5\2\2")
@@ -254,7 +255,7 @@ def serializedATN():
         buf.write(u"\u01ee\u01ed\3\2\2\2\u01efI\3\2\2\2\u01f0\u01f1\7&\2")
         buf.write(u"\2\u01f1\u01f4\7M\2\2\u01f2\u01f5\7(\2\2\u01f3\u01f5")
         buf.write(u"\7\'\2\2\u01f4\u01f2\3\2\2\2\u01f4\u01f3\3\2\2\2\u01f5")
-        buf.write(u"K\3\2\2\2\u01f6\u01f7\7\16\2\2\u01f7\u01f8\7R\2\2\u01f8")
+        buf.write(u"K\3\2\2\2\u01f6\u01f7\7\17\2\2\u01f7\u01f8\7R\2\2\u01f8")
         buf.write(u"\u0201\7,\2\2\u01f9\u01fe\5N(\2\u01fa\u01fb\7E\2\2\u01fb")
         buf.write(u"\u01fd\5N(\2\u01fc\u01fa\3\2\2\2\u01fd\u0200\3\2\2\2")
         buf.write(u"\u01fe\u01fc\3\2\2\2\u01fe\u01ff\3\2\2\2\u01ff\u0202")
@@ -262,7 +263,7 @@ def serializedATN():
         buf.write(u"\u0202\3\2\2\2\u0202\u0203\3\2\2\2\u0203\u0205\7-\2\2")
         buf.write(u"\u0204\u0206\5\2\2\2\u0205\u0204\3\2\2\2\u0205\u0206")
         buf.write(u"\3\2\2\2\u0206\u0207\3\2\2\2\u0207\u0208\7M\2\2\u0208")
-        buf.write(u"\u0209\5\36\20\2\u0209\u020a\7\b\2\2\u020aM\3\2\2\2\u020b")
+        buf.write(u"\u0209\5\36\20\2\u0209\u020a\7\t\2\2\u020aM\3\2\2\2\u020b")
         buf.write(u"\u020c\7R\2\2\u020c\u020d\5\2\2\2\u020dO\3\2\2\2CVaf")
         buf.write(u"lnr\u0081\u008a\u0090\u00a3\u00aa\u00b1\u00b8\u00bd\u00bf")
         buf.write(u"\u00c6\u00cb\u00d0\u00d7\u00e0\u00e4\u00ea\u00f4\u00f7")
@@ -284,33 +285,33 @@ class PyNestMLParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
-                     u"<INVALID>", u"<INVALID>", u"'end'", u"'integer'", 
-                     u"'real'", u"'string'", u"'boolean'", u"'void'", u"'function'", 
-                     u"'inline'", u"'return'", u"'if'", u"'elif'", u"'else'", 
-                     u"'for'", u"'while'", u"'in'", u"'step'", u"'inf'", 
-                     u"'and'", u"'or'", u"'not'", u"'recordable'", u"'kernel'", 
-                     u"'neuron'", u"'state'", u"'parameters'", u"'internals'", 
-                     u"'initial_values'", u"'update'", u"'equations'", u"'input'", 
-                     u"'output'", u"'current'", u"'spike'", u"'inhibitory'", 
-                     u"'excitatory'", u"'...'", u"'('", u"')'", u"'+'", 
-                     u"'~'", u"'|'", u"'^'", u"'&'", u"'['", u"'<-'", u"']'", 
-                     u"'[['", u"']]'", u"'<<'", u"'>>'", u"'<'", u"'>'", 
-                     u"'<='", u"'+='", u"'-='", u"'*='", u"'/='", u"'=='", 
-                     u"'!='", u"'<>'", u"'>='", u"','", u"'-'", u"'='", 
-                     u"'*'", u"'**'", u"'/'", u"'%'", u"'?'", u"':'", u"';'", 
-                     u"'''" ]
+    literalNames = [ u"<INVALID>", u"'\"\"\"'", u"<INVALID>", u"<INVALID>", 
+                     u"<INVALID>", u"<INVALID>", u"<INVALID>", u"'end'", 
+                     u"'integer'", u"'real'", u"'string'", u"'boolean'", 
+                     u"'void'", u"'function'", u"'inline'", u"'return'", 
+                     u"'if'", u"'elif'", u"'else'", u"'for'", u"'while'", 
+                     u"'in'", u"'step'", u"'inf'", u"'and'", u"'or'", u"'not'", 
+                     u"'recordable'", u"'kernel'", u"'neuron'", u"'state'", 
+                     u"'parameters'", u"'internals'", u"'update'", u"'equations'", 
+                     u"'input'", u"'output'", u"'current'", u"'spike'", 
+                     u"'inhibitory'", u"'excitatory'", u"'...'", u"'('", 
+                     u"')'", u"'+'", u"'~'", u"'|'", u"'^'", u"'&'", u"'['", 
+                     u"'<-'", u"']'", u"'[['", u"']]'", u"'<<'", u"'>>'", 
+                     u"'<'", u"'>'", u"'<='", u"'+='", u"'-='", u"'*='", 
+                     u"'/='", u"'=='", u"'!='", u"'<>'", u"'>='", u"','", 
+                     u"'-'", u"'='", u"'*'", u"'**'", u"'/'", u"'%'", u"'?'", 
+                     u"':'", u"';'", u"'''" ]
 
-    symbolicNames = [ u"<INVALID>", u"SL_COMMENT", u"ML_COMMENT", u"NEWLINE", 
-                      u"WS", u"LINE_ESCAPE", u"END_KEYWORD", u"INTEGER_KEYWORD", 
-                      u"REAL_KEYWORD", u"STRING_KEYWORD", u"BOOLEAN_KEYWORD", 
-                      u"VOID_KEYWORD", u"FUNCTION_KEYWORD", u"INLINE_KEYWORD", 
-                      u"RETURN_KEYWORD", u"IF_KEYWORD", u"ELIF_KEYWORD", 
-                      u"ELSE_KEYWORD", u"FOR_KEYWORD", u"WHILE_KEYWORD", 
-                      u"IN_KEYWORD", u"STEP_KEYWORD", u"INF_KEYWORD", u"AND_KEYWORD", 
-                      u"OR_KEYWORD", u"NOT_KEYWORD", u"RECORDABLE_KEYWORD", 
-                      u"KERNEL_KEYWORD", u"NEURON_KEYWORD", u"STATE_KEYWORD", 
-                      u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", u"INITIAL_VALUES_KEYWORD", 
+    symbolicNames = [ u"<INVALID>", u"DOCSTRING_TRIPLEQUOTE", u"WS", u"LINE_ESCAPE", 
+                      u"DOCSTRING", u"SL_COMMENT", u"NEWLINE", u"END_KEYWORD", 
+                      u"INTEGER_KEYWORD", u"REAL_KEYWORD", u"STRING_KEYWORD", 
+                      u"BOOLEAN_KEYWORD", u"VOID_KEYWORD", u"FUNCTION_KEYWORD", 
+                      u"INLINE_KEYWORD", u"RETURN_KEYWORD", u"IF_KEYWORD", 
+                      u"ELIF_KEYWORD", u"ELSE_KEYWORD", u"FOR_KEYWORD", 
+                      u"WHILE_KEYWORD", u"IN_KEYWORD", u"STEP_KEYWORD", 
+                      u"INF_KEYWORD", u"AND_KEYWORD", u"OR_KEYWORD", u"NOT_KEYWORD", 
+                      u"RECORDABLE_KEYWORD", u"KERNEL_KEYWORD", u"NEURON_KEYWORD", 
+                      u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", 
                       u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", 
                       u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
                       u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", 
@@ -380,38 +381,38 @@ class PyNestMLParser ( Parser ):
                    u"function", u"parameter" ]
 
     EOF = Token.EOF
-    SL_COMMENT=1
-    ML_COMMENT=2
-    NEWLINE=3
-    WS=4
-    LINE_ESCAPE=5
-    END_KEYWORD=6
-    INTEGER_KEYWORD=7
-    REAL_KEYWORD=8
-    STRING_KEYWORD=9
-    BOOLEAN_KEYWORD=10
-    VOID_KEYWORD=11
-    FUNCTION_KEYWORD=12
-    INLINE_KEYWORD=13
-    RETURN_KEYWORD=14
-    IF_KEYWORD=15
-    ELIF_KEYWORD=16
-    ELSE_KEYWORD=17
-    FOR_KEYWORD=18
-    WHILE_KEYWORD=19
-    IN_KEYWORD=20
-    STEP_KEYWORD=21
-    INF_KEYWORD=22
-    AND_KEYWORD=23
-    OR_KEYWORD=24
-    NOT_KEYWORD=25
-    RECORDABLE_KEYWORD=26
-    KERNEL_KEYWORD=27
-    NEURON_KEYWORD=28
-    STATE_KEYWORD=29
-    PARAMETERS_KEYWORD=30
-    INTERNALS_KEYWORD=31
-    INITIAL_VALUES_KEYWORD=32
+    DOCSTRING_TRIPLEQUOTE=1
+    WS=2
+    LINE_ESCAPE=3
+    DOCSTRING=4
+    SL_COMMENT=5
+    NEWLINE=6
+    END_KEYWORD=7
+    INTEGER_KEYWORD=8
+    REAL_KEYWORD=9
+    STRING_KEYWORD=10
+    BOOLEAN_KEYWORD=11
+    VOID_KEYWORD=12
+    FUNCTION_KEYWORD=13
+    INLINE_KEYWORD=14
+    RETURN_KEYWORD=15
+    IF_KEYWORD=16
+    ELIF_KEYWORD=17
+    ELSE_KEYWORD=18
+    FOR_KEYWORD=19
+    WHILE_KEYWORD=20
+    IN_KEYWORD=21
+    STEP_KEYWORD=22
+    INF_KEYWORD=23
+    AND_KEYWORD=24
+    OR_KEYWORD=25
+    NOT_KEYWORD=26
+    RECORDABLE_KEYWORD=27
+    KERNEL_KEYWORD=28
+    NEURON_KEYWORD=29
+    STATE_KEYWORD=30
+    PARAMETERS_KEYWORD=31
+    INTERNALS_KEYWORD=32
     UPDATE_KEYWORD=33
     EQUATIONS_KEYWORD=34
     INPUT_KEYWORD=35
@@ -465,9 +466,10 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input, output=sys.stdout):
         super(PyNestMLParser, self).__init__(input, output=output)
-        self.checkVersion("4.9")
+        self.checkVersion("4.9.1")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
+
 
 
 
@@ -562,6 +564,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class UnitTypeContext(ParserRuleContext):
 
@@ -724,6 +727,7 @@ class PyNestMLParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
+
     class UnitTypeExponentContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -780,6 +784,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ExpressionContext(ParserRuleContext):
 
@@ -1114,6 +1119,7 @@ class PyNestMLParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
+
     class SimpleExpressionContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1224,6 +1230,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class UnaryOperatorContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1285,6 +1292,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class BitOperatorContext(ParserRuleContext):
 
@@ -1363,6 +1371,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ComparisonOperatorContext(ParserRuleContext):
 
@@ -1458,6 +1467,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class LogicalOperatorContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1511,6 +1521,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class VariableContext(ParserRuleContext):
 
@@ -1567,6 +1578,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class FunctionCallContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1622,7 +1634,7 @@ class PyNestMLParser ( Parser ):
             self.state = 245
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 22)) & ~0x3f) == 0 and ((1 << (_la - 22)) & ((1 << (PyNestMLParser.INF_KEYWORD - 22)) | (1 << (PyNestMLParser.NOT_KEYWORD - 22)) | (1 << (PyNestMLParser.LEFT_PAREN - 22)) | (1 << (PyNestMLParser.PLUS - 22)) | (1 << (PyNestMLParser.TILDE - 22)) | (1 << (PyNestMLParser.MINUS - 22)) | (1 << (PyNestMLParser.BOOLEAN_LITERAL - 22)) | (1 << (PyNestMLParser.STRING_LITERAL - 22)) | (1 << (PyNestMLParser.NAME - 22)) | (1 << (PyNestMLParser.UNSIGNED_INTEGER - 22)) | (1 << (PyNestMLParser.FLOAT - 22)))) != 0):
+            if ((((_la - 23)) & ~0x3f) == 0 and ((1 << (_la - 23)) & ((1 << (PyNestMLParser.INF_KEYWORD - 23)) | (1 << (PyNestMLParser.NOT_KEYWORD - 23)) | (1 << (PyNestMLParser.LEFT_PAREN - 23)) | (1 << (PyNestMLParser.PLUS - 23)) | (1 << (PyNestMLParser.TILDE - 23)) | (1 << (PyNestMLParser.MINUS - 23)) | (1 << (PyNestMLParser.BOOLEAN_LITERAL - 23)) | (1 << (PyNestMLParser.STRING_LITERAL - 23)) | (1 << (PyNestMLParser.NAME - 23)) | (1 << (PyNestMLParser.UNSIGNED_INTEGER - 23)) | (1 << (PyNestMLParser.FLOAT - 23)))) != 0):
                 self.state = 237
                 self.expression(0)
                 self.state = 242
@@ -1648,6 +1660,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class InlineExpressionContext(ParserRuleContext):
 
@@ -1733,6 +1746,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class OdeEquationContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1795,6 +1809,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class KernelContext(ParserRuleContext):
 
@@ -1909,6 +1924,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class BlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1977,6 +1993,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class StmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2031,6 +2048,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class CompoundStmtContext(ParserRuleContext):
 
@@ -2095,6 +2113,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class SmallStmtContext(ParserRuleContext):
 
@@ -2170,6 +2189,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class AssignmentContext(ParserRuleContext):
 
@@ -2262,13 +2282,14 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class DeclarationContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.DeclarationContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.isRecordable = None # Token
-            self.isFunction = None # Token
+            self.isInlineExpression = None # Token
             self.sizeParameter = None # Token
             self.rhs = None # ExpressionContext
             self.invariant = None # ExpressionContext
@@ -2351,9 +2372,9 @@ class PyNestMLParser ( Parser ):
             self.state = 325
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if _la==PyNestMLParser.FUNCTION_KEYWORD:
+            if _la==PyNestMLParser.INLINE_KEYWORD:
                 self.state = 324
-                localctx.isFunction = self.match(PyNestMLParser.FUNCTION_KEYWORD)
+                localctx.isInlineExpression = self.match(PyNestMLParser.INLINE_KEYWORD)
 
 
             self.state = 327
@@ -2414,6 +2435,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class ReturnStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2462,6 +2484,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class IfStmtContext(ParserRuleContext):
 
@@ -2536,6 +2559,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class IfClauseContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2589,6 +2613,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ElifClauseContext(ParserRuleContext):
 
@@ -2644,6 +2669,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class ElseClauseContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2691,6 +2717,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ForStmtContext(ParserRuleContext):
 
@@ -2806,6 +2833,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class WhileStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2864,6 +2892,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class NestMLCompilationUnitContext(ParserRuleContext):
 
@@ -2938,6 +2967,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class NeuronContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2985,6 +3015,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class BodyContext(ParserRuleContext):
 
@@ -3070,7 +3101,7 @@ class PyNestMLParser ( Parser ):
             self.state = 425
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.INITIAL_VALUES_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.UPDATE_KEYWORD) | (1 << PyNestMLParser.EQUATIONS_KEYWORD) | (1 << PyNestMLParser.INPUT_KEYWORD) | (1 << PyNestMLParser.OUTPUT_KEYWORD))) != 0):
                 self.state = 423
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -3078,7 +3109,7 @@ class PyNestMLParser ( Parser ):
                     self.state = 416
                     self.match(PyNestMLParser.NEWLINE)
                     pass
-                elif token in [PyNestMLParser.STATE_KEYWORD, PyNestMLParser.PARAMETERS_KEYWORD, PyNestMLParser.INTERNALS_KEYWORD, PyNestMLParser.INITIAL_VALUES_KEYWORD]:
+                elif token in [PyNestMLParser.STATE_KEYWORD, PyNestMLParser.PARAMETERS_KEYWORD, PyNestMLParser.INTERNALS_KEYWORD]:
                     self.state = 417
                     self.blockWithVariables()
                     pass
@@ -3119,6 +3150,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class BlockWithVariablesContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3140,9 +3172,6 @@ class PyNestMLParser ( Parser ):
 
         def INTERNALS_KEYWORD(self):
             return self.getToken(PyNestMLParser.INTERNALS_KEYWORD, 0)
-
-        def INITIAL_VALUES_KEYWORD(self):
-            return self.getToken(PyNestMLParser.INITIAL_VALUES_KEYWORD, 0)
 
         def declaration(self, i=None):
             if i is None:
@@ -3179,7 +3208,7 @@ class PyNestMLParser ( Parser ):
             self.state = 430
             localctx.blockType = self._input.LT(1)
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD) | (1 << PyNestMLParser.INITIAL_VALUES_KEYWORD))) != 0)):
+            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.STATE_KEYWORD) | (1 << PyNestMLParser.PARAMETERS_KEYWORD) | (1 << PyNestMLParser.INTERNALS_KEYWORD))) != 0)):
                 localctx.blockType = self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -3217,6 +3246,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class UpdateBlockContext(ParserRuleContext):
 
@@ -3270,6 +3300,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class EquationsBlockContext(ParserRuleContext):
 
@@ -3376,6 +3407,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class InputBlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3458,6 +3490,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class InputPortContext(ParserRuleContext):
 
@@ -3576,6 +3609,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class InputQualifierContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3629,6 +3663,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class OutputBlockContext(ParserRuleContext):
 
@@ -3693,6 +3728,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class FunctionContext(ParserRuleContext):
 
@@ -3808,6 +3844,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
 
     class ParameterContext(ParserRuleContext):
 

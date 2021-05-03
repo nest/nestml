@@ -57,7 +57,7 @@ class MessageCode(Enum):
     ORDER_NOT_DECLARED = 24
     CURRENT_BUFFER_SPECIFIED = 25
     BLOCK_NOT_CORRECT = 26
-    VARIABLE_NOT_IN_INIT = 27
+    VARIABLE_NOT_IN_STATE_BLOCK = 27
     WRONG_NUMBER_OF_ARGS = 28
     NO_RHS = 29
     SEVERAL_LHS = 30
@@ -108,13 +108,15 @@ class MessageCode(Enum):
     KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
     NO_FILES_IN_INPUT_PATH = 76
-    BAD_CM_VARIABLE_NAME = 77
-    CM_FUNCTION_MISSING = 78
-    CM_INITIAL_VALUES_MISSING = 79
-    CM_FUNCTION_BAD_NUMBER_ARGS = 80
-    CM_FUNCTION_BAD_RETURN_TYPE = 81
-    CM_VARIABLE_NAME_MULTI_USE = 82
-    CM_NO_VALUE_ASSIGNMENT = 83
+    STATE_VARIABLES_NOT_INITIALZED = 77
+    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
+    BAD_CM_VARIABLE_NAME = 79
+    CM_FUNCTION_MISSING = 80
+    CM_INITIAL_VALUES_MISSING = 81
+    CM_FUNCTION_BAD_NUMBER_ARGS = 82
+    CM_FUNCTION_BAD_RETURN_TYPE = 83
+    CM_VARIABLE_NAME_MULTI_USE = 84
+    CM_NO_VALUE_ASSIGNMENT = 85
     
 
 
@@ -582,9 +584,9 @@ class Messages:
         return MessageCode.BLOCK_NOT_CORRECT, message
 
     @classmethod
-    def get_equation_var_not_in_init_values_block(cls, variable_name):
+    def get_equation_var_not_in_state_block(cls, variable_name):
         """
-        Indicates that a variable in the equations block is not defined in the initial values block.
+        Indicates that a variable in the equations block is not defined in the state block.
         :param variable_name: the name of the variable of an equation which is not defined in an equations block
         :type variable_name: str
         :return: a message
@@ -592,8 +594,8 @@ class Messages:
         """
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
-        message = 'Ode equation lhs-variable \'%s\' not defined in initial-values block!' % variable_name
-        return MessageCode.VARIABLE_NOT_IN_INIT, message
+        message = 'Ode equation lhs-variable \'%s\' not defined in state block!' % variable_name
+        return MessageCode.VARIABLE_NOT_IN_STATE_BLOCK, message
 
     @classmethod
     def get_wrong_number_of_args(cls, function_call, expected, got):
@@ -668,7 +670,7 @@ class Messages:
     @classmethod
     def get_no_ode(cls, name):
         """
-        Indicates that no ODE has been defined for a variable inside the initial values block.
+        Indicates that no ODE has been defined for a variable inside the state block.
         :param name: the name of the variable which does not have a defined ode
         :type name: str
         :return: a message
@@ -1157,13 +1159,12 @@ class Messages:
     def get_kernel_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the type of a kernel initial value is wrong.
-        :param iv_name: the name of the initial value variable
+        :param iv_name: the name of the state variable with an initial value
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
         message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
-    
 
     @classmethod
     def get_could_not_determine_cond_based(cls, type_str, name):
@@ -1279,4 +1280,12 @@ class Messages:
         
         return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
         
-    
+    @classmethod
+    def get_state_variables_not_initialized(cls, var_name: str):
+        message = "The variable `\'%s\' is not initialized." % var_name
+        return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
+
+    @classmethod
+    def get_equations_defined_but_integrate_odes_not_called(cls):
+        message = "Equations defined but integrate_odes() not called"
+        return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message

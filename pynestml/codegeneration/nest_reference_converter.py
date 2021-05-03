@@ -142,10 +142,10 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'numerics::expm1({!s})'
 
         if function_name == PredefinedFunctions.RANDOM_NORMAL:
-            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() ) ))'
+            return '(({!s}) + ({!s}) * ' + prefix + 'normal_dev_( nest::get_vp_specific_rng( ' + prefix + 'get_thread() ) ))'
 
         if function_name == PredefinedFunctions.RANDOM_UNIFORM:
-            return '(({!s}) + ({!s}) * nest::kernel().rng_manager.get_rng( ' + prefix + 'get_thread() )->drand())'
+            return '(({!s}) + ({!s}) * nest::get_vp_specific_rng( ' + prefix + 'get_thread() )->drand())'
 
         if function_name == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
@@ -218,13 +218,13 @@ class NESTReferenceConverter(IReferenceConverter):
                 s += ")"
             return s
 
-        if symbol.is_function:
+        if symbol.is_inline_expression:
             return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_kernel():
-            print("Printing node " + str(symbol.name))
+            assert False, "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
 
-        if symbol.is_init_values():
+        if symbol.is_state():
             temp = NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else ''
             if self.uses_gsl:
                 temp += GSLNamesConverter.name(symbol)
@@ -434,7 +434,7 @@ class NESTReferenceConverter(IReferenceConverter):
         if op.is_div_op:
             return '%s' + ' / ' + '%s'
         if op.is_modulo_op:
-            return '%s' + ' % ' + '%s'
+            return '%s' + ' %% ' + '%s'
         if op.is_pow_op:
             return 'pow' + '(%s, %s)'
         raise RuntimeError('Cannot determine arithmetic operator!')

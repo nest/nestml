@@ -36,7 +36,7 @@ class ASTBlockWithVariables(ASTNode):
     attribute AliasDecl: a list with variable declarations
     Grammar:
          blockWithVariables:
-            blockType=('state'|'parameters'|'internals'|'initial_values')
+            blockType=('state'|'parameters'|'internals')
             BLOCK_OPEN
               (declaration | NEWLINE)*
             BLOCK_CLOSE;
@@ -44,11 +44,10 @@ class ASTBlockWithVariables(ASTNode):
         is_state = False
         is_parameters = False
         is_internals = False
-        is_initial_values = False
         declarations = None
     """
 
-    def __init__(self, is_state=False, is_parameters=False, is_internals=False, is_initial_values=False,
+    def __init__(self, is_state=False, is_parameters=False, is_internals=False,
                  declarations=None, *args, **kwargs):
         """
         Standard constructor.
@@ -61,22 +60,19 @@ class ASTBlockWithVariables(ASTNode):
         :type is_parameters: bool
         :param is_internals: is an internals block.
         :type is_internals: bool
-        :param is_initial_values: is an initial values block.
-        :type is_initial_values: bool
         :param declarations: a list of declarations.
         :type declarations: List[ASTDeclaration]
         """
         super(ASTBlockWithVariables, self).__init__(*args, **kwargs)
-        assert (is_internals or is_parameters or is_state or is_initial_values), \
+        assert (is_internals or is_parameters or is_state), \
             '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
-        assert ((is_internals + is_parameters + is_state + is_initial_values) == 1), \
+        assert ((is_internals + is_parameters + is_state) == 1), \
             '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
         assert (declarations is None or isinstance(declarations, list)), \
             '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(declarations)
         self.declarations = declarations
         self.is_internals = is_internals
         self.is_parameters = is_parameters
-        self.is_initial_values = is_initial_values
         self.is_state = is_state
 
     def clone(self):
@@ -92,7 +88,6 @@ class ASTBlockWithVariables(ASTNode):
         dup = ASTBlockWithVariables(declarations=declarations_dup,
                                     is_internals=self.is_internals,
                                     is_parameters=self.is_parameters,
-                                    is_initial_values=self.is_initial_values,
                                     is_state=self.is_state,
                                     # ASTNode common attriutes:
                                     source_position=self.source_position,
@@ -145,9 +140,9 @@ class ASTBlockWithVariables(ASTNode):
         """
         if not isinstance(other, ASTBlockWithVariables):
             return False
-        if not (self.is_initial_values == other.is_initial_values
-                and self.is_internals == other.is_internals
-                and self.is_parameters == other.is_parameters and self.is_state == other.is_state):
+        if not (self.is_internals == other.is_internals
+                and self.is_parameters == other.is_parameters
+                and self.is_state == other.is_state):
             return False
         if len(self.get_declarations()) != len(other.get_declarations()):
             return False

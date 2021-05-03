@@ -1,6 +1,6 @@
 neuron izhikevich_tutorial:
 
-  initial_values:
+  state:
     v mV = -65 mV    # Membrane potential in mV
     u real = 0    # Membrane potential recovery variable
   end

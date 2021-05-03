@@ -35,10 +35,8 @@ Martin Ebert
 """
 neuron terub_gpe:
   state:
-    r integer # counts number of tick during the refractory period
-  end
+    r integer = 0 # counts number of tick during the refractory period
 
-  initial_values:
     V_m mV = E_L #  Membrane potential
 
     gate_h     real = 0.0 # gating variable h
