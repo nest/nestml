@@ -64,9 +64,8 @@ from pynestml.utils.ode_transformer import OdeTransformer
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
-
-from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel as cm_coco_cm_info_assembled
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
+from pynestml.utils.cm_processing import CmProcessing
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -634,7 +633,7 @@ class NESTCodeGenerator(CodeGenerator):
         if neuron.is_compartmental_model:
             namespace['etypeClassName'] = "EType"
             namespace['cm_unique_suffix'] = neuron.get_name()
-            namespace['cm_info'] = cm_coco_cm_info_assembled.neuron_to_cm_info[neuron.name]
+            namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
             
             neuron_specific_filenames = {
                 "etype": self.get_etype_file_name_prefix(neuron),
