@@ -288,6 +288,7 @@ private:
 
 public: // XXX! TODO: should be private
 //private:
+  {% if (neuron.get_multiple_receptors())|length > 1 -%}
   /**
    * Synapse types to connect to
    * @note Excluded upper and lower bounds are defined as INF_, SUP_.
@@ -543,24 +544,6 @@ public: // XXX! TODO: should be private
   // -------------------------------------------------------------------------
   //   Getters/setters for internals
   // -------------------------------------------------------------------------
-  {%- for funcsym in neuron.get_function_symbols() %}
-  {%- with variable = funcsym %}
-  {#- if not "__for" in funcsym.get_symbol_name() #}
-  {%- include "directives/MemberVariableGetterSetter.jinja2" %}
-  {#- endif #}
-  {%- endwith %}
-  {%- endfor %}
-
-  {%- if dyadic_synapse_partner is defined %}
-
-  /* getters/setters for variables transferred from synapse */
-
-  {%- for var in transferred_variables %}
-
-  double get_{{var}}( double t );
-
-  {%- endfor %}
-  {%- endif %}
 
 {% filter indent(2, True) -%}
 {%- for internal in neuron.get_internal_symbols() %}
@@ -569,6 +552,16 @@ public: // XXX! TODO: should be private
 {%- endwith %}
 {%- endfor %}
 {%- endfilter %}
+
+{%- if dyadic_synapse_partner is defined %}
+
+  /* getters/setters for variables transferred from synapse */
+
+{%- for var in transferred_variables %}
+  double get_{{var}}( double t );
+{%- endfor %}
+{%- endif %}
+
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------

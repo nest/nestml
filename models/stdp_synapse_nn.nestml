@@ -19,7 +19,7 @@ SeeAlso: stdp
 */
 synapse stdp_nn:
 
-  initial_values:
+  state:
     w nS = 1.234 nS
     pre_handled boolean = True
     pre_trace real = 0.

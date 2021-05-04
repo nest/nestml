@@ -45,7 +45,7 @@ Adapted by: Philipp Weidel
 """
 synapse stdp:
 
-  initial_values:
+  state:
     w nS = 1 nS
   end
 

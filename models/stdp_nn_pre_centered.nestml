@@ -23,7 +23,7 @@ SeeAlso: stdp
 */
 synapse stdp_nn_pre_centered:
 
-  initial_values:
+  state:
     w nS = 1 nS
     pre_trace real = 0.
     post_trace real = 0.

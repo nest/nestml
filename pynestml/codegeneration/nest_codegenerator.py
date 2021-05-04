@@ -45,6 +45,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_assignment import ASTAssignment
@@ -75,15 +76,15 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
-#from pynestml.visitors.ast_symbol_table_visitor import assign_ode_to_variables
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
+
 
 def get_post_port_by_name(input_block, port_name):
     for port in input_block.get_input_ports():
-        if port.get_name() == port_name \
-         and port.is_post():
+        if port.get_name() == port_name and port.is_post():
             return port
     return None
+
 
 def get_input_port_by_name(input_block, port_name):
     for input_port in input_block.get_input_ports():
@@ -91,12 +92,14 @@ def get_input_port_by_name(input_block, port_name):
             return input_port
     return None
 
+
 def get_parameter_by_name(parameters_block, var_name):
     for decl in parameters_block.get_declarations():
         for var in decl.get_variables():
             if var.get_name() == var_name:
                 return decl
     return None
+
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -164,30 +167,29 @@ class NESTCodeGenerator(CodeGenerator):
             neuron_names = [neuron.get_name() for neuron in neurons]
             neuron_name = neuron_synapse_dyad[0]
             if not neuron_name + FrontendConfiguration.suffix in neuron_names:
-                raise Exception("Neuron name used in dyad ('" + neuron_name + "') not found") # XXX: log error
+                raise Exception("Neuron name used in dyad ('" + neuron_name + "') not found")  # XXX: log error
                 return neurons, synapses
             neuron = neurons[neuron_names.index(neuron_name + FrontendConfiguration.suffix)]
             new_neuron = neuron.clone()
-            #neurons.append(new_neuron)
 
             synapse_names = [synapse.get_name() for synapse in synapses]
             synapse_name = neuron_synapse_dyad[1]
             if not synapse_name + FrontendConfiguration.suffix in synapse_names:
-                raise Exception("Synapse name used in dyad ('" + synapse_name + "') not found") # XXX: log error
+                raise Exception("Synapse name used in dyad ('" + synapse_name + "') not found")  # XXX: log error
                 return neurons, synapses
             synapse = synapses[synapse_names.index(synapse_name + FrontendConfiguration.suffix)]
             synapses.clear()
             new_synapse = synapse.clone()
-            #synapses.append(new_synapse)
 
 
             #
-            # 	determine which variables and dynamics in synapse can be transferred to neuron
+            #   determine which variables and dynamics in synapse can be transferred to neuron
             #
 
             #
             #   make a list of all variables in the model
             #
+
 
             class ASTVariablesFinderVisitor(ASTVisitor):
                 _variables = []
@@ -203,17 +205,12 @@ class NESTCodeGenerator(CodeGenerator):
                     if symbol is None:
                         code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
                         Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                        log_level=LoggingLevel.ERROR, astnode=new_neuron)
+                                           log_level=LoggingLevel.ERROR, astnode=new_neuron)
                         return
 
                     self._variables.append(symbol)
 
             all_variables = []
-            if synapse.get_initial_values_blocks():
-                visitor = ASTVariablesFinderVisitor(synapse)
-                synapse.get_initial_values_blocks().accept(visitor)
-                all_variables.extend(visitor._variables)
-                visitor._variables = []
             if synapse.get_state_blocks():
                 visitor = ASTVariablesFinderVisitor(synapse)
                 synapse.get_state_blocks().accept(visitor)
@@ -222,11 +219,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             print("All variables defined in state block: " + str([v.name for v in all_variables]))
             all_variables = [v.name for v in all_variables]
-
-            #kernel_buffers = self.generate_kernel_buffers_(synapse, synapse.get_equations_blocks())
-            #print("All kernel buffers: " + str([el[0] for el in kernel_buffers]))
-
-
 
 
             class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
@@ -242,7 +234,7 @@ class NESTCodeGenerator(CodeGenerator):
                         symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
                                                                         SymbolKind.VARIABLE)
                         symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
-                                                                            SymbolKind.VARIABLE)
+                                                                           SymbolKind.VARIABLE)
                         input_port = get_input_port_by_name(self.synapse.get_input_blocks(), symbol_buffer.name)
                         if input_port:
                             has_post_qualifier = input_port.get_input_qualifiers() and input_port.get_input_qualifiers()[0].is_post
@@ -251,7 +243,7 @@ class NESTCodeGenerator(CodeGenerator):
                                 node_ = node
                                 while not found_parent_assignment:
                                     node_ = self.synapse.get_parent(node_)
-                                    if isinstance(node_, ASTInlineExpression):	# XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                                    if isinstance(node_, ASTInlineExpression):   # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                                         found_parent_assignment = True
                                 var_name = node_.get_variable_name()
                                 self._variables.append(var_name)
@@ -267,8 +259,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             #
             # for each variable:
-            #		if variable is assigned to in the `preReceive` block, is put in the "strictly synaptic" list
+            #     if variable is assigned to in the `preReceive` block, is put in the "strictly synaptic" list
             #
+
 
             class ASTAssignedToVariablesFinderVisitor(ASTVisitor):
                 _variables = []
@@ -283,7 +276,7 @@ class NESTCodeGenerator(CodeGenerator):
                     if symbol is None:
                         code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
                         Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                        log_level=LoggingLevel.ERROR, astnode=new_neuron)
+                                           log_level=LoggingLevel.ERROR, astnode=new_neuron)
                         return
 
                     self._variables.append(symbol)
@@ -300,11 +293,12 @@ class NESTCodeGenerator(CodeGenerator):
 
             #
             # for each variable:
-            #		If this variable occurs in a convolution, and it is not with a "spike post" port, remove it from list
-            # 		if this variable occurs in an expression in preReceive block, remove it from list
-            #		for all assignments to this variable in the postReceive and equations blocks:
-            #			if any of the "strictly synaptic" variables occur in the rhs, remove variable from list; break inner loop
+            #     If this variable occurs in a convolution, and it is not with a "spike post" port, remove it from list
+            #     if this variable occurs in an expression in preReceive block, remove it from list
+            #     for all assignments to this variable in the postReceive and equations blocks:
+            #         if any of the "strictly synaptic" variables occur in the rhs, remove variable from list; break inner loop
             #
+
 
             class ASTVariablesUsedInConvolutionVisitor(ASTVisitor):
                 _variables = []
@@ -319,7 +313,7 @@ class NESTCodeGenerator(CodeGenerator):
                         symbol_var = node.get_scope().resolve_to_symbol(str(node.get_args()[0]),
                                                                         SymbolKind.VARIABLE)
                         symbol_buffer = node.get_scope().resolve_to_symbol(str(node.get_args()[1]),
-                                                                            SymbolKind.VARIABLE)
+                                                                           SymbolKind.VARIABLE)
                         input_port = get_input_port_by_name(self.synapse.get_input_blocks(), symbol_buffer.name)
                         if input_port:
                             has_post_qualifier = input_port.get_input_qualifiers() and input_port.get_input_qualifiers()[0].is_post
@@ -328,7 +322,7 @@ class NESTCodeGenerator(CodeGenerator):
                                 node_ = node
                                 while not found_parent_assignment:
                                     node_ = self.synapse.get_parent(node_)
-                                    if isinstance(node_, ASTInlineExpression):	# XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                                    if isinstance(node_, ASTInlineExpression):   # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
                                         found_parent_assignment = True
                                 var_name = node_.get_variable_name()
                                 self._variables.append(var_name)
@@ -353,6 +347,7 @@ class NESTCodeGenerator(CodeGenerator):
             #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `neuron_state_vars`
             #
 
+
             def collect_variable_names_in_expression(expr):
                 """collect all occurrences of variables (`ASTVariable`), kernels (`ASTKernel`) XXX ...
                 """
@@ -366,12 +361,10 @@ class NESTCodeGenerator(CodeGenerator):
                         var = _expr
 
                     if var:
-                        print("\tcollected dependent variable: " +str(var))
+                        print("\tcollected dependent variable: " + str(var))
                         vars_used_.append(var)
 
-                func = lambda x: collect_vars(x)
-
-                expr.accept(ASTHigherOrderVisitor(func))
+                expr.accept(ASTHigherOrderVisitor(lambda x: collect_vars(x)))
 
                 return vars_used_
 
@@ -405,7 +398,7 @@ class NESTCodeGenerator(CodeGenerator):
 
                 return decls
 
-            def recursive_dependent_variables_search(vars:List[str], astnode):
+            def recursive_dependent_variables_search(vars: List[str], astnode):
                 for var in vars:
                     assert type(var) is str
                 vars_used = []
@@ -420,13 +413,12 @@ class NESTCodeGenerator(CodeGenerator):
                     if not var:
                         # all variables checked
                         break
-                    #decl = get_variable_declarations_from_block(var, astnode.get_equations_blocks())
                     decls = get_eq_declarations_from_block(var, astnode.get_equations_blocks())
 
                     if decls:
                         decl = decls[0]
                         if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
-                         or type(decl) is ASTInlineExpression:
+                           or type(decl) is ASTInlineExpression:
                             vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
                         elif type(decl) is ASTOdeEquation:
                             vars_used.extend(collect_variable_names_in_expression(decl.get_rhs()))
@@ -450,7 +442,6 @@ class NESTCodeGenerator(CodeGenerator):
                             pass
                         else:
                             raise Exception("Couldn't find declaration for variable: " + str(var))
-                    #vars_to_check.union(set(new_recursive_vars_used))
                     vars_checked.add(var)
 
                 return vars_checked
@@ -490,10 +481,11 @@ class NESTCodeGenerator(CodeGenerator):
                 # XXX: todo: change variable names inside rhs expressions
                 # XXX: todo: change parameter names inside rhs expressions
 
-            vars_used=[]
+            vars_used = []
+
             def move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix):
                 if not neuron_block \
-                 or not synapse_block:
+                   or not synapse_block:
                     return
 
                 decls = get_variable_declarations_from_block(state_var, synapse_block)
@@ -509,18 +501,18 @@ class NESTCodeGenerator(CodeGenerator):
                         decl.accept(ASTSymbolTableVisitor())
 
             for state_var in neuron_state_vars:
-                for neuron_block, synapse_block in zip([neuron.get_initial_values_blocks(), synapse.get_state_blocks()],
-                                                       [synapse.get_initial_values_blocks(), synapse.get_state_blocks()]):
-                    move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix)
+                neuron_block = neuron.get_state_blocks()
+                synapse_block = synapse.get_state_blocks()
+                move_decl_syn_neuron(state_var, neuron_block, synapse_block, var_name_suffix)
 
 
             #
             #   move defining equations for variables from synapse to neuron
             #
 
+
             def equations_from_syn_to_neuron(state_var, synapse_block, neuron_block, var_name_suffix, mode):
-                if not neuron_block \
-                 or not synapse_block:
+                if not neuron_block or not synapse_block:
                     return
 
                 assert mode in ["move", "copy"]
@@ -577,9 +569,9 @@ class NESTCodeGenerator(CodeGenerator):
                         print("\tneuron uses post spike port " +str(var.name) + " for synapse " + synapse.name)
                         post_ports.append(var)
 
-                        var._is_post_port =True
-                func = lambda x: mark_post_port(x)
-                neuron.accept(ASTHigherOrderVisitor(func))
+                        var._is_post_port = True
+
+                neuron.accept(ASTHigherOrderVisitor(lambda x: mark_post_port(x)))
                 return post_ports
 
             mark_post_ports(new_neuron, new_synapse)
@@ -608,8 +600,8 @@ class NESTCodeGenerator(CodeGenerator):
 
 
             for state_var in neuron_state_vars:
-                print("Moving initial values for equation(s) " + str(state_var))
-                iv_from_syn_to_neuron(state_var, new_synapse.get_initial_values_blocks(), new_neuron.get_initial_values_blocks(), var_name_suffix, mode="move")
+                print("Moving state variables for equation(s) " + str(state_var))
+                iv_from_syn_to_neuron(state_var, new_synapse.get_state_blocks(), new_neuron.get_state_blocks(), var_name_suffix, mode="move")
 
             #
             #    move updates in update block from synapse to neuron
@@ -717,9 +709,7 @@ class NESTCodeGenerator(CodeGenerator):
                         p = synapse.get_parent(var)
                         print("Error: unhandled use of variable " + var_name + " in expression " + str(p))
 
-                func = lambda x: replace_var(x)
-
-                synapse.accept(ASTHigherOrderVisitor(func))
+                synapse.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
             print("In synapse: replacing variables with suffixed external variable references")
             for state_var in neuron_state_vars:
@@ -743,9 +733,7 @@ class NESTCodeGenerator(CodeGenerator):
                      and var.get_name() == var_name:
                         var.set_name(var.get_name() + suffix)
 
-                func = lambda x: replace_var(x)
-
-                astnode.accept(ASTHigherOrderVisitor(func))
+                astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
 
             print("Add suffix to moved variable names in neuron...")
             for state_var in vars_used:

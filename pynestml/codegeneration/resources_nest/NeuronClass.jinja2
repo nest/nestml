@@ -1,4 +1,5 @@
 #define DEBUG 1
+{#
 NeuronClass.jinja2
 
 This file is part of NEST.
@@ -265,7 +266,7 @@ void {{neuronName}}::init_buffers_()
   {{ printer.print_buffer_initialization(buffer) }}
 {%- endfor %}
   B_.logger_.reset(); // includes resize
-  {
+
 {%- if dyadic_neuron_partner is defined %}
   clear_history();
 {%- endif %}
@@ -308,35 +309,32 @@ void {{neuronName}}::init_buffers_()
 }
 
 void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
-if (exclude_timestep) {
-{%- filter indent(2,True) %}
+  if (exclude_timestep) {
+{%- filter indent(4,True) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%- if variable.name != "__h" %}
 {%-   include "directives/Calibrate.jinja2" %}
 {%- endif %}
 {%- endfor %}
-{%- endfilter %}xxxxxxxxxxxx
-
-}
-else {
-  // internals V_
-{%- filter indent(2) %}
+{%- endfilter %}
+  }
+  else {
+    // internals V_
+{%- filter indent(4) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   include "directives/Calibrate.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
-  // state S_
-xxxxxxxxxxxx{%-   include "directives/Calibrate.jinja2" %}
-{%- endfor %}
-{%- endfilter %}xxxxxxxxxxxx
 
-{%- filter indent(2) %}
+    // state S_
+{%- filter indent(4) %}
 {%- for variable in neuron.get_state_symbols() %}
 {%-   if variable.has_vector_parameter() %}
 {%-     include "directives/Calibrate.jinja2" %}
 {%-   endif %}
 {%- endfor %}
 {%- endfilter %}
+  }
 }
 
 void {{neuronName}}::calibrate() {

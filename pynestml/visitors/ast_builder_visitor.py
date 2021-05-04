@@ -372,8 +372,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         size_param = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
-        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_inline_expression=is_inline_expression,
-
 
         # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
         # # check if this variable was decorated as homogeneous
@@ -387,11 +385,14 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
 
 
-        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_function=is_function,
-                                                            variables=variables, data_type=data_type,
+        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
+                                                            variables=variables,
+                                                            data_type=data_type,
                                                             size_parameter=size_param,
                                                             expression=expression,
-                                                            invariant=invariant, source_position=create_source_pos(ctx),
+                                                            is_inline_expression=is_inline_expression,
+                                                            invariant=invariant,
+                                                            source_position=create_source_pos(ctx),
                                                             decorators=decorators)
         update_node_comments(declaration, self.__comments.visit(ctx))
         return declaration

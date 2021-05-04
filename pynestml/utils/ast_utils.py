@@ -22,7 +22,6 @@
 from typing import Iterable, List, Optional, Union
 
 from pynestml.meta_model.ast_block import ASTBlock
-from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -146,7 +145,6 @@ class ASTUtils:
         """
         Checks if the handed over neuron contains a current input buffer.
         :param body: a single body element.
-        :type body: ast_body
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """

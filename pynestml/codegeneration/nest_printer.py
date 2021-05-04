@@ -184,7 +184,7 @@ class NestPrinter:
         #ret = print_origin(node.lhs) + self.print_node(node.lhs) + ' '
         from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        symbol.block_type = BlockType.INITIAL_VALUES
+        symbol.block_type = BlockType.STATE
         ret = self.print_origin(symbol) + GSLNamesConverter.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='

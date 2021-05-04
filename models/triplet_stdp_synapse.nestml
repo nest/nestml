@@ -2,8 +2,13 @@
 """
 synapse stdp_triplet:
 
-  initial_values:
+  state:
     w nS = 1 nS
+
+    tr_r1 real = 0.
+    tr_r2 real = 0.
+    tr_o1 real = 0.
+    tr_o2 real = 0.
   end
 
   parameters:
@@ -13,28 +18,21 @@ synapse stdp_triplet:
     tau_x ms = 101 ms  # time constant for tr_r2
     tau_minus ms = 33.7 ms  # time constant for tr_o1
     tau_y ms = 125 ms  # time constant for tr_o2
-    
+
     A2_plus real = 7.5e-10
     A3_plus real = 9.3e-3
     A2_minus real = 7e-3
     A3_minus real = 2.3e-4
-    
+
     Wmax nS = 100 nS
     Wmin nS = 0 nS
   end
 
   equations:
-    kernel tr_r1_kernel = exp(-t / tau_plus)
-    inline tr_r1 real = convolve(tr_r1_kernel, pre_spikes)
-
-    kernel tr_r2_kernel = exp(-t / tau_x)
-    inline tr_r2 real = convolve(tr_r2_kernel, pre_spikes)
-
-    kernel tr_o1_kernel = exp(-t / tau_minus)
-    inline tr_o1 real = convolve(tr_o1_kernel, post_spikes)
-
-    kernel tr_o2_kernel = exp(-t / tau_y)
-    inline tr_o2 real = convolve(tr_o2_kernel, post_spikes)
+    tr_r1' = -tr_r1 / tau_plus
+    tr_r2' = -tr_r2 / tau_x
+    tr_o1' = -tr_o1 / tau_minus
+    tr_o2' = -tr_o2 / tau_y
   end
 
   input:
@@ -45,6 +43,10 @@ synapse stdp_triplet:
   output: spike
 
   postReceive:
+    # increment post trace values
+    tr_o1 += 1
+    tr_o2 += 1
+
     # potentiate synapse
     #w_ nS = Wmax * ( w / Wmax + tr_r1 * ( A2_plus + A3_plus * tr_o2 ) )
     w_ nS = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
@@ -52,6 +54,10 @@ synapse stdp_triplet:
   end
 
   preReceive:
+    # increment pre trace values
+    tr_r1 += 1
+    tr_r2 += 1
+
     # depress synapse
     #w_ nS = Wmax * ( w / Wmax  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 ) )
     w_ nS = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
