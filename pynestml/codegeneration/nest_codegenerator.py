@@ -73,11 +73,15 @@ class NESTCodeGenerator(CodeGenerator):
     Options:
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
+    - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
+    - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     """
 
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
-        "neuron_parent_class_include": "archiving_node.h"
+        "neuron_parent_class_include": "archiving_node.h",
+        "preserve_expressions": False,
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
     }
 
     _variable_matching_template = r'(\b)({})(\b)'
@@ -537,7 +541,11 @@ class NESTCodeGenerator(CodeGenerator):
         odetoolbox_indict = self.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers)
         odetoolbox_indict["options"] = {}
         odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True, log_level=FrontendConfiguration.logging_level)
+        solver_result = analysis(odetoolbox_indict,
+                                 disable_stiffness_check=True,
+                                 preserve_expressions=self.get_option('preserve_expressions'),
+                                 simplify_expression=self.get_option('simplify_expression'),
+                                 log_level=FrontendConfiguration.logging_level)
         analytic_solver = None
         analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
         assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
@@ -548,8 +556,12 @@ class NESTCodeGenerator(CodeGenerator):
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
         if numeric_solvers:
-            solver_result = analysis(odetoolbox_indict, disable_stiffness_check=True,
-                                     disable_analytic_solver=True, log_level=FrontendConfiguration.logging_level)
+            solver_result = analysis(odetoolbox_indict,
+                                     disable_stiffness_check=True,
+                                     disable_analytic_solver=True,
+                                     preserve_expressions=self.get_option('preserve_expressions'),
+                                     simplify_expression=self.get_option('simplify_expression'),
+                                     log_level=FrontendConfiguration.logging_level)
             numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
             assert len(numeric_solvers) <= 1, "More than one numeric solver not presently supported"
             if len(numeric_solvers) > 0:
