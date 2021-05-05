@@ -47,8 +47,8 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #include "config.h"
 {%- if norm_rng %}
 
-// Includes from librandom:
-#include "normal_randomdev.h"
+// Includes for random number generator
+#include "random_generators.h"
 {%- endif %}
 {%- if useGSL %}
 
@@ -617,7 +617,7 @@ public: // XXX! TODO: should be private
 {% endif %}
 {%- if norm_rng %}
 
-  librandom::NormalRandomDev normal_dev_; //!< random deviate generator
+  nest::normal_distribution normal_dev_; //!< random deviate generator
 {%- endif %}
 
 
