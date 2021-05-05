@@ -6,7 +6,21 @@ Please note that only Python 3.8 (and later versions) are supported. The instruc
 Installing the latest release from PyPI
 ---------------------------------------
 
-.. Attention:: As NESTML is currently getting close to its version 4.0 release, we recommend using the development version (see below under :ref:`Installing the latest development version from GitHub`).
+.. Attention::
+
+   NEST Simulator is currently getting close to its version 3.0 release. It is presently required to first install the latest "master branch" version of NEST. See `NEST installation instructions <https://nest-simulator.readthedocs.io/en/latest/installation/linux_install.html>`_.
+
+.. Attention::
+
+   **Version compatibility matrix**
+
+   .. csv-table:: 
+      :header: "", "NEST 2.18+", "NEST 3.0", "NEST master"
+      :widths: auto
+
+      "**NESTML 3.1**", "✓", "", ""
+      "**NESTML 4.0**", "", "✓", "✓"
+      "**NESTML master**", "", "✓", "✓" 
 
 The easiest way to install NESTML is to use the `Python Package Index (PyPI) <https://pypi.org>`_. This requires the Python package management system ``pip`` to be installed. In Ubuntu, Mint and Debian Linux you can install ``pip`` as follows:
 
