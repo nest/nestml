@@ -817,9 +817,6 @@ template < typename targetidentifierT >
     V_.__h = nest::Time::get_resolution().get_ms();
     init_internals_block_symbols();
 
-
-  // initial values for state variables not in ODE or kernel
-
   // initial values for state variables in ODE or kernel
 {%- for init in synapse.get_state_symbols() %}
 {%-     with variable = init %}
