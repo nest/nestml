@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# stdp_nn_synapse_test.py
+# stdp_nn_pre_centered_test.py
 #
 # This file is part of NEST.
 #
@@ -44,7 +44,7 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
     ref_neuron_model_name = "iaf_psc_exp_nestml_non_jit"
 
     synapse_model_name = "stdp_nn_pre_centered_nestml__with_iaf_psc_exp_nestml"
-    ref_synapse_model_name = "stdp_nn_pre-centered_synapse"
+    ref_synapse_model_name = "stdp_nn_pre_centered_synapse"
 
     def setUp(self):
         """Generate the neuron model code"""
