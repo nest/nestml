@@ -18,27 +18,28 @@ GEN_DIR = os.path.join(NESTML_HOME , "generated")
 currentUserHome = str(Path.home())
 NESTSIM_HOME = os.path.join(currentUserHome, "thesis", "nest-simulator/build_master_nompi/install")
 
-def linkModel(nestml_model = "cm_model.nestml"):
-    
-    MODEL_FILE = os.path.join(NESTML_MODELS_HOME, nestml_model)
-    
-    #cleanup previously generated files
-    try:
-        rmtree(GEN_DIR)
-    except OSError:
-        print ("Cleaning up %s failed" % GEN_DIR)
-    else:
-        print ("Successfully deleted the %s and its contents" % GEN_DIR)
-    
-    #fresh dir
-    try:
-        os.mkdir(GEN_DIR)
-    except OSError:
-        print ("Creation of directory %s failed" % GEN_DIR)
-    else:
-        print ("Successfully created directory %s " % GEN_DIR)
+def linkModel(nestml_model = "cm_model.nestml", only_compile = False):
+    if not only_compile: 
+        MODEL_FILE = os.path.join(NESTML_MODELS_HOME, nestml_model)
         
-    to_nest(input_path=MODEL_FILE, target_path=GEN_DIR, suffix="_aaa")
+        #cleanup previously generated files
+        try:
+            rmtree(GEN_DIR)
+        except OSError:
+            print ("Cleaning up %s failed" % GEN_DIR)
+        else:
+            print ("Successfully deleted the %s and its contents" % GEN_DIR)
+        
+        #fresh dir
+        try:
+            os.mkdir(GEN_DIR)
+        except OSError:
+            print ("Creation of directory %s failed" % GEN_DIR)
+        else:
+            print ("Successfully created directory %s " % GEN_DIR)
+            
+        to_nest(input_path=MODEL_FILE, target_path=GEN_DIR, suffix="_aaa")
+    
     install_nest(GEN_DIR, NESTSIM_HOME)
     
     # inside nest it would be
@@ -48,7 +49,8 @@ def linkModel(nestml_model = "cm_model.nestml"):
     #...
 
 # random examples to try
-linkModel("cm_model.nestml")
+linkModel("cm_model.nestml", only_compile=False)
+# linkModel("aeif_cond_alpha.nestml")
 # linkModel("hh_cond_exp_traub.nestml")
 
 #comment this out if you don't want to test linking of all existing models

@@ -44,7 +44,6 @@ private:
 
 {%- with %}
 {%- for ion_channel_name, channel_info in cm_info.items() %}
-    {%- if loop.first %}{% set outer_loop_first = True %}{% endif -%}
     // {{ion_channel_name}} channel state variables
     {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
         // state variable {{pure_variable_name -}}
