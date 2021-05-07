@@ -18,7 +18,7 @@ synapse noisy_synapse:
   output: spike
 
   preReceive:
-    # depress synapse
+    # temporary variable for the "weight" that will be transmitted
     w_ nS = w + A_noise * random_normal(0, 1)
 
     # deliver spike to postsynaptic partner
