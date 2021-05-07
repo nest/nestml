@@ -116,7 +116,7 @@ class NESTCodeGenerator(CodeGenerator):
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
-        "neuron_synapse_dyads": []
+        "neuron_synapse_dyads": [],
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
     }
@@ -1181,6 +1181,9 @@ class NESTCodeGenerator(CodeGenerator):
 
             #print("NEST codegenerator step 6...")
             spike_updates, post_spike_updates = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
+        else:
+            self.add_timestep_symbol(synapse)
+
 
         return spike_updates, post_spike_updates
 

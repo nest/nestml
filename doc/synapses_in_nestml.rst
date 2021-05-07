@@ -547,6 +547,10 @@ Note that ``access_counter`` now has an extra multiplicative factor equal to the
 
    Potjans et al. 2010
 
+Random numbers
+~~~~~~~~~~~~~~
+
+In case random numbers are needed inside the synapse, the random number generator belonging to the postsynaptic target is used.
 
 
 TODO list

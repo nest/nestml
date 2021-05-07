@@ -1,0 +1,29 @@
+"""
+"""
+synapse noisy_synapse:
+
+  state:
+    w nS = 1 nS
+  end
+
+  parameters:
+    the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+    A_noise real = .4
+  end
+
+  input:
+    pre_spikes nS <- spike
+  end
+
+  output: spike
+
+  preReceive:
+    # depress synapse
+    w_ nS = w + A_noise * random_normal(0, 1)
+
+    # deliver spike to postsynaptic partner
+    deliver_spike(w_, the_delay)
+  end
+
+end
+
