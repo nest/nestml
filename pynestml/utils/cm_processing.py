@@ -22,13 +22,13 @@
 from collections import defaultdict
 import copy
 
-from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
-from pynestml.meta_model.ast_neuron import ASTNeuron
+
 
 class CmProcessing(object):
     """
@@ -39,10 +39,10 @@ class CmProcessing(object):
     
     Constraints:
     
-    If an inline expression name is found that starts with the value 
-    as specified via inline_expression_prefix ("cm_p_open_")
+    If state variable name is found that starts with the value 
+    as specified via cm_trigger_variable_name ("v_comp")
     The neuron is marked as compartmental model via neuron.is_compartmental_model = True
-    Otherwise neuron.is_compartmental_model = False and further checks will skip
+    Otherwise neuron.is_compartmental_model = False 
     
     If compartmental model neuron is detected it triggers further analysis:
     It ensures that all variables x as used in the inline expression cm_p_open_{channelType}
@@ -94,11 +94,28 @@ class CmProcessing(object):
     tau_sring = "tau"
     gbar_string = "gbar"
     equilibrium_string = "e"
+    cm_trigger_variable_name = "v_comp"
 
     def __init__(self, params):
         '''
         Constructor
         '''
+    @classmethod    
+    def is_compartmental_model(cls, neuron: ASTNeuron):
+        state_blocks = neuron.get_state_blocks()
+        if state_blocks is None: return False
+        if isinstance(state_blocks, ASTBlockWithVariables):
+            state_blocks = [state_blocks]
+        
+        for state_block in state_blocks:
+            declarations = state_block.get_declarations()
+            for declaration in declarations:
+                variables = declaration.get_variables()
+                for variable in variables:
+                    variable_name = variable.get_name().lower().strip()
+                    if variable_name == cls.cm_trigger_variable_name:
+                        return True
+        return False
 
     """
     detectCMInlineExpressions
@@ -125,13 +142,13 @@ class CmProcessing(object):
         neuron.accept(inline_expressions_inside_equations_block_collector_visitor)
         inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
         
-        is_compartmental_model = False
+        is_compartmental_model = cls.is_compartmental_model(neuron)
+        
         # filter for cm_p_open_{channelType}
         relevant_inline_expressions_to_variables = defaultdict(lambda:list())
         for expression, variables in inline_expressions_dict.items():
             inline_expression_name = expression.variable_name
             if inline_expression_name.startswith(cls.inline_expression_prefix):
-                is_compartmental_model = True
                 relevant_inline_expressions_to_variables[expression] = variables
         
         #create info structure
@@ -564,10 +581,9 @@ class CmProcessing(object):
     def get_cm_info(cls, neuron: ASTNeuron):
         """
         Checks if this compartmental conditions apply for the handed over neuron. 
-        Models which do not have inline cm_p_open_{channelType}
-        inside ASTEquationsBlock are not relevant
-        in addition it returns a dictionary 
-        which aided the analysis and is also needed to generate code
+        If yes, it checks the presence of expected functions and declarations.
+        In addition it organizes and builds a dictionary (cm_info) 
+        which describes all the relevant data that was found
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
@@ -592,8 +608,8 @@ class CmProcessing(object):
     def check_co_co(cls, neuron: ASTNeuron):
         """
         Checks if this compartmental conditions apply for the handed over neuron. 
-        Models which do not have inline cm_p_open_{channelType}
-        inside ASTEquationsBlock are not relevant
+        Models which do not have a state variable named as specified 
+        in the value of cm_trigger_variable_name are not relevant
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """

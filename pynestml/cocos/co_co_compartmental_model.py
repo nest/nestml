@@ -30,9 +30,8 @@ class CoCoCompartmentalModel(CoCo):
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
-        Checks if this coco applies for the handed over neuron. 
-        Models which do not have inline cm_p_open_{channelType}
-        inside ASTEquationsBlock are not relevant
+        Checks if this compartmental conditions apply for the handed over neuron. 
+        If yes, it checks the presence of expected functions and declarations.
         :param neuron: a single neuron instance.
         :type neuron: ast_neuron
         """

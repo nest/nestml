@@ -21,6 +21,9 @@ pythonjam
 neuron cm_model:
 
   state:
+    # indicate that we have a compartmental model
+    # by declaring an unused variable with the name "v_comp"
+    v_comp real = 0.0
     
     m_Na real = 0.0
     h_Na real = 0.0
