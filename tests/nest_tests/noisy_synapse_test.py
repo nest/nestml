@@ -44,7 +44,6 @@ class NoisySynapseTest(unittest.TestCase):
         """Generate the neuron model code"""
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
-        # generate the "non-jit" model, that relies on ArchivingNode
         to_nest(input_path="models/noisy_synapse.nestml",
                 target_path="/tmp/nestml-noisy-synapse",
                 logging_level="INFO",
@@ -56,21 +55,7 @@ class NoisySynapseTest(unittest.TestCase):
 
         fname_snip = "noisy_synapse_test"
 
-        pre_spike_times = [1., 11., 21.]    # [ms]
-
-        pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
-
-
-        pre_spike_times = np.array([  2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-  35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-  65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-  99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
- 152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-
-        pre_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        pre_spike_times = pre_spike_times[pre_spike_times < 100]
         pre_spike_times = np.linspace(1., 100., 10)
-
 
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
