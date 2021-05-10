@@ -28,3 +28,7 @@ venv
 *.iml
 /generated/
 /NESTML.egg-info/
+.pydevproject
+linkingModel.py
+
+

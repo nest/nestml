@@ -78,8 +78,14 @@ class ExpressionsPrettyPrinter:
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
-                return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
-                    self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins = with_origins)
+                if isinstance(self.reference_converter, NESTReferenceConverter):
+                    # NESTReferenceConverter takes the extra with_origins parameter 
+                    # which is used in compartmental models
+                    return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
+                        self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins = with_origins)
+                else:
+                    return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
+                        self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_numeric_literal():
                 return str(node.get_numeric_literal())
             elif node.is_inf_literal:

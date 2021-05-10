@@ -101,6 +101,7 @@ class NESTCodeGenerator(CodeGenerator):
                 [
                     os.path.join(os.path.dirname(__file__), 'resources_nest'),
                     os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_templates'),
+                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_syns_templates'), #SYNS_EXPERIMENTAL
                 ]
             ))
         env.globals['raise'] = raise_helper
@@ -138,6 +139,13 @@ class NESTCodeGenerator(CodeGenerator):
         self._cm_template_syns_h_file = env.get_template('cm_synsHeader.jinja2')
         self._cm_template_tree_cpp_file = env.get_template('cm_treeClass.jinja2')
         self._cm_template_tree_h_file = env.get_template('cm_treeHeader.jinja2')
+        
+        self._cm_syns_template_compartmentcurrents_cpp_file = env.get_template('compartmentCurrentsClass.jinja2') #SYNS_EXPERIMENTAL
+        self._cm_syns_template_compartmentcurrents_h_file = env.get_template('compartmentCurrentsHeader.jinja2') #SYNS_EXPERIMENTAL
+        self._cm_syns_template_main_cpp_file = env.get_template('cmSynsMainClass.jinja2') #SYNS_EXPERIMENTAL
+        self._cm_syns_template_main_h_file = env.get_template('cmSynsMainHeader.jinja2') #SYNS_EXPERIMENTAL
+        self._cm_syns_template_tree_cpp_file = env.get_template('cmSynsTreeClass.jinja2') #SYNS_EXPERIMENTAL
+        self._cm_syns_template_tree_h_file = env.get_template('cmSynsTreeHeader.jinja2') #SYNS_EXPERIMENTAL
 
     def generate_code(self, neurons):
         self.analyse_transform_neurons(neurons)
@@ -491,6 +499,11 @@ class NESTCodeGenerator(CodeGenerator):
         neuron_tree_h_file = self._cm_template_tree_h_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_tree_h_file_name)), 'w+') as f:
             f.write(str(neuron_tree_h_file))
+        
+        #SYNS_EXPERIMENTAL    
+        cm_syns_template_compartmentcurrents_h_file = self._cm_syns_template_compartmentcurrents_h_file.render(self.setup_generation_helpers(neuron)) #SYNS_EXPERIMENTAL
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), "cm_compartmentalcurrents.h")), 'w+') as f: #SYNS_EXPERIMENTAL
+            f.write(str(cm_syns_template_compartmentcurrents_h_file)) #SYNS_EXPERIMENTAL
             
     def get_etype_file_name_prefix(self, neuron):
         return "neuron_etype_" + neuron.get_name()
@@ -527,6 +540,11 @@ class NESTCodeGenerator(CodeGenerator):
         neuron_tree_cpp_file = self._cm_template_tree_cpp_file.render(self.setup_generation_helpers(neuron))
         with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_tree_cpp_file_name)), 'w+') as f:
             f.write(str(neuron_tree_cpp_file))
+            
+        #SYNS_EXPERIMENTAL    
+        cm_syns_template_compartmentcurrents_cpp_file = self._cm_syns_template_compartmentcurrents_cpp_file.render(self.setup_generation_helpers(neuron)) #SYNS_EXPERIMENTAL
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), "cm_compartmentalcurrents.cpp")), 'w+') as f: #SYNS_EXPERIMENTAL
+            f.write(str(cm_syns_template_compartmentcurrents_cpp_file)) #SYNS_EXPERIMENTAL
 
     def setup_generation_helpers(self, neuron: ASTNeuron) -> Dict:
         """
