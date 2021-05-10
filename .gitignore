@@ -2,6 +2,7 @@
 target/
 .idea/
 .mypy_cache/
+.eggs/
 build/
 buildNest/
 venv/
