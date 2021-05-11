@@ -262,7 +262,7 @@ parser grammar PyNestMLParser;
   /** ASTInputBlock represents a single input block, e.g.:
     input:
       spikeBuffer <- excitatory spike
-      currentBuffer pA <- current
+      currentBuffer pA <- continuous
     end
     @attribute inputPort: A list of input ports.
   */
@@ -277,14 +277,14 @@ parser grammar PyNestMLParser;
     @attribute datatype: Optional data type of the buffer.
     @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
-    @attribute isCurrent: Indicates that this input port accepts current generator input.
+    @attribute isContinuous: Indicates that this input port accepts continuous-time input.
   */
   inputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     (dataType)?
     LEFT_ANGLE_MINUS inputQualifier*
-    (isCurrent = CURRENT_KEYWORD | isSpike = SPIKE_KEYWORD);
+    (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
 
   /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
     @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
@@ -294,10 +294,10 @@ parser grammar PyNestMLParser;
 
   /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
         output: spike
-      @attribute isSpike: true iff the neuron has a spike output.
-      @attribute isCurrent: true iff. the neuron is a current output.
+      @attribute isSpike: true if and only if the neuron has a spike output.
+      @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
-  outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isCurrent=CURRENT_KEYWORD) ;
+  outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) ;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):
