@@ -27,10 +27,13 @@ class ASTInputBlock(ASTNode):
     """
     This class is used to store blocks of input definitions.
     ASTInputBlock represents the input block, e.g.:
-        input:
-          spikeBuffer pA <- excitatory spike
-          currentBuffer pA <- current
-        end
+
+    .. code-block:: nestml
+
+       input:
+         spike_in pA <- excitatory spike
+         current_in pA <- continuous
+       end
 
     @attribute inputPort set of input ports.
     Grammar:

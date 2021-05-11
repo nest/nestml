@@ -237,8 +237,8 @@ void {{neuronName}}::init_state_(const Node& proto)
 
 void {{neuronName}}::init_buffers_()
 {
-{%- for buffer in neuron.get_input_buffers() %}
-  {{ printer.print_buffer_initialization(buffer) }}
+{%- for port in neuron.get_input_ports() %}
+  {{ printer.print_buffer_initialization(port) }}
 {%- endfor %}
   B_.logger_.reset(); // includes resize
   {{neuron_parent_class}}::clear_history();
@@ -301,10 +301,10 @@ void {{neuronName}}::calibrate()
 {%- endfilter %}
 
   // buffers B_
-{%- for buffer in neuron.get_input_buffers() %}
-{%-   if buffer.has_vector_parameter() %}
-  B_.{{buffer.get_symbol_name()}}.resize(P_.{{buffer.get_vector_parameter()}});
-  B_.{{buffer.get_symbol_name()}}_grid_sum_.resize(P_.{{buffer.get_vector_parameter()}});
+{%- for port in neuron.get_input_ports() %}
+{%-   if port.has_vector_parameter() %}
+  B_.{{port.get_symbol_name()}}.resize(P_.{{port.get_vector_parameter()}});
+  B_.{{port.get_symbol_name()}}_grid_sum_.resize(P_.{{port.get_vector_parameter()}});
 {%-   endif %}
 {%- endfor %}
 }
@@ -347,7 +347,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
 
   for ( long lag = from ; lag < to ; ++lag )
   {
-{%- for inputPort in neuron.get_input_buffers() %}
+{%- for inputPort in neuron.get_input_ports() %}
 {%-   if inputPort.has_vector_parameter() %}
     for (long i=0; i < P_.{{inputPort.get_vector_parameter()}}; ++i)
     {
@@ -381,13 +381,13 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 {
   B_.logger_.handle(e);
 }
-{% if is_spike_input %}
+{% if has_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
   assert(e.get_delay_steps() > 0);
 {%- if neuron.is_multisynapse_spikes() %}
-{%-   set spikeBuffer = neuron.get_spike_buffers()[0] %}
-  B_.{{spikeBuffer.get_symbol_name()}}[e.get_rport() - 1].add_value(
+{%-   set port = neuron.get_spike_input_ports()[0] %}
+  B_.{{port.get_symbol_name()}}[e.get_rport() - 1].add_value(
     e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
     e.get_weight() * e.get_multiplicity() );
 {%- elif neuron.get_multiple_receptors()|length > 1 %}
@@ -399,24 +399,24 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 {%- else %}
   const double weight = e.get_weight();
   const double multiplicity = e.get_multiplicity();
-{%-   for buffer in neuron.get_spike_buffers() %}
-{%-     if buffer.is_excitatory() %}
+{%-   for port in neuron.get_spike_input_ports() %}
+{%-     if port.is_excitatory() %}
   if ( weight >= 0.0 )
   {
     // excitatory
-    get_{{buffer.get_symbol_name()}}().
+    get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                        weight * multiplicity );
   }
 {%-     endif %}
-{%-     if buffer.is_inhibitory() %}
+{%-     if port.is_inhibitory() %}
   if ( weight < 0.0 )
   {
     // inhibitory
-    get_{{buffer.get_symbol_name()}}().
+    get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                      {% if buffer.is_conductance_based() %} // ensure conductance is positive {% endif %}
-                      {% if buffer.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
+                      {% if port.is_conductance_based() %} // ensure conductance is positive {% endif %}
+                      {% if port.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
   }
 {%-     endif %}
 {%-   endfor %}
@@ -424,7 +424,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 }
 {%- endif %}
 
-{%- if is_current_input %}
+{%- if has_current_input %}
 
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {
@@ -433,8 +433,8 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
   const double weight = e.get_weight();
 
-{%- for buffer in neuron.get_current_buffers() %}
-  get_{{buffer.get_symbol_name()}}().add_value(
+{%- for port in neuron.get_continuous_input_ports() %}
+  get_{{port.get_symbol_name()}}().add_value(
                e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                weight * current );
 {%- endfor %}

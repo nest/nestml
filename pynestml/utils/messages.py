@@ -38,7 +38,7 @@ class MessageCode(Enum):
     BUFFER_SET_TO_CONDUCTANCE_BASED = 9
     ODE_UPDATED = 10
     NO_VARIABLE_FOUND = 11
-    SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
+    SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 12
     NEURON_CONTAINS_ERRORS = 13
     START_PROCESSING_NEURON = 14
     CODE_SUCCESSFULLY_GENERATED = 15
@@ -48,10 +48,10 @@ class MessageCode(Enum):
     VARIABLE_DEFINED_RECURSIVELY = 19
     VALUE_ASSIGNED_TO_BUFFER = 20
     ARG_NOT_KERNEL_OR_EQUATION = 21
-    ARG_NOT_BUFFER = 22
+    ARG_NOT_SPIKE_INPUT = 22
     NUMERATOR_NOT_ONE = 23
     ORDER_NOT_DECLARED = 24
-    CURRENT_BUFFER_SPECIFIED = 25
+    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 25
     BLOCK_NOT_CORRECT = 26
     VARIABLE_NOT_IN_STATE_BLOCK = 27
     WRONG_NUMBER_OF_ARGS = 28
@@ -348,19 +348,18 @@ class Messages:
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
-    def get_buffer_type_not_defined(cls, buffer_name):
+    def get_input_port_type_not_defined(cls, input_port_name: str):
         """
-        Returns a message indicating that a buffer type has not been defined, thus nS is assumed.
-        :param buffer_name: a buffer name
-        :type buffer_name: str
+        Returns a message indicating that a input_port type has not been defined, thus nS is assumed.
+        :param input_port_name: a input_port name
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (buffer_name is not None and isinstance(buffer_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
+        assert (input_port_name is not None and isinstance(input_port_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(input_port_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\'!' % buffer_name
-        return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
+        message = 'No type declared for spiking input port \'%s\'!' % input_port_name
+        return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
     @classmethod
     def get_neuron_contains_errors(cls, neuron_name):
@@ -493,18 +492,16 @@ class Messages:
         return MessageCode.ARG_NOT_KERNEL_OR_EQUATION, message
 
     @classmethod
-    def get_second_arg_not_a_buffer(cls, func_name):
+    def get_second_arg_not_a_spike_port(cls, func_name: str) -> Tuple[MessageCode, str]:
         """
-        Indicates that the second argument of an rhs is not a buffer.
+        Indicates that the second argument of the NESTML convolve() call is not a spiking input port.
         :param func_name: the name of the function
-        :type func_name: str
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (func_name is not None and isinstance(func_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
-        message = 'Second argument of \'%s\' not a buffer!' % func_name
-        return MessageCode.ARG_NOT_BUFFER, message
+        message = 'Second argument of \'%s\' not a spiking input port!' % func_name
+        return MessageCode.ARG_NOT_SPIKE_INPUT, message
 
     @classmethod
     def get_wrong_numerator(cls, unit):
@@ -535,9 +532,9 @@ class Messages:
         return MessageCode.ORDER_NOT_DECLARED, message
 
     @classmethod
-    def get_current_buffer_specified(cls, name, keyword):
+    def get_continuous_input_port_specified(cls, name, keyword):
         """
-        Indicates that the current buffer has been specified with a type keyword.
+        Indicates that the continuous time input port has been specified with an `inputQualifier` keyword.
         :param name: the name of the buffer
         :type name: str
         :param keyword: the keyword
@@ -547,8 +544,8 @@ class Messages:
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Current buffer \'%s\' specified with type keywords (%s)!' % (name, keyword)
-        return MessageCode.CURRENT_BUFFER_SPECIFIED, message
+        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (name, keyword)
+        return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
     def get_block_not_defined_correctly(cls, block, missing):

@@ -33,7 +33,7 @@ neuron logarithm_function_test_invalid:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
-      currents pA <- current
+      currents pA <- continuous
   end
 
   update:

@@ -1,10 +1,9 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.9.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.7.1
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
 import sys
-
 
 def serializedATN():
     with StringIO() as buf:
@@ -179,7 +178,7 @@ def serializedATN():
         buf.write(u"\u013d\3\2\2\2\u013f\u013e\3\2\2\2\u0140\u0141\3\2\2")
         buf.write(u"\2\u0141\u0142\5\b\5\2\u0142\'\3\2\2\2\u0143\u0145\7")
         buf.write(u"\35\2\2\u0144\u0143\3\2\2\2\u0144\u0145\3\2\2\2\u0145")
-        buf.write(u"\u0147\3\2\2\2\u0146\u0148\7\17\2\2\u0147\u0146\3\2\2")
+        buf.write(u"\u0147\3\2\2\2\u0146\u0148\7\20\2\2\u0147\u0146\3\2\2")
         buf.write(u"\2\u0147\u0148\3\2\2\2\u0148\u0149\3\2\2\2\u0149\u014e")
         buf.write(u"\5\24\13\2\u014a\u014b\7E\2\2\u014b\u014d\5\24\13\2\u014c")
         buf.write(u"\u014a\3\2\2\2\u014d\u0150\3\2\2\2\u014e\u014c\3\2\2")
@@ -293,7 +292,7 @@ class PyNestMLParser ( Parser ):
                      u"'in'", u"'step'", u"'inf'", u"'and'", u"'or'", u"'not'", 
                      u"'recordable'", u"'kernel'", u"'neuron'", u"'state'", 
                      u"'parameters'", u"'internals'", u"'update'", u"'equations'", 
-                     u"'input'", u"'output'", u"'current'", u"'spike'", 
+                     u"'input'", u"'output'", u"'continuous'", u"'spike'", 
                      u"'inhibitory'", u"'excitatory'", u"'...'", u"'('", 
                      u"')'", u"'+'", u"'~'", u"'|'", u"'^'", u"'&'", u"'['", 
                      u"'<-'", u"']'", u"'[['", u"']]'", u"'<<'", u"'>>'", 
@@ -313,7 +312,7 @@ class PyNestMLParser ( Parser ):
                       u"RECORDABLE_KEYWORD", u"KERNEL_KEYWORD", u"NEURON_KEYWORD", 
                       u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", u"INTERNALS_KEYWORD", 
                       u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", u"INPUT_KEYWORD", 
-                      u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
+                      u"OUTPUT_KEYWORD", u"CONTINUOUS_KEYWORD", u"SPIKE_KEYWORD", 
                       u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"ELLIPSIS", 
                       u"LEFT_PAREN", u"RIGHT_PAREN", u"PLUS", u"TILDE", 
                       u"PIPE", u"CARET", u"AMPERSAND", u"LEFT_SQUARE_BRACKET", 
@@ -417,7 +416,7 @@ class PyNestMLParser ( Parser ):
     EQUATIONS_KEYWORD=34
     INPUT_KEYWORD=35
     OUTPUT_KEYWORD=36
-    CURRENT_KEYWORD=37
+    CONTINUOUS_KEYWORD=37
     SPIKE_KEYWORD=38
     INHIBITORY_KEYWORD=39
     EXCITATORY_KEYWORD=40
@@ -466,10 +465,9 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input, output=sys.stdout):
         super(PyNestMLParser, self).__init__(input, output=output)
-        self.checkVersion("4.9.1")
+        self.checkVersion("4.7.1")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
-
 
 
 
@@ -564,7 +562,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class UnitTypeContext(ParserRuleContext):
 
@@ -727,7 +724,6 @@ class PyNestMLParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
-
     class UnitTypeExponentContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -784,7 +780,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class ExpressionContext(ParserRuleContext):
 
@@ -1119,7 +1114,6 @@ class PyNestMLParser ( Parser ):
             self.unrollRecursionContexts(_parentctx)
         return localctx
 
-
     class SimpleExpressionContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1230,7 +1224,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class UnaryOperatorContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1292,7 +1285,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class BitOperatorContext(ParserRuleContext):
 
@@ -1371,7 +1363,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class ComparisonOperatorContext(ParserRuleContext):
 
@@ -1467,7 +1458,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class LogicalOperatorContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1521,7 +1511,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class VariableContext(ParserRuleContext):
 
@@ -1577,7 +1566,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class FunctionCallContext(ParserRuleContext):
 
@@ -1660,7 +1648,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class InlineExpressionContext(ParserRuleContext):
 
@@ -1746,7 +1733,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class OdeEquationContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1809,7 +1795,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class KernelContext(ParserRuleContext):
 
@@ -1924,7 +1909,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class BlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -1966,11 +1950,11 @@ class PyNestMLParser ( Parser ):
             self.state = 293
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.RETURN_KEYWORD) | (1 << PyNestMLParser.IF_KEYWORD) | (1 << PyNestMLParser.FOR_KEYWORD) | (1 << PyNestMLParser.WHILE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RETURN_KEYWORD) | (1 << PyNestMLParser.IF_KEYWORD) | (1 << PyNestMLParser.FOR_KEYWORD) | (1 << PyNestMLParser.WHILE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
                 self.state = 291
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [PyNestMLParser.FUNCTION_KEYWORD, PyNestMLParser.RETURN_KEYWORD, PyNestMLParser.IF_KEYWORD, PyNestMLParser.FOR_KEYWORD, PyNestMLParser.WHILE_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
+                if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RETURN_KEYWORD, PyNestMLParser.IF_KEYWORD, PyNestMLParser.FOR_KEYWORD, PyNestMLParser.WHILE_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
                     self.state = 289
                     self.stmt()
                     pass
@@ -1992,7 +1976,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class StmtContext(ParserRuleContext):
 
@@ -2028,7 +2011,7 @@ class PyNestMLParser ( Parser ):
             self.state = 298
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.FUNCTION_KEYWORD, PyNestMLParser.RETURN_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
+            if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RETURN_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 296
                 self.smallStmt()
@@ -2048,7 +2031,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class CompoundStmtContext(ParserRuleContext):
 
@@ -2113,7 +2095,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class SmallStmtContext(ParserRuleContext):
 
@@ -2189,7 +2170,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class AssignmentContext(ParserRuleContext):
 
@@ -2282,7 +2262,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class DeclarationContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2329,8 +2308,8 @@ class PyNestMLParser ( Parser ):
         def RECORDABLE_KEYWORD(self):
             return self.getToken(PyNestMLParser.RECORDABLE_KEYWORD, 0)
 
-        def FUNCTION_KEYWORD(self):
-            return self.getToken(PyNestMLParser.FUNCTION_KEYWORD, 0)
+        def INLINE_KEYWORD(self):
+            return self.getToken(PyNestMLParser.INLINE_KEYWORD, 0)
 
         def NAME(self):
             return self.getToken(PyNestMLParser.NAME, 0)
@@ -2435,7 +2414,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ReturnStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2484,7 +2462,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class IfStmtContext(ParserRuleContext):
 
@@ -2559,7 +2536,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class IfClauseContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2613,7 +2589,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class ElifClauseContext(ParserRuleContext):
 
@@ -2669,7 +2644,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class ElseClauseContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2717,7 +2691,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class ForStmtContext(ParserRuleContext):
 
@@ -2833,7 +2806,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class WhileStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -2892,7 +2864,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class NestMLCompilationUnitContext(ParserRuleContext):
 
@@ -2967,7 +2938,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class NeuronContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3015,7 +2985,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class BodyContext(ParserRuleContext):
 
@@ -3150,7 +3119,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class BlockWithVariablesContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3218,11 +3186,11 @@ class PyNestMLParser ( Parser ):
             self.state = 436
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.FUNCTION_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNestMLParser.NEWLINE) | (1 << PyNestMLParser.INLINE_KEYWORD) | (1 << PyNestMLParser.RECORDABLE_KEYWORD))) != 0) or _la==PyNestMLParser.NAME:
                 self.state = 434
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [PyNestMLParser.FUNCTION_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
+                if token in [PyNestMLParser.INLINE_KEYWORD, PyNestMLParser.RECORDABLE_KEYWORD, PyNestMLParser.NAME]:
                     self.state = 432
                     self.declaration()
                     pass
@@ -3246,7 +3214,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class UpdateBlockContext(ParserRuleContext):
 
@@ -3300,7 +3267,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class EquationsBlockContext(ParserRuleContext):
 
@@ -3407,7 +3373,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class InputBlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3491,7 +3456,6 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class InputPortContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3499,7 +3463,7 @@ class PyNestMLParser ( Parser ):
             self.parser = parser
             self.name = None # Token
             self.sizeParameter = None # Token
-            self.isCurrent = None # Token
+            self.isContinuous = None # Token
             self.isSpike = None # Token
 
         def LEFT_ANGLE_MINUS(self):
@@ -3528,8 +3492,8 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.InputQualifierContext,i)
 
 
-        def CURRENT_KEYWORD(self):
-            return self.getToken(PyNestMLParser.CURRENT_KEYWORD, 0)
+        def CONTINUOUS_KEYWORD(self):
+            return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
 
         def SPIKE_KEYWORD(self):
             return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
@@ -3590,9 +3554,9 @@ class PyNestMLParser ( Parser ):
             self.state = 488
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.CURRENT_KEYWORD]:
+            if token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
                 self.state = 486
-                localctx.isCurrent = self.match(PyNestMLParser.CURRENT_KEYWORD)
+                localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             elif token in [PyNestMLParser.SPIKE_KEYWORD]:
                 self.state = 487
@@ -3608,7 +3572,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class InputQualifierContext(ParserRuleContext):
 
@@ -3664,14 +3627,13 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
     class OutputBlockContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.OutputBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.isSpike = None # Token
-            self.isCurrent = None # Token
+            self.isContinuous = None # Token
 
         def OUTPUT_KEYWORD(self):
             return self.getToken(PyNestMLParser.OUTPUT_KEYWORD, 0)
@@ -3682,8 +3644,8 @@ class PyNestMLParser ( Parser ):
         def SPIKE_KEYWORD(self):
             return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
 
-        def CURRENT_KEYWORD(self):
-            return self.getToken(PyNestMLParser.CURRENT_KEYWORD, 0)
+        def CONTINUOUS_KEYWORD(self):
+            return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_outputBlock
@@ -3714,9 +3676,9 @@ class PyNestMLParser ( Parser ):
                 self.state = 496
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.CURRENT_KEYWORD]:
+            elif token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
                 self.state = 497
-                localctx.isCurrent = self.match(PyNestMLParser.CURRENT_KEYWORD)
+                localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             else:
                 raise NoViableAltException(self)
@@ -3728,7 +3690,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class FunctionContext(ParserRuleContext):
 
@@ -3844,7 +3805,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
     class ParameterContext(ParserRuleContext):
 
