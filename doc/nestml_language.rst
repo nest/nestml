@@ -756,7 +756,7 @@ This way, a flexible combination of the inputs is possible. If, for example, cur
 .. code-block:: nestml
 
    input:
-     I_stim pA <- current
+     I_stim pA <- continuous
      inh_spikes pA <- inhibitory spike
      exc_spikes pA <- excitatory spike
    end

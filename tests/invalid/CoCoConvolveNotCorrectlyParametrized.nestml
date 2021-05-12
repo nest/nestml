@@ -6,8 +6,7 @@ CoCoConvolveNotCorrectlyParametrized.nestml
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly
-provided with a initial_block variable and a spike buffer.
+This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly provided with a initial_block variable and a spike input port.
 
 Negative case.
 
@@ -42,6 +41,6 @@ neuron CoCoConvolveNotCorrectlyParametrized:
     end
 
     input:
-        spikeExc integer  <- excitatory spike
+        spikeExc integer <- excitatory spike
     end
 end

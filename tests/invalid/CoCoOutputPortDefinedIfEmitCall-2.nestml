@@ -68,10 +68,10 @@ neuron iaf_psc_exp:
   input:
     ex_spikes pA <- excitatory spike
     in_spikes pA <- inhibitory spike
-    I_stim pA <- current
+    I_stim pA <- continuous
   end
 
-  output: current
+  output: continuous
 
   update:
     if r == 0: # neuron not refractory, so evolve V

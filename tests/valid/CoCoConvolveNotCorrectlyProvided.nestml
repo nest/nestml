@@ -6,8 +6,7 @@ CoCoConvolveNotCorrectlyProvided.nestml
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly
-provided with a initial_block variable and a spike buffer.
+This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly provided with a initial_block variable and a spike input port.
 
 Positive case.
 
@@ -35,11 +34,11 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron CoCoConvolveNotCorrectlyProvided:
     equations:
         kernel test = 10
-        inline testB pA = convolve(test, spikeExc) # convolve provided with a kernel and a buffer, thus correct
+        inline testB pA = convolve(test, spikeExc) # convolve provided with a kernel and a spike input port, thus correct
     end
 
     input:
-        spikeExc integer  <- excitatory spike
+        spikeExc integer <- excitatory spike
     end
 
     update:

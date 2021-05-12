@@ -143,12 +143,6 @@ class PredefinedTypes:
         return cls.name2type
 
     @classmethod
-    def get_buffer_type_if_exists(cls, name):
-        result = copy(cls.get_type(name))
-        result.is_buffer = True
-        return result
-
-    @classmethod
     def get_type(cls, name):
         """
         Return a TypeSymbol for

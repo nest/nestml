@@ -209,7 +209,7 @@ parser grammar PyNestMLParser;
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
     @attribute equationsBlock: A block of ode declarations.
-    @attribute inputBlock: A block of input buffer declarations.
+    @attribute inputBlock: A block of input port declarations.
     @attribute outputBlock: A block of output declarations.
     @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute function: A block declaring a user-defined function.
@@ -261,8 +261,8 @@ parser grammar PyNestMLParser;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
-      spikeBuffer <- excitatory spike
-      currentBuffer pA <- continuous
+      spike_in <- excitatory spike
+      current_in pA <- continuous
     end
     @attribute inputPort: A list of input ports.
   */
@@ -271,10 +271,10 @@ parser grammar PyNestMLParser;
               END_KEYWORD;
 
   /** ASTInputPort represents a single input port, e.g.:
-      spikeBuffer type <- excitatory spike
+      spike_in <- excitatory spike
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.
-    @attribute datatype: Optional data type of the buffer.
+    @attribute datatype: Optional data type of the port.
     @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
     @attribute isContinuous: Indicates that this input port accepts continuous-time input.
@@ -292,7 +292,7 @@ parser grammar PyNestMLParser;
   */
   inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
-  /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
+  /** ASTOutputBlock Represents the output block of the neuron, i.e., declarations of output ports:
         output: spike
       @attribute isSpike: true if and only if the neuron has a spike output.
       @attribute isContinuous: true if and only if the neuron has a continuous-time output.

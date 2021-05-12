@@ -150,7 +150,7 @@ Source code
 
       input:
         spikes pA <- spike
-        I_stim pA <- current
+        I_stim pA <- continuous
       end
 
       output: spike
