@@ -745,13 +745,13 @@ Neuronal interactions
 Input
 ~~~~~
 
-A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and currents. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named buffer, or if they should be separated into differently named buffers based on their sign. The `input` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
+A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named input port, or if they should be separated into differently named input ports based on their sign. The ``input`` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
 
 ::
 
-    port_name <- inhibitory? excitatory? (spike | current)
+    port_name <- inhibitory? excitatory? (spike | continuous)
 
-This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following `input` block would be appropriate:
+This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following ``input`` block would be appropriate:
 
 .. code-block:: nestml
 
@@ -851,7 +851,7 @@ For more information, see the :doc:`Active dendrite tutorial <tutorial/active_de
 Multiple input synapses
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-If there is more than one line specifying a `spike` or `current` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
+If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
 
 .. code-block:: nestml
 
@@ -911,7 +911,7 @@ For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml 
 Output
 ~~~~~~
 
-Each neuron model can only send a single type of event. The type of the event has to be given in the ``output`` block. Currently, however, only spike output is supported.
+Each neuron model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
 
 .. code-block:: nestml
 
@@ -951,7 +951,7 @@ in the ``equations`` block,
 
 has to be defined in the ``state`` block. Otherwise, an error message is generated.
 
-The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
+The content of spike and continuous time buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
 
 Inline expressions
