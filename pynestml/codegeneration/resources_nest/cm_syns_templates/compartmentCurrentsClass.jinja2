@@ -1,0 +1,408 @@
+#include "cm_compartmentcurrents.h"
+
+{%- set current_conductance_name_prefix = "g" %}
+{%- set current_equilibrium_name_prefix = "e" %}
+{% macro render_dynamic_channel_variable_name(variable_type, ion_channel_name) -%}
+    {%- if variable_type == "gbar" -%}
+        {{ current_conductance_name_prefix~"_"~ion_channel_name }}
+    {%- elif variable_type == "e" -%}
+        {{ current_equilibrium_name_prefix~"_"~ion_channel_name }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro render_state_variable_name(pure_variable_name, ion_channel_name) -%}
+    {{ pure_variable_name~"_"~ion_channel_name }}
+{%- endmacro -%}
+
+
+{% macro render_function_return_type(function) -%}
+{%- with -%}
+    {%- set symbol = function.get_scope().resolve_to_symbol(function.get_name(), SymbolKind.FUNCTION) -%}
+    {{ type_converter.convert(symbol.get_return_type()) }}
+{%- endwith -%} 
+{%- endmacro -%}
+
+{% macro render_inline_expression_type(inline_expression) -%}
+{%- with -%}
+    {%- set symbol = inline_expression.get_scope().resolve_to_symbol(inline_expression.variable_name, SymbolKind.VARIABLE) -%}
+    {{ type_converter.convert(symbol.get_type_symbol()) }}
+{%- endwith -%} 
+{%- endmacro -%}
+
+{% macro render_static_channel_variable_name(variable_type, ion_channel_name) -%}
+
+{%- with %}
+{%- for ion_channel_nm, channel_info in cm_info.items() -%}
+    {%- if ion_channel_nm == ion_channel_name -%}
+        {%- for variable_tp, variable_info in channel_info["channel_variables"].items() -%}
+            {%- if variable_tp == variable_type -%}
+                {%- set variable = variable_info["parameter_block_variable"] -%}
+                {{ variable.name }}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endfor -%}
+{% endwith %} 
+   
+{%- endmacro %}
+
+{% macro render_channel_function(function, ion_channel_name) -%}
+{%- with %}
+{{printer.print_function_definition(function, "nest::"~ion_channel_name)}}
+{
+{%-   filter indent(2,True) %}
+{%-   with ast = function.get_block() %}
+{%-     include "directives/Block.jinja2" %}
+{%-   endwith %}
+{%-   endfilter %}
+}
+{% endwith %} 
+{%- endmacro %}
+
+
+{%- with %}
+{%- for ion_channel_name, channel_info in cm_info.items() %}
+
+// {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
+nest::{{ion_channel_name}}::{{ion_channel_name}}()
+
+{%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+// state variable {{pure_variable_name -}}
+{%- set variable = variable_info["state_variable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+{% if loop.first %}: {% else %}, {% endif %}
+{{- variable.name}}({{ printer.print_expression(rhs_expression) -}}) 
+{%- endfor -%}
+
+{% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+// channel parameter {{variable_type -}}
+{%- set variable = variable_info["parameter_block_variable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+,{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
+{%- endfor -%}
+{}    
+
+nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_params)
+
+{%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+// state variable {{pure_variable_name -}}
+{%- set variable = variable_info["state_variable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+{% if loop.first %}: {% else %}, {% endif %}
+{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
+{%- endfor -%}
+
+{% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+// channel parameter {{variable_type -}}
+{%- set variable = variable_info["parameter_block_variable"] %}
+{%- set rhs_expression = variable_info["rhs_expression"] %}
+,{{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
+{%- endfor %}
+// update {{ion_channel_name}} channel parameters
+{
+    {%- with %}
+    {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
+        {%- set variable = variable_info["parameter_block_variable"] %}
+        {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
+    // {{ion_channel_name}} channel parameter {{dynamic_variable }} 
+    if( channel_params->known( "{{dynamic_variable}}" ) )
+        {{variable.name}} = getValue< double >( channel_params, "{{dynamic_variable}}" );
+    {%- endfor -%}
+    {% endwith %}
+}
+
+std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v_comp, const double dt)
+{
+    double g_val = 0., i_val = 0.;
+    {%- set inline_expression = channel_info["ASTInlineExpression"] %}
+    {%- set dynamic_variable = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
+    {%- set gbar_variable = channel_info["channel_variables"]["gbar"]["parameter_block_variable"] %}    
+    if ({{gbar_variable.name}} > 1e-9)
+    {
+        {% for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        // activation and timescale of state variable '{{pure_variable_name}}'
+            {%- set inner_variable = variable_info["ASTVariable"] %}
+            {%- set expected_functions_info = variable_info["expected_functions"] %}
+            {%- for expected_function_type, expected_function_info in expected_functions_info.items() %}
+                {%- set result_variable_name = expected_function_info["result_variable_name"] %}
+                {%- set function_to_call = expected_function_info["ASTFunction"] %}
+                {%- set function_parameters = function_to_call.get_parameters() %}
+        // {{expected_function_type}}
+        {{render_function_return_type(function_to_call)}} {{ result_variable_name }} = {{function_to_call.get_name()}}(
+        {%- for parameter in function_parameters -%}
+            {{- parameter.name }}
+        {%- endfor -%}
+        );
+        {%- endfor %}
+            {%- endfor %}
+        
+        {% for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        // advance state variable {{pure_variable_name}} one timestep
+            {%- set inner_variable = variable_info["ASTVariable"] %}
+            {%- set expected_functions_info = variable_info["expected_functions"] %}
+            {%- set tau_result_variable_name = expected_functions_info["tau"]["result_variable_name"] %}
+            {%- set inf_result_variable_name = expected_functions_info["inf"]["result_variable_name"] %}
+            {%- set propagator = "p_"~pure_variable_name~"_"~ion_channel_name %}
+            {%- set state_variable = render_state_variable_name(pure_variable_name, ion_channel_name) %}
+        {{render_inline_expression_type(inline_expression)}} {{propagator}} = exp(-dt / {{tau_result_variable_name}}); //
+        {{state_variable}} *= {{propagator}} ;
+        {{state_variable}} += (1. - {{propagator}}) * {{inf_result_variable_name}};
+        {%- endfor %}
+        
+        {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
+        // compute the conductance of the {{ion_channel_name}} channel     
+        {{render_inline_expression_type(inline_expression)}} {{ g_dynamic }} = {{gbar_variable.name}} * {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }}; 
+    
+        // add to variables for numerical integration
+        {%- set e_channel = render_static_channel_variable_name("e", ion_channel_name) %}
+        g_val += {{ g_dynamic }} / 2.;
+        i_val += {{ g_dynamic }} * ( {{e_channel}} - v_comp / 2. );
+
+    
+    }
+
+    return std::make_pair(g_val, i_val);
+
+}
+
+{%- for pure_variable_name, state_variable_info in channel_info["inner_variables"].items() %}
+{%- for function_type, function_info in state_variable_info["expected_functions"].items() %}
+{{render_channel_function(function_info["ASTFunction"], ion_channel_name)}}
+{%- endfor %}
+{%- endfor %}
+
+{% endfor -%}
+{% endwith %}
+////////////////////////////////////////////////////////////////////////////////
+
+
+// AMPA synapse ////////////////////////////////////////////////////////////////
+nest::AMPA::AMPA( std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params )
+  : e_rev_(0.0)
+  , tau_r_(0.2)
+  , tau_d_(3.0)
+{
+  // update sodium channel parameters
+  if( receptor_params->known( "e_AMPA" ) )
+      e_rev_ = getValue< double >( receptor_params, "e_AMPA" );
+  if( receptor_params->known( "tau_r_AMPA" ) )
+      tau_r_ = getValue< double >( receptor_params, "tau_r_AMPA" );
+  if( receptor_params->known( "tau_d_AMPA" ) )
+      tau_d_ = getValue< double >( receptor_params, "tau_d_AMPA" );
+
+  double tp = (tau_r_ * tau_d_) / (tau_d_ - tau_r_) * std::log( tau_d_ / tau_r_ );
+  g_norm_ = 1. / ( -std::exp( -tp / tau_r_ ) + std::exp( -tp / tau_d_ ) );
+
+  // store pointer to ringbuffer
+  b_spikes_ = b_spikes;
+}
+
+std::pair< double, double > nest::AMPA::f_numstep( const double v_comp, const double dt, const long lag )
+{
+  // construct propagators
+  double prop_r = std::exp( -dt / tau_r_ );
+  double prop_d = std::exp( -dt / tau_d_ );
+
+  // update conductance
+  g_r_ *= prop_r; g_d_ *= prop_d;
+
+  // add spikes
+  double s_val = b_spikes_->get_value( lag ) * g_norm_;
+  g_r_ -= s_val;
+  g_d_ += s_val;
+
+  // compute synaptic conductance
+  double g_AMPA = g_r_ + g_d_;
+
+  // total current
+  double i_tot = g_AMPA * ( e_rev_ - v_comp );
+  // voltage derivative of total current
+  double d_i_tot_dv = - g_AMPA;
+
+  // for numberical integration
+  double g_val = - d_i_tot_dv / 2.;
+  double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+
+  return std::make_pair(g_val, i_val);
+}
+////////////////////////////////////////////////////////////////////////////////
+
+
+// GABA synapse ////////////////////////////////////////////////////////////////
+nest::GABA::GABA( std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params )
+  : e_rev_(-80.)
+  , tau_r_(0.2)
+  , tau_d_(10.0)
+{
+  // update sodium channel parameters
+  if( receptor_params->known( "e_GABA" ) )
+      e_rev_ = getValue< double >( receptor_params, "e_GABA" );
+  if( receptor_params->known( "tau_r_GABA" ) )
+      tau_r_ = getValue< double >( receptor_params, "tau_r_GABA" );
+  if( receptor_params->known( "tau_d_GABA" ) )
+      tau_d_ = getValue< double >( receptor_params, "tau_d_GABA" );
+
+  double tp = (tau_r_ * tau_d_) / (tau_d_ - tau_r_) * std::log( tau_d_ / tau_r_ );
+  g_norm_ = 1. / ( -std::exp( -tp / tau_r_ ) + std::exp( -tp / tau_d_ ) );
+
+  // store pointer to ringbuffer
+  b_spikes_ = b_spikes;
+}
+
+std::pair< double, double > nest::GABA::f_numstep( const double v_comp, const double dt, const long lag )
+{
+  // construct propagators
+  double prop_r = std::exp( -dt / tau_r_ );
+  double prop_d = std::exp( -dt / tau_d_ );
+
+  // update conductance
+  g_r_ *= prop_r; g_d_ *= prop_d;
+
+  // add spikes
+  double s_val = b_spikes_->get_value( lag ) * g_norm_;
+  g_r_ -= s_val;
+  g_d_ += s_val;
+
+  // compute synaptic conductance
+  double g_GABA = g_r_ + g_d_;
+
+  // total current
+  double i_tot = g_GABA * ( e_rev_ - v_comp );
+  // voltage derivative of total current
+  double d_i_tot_dv = - g_GABA;
+
+  // for numberical integration
+  double g_val = - d_i_tot_dv / 2.;
+  double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+
+  return std::make_pair(g_val, i_val);
+}
+////////////////////////////////////////////////////////////////////////////////
+
+
+// NMDA synapse ////////////////////////////////////////////////////////////////
+nest::NMDA::NMDA( std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params )
+  : e_rev_(0.)
+  , tau_r_(0.2)
+  , tau_d_(43.0)
+{
+  // update sodium channel parameters
+  if( receptor_params->known( "e_NMDA" ) )
+      e_rev_ = getValue< double >( receptor_params, "e_NMDA" );
+  if( receptor_params->known( "tau_r_NMDA" ) )
+      tau_r_ = getValue< double >( receptor_params, "tau_r_NMDA" );
+  if( receptor_params->known( "tau_d_NMDA" ) )
+      tau_d_ = getValue< double >( receptor_params, "tau_d_NMDA" );
+
+  double tp = (tau_r_ * tau_d_) / (tau_d_ - tau_r_) * std::log( tau_d_ / tau_r_ );
+  g_norm_ = 1. / ( -std::exp( -tp / tau_r_ ) + std::exp( -tp / tau_d_ ) );
+
+  // store pointer to ringbuffer
+  b_spikes_ = b_spikes;
+}
+
+std::pair< double, double > nest::NMDA::f_numstep( const double v_comp, const double dt, const long lag )
+{
+  double prop_r = std::exp( -dt / tau_r_ );
+  double prop_d = std::exp( -dt / tau_d_ );
+
+  // update conductance
+  g_r_ *= prop_r; g_d_ *= prop_d;
+
+  // add spikes
+  double s_val = b_spikes_->get_value( lag ) * g_norm_;
+  g_r_ -= s_val;
+  g_d_ += s_val;
+
+  // compute conductance window
+  double g_NMDA = g_r_ + g_d_;
+
+  // total current
+  double i_tot = g_NMDA * NMDAsigmoid( v_comp ) * (e_rev_ - v_comp);
+  // voltage derivative of total current
+  double d_i_tot_dv = g_NMDA * ( d_NMDAsigmoid_dv( v_comp ) * (e_rev_ - v_comp) -
+                                 NMDAsigmoid( v_comp ));
+
+  // for numberical integration
+  double g_val = - d_i_tot_dv / 2.;
+  double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+
+  return std::make_pair( g_val, i_val );
+}
+////////////////////////////////////////////////////////////////////////////////
+
+
+// AMPA_NMDA synapse ///////////////////////////////////////////////////////////
+nest::AMPA_NMDA::AMPA_NMDA( std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params )
+  : e_rev_(0.)
+  , tau_r_AMPA_(0.2)
+  , tau_d_AMPA_(3.0)
+  , tau_r_NMDA_(0.2)
+  , tau_d_NMDA_(43.0)
+  , NMDA_ratio_(2.0)
+{
+  // update sodium channel parameters
+  if( receptor_params->known( "e_AMPA_NMDA" ) )
+      e_rev_ = getValue< double >( receptor_params, "e_AMPA_NMDA" );
+  if( receptor_params->known( "tau_r_AMPA" ) )
+      tau_r_AMPA_ = getValue< double >( receptor_params, "tau_r_AMPA" );
+  if( receptor_params->known( "tau_d_AMPA" ) )
+      tau_d_AMPA_ = getValue< double >( receptor_params, "tau_d_AMPA" );
+  if( receptor_params->known( "tau_r_NMDA" ) )
+      tau_r_NMDA_ = getValue< double >( receptor_params, "tau_r_NMDA" );
+  if( receptor_params->known( "tau_d_NMDA" ) )
+      tau_d_NMDA_ = getValue< double >( receptor_params, "tau_d_NMDA" );
+  if( receptor_params->known( "NMDA_ratio" ) )
+      NMDA_ratio_ = getValue< double >( receptor_params, "NMDA_ratio" );
+
+  // AMPA normalization constant
+  double tp = (tau_r_AMPA_ * tau_d_AMPA_) / (tau_d_AMPA_ - tau_r_AMPA_) * std::log( tau_d_AMPA_ / tau_r_AMPA_ );
+  g_norm_AMPA_ = 1. / ( -std::exp( -tp / tau_r_AMPA_ ) + std::exp( -tp / tau_d_AMPA_ ) );
+  // NMDA normalization constant
+  tp = (tau_r_NMDA_ * tau_d_NMDA_) / (tau_d_NMDA_ - tau_r_NMDA_) * std::log( tau_d_NMDA_ / tau_r_NMDA_ );
+  g_norm_NMDA_ = 1. / ( -std::exp( -tp / tau_r_NMDA_ ) + std::exp( -tp / tau_d_NMDA_ ) );
+
+  // store pointer to ringbuffer
+  b_spikes_ = b_spikes;
+}
+
+std::pair< double, double > nest::AMPA_NMDA::f_numstep( const double v_comp, const double dt, const long lag )
+{
+  double prop_r_AMPA = std::exp( -dt / tau_r_AMPA_ );
+  double prop_d_AMPA = std::exp( -dt / tau_d_AMPA_ );
+  double prop_r_NMDA = std::exp( -dt / tau_r_NMDA_ );
+  double prop_d_NMDA = std::exp( -dt / tau_d_NMDA_ );
+
+  // update conductance
+  g_r_AMPA_ *= prop_r_AMPA; g_d_AMPA_ *= prop_d_AMPA;
+  g_r_NMDA_ *= prop_r_NMDA; g_d_NMDA_ *= prop_d_NMDA;
+
+  // add spikes
+  double s_val_ = b_spikes_->get_value( lag );
+  double s_val = s_val_ * g_norm_AMPA_;
+  g_r_AMPA_ -= s_val;
+  g_d_AMPA_ += s_val;
+  s_val = s_val_ * g_norm_NMDA_;
+  g_r_NMDA_ -= s_val;
+  g_d_NMDA_ += s_val;
+
+  // compute conductance window
+  double g_AMPA = g_r_AMPA_ + g_d_AMPA_;
+  double g_NMDA = g_r_NMDA_ + g_d_NMDA_;
+
+  // total current
+  double i_tot = ( g_AMPA + NMDA_ratio_ * g_NMDA * NMDAsigmoid( v_comp ) ) * (e_rev_ - v_comp);
+  // voltage derivative of total current
+  double d_i_tot_dv = - g_AMPA + NMDA_ratio_ *
+                        g_NMDA * ( d_NMDAsigmoid_dv( v_comp ) * (e_rev_ - v_comp) -
+                                   NMDAsigmoid( v_comp ));
+
+  // for numberical integration
+  double g_val = - d_i_tot_dv / 2.;
+  double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+
+  return std::make_pair( g_val, i_val );
+}
+////////////////////////////////////////////////////////////////////////////////
+
+
