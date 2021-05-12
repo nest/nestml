@@ -424,7 +424,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 }
 {%- endif %}
 
-{%- if has_current_input %}
+{%- if has_continuous_input %}
 
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {

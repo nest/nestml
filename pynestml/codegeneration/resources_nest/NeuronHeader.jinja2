@@ -542,7 +542,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::po
 {%- endif %}
 }
 {%- endif %}
-{%- if has_current_input %}
+{%- if has_continuous_input %}
 
 inline nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type)
 {
