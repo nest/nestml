@@ -60,8 +60,10 @@ class DocstringCommentTest(unittest.TestCase):
     def test_docstring_success(self):
         self.run_docstring_test('valid')
 
-    #for some reason xfail is completely ignored here. pytest bug?
+    # for some reason xfail is completely ignored when executing on my machine (python 3.8.5)
+    # pytest bug?
     @pytest.mark.xfail(strict=True, raises=DocstringCommentException) 
+
     def test_docstring_failure(self):
         self.run_docstring_test('invalid')
 

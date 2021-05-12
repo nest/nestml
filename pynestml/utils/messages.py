@@ -110,15 +110,13 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
-    BAD_CM_VARIABLE_NAME = 79
+    CM_BAD_VARIABLE_NAME = 79
     CM_FUNCTION_MISSING = 80
     CM_INITIAL_VALUES_MISSING = 81
     CM_FUNCTION_BAD_NUMBER_ARGS = 82
     CM_FUNCTION_BAD_RETURN_TYPE = 83
     CM_VARIABLE_NAME_MULTI_USE = 84
     CM_NO_VALUE_ASSIGNMENT = 85
-    
-
 
 class Messages:
     """
@@ -1075,7 +1073,7 @@ class Messages:
 
     @classmethod
     def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
-        """
+        """https://github.com/nest/nestml/pull/651
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
         :param name: the name of the neuron model
         :type name: ASTNeuron
@@ -1176,7 +1174,7 @@ class Messages:
     def get_no_files_in_input_path(cls, path: str):
         message = "No files found matching '*.nestml' in provided input path '" + path + "'"
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
-    
+
     @classmethod
     def get_cm_inline_expression_variable_name_must_end_with_channel_name(cls, cm_inline_expr, bad_variable_name, ion_channel_name):
         """
@@ -1200,7 +1198,7 @@ class Messages:
         message += "' inside declaration of '" + cm_inline_expr.variable_name+"'. "
         message += "\nVariable names are expected to match ion channel name, meaning they must have suffix '"+ion_channel_name+"' here"
         
-        return MessageCode.BAD_CM_VARIABLE_NAME, message
+        return MessageCode.CM_BAD_VARIABLE_NAME, message
     
     @classmethod
     def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr, bad_variable_name, ion_channel_name):

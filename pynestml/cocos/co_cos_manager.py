@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_buffer_not_assigned import CoCoBufferNotAssigned
