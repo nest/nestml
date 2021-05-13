@@ -1,5 +1,5 @@
 /*
- *  cm_main.cpp
+ *  {{neuronSpecificFileNamesCmSyns["main"]}}.cpp
  *
  *  This file is part of NEST.
  *
@@ -19,7 +19,7 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "cm_main.h"
+#include "{{neuronSpecificFileNamesCmSyns["main"]}}.h"
 
 
 namespace nest
@@ -28,7 +28,7 @@ namespace nest
 
 template <>
 void
-DynamicRecordablesMap< cm_main >::create( cm_main& host)
+DynamicRecordablesMap< {{neuronSpecificFileNamesCmSyns["main"]}} >::create( {{neuronSpecificFileNamesCmSyns["main"]}}& host)
 {
 }
 
@@ -36,7 +36,7 @@ DynamicRecordablesMap< cm_main >::create( cm_main& host)
  * Default and copy constructor for node
  * ---------------------------------------------------------------- */
 
-nest::cm_main::cm_main()
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}()
   : ArchivingNode()
   , c_tree_()
   , syn_buffers_( 0 )
@@ -46,7 +46,7 @@ nest::cm_main::cm_main()
   recordablesMap_.create( *this );
 }
 
-nest::cm_main::cm_main( const cm_main& n )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::{{neuronSpecificFileNamesCmSyns["main"]}}( const {{neuronSpecificFileNamesCmSyns["main"]}}& n )
   : ArchivingNode( n )
   , c_tree_( n.c_tree_ )
   , syn_buffers_( n.syn_buffers_ )
@@ -60,29 +60,29 @@ nest::cm_main::cm_main( const cm_main& n )
  * ---------------------------------------------------------------- */
 
 void
-nest::cm_main::init_state_( const Node& proto )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_state_( const Node& proto )
 {
 }
 
 void
-nest::cm_main::init_buffers_()
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::init_buffers_()
 {
   logger_.reset();
   ArchivingNode::clear_history();
 }
 
 void
-cm_main::add_compartment( const long compartment_idx, const long parent_compartment_idx, const DictionaryDatum& compartment_params )
+{{neuronSpecificFileNamesCmSyns["main"]}}::add_compartment( const long compartment_idx, const long parent_compartment_idx, const DictionaryDatum& compartment_params )
 {
   c_tree_.add_compartment( compartment_idx, parent_compartment_idx, compartment_params);
 
   // to enable recording the voltage of the current compartment
   recordablesMap_.insert( "V_m_" + std::to_string(compartment_idx),
-                          DataAccessFunctor< cm_main >( *this, compartment_idx ) );
+                          DataAccessFunctor< {{neuronSpecificFileNamesCmSyns["main"]}} >( *this, compartment_idx ) );
 }
 
 size_t
-cm_main::add_receptor( const long compartment_idx, const std::string& type, const DictionaryDatum& receptor_params )
+{{neuronSpecificFileNamesCmSyns["main"]}}::add_receptor( const long compartment_idx, const std::string& type, const DictionaryDatum& receptor_params )
 {
   // create a ringbuffer to collect spikes for the receptor
   std::shared_ptr< RingBuffer > buffer = std::shared_ptr< RingBuffer >( new RingBuffer() );
@@ -92,14 +92,14 @@ cm_main::add_receptor( const long compartment_idx, const std::string& type, cons
   syn_buffers_.push_back( buffer );
 
   // add the synapse to the compartment
-  Compartment* compartment = c_tree_.get_compartment( compartment_idx );
+  Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( compartment_idx );
   compartment->compartment_currents.add_synapse_with_buffer( type, buffer, receptor_params );
 
   return syn_idx;
 }
 
 void
-nest::cm_main::calibrate()
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::calibrate()
 {
   logger_.init();
   c_tree_.init();
@@ -110,7 +110,7 @@ nest::cm_main::calibrate()
  */
 
 void
-nest::cm_main::update( Time const& origin, const long from, const long to )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::update( Time const& origin, const long from, const long to )
 {
   assert( to >= 0 && ( delay ) from < kernel().connection_manager.get_min_delay() );
   assert( from < to );
@@ -138,7 +138,7 @@ nest::cm_main::update( Time const& origin, const long from, const long to )
 }
 
 void
-nest::cm_main::handle( SpikeEvent& e )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( SpikeEvent& e )
 {
   if ( e.get_weight() < 0 )
   {
@@ -155,19 +155,19 @@ nest::cm_main::handle( SpikeEvent& e )
 }
 
 void
-nest::cm_main::handle( CurrentEvent& e )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( CurrentEvent& e )
 {
   assert( e.get_delay_steps() > 0 );
 
   const double c = e.get_current();
   const double w = e.get_weight();
 
-  Compartment* compartment = c_tree_.get_compartment( e.get_rport() );
+  Compartment{{cm_unique_suffix}}* compartment = c_tree_.get_compartment( e.get_rport() );
   compartment->currents.add_value( e.get_rel_delivery_steps( kernel().simulation_manager.get_slice_origin() ), w * c );
 }
 
 void
-nest::cm_main::handle( DataLoggingRequest& e )
+nest::{{neuronSpecificFileNamesCmSyns["main"]}}::handle( DataLoggingRequest& e )
 {
   logger_.handle( e );
 }

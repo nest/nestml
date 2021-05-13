@@ -217,7 +217,7 @@ public:
 };
 
 
-class CompartmentCurrents {
+class CompartmentCurrents{{cm_unique_suffix}} {
 private:
   // ion channels
   Na Na_chan_;
@@ -229,13 +229,13 @@ private:
   std::vector < AMPA_NMDA > AMPA_NMDA_syns_;
 
 public:
-  CompartmentCurrents(){};
-  CompartmentCurrents(const DictionaryDatum& channel_params)
+  CompartmentCurrents{{cm_unique_suffix}}(){};
+  CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
   {
     Na_chan_ = Na( channel_params );
     K_chan_ = K( channel_params );
   };
-  ~CompartmentCurrents(){};
+  ~CompartmentCurrents{{cm_unique_suffix}}(){};
 
   void init(){
     // initialization of the ion channels

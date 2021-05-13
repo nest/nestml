@@ -104,8 +104,7 @@ class NESTCodeGenerator(CodeGenerator):
         env = Environment(loader=FileSystemLoader(
                 [
                     os.path.join(os.path.dirname(__file__), 'resources_nest'),
-                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_templates'),
-                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_syns_templates'), #SYNS_EXPERIMENTAL
+                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_syns_templates')
                 ]
             ))
         env.globals['raise'] = raise_helper
@@ -129,27 +128,18 @@ class NESTCodeGenerator(CodeGenerator):
         # setup the neuron implementation template
         self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
         
-        self.setupCMFiles(env)
+        self.setupCmSynsFiles(env)
         
         self._printer = ExpressionsPrettyPrinter()
 
     # setup compartmental model files
-    def setupCMFiles(self, env):
-        self._cm_template_etype_cpp_file = env.get_template('cm_etypeClass.jinja2')
-        self._cm_template_etype_h_file = env.get_template('cm_etypeHeader.jinja2')
-        self._cm_template_main_cpp_file = env.get_template('cm_mainClass.jinja2')
-        self._cm_template_main_h_file = env.get_template('cm_mainHeader.jinja2')
-        self._cm_template_syns_cpp_file = env.get_template('cm_synsClass.jinja2')
-        self._cm_template_syns_h_file = env.get_template('cm_synsHeader.jinja2')
-        self._cm_template_tree_cpp_file = env.get_template('cm_treeClass.jinja2')
-        self._cm_template_tree_h_file = env.get_template('cm_treeHeader.jinja2')
-        
-        self._cm_syns_template_compartmentcurrents_cpp_file = env.get_template('compartmentCurrentsClass.jinja2') #SYNS_EXPERIMENTAL
-        self._cm_syns_template_compartmentcurrents_h_file = env.get_template('compartmentCurrentsHeader.jinja2') #SYNS_EXPERIMENTAL
-        self._cm_syns_template_main_cpp_file = env.get_template('cmSynsMainClass.jinja2') #SYNS_EXPERIMENTAL
-        self._cm_syns_template_main_h_file = env.get_template('cmSynsMainHeader.jinja2') #SYNS_EXPERIMENTAL
-        self._cm_syns_template_tree_cpp_file = env.get_template('cmSynsTreeClass.jinja2') #SYNS_EXPERIMENTAL
-        self._cm_syns_template_tree_h_file = env.get_template('cmSynsTreeHeader.jinja2') #SYNS_EXPERIMENTAL
+    def setupCmSynsFiles(self, env):
+        self._cm_syns_template_compartmentcurrents_cpp_file = env.get_template('compartmentCurrentsClass.jinja2')
+        self._cm_syns_template_compartmentcurrents_h_file = env.get_template('compartmentCurrentsHeader.jinja2')
+        self._cm_syns_template_main_cpp_file = env.get_template('cmSynsMainClass.jinja2')
+        self._cm_syns_template_main_h_file = env.get_template('cmSynsMainHeader.jinja2')
+        self._cm_syns_template_tree_cpp_file = env.get_template('cmSynsTreeClass.jinja2')
+        self._cm_syns_template_tree_h_file = env.get_template('cmSynsTreeHeader.jinja2')
 
     def generate_code(self, neurons):
         self.analyse_transform_neurons(neurons)
@@ -173,15 +163,14 @@ class NESTCodeGenerator(CodeGenerator):
         for neuron in neurons:
             if neuron.is_compartmental_model:
                 neuron_name_to_filename[neuron.get_name()] = {
-                        "etype": self.get_etype_file_name_prefix(neuron),
-                        "main": self.get_cm_main_file_prefix(neuron),
-                        "tree": self.get_cm_tree_file_prefix(neuron)
+                        "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
+                        "main": self.get_cm_syns_main_file_prefix(neuron),
+                        "tree": self.get_cm_syns_tree_file_prefix(neuron)
                     }
         namespace['perNeuronFileNamesCm'] = neuron_name_to_filename
         
-        # compartmental case files that are not neuron specific
-        namespace['sharedFileNamesCm'] = {
-            "syns": self.get_cm_syns_file_prefix(),
+        # compartmental case files that are not neuron specific - currently empty
+        namespace['sharedFileNamesCmSyns'] = {
         }
         
         if not os.path.exists(FrontendConfiguration.get_target_path()):
@@ -485,70 +474,58 @@ class NESTCodeGenerator(CodeGenerator):
         :param neuron: a single neuron object.
         """
         
-        #i.e neuron_etype_cm_model.h
-        neuron_etype_h_file_name = self.get_etype_file_name_prefix(neuron)+".h"
-        neuron_main_h_file_name = self.get_cm_main_file_prefix(neuron)+".h"
-        neuron_syns_h_file_name = self.get_cm_syns_file_prefix()+".h"
-        neuron_tree_h_file_name = self.get_cm_tree_file_prefix(neuron)+".h"
-        
-        neuron_etype_h_file = self._cm_template_etype_h_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_etype_h_file_name)), 'w+') as f:
-            f.write(str(neuron_etype_h_file))
-        neuron_main_h_file = self._cm_template_main_h_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_main_h_file_name)), 'w+') as f:
-            f.write(str(neuron_main_h_file))
-        neuron_syns_h_file = self._cm_template_syns_h_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_syns_h_file_name)), 'w+') as f:
-            f.write(str(neuron_syns_h_file))
-        neuron_tree_h_file = self._cm_template_tree_h_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_tree_h_file_name)), 'w+') as f:
-            f.write(str(neuron_tree_h_file))
-        
-        #SYNS_EXPERIMENTAL    
+        neuron_cm_syns_compartmentcurrents_h_file_name = self.get_cm_syns_compartmentcurrents_file_prefix(neuron)+".h"   
         cm_syns_template_compartmentcurrents_h_file = self._cm_syns_template_compartmentcurrents_h_file.render(self.setup_generation_helpers(neuron)) #SYNS_EXPERIMENTAL
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), "cm_compartmentalcurrents.h")), 'w+') as f: #SYNS_EXPERIMENTAL
-            f.write(str(cm_syns_template_compartmentcurrents_h_file)) #SYNS_EXPERIMENTAL
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_cm_syns_compartmentcurrents_h_file_name)), 'w+') as f: #SYNS_EXPERIMENTAL
+            f.write(str(cm_syns_template_compartmentcurrents_h_file)) 
             
-    def get_etype_file_name_prefix(self, neuron):
-        return "neuron_etype_" + neuron.get_name()
+        neuron_cm_syns_main_h_file_name = self.get_cm_syns_main_file_prefix(neuron)+".h"   
+        cm_syns_template_main_h_file = self._cm_syns_template_main_h_file.render(self.setup_generation_helpers(neuron)) 
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_cm_syns_main_h_file_name)), 'w+') as f: 
+            f.write(str(cm_syns_template_main_h_file)) 
+            
+        neuron_cm_syns_tree_h_file_name = self.get_cm_syns_tree_file_prefix(neuron)+".h"   
+        cm_syns_template_tree_h_file = self._cm_syns_template_tree_h_file.render(self.setup_generation_helpers(neuron)) 
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_cm_syns_tree_h_file_name)), 'w+') as f: 
+            f.write(str(cm_syns_template_tree_h_file)) 
+            
+    def get_cm_syns_compartmentcurrents_file_prefix(self, neuron):
+        return "cm_compartmentcurrents_" + neuron.get_name()
     
-    def get_cm_main_file_prefix(self, neuron):
-        return "neuron_main_" + neuron.get_name()
+    def get_cm_syns_main_file_prefix(self, neuron):
+        return "cm_main_" + neuron.get_name()
     
-    def get_cm_syns_file_prefix(self):
-        return "neuron_syns"
-    
-    def get_cm_tree_file_prefix(self, neuron):
-        return "neuron_tree_" + neuron.get_name()
-        
+    def get_cm_syns_tree_file_prefix(self, neuron):
+        return "cm_tree_" + neuron.get_name()
+
     def generate_cm_cpp_files(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding implementation file.
         :param neuron: a single neuron object.
         """
-        #i.e neuron_etype_cm_model.cpp
-        neuron_etype_cpp_file_name = self.get_etype_file_name_prefix(neuron)+".cpp"
-        neuron_main_cpp_file_name = self.get_cm_main_file_prefix(neuron)+".cpp"
-        neuron_syns_cpp_file_name = self.get_cm_syns_file_prefix()+".cpp"
-        neuron_tree_cpp_file_name = self.get_cm_tree_file_prefix(neuron)+".cpp"
         
-        neuron_etype_cpp_file = self._cm_template_etype_cpp_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_etype_cpp_file_name)), 'w+') as f:
-            f.write(str(neuron_etype_cpp_file))
-        neuron_main_cpp_file = self._cm_template_main_cpp_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_main_cpp_file_name)), 'w+') as f:
-            f.write(str(neuron_main_cpp_file))
-        neuron_syns_cpp_file = self._cm_template_syns_cpp_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_syns_cpp_file_name)), 'w+') as f:
-            f.write(str(neuron_syns_cpp_file))
-        neuron_tree_cpp_file = self._cm_template_tree_cpp_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_tree_cpp_file_name)), 'w+') as f:
-            f.write(str(neuron_tree_cpp_file))
+        neuron_cm_syns_compartmentcurrents_cpp_file_name = self.get_cm_syns_compartmentcurrents_file_prefix(neuron)+".cpp"     
+        cm_syns_template_compartmentcurrents_cpp_file = self._cm_syns_template_compartmentcurrents_cpp_file.render(self.setup_generation_helpers(neuron)) 
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_cm_syns_compartmentcurrents_cpp_file_name)), 'w+') as f: 
+            f.write(str(cm_syns_template_compartmentcurrents_cpp_file)) 
             
-        #SYNS_EXPERIMENTAL    
-        cm_syns_template_compartmentcurrents_cpp_file = self._cm_syns_template_compartmentcurrents_cpp_file.render(self.setup_generation_helpers(neuron)) #SYNS_EXPERIMENTAL
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), "cm_compartmentalcurrents.cpp")), 'w+') as f: #SYNS_EXPERIMENTAL
-            f.write(str(cm_syns_template_compartmentcurrents_cpp_file)) #SYNS_EXPERIMENTAL
+        neuron_cm_syns_main_cpp_file_name = self.get_cm_syns_main_file_prefix(neuron)+".cpp"   
+        cm_syns_template_main_cpp_file = self._cm_syns_template_main_cpp_file.render(self.setup_generation_helpers(neuron)) 
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_cm_syns_main_cpp_file_name)), 'w+') as f: 
+            f.write(str(cm_syns_template_main_cpp_file)) 
+            
+        neuron_cm_syns_tree_cpp_file_name = self.get_cm_syns_tree_file_prefix(neuron)+".cpp"   
+        cm_syns_template_tree_cpp_file = self._cm_syns_template_tree_cpp_file.render(self.setup_generation_helpers(neuron)) 
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron_cm_syns_tree_cpp_file_name)), 'w+') as f: 
+            f.write(str(cm_syns_template_tree_cpp_file)) 
+
+    def getUniqueSuffix(self, neuron: ASTNeuron):
+        ret = neuron.get_name().capitalize()
+        underscore_pos = ret.find("_")
+        while underscore_pos != -1:
+            ret = ret[:underscore_pos] + ret[underscore_pos+1:].capitalize()
+            underscore_pos = ret.find("_")
+        return ret
 
     def setup_generation_helpers(self, neuron: ASTNeuron) -> Dict:
         """
@@ -567,7 +544,6 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = dict()
 
         namespace['neuronName'] = neuron.get_name()
-        namespace['etypeFileName'] = self.get_etype_file_name_prefix(neuron)
         namespace['type_converter'] = PyNestml2NestTypeConverter()
         namespace['neuron'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
@@ -654,18 +630,19 @@ class NESTCodeGenerator(CodeGenerator):
         
         if neuron.is_compartmental_model:
             namespace['etypeClassName'] = "EType"
-            namespace['cm_unique_suffix'] = neuron.get_name()
+            namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
             namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
             
             neuron_specific_filenames = {
-                "etype": self.get_etype_file_name_prefix(neuron),
-                "main": self.get_cm_main_file_prefix(neuron),
-                "tree": self.get_cm_tree_file_prefix(neuron)
+                "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
+                "main": self.get_cm_syns_main_file_prefix(neuron),
+                "tree": self.get_cm_syns_tree_file_prefix(neuron)
             }
             
-            namespace['neuronSpecificFileNamesCm'] = neuron_specific_filenames
-            namespace['sharedFileNamesCm'] = {
-                "syns": self.get_cm_syns_file_prefix(),
+            namespace['neuronSpecificFileNamesCmSyns'] = neuron_specific_filenames
+            
+            #currently empty
+            namespace['sharedFileNamesCmSyns'] = {
             }
         
         

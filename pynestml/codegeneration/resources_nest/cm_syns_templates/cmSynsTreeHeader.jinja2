@@ -4,7 +4,7 @@
 #include "ring_buffer.h"
 
 // compartmental model
-#include "cm_compartmentcurrents.h"
+#include "{{neuronSpecificFileNamesCmSyns["compartmentcurrents"]}}.h"
 
 // Includes from libnestutil:
 #include "dict_util.h"
@@ -25,7 +25,7 @@
 namespace nest{
 
 
-class Compartment{
+class Compartment{{cm_unique_suffix}}{
 private:
     // aggragators for numerical integration
     double xx_;
@@ -37,10 +37,10 @@ public:
     // parent compartment index
     long p_index;
     // tree structure indices
-    Compartment* parent;
-    std::vector< Compartment > children;
+    Compartment{{cm_unique_suffix}}* parent;
+    std::vector< Compartment{{cm_unique_suffix}} > children;
     // vector for synapses
-    CompartmentCurrents compartment_currents;
+    CompartmentCurrents{{cm_unique_suffix}} compartment_currents;
 
     // etype
     // EType etype;
@@ -61,10 +61,10 @@ public:
     int n_passed;
 
     // constructor, destructor
-    Compartment(const long compartment_index, const long parent_index);
-    Compartment(const long compartment_index, const long parent_index,
+    Compartment{{cm_unique_suffix}}(const long compartment_index, const long parent_index);
+    Compartment{{cm_unique_suffix}}(const long compartment_index, const long parent_index,
 	            const DictionaryDatum& compartment_params);
-    ~Compartment(){};
+    ~Compartment{{cm_unique_suffix}}(){};
 
     // initialization
     void init();
@@ -76,19 +76,19 @@ public:
     inline void gather_input( const std::pair< double, double > in );
     inline std::pair< double, double > io();
     inline double calc_v( const double v_in );
-}; // Compartment
+}; // Compartment{{cm_unique_suffix}}
 
 
 /*
 Short helper functions for solving the matrix equation. Can hopefully be inlined
 */
 inline void
-nest::Compartment::gather_input( const std::pair< double, double > in)
+nest::Compartment{{cm_unique_suffix}}::gather_input( const std::pair< double, double > in)
 {
     xx_ += in.first; yy_ += in.second;
 };
 inline std::pair< double, double >
-nest::Compartment::io()
+nest::Compartment{{cm_unique_suffix}}::io()
 {
     // include inputs from child compartments
     gg -= xx_;
@@ -101,7 +101,7 @@ nest::Compartment::io()
     return std::make_pair(g_val, f_val);
 };
 inline double
-nest::Compartment::calc_v( const double v_in )
+nest::Compartment{{cm_unique_suffix}}::calc_v( const double v_in )
 {
     // reset recursion variables
     xx_ = 0.0; yy_ = 0.0;
@@ -113,30 +113,30 @@ nest::Compartment::calc_v( const double v_in )
 };
 
 
-class CompTree{
+class CompTree{{cm_unique_suffix}}{
 private:
     /*
     structural data containers for the compartment model
     */
-    Compartment root_;
+    Compartment{{cm_unique_suffix}} root_;
     std::vector< long > compartment_indices_;
-    std::vector< Compartment* > compartments_;
-    std::vector< Compartment* > leafs_;
+    std::vector< Compartment{{cm_unique_suffix}}* > compartments_;
+    std::vector< Compartment{{cm_unique_suffix}}* > leafs_;
 
     // recursion functions for matrix inversion
-    void solve_matrix_downsweep(Compartment* compartment_ptr,
-                                std::vector< Compartment* >::iterator leaf_it);
-    void solve_matrix_upsweep(Compartment* compartment, double vv);
+    void solve_matrix_downsweep(Compartment{{cm_unique_suffix}}* compartment_ptr,
+                                std::vector< Compartment{{cm_unique_suffix}}* >::iterator leaf_it);
+    void solve_matrix_upsweep(Compartment{{cm_unique_suffix}}* compartment, double vv);
 
     // set functions for initialization
     void set_compartments();
-    void set_compartments( Compartment* compartment );
+    void set_compartments( Compartment{{cm_unique_suffix}}* compartment );
     void set_leafs();
 
 public:
     // constructor, destructor
-    CompTree();
-    ~CompTree(){};
+    CompTree{{cm_unique_suffix}}();
+    ~CompTree{{cm_unique_suffix}}(){};
 
     // initialization functions for tree structure
     void add_compartment( const long compartment_index, const long parent_index,
@@ -144,11 +144,11 @@ public:
     void init();
 
     // get a compartment pointer from the tree
-    Compartment* get_compartment( const long compartment_index );
-    Compartment* get_compartment( const long compartment_index,
-                                  Compartment* compartment,
+    Compartment{{cm_unique_suffix}}* get_compartment( const long compartment_index );
+    Compartment{{cm_unique_suffix}}* get_compartment( const long compartment_index,
+                                  Compartment{{cm_unique_suffix}}* compartment,
                                   const long raise_flag );
-    Compartment* get_root(){ return &root_; };
+    Compartment{{cm_unique_suffix}}* get_root(){ return &root_; };
 
     // get voltage values
     std::vector< double > get_voltage() const;
@@ -161,6 +161,6 @@ public:
 
     // print function
     void print_tree() const;
-}; // CompTree
+}; // CompTree{{cm_unique_suffix}}
 
 } // namespace
