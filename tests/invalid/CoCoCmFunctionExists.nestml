@@ -1,0 +1,59 @@
+"""
+CoCoCmFunctionExists.nestml
+###########################
+
+
+Description
++++++++++++
+
+This model is used to test whether functions expected for each 
+matching compartmental variable have been defined
+
+Negative case.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+neuron cm_model:
+
+  state:
+    # indicate that we have a compartmental model
+    # by declaring an unused variable with the name "v_comp"
+    v_comp real = 0.0
+    
+    m_Na real = 0.0
+    
+  end
+
+  equations: 
+    inline cm_p_open_Na real = m_Na**3
+    
+  end
+
+  parameters:
+    e_Na real = 50.0
+    gbar_Na real = 0.0
+    
+  end
+
+
+end

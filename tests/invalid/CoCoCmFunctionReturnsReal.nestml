@@ -1,0 +1,82 @@
+"""
+CoCoCmFunctionReturnsReal.nestml
+###########################
+
+
+Description
++++++++++++
+
+This model is used to test whether functions expected for each 
+matching compartmental variable return type 'real'
+
+Negative case.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+neuron cm_model:
+
+  state:
+    # indicate that we have a compartmental model
+    # by declaring an unused variable with the name "v_comp"
+    v_comp real = 0.0
+    
+    m_Na real = 0.0
+    h_Na real = 0.0
+    
+  end
+
+    #sodium
+    function m_inf_Na(v_comp real) boolean:
+        return true
+    end
+    
+    function tau_m_Na(v_comp real) integer:
+        return 1111111111
+    end
+    
+    function h_inf_Na(v_comp real) string:
+        return "hello"
+    end
+    
+    function tau_h_Na(v_comp real) void: 
+        v_comp+=1.0
+        return
+    end
+    
+    function some_random_function_to_ignore(v_comp real, something_else real) string: 
+        return "ignore"
+    end
+
+  equations: 
+    inline cm_p_open_Na real = m_Na**3 * h_Na**1 
+    
+  end
+
+  parameters:
+    e_Na real = 50.0
+    gbar_Na real = 0.0
+    
+  end
+
+
+end

@@ -1,0 +1,68 @@
+"""
+CoCoCmVariableHasRhs.nestml
+###########################
+
+
+Description
++++++++++++
+
+This model is used to test whether the all variable declarations of the 
+compartmental model contain a right hand side expression
+
+Negative case.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+neuron cm_model:
+
+  state:
+    # indicate that we have a compartmental model
+    # by declaring an unused variable with the name "v_comp"
+    v_comp real
+    
+    m_Na real
+    
+  end
+
+    #sodium
+    function m_inf_Na(v_comp real) real:
+        return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
+    end
+    
+    function tau_m_Na(v_comp real) real:
+        return 0.3115264797507788/((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp)))
+    end
+
+  equations: 
+    inline cm_p_open_Na real = m_Na**3
+    
+  end
+
+  parameters:
+    e_Na real 
+    gbar_Na real 
+    
+  end
+
+
+end

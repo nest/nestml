@@ -112,7 +112,7 @@ class MessageCode(Enum):
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
     CM_BAD_VARIABLE_NAME = 79
     CM_FUNCTION_MISSING = 80
-    CM_INITIAL_VALUES_MISSING = 81
+    CM_VARIABLES_NOT_DECLARED = 81
     CM_FUNCTION_BAD_NUMBER_ARGS = 82
     CM_FUNCTION_BAD_RETURN_TYPE = 83
     CM_VARIABLE_NAME_MULTI_USE = 84
@@ -1267,7 +1267,7 @@ class Messages:
             message += str(expected_variables_to_reason[missing_var].get_source_position())+"\n"
             
             
-        return MessageCode.CM_INITIAL_VALUES_MISSING, message
+        return MessageCode.CM_VARIABLES_NOT_DECLARED, message
     
     @classmethod
     def get_cm_variable_value_missing(cls, varname):
