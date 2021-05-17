@@ -57,10 +57,9 @@ class BlockType(Enum):
     INTERNALS = 3
     EQUATION = 4
     LOCAL = 5
-    INPUT_BUFFER_CURRENT = 6
-    INPUT_BUFFER_SPIKE = 7
-    OUTPUT = 8
-    PREDEFINED = 9
+    INPUT = 6
+    OUTPUT = 7
+    PREDEFINED = 8
 
 
 class VariableSymbol(Symbol):
@@ -180,40 +179,35 @@ class VariableSymbol(Symbol):
         """
         Indicates whether a declaring rhs is present.
         :return: True if present, otherwise False.
-        :rtype: bool
         """
         return self.declaring_expression is not None and (isinstance(self.declaring_expression, ASTSimpleExpression)
                                                           or isinstance(self.declaring_expression, ASTExpression))
 
-    def is_spike_buffer(self) -> bool:
+    def is_spike_input_port(self) -> bool:
         """
-        Returns whether this symbol represents a spike buffer.
-        :return: True if spike buffer, otherwise False.
-        :rtype: bool
+        Returns whether this symbol represents a spike input port.
+        :return: True if spike input port, otherwise False.
         """
         return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_spike()
 
-    def is_current_buffer(self) -> bool:
+    def is_continuous_input_port(self) -> bool:
         """
-        Returns whether this symbol represents a current buffer.
-        :return: True if current buffer, otherwise False.
-        :rtype: bool
+        Returns whether this symbol represents a continuous time input port.
+        :return: True if continuous time input port, otherwise False.
         """
-        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_current()
+        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_continuous()
 
     def is_excitatory(self) -> bool:
         """
-        Returns whether this symbol represents a buffer of type excitatory.
+        Returns whether this symbol represents an input port with qualifier excitatory.
         :return: True if is excitatory, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_excitatory()
 
     def is_inhibitory(self) -> bool:
         """
-        Returns whether this symbol represents a buffer of type inhibitory.
+        Returns whether this symbol represents an input port with qualifier inhibitory.
         :return: True if is inhibitory, otherwise False.
-        :rtype: bool
         """
         return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
 
@@ -229,7 +223,6 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable symbol has been declared in a state block.
         :return: True if declared in a state block, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.STATE
 
@@ -265,35 +258,24 @@ class VariableSymbol(Symbol):
         """
         return self.block_type == BlockType.LOCAL
 
-    def is_input_buffer_current(self) -> bool:
+    def is_input(self) -> bool:
         """
-        Returns whether this variable symbol has been declared as a input-buffer current element.
-        :return: True if input-buffer current, otherwise False.
-        :rtype: bool
+        Returns whether this variable symbol has been declared as an input port.
+        :return: True if input port, otherwise False.
         """
-        return self.block_type == BlockType.INPUT_BUFFER_CURRENT
-
-    def is_input_buffer_spike(self) -> bool:
-        """
-        Returns whether this variable symbol has been declared as a input-buffer spike element.
-        :return: True if input-buffer spike, otherwise False.
-        :rtype: bool
-        """
-        return self.block_type == BlockType.INPUT_BUFFER_SPIKE
+        return self.block_type == BlockType.INPUT
 
     def is_buffer(self) -> bool:
         """
         Returns whether this variable symbol represents a buffer or not.
         :return: True if buffer, otherwise False.
-        :rtype: bool
         """
         return self.variable_type == VariableType.BUFFER
 
     def is_output(self) -> bool:
         """
-        Returns whether this variable symbol has been declared as a output-buffer element.
+        Returns whether this variable symbol has been declared as output block element.
         :return: True if output element, otherwise False.
-        :rtype: bool
         """
         return self.block_type == BlockType.OUTPUT
 
@@ -301,7 +283,6 @@ class VariableSymbol(Symbol):
         """
         Returns whether this variable belongs to the definition of a kernel.
         :return: True if part of a kernel definition, otherwise False.
-        :rtype: bool
         """
         return self.variable_type == VariableType.KERNEL
 
@@ -364,7 +345,7 @@ class VariableSymbol(Symbol):
 
     def is_conductance_based(self) -> bool:
         """
-        Indicates whether this element is conductance based, based on the physical units of the spike buffer. If the unit can be cast to Siemens, the function returns True, otherwise it returns False.
+        Indicates whether this element is conductance based, based on the physical units of the spike input port. If the unit can be cast to Siemens, the function returns True, otherwise it returns False.
 
         :return: True if conductance based, otherwise False.
         """

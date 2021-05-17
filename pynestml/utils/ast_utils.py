@@ -128,29 +128,28 @@ class ASTUtils:
         return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
-    def is_spike_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
+    def has_spike_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
         """
-        Checks if the handed over neuron contains a spike input buffer.
+        Checks if the handed over neuron contains a spike input port.
         :param body: a single body element.
-        :return: True if spike buffer is contained, otherwise false.
+        :return: True if spike input port is contained, otherwise False.
         """
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
-        for inputL in inputs:
-            if inputL.is_spike():
+        for port in inputs:
+            if port.is_spike():
                 return True
         return False
 
     @classmethod
-    def is_current_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
+    def has_continuous_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
         """
-        Checks if the handed over neuron contains a current input buffer.
+        Checks if the handed over neuron contains a continuous time input port.
         :param body: a single body element.
-        :return: True if current buffer is contained, otherwise false.
-        :rtype: bool
+        :return: True if continuous time input port is contained, otherwise False.
         """
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
-            if inputL.is_current():
+            if inputL.is_continuous():
                 return True
         return False
 

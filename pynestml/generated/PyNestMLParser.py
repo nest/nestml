@@ -178,7 +178,7 @@ def serializedATN():
         buf.write(u"\u0139\3\2\2\2\u013b!\3\2\2\2\u013c\u0140\5\62\32\2\u013d")
         buf.write(u"\u0140\5:\36\2\u013e\u0140\5<\37\2\u013f\u013c\3\2\2")
         buf.write(u"\2\u013f\u013d\3\2\2\2\u013f\u013e\3\2\2\2\u0140#\3\2")
-        buf.write(u"\2\2\u0141\u0146\5&\24\2\u0142\u0146\5\26\f\2\u0143\u0146")
+        buf.write(u"\u0147\3\2\2\2\u0146\u0148\7\17\2\2\u0147\u0146\3\2\2")
         buf.write(u"\5(\25\2\u0144\u0146\5\60\31\2\u0145\u0141\3\2\2\2\u0145")
         buf.write(u"\u0142\3\2\2\2\u0145\u0143\3\2\2\2\u0145\u0144\3\2\2")
         buf.write(u"\2\u0146%\3\2\2\2\u0147\u014d\5\24\13\2\u0148\u014e\7")
@@ -325,7 +325,7 @@ class PyNestMLParser ( Parser ):
                      u"'in'", u"'step'", u"'inf'", u"'and'", u"'or'", u"'not'", 
                      u"'recordable'", u"'kernel'", u"'neuron'", u"'synapse'", 
                      u"'state'", u"'parameters'", u"'internals'", u"'update'", 
-                     u"'equations'", u"'input'", u"'output'", u"'preReceive'", 
+                     u"'input'", u"'output'", u"'current'", u"'spike'", 
                      u"'postReceive'", u"'current'", u"'spike'", u"'inhibitory'", 
                      u"'excitatory'", u"'post'", u"'@homogeneous'", u"'@heterogeneous'", 
                      u"'@'", u"'...'", u"'('", u"')'", u"'+'", u"'~'", u"'|'", 
@@ -346,7 +346,7 @@ class PyNestMLParser ( Parser ):
                       u"RECORDABLE_KEYWORD", u"KERNEL_KEYWORD", u"NEURON_KEYWORD", 
                       u"SYNAPSE_KEYWORD", u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", 
                       u"INTERNALS_KEYWORD", u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", 
-                      u"INPUT_KEYWORD", u"OUTPUT_KEYWORD", u"PRE_RECEIVE_KEYWORD", 
+                      u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
                       u"POST_RECEIVE_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
                       u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"POST_KEYWORD", 
                       u"DECORATOR_HOMOGENEOUS", u"DECORATOR_HETEROGENEOUS", 
@@ -2639,7 +2639,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
     class ReturnStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3223,7 +3222,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-    class NeuronBodyContext(ParserRuleContext):
+
 
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.NeuronBodyContext, self).__init__(parent, invokingState)
@@ -3653,7 +3652,6 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
     class BlockWithVariablesContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3998,7 +3996,7 @@ class PyNestMLParser ( Parser ):
             self.parser = parser
             self.name = None # Token
             self.sizeParameter = None # Token
-            self.isCurrent = None # Token
+            self.isContinuous = None # Token
             self.isSpike = None # Token
 
         def LEFT_ANGLE_MINUS(self):
@@ -4027,8 +4025,8 @@ class PyNestMLParser ( Parser ):
                 return self.getTypedRuleContext(PyNestMLParser.InputQualifierContext,i)
 
 
-        def CURRENT_KEYWORD(self):
-            return self.getToken(PyNestMLParser.CURRENT_KEYWORD, 0)
+        def CONTINUOUS_KEYWORD(self):
+            return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
 
         def SPIKE_KEYWORD(self):
             return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
@@ -4089,9 +4087,9 @@ class PyNestMLParser ( Parser ):
             self.state = 552
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNestMLParser.CURRENT_KEYWORD]:
+            if token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
                 self.state = 550
-                localctx.isCurrent = self.match(PyNestMLParser.CURRENT_KEYWORD)
+                localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             elif token in [PyNestMLParser.SPIKE_KEYWORD]:
                 self.state = 551
@@ -4176,7 +4174,7 @@ class PyNestMLParser ( Parser ):
             super(PyNestMLParser.OutputBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
             self.isSpike = None # Token
-            self.isCurrent = None # Token
+            self.isContinuous = None # Token
 
         def OUTPUT_KEYWORD(self):
             return self.getToken(PyNestMLParser.OUTPUT_KEYWORD, 0)
@@ -4187,8 +4185,8 @@ class PyNestMLParser ( Parser ):
         def SPIKE_KEYWORD(self):
             return self.getToken(PyNestMLParser.SPIKE_KEYWORD, 0)
 
-        def CURRENT_KEYWORD(self):
-            return self.getToken(PyNestMLParser.CURRENT_KEYWORD, 0)
+        def CONTINUOUS_KEYWORD(self):
+            return self.getToken(PyNestMLParser.CONTINUOUS_KEYWORD, 0)
 
         def getRuleIndex(self):
             return PyNestMLParser.RULE_outputBlock
@@ -4219,9 +4217,9 @@ class PyNestMLParser ( Parser ):
                 self.state = 561
                 localctx.isSpike = self.match(PyNestMLParser.SPIKE_KEYWORD)
                 pass
-            elif token in [PyNestMLParser.CURRENT_KEYWORD]:
+            elif token in [PyNestMLParser.CONTINUOUS_KEYWORD]:
                 self.state = 562
-                localctx.isCurrent = self.match(PyNestMLParser.CURRENT_KEYWORD)
+                localctx.isContinuous = self.match(PyNestMLParser.CONTINUOUS_KEYWORD)
                 pass
             else:
                 raise NoViableAltException(self)

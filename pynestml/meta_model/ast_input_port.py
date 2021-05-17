@@ -29,14 +29,17 @@ class ASTInputPort(ASTNode):
     """
     This class is used to store a declaration of an input port.
     ASTInputPort represents a single input port, e.g.:
-      spikeBuffer type <- excitatory spike
+
+    .. code-block:: nestml
+
+       spike_in pA <- excitatory spike
 
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.
-    @attribute datatype: Optional data type of the buffer.
+    @attribute datatype: Optional data type of the port.
     @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
-    @attribute isCurrent: Indicates that this input port accepts current generator input.
+    @attribute isContinuous: Indicates that this input port accepts continuous time input.
 
     Grammar:
         inputPort:
@@ -44,7 +47,7 @@ class ASTInputPort(ASTNode):
             (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
             (dataType)?
             LEFT_ANGLE_MINUS inputQualifier*
-            (isCurrent = CURRENT_KEYWORD | isSpike = SPIKE_KEYWORD);
+            (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
 
     """
 
@@ -59,11 +62,11 @@ class ASTInputPort(ASTNode):
         :type name: str
         :param size_parameter: a parameter indicating the index in an array.
         :type size_parameter: str
-        :param data_type: the data type of this buffer
+        :param data_type: the data type of this input port
         :type data_type: ASTDataType
         :param input_qualifiers: a list of input qualifiers for this port.
         :type input_qualifiers: list(ASTInputQualifier)
-        :param signal_type: type of signal received, i.e., spikes or currents
+        :param signal_type: type of signal received, i.e., spikes or continuous
         :type signal_type: SignalType
         """
         super(ASTInputPort, self).__init__(*args, **kwargs)
@@ -114,11 +117,10 @@ class ASTInputPort(ASTNode):
 
         return dup
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
-        Returns the name of the declared buffer.
+        Returns the name of the declared input port.
         :return: the name.
-        :rtype: str
         """
         return self.name
 
@@ -154,28 +156,25 @@ class ASTInputPort(ASTNode):
         """
         return self.input_qualifiers
 
-    def is_spike(self):
+    def is_spike(self) -> bool:
         """
-        Returns whether this is a spike buffer or not.
-        :return: True if spike buffer, False else.
-        :rtype: bool
+        Returns whether this is a spiking input port or not.
+        :return: True if spike input port, False otherwise.
         """
         return self.signal_type is PortSignalType.SPIKE
 
-    def is_current(self):
+    def is_continuous(self) -> bool:
         """
-        Returns whether this is a current buffer or not.
-        :return: True if current buffer, False else.
-        :rtype: bool
+        Returns whether this is a continous time port or not.
+        :return: True if continuous time, False otherwise.
         """
-        return self.signal_type is PortSignalType.CURRENT
+        return self.signal_type is PortSignalType.CONTINUOUS
 
-    def is_excitatory(self):
+    def is_excitatory(self) -> bool:
         """
-        Returns whether this buffer is excitatory or not. For this, it has to be marked explicitly by the
+        Returns whether this port is excitatory or not. For this, it has to be marked explicitly by the
         excitatory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if excitatory, False otherwise.
-        :rtype: bool
         """
         if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
             return True
@@ -184,12 +183,11 @@ class ASTInputPort(ASTNode):
                 return True
         return False
 
-    def is_inhibitory(self):
+    def is_inhibitory(self) -> bool:
         """
-        Returns whether this buffer is inhibitory or not. For this, it has to be marked explicitly by the
+        Returns whether this port is inhibitory or not. For this, it has to be marked explicitly by the
         inhibitory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if inhibitory, False otherwise.
-        :rtype: bool
         """
         if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
             return True
@@ -214,15 +212,14 @@ class ASTInputPort(ASTNode):
 
     def has_datatype(self):
         """
-        Returns whether this buffer has a defined data type or not.
+        Returns whether this port has a defined data type or not.
         :return: True if it has a datatype, otherwise False.
-        :rtype: bool
         """
         return self.data_type is not None and isinstance(self.data_type, ASTDataType)
 
     def get_datatype(self):
         """
-        Returns the currently used data type of this buffer.
+        Returns the currently used data type of this port.
         :return: a single data type object.
         :rtype: ASTDataType
         """
@@ -276,4 +273,4 @@ class ASTInputPort(ASTNode):
         for i in range(0, len(my_input_qualifiers)):
             if not my_input_qualifiers[i].equals(your_input_qualifiers[i]):
                 return False
-        return self.is_spike() == other.is_spike() and self.is_current() == other.is_current()
+        return self.is_spike() == other.is_spike() and self.is_continuous() == other.is_continuous()

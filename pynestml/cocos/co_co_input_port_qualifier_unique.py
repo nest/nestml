@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_buffer_data_type.py
+# co_co_input_port_qualifier_unique.py
 #
 # This file is part of NEST.
 #
@@ -25,20 +25,22 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoBufferDataType(CoCo):
+class CoCoInputPortQualifierUnique(CoCo):
     """
-    This coco ensures that all spike and current buffers have a data type stated.
+    This coco ensures that each spike input port has at most one type of modifier inhibitory and excitatory.
+
     Allowed:
-        input:
-            spikeIn integer <- inhibitory spike
-            current pA <- current
-        end
+
+    .. code-block:: nestml
+
+       spike pA <- inhibitory spike
 
     Not allowed:
-        input:
-            spikeIn <- inhibitory spike
-            current <- current
-        end
+
+    .. code-block:: nestml
+
+       spike pA <- inhibitory inhibitory spike
+
     """
 
     @classmethod
@@ -48,21 +50,23 @@ class CoCoBufferDataType(CoCo):
         :param node: a single neuron instance.
         :type node: ast_neuron
         """
-        node.accept(BufferDatatypeVisitor())
+        cls.neuronName = node.get_name()
+        node.accept(InputPortQualifierUniqueVisitor())
 
 
-class BufferDatatypeVisitor(ASTVisitor):
+class InputPortQualifierUniqueVisitor(ASTVisitor):
     """
-    This visitor checks if each buffer has a datatype selected according to the coco.
+    This visitor ensures that all input ports are qualified uniquely by keywords.
     """
 
     def visit_input_port(self, node):
         """
         Checks the coco on the current node.
-        :param node: a single input port node.
+        :param node: a single input port.
         :type node: ASTInputPort
         """
-        if not node.has_datatype():
-            code, message = Messages.get_data_type_not_specified(node.get_name())
-            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
-                               code=code, message=message)
+        if node.is_spike():
+            if node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 1:
+                code, message = Messages.get_multiple_keywords(", ".join([str(q) for q in node.get_input_qualifiers()]))
+                Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
+                                   log_level=LoggingLevel.ERROR)

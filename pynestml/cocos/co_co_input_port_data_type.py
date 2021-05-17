@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_buffer_qualifier_unique.py
+# co_co_input_port_data_type.py
 #
 # This file is part of NEST.
 #
@@ -20,44 +20,57 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoBufferQualifierUnique(CoCo):
+class CoCoInputPortDataType(CoCo):
     """
-    This coco ensures that each spike buffer has at most one type of modifier inhibitory and excitatory.
+    This coco ensures that all spike and continuous time input ports have a data type stated.
+
     Allowed:
-        spike <- inhibitory spike
+
+    .. code-block:: nestml
+
+       input:
+           spikeIn integer <- inhibitory spike
+           current pA <- continuous
+       end
+
     Not allowed:
-        spike <- inhibitory inhibitory spike
+
+    .. code-block:: nestml
+
+       input:
+           spikeIn <- inhibitory spike
+           current <- continuous
+       end
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTNeuron):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ast_neuron
         """
-        cls.neuronName = node.get_name()
-        node.accept(BufferQualifierUniqueVisitor())
+        node.accept(InputPortDatatypeVisitor())
 
 
-class BufferQualifierUniqueVisitor(ASTVisitor):
+class InputPortDatatypeVisitor(ASTVisitor):
     """
-    This visitor ensures that all buffers are qualified uniquely by keywords.
+    This visitor checks if each input port has a datatype selected according to the coco.
     """
 
-    def visit_input_port(self, node):
+    def visit_input_port(self, node: ASTInputPort):
         """
         Checks the coco on the current node.
-        :param node: a single input port.
+        :param node: a single input port node.
         :type node: ASTInputPort
         """
-        if node.is_spike():
-            if node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 1:
-                code, message = Messages.get_multiple_keywords(", ".join([str(q) for q in node.get_input_qualifiers()]))
-                Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
-                                   log_level=LoggingLevel.ERROR)
+        if not node.has_datatype():
+            code, message = Messages.get_data_type_not_specified(node.get_name())
+            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                               code=code, message=message)

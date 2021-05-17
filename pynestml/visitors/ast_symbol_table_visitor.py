@@ -79,24 +79,13 @@ class ASTSymbolTableVisitor(ASTVisitor):
     def endvisit_neuron(self, node):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.post_symbol_table_builder_checks(node, after_ast_rewrite=self.after_ast_rewrite_)
-        # the following part is done in order to mark conductance based buffers as such.
-        if node.get_input_blocks() is not None and node.get_equations_blocks() is not None and \
-                len(node.get_equations_blocks().get_declarations()) > 0:
-            # this case should be prevented, since several input blocks result in  a incorrect model
-            if isinstance(node.get_input_blocks(), list):
-                buffers = (buffer for bufferA in node.get_input_blocks() for buffer in bufferA.get_input_ports())
-            else:
-                buffers = (buffer for buffer in node.get_input_blocks().get_input_ports())
-            from pynestml.meta_model.ast_kernel import ASTKernel
-            # todo: ode declarations are not used, is this correct?
-            # ode_declarations = (decl for decl in node.get_equations_blocks().get_declarations() if
-            #                    not isinstance(decl, ASTKernel))
-        # now update the equations
+
+        # update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
             assign_ode_to_variables(equation_block)
+
         Logger.set_current_node(None)
-        return
 
     def visit_neuron_body(self, node):
         """
@@ -106,7 +95,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
-        return
 
 
     def visit_synapse(self, node):
@@ -623,7 +611,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         :type node: ASTInputPort
         """
         if not node.has_datatype():
-            code, message = Messages.get_buffer_type_not_defined(node.get_name())
+            code, message = Messages.get_input_port_type_not_defined(node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
         else:
@@ -633,13 +621,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
             qual.update_scope(node.get_scope())
 
     def endvisit_input_port(self, node):
-        buffer_type = BlockType.INPUT_BUFFER_SPIKE if node.is_spike() else BlockType.INPUT_BUFFER_CURRENT
         if not node.has_datatype():
             return
         type_symbol = node.get_datatype().get_type_symbol()
         type_symbol.is_buffer = True  # set it as a buffer
         symbol = VariableSymbol(element_reference=node, scope=node.get_scope(), name=node.get_name(),
-                                block_type=buffer_type, vector_parameter=node.get_index_parameter(),
+                                block_type=BlockType.INPUT, vector_parameter=node.get_index_parameter(),
                                 is_predefined=False, is_inline_expression=False, is_recordable=False,
                                 type_symbol=type_symbol, variable_type=VariableType.BUFFER)
         symbol.set_comment(node.get_comment())

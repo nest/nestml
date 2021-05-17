@@ -52,7 +52,7 @@ neuron recordable_variables:
 
     input:
         spikes pA <- spike
-        I_stim pA <- current
+        I_stim pA <- continuous
     end
 
     update:
