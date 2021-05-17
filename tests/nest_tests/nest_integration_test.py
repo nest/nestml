@@ -281,6 +281,8 @@ class NestIntegrationTest(unittest.TestCase):
     def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
 
         print("Now testing model: " + str(testant) + " (reference model: " + str(referenceModel) + ")")
+        import logging
+        logging.info("Now testing model: " + str(testant) + " (reference model: " + str(referenceModel) + ")")
 
         spike_times = [100.0, 200.0]
         spike_weights = [1., -1.]

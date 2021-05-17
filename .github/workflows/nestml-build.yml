@@ -8,6 +8,7 @@ jobs:
       fail-fast: false
 
     steps:
+      - uses: actions/checkout@v2
       # Checkout the repository contents
       - name: Checkout NESTML code
         uses: actions/checkout@v2
@@ -112,6 +113,9 @@ jobs:
           cmake -Dwith-nest=${{ env.NEST_INSTALL }}/bin/nest-config .
           make && make install
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Run integration tests
         run: |
           cd $GITHUB_WORKSPACE
@@ -120,3 +124,4 @@ jobs:
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
           exit $rc
+
