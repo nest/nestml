@@ -178,7 +178,7 @@ def serializedATN():
         buf.write(u"\u0139\3\2\2\2\u013b!\3\2\2\2\u013c\u0140\5\62\32\2\u013d")
         buf.write(u"\u0140\5:\36\2\u013e\u0140\5<\37\2\u013f\u013c\3\2\2")
         buf.write(u"\2\u013f\u013d\3\2\2\2\u013f\u013e\3\2\2\2\u0140#\3\2")
-        buf.write(u"\u0147\3\2\2\2\u0146\u0148\7\17\2\2\u0147\u0146\3\2\2")
+        buf.write(u"\2\2\u0141\u0146\5&\24\2\u0142\u0146\5\26\f\2\u0143\u0146")
         buf.write(u"\5(\25\2\u0144\u0146\5\60\31\2\u0145\u0141\3\2\2\2\u0145")
         buf.write(u"\u0142\3\2\2\2\u0145\u0143\3\2\2\2\u0145\u0144\3\2\2")
         buf.write(u"\2\u0146%\3\2\2\2\u0147\u014d\5\24\13\2\u0148\u014e\7")
@@ -252,8 +252,8 @@ def serializedATN():
         buf.write(u"\u01de\3\2\2\2\u01e0\u01e3\3\2\2\2\u01e1\u01df\3\2\2")
         buf.write(u"\2\u01e1\u01e2\3\2\2\2\u01e2\u01e4\3\2\2\2\u01e3\u01e1")
         buf.write(u"\3\2\2\2\u01e4\u01e5\7\t\2\2\u01e5G\3\2\2\2\u01e6\u01e7")
-        buf.write(u"\7(\2\2\u01e7\u01e8\7T\2\2\u01e8\u01e9\5\36\20\2\u01e9")
-        buf.write(u"\u01ea\7\t\2\2\u01eaI\3\2\2\2\u01eb\u01ec\7)\2\2\u01ec")
+        buf.write(u"\7)\2\2\u01e7\u01e8\7T\2\2\u01e8\u01e9\5\36\20\2\u01e9")
+        buf.write(u"\u01ea\7\t\2\2\u01eaI\3\2\2\2\u01eb\u01ec\7*\2\2\u01ec")
         buf.write(u"\u01ed\7T\2\2\u01ed\u01ee\5\36\20\2\u01ee\u01ef\7\t\2")
         buf.write(u"\2\u01efK\3\2\2\2\u01f0\u01f1\t\4\2\2\u01f1\u01f6\7T")
         buf.write(u"\2\2\u01f2\u01f5\5(\25\2\u01f3\u01f5\7\b\2\2\u01f4\u01f2")
@@ -280,12 +280,12 @@ def serializedATN():
         buf.write(u"\u0225\7;\2\2\u0222\u0224\5V,\2\u0223\u0222\3\2\2\2\u0224")
         buf.write(u"\u0227\3\2\2\2\u0225\u0223\3\2\2\2\u0225\u0226\3\2\2")
         buf.write(u"\2\u0226\u022a\3\2\2\2\u0227\u0225\3\2\2\2\u0228\u022b")
-        buf.write(u"\7*\2\2\u0229\u022b\7+\2\2\u022a\u0228\3\2\2\2\u022a")
+        buf.write(u"\7(\2\2\u0229\u022b\7+\2\2\u022a\u0228\3\2\2\2\u022a")
         buf.write(u"\u0229\3\2\2\2\u022bU\3\2\2\2\u022c\u0230\7,\2\2\u022d")
         buf.write(u"\u0230\7-\2\2\u022e\u0230\7.\2\2\u022f\u022c\3\2\2\2")
         buf.write(u"\u022f\u022d\3\2\2\2\u022f\u022e\3\2\2\2\u0230W\3\2\2")
         buf.write(u"\2\u0231\u0232\7\'\2\2\u0232\u0235\7T\2\2\u0233\u0236")
-        buf.write(u"\7+\2\2\u0234\u0236\7*\2\2\u0235\u0233\3\2\2\2\u0235")
+        buf.write(u"\7+\2\2\u0234\u0236\7(\2\2\u0235\u0233\3\2\2\2\u0235")
         buf.write(u"\u0234\3\2\2\2\u0236Y\3\2\2\2\u0237\u0238\7\17\2\2\u0238")
         buf.write(u"\u0239\7Z\2\2\u0239\u0242\7\63\2\2\u023a\u023f\5\\/\2")
         buf.write(u"\u023b\u023c\7L\2\2\u023c\u023e\5\\/\2\u023d\u023b\3")
@@ -325,8 +325,8 @@ class PyNestMLParser ( Parser ):
                      u"'in'", u"'step'", u"'inf'", u"'and'", u"'or'", u"'not'", 
                      u"'recordable'", u"'kernel'", u"'neuron'", u"'synapse'", 
                      u"'state'", u"'parameters'", u"'internals'", u"'update'", 
-                     u"'input'", u"'output'", u"'current'", u"'spike'", 
-                     u"'postReceive'", u"'current'", u"'spike'", u"'inhibitory'", 
+                     u"'equations'", u"'input'", u"'output'", u"'continuous'", 
+                     u"'preReceive'", u"'postReceive'", u"'spike'", u"'inhibitory'", 
                      u"'excitatory'", u"'post'", u"'@homogeneous'", u"'@heterogeneous'", 
                      u"'@'", u"'...'", u"'('", u"')'", u"'+'", u"'~'", u"'|'", 
                      u"'^'", u"'&'", u"'['", u"'<-'", u"']'", u"'[['", u"']]'", 
@@ -346,8 +346,8 @@ class PyNestMLParser ( Parser ):
                       u"RECORDABLE_KEYWORD", u"KERNEL_KEYWORD", u"NEURON_KEYWORD", 
                       u"SYNAPSE_KEYWORD", u"STATE_KEYWORD", u"PARAMETERS_KEYWORD", 
                       u"INTERNALS_KEYWORD", u"UPDATE_KEYWORD", u"EQUATIONS_KEYWORD", 
-                      u"OUTPUT_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
-                      u"POST_RECEIVE_KEYWORD", u"CURRENT_KEYWORD", u"SPIKE_KEYWORD", 
+                      u"INPUT_KEYWORD", u"OUTPUT_KEYWORD", u"CONTINUOUS_KEYWORD", 
+                      u"PRE_RECEIVE_KEYWORD", u"POST_RECEIVE_KEYWORD", u"SPIKE_KEYWORD", 
                       u"INHIBITORY_KEYWORD", u"EXCITATORY_KEYWORD", u"POST_KEYWORD", 
                       u"DECORATOR_HOMOGENEOUS", u"DECORATOR_HETEROGENEOUS", 
                       u"AT", u"ELLIPSIS", u"LEFT_PAREN", u"RIGHT_PAREN", 
@@ -463,9 +463,9 @@ class PyNestMLParser ( Parser ):
     EQUATIONS_KEYWORD=35
     INPUT_KEYWORD=36
     OUTPUT_KEYWORD=37
-    PRE_RECEIVE_KEYWORD=38
-    POST_RECEIVE_KEYWORD=39
-    CURRENT_KEYWORD=40
+    CONTINUOUS_KEYWORD=38
+    PRE_RECEIVE_KEYWORD=39
+    POST_RECEIVE_KEYWORD=40
     SPIKE_KEYWORD=41
     INHIBITORY_KEYWORD=42
     EXCITATORY_KEYWORD=43
@@ -2639,6 +2639,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
     class ReturnStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
@@ -3222,7 +3223,7 @@ class PyNestMLParser ( Parser ):
             self.exitRule()
         return localctx
 
-
+    class NeuronBodyContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNestMLParser.NeuronBodyContext, self).__init__(parent, invokingState)
@@ -3652,6 +3653,7 @@ class PyNestMLParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
+
     class BlockWithVariablesContext(ParserRuleContext):
 
         def __init__(self, parser, parent=None, invokingState=-1):
