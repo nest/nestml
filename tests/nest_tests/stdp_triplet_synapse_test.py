@@ -433,7 +433,7 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
 def test_stdp_triplet_synapse(delay, spike_times_len):
     print("Running test for delay = " + str(delay) + ", spike_times_len = " + str(spike_times_len))
 
-    experiment = "test_nestml_dyad_synapse"
+    experiment = "test_nestml_pair_synapse"
     syn_opts = {
         'delay': delay,
         'tau_minus': 33.7,
@@ -449,8 +449,8 @@ def test_stdp_triplet_synapse(delay, spike_times_len):
         'w_init': 1.
     }
 
-    if experiment == "test_nestml_dyad_synapse":
-        nest_modules_to_load = ["nestml_triplet_dyad_module"]
+    if experiment == "test_nestml_pair_synapse":
+        nest_modules_to_load = ["nestml_triplet_pair_module"]
 
         #neuron_model_name = "iaf_psc_exp_nestml__with_stdp_triplet_nestml"
         neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"

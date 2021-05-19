@@ -96,7 +96,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         #nest.set_verbosity("M_WARNING")
         nest.set_verbosity("M_ALL")
-        #nest.Install("models_for_dyadmodule")
+        #nest.Install("models_for_co_gen_module")
 
         nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})

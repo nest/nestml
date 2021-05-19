@@ -505,7 +505,7 @@ To indicate which neurons will be connected to by which synapses during simulati
 .. code-block:: json
 
    {
-     "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]
+     "neuron_synapse_pairs": [["iaf_psc_exp", "stdp"]]
    }
 
 This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_codegenerator_opts_triplet.json``:

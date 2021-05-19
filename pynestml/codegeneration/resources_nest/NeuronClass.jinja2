@@ -171,8 +171,8 @@ namespace nest
 {%- endfilter %}
 {%- endif %}
 
-{%- if dyadic_synapse_partner is defined %}
-  // state variables for archiving state for dyadic synaptic partner
+{%- if paired_synapse is defined %}
+  // state variables for archiving state for paired synapse
   n_incoming_ = 0;
   max_delay_ = 0;
   last_spike_ = -1.;
@@ -217,7 +217,7 @@ namespace nest
   V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
 
-{%- if dyadic_neuron_partner is defined %}
+{%- if paired_neuron is defined %}
   n_incoming_ = __n.n_incoming;
   max_delay_ = __n.max_delay_;
   last_spike_ = __n.last_spike_;
@@ -267,7 +267,7 @@ void {{neuronName}}::init_buffers_()
 {%- endfor %}
   B_.logger_.reset(); // includes resize
 
-{%- if dyadic_neuron_partner is defined %}
+{%- if paired_neuron is defined %}
   clear_history();
 {%- endif %}
 {%- if useGSL %}
@@ -485,7 +485,7 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
 
 
 
-{%- if dyadic_synapse_partner is defined %}
+{%- if paired_synapse is defined %}
 
 
 inline double
@@ -660,7 +660,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {{printer.print_node(stmt)}};
 {%- endfor %}
 
-{%- for _, spike_update in dyad_spike_updates.items() %}
+{%- for _, spike_update in post_spike_updates.items() %}
         S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
 {%- endfor %}
 

@@ -108,7 +108,7 @@ class NESTCodeGenerator(CodeGenerator):
     Options:
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
-    - **neuron_synapse_dyads**: List of pairs of (neuron, synapse) model names.
+    - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     """
@@ -116,7 +116,7 @@ class NESTCodeGenerator(CodeGenerator):
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
-        "neuron_synapse_dyads": [],
+        "neuron_synapse_pairs": [],
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
     }
@@ -160,26 +160,26 @@ class NESTCodeGenerator(CodeGenerator):
         self._printer = ExpressionsPrettyPrinter()
 
 
-    def analyse_transform_neuron_synapse_dyads(self, neurons, synapses):
+    def analyse_transform_neuron_synapse_pairs(self, neurons, synapses):
         """
-        Does not modify existing neurons or synapses, but returns lists with additional elements representing new dyad neuron and synapse
+        Does not modify existing neurons or synapses, but returns lists with additional elements representing new pair neuron and synapse
         """
-        if not "neuron_synapse_dyads" in self._options:
+        if not "neuron_synapse_pairs" in self._options:
             return neurons, synapses
 
-        for neuron_synapse_dyad in self._options["neuron_synapse_dyads"]:
+        for neuron_synapse_pair in self._options["neuron_synapse_pairs"]:
             neuron_names = [neuron.get_name() for neuron in neurons]
-            neuron_name = neuron_synapse_dyad[0]
+            neuron_name = neuron_synapse_pair[0]
             if not neuron_name + FrontendConfiguration.suffix in neuron_names:
-                raise Exception("Neuron name used in dyad ('" + neuron_name + "') not found")  # XXX: log error
+                raise Exception("Neuron name used in pair ('" + neuron_name + "') not found")  # XXX: log error
                 return neurons, synapses
             neuron = neurons[neuron_names.index(neuron_name + FrontendConfiguration.suffix)]
             new_neuron = neuron.clone()
 
             synapse_names = [synapse.get_name() for synapse in synapses]
-            synapse_name = neuron_synapse_dyad[1]
+            synapse_name = neuron_synapse_pair[1]
             if not synapse_name + FrontendConfiguration.suffix in synapse_names:
-                raise Exception("Synapse name used in dyad ('" + synapse_name + "') not found")  # XXX: log error
+                raise Exception("Synapse name used in pair ('" + synapse_name + "') not found")  # XXX: log error
                 return neurons, synapses
             synapse = synapses[synapse_names.index(synapse_name + FrontendConfiguration.suffix)]
             synapses.clear()
@@ -242,15 +242,14 @@ class NESTCodeGenerator(CodeGenerator):
                         input_port = get_input_port_by_name(self.synapse.get_input_blocks(), symbol_buffer.name)
                         if input_port:
                             has_post_qualifier = input_port.get_input_qualifiers() and input_port.get_input_qualifiers()[0].is_post
-                            if True:
-                                found_parent_assignment = False
-                                node_ = node
-                                while not found_parent_assignment:
-                                    node_ = self.synapse.get_parent(node_)
-                                    if isinstance(node_, ASTInlineExpression):   # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
-                                        found_parent_assignment = True
-                                var_name = node_.get_variable_name()
-                                self._variables.append(var_name)
+                            found_parent_assignment = False
+                            node_ = node
+                            while not found_parent_assignment:
+                                node_ = self.synapse.get_parent(node_)
+                                if isinstance(node_, ASTInlineExpression):   # XXX TODO also needs to accept normal ASTExpression, ASTAssignment?
+                                    found_parent_assignment = True
+                            var_name = node_.get_variable_name()
+                            self._variables.append(var_name)
 
             all_conv_vars = []
             visitor = ASTAllVariablesUsedInConvolutionVisitor(synapse)
@@ -554,7 +553,7 @@ class NESTCodeGenerator(CodeGenerator):
 
 
             #
-            # 	mark "post" ports as special: convolutions with them ultimately yield variable updates when post neuron calls emit_spike()
+            #     mark "post" ports as special: convolutions with them ultimately yield variable updates when post neuron calls emit_spike()
             #
 
             def mark_post_ports(neuron, synapse):
@@ -663,7 +662,7 @@ class NESTCodeGenerator(CodeGenerator):
             #    move variable definitions from synapse to neuron
             #
 
-            vars_used = list(set(vars_used))	# pick unique elements
+            vars_used = list(set(vars_used))    # pick unique elements
             #print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
             vars_used = [s for s in vars_used if not var_name_suffix in s.get_name()]
             print("Dependent variables: " + ", ".join([str(v) for v in vars_used]))
@@ -775,7 +774,7 @@ class NESTCodeGenerator(CodeGenerator):
 
 
             #
-            # 	rename neuron
+            #     rename neuron
             #
 
             name_separator_str = "__with_"
@@ -784,7 +783,7 @@ class NESTCodeGenerator(CodeGenerator):
             #self.analytic_solver[new_neuron_name] = self.analytic_solver[neuron.get_name()]
             #self.numeric_solver[new_neuron_name] = self.numeric_solver[neuron.get_name()]
             new_neuron.set_name(new_neuron_name)
-            new_neuron.dyadic_synapse_partner = new_synapse
+            new_neuron.paired_synapse = new_synapse
 
             #
             #    rename synapse
@@ -794,8 +793,8 @@ class NESTCodeGenerator(CodeGenerator):
             #self.analytic_solver[new_synapse_name] = self.analytic_solver[synapse.get_name()]
             #self.numeric_solver[new_synapse_name] = self.numeric_solver[synapse.get_name()]
             new_synapse.set_name(new_synapse_name)
-            new_synapse.dyadic_neuron_partner = new_neuron
-            new_neuron.dyadic_synapse_partner = new_synapse
+            new_synapse.paired_neuron = new_neuron
+            new_neuron.paired_synapse = new_synapse
 
             #
             #    add modified versions of neuron and synapse to list
@@ -807,14 +806,14 @@ class NESTCodeGenerator(CodeGenerator):
             neurons.append(new_neuron)
             synapses.append(new_synapse)
 
-            print("Successfully constructed neuron-synapse dyad models")
+            print("Successfully constructed neuron-synapse pair models")
 
         return neurons, synapses
 
 
     def generate_code(self, neurons, synapses):
-        if self._options and "neuron_synapse_dyads" in self._options:
-            neurons, synapses = self.analyse_transform_neuron_synapse_dyads(neurons, synapses)
+        if self._options and "neuron_synapse_pairs" in self._options:
+            neurons, synapses = self.analyse_transform_neuron_synapse_pairs(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
         self.generate_neurons(neurons)
@@ -1259,8 +1258,8 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
-        if 'dyadic_neuron_partner' in dir(synapse):
-            namespace['dyadic_neuron_partner'] = synapse.dyadic_neuron_partner.get_name()
+        if 'paired_neuron' in dir(synapse):
+            namespace['paired_neuron'] = synapse.paired_neuron.get_name()
 
         namespace['synapseName'] = synapse.get_name()
         namespace['synapse'] = synapse
@@ -1357,9 +1356,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace = dict()
 
-        if 'dyadic_synapse_partner' in dir(neuron):
-            namespace['dyadic_synapse_partner'] = neuron.dyadic_synapse_partner.get_name()
-            namespace["dyad_spike_updates"] = neuron.post_spike_updates
+        if 'paired_synapse' in dir(neuron):
+            namespace['paired_synapse'] = neuron.paired_synapse.get_name()
+            namespace["post_spike_updates"] = neuron.post_spike_updates
             if "moved_spike_updates" in dir(neuron):
                 namespace["spike_update_stmts"] = neuron.moved_spike_updates
             else:
@@ -1397,7 +1396,7 @@ class NESTCodeGenerator(CodeGenerator):
             and self.analytic_solver[neuron.get_name()] is not None
         if namespace['uses_analytic_solver']:
             namespace['analytic_state_variables_moved'] = []
-            if 'dyadic_synapse_partner' in dir(neuron):
+            if 'paired_synapse' in dir(neuron):
                 namespace['analytic_state_variables'] = []
                 for sv in self.analytic_solver[neuron.get_name()]["state_variables"]:
                     moved = False
@@ -1441,7 +1440,7 @@ class NESTCodeGenerator(CodeGenerator):
         if namespace['uses_numeric_solver']:
 
             namespace['numeric_state_variables_moved'] = []
-            if 'dyadic_synapse_partner' in dir(neuron):
+            if 'paired_synapse' in dir(neuron):
                 namespace['numeric_state_variables'] = []
                 for sv in self.numeric_solver[neuron.get_name()]["state_variables"]:
                     moved = False
@@ -1699,7 +1698,7 @@ class NESTCodeGenerator(CodeGenerator):
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
              and spike_input_port.get_variable()._is_post_port:
                 orig_port_name = str(spike_input_port)[:str(spike_input_port).index("__for_")]
-                buffer_type = neuron.dyadic_synapse_partner.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
+                buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
                 buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
 

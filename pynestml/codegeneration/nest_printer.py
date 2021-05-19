@@ -286,7 +286,7 @@ class NestPrinter:
         return ''
 
     @classmethod
-    def print_output_event(cls, ast_body: ASTBody) -> str:
+    def print_output_event(cls, ast_body: ASTNeuronBody) -> str:
         """
         For the handed over neuron, print its defined output type.
         :param ast_body: a single neuron body

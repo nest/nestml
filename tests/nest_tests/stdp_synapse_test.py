@@ -68,12 +68,15 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 suffix="_nestml",
                 codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                               "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_dyads": [["iaf_psc_exp", "stdp"]]})
+                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp",
+                                                        "post_ports": ["post_spikes",
+                                                                       ["I_post_dend", "I_dend"]]}]})
         install_nest("/tmp/nestml-jit", nest_path)
 
     def test_nest_stdp_synapse(self):
 
-        fname_snip = "dyad_test"
+        fname_snip = ""
 
         pre_spike_times = [1., 11., 21.]    # [ms]
         post_spike_times = [6., 16., 26.]  # [ms]

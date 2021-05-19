@@ -90,7 +90,7 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 #include "nest_time.h"
 
 
-{%- if dyadic_synapse_partner is defined %}
+{%- if paired_synapse is defined %}
 
 // entry in the spiking history
 class histentry__
@@ -214,7 +214,7 @@ public:
   void get_status(DictionaryDatum &) const;
   void set_status(const DictionaryDatum &);
 
-{%- if dyadic_synapse_partner is defined %}
+{%- if paired_synapse is defined %}
   // support for spike archiving
 
   /**
@@ -240,7 +240,7 @@ public:
 {%- endif %}
 
 protected:
-{%- if dyadic_synapse_partner is defined %}
+{%- if paired_synapse is defined %}
   // support for spike archiving
 
   /**
@@ -263,7 +263,7 @@ private:
   void calibrate_variables(bool exclude_timestep=false);
 
 
-{%- if dyadic_synapse_partner is defined %}
+{%- if paired_synapse is defined %}
   // support for spike archiving
 
   // number of incoming connections from stdp connectors.
@@ -553,7 +553,7 @@ public: // XXX! TODO: should be private
 {%- endfor %}
 {%- endfilter %}
 
-{%- if dyadic_synapse_partner is defined %}
+{%- if paired_synapse is defined %}
 
   /* getters/setters for variables transferred from synapse */
 

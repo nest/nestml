@@ -67,7 +67,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 {{ synapse.print_comment() }}
 **/
 
-#define DYAD_POST_TYPE {{ dyadic_neuron_partner }}
+#define POST_NEURON_TYPE {{ paired_neuron }}
 
 #define DEBUG
 
@@ -500,12 +500,12 @@ assert(0);
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
 
-{%- if dyadic_neuron_partner is defined %}
+{%- if paired_neuron is defined %}
     try {
-      dynamic_cast<{{dyadic_neuron_partner}}&>(t);
+      dynamic_cast<{{paired_neuron}}&>(t);
     }
     catch (std::bad_cast &exp) {
-      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{dyadic_neuron_partner}}'.\n";
+      std::cout << "wrong type of neuron connected! Synapse '{{synapseName}}' will only work with neuron '{{paired_neuron}}'.\n";
       exit(1);
     }
 {%- endif %}
@@ -529,8 +529,8 @@ assert(0);
 #endif
 
     // use accessor functions (inherited from Connection< >) to obtain delay and target
-{%- if dyadic_neuron_partner is not none and dyadic_neuron_partner|length > 0 %}
-    {{dyadic_neuron_partner}}* __target = static_cast<{{dyadic_neuron_partner}}*>(get_target(tid));
+{%- if paired_neuron is not none and paired_neuron|length > 0 %}
+    {{paired_neuron}}* __target = static_cast<{{paired_neuron}}*>(get_target(tid));
 {%- else %}
     Node* __target = get_target( tid );
 {%- endif %}
@@ -541,7 +541,7 @@ assert(0);
         t_lastspike_ = 0.;
     }
 
-{%- if dyadic_neuron_partner is not none and dyadic_neuron_partner|length > 0 %}
+{%- if paired_neuron is not none and paired_neuron|length > 0 %}
     double timestep = 0;
 
     {
@@ -646,7 +646,7 @@ assert(0);
 
     const double _tr_t = __t_spike - __dendritic_delay;
 
-//std::cout << "\tDepressing, old w = " << S_.w << ", alpha = " << P_.alpha << ", lambda = " << P_.lambda << ", mu_minus = " << P_.mu_minus << ", post_tr = " << ((DYAD_POST_TYPE*)(__target))->get_post_trace__for_stdp_nestml(_tr_t);
+//std::cout << "\tDepressing, old w = " << S_.w << ", alpha = " << P_.alpha << ", lambda = " << P_.lambda << ", mu_minus = " << P_.mu_minus << ", post_tr = " << ((POST_NEURON_TYPE*)(__target))->get_post_trace__for_stdp_nestml(_tr_t);
 
 {%- filter indent(4,True) %}
 {%- set dynamics = synapse.get_pre_receive() %}
