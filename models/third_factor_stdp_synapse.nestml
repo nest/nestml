@@ -81,7 +81,7 @@ synapse third_factor_stdp:
   postReceive:
     # potentiate synapse
     w_ nS = w   # Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-    w_ += I_post_dend / pA
+    w_ += I_post_dend / pA * nS
     w = min(Wmax, w_)
   end
 

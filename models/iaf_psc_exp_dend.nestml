@@ -46,7 +46,7 @@ neuron iaf_psc_exp_dend:
   state:
     r integer = 0                          # counts number of tick during the refractory period
     V_abs mV = 0 mV
-	I_dend = 42 pA   # third factor, to be read out by synapse during weight update
+	I_dend pA = 42 pA   # third factor, to be read out by synapse during weight update
   end
 
   equations:
