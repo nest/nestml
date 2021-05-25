@@ -1,5 +1,5 @@
 """
-Name: stdp - Synapse type for spike-timing dependent plasticity.
+Name: third_factor_stdp - Synapse type for spike-timing dependent plasticity.
 
 Description:
 
@@ -43,7 +43,7 @@ Author: Moritz Helias, Abigail Morrison
 
 Adapted by: Philipp Weidel
 """
-synapse stdp:
+synapse third_factor_stdp:
 
   state:
     w nS = 1 nS
@@ -73,13 +73,15 @@ synapse stdp:
   input:
     pre_spikes nS <- spike
     post_spikes nS <- spike
+    I_post_dend pA <- continuous
   end
 
   output: spike
 
   postReceive:
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    w_ nS = w   # Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    w_ += I_post_dend / pA
     w = min(Wmax, w_)
   end
 

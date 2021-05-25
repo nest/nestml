@@ -73,19 +73,20 @@ synapse stdp:
   input:
     pre_spikes nS <- spike
     post_spikes nS <- spike
+    I_c real <- continuous
   end
 
   output: spike
 
   postReceive:
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace )) * I_c
     w = min(Wmax, w_)
   end
 
   preReceive:
     # depress synapse
-    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace )) * I_c
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner

@@ -580,7 +580,7 @@ TODO list
 
      input:
        pre_spikes nS <- spike
-       post_spikes nS <- post spike
+       post_spikes nS <- spike
      end
      
      preReceive:
@@ -597,7 +597,7 @@ TODO list
 
      input:
        pre_spikes nS <- spike
-       post_spikes nS <- post spike
+       post_spikes nS <- spike
      end
      
      onReceive(pre_spikes):
