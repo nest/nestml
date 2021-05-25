@@ -705,15 +705,6 @@ void
 {%- endif %}
 {%- endfor %}
 
-  // initial values for state variables not in ODE or kernel
-{%- for state in synapse.get_state_symbols() %}
-{%-     with variable = state %}
-{%-         filter indent(2,True) %}
-{%-         include "directives/WriteInDictionary.jinja2" %}
-{%-         endfilter %}
-{%-     endwith %}
-{%- endfor %}
-
   // initial values for state variables in ODE or kernel
 {%- for init in synapse.get_state_symbols() %}
 {%-     with variable = init %}

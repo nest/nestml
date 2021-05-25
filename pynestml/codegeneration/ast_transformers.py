@@ -31,8 +31,11 @@ from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -386,3 +389,108 @@ def get_delta_kernel_prefactor_expr(kernel):
             and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"] \
             and expr.binary_operator.is_times_op:
         return str(expr.lhs)
+
+
+def get_input_port_by_name(input_block, port_name):
+    for input_port in input_block.get_input_ports():
+        if input_port.name == port_name:
+            return input_port
+    return None
+
+
+def get_parameter_by_name(parameters_block, var_name):
+    for decl in parameters_block.get_declarations():
+        for var in decl.get_variables():
+            if var.get_name() == var_name:
+                return decl
+    return None
+
+
+def collect_variable_names_in_expression(expr):
+    """collect all occurrences of variables (`ASTVariable`), kernels (`ASTKernel`) XXX ...
+    """
+    vars_used_ = []
+
+    def collect_vars(_expr=None):
+        var = None
+        if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+            var = _expr.get_variable()
+        elif isinstance(_expr, ASTVariable):
+            var = _expr
+
+        if var:
+            print("\tcollected dependent variable: " + str(var))
+            vars_used_.append(var)
+
+    expr.accept(ASTHigherOrderVisitor(lambda x: collect_vars(x)))
+
+    return vars_used_
+
+
+def get_eq_declarations_from_block(var_name, block):
+    decls = []
+    if not type(var_name) is str:
+        var_name = str(var_name)
+
+    for decl in block.get_declarations():
+        if isinstance(decl, ASTInlineExpression):
+            var_names = [decl.get_variable_name()]
+        elif isinstance(decl, ASTOdeEquation):
+            var_names = [decl.get_lhs().get_name()]
+        else:
+            var_names = [var.get_name() for var in decl.get_variables()]
+        for _var_name in var_names:
+            if _var_name == var_name:
+                decls.append(decl)
+                break
+
+    return decls
+
+def recursive_dependent_variables_search(vars: List[str], astnode):
+    for var in vars:
+        assert type(var) is str
+    vars_used = []
+    vars_to_check = set([var for var in vars])
+    vars_checked = set()
+    while vars_to_check:
+        var = None
+        for _var in vars_to_check:
+            if not _var in vars_checked:
+                var = _var
+                break
+        if not var:
+            # all variables checked
+            break
+        decls = get_eq_declarations_from_block(var, astnode.get_equations_blocks())
+
+        if decls:
+            decl = decls[0]
+            if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
+               or type(decl) is ASTInlineExpression:
+                vars_used.extend(collect_variable_names_in_expression(decl.get_expression()))
+            elif type(decl) is ASTOdeEquation:
+                vars_used.extend(collect_variable_names_in_expression(decl.get_rhs()))
+            elif type(decl) is ASTKernel:
+                for expr in decl.get_expressions():
+                    vars_used.extend(collect_variable_names_in_expression(expr))
+            else:
+                raise Exception("Tried to move unknown type " + str(type(decl)))
+            vars_used = [str(var) for var in vars_used]
+            vars_to_check = vars_to_check.union(set(vars_used))
+
+#         else:
+#             if get_input_port_by_name(parent_node.get_input_blocks(), var):
+#                 # case that variable is the postsynaptic synapse port?!
+#                 pass
+#             elif get_parameter_by_name(parent_node.get_parameter_blocks(), var):
+#                 # case that variable is a parameter?!
+#                 pass
+#             elif var == "t":
+#                 # time variable: not changed
+#                 pass
+#             else:
+#                 raise Exception("Couldn't find declaration for variable: " + str(var))
+        vars_checked.add(var)
+
+    return vars_checked
+    

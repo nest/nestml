@@ -83,7 +83,6 @@ lexer grammar PyNestMLLexer;
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';
-  POST_KEYWORD : 'post';
 
   DECORATOR_HOMOGENEOUS : '@homogeneous';
   DECORATOR_HETEROGENEOUS : '@heterogeneous';
