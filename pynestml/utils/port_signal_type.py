@@ -27,4 +27,4 @@ class PortSignalType(Enum):
     This enum is used to describe the type of the received or emitted signal.
     """
     SPIKE = 1
-    CURRENT = 2
+    CONTINUOUS = 2

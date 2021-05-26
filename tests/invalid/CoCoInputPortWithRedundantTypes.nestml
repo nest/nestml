@@ -1,13 +1,12 @@
 """
-CoCoCurrentBufferQualifierSpecified.nestml
-##########################################
+CoCoInputPortWithRedundantTypes.nestml
+######################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
-keywords.
+This model is used to test if broken CoCos are identified correctly. Here, if each input port is defined uniquely, i.e., no redundant keywords are used.
 
 Negative case.
 
@@ -32,8 +31,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoCurrentBufferQualifierSpecified:
+neuron CoCoInputPortWithRedundantTypes:
     input:
-        currents pA <- inhibitory current   # qualifiers may not be specified for a current buffer
+        spikeInhX2 integer <- inhibitory inhibitory spike # spike redundant keywords used
     end
 end

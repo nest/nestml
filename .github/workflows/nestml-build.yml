@@ -88,7 +88,6 @@ jobs:
           echo "NEST_INSTALL = $NEST_INSTALL"
 
           git clone --depth=1 https://github.com/nest/nest-simulator
-
           mkdir nest_install
           echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
           cd nest_install

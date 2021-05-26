@@ -272,42 +272,36 @@ class ASTNeuron(ASTNode):
             return None
         return ret
 
-    def get_input_buffers(self):
+    def get_input_ports(self) -> List[VariableSymbol]:
         """
-        Returns a list of all defined input buffers.
-        :return: a list of all input buffers.
-        :rtype: list(VariableSymbol)
+        Returns a list of all defined input ports.
+        :return: a list of all input ports.
         """
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE
-                                                       or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT:
                 ret.append(symbol)
         return ret
 
-    def get_spike_buffers(self):
+    def get_spike_input_ports(self) -> List[VariableSymbol]:
         """
-        Returns a list of all spike input buffers defined in the model.
-        :return: a list of all spike input buffers.
-        :rtype: list(VariableSymbol)
+        Returns a list of all spike input ports defined in the model.
         """
         ret = list()
-        for BUFFER in self.get_input_buffers():
-            if BUFFER.is_spike_buffer():
-                ret.append(BUFFER)
+        for port in self.get_input_ports():
+            if port.is_spike_input_port():
+                ret.append(port)
         return ret
 
-    def get_current_buffers(self):
+    def get_continuous_input_ports(self) -> List[VariableSymbol]:
         """
-        Returns a list of all current buffers defined in the model.
-        :return: a list of all current input buffers.
-        :rtype: list(VariableSymbol)
+        Returns a list of all continuous time input ports defined in the model.
         """
         ret = list()
-        for BUFFER in self.get_input_buffers():
-            if BUFFER.is_current_buffer():
-                ret.append(BUFFER)
+        for port in self.get_input_ports():
+            if port.is_continuous_input_port():
+                ret.append(port)
         return ret
 
     def get_parameter_symbols(self):
@@ -383,35 +377,33 @@ class ASTNeuron(ASTNode):
             return None
         return ret
 
-    def is_multisynapse_spikes(self):
+    def is_multisynapse_spikes(self) -> bool:
         """
-        Returns whether this neuron uses multi-synapse spikes.
+        Returns whether this neuron uses multi-synapse inputs.
         :return: True if multi-synaptic, otherwise False.
-        :rtype: bool
         """
-        buffers = self.get_spike_buffers()
-        for iBuffer in buffers:
-            if iBuffer.has_vector_parameter():
+        ports = self.get_spike_input_ports()
+        for port in ports:
+            if port.has_vector_parameter():
                 return True
         return False
 
-    def get_multiple_receptors(self):
+    def get_multiple_receptors(self) -> List[VariableSymbol]:
         """
-        Returns a list of all spike buffers which are defined as inhibitory and excitatory.
-        :return: a list of spike buffers variable symbols
-        :rtype: list(VariableSymbol)
+        Returns a list of all spike input ports which are defined as both inhibitory *and* excitatory at the same time.
+        :return: a list of spike input port variable symbols
         """
         ret = list()
-        for iBuffer in self.get_spike_buffers():
-            if iBuffer.is_excitatory() and iBuffer.is_inhibitory():
-                if iBuffer is not None:
-                    ret.append(iBuffer)
+        for port in self.get_spike_input_ports():
+            if port.is_excitatory() and port.is_inhibitory():
+                if port is not None:
+                    ret.append(port)
                 else:
-                    code, message = Messages.get_could_not_resolve(iBuffer.get_symbol_name())
+                    code, message = Messages.get_could_not_resolve(port.get_symbol_name())
                     Logger.log_message(
                         message=message,
                         code=code,
-                        error_position=iBuffer.get_source_position(),
+                        error_position=port.get_source_position(),
                         log_level=LoggingLevel.ERROR)
         return ret
 
@@ -483,15 +475,14 @@ class ASTNeuron(ASTNode):
                 ret.append(symbol)
         return ret
 
-    def is_array_buffer(self):
+    def has_vector_port(self) -> bool:
         """
-        This method indicates whether this neuron uses buffers defined vector-wise.
-        :return: True if vector buffers defined, otherwise False.
-        :rtype: bool
+        This method indicates whether this neuron contains input ports defined vector-wise.
+        :return: True if vector ports defined, otherwise False.
         """
-        buffers = self.get_input_buffers()
-        for BUFFER in buffers:
-            if BUFFER.has_vector_parameter():
+        ports = self.get_input_ports()
+        for port in ports:
+            if port.has_vector_parameter():
                 return True
         return False
 

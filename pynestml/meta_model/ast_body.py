@@ -19,7 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List
+
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_input_port import ASTInputPort
 
 
 class ASTBody(ASTNode):
@@ -195,11 +198,10 @@ class ASTBody(ASTNode):
                 return stmt.get_parent(ast)
         return None
 
-    def get_spike_buffers(self):
+    def get_spike_input_ports(self) -> List[ASTInputPort]:
         """
-        Returns a list of all spike input buffers defined in the model.
-        :return: a list of all spike input buffers
-        :rtype: list(ASTInputPort)
+        Returns a list of all spike input ports defined in the model.
+        :return: a list of all spike input ports
         """
         ret = list()
         blocks = self.get_input_blocks()
