@@ -78,11 +78,13 @@ class NestIntegrationTest(unittest.TestCase):
                 nest_ref_model_opts = model[4]
             else:
                 nest_ref_model_opts = None
+
             if len(model) > 5:
                 custom_model_opts = model[5]
             else:
                 custom_model_opts = None
 
+            print("Now testing model: " + str(testant) + " (reference model: " + str(reference) + ")")
             self._test_model(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)
             self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
                                           nest_ref_model_opts, custom_model_opts)
@@ -279,10 +281,6 @@ class NestIntegrationTest(unittest.TestCase):
         print(testant + " PASSED")
 
     def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
-
-        print("Now testing model: " + str(testant) + " (reference model: " + str(referenceModel) + ")")
-        import logging
-        logging.info("Now testing model: " + str(testant) + " (reference model: " + str(referenceModel) + ")")
 
         spike_times = [100.0, 200.0]
         spike_weights = [1., -1.]
