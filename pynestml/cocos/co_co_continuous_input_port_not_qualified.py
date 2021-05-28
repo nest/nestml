@@ -27,7 +27,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 
 class CoCoContinuousInputPortNotQualified(CoCo):
     """
-    This coco ensures that continuous time buffers are not specified with a qualifier.
+    This coco ensures that continuous time input ports are not specified with a qualifier.
     Allowed:
 
     .. code-block:: nestml
@@ -62,7 +62,7 @@ class ContinuousPortQualifierSpecifiedVisitor(ASTVisitor):
 
     def visit_input_port(self, node):
         if node.is_continuous() and node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 0:
-            buf_names = list((str(buf) for buf in node.get_input_qualifiers()))
-            code, message = Messages.get_continuous_input_port_specified(node.get_name(), buf_names)
+            qualifier_names = list((str(qualifier) for qualifier in node.get_input_qualifiers()))
+            code, message = Messages.get_continuous_input_port_specified(node.get_name(), qualifier_names)
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message, log_level=LoggingLevel.ERROR)

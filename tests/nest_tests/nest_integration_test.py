@@ -78,11 +78,13 @@ class NestIntegrationTest(unittest.TestCase):
                 nest_ref_model_opts = model[4]
             else:
                 nest_ref_model_opts = None
+
             if len(model) > 5:
                 custom_model_opts = model[5]
             else:
                 custom_model_opts = None
 
+            print("Now testing model: " + str(testant) + " (reference model: " + str(reference) + ")")
             self._test_model(reference, testant, gsl_error_tol, tolerance, nest_ref_model_opts, custom_model_opts)
             self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
                                           nest_ref_model_opts, custom_model_opts)
@@ -241,6 +243,7 @@ class NestIntegrationTest(unittest.TestCase):
                 fig.suptitle("Rate: " + str(rate_testant[i]) + " Hz")
                 plt.savefig(
                     "/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_[I_stim=" + str(I_stim) + "].png")
+                plt.close(fig)
 
         if TEST_PLOTS:
             if len(I_stim_vec) < 20:
@@ -256,6 +259,7 @@ class NestIntegrationTest(unittest.TestCase):
                 _ax.set_ylabel("Firing rate [Hz]")
             ax[1].set_xlabel("$I_{inj}$ [pA]")
             plt.savefig("/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "].png")
+            plt.close(fig)
 
         if TEST_PLOTS:
             if len(I_stim_vec) < 20:
@@ -272,6 +276,7 @@ class NestIntegrationTest(unittest.TestCase):
                 ax[0].set_xlabel("$I_{inj}$ [pA]")
                 plt.tight_layout()
                 plt.savefig("/tmp/nestml_models_library_[" + referenceModel + "]_f-I_curve" + fname_snip + ".png")
+                plt.close(fig)
 
         print(testant + " PASSED")
 
@@ -318,6 +323,7 @@ class NestIntegrationTest(unittest.TestCase):
                 _ax.legend(loc='upper right')
                 _ax.grid()
             plt.savefig("/tmp/nestml_nest_integration_test_[" + referenceModel + "]_[" + testant + "].png")
+            plt.close(fig)
 
         if TEST_PLOTS:
             for figsize, fname_snip in zip([(8, 5), (4, 3)], ["", "_small"]):
@@ -331,6 +337,7 @@ class NestIntegrationTest(unittest.TestCase):
                 plt.tight_layout()
                 plt.savefig("/tmp/nestml_models_library_[" + referenceModel
                             + "]_synaptic_response" + fname_snip + ".png")
+                plt.close(fig)
 
         for index in range(0, len(Vms1)):
             if abs(Vms1[index] - Vms2[index]) > tolerance \

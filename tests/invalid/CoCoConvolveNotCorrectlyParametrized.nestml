@@ -6,7 +6,7 @@ CoCoConvolveNotCorrectlyParametrized.nestml
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly provided with a initial_block variable and a spike input port.
+This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly provided with a state block defined variable and a spike input port.
 
 Negative case.
 

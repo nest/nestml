@@ -1,4 +1,4 @@
-# Generated from PyNestMLParser.g4 by ANTLR 4.7.1
+# Generated from PyNestMLParser.g4 by ANTLR 4.9.1
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
@@ -519,7 +519,7 @@ class PyNestMLParser ( Parser ):
 
     def __init__(self, input, output=sys.stdout):
         super(PyNestMLParser, self).__init__(input, output=output)
-        self.checkVersion("4.7.1")
+        self.checkVersion("4.9.1")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
