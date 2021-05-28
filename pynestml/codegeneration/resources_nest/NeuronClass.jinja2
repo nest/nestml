@@ -202,10 +202,6 @@ namespace nest
 {%- endfor %}
 
   // copy state struct S_
-{%- for state in neuron.get_state_symbols() %}
-  S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
-{%- endfor %}
-
 {%- for init in neuron.get_state_symbols() %}
 {%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
   S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};

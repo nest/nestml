@@ -29,7 +29,6 @@ from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -516,6 +515,7 @@ class ASTNeuron(ASTNeuronOrSynapse):
         :param declaration: a single declaration
         :type declaration: ast_declaration
         """
+        from pynestml.utils.ast_utils import ASTUtils
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
         n_declarations = len(self.get_internals_blocks().get_declarations())
@@ -537,6 +537,7 @@ class ASTNeuron(ASTNeuronOrSynapse):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
+        from pynestml.utils.ast_utils import ASTUtils
         if self.get_state_blocks() is None:
             ASTUtils.create_state_block(self)
         self.get_state_blocks().get_declarations().append(declaration)

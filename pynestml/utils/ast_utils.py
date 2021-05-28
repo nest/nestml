@@ -35,11 +35,12 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
+from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 
 
 class ASTUtils:
     """
-    A collection of helpful methods.
+    A collection of helpful methods for AST manipulation.
     """
 
     @classmethod
@@ -470,3 +471,21 @@ class ASTUtils:
            and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
             return True
         return False
+
+    @classmethod
+    def add_suffix_to_variable_name(cls, var_name: str, astnode: ASTNode, suffix: str):
+        """add suffix to variable by given name recursively throughout astnode"""
+        def replace_var(_expr=None):
+            if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
+                var = _expr.get_variable()
+            elif isinstance(_expr, ASTVariable):
+                var = _expr
+            else:
+                return
+
+            if not suffix in var.get_name() \
+             and not var.get_name() == "t" \
+             and var.get_name() == var_name:
+                var.set_name(var.get_name() + suffix)
+
+        astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))

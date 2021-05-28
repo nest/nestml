@@ -171,6 +171,47 @@ and
         [...]
     }
 
+Third-factor plasticity
+#######################
+
+The postsynaptic trace value in the models so far is assumed to correspond to a property of the postsynaptic neuron, but it is specified in the synapse model. Some synaptic plasticity rules require access to a postsynaptic value that cannot be specified as part of the synapse model, but is a part of the (postsynaptic) neuron model.
+
+An example would be a neuron that generates dendritic action potentials. The synapse could need access to the postsynaptic dendritic current. For more details on this example, please see the tutorial https://nestml.readthedocs.io/en/latest/tutorials/active_dendrite/nestml_active_dendrite_tutorial.html
+
+An additional complication is that when combining models from different sources, the naming convention can be different between the neuron and synapse model.
+
+To make the "third factor" value available in the synapse model, begin by defining an appropriate input port:
+
+.. code-block:: nestml
+
+   input:
+     I_post_dend pA <- continuous
+   end
+
+In the synapse, the value will be referred to as ``I_post_dend`` and can be used in equations and expressions, for example:
+
+.. code-block:: nestml
+
+   postReceive:
+     if I_post_dend > 10 pA:
+       w += (I_post_dend / pA) * nS
+   end
+
+In the neuron, no special output port is required; all state variables are accessible for the third factor rules.
+
+NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"neuron_synapse_pairs"``	 
+
+.. code-block:: python
+
+   to_nest(...,
+           codegen_opts={...,
+                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                   "synapse": "third_factor_stdp",
+                                                    "post_ports": ["post_spikes",
+                                                                  ["I_post_dend", "I_dend"]]}]})
+
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.  
+
 
 Examples
 ########

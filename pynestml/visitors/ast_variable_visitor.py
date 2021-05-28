@@ -19,9 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-simpleExpression : variable
-"""
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
@@ -54,19 +51,21 @@ class ASTVariableVisitor(ASTVisitor):
         if var_resolve is not None:
             node.type = var_resolve.get_type_symbol()
             node.type.referenced_object = node
-        else:
-            # check if var_name is actually a type literal (e.g. "mV")
-            var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
-            if var_resolve is not None:
-                node.type = var_resolve
-                node.type.referenced_object = node
-            else:
-                message = 'Variable ' + str(node) + ' could not be resolved!'
-                Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
-                                   error_position=node.get_source_position(),
-                                   message=message, log_level=LoggingLevel.ERROR)
-                node.type = ErrorTypeSymbol()
-        return
+            return
+
+        # check if var_name is actually a type literal (e.g. "mV")
+        var_resolve = scope.resolve_to_symbol(var_name, SymbolKind.TYPE)
+        if var_resolve is not None:
+            node.type = var_resolve
+            node.type.referenced_object = node
+            return
+
+        import pdb;pdb.set_trace()
+        message = 'Variable ' + str(node) + ' could not be resolved!'
+        Logger.log_message(code=MessageCode.SYMBOL_NOT_RESOLVED,
+                           error_position=node.get_source_position(),
+                           message=message, log_level=LoggingLevel.ERROR)
+        node.type = ErrorTypeSymbol()
 
     def visit_expression(self, node):
         raise Exception("Deprecated method used!")

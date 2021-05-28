@@ -198,7 +198,12 @@ e();
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
         if isinstance(variable, ASTExternalVariable):
-            return "((POST_NEURON_TYPE*)(__target))->get_" + str(variable) + "(_tr_t)"
+            _name = str(variable)
+            if variable.get_alternate_name():
+                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
+                return "((POST_NEURON_TYPE*)(__target))->get_" + variable.get_alternate_name() + "()"
+
+            return "((POST_NEURON_TYPE*)(__target))->get_" + _name + "(_tr_t)"
 
         if PredefinedUnits.is_unit(variable.get_complete_name()):
             return str(

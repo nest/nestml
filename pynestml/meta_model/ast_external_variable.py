@@ -18,6 +18,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Optional
+
 from copy import copy
 
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -37,10 +39,18 @@ class ASTExternalVariable(ASTVariable):
         type_symbol = None
     """
     _altscope = None
-    pass
+    _altname = None
+    
+    # XXX: TODO: CLONE METHOD
 
     def update_scope2(self, scope):
         self._altscope = scope
+
+    def set_alternate_name(self, alternate_name: Optional[str]):
+        self._altname = alternate_name
+
+    def get_alternate_name(self):
+        return self._altname
 
     def get_scope(self):
         if self._altscope:

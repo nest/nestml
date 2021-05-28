@@ -25,7 +25,6 @@ from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
