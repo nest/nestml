@@ -343,7 +343,7 @@ parser grammar PyNestMLParser;
     @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
     @attribute isExcitatory: Indicates that this spiking input port is excitatory.
   */
-  inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD | isPost=POST_KEYWORD);
+  inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
   /** ASTOutputBlock Represents the output block of the neuron, i.e., declarations of output ports:
         output: spike
