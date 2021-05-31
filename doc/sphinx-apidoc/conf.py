@@ -237,7 +237,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 def setup(app):
     app.add_css_file('css/custom.css')
     app.add_css_file('css/pygments.css')
-    app.add_javascript("js/custom.js")
 
 
 # -- Options for LaTeX output ---------------------------------------------
