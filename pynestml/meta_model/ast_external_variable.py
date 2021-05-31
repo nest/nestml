@@ -40,7 +40,7 @@ class ASTExternalVariable(ASTVariable):
     """
     _altscope = None
     _altname = None
-    
+
     # XXX: TODO: CLONE METHOD
 
     def update_scope2(self, scope):

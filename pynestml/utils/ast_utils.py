@@ -484,8 +484,8 @@ class ASTUtils:
                 return
 
             if not suffix in var.get_name() \
-             and not var.get_name() == "t" \
-             and var.get_name() == var_name:
+               and not var.get_name() == "t" \
+               and var.get_name() == var_name:
                 var.set_name(var.get_name() + suffix)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))

@@ -298,4 +298,3 @@ appropriate numeric solver otherwise.
         Logger.log_message(message="List of files that will be processed:", log_level=LoggingLevel.INFO)
         for fn in cls.paths_to_compilation_units:
             Logger.log_message(message=fn, log_level=LoggingLevel.INFO)
-

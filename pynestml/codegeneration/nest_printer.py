@@ -181,7 +181,6 @@ class NestPrinter:
 
     def print_assignment(self, node, prefix=""):
         # type: (ASTAssignment) -> str
-        #ret = print_origin(node.lhs) + self.print_node(node.lhs) + ' '
         from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
         symbol.block_type = BlockType.STATE

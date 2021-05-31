@@ -446,6 +446,7 @@ def get_eq_declarations_from_block(var_name, block):
 
     return decls
 
+
 def recursive_dependent_variables_search(vars: List[str], astnode):
     for var in vars:
         assert type(var) is str
@@ -493,4 +494,3 @@ def recursive_dependent_variables_search(vars: List[str], astnode):
         vars_checked.add(var)
 
     return vars_checked
-    
