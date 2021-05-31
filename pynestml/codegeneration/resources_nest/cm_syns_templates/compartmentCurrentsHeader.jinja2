@@ -217,11 +217,17 @@ public:
 };
 
 
+{%- set channel_suffix = "_chan_" %}
+
 class CompartmentCurrents{{cm_unique_suffix}} {
 private:
   // ion channels
-  Na Na_chan_;
-  K K_chan_;
+{% with %}
+  {%- for ion_channel_name, channel_info in cm_info.items() %}
+  {{ion_channel_name}} {{ion_channel_name}}{{channel_suffix}};
+  {% endfor -%}
+{% endwith %}  
+
   // synapses
   std::vector < AMPA > AMPA_syns_;
   std::vector < GABA > GABA_syns_;
@@ -232,16 +238,22 @@ public:
   CompartmentCurrents{{cm_unique_suffix}}(){};
   CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
   {
-    Na_chan_ = Na( channel_params );
-    K_chan_ = K( channel_params );
+  {%- with %}
+    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}( channel_params );
+    {% endfor -%}
+  {% endwith -%}  
   };
   ~CompartmentCurrents{{cm_unique_suffix}}(){};
 
   void init(){
     // initialization of the ion channels
-    Na_chan_.init();
-    K_chan_.init();
-
+  {%- with %}
+    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}}.init();
+    {% endfor -%}
+  {% endwith -%}  
+  
     // initialization of AMPA synapses
     for( auto syn_it = AMPA_syns_.begin();
          syn_it != AMPA_syns_.end();
@@ -306,18 +318,17 @@ public:
     std::pair< double, double > gi(0., 0.);
     double g_val = 0.;
     double i_val = 0.;
-
-    // contribution of Na channel
-    gi = Na_chan_.f_numstep( v_comp, dt );
-
-    g_val += gi.first;
-    i_val += gi.second;
-
-    // contribution of K channel
-    gi = K_chan_.f_numstep( v_comp, dt );
+    
+  {%- with %}
+    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    // contribution of {{ion_channel_name}} channel
+    gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp, dt );
 
     g_val += gi.first;
     i_val += gi.second;
+    
+    {% endfor -%}
+  {% endwith -%}  
 
     // contribution of AMPA synapses
     for( auto syn_it = AMPA_syns_.begin();

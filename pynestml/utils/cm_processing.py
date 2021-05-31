@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# either.py
+# cm_processing.py
 #
 # This file is part of NEST.
 #

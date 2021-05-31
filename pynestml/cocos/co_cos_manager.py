@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
+from pynestml.cocos.co_co_synapses_model import CoCoSynapsesModel
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
 from pynestml.cocos.co_co_buffer_not_assigned import CoCoBufferNotAssigned
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
@@ -109,6 +110,14 @@ class CoCosManager:
         :param neuron: a single neuron.
         """
         CoCoAllVariablesDefined.check_co_co(neuron, after_ast_rewrite)
+        
+    @classmethod
+    def check_synapses_model (cls, neuron: ASTNeuron) -> None:
+        """
+        similar to check_compartmental_model, but checks for synapses
+        synapses are defined by inlines that use kernels
+        """
+        CoCoSynapsesModel.check_co_co(neuron)
         
     @classmethod
     def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
@@ -365,6 +374,7 @@ class CoCosManager:
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
         cls.check_compartmental_model(neuron, after_ast_rewrite)
+        cls.check_synapses_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
         cls.check_inline_has_max_one_lhs(neuron)
         cls.check_no_values_assigned_to_buffers(neuron)

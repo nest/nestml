@@ -66,6 +66,7 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.utils.cm_processing import CmProcessing
+from pynestml.utils.syns_processing import SynsProcessing
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -381,51 +382,123 @@ class NESTCodeGenerator(CodeGenerator):
 
             return []
 
+        # goes through all convolve() inside ode's from equations block
+        # if they have delta kernels, use sympy to expand the expression, then 
+        # find the convolve calls and replace them with constant value 1
+        # then return every subexpression that had that convolve() replaced
         delta_factors = self.get_delta_factors_(neuron, equations_block)
+        
+        # goes through all convolve() inside equations block
+        # extracts what kernel is paired with what spike buffer
+        # returns pairs (kernel, spike_buffer)
         kernel_buffers = self.generate_kernel_buffers_(neuron, equations_block)
+        
+        # replace convolve(g_E, spikes_exc) with g_E__X__spikes_exc[__d]
+        # done by searching for every ASTSimpleExpression inside equations_block
+        # which is a convolve call and substituting that call with 
+        # newly created ASTVariable kernel__X__spike_buffer
         self.replace_convolve_calls_with_buffers_(neuron, equations_block, kernel_buffers)
+        
+        # substitute inline expressions with each other
+        # such that no inline expression references another inline expression
         self.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
+        
+        # dereference inline_expressions inside ode equations
         self.replace_inline_expressions_through_defining_expressions(
             equations_block.get_ode_equations(), equations_block.get_inline_expressions())
 
+        # generate update expressions using ode toolbox
+        # for each equation in the equation block attempt to solve analytically 
+        # then attempt to solve numerically
+        # "update_expressions" key in those solvers contains a mapping 
+        # {expression1: update_expression1, expression2: update_expression2}
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
-
+        
+        # get all variables from state block that are not found in equations
+        #
         self.non_equations_state_variables[neuron.get_name()] = []
         for decl in neuron.get_state_blocks().get_declarations():
             for var in decl.get_variables():
-                # check if this variable is not in equations
-                if not neuron.get_equations_blocks():
+                # check if this variable is not in equations 
+                
+                # if there is no equations, all variables are not in equations
+                if not neuron.get_equations_blocks():  
                     self.non_equations_state_variables[neuron.get_name()].append(var)
-                    continue
+                    continue 
 
+                # check if equation name is also a state variable
                 used_in_eq = False
                 for ode_eq in neuron.get_equations_blocks().get_ode_equations():
                     if ode_eq.get_lhs().get_name() == var.get_name():
                         used_in_eq = True
                         break
+                    
+                # check for any state variables being used by a kernel
                 for kern in neuron.get_equations_blocks().get_kernels():
                     for kern_var in kern.get_variables():
                         if kern_var.get_name() == var.get_name():
                             used_in_eq = True
                             break
-
+                
+                # if no usage found at this point, we have a non-equation state variable
                 if not used_in_eq:
                     self.non_equations_state_variables[neuron.get_name()].append(var)
 
+        # gather all variables used by kernels and delete their declarations
+        # they will be inserted later again, but this time with values redefined
+        # by odetoolbox
         self.remove_initial_values_for_kernels(neuron)
+        
+        # delete all kernels as they are all converted into buffers 
+        # and corresponding update formulas calculated by odetoolbox
+        # Hold them externally though
         kernels = self.remove_kernel_definitions_from_equations_block(neuron)
+        
+        # for each still existing state variable, check if solving evolution 
+        # of that variable by odetoolbox analytically or numerically required
+        # variable (Variable was not directly in the kernel, but was smuggled in
+        # when solver attempted to find a solution according to all givens)
+        # set their differencital order to 0 if not already
+        # set value to the one recommended by odetoolbox
+        # it can be the same value as the originally stated one
+        # but it doesn't have to be
         self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], kernels)
+        
+        # remove differential equations from equations block
+        # those are now resolved into zero order variables and their corresponding updates
         self.remove_ode_definitions_from_equations_block(neuron)
+        
+        # restore kernel variables initial values in form of initial values for 
+        # their representing variables aliasing buffer convolutions 
+        # make sure every buffer created from kernel variables
+        # has an initialized state variable again
         self.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
+        
+        # rename every remaining variable or ASTSimpleExpression 
+        # if variable name was in the solver, by the name as in the solver
+        # this does not necessarily mean that variable name will always change
+        # but order will always be set to 0, as we replace derivative of value with 
+        # the actual value that is governed by that derivative
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
+        
+        # find all inlines defined as ASTSimpleExpression 
+        # that have a single kernel convolution aliasing variable ('__X__')
+        # rename those inlines into that variable but 
+        # if they have higer order, suffix with __d instead of '
         self.replace_convolution_aliasing_inlines(neuron)
+        
+        # add variable __h to internals block
+        #
         self.add_timestep_symbol(neuron)
 
+        # add propagator variables calculated by odetoolbox into internal blocks
         if self.analytic_solver[neuron.get_name()] is not None:
             neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
+        # generate how to calculate the next spike update
+        # 
         self.update_symbol_table(neuron, kernel_buffers)
         spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
@@ -622,6 +695,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable and not is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
         namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable]
 
+        #parameter symbols with initial values
         namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
@@ -632,6 +706,7 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['etypeClassName'] = "EType"
             namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
             namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
+            namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
             
             neuron_specific_filenames = {
                 "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),

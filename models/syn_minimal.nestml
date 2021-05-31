@@ -1,0 +1,28 @@
+
+neuron one_syn:
+
+  state:
+    v_comp real = 0
+  end
+
+  equations:
+    kernel g_ex = exp(-t / tau_syn_AMPA)
+    inline AMPA real = convolve(g_ex, spikesExc) * (v_comp - e_AMPA)
+  end
+
+  parameters:
+
+    # synaptic parameters
+    e_AMPA mV = 0 mV            # Excitatory reversal Potential
+    tau_syn_AMPA ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse
+    
+    #tau_r_AMPA ms = 0.2 ms      
+    #tau_d_AMPA ms = 3.0 ms      
+
+  end
+
+  input:
+    spikesExc nS <- excitatory spike
+  end
+
+end

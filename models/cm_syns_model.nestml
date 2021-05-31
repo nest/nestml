@@ -1,0 +1,203 @@
+"""
+cm_syns_model -
+#########################################################################
+
+Description
++++++++++++
+
+References
+++++++++++
+
+
+See also
+++++++++
+
+
+Author
+++++++
+
+pythonjam
+"""
+neuron cm_syns_model:
+
+  state:
+  
+    # the presence of the state variable [v_comp]
+    # triggers compartment model context
+    v_comp real = 0
+
+    ### ion channels ###
+    # initial values state variables sodium channel
+    m_Na real = m_inf_Na(-70.)
+    h_Na real = h_inf_Na(-70.)
+
+    # initial values state variables potassium channel
+    n_K real = n_inf_K(-70.)
+
+    ### synapses ###
+    g_r_AMPA real = 0.0
+    g_d_AMPA real = 0.0
+
+    # GABA synapse
+    g_r_GABA real = 0.0
+    g_d_GABA real = 0.0
+
+    # NMDA synapse
+    g_r_NMDA real = 0.0
+    g_d_NMDA real = 0.0
+
+    # AMPA_NMDA synapse
+    g_r_AMPA_ real = 0.0
+    g_d_AMPA_ real = 0.0
+    g_r_NMDA_ real = 0.0
+    g_d_NMDA_ real = 0.0
+
+  end
+
+
+  parameters:
+
+    ### ion channels ###
+    # default parameters sodium channel
+    e_Na real = 50.0
+    gbar_Na real = 0.0
+    
+    # default parameters potassium channel
+    e_K real = -85.0
+    gbar_K real = 0.0
+
+    ### synapses ###
+    e_AMPA real = 0.0
+    tau_r_AMPA real = 0.2
+    tau_d_AMPA real = 3.0
+    
+    e_GABA real = -80.0
+    tau_r_GABA real = 0.2
+    tau_d_GABA real = 10.0
+    
+    e_NMDA real = 0.0
+    tau_r_NMDA real = 0.2
+    tau_d_NMDA real = 43
+    
+    e_AMPA_NMDA real = 0.0
+    g_r_AMPA_ real = 0.2
+    g_d_AMPA_ real = 3.0
+    g_r_NMDA_ real = 0.2
+    g_d_NMDA_ real = 43.0
+    NMDA_ratio_ real = 2.0
+    
+
+  end
+
+  equations:
+    """
+    Here, we define the currents that are present in the model. Currents may,
+    or may not depend on [v_comp]. Each variable in the equation for the currents
+    must correspond either to a parameter (e.g. [gbar_Na], [e_Na], e_[NMDA], etc...)
+    or to a state variable (e.g [m_Na], [n_K], [g_r_AMPA], etc...).
+
+    When it is a parameter, it must be configurable from Python, by adding it as
+    a key: value pair to the dictionary argument of `nest.AddCompartment` for an
+    ion channel or of `nest.AddReceptor` for a synapse.
+
+    State variables must reoccur in the initial values block and have an associated
+    equation in the equations block.
+
+    Internally, the model must compute the pair of values (g_val, i_val) for the
+    integration algorithm. To do so, we need both the equation for current, and
+    its voltage derivative
+
+      i_X
+      d(i_X)/dv
+
+    Which we should be able to obtain from sympy trough symbolic differentiation.
+    Then,
+
+      g_val = d(i_X)/d(v_comp) / 2.
+      i_val = i_X - d(i_X)/d(v_comp) / 2.
+
+    """
+    ### ion channels ###
+    inline cm_p_open_Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp)
+    inline cm_p_open_K real = gbar_K * n_K**4 * (e_K - v_comp)
+
+    ### synapses ###
+    inline i_AMPA real = (g_r_AMPA + g_d_AMPA) * (e_AMPA - v_comp)
+    inline i_GABA real = (g_r_GABA + g_d_GABA) * (e_GABA - v_comp)
+    inline i_NMDA real = (g_r_NMDA + g_d_NMDA) * NMDA_sigmoid(v_comp) * (e_NMDA - v_comp)
+    inline i_AMPA_NMDA real = ( (g_r_AMPA_ + g_d_AMPA_) + (g_r_NMDA_ + g_d_NMDA_) * NMDA_sigmoid(v_comp) ) * (e_AMPA_NMDA - v_comp)
+
+
+    ### ion channels ###
+    # state variables sodium channel
+    m_Na' = ( m_inf_Na(v_comp) - m_Na ) / tau_m_Na(v_comp)
+    h_Na' = ( h_inf_Na(v_comp) - h_Na ) / tau_h_Na(v_comp)
+
+    # state variables potassium channel
+    n_K' = ( n_inf_K(v_comp) - n_K ) / tau_n_K(v_comp)
+
+
+    ### synapses ###
+    # state variables AMPA synapse
+    g_r_AMPA' = - g_r_AMPA / tau_r_AMPA
+    g_d_AMPA' = - g_d_AMPA / tau_d_AMPA
+
+    # state variables GABA synapse
+    g_r_GABA' = - g_r_GABA / tau_r_GABA
+    g_d_GABA' = - g_d_GABA / tau_d_GABA
+
+    # state variables NMDA synapse
+    g_r_NMDA' = - g_r_NMDA / tau_r_NMDA
+    g_d_NMDA' = - g_d_NMDA / tau_d_NMDA
+
+    # state variables AMPA_NMDA synapse
+    g_r_AMPA_' = - g_r_AMPA_ / tau_r_AMPA_
+    g_d_AMPA_' = - g_d_AMPA_ / tau_d_AMPA_
+    g_r_NMDA_' = - g_r_NMDA_ / tau_r_NMDA_
+    g_d_NMDA_' = - g_d_NMDA_ / tau_d_NMDA_
+
+  end
+
+  #sodium
+  function m_inf_Na(v_comp real) real:
+    return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
+  end
+
+  function tau_m_Na(v_comp real) real:
+    return 0.3115264797507788/((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp)))
+  end
+
+  function h_inf_Na(v_comp real) real:
+    return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
+  end
+
+  function tau_h_Na(v_comp real) real:
+    return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
+  end
+
+  #potassium
+  function n_inf_K(v_comp real) real:
+    return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
+  end
+
+  function tau_n_K(v_comp real) real:
+    return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
+  end
+
+  # NMDA
+  function NMDA_sigmoid(v_comp real) real:
+    return 1. / ( 1. + 0.3 * exp( -.1 * v_comp ) )
+  end
+
+  internals:
+  end
+
+  input:
+  end
+
+  output: spike
+
+  update:
+  end
+
+end
