@@ -23,7 +23,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
-class NestAssignmentsHelper(object):
+class NestAssignmentsHelper:
     """
     This class contains several helper functions as used during printing of code.
     """

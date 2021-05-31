@@ -42,7 +42,7 @@ References
 """
 neuron izhikevich:
 
-  initial_values:
+  state:
     V_m mV = V_m_init         # Membrane potential
     U_m real = b * V_m_init   # Membrane potential recovery variable
   end
@@ -66,7 +66,7 @@ neuron izhikevich:
 
   input:
     spikes mV <- spike
-    I_stim pA <- current
+    I_stim pA <- continuous
   end
 
   output: spike

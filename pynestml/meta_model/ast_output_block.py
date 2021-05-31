@@ -25,13 +25,13 @@ from pynestml.utils.port_signal_type import PortSignalType
 
 class ASTOutputBlock(ASTNode):
     """
-    This class is used to store output buffer declarations.
+    This class is used to store output port declarations.
     ASTOutput represents the output block of the neuron:
         output: spike
-      @attribute spike true iff the neuron has a spike output.
-      @attribute current true iff. the neuron is a current output.
+      @attribute spike true if and only if the neuron has a spike output.
+      @attribute continuous true if and only if the neuron has a continuous time output.
     Grammar:
-        outputBlock: 'output' BLOCK_OPEN ('spike' | 'current') ;
+        outputBlock: 'output' BLOCK_OPEN ('spike' | 'continuous') ;
     Attributes:
         type = None
     """
@@ -42,7 +42,7 @@ class ASTOutputBlock(ASTNode):
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param o_type: the type of the output buffer.
+        :param o_type: the type of the output port.
         :type o_type: PortSignalType
         """
         assert isinstance(o_type, PortSignalType)
@@ -68,21 +68,19 @@ class ASTOutputBlock(ASTNode):
 
         return dup
 
-    def is_spike(self):
+    def is_spike(self) -> bool:
         """
-        Returns whether it is a spike buffer or not.
+        Returns whether it is a spike type port or not.
         :return: True if spike, otherwise False.
-        :rtype: bool
         """
         return self.type is PortSignalType.SPIKE
 
-    def is_current(self):
+    def is_continuous(self) -> bool:
         """
-        Returns whether it is a current buffer or not.
-        :return: True if current, otherwise False.
-        :rtype: bool
+        Returns whether it is a continuous time type or not.
+        :return: True if continuous time, otherwise False.
         """
-        return self.type is PortSignalType.CURRENT
+        return self.type is PortSignalType.CONTINUOUS
 
     def get_parent(self, ast):
         """
@@ -94,14 +92,13 @@ class ASTOutputBlock(ASTNode):
         """
         return None
 
-    def equals(self, other):
+    def equals(self, other) -> bool:
         """
         The equals method.
         :param other: a different object.
         :type other: object
         :return: True if equals, otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTOutputBlock):
             return False
-        return self.is_spike() == other.is_spike() and self.is_current() == other.is_current()
+        return self.is_spike() == other.is_spike() and self.is_continuous() == other.is_continuous()

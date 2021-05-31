@@ -24,10 +24,8 @@ SeeAlso: hh_cond_exp_traub
 """
 neuron traub_psc_alpha:
   state:
-    r integer # number of steps in the current refractory phase
-  end
+    r integer = 0 # number of steps in the current refractory phase
 
-  initial_values:
     V_m mV = -70. mV # Membrane potential
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )     # Activation variable m for Na
@@ -94,7 +92,7 @@ neuron traub_psc_alpha:
   input:
     spikeInh pA <- inhibitory spike
     spikeExc pA <- excitatory spike
-    I_stim pA <- current
+    I_stim pA <- continuous
   end
 
   output: spike

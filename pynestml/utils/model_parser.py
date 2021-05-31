@@ -18,9 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import copy
 
-from antlr4 import *
+from typing import Tuple
+
+from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorStrategy import BailErrorStrategy, DefaultErrorStrategy
 from antlr4.error.ErrorListener import ConsoleErrorListener
 
@@ -75,7 +76,7 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.utils.error_listener import NestMLErrorListener
 
 
-class ModelParser(object):
+class ModelParser:
 
     @classmethod
     def parse_model(cls, file_path=None):
@@ -90,11 +91,11 @@ class ModelParser(object):
             input_file = FileStream(file_path)
         except IOError:
             code, message = Messages.get_input_path_not_found(path=file_path)
-            Logger.log_message(neuron=None, code=None, message=message,
+            Logger.log_message(node=None, code=None, message=message,
                                error_position=None, log_level=LoggingLevel.ERROR)
             return
         code, message = Messages.get_start_processing_file(file_path)
-        Logger.log_message(neuron=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
+        Logger.log_message(node=None, code=code, message=message, error_position=None, log_level=LoggingLevel.INFO)
 
         # create a lexer and hand over the input
         lexer = PyNestMLLexer()
@@ -110,7 +111,7 @@ class ModelParser(object):
         stream.fill()
         if lexerErrorListener._error_occurred:
             code, message = Messages.get_lexer_error()
-            Logger.log_message(neuron=None, code=None, message=message,
+            Logger.log_message(node=None, code=None, message=message,
                                error_position=None, log_level=LoggingLevel.ERROR)
             return
         # parse the file
@@ -125,7 +126,7 @@ class ModelParser(object):
         compilation_unit = parser.nestMLCompilationUnit()
         if parserErrorListener._error_occurred:
             code, message = Messages.get_parser_error()
-            Logger.log_message(neuron=None, code=None, message=message,
+            Logger.log_message(node=None, code=None, message=message,
                                error_position=None, log_level=LoggingLevel.ERROR)
             return
 
@@ -135,10 +136,6 @@ class ModelParser(object):
 
         # create and update the corresponding symbol tables
         SymbolTable.initialize_symbol_table(ast.get_source_position())
-        log_to_restore = copy.deepcopy(Logger.get_log())
-        counter = Logger.curr_message
-
-        Logger.set_log(log_to_restore, counter)
         for neuron in ast.get_neuron_list():
             neuron.accept(ASTSymbolTableVisitor())
             SymbolTable.add_neuron_scope(neuron.get_name(), neuron.get_scope())
@@ -455,8 +452,7 @@ class ModelParser(object):
         return ret
 
 
-def tokenize(string):
-    # type: (str) -> (ASTBuilderVisitor,PyNestMLParser)
+def tokenize(string: str) -> Tuple[ASTBuilderVisitor, PyNestMLParser]:
     lexer = PyNestMLLexer(InputStream(string))
     # create a token stream
     stream = CommonTokenStream(lexer)

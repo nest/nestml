@@ -18,11 +18,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Mapping
+
 from pynestml.symbols.function_symbol import FunctionSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
 
 
-class PredefinedFunctions(object):
+class PredefinedFunctions:
     """
     This class is used to represent all predefined functions of NESTML.
 
@@ -75,7 +77,7 @@ class PredefinedFunctions(object):
     ABS = 'abs'
     INTEGRATE_ODES = 'integrate_odes'
     CONVOLVE = 'convolve'
-    name2function = {}  # a map dict from function-names to symbols
+    name2function = {}   # type: Mapping[str, FunctionSymbol]
 
     @classmethod
     def register_functions(cls):
@@ -148,7 +150,9 @@ class PredefinedFunctions(object):
         """
         Registers the print-line function.
         """
-        symbol = FunctionSymbol(name=cls.PRINTLN, param_types=list(),
+        params = list()
+        params.append(PredefinedTypes.get_string_type())
+        symbol = FunctionSymbol(name=cls.PRINTLN, param_types=params,
                                 return_type=PredefinedTypes.get_void_type(),
                                 element_reference=None, is_predefined=True)
         cls.name2function[cls.PRINTLN] = symbol

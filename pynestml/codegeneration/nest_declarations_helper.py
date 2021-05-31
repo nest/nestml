@@ -25,7 +25,7 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
 
-class NestDeclarationsHelper(object):
+class NestDeclarationsHelper:
     """
     This class contains several methods as used during generation of code.
     """

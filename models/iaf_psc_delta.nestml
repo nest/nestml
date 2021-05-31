@@ -59,10 +59,7 @@ neuron iaf_psc_delta:
 
   state:
     refr_spikes_buffer mV = 0 mV
-    r integer # counts number of tick during the refractory period
-  end
-
-  initial_values:
+    r integer = 0 # counts number of tick during the refractory period
     V_abs mV = 0 mV
   end
 
@@ -94,7 +91,7 @@ neuron iaf_psc_delta:
 
   input:
     spikes pA <- spike
-    I_stim pA <- current
+    I_stim pA <- continuous
   end
 
   output: spike

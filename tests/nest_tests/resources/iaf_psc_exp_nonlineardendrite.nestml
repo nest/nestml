@@ -1,0 +1,109 @@
+""" 
+iaf_psc_exp_nonlineardendrite.nestml
+####################################
+
+Description
++++++++++++
+
+Neuron model used in ``non_linear_dendrite_test.py``.
+
+A dendritic action potential occurs when the net synaptic current exceeds the threshold value ``i_th``. An extra, pulse-shaped dendritic current is then activated with amplitude ``I_dend_ap`` and duration ``T_dend_ap``.
+
+For more detailed information and references, please see the active dendrite tutorial at ``doc/tutorials/active_dendrite/nestml_active_dendrite_tutorial.ipynb``.
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron iaf_psc_exp_nonlineardendrite:
+
+  state:
+    V_m mV = 0 mV         # membrane potential
+    t_dend_ap ms = 0 ms   # dendritic action potential timer
+    dend_curr_enabled real = 1.   # set to 1 to allow synaptic dendritic currents to contribute to V_m integration, 0 otherwise
+    I_dend_ap pA = 0 pA
+  end
+
+  equations:
+    kernel I_kernel1 = exp(-t / tau_syn1)
+    kernel I_kernel2 = (e / tau_syn2) * t * exp(-t / tau_syn2)
+    kernel I_kernel3 = exp(-t / tau_syn3)
+
+    recordable inline I_dend pA = convolve(I_kernel2, I_2)
+ 
+    inline I_syn pA = convolve(I_kernel1, I_1) + dend_curr_enabled * I_dend + I_dend_ap + convolve(I_kernel3, I_3) + I_e
+
+    V_m' = -(V_m - E_L) / tau_m + I_syn / C_m
+  end
+
+  parameters:
+    C_m pF = 250 pF          # capacity of the membrane
+    tau_m ms = 20 ms         # membrane time constant
+    tau_syn1 ms = 10 ms      # time constant of synaptic current, port 1
+    tau_syn2 ms = 10 ms      # time constant of synaptic current, port 2
+    tau_syn3 ms = 10 ms      # time constant of synaptic current, port 3
+    V_th mV = 25 mV          # action potential threshold
+    V_reset mV = 0 mV        # reset voltage
+    I_e    pA = 0 pA         # external current
+    E_L    mV = 0 mV         # resting potential
+
+    # dendritic action potential     
+    i_th pA = 60 pA          # current-threshold for a dendritic action potential
+    i_dend_ap pA = 150 pA    # current clamp value for I_dend during a dendritic action potential
+    T_dend_ap ms = 10 ms     # time window over which the dendritic current clamp is active
+  end
+
+  input:
+    I_1 pA <- spike
+    I_2 pA <- spike
+    I_3 pA <- spike
+  end
+
+  output: spike
+
+  update:
+    # solve ODEs
+    integrate_odes()
+
+    if t_dend_ap > 0 ms:
+      t_dend_ap -= resolution()
+      if t_dend_ap <= 0 ms:
+        t_dend_ap = 0 ms
+        dend_curr_enabled = 1.
+        I_dend = 0 pA
+        I_dend' = 0 pA/ms
+        I_dend_ap = 0 pA
+      end
+    end
+    
+    if I_dend > i_th:
+      # current-threshold, emit a dendritic action potential
+      dend_curr_enabled = 0.
+      t_dend_ap = T_dend_ap
+      I_dend_ap = i_dend_ap
+    end 
+
+    # emit somatic action potential
+    if V_m > V_th:
+      emit_spike()
+      V_m = V_reset
+    end
+  end
+end
+

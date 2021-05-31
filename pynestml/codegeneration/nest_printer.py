@@ -18,17 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ast_body import ASTBody
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-from pynestml.meta_model.ast_for_stmt import ASTForStmt
-from pynestml.meta_model.ast_function import ASTFunction
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -43,6 +37,7 @@ from pynestml.meta_model.ast_elif_clause import ASTElifClause
 from pynestml.meta_model.ast_else_clause import ASTElseClause
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -68,9 +63,11 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 
 
-class NestPrinter(object):
+class NestPrinter:
     """
     This class contains all methods as required to transform
     """
@@ -169,8 +166,7 @@ class NestPrinter(object):
             ret = self.print_stmt(node)
         return ret
 
-    def print_assignment(self, node, prefix=""):
-        # type: (ASTAssignment) -> str
+    def print_assignment(self, node: ASTAssignment, prefix: str="") -> str:
         ret = self.print_node(node.lhs) + ' '
         if node.is_compound_quotient:
             ret += '/='
@@ -185,15 +181,13 @@ class NestPrinter(object):
         ret += ' ' + self.print_node(node.rhs)
         return ret
 
-    def print_variable(self, node):
-        # type: (ASTVariable) -> str
+    def print_variable(self, node: ASTVariable) -> str:
         ret = node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"
         return ret
 
-    def print_expression(self, node, prefix=""):
-        # type: (ASTExpressionNode) -> str
+    def print_expression(self, node: ASTExpressionNode, prefix: str="") -> str:
         """
         Pretty Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -203,8 +197,7 @@ class NestPrinter(object):
         """
         return self.expression_pretty_printer.print_expression(node, prefix=prefix)
 
-    def print_method_call(self, node):
-        # type: (ASTFunctionCall) -> str
+    def print_method_call(self, node: ASTFunctionCall) -> str:
         """
         Prints a single handed over function call.
         :param node: a single function call.
@@ -260,9 +253,6 @@ class NestPrinter(object):
         if variable_symbol.block_type == BlockType.STATE:
             return prefix + 'S_.'
 
-        if variable_symbol.block_type == BlockType.INITIAL_VALUES:
-            return prefix + 'S_.'
-
         if variable_symbol.block_type == BlockType.EQUATION:
             return prefix + 'S_.'
 
@@ -272,37 +262,33 @@ class NestPrinter(object):
         if variable_symbol.block_type == BlockType.INTERNALS:
             return prefix + 'V_.'
 
-        if variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
-            return prefix + 'B_.'
-
-        if variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
+        if variable_symbol.block_type == BlockType.INPUT:
             return prefix + 'B_.'
 
         return ''
 
     @classmethod
-    def print_output_event(cls, ast_body):
+    def print_output_event(cls, ast_body: ASTBody) -> str:
         """
         For the handed over neuron, this operations checks of output event shall be preformed.
         :param ast_body: a single neuron body
-        :type ast_body: ASTBody
         :return: the corresponding representation of the event
-        :rtype: str
         """
         assert (ast_body is not None and isinstance(ast_body, ASTBody)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(ast_body)
         outputs = ast_body.get_output_blocks()
-        if len(outputs) > 0:
-            output = outputs[0]
-            if output.is_spike():
-                return 'nest::SpikeEvent'
-            elif output.is_current():
-                return 'nest::CurrentEvent'
-            else:
-                raise RuntimeError('Unexpected output type. Must be current or spike, is %s.' % str(output))
-        else:
+        if len(outputs) == 0:
             # no output port defined in the model: pretend dummy spike output port to obtain usable model
             return 'nest::SpikeEvent'
+
+        output = outputs[0]
+        if output.is_spike():
+            return 'nest::SpikeEvent'
+
+        if output.is_continuous():
+            return 'nest::CurrentEvent'
+
+        raise RuntimeError('Unexpected output type. Must be continuous or spike, is %s.' % str(output))
 
     @classmethod
     def print_buffer_initialization(cls, variable_symbol):
@@ -392,7 +378,7 @@ class NestPrinter(object):
         """
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        if ast_buffer.is_spike_buffer() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
+        if ast_buffer.is_spike_input_port() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
             return 'inline ' + PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
                    + ast_buffer.get_symbol_name() + '() {' + \
                    '  return spike_inputs_[' + ast_buffer.get_symbol_name().upper() + ' - 1]; }'
@@ -474,4 +460,4 @@ class NestPrinter(object):
         """
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        return '//!< Buffer incoming ' + ast_buffer.get_type_symbol().get_symbol_name() + 's through delay, as sum'
+        return '//!< Buffer for input (type: ' + ast_buffer.get_type_symbol().get_symbol_name() + ')'

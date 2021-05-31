@@ -18,7 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Optional
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
@@ -38,8 +42,7 @@ class CoCoOutputPortDefinedIfEmitCall(CoCo):
     def check_co_co(cls, neuron: ASTNeuron):
         """
         Checks the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param neuron: a single neuron instance.
         """
         visitor = OutputPortDefinedIfEmitCalledVisitor()
         visitor.neuron = neuron
@@ -51,15 +54,15 @@ class OutputPortDefinedIfEmitCalledVisitor(ASTVisitor):
     This visitor ensures that all function calls are consistent.
     """
 
-    neuron = None
+    neuron = None   # type: Optional[ASTNeuron]
 
-    def visit_function_call(self, node):
+    def visit_function_call(self, node: ASTFunctionCall):
         """
         Check consistency for a single function call: check if the called function has been declared, whether the number and types of arguments correspond to the declaration, etc.
 
         :param node: a single function call.
-        :type node: ASTFunctionCall
         """
+        assert self.neuron is not None
         func_name = node.get_name()
         if func_name == 'emit_spike':
             output_block = self.neuron.get_output_blocks()

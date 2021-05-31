@@ -25,7 +25,7 @@ from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
 
 
-class TypeCaster(object):
+class TypeCaster:
     @staticmethod
     def do_magnitude_conversion_rhs_to_lhs(_rhs_type_symbol, _lhs_type_symbol, _containing_expression):
         """

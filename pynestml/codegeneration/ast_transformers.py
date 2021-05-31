@@ -81,22 +81,22 @@ def add_declaration_to_internals(neuron: ASTNeuron, variable_name: str, init_exp
     return neuron
 
 
-def add_declarations_to_initial_values(neuron: ASTNeuron, variables: List, initial_values: List) -> ASTNeuron:
+def add_declarations_to_state_block(neuron: ASTNeuron, variables: List, initial_values: List) -> ASTNeuron:
     """
-    Adds a single declaration to the initial values block of the neuron.
+    Adds a single declaration to the state block of the neuron.
     :param neuron: a neuron
     :param variables: list of variables
     :param initial_values: list of initial values
     :return: a modified neuron
     """
     for variable, initial_value in zip(variables, initial_values):
-        add_declaration_to_initial_values(neuron, variable, initial_value)
+        add_declaration_to_state_block(neuron, variable, initial_value)
     return neuron
 
 
-def add_declaration_to_initial_values(neuron: ASTNeuron, variable: str, initial_value: str) -> ASTNeuron:
+def add_declaration_to_state_block(neuron: ASTNeuron, variable: str, initial_value: str) -> ASTNeuron:
     """
-    Adds a single declaration to the initial values block of the neuron. The declared variable is of type real.
+    Adds a single declaration to the state block of the neuron. The declared variable is of type real.
     :param neuron: a neuron
     :param variable: state variable to add
     :param initial_value: corresponding initial value
@@ -110,56 +110,35 @@ def add_declaration_to_initial_values(neuron: ASTNeuron, variable: str, initial_
     ast_declaration = ModelParser.parse_declaration(declaration_string)
     if vector_variable is not None:
         ast_declaration.set_size_parameter(vector_variable.get_vector_parameter())
-    neuron.add_to_initial_values_block(ast_declaration)
-    ast_declaration.update_scope(neuron.get_initial_values_blocks().get_scope())
+    neuron.add_to_state_block(ast_declaration)
+    ast_declaration.update_scope(neuron.get_state_blocks().get_scope())
 
     symtable_visitor = ASTSymbolTableVisitor()
-    symtable_visitor.block_type_stack.push(BlockType.INITIAL_VALUES)
+    symtable_visitor.block_type_stack.push(BlockType.STATE)
     ast_declaration.accept(symtable_visitor)
     symtable_visitor.block_type_stack.pop()
 
     return neuron
 
 
-def declaration_in_initial_values(neuron: ASTNeuron, variable_name: str) -> bool:
+def declaration_in_state_block(neuron: ASTNeuron, variable_name: str) -> bool:
+    """
+    Checks if the variable is declared in the state block
+    :param neuron:
+    :param variable_name:
+    :return:
+    """
     assert type(variable_name) is str
 
-    for decl in neuron.get_initial_values_blocks().get_declarations():
+    if neuron.get_state_blocks() is None:
+        return False
+
+    for decl in neuron.get_state_blocks().get_declarations():
         for var in decl.get_variables():
             if var.get_complete_name() == variable_name:
                 return True
 
     return False
-
-
-def apply_incoming_spikes(neuron: ASTNeuron):
-    """
-    Adds a set of update instructions to the handed over neuron.
-    :param neuron: a single neuron instance
-    :type neuron: ASTNeuron
-    :return: the modified neuron
-    :rtype: ASTNeuron
-    """
-    assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
-        '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(neuron)
-    conv_calls = OdeTransformer.get_sum_function_calls(neuron)
-    printer = ExpressionsPrettyPrinter()
-    spikes_updates = list()
-    for convCall in conv_calls:
-        kernel = convCall.get_args()[0].get_variable().get_complete_name()
-        buffer = convCall.get_args()[1].get_variable().get_complete_name()
-        initial_values = (
-            neuron.get_initial_values_blocks().get_declarations() if neuron.get_initial_values_blocks() is not None else list())
-        for astDeclaration in initial_values:
-            for variable in astDeclaration.get_variables():
-                if re.match(kernel + "[\']*", variable.get_complete_name()) or re.match(kernel + '__[\\d]+$',
-                                                                                        variable.get_complete_name()):
-                    spikes_updates.append(ModelParser.parse_assignment(
-                        variable.get_complete_name() + " += " + buffer + " * " + printer.print_expression(
-                            astDeclaration.get_expression())))
-    for update in spikes_updates:
-        add_assignment_to_update_block(update, neuron)
-    return neuron
 
 
 def add_assignment_to_update_block(assignment: ASTAssignment, neuron: ASTNeuron) -> ASTNeuron:
@@ -213,14 +192,6 @@ def add_state_updates(neuron: ASTNeuron, update_expressions: Mapping[str, str]) 
     for variable, update_expression in update_expressions.items():
         add_assignment_to_update_block(ModelParser.parse_assignment(variable + ' = ' + variable + '__tmp'), neuron)
     return neuron
-
-
-def variable_in_neuron_initial_values(name: str, neuron: ASTNeuron):
-    for decl in neuron.get_initial_blocks().get_declarations():
-        assert len(decl.get_variables()) == 1, "Multiple declarations in the same statement not yet supported"
-        if decl.get_variables()[0].get_complete_name() == name:
-            return True
-    return False
 
 
 def variable_in_solver(kernel_var: str, solver_dicts):

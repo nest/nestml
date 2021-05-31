@@ -139,42 +139,35 @@ Source code
 
    neuron hh_cond_exp_traub:
      state:
-       r integer  # counts number of tick during the refractory period
-     end
-     initial_values:
+       r integer = 0 # counts number of tick during the refractory period
        V_m mV = E_L # Membrane potential
-       function alpha_n_init 1/ms = 0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)
-       function beta_n_init 1/ms = 0.5 / ms * exp((10.0mV - V_m) / 40.0mV)
-       function alpha_m_init 1/ms = 0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)
-       function beta_m_init 1/ms = 0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)
-       function alpha_h_init 1/ms = 0.128 / ms * exp((17.0mV - V_m) / 18.0mV)
-       function beta_h_init 1/ms = (4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms
+
        Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
        Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
        Inact_n real = alpha_n_init / (alpha_n_init + beta_n_init)
      end
-     equations:
 
-       /* synapses: exponential conductance*/
+     equations:
+       # synapses: exponential conductance
        kernel g_in = exp(-1 / tau_syn_in * t)
        kernel g_ex = exp(-1 / tau_syn_ex * t)
 
-       /* Add aliases to simplify the equation definition of V_m*/
-       function I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
-       function I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
-       function I_L pA = g_L * (V_m - E_L)
-       function I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
-       function I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
+       # Add aliases to simplify the equation definition of V_m
+       inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
+       inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
+       inline I_L pA = g_L * (V_m - E_L)
+       inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
+       inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
        V_m'=(-I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
 
-       /* channel dynamics*/
-       function V_rel mV = V_m - V_T
-       function alpha_n 1/ms = 0.032 / (ms * mV) * (15.0mV - V_rel) / (exp((15.0mV - V_rel) / 5.0mV) - 1.0)
-       function beta_n 1/ms = 0.5 / ms * exp((10.0mV - V_rel) / 40.0mV)
-       function alpha_m 1/ms = 0.32 / (ms * mV) * (13.0mV - V_rel) / (exp((13.0mV - V_rel) / 4.0mV) - 1.0)
-       function beta_m 1/ms = 0.28 / (ms * mV) * (V_rel - 40.0mV) / (exp((V_rel - 40.0mV) / 5.0mV) - 1.0)
-       function alpha_h 1/ms = 0.128 / ms * exp((17.0mV - V_rel) / 18.0mV)
-       function beta_h 1/ms = (4.0 / (1.0 + exp((40.0mV - V_rel) / 5.0mV))) / ms
+       # channel dynamics
+       inline V_rel mV = V_m - V_T
+       inline alpha_n 1/ms = 0.032 / (ms * mV) * (15.0mV - V_rel) / (exp((15.0mV - V_rel) / 5.0mV) - 1.0)
+       inline beta_n 1/ms = 0.5 / ms * exp((10.0mV - V_rel) / 40.0mV)
+       inline alpha_m 1/ms = 0.32 / (ms * mV) * (13.0mV - V_rel) / (exp((13.0mV - V_rel) / 4.0mV) - 1.0)
+       inline beta_m 1/ms = 0.28 / (ms * mV) * (V_rel - 40.0mV) / (exp((V_rel - 40.0mV) / 5.0mV) - 1.0)
+       inline alpha_h 1/ms = 0.128 / ms * exp((17.0mV - V_rel) / 18.0mV)
+       inline beta_h 1/ms = (4.0 / (1.0 + exp((40.0mV - V_rel) / 5.0mV))) / ms
        Act_m'=(alpha_m - (alpha_m + beta_m) * Act_m)
        Act_h'=(alpha_h - (alpha_h + beta_h) * Act_h)
        Inact_n'=(alpha_n - (alpha_n + beta_n) * Inact_n)
@@ -189,21 +182,21 @@ Source code
        E_K mV = -90.0mV # Potassium reversal potential
        E_L mV = -60.0mV # Leak reversal Potential (aka resting potential)
        V_T mV = -63.0mV # Voltage offset that controls dynamics. For default
-       /* parameters, V_T = -63 mV results in a threshold around -50 mV.*/
 
-       /* parameters, V_T = -63 mV results in a threshold around -50 mV.*/
        tau_syn_ex ms = 5.0ms # Synaptic Time Constant Excitatory Synapse
        tau_syn_in ms = 10.0ms # Synaptic Time Constant for Inhibitory Synapse
        t_ref ms = 2.0ms # Refractory period
        E_ex mV = 0.0mV # Excitatory synaptic reversal potential
        E_in mV = -80.0mV # Inhibitory synaptic reversal potential
 
-       /* constant external input current*/
+       # constant external input current
        I_e pA = 0pA
      end
+
      internals:
        RefractoryCounts integer = steps(t_ref)
      end
+
      input:
        spikeInh nS <-inhibitory spike
        spikeExc nS <-excitatory spike
@@ -216,7 +209,7 @@ Source code
        U_old mV = V_m
        integrate_odes()
 
-       /* sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...*/
+       # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
        if r > 0:
          r -= 1
        elif V_m > V_T + 30mV and U_old > V_m:

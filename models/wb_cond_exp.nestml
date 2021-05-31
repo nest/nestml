@@ -28,10 +28,8 @@ hh_cond_exp_traub, wb_cond_multisyn
 """
 neuron wb_cond_exp:
   state:
-    r integer # number of steps in the current refractory phase
-  end
+    r integer = 0 # number of steps in the current refractory phase
 
-  initial_values:
     V_m mV = E_L    # Membrane potential
 
     Inact_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
@@ -86,7 +84,7 @@ neuron wb_cond_exp:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    I_stim pA <- current
+    I_stim pA <- continuous
   end
 
   output: spike

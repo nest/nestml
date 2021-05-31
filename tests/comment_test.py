@@ -51,19 +51,29 @@ class CommentTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CommentTest.nestml'))
         lexer = PyNestMLLexer(input_file)
+        lexer._errHandler = BailErrorStrategy()
+        lexer._errHandler.reset(lexer)
+
         # create a token stream
         stream = CommonTokenStream(lexer)
         stream.fill()
+
         # parse the file
         parser = PyNestMLParser(stream)
+        parser._errHandler = BailErrorStrategy()
+        parser._errHandler.reset(parser)
+
         # process the comments
         compilation_unit = parser.nestMLCompilationUnit()
+
         # now build the meta_model
         ast_builder_visitor = ASTBuilderVisitor(stream.tokens)
         ast = ast_builder_visitor.visit(compilation_unit)
         neuron_body_elements = ast.get_neuron_list()[0].get_body().get_body_elements()
+
         # check if init values comment is correctly detected
-        assert (neuron_body_elements[0].get_comment()[0] == 'init_values comment ok')
+        assert (neuron_body_elements[0].get_comment()[0] == 'state comment ok')
+
         # check that all declaration comments are detected
         comments = neuron_body_elements[0].get_declarations()[0].get_comment()
         assert (comments[0] == 'pre comment 1 ok')
@@ -73,6 +83,7 @@ class CommentTest(unittest.TestCase):
         assert (comments[4] == 'post comment 2 ok')
         assert ('pre comment not ok' not in comments)
         assert ('post comment not ok' not in comments)
+
         # check that equation block comment is detected
         self.assertEqual(neuron_body_elements[1].get_comment()[0], 'equations comment ok')
         # check that parameters block comment is detected

@@ -19,18 +19,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+from typing import Iterable, List, Optional
 
 from pynestml.meta_model.ast_block import ASTBlock
+from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 
 
-class ASTUtils(object):
+class ASTUtils:
     """
     A collection of helpful methods.
     """
@@ -86,34 +92,29 @@ class ASTUtils(object):
         return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
-    def is_spike_input(cls, body):
-        # type: (ASTBody) -> bool
+    def has_spike_input(cls, body: ASTBody) -> bool:
         """
-        Checks if the handed over neuron contains a spike input buffer.
+        Checks if the handed over neuron contains a spike input port.
         :param body: a single body element.
-        :type body: ast_body
-        :return: True if spike buffer is contained, otherwise false.
-        :rtype: bool
+        :return: True if spike input port is contained, otherwise False.
         """
         from pynestml.meta_model.ast_body import ASTBody
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
-        for inputL in inputs:
-            if inputL.is_spike():
+        for port in inputs:
+            if port.is_spike():
                 return True
         return False
 
     @classmethod
-    def is_current_input(cls, body):
+    def has_continuous_input(cls, body: ASTBody) -> bool:
         """
-        Checks if the handed over neuron contains a current input buffer.
+        Checks if the handed over neuron contains a continuous time input port.
         :param body: a single body element.
-        :type body: ast_body
-        :return: True if current buffer is contained, otherwise false.
-        :rtype: bool
+        :return: True if continuous time input port is contained, otherwise False.
         """
         inputs = (inputL for block in body.get_input_blocks() for inputL in block.get_input_ports())
         for inputL in inputs:
-            if inputL.is_current():
+            if inputL.is_continuous():
                 return True
         return False
 
@@ -194,17 +195,13 @@ class ASTUtils(object):
         return expr
 
     @classmethod
-    def get_alias_symbols(cls, ast):
+    def get_inline_expression_symbols(cls, ast: ASTNode) -> List[VariableSymbol]:
         """
-        For the handed over meta_model, this method collects all functions aka. aliases in it.
-        :param ast: a single meta_model node
-        :type ast: AST_
-        :return: a list of all alias variable symbols
-        :rtype: list(VariableSymbol)
+        For the handed over AST node, this method collects all inline expression variable symbols in it.
+        :param ast: a single AST node
+        :return: a list of all inline expression variable symbols
         """
-        ret = list()
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ast_variable import ASTVariable
         res = list()
 
         def loc_get_vars(node):
@@ -213,10 +210,11 @@ class ASTUtils(object):
 
         ast.accept(ASTHigherOrderVisitor(visit_funcs=loc_get_vars))
 
+        ret = list()
         for var in res:
             if '\'' not in var.get_complete_name():
                 symbol = ast.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
-                if symbol is not None and symbol.is_function:
+                if symbol is not None and symbol.is_inline_expression:
                     ret.append(symbol)
         return ret
 
@@ -279,7 +277,6 @@ class ASTUtils(object):
         :return: the first element with the size parameter
         :rtype: variable_symbol
         """
-        from pynestml.meta_model.ast_variable import ASTVariable
         from pynestml.symbols.symbol import SymbolKind
         variables = (var for var in cls.get_all(ast, ASTVariable) if
                      scope.resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE))
@@ -301,7 +298,6 @@ class ASTUtils(object):
         :rtype: list(ASTFunctionCall)
         """
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
-        from pynestml.meta_model.ast_function_call import ASTFunctionCall
         ret = list()
 
         def loc_get_function(node):
@@ -351,7 +347,7 @@ class ASTUtils(object):
         """
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
-            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, False, list(),
+            internal = ASTNodeFactory.create_ast_block_with_variables(False, False, True, list(),
                                                                       ASTSourceLocation.get_added_source_position())
             internal.update_scope(neuron.get_scope())
             neuron.get_body().get_body_elements().append(internal)
@@ -369,35 +365,16 @@ class ASTUtils(object):
         # local import since otherwise circular dependency
         from pynestml.meta_model.ast_node_factory import ASTNodeFactory
         if neuron.get_internals_blocks() is None:
-            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, False, list(),
+            state = ASTNodeFactory.create_ast_block_with_variables(True, False, False, list(),
                                                                    ASTSourceLocation.get_added_source_position())
             neuron.get_body().get_body_elements().append(state)
         return neuron
 
     @classmethod
-    def create_initial_values_block(cls, neuron):
+    def contains_convolve_call(cls, variable: VariableSymbol) -> bool:
         """
-        Creates a single initial values block in the handed over neuron.
-        :param neuron: a single neuron
-        :type neuron: ast_neuron
-        :return: the modified neuron
-        :rtype: ast_neuron
-        """
-        # local import since otherwise circular dependency
-        from pynestml.meta_model.ast_node_factory import ASTNodeFactory
-        if neuron.get_initial_blocks() is None:
-            initial_values = ASTNodeFactory. \
-                create_ast_block_with_variables(False, False, False, True, list(),
-                                                ASTSourceLocation.get_added_source_position())
-            neuron.get_body().get_body_elements().append(initial_values)
-        return neuron
-
-    @classmethod
-    def contains_sum_call(cls, variable):
-        """
-        Indicates whether the declaring rhs of this variable symbol has a x_sum or convolve in it.
+        Indicates whether the declaring rhs of this variable symbol has a convolve() in it.
         :return: True if contained, otherwise False.
-        :rtype: bool
         """
         if not variable.get_declaring_expression():
             return False
@@ -434,3 +411,25 @@ class ASTUtils(object):
                 if var.get_complete_name() == var_name:
                     return decl
         return None
+
+    @classmethod
+    def all_variables_defined_in_block(cls, block: Optional[ASTBlock]) -> List[ASTVariable]:
+        """return a list of all variable declarations in a block"""
+        if block is None:
+            return []
+        vars = []
+        for decl in block.get_declarations():
+            for var in decl.get_variables():
+                vars.append(var)
+        return vars
+
+    @classmethod
+    def inline_aliases_convolution(cls, inline_expr: ASTInlineExpression) -> bool:
+        """
+        Returns True if and only if the inline expression is of the form ``var type = convolve(...)``.
+        """
+        if isinstance(inline_expr.get_expression(), ASTSimpleExpression) \
+           and inline_expr.get_expression().is_function_call() \
+           and inline_expr.get_expression().get_function_call().get_name() == PredefinedFunctions.CONVOLVE:
+            return True
+        return False

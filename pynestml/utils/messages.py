@@ -38,7 +38,7 @@ class MessageCode(Enum):
     BUFFER_SET_TO_CONDUCTANCE_BASED = 9
     ODE_UPDATED = 10
     NO_VARIABLE_FOUND = 11
-    SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
+    SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 12
     NEURON_CONTAINS_ERRORS = 13
     START_PROCESSING_NEURON = 14
     CODE_SUCCESSFULLY_GENERATED = 15
@@ -48,12 +48,12 @@ class MessageCode(Enum):
     VARIABLE_DEFINED_RECURSIVELY = 19
     VALUE_ASSIGNED_TO_BUFFER = 20
     ARG_NOT_KERNEL_OR_EQUATION = 21
-    ARG_NOT_BUFFER = 22
+    ARG_NOT_SPIKE_INPUT = 22
     NUMERATOR_NOT_ONE = 23
     ORDER_NOT_DECLARED = 24
-    CURRENT_BUFFER_SPECIFIED = 25
+    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 25
     BLOCK_NOT_CORRECT = 26
-    VARIABLE_NOT_IN_INIT = 27
+    VARIABLE_NOT_IN_STATE_BLOCK = 27
     WRONG_NUMBER_OF_ARGS = 28
     NO_RHS = 29
     SEVERAL_LHS = 30
@@ -103,9 +103,12 @@ class MessageCode(Enum):
     KERNEL_WRONG_TYPE = 73
     KERNEL_IV_WRONG_TYPE = 74
     EMIT_SPIKE_FUNCTION_BUT_NO_OUTPUT_PORT = 75
+    NO_FILES_IN_INPUT_PATH = 76
+    STATE_VARIABLES_NOT_INITIALZED = 77
+    EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
 
 
-class Messages(object):
+class Messages:
     """
     This class contains a collection of error messages which enables a centralized maintaining and modifications of
     those.
@@ -345,19 +348,18 @@ class Messages(object):
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
-    def get_buffer_type_not_defined(cls, buffer_name):
+    def get_input_port_type_not_defined(cls, input_port_name: str):
         """
-        Returns a message indicating that a buffer type has not been defined, thus nS is assumed.
-        :param buffer_name: a buffer name
-        :type buffer_name: str
+        Returns a message indicating that a input_port type has not been defined, thus nS is assumed.
+        :param input_port_name: a input_port name
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (buffer_name is not None and isinstance(buffer_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
+        assert (input_port_name is not None and isinstance(input_port_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(input_port_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\'!' % buffer_name
-        return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
+        message = 'No type declared for spiking input port \'%s\'!' % input_port_name
+        return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
     @classmethod
     def get_neuron_contains_errors(cls, neuron_name):
@@ -490,18 +492,16 @@ class Messages(object):
         return MessageCode.ARG_NOT_KERNEL_OR_EQUATION, message
 
     @classmethod
-    def get_second_arg_not_a_buffer(cls, func_name):
+    def get_second_arg_not_a_spike_port(cls, func_name: str) -> Tuple[MessageCode, str]:
         """
-        Indicates that the second argument of an rhs is not a buffer.
+        Indicates that the second argument of the NESTML convolve() call is not a spiking input port.
         :param func_name: the name of the function
-        :type func_name: str
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (func_name is not None and isinstance(func_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
-        message = 'Second argument of \'%s\' not a buffer!' % func_name
-        return MessageCode.ARG_NOT_BUFFER, message
+        message = 'Second argument of \'%s\' not a spiking input port!' % func_name
+        return MessageCode.ARG_NOT_SPIKE_INPUT, message
 
     @classmethod
     def get_wrong_numerator(cls, unit):
@@ -532,9 +532,9 @@ class Messages(object):
         return MessageCode.ORDER_NOT_DECLARED, message
 
     @classmethod
-    def get_current_buffer_specified(cls, name, keyword):
+    def get_continuous_input_port_specified(cls, name, keyword):
         """
-        Indicates that the current buffer has been specified with a type keyword.
+        Indicates that the continuous time input port has been specified with an `inputQualifier` keyword.
         :param name: the name of the buffer
         :type name: str
         :param keyword: the keyword
@@ -544,8 +544,8 @@ class Messages(object):
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Current buffer \'%s\' specified with type keywords (%s)!' % (name, keyword)
-        return MessageCode.CURRENT_BUFFER_SPECIFIED, message
+        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (name, keyword)
+        return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
     def get_block_not_defined_correctly(cls, block, missing):
@@ -569,9 +569,9 @@ class Messages(object):
         return MessageCode.BLOCK_NOT_CORRECT, message
 
     @classmethod
-    def get_equation_var_not_in_init_values_block(cls, variable_name):
+    def get_equation_var_not_in_state_block(cls, variable_name):
         """
-        Indicates that a variable in the equations block is not defined in the initial values block.
+        Indicates that a variable in the equations block is not defined in the state block.
         :param variable_name: the name of the variable of an equation which is not defined in an equations block
         :type variable_name: str
         :return: a message
@@ -579,8 +579,8 @@ class Messages(object):
         """
         assert (variable_name is not None and isinstance(variable_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(variable_name)
-        message = 'Ode equation lhs-variable \'%s\' not defined in initial-values block!' % variable_name
-        return MessageCode.VARIABLE_NOT_IN_INIT, message
+        message = 'Ode equation lhs-variable \'%s\' not defined in state block!' % variable_name
+        return MessageCode.VARIABLE_NOT_IN_STATE_BLOCK, message
 
     @classmethod
     def get_wrong_number_of_args(cls, function_call, expected, got):
@@ -655,7 +655,7 @@ class Messages(object):
     @classmethod
     def get_no_ode(cls, name):
         """
-        Indicates that no ODE has been defined for a variable inside the initial values block.
+        Indicates that no ODE has been defined for a variable inside the state block.
         :param name: the name of the variable which does not have a defined ode
         :type name: str
         :return: a message
@@ -1144,16 +1144,30 @@ class Messages(object):
     def get_kernel_iv_wrong_type(cls, iv_name: str, actual_type: str, expected_type: str) -> Tuple[MessageCode, str]:
         """
         Returns a message indicating that the type of a kernel initial value is wrong.
-        :param iv_name: the name of the initial value variable
+        :param iv_name: the name of the state variable with an initial value
         :param actual_type: the name of the actual type that was found in the model
         :param expected_type: the name of the type that was expected
         """
         message = 'Initial value \'%s\' was found to be of type \'%s\' (should be %s)!' % (iv_name, actual_type, expected_type)
         return MessageCode.KERNEL_IV_WRONG_TYPE, message
 
-
     @classmethod
     def get_could_not_determine_cond_based(cls, type_str, name):
         message = "Unable to determine based on type '" + type_str + \
             "' of variable '" + name + "' whether conductance-based or current-based"
         return MessageCode.LEXER_ERROR, message
+
+    @classmethod
+    def get_no_files_in_input_path(cls, path: str):
+        message = "No files found matching '*.nestml' in provided input path '" + path + "'"
+        return MessageCode.NO_FILES_IN_INPUT_PATH, message
+
+    @classmethod
+    def get_state_variables_not_initialized(cls, var_name: str):
+        message = "The variable `\'%s\' is not initialized." % var_name
+        return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
+
+    @classmethod
+    def get_equations_defined_but_integrate_odes_not_called(cls):
+        message = "Equations defined but integrate_odes() not called"
+        return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message

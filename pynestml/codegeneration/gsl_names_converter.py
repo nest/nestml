@@ -22,7 +22,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.symbols.variable_symbol import VariableSymbol
 
 
-class GSLNamesConverter(object):
+class GSLNamesConverter:
     """
     A GSL names converter as use to transform names to GNU Scientific Library.
     """
@@ -47,7 +47,7 @@ class GSLNamesConverter(object):
         :return: the corresponding string format
         :rtype: str
         """
-        if symbol.is_init_values() and not symbol.is_function:
+        if symbol.is_state() and not symbol.is_inline_expression:
             return 'ode_state[State_::' + NestNamesConverter.convert_to_cpp_name(symbol.get_symbol_name()) + ']'
         else:
             return NestNamesConverter.name(symbol)

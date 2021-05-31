@@ -12,6 +12,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
    installation
    running
    models_library/index
+   tutorials/index
    pynestml_toolchain/index
    getting_help
    citing
@@ -40,9 +41,7 @@ Out of the box, use any of :doc:`over 20 models <models_library/index>` that com
 Tutorials
 #########
 
-* :doc:`Izhikevich tutorial <tutorial/izhikevich_tutorial>`
-
-  Learn how to finish a partial Izhikevich spiking neuron model.
+.. include:: tutorials/tutorials_list.rst
 
 
 NESTML language and toolchain development

@@ -59,18 +59,22 @@ lexers["nestml"] = NESTMLLexer(startinline=True)
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../doc/sphinx-apidoc'))
 sys.path.insert(0, os.path.abspath('doc/sphinx-apidoc'))
+sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('doc'))
 sys.path.insert(0, os.path.abspath('pynestml'))
 sys.path.insert(0, os.path.abspath('pynestml/codegeneration'))
 
+print("sys.path: " + str(sys.path))
 
+print("Running sphinx-apidoc...")
 os.system("sphinx-apidoc --module-first -o "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml')
  + " "
  + os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pynestml'))	# in-source generation of necessary .rst files
 
-
+print("Copying documentation files...")
 import fnmatch
 import os
 
@@ -86,6 +90,8 @@ for root, dirnames, filenames in os.walk(static_docs_dir):
     for filename in fnmatch.filter(filenames, '*.pdf'):
             matches.append(os.path.join(root, filename))
     for filename in fnmatch.filter(filenames, '*.png'):
+            matches.append(os.path.join(root, filename))
+    for filename in fnmatch.filter(filenames, '*.ipynb'):
             matches.append(os.path.join(root, filename))
 print("Matches:")
 print(matches)
@@ -126,7 +132,7 @@ os.system('cp -v '
 # The master toctree document.
 master_doc = "index"
 
-source_suffix = ['.rst']
+source_suffix = ['.rst', '.ipynb']
 
 
 # -- General configuration ------------------------------------------------
@@ -141,6 +147,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
+    'nbsphinx',
 ]
 
 mathjax_path = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"

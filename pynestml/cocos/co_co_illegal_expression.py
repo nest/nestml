@@ -94,7 +94,7 @@ class CorrectExpressionVisitor(ASTVisitor):
         rhs_type_symbol = rhs_expr.type
 
         if lhs_variable_symbol is None:
-            code, message = Messages.get_equation_var_not_in_init_values_block(node.get_variable().get_complete_name())
+            code, message = Messages.get_equation_var_not_in_state_block(node.get_variable().get_complete_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
             return

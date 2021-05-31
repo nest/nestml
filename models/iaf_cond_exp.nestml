@@ -33,10 +33,7 @@ Sven Schrader
 neuron iaf_cond_exp:
 
   state:
-    r integer        # counts number of tick during the refractory period
-  end
-
-  initial_values:
+    r integer = 0     # counts number of tick during the refractory period
     V_m mV = E_L     # membrane potential
   end
 
@@ -73,7 +70,7 @@ neuron iaf_cond_exp:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
-    I_stim pA <- current
+    I_stim pA <- continuous
   end
 
   output: spike

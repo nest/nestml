@@ -41,11 +41,9 @@ Hans Ekkehard Plesser
 """
 neuron hill_tononi:
   state:
-    r_potassium integer
+    r_potassium integer = 0
     g_spike boolean = false
-  end
 
-  initial_values:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
     Theta mV = Theta_eq # Threshold
     IKNa_D, IT_m, IT_h, Ih_m nS = 0.0 nS
@@ -197,7 +195,7 @@ neuron hill_tononi:
       NMDA nS  <- spike
       GABA_A nS <- spike
       GABA_B nS <- spike
-      I_stim pA <- current
+      I_stim pA <- continuous
   end
 
   output: spike

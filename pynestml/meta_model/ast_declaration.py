@@ -31,7 +31,7 @@ class ASTDeclaration(ASTNode):
     """
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
-    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    'a,b,c real = 0'.
     @attribute function is true iff. declaration is an function.
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
@@ -48,7 +48,7 @@ class ASTDeclaration(ASTNode):
             ('[[' invariant=rhs ']]')?;
     Attributes:
         is_recordable = False
-        is_function = False
+        is_inline_expression = False
         variables = None
         data_type = None
         size_parameter = None
@@ -56,7 +56,7 @@ class ASTDeclaration(ASTNode):
         invariant = None
     """
 
-    def __init__(self, is_recordable: bool = False, is_function: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
+    def __init__(self, is_recordable: bool = False, is_inline_expression: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
                  expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, *args, **kwargs):
         """
         Standard constructor.
@@ -64,23 +64,16 @@ class ASTDeclaration(ASTNode):
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param is_recordable: is a recordable declaration.
-        :type is_recordable: bool
-        :param is_function: is a function declaration.
-        :type is_function: bool
+        :param is_inline_expression: is a function declaration.
         :param _variables: a list of variables.
-        :type _variables: Optional[List[ASTVariable]]
         :param data_type: the data type.
-        :type data_type: Optional[ASTDataType]
         :param size_parameter: an optional size parameter.
-        :type size_parameter: Optional[str]
         :param expression: an optional right-hand side rhs.
-        :type expression: ASTExpression
         :param invariant: a optional invariant.
-        :type invariant: ASTExpression
         """
         super(ASTDeclaration, self).__init__(*args, **kwargs)
         self.is_recordable = is_recordable
-        self.is_function = is_function
+        self.is_inline_expression = is_inline_expression
         if _variables is None:
             _variables = []
         self.variables = _variables
@@ -109,7 +102,7 @@ class ASTDeclaration(ASTNode):
         if self.invariant:
             invariant_dup = self.invariant.clone()
         dup = ASTDeclaration(is_recordable=self.is_recordable,
-                             is_function=self.is_function,
+                             is_inline_expression=self.is_inline_expression,
                              _variables=variables_dup,
                              data_type=data_type_dup,
                              size_parameter=self.size_parameter,
@@ -243,7 +236,7 @@ class ASTDeclaration(ASTNode):
         """
         if not isinstance(other, ASTDeclaration):
             return False
-        if not (self.is_function == other.is_function and self.is_recordable == other.is_recordable):
+        if not (self.is_inline_expression == other.is_inline_expression and self.is_recordable == other.is_recordable):
             return False
         if self.get_size_parameter() != other.get_size_parameter():
             return False

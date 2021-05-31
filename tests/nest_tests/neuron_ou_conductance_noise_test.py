@@ -55,11 +55,11 @@ class TestOUConductanceNoise(unittest.TestCase):
         '''
         seed = np.random.randint(0, 2**32 - 1)
         print('seed: {}'.format(seed))
-        nest.SetKernelStatus({'resolution': resolution, 'grng_seed': seed, 'rng_seeds': [seed + 1]})
+        nest.SetKernelStatus({'resolution': resolution, 'rng_seed': seed + 1})
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                 "..", "..", "models", "hh_cond_exp_destexhe.nestml")))
-        nest_path = "/home/travis/nest_install"
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
         module_name = 'nestmlmodule'

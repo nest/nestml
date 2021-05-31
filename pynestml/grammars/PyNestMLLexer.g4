@@ -22,21 +22,23 @@
 
 lexer grammar PyNestMLLexer;
 
-  // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2 and NEW_LINE=3
-  channels {COMMENT, NEW_LINE}
+  // N.B. the zeroth channel is the normal channel, the first is HIDDEN, so COMMENT=2
+  channels {COMMENT}
 
+  DOCSTRING_TRIPLEQUOTE : '"""';
+  fragment NEWLINE_FRAG : '\r'? '\n';  // non-capturing newline, as a helper to define the channel rules
 
-  SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
-
-  ML_COMMENT : ('/*' .*? '*/' | '"""' .*? '"""')-> channel(2);
-
-  NEWLINE : ('\r' '\n' | '\r' | '\n' ) -> channel(3);
-
-  WS : (' ' | '\t')->channel(1);
+  WS : (' ' | '\t') -> channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
-  LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
+  LINE_ESCAPE : '\\' NEWLINE_FRAG -> channel(1);
 
+  DOCSTRING : DOCSTRING_TRIPLEQUOTE .*? DOCSTRING_TRIPLEQUOTE NEWLINE_FRAG+? -> channel(2);
+
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) NEWLINE_FRAG -> channel(2);
+
+  // newline is defined as a token
+  NEWLINE : '\r'? '\n';
 
   END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';
@@ -65,12 +67,11 @@ lexer grammar PyNestMLLexer;
   STATE_KEYWORD : 'state';
   PARAMETERS_KEYWORD : 'parameters';
   INTERNALS_KEYWORD : 'internals';
-  INITIAL_VALUES_KEYWORD : 'initial_values';
   UPDATE_KEYWORD : 'update';
   EQUATIONS_KEYWORD : 'equations';
   INPUT_KEYWORD : 'input';
   OUTPUT_KEYWORD : 'output';
-  CURRENT_KEYWORD : 'current';
+  CONTINUOUS_KEYWORD : 'continuous';
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';
@@ -125,7 +126,7 @@ lexer grammar PyNestMLLexer;
   * String literals are always enclosed in "...".
   */
 
-  STRING_LITERAL : '"' ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )* '"';
+  STRING_LITERAL : '"' ('\\' (([ \t]+ ('\r'? '\n')?)|.) | ~[\\\r\n"])* '"';
 
   NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
 
