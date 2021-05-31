@@ -216,7 +216,7 @@ This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired w
 
 In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
-.. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/stdp_triplet_synapse_test.png
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit-third-factor/doc/fig/stdp_triplet_synapse_test.png
 
 For a full example, please see the following files:
 
