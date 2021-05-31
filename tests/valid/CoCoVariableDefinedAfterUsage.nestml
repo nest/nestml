@@ -26,11 +26,11 @@
 
 neuron CoCoVariableDefinedAfterUsage:
     state:
-        test1 integer = 10 [[test1 < 10]] # the invalid invariant shall not be detected, although logically incorrect
-        test2 integer = test1
+        test2 integer = 10
     end
 
     update:
-        test1 = test2 + test1
+        test1 integer = 20
+        test1 = test2
     end
 end

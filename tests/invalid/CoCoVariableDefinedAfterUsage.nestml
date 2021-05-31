@@ -25,12 +25,12 @@
 */
 
 neuron CoCoVariableDefinedAfterUsage:
-    update:
-        test1 = test2 + test1
+    state:
+        test2 integer = 10
     end
 
-    state:
-        test1 integer = 10 [[test1 < 10]]
-        test2 integer = test1
+    update:
+        test1 = test2
+        test1 integer = 20
     end
 end

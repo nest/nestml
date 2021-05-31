@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -51,11 +52,17 @@ class CoCoAllVariablesDefined(CoCo):
         node.accept(expression_collector_visitor)
         expressions = expression_collector_visitor.ret
         for expr in expressions:
-            for var in expr.get_variables():
+            if isinstance(expr, ASTVariable):
+                vars = [expr]
+            else:
+                vars = expr.get_variables()
+
+            for var in vars:
                 symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 # this part is required to check that we handle invariants differently
                 expr_par = node.get_parent(expr)
 
+                # test if the symbol has been defined at least
                 if symbol is None:
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
                     symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
@@ -64,15 +71,17 @@ class CoCoAllVariablesDefined(CoCo):
                         code, message = Messages.get_variable_not_defined(var.get_name())
                         Logger.log_message(neuron=node, code=code, message=message, log_level=LoggingLevel.ERROR,
                                            error_position=var.get_source_position())
-                # first check if it is part of an invariant
+                    continue  # symbol is a type symbol
+
+                # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
                 # so check if the parent is a declaration and the expression the invariant
-                elif isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
+                if isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
                     # in this case its ok if it is recursive or defined later on
                     continue
 
-                # now check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
-                elif (not symbol.is_predefined) \
+                # check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
+                if (not symbol.is_predefined) \
                         and symbol.block_type != BlockType.INPUT_BUFFER_CURRENT \
                         and symbol.block_type != BlockType.INPUT_BUFFER_SPIKE \
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
@@ -97,6 +106,7 @@ class CoCoAllVariablesDefined(CoCo):
 
 
 class ASTAssignedVariableDefinedVisitor(ASTVisitor):
+    """XXX: TODO: dissolve this class into CoCoAllVariablesDefined.check_co_co()"""
     def __init__(self, neuron):
         super(ASTAssignedVariableDefinedVisitor, self).__init__()
         self.neuron = neuron
@@ -115,6 +125,9 @@ class ASTExpressionCollectorVisitor(ASTVisitor):
     def __init__(self):
         super(ASTExpressionCollectorVisitor, self).__init__()
         self.ret = list()
+
+    def visit_assignment(self, node):
+        self.ret.append(node.get_variable())
 
     def visit_expression(self, node):
         self.ret.append(node)
