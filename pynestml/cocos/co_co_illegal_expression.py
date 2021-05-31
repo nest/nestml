@@ -86,10 +86,9 @@ class CorrectExpressionVisitor(ASTVisitor):
         if node.is_direct_assignment:  # case a = b is simple
             self.handle_simple_assignment(node)
         else:
-            self.handle_complex_assignment(node)  # e.g. a *= b
-        return
+            self.handle_compound_assignment(node)  # e.g. a *= b
 
-    def handle_complex_assignment(self, node):
+    def handle_compound_assignment(self, node):
         rhs_expr = node.get_expression()
         lhs_variable_symbol = node.get_variable().resolve_in_own_scope()
         rhs_type_symbol = rhs_expr.type
@@ -104,10 +103,26 @@ class CorrectExpressionVisitor(ASTVisitor):
             LoggingHelper.drop_missing_type_error(node)
             return
 
-        if self.__types_do_not_match(lhs_variable_symbol.get_type_symbol(), rhs_type_symbol):
-            TypeCaster.try_to_recover_or_error(lhs_variable_symbol.get_type_symbol(), rhs_type_symbol,
+        lhs_type_symbol = lhs_variable_symbol.get_type_symbol()
+
+        if node.is_compound_product:
+            if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol):
+                TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol * rhs_type_symbol,
+                                                   node.get_expression())
+                return
+            return
+
+        if node.is_compound_quotient:
+            if self.__types_do_not_match(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol):
+                TypeCaster.try_to_recover_or_error(lhs_type_symbol, lhs_type_symbol / rhs_type_symbol,
+                                                   node.get_expression())
+                return
+            return
+
+        assert node.is_compound_sum or node.is_compound_minus
+        if self.__types_do_not_match(lhs_type_symbol, rhs_type_symbol):
+            TypeCaster.try_to_recover_or_error(lhs_type_symbol, rhs_type_symbol,
                                                node.get_expression())
-        return
 
     @staticmethod
     def __types_do_not_match(lhs_type_symbol, rhs_type_symbol):
