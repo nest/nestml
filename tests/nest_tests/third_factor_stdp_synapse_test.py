@@ -77,20 +77,8 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         post_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(10 * np.sort(np.abs(np.random.randn(10))))))      # [ms]
 
-        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
-
-        pre_spike_times = np.array([  2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
-  35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
-  65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.,
-  99., 100., 103., 104., 105., 111., 112., 126., 131., 133., 134., 139., 147., 150.,
- 152., 155., 172., 175., 176., 181., 196., 197., 199., 202., 213., 215., 217., 265.])
-        post_spike_times = np.array([  4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
-  25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
-  48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
-  80.,  81.,  83.,  88.,  93.,  94.,  97.,  99., 100., 105., 111., 113., 114., 115.,
- 116., 119., 123., 130., 132., 134., 135., 145., 152., 155., 158., 166., 172., 174.,
- 188., 194., 202., 245., 249., 289., 454.])
+        post_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(500))))))      # [ms]
+        pre_spike_times = np.sort(np.unique(1 + np.round(500 * np.sort(np.abs(np.random.randn(500))))))      # [ms]
 
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               ref_neuron_model_name=self.ref_neuron_model_name,
@@ -100,6 +88,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                               delay=1.5, # [ms]
                               pre_spike_times=pre_spike_times,
                               post_spike_times=post_spike_times,
+                              sim_time=400.,
                               fname_snip=fname_snip)
 
     def run_synapse_test(self, neuron_model_name,
@@ -140,10 +129,10 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         wr = nest.Create('weight_recorder')
         wr_ref = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0})
+                       {"weight_recorder": wr[0], "w": 1., "the_delay": 1., "receptor_type": 0, "lambda": .001})
         if sim_ref:
          nest.CopyModel(ref_synapse_model_name, "stdp_ref_rec",
-                       {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0})
+                       {"weight_recorder": wr_ref[0], "weight": 1., "delay": 1., "receptor_type": 0, "lambda": .001})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -199,7 +188,15 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
          w_hist = []
         if sim_ref:
          w_hist_ref = []
+        state = 0
         while t <= sim_time:
+            if t > sim_time / 6. and state == 0:
+                post_neuron.set({"I_dend": 1.})
+                state = 1
+            if t > 2 * sim_time / 6 and state == 1:
+                post_neuron.set({"I_dend": 1.})
+            if t > 2 * sim_time / 3. and state == 1:
+                state = 2
             nest.Simulate(resolution)
             t += resolution
             t_hist.append(t)
@@ -216,8 +213,8 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             if sim_mdl:
              timevec = nest.GetStatus(mm, "events")[0]["times"]
              V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-             ax2.plot(timevec, nest.GetStatus(mm, "events")[0][self.post_trace_var], label="post_tr nestml")
-             ax1.plot(timevec, V_m, label="nestml", alpha=.7, linestyle=":")
+             ax2.plot(timevec, nest.GetStatus(mm, "events")[0][self.post_trace_var], label="I_dend_post")
+             ax1.plot(timevec, V_m, alpha=.7, linestyle=":")
             if sim_ref:
              pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
              timevec = nest.GetStatus(mm_ref, "events")[0]["times"]
@@ -231,14 +228,14 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 #_ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
-            fig.savefig("/tmp/stdp_synapse_test" + fname_snip + "_V_m.png", dpi=300)
+            fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + "_V_m.png", dpi=300)
 
 
 
         # plot
         if TEST_PLOTS:
-            fig, ax = plt.subplots(nrows=3)
-            ax1, ax2, ax3 = ax
+            fig, ax = plt.subplots(nrows=5)
+            ax1, ax2, ax3, ax4, ax5 = ax
 
             if sim_mdl:
              pre_spike_times_ = nest.GetStatus(spikedet_pre, "events")[0]["times"]
@@ -250,11 +247,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             if sim_mdl:
              n_spikes = len(pre_spike_times_)
              for i in range(n_spikes):
-                if i == 0:
-                 _lbl = "nestml"
-                else:
-                 _lbl = None
-                ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4,label=_lbl)
+                ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4)
 
             if sim_mdl:
              post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
@@ -266,11 +259,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             if sim_ref:
              n_spikes = len(pre_ref_spike_times_)
              for i in range(n_spikes):
-                if i == 0:
-                 _lbl = "nest ref"
-                else:
-                 _lbl = None
-                ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1], linewidth=2, color="cyan",label=_lbl, alpha=.4)
+                ax1.plot(2 * [pre_ref_spike_times_[i] + delay], [0, 1], linewidth=2, color="cyan", alpha=.4)
             ax1.set_ylabel("Pre spikes")
 
             if sim_mdl:
@@ -280,7 +269,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                  _lbl = "nestml"
                 else:
                  _lbl = None
-                ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
+                ax[-4].plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
             if sim_ref:
              n_spikes = len(post_ref_spike_times_)
              for i in range(n_spikes):
@@ -288,25 +277,31 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                  _lbl = "nest ref"
                 else:
                  _lbl = None
-                ax2.plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
-            ax2.plot(timevec, nest.GetStatus(mm, "events")[0][self.post_trace_var], label="nestml post tr")
-            ax2.set_ylabel("Post spikes")
+                ax[-4].plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
+            ax[-4].set_ylabel("Post spikes")
 
             if sim_mdl:
-             ax3.plot(t_hist, w_hist, marker="o", label="nestml")
-            if sim_ref:
-              ax3.plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
+                ax[-3].plot(timevec, nest.GetStatus(mm, "events")[0][self.post_trace_var])
+                ax[-3].set_ylabel("3rd factor")
 
-            ax3.set_xlabel("Time [ms]")
-            ax3.set_ylabel("w")
+            if sim_mdl:
+             ax[-2].plot(t_hist[:-1], np.diff(w_hist), marker="o", label=u"Δw")
+             ax[-2].set_ylabel(u"Δw")
+
+            if sim_mdl:
+             ax[-1].plot(t_hist, w_hist, marker="o")
+            if sim_ref:
+              ax[-1].plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
+            ax[-1].set_ylabel("w")
+            
+            ax[-1].set_xlabel("Time [ms]")
             for _ax in ax:
+                if not _ax == ax[-1]:
+                    _ax.set_xticklabels([])
                 _ax.grid(which="major", axis="both")
                 _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
-                #_ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                #_ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
-                _ax.legend()
-            fig.savefig("/tmp/stdp_synapse_test" + fname_snip + ".png", dpi=300)
+            fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
         MAX_ABS_ERROR = 1E-6

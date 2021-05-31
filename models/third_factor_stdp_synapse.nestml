@@ -3,45 +3,9 @@ Name: third_factor_stdp - Synapse type for spike-timing dependent plasticity.
 
 Description:
 
-stdp_synapse is a synapses with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression.
+I_post_dend "gates" the weight update, so that if the current is 0, the weight is constant, whereas for a current of 1 pA, the weight change is maximal.
 
-Examples:
-
-Multiplicative STDP [2]  mu_plus = mu_minus = 1
-Additive STDP       [3]  mu_plus = mu_minus = 0
-Guetig STDP         [1]  mu_plus, mu_minus in [0, 1]
-Van Rossum STDP     [4]  mu_plus = 0 mu_minus = 1
-
-Parameters:
-
-lambda     real - Step size
-alpha      real - Asymmetry parameter (scales depressing increments as alpha*lambda)
-mu_plus    real - Weight dependence exponent, potentiation
-mu_minus   real - Weight dependence exponent, depression
-Wmax       nS   - Maximum allowed weight
-
-References:
-
-[1] Guetig et al. (2003) Learning Input Correlations through Nonlinear
-    Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
-
-[2] Rubin, J., Lee, D. and Sompolinsky, H. (2001). Equilibrium
-    properties of temporally asymmetric Hebbian plasticity, PRL
-    86,364-367
-
-[3] Song, S., Miller, K. D. and Abbott, L. F. (2000). Competitive
-    Hebbian learning through spike-timing-dependent synaptic
-    plasticity,Nature Neuroscience 3:9,919--926
-
-[4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
-    Stable Hebbian learning from spike timing-dependent
-    plasticity, Journal of Neuroscience, 20:23,8812--8821
-
-FirstVersion: March 2006
-
-Author: Moritz Helias, Abigail Morrison
-
-Adapted by: Philipp Weidel
+Do not use values of I_post_dend larger than 1 pA!
 """
 synapse third_factor_stdp:
 
@@ -80,14 +44,19 @@ synapse third_factor_stdp:
 
   postReceive:
     # potentiate synapse
-    w_ nS = w   # Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
-    w_ += I_post_dend / pA * nS
+    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    if I_post_dend <= 1 pA:
+      w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+	end
     w = min(Wmax, w_)
   end
 
   preReceive:
     # depress synapse
     w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+    if I_post_dend <= 1 pA:
+      w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+    end
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner

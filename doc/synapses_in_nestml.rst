@@ -188,18 +188,20 @@ To make the "third factor" value available in the synapse model, begin by defini
      I_post_dend pA <- continuous
    end
 
-In the synapse, the value will be referred to as ``I_post_dend`` and can be used in equations and expressions, for example:
+In the synapse, the value will be referred to as ``I_post_dend`` and can be used in equations and expressions. In this example, we will use it as a simple gating variable between 0 and 1, that can disable or enable weight updates in a graded manner:
 
 .. code-block:: nestml
 
    postReceive:
-     if I_post_dend > 10 pA:
-       w += (I_post_dend / pA) * nS
+     # potentiate synapse
+     w_ nS = # [...] normal STDP update rule
+     w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
+     w = min(Wmax, w_)
    end
 
 In the neuron, no special output port is required; all state variables are accessible for the third factor rules.
 
-NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"neuron_synapse_pairs"``	 
+NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron:	 
 
 .. code-block:: python
 
@@ -210,7 +212,17 @@ NESTML needs to be invoked so that it generates code for neuron and synapse toge
                                                     "post_ports": ["post_spikes",
                                                                   ["I_post_dend", "I_dend"]]}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.  
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+
+In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
+
+.. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/stdp_triplet_synapse_test.png
+
+For a full example, please see the following files:
+
+* ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure)
+* ``models/iaf_psc_exp_dend.nestml`` (neuron model)
+* ``models/third_factor_stdp_synapse.nestml`` (synapse model)
 
 
 Examples
