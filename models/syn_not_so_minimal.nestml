@@ -1,0 +1,66 @@
+"""
+syn_not_so_minimal -
+#########################################################################
+
+Description
++++++++++++
+
+References
+++++++++++
+
+
+See also
+++++++++
+
+
+Author
+++++++
+
+pythonjam
+"""
+
+
+neuron not_so_minimal:
+
+  state:
+    # the presence of the state variable [v_comp]
+    # triggers compartment model context
+    v_comp real = 0
+  end
+
+  equations:
+    #synapses are inlines that utilize kernels
+    kernel g_ex_AMPA = exp(-t / tau_syn_AMPA)
+    inline AMPA real = convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+    
+    kernel g_ex_NMDA = NMDA_sigmoid(v_comp)
+    inline NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA)
+    
+    inline AMPA_NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+
+  end
+
+  parameters:
+
+    # synaptic parameters
+    e_AMPA mV = 0 mV            # Excitatory reversal Potential
+    tau_syn_AMPA ms = 0.2 ms    # Synaptic Time Constant Excitatory Synapse   
+    
+    e_NMDA real = 0.0           # Excitatory reversal Potential
+    tau_syn_NMDA real = 0.2     # Synaptic Time Constant Excitatory Synapse
+    
+    e_AMPA_NMDA real = 0.0      # Excitatory reversal Potential
+    NMDA_ratio_ real = 2.0      # Synaptic Time Constant Excitatory Synapse
+
+  end
+  
+  # NMDA
+  function NMDA_sigmoid(v_comp real) real:
+    return 1. / ( 1. + 0.3 * exp( -.1 * v_comp ) )
+  end
+
+  input:
+    spikesExc nS <- excitatory spike
+  end
+
+end

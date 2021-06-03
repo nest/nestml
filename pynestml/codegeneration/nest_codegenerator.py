@@ -19,36 +19,35 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence
-
 import datetime
 import os
 import re
-import sympy
+from typing import Any, Dict, List, Mapping, Optional, Sequence
+
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
 from odetoolbox import analysis
-
 import pynestml
-
 from pynestml.codegeneration.ast_transformers import add_declarations_to_internals, add_declaration_to_state_block, declaration_in_state_block, is_delta_kernel, replace_rhs_variables, construct_kernel_X_spike_buf_name, get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, is_ode_variable, variable_in_solver
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
-from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
-from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.codegeneration.nest_assignments_helper import NestAssignmentsHelper
 from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHelper
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.ode_toolbox_reference_converter import ODEToolboxReferenceConverter
+from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
+from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressionPrinter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
+from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -56,17 +55,20 @@ from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.utils.cm_processing import CmProcessing
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
-from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
-from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
-from pynestml.utils.cm_processing import CmProcessing
+from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+import sympy
+
+from pynestml.utils.ast_syns_info_enricher import ASTSynsInfoEnricher
 from pynestml.utils.syns_processing import SynsProcessing
+
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -92,6 +94,10 @@ class NESTCodeGenerator(CodeGenerator):
         super().__init__("NEST", options)
         self.analytic_solver = {}
         self.numeric_solver = {}
+        # maps kernel names to their analytic solutions separately 
+        # this is needed needed for the cm_syns case
+        self.kernel_name_to_analytic_solver = {}
+        
         self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
         self._setup_template_env()
 
@@ -413,6 +419,12 @@ class NESTCodeGenerator(CodeGenerator):
         # "update_expressions" key in those solvers contains a mapping 
         # {expression1: update_expression1, expression2: update_expression2}
         analytic_solver, numeric_solver = self.ode_toolbox_analysis(neuron, kernel_buffers)
+        
+        if (neuron.is_compartmental_model):
+            # separate analytic solutions by kernel
+            # this is is needed for the cm_syns case
+            self.kernel_name_to_analytic_solver[neuron.get_name()] = self.ode_toolbox_anaysis_cm_syns(neuron, kernel_buffers)
+
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
         
@@ -708,6 +720,10 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
             namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
             
+            kernel_info_collector = ASTSynsInfoEnricher(neuron)
+            namespace['syns_info'] = kernel_info_collector.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
+
+            
             neuron_specific_filenames = {
                 "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),
@@ -719,9 +735,58 @@ class NESTCodeGenerator(CodeGenerator):
             #currently empty
             namespace['sharedFileNamesCmSyns'] = {
             }
+            
+            
+
         
         
         return namespace
+    
+    def create_ode_indict(self, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+        odetoolbox_indict = self.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers)
+        odetoolbox_indict["options"] = {}
+        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
+        return odetoolbox_indict
+    
+    def ode_solve_analytically(self, neuron: ASTNeuron, parameters_block: ASTBlockWithVariables, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+        odetoolbox_indict = self.create_ode_indict(neuron, parameters_block, kernel_buffers)
+        full_solver_result = analysis(odetoolbox_indict,
+                                 disable_stiffness_check=True,
+                                 preserve_expressions=self.get_option('preserve_expressions'),
+                                 simplify_expression=self.get_option('simplify_expression'),
+                                 log_level=FrontendConfiguration.logging_level)
+        analytic_solver = None
+        analytic_solvers = [x for x in full_solver_result if x["solver"] == "analytical"]
+        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
+        if len(analytic_solvers) > 0:
+            analytic_solver = analytic_solvers[0]
+        
+        return full_solver_result, analytic_solver
+    
+    def ode_toolbox_anaysis_cm_syns(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
+        """
+        Prepare data for ODE-toolbox input format, invoke ODE-toolbox analysis via its API, and return the output.
+        """
+        assert isinstance(neuron.get_equations_blocks(), ASTEquationsBlock), "only one equation block should be present"
+
+        equations_block = neuron.get_equations_block()
+
+        if len(equations_block.get_kernels()) == 0 and len(equations_block.get_ode_equations()) == 0:
+            # no equations defined -> no changes to the neuron
+            return None, None
+
+        code, message = Messages.get_neuron_analyzed(neuron.get_name())
+        Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+
+        parameters_block = neuron.get_parameter_blocks()
+        
+        kernel_name_to_analytic_solver = dict()
+        for kernel_buffer in kernel_buffers:
+            _, analytic_result = self.ode_solve_analytically(neuron, parameters_block, set([tuple(kernel_buffer)]))
+            kernel_name = kernel_buffer[0].get_variables()[0].get_name()
+            kernel_name_to_analytic_solver[kernel_name] = analytic_result
+            
+        return kernel_name_to_analytic_solver
 
     def ode_toolbox_analysis(self, neuron: ASTNeuron, kernel_buffers: Mapping[ASTKernel, ASTInputPort]):
         """
@@ -739,24 +804,15 @@ class NESTCodeGenerator(CodeGenerator):
         Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
 
         parameters_block = neuron.get_parameter_blocks()
-        odetoolbox_indict = self.transform_ode_and_kernels_to_json(neuron, parameters_block, kernel_buffers)
-        odetoolbox_indict["options"] = {}
-        odetoolbox_indict["options"]["output_timestep_symbol"] = "__h"
-        solver_result = analysis(odetoolbox_indict,
-                                 disable_stiffness_check=True,
-                                 preserve_expressions=self.get_option('preserve_expressions'),
-                                 simplify_expression=self.get_option('simplify_expression'),
-                                 log_level=FrontendConfiguration.logging_level)
-        analytic_solver = None
-        analytic_solvers = [x for x in solver_result if x["solver"] == "analytical"]
-        assert len(analytic_solvers) <= 1, "More than one analytic solver not presently supported"
-        if len(analytic_solvers) > 0:
-            analytic_solver = analytic_solvers[0]
+        
+        solver_result, analytic_solver = self.ode_solve_analytically(neuron, parameters_block, kernel_buffers)
 
         # if numeric solver is required, generate a stepping function that includes each state variable
         numeric_solver = None
         numeric_solvers = [x for x in solver_result if x["solver"].startswith("numeric")]
+
         if numeric_solvers:
+            odetoolbox_indict = self.create_ode_indict(neuron, parameters_block, kernel_buffers)
             solver_result = analysis(odetoolbox_indict,
                                      disable_stiffness_check=True,
                                      disable_analytic_solver=True,

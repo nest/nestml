@@ -20,15 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
-import copy
-
-from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.utils.logger import Logger, LoggingLevel
-from pynestml.utils.messages import Messages
-from pynestml.visitors.ast_visitor import ASTVisitor
-from build.lib.pynestml.meta_model.ast_kernel import ASTKernel
+from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector
 
 
 class SynsProcessing(object):
@@ -179,161 +172,10 @@ class SynsProcessing(object):
         # neuron.accept(missing_states_visitor)
     
     
-"""
-for each inline expression inside the equations block,
-collect all ASTVariables that are present inside
-"""
-class ASTSynapseInformationCollector(ASTVisitor):
 
-    def __init__(self):
-        super(ASTSynapseInformationCollector, self).__init__()
-        self.kernel_name_to_kernel = defaultdict()
-        self.inline_expression_to_kernel_args = defaultdict(lambda:set())
-        self.parameter_name_to_declaration = defaultdict()
-        self.state_name_to_declaration = defaultdict()
-        self.inline_expression_to_variables = defaultdict(lambda:set())
-        self.kernel_to_rhs_variables = defaultdict(lambda:set())
         
-        self.inside_parameter_block = False
-        self.inside_state_block = False
-        self.inside_equations_block = False
-        self.inside_inline_expression = False
-        self.inside_kernel = False
-        self.inside_kernel_call = False
-        self.inside_declaration = False
-        # self.inside_variable = False
-        self.inside_simple_expression = False
-        self.inside_expression = False
-        # self.inside_function_call = False
         
-        self.current_inline_expression = None
-        self.current_kernel = None
-        # self.current_variable = None
-        
-        self.current_synapse_name = None
-        
-    def get_kernel_by_name(self, name: str):
-        return self.kernel_name_to_kernel[name]
-    
-    def get_inline_expressions_with_kernels (self):
-        return self.inline_expression_to_kernel_args.keys()
-    
-    def get_synapse_specific_parameter_declarations (self, synapse_inline: ASTInlineExpression) -> str:
-        # find all variables used in the inline
-        potential_parameters = self.inline_expression_to_variables[synapse_inline]
-        
-        # find all kernels referenced by the inline 
-        # and collect variables used by those kernels
-        kernel_arg_pairs = self.get_extracted_kernel_args(synapse_inline)
-        for kernel_var, spikes_var in kernel_arg_pairs:
-            kernel = self.get_kernel_by_name(kernel_var.get_name())
-            potential_parameters.update(self.kernel_to_rhs_variables[kernel])
-        
-        # transform variables into their names and filter 
-        # out ones that are available to every synapse
-        param_names = set()    
-        for potential_parameter in potential_parameters:
-            param_name = potential_parameter.get_name() 
-            if param_name not in ("t", "v_comp"):
-                param_names.add(param_name)
-                
-        # now match those parameter names with 
-        # variable declarations form the parameter block
-        dereferenced = defaultdict()
-        for param_name in param_names:
-            if param_name in self.parameter_name_to_declaration:
-                dereferenced[param_name] = self.parameter_name_to_declaration[param_name]
-        return dereferenced    
 
-    def get_extracted_kernel_args (self, inline_expression: ASTInlineExpression) -> set:
-        return self.inline_expression_to_kernel_args[inline_expression]
-    
-    def get_used_kernel_names (self, inline_expression: ASTInlineExpression):
-        return [kernel_var.get_name() for kernel_var, _ in self.get_extracted_kernel_args(inline_expression)]
-        
-    def get_used_spike_names (self, inline_expression: ASTInlineExpression):
-        return [spikes_var.get_name() for _, spikes_var in self.get_extracted_kernel_args(inline_expression)]
-        
-    def visit_kernel(self, node):
-        self.current_kernel = node
-        self.inside_kernel = True
-        if self.inside_equations_block:
-            kernel_name = node.get_variables()[0].get_name_of_lhs()
-            self.kernel_name_to_kernel[kernel_name]=node
-            
-    def visit_function_call(self, node):
-        if self.inside_equations_block and self.inside_inline_expression \
-        and self.inside_simple_expression:
-            if node.get_name() == "convolve":
-                self.inside_kernel_call = True
-                kernel, spikes = node.get_args()
-                kernel_var = kernel.get_variables()[0]
-                spikes_var = spikes.get_variables()[0]
-                self.inline_expression_to_kernel_args[self.current_inline_expression].add((kernel_var, spikes_var))
-        
-    def endvisit_function_call(self, node):
-        self.inside_kernel_call = False   
-        
-    def endvisit_kernel(self, node):
-        self.current_kernel = None
-        self.inside_kernel = False
-
-    def visit_variable(self, node):
-        if self.inside_inline_expression and not self.inside_kernel_call:
-            self.inline_expression_to_variables[self.current_inline_expression].add(node)
-        elif self.inside_kernel and (self.inside_expression or self.inside_simple_expression):
-            self.kernel_to_rhs_variables[self.current_kernel].add(node)    
-                
-    def visit_inline_expression(self, node):
-        self.inside_inline_expression = True
-        self.current_inline_expression = node
-        
-    def endvisit_inline_expression(self, node):
-        self.inside_inline_expression = False
-        self.current_inline_expression = None
-        
-    def visit_equations_block(self, node):
-        self.inside_equations_block = True
-    
-    def endvisit_equations_block(self, node):
-        self.inside_equations_block = False
-    
-    def visit_block_with_variables(self, node):
-        if node.is_state:
-            self.inside_state_block = True
-        if node.is_parameters: 
-            self.inside_parameter_block = True
-
-    def endvisit_block_with_variables(self, node):
-        if node.is_state:
-            self.inside_state_block = False
-        if node.is_parameters: 
-            self.inside_parameter_block = False
-                
-    def visit_simple_expression(self, node):
-        self.inside_simple_expression = True
-    
-    def endvisit_simple_expression(self, node):
-        self.inside_simple_expression = False
-        
-    def visit_declaration(self, node):
-        self.inside_declaration = True
-        
-        if self.inside_parameter_block:
-            self.parameter_name_to_declaration[node.get_variables()[0].get_name()] = node
-        elif self.inside_state_block:
-            variable_name = node.get_variables()[0].get_name()
-            self.state_name_to_declaration[variable_name] = node
-    
-    def endvisit_declaration(self, node):
-        self.inside_declaration = False
-        
-    def visit_expression(self, node):
-        self.inside_expression = True
-    
-    def endvisit_expression(self, node):
-        self.inside_expression = False    
-        
                     
     
     

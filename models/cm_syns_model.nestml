@@ -34,24 +34,6 @@ neuron cm_syns_model:
     # initial values state variables potassium channel
     n_K real = n_inf_K(-70.)
 
-    ### synapses ###
-    g_r_AMPA real = 0.0
-    g_d_AMPA real = 0.0
-
-    # GABA synapse
-    g_r_GABA real = 0.0
-    g_d_GABA real = 0.0
-
-    # NMDA synapse
-    g_r_NMDA real = 0.0
-    g_d_NMDA real = 0.0
-
-    # AMPA_NMDA synapse
-    g_r_AMPA_ real = 0.0
-    g_d_AMPA_ real = 0.0
-    g_r_NMDA_ real = 0.0
-    g_d_NMDA_ real = 0.0
-
   end
 
 
@@ -68,24 +50,16 @@ neuron cm_syns_model:
 
     ### synapses ###
     e_AMPA real = 0.0
-    tau_r_AMPA real = 0.2
-    tau_d_AMPA real = 3.0
+    tau_syn_AMPA real = 0.2
     
     e_GABA real = -80.0
-    tau_r_GABA real = 0.2
-    tau_d_GABA real = 10.0
+    tau_syn_GABA real = 0.2
     
     e_NMDA real = 0.0
-    tau_r_NMDA real = 0.2
-    tau_d_NMDA real = 43
+    tau_syn_NMDA real = 0.2    # Synaptic Time Constant Excitatory Synapse
     
     e_AMPA_NMDA real = 0.0
-    g_r_AMPA_ real = 0.2
-    g_d_AMPA_ real = 3.0
-    g_r_NMDA_ real = 0.2
-    g_d_NMDA_ real = 43.0
     NMDA_ratio_ real = 2.0
-    
 
   end
 
@@ -122,11 +96,17 @@ neuron cm_syns_model:
     inline cm_p_open_K real = gbar_K * n_K**4 * (e_K - v_comp)
 
     ### synapses ###
-    inline i_AMPA real = (g_r_AMPA + g_d_AMPA) * (e_AMPA - v_comp)
-    inline i_GABA real = (g_r_GABA + g_d_GABA) * (e_GABA - v_comp)
-    inline i_NMDA real = (g_r_NMDA + g_d_NMDA) * NMDA_sigmoid(v_comp) * (e_NMDA - v_comp)
-    inline i_AMPA_NMDA real = ( (g_r_AMPA_ + g_d_AMPA_) + (g_r_NMDA_ + g_d_NMDA_) * NMDA_sigmoid(v_comp) ) * (e_AMPA_NMDA - v_comp)
-
+    
+    kernel g_ex_AMPA = exp(-t / tau_syn_AMPA)
+    inline AMPA real = convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+    
+    kernel g_ex_GABA = exp(-t / tau_syn_GABA)
+    inline GABA real = convolve(g_ex_GABA, spikesExc) * (v_comp - e_GABA)
+    
+    kernel g_ex_NMDA = NMDA_sigmoid(v_comp)
+    inline NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA)
+    
+    inline AMPA_NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
 
     ### ion channels ###
     # state variables sodium channel
@@ -135,26 +115,6 @@ neuron cm_syns_model:
 
     # state variables potassium channel
     n_K' = ( n_inf_K(v_comp) - n_K ) / tau_n_K(v_comp)
-
-
-    ### synapses ###
-    # state variables AMPA synapse
-    g_r_AMPA' = - g_r_AMPA / tau_r_AMPA
-    g_d_AMPA' = - g_d_AMPA / tau_d_AMPA
-
-    # state variables GABA synapse
-    g_r_GABA' = - g_r_GABA / tau_r_GABA
-    g_d_GABA' = - g_d_GABA / tau_d_GABA
-
-    # state variables NMDA synapse
-    g_r_NMDA' = - g_r_NMDA / tau_r_NMDA
-    g_d_NMDA' = - g_d_NMDA / tau_d_NMDA
-
-    # state variables AMPA_NMDA synapse
-    g_r_AMPA_' = - g_r_AMPA_ / tau_r_AMPA_
-    g_d_AMPA_' = - g_d_AMPA_ / tau_d_AMPA_
-    g_r_NMDA_' = - g_r_NMDA_ / tau_r_NMDA_
-    g_d_NMDA_' = - g_d_NMDA_ / tau_d_NMDA_
 
   end
 
@@ -193,6 +153,7 @@ neuron cm_syns_model:
   end
 
   input:
+    spikesExc nS <- excitatory spike
   end
 
   output: spike
