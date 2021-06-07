@@ -45,12 +45,12 @@ private:
 {%- with %}
 {%- for ion_channel_name, channel_info in cm_info.items() %}
     // {{ion_channel_name}} channel state variables
-    {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+    {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
         // state variable {{pure_variable_name -}}
         {%- set variable = variable_info["state_variable"] %}
     {{render_variable_type(variable)}} {{ variable.name}};
     {%- endfor -%}
-    {% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+    {% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
         // parameter {{variable_type -}}
         {%- set variable = variable_info["parameter_block_variable"] %}
     {{render_variable_type(variable)}} {{ variable.name}};

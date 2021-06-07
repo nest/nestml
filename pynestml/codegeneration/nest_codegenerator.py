@@ -720,8 +720,8 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
             namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
             
-            kernel_info_collector = ASTSynsInfoEnricher(neuron)
-            namespace['syns_info'] = kernel_info_collector.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
+            syns_info_enricher = ASTSynsInfoEnricher(neuron)
+            namespace['syns_info'] = syns_info_enricher.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
 
             
             neuron_specific_filenames = {

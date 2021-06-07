@@ -46,17 +46,26 @@ class ASTSynsInfoEnricher(ASTVisitor):
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
+            "buffers_used": {"b_spikes"},
             "parameters_used": 
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             }
-            "kernels":
+            "convolutions":
             {
-                "g_ex": 
+                "g_ex_AMPA__X__b_spikes": 
                 {
-                    "ASTKernel": ASTKernel,
-                    "spike_source": str,
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    }
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    }
                 }
             }
                 
@@ -74,33 +83,42 @@ class ASTSynsInfoEnricher(ASTVisitor):
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
+            "buffers_used": {"b_spikes"},
             "parameters_used": 
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             }
-            "kernels":
+            "convolutions":
             {
-                "g_ex": 
+                "g_ex_AMPA__X__b_spikes": 
                 {
-                    "ASTKernel": ASTKernel,
-                    "spike_source": str,
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    }
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    }
                     "analytic_solution":
                     {
                         'propagators':
                         {
-                            '__P__g_ex_AMPA__X__spikesExc__g_ex_AMPA__X__spikesExc':
+                            '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes':
                                 'exp(-__h/tau_syn_AMPA)'    
                         },
                         'update_expressions':
                         {
-                            'g_ex_AMPA__X__spikesExc': 
-                                '__P__g_ex_AMPA__X__spikesExc__g_ex_AMPA__X__spikesExc*g_ex_AMPA__X__spikesExc'
+                            'g_ex_AMPA__X__b_spikes': 
+                                '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes*g_ex_AMPA__X__b_spikes'
                         },
-                        'state_variables': ['g_ex_AMPA__X__spikesExc'],
+                        'state_variables': ['g_ex_AMPA__X__b_spikes'],
                         'initial_values':
                         {
-                            'g_ex_AMPA__X__spikesExc': '1',
+                            'g_ex_AMPA__X__b_spikes': '1',
                         },
                         'solver': "analytical",
                         'parameters':
@@ -126,9 +144,10 @@ class ASTSynsInfoEnricher(ASTVisitor):
     def add_kernel_analysis(cls, neuron: ASTNeuron, cm_syns_info: dict, kernel_name_to_analytic_solver: dict):
         enriched_syns_info = copy.copy(cm_syns_info)
         for synapse_name, synapse_info in cm_syns_info.items():
-            for kernel_name, kernel_info in synapse_info["kernels"].items():
+            for convolution_name, convolution_info in synapse_info["convolutions"].items():
+                kernel_name = convolution_info["kernel"]["name"]
                 analytic_solution = kernel_name_to_analytic_solver[neuron.get_name()][kernel_name]
-                enriched_syns_info[synapse_name]["kernels"][kernel_name]["analytic_solution"] = analytic_solution
+                enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = analytic_solution
         return enriched_syns_info     
                 
                 
@@ -139,33 +158,42 @@ class ASTSynsInfoEnricher(ASTVisitor):
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
+            "buffers_used": {"b_spikes"},
             "parameters_used": 
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             }
-            "kernels":
+            "convolutions":
             {
-                "g_ex": 
+                "g_ex_AMPA__X__b_spikes": 
                 {
-                    "ASTKernel": ASTKernel,
-                    "spike_source": str,
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
                     "analytic_solution":
                     {
                         'propagators':
                         {
-                            '__P__g_ex_AMPA__X__spikesExc__g_ex_AMPA__X__spikesExc':
+                            '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes':
                                 'exp(-__h/tau_syn_AMPA)'    
                         },
                         'update_expressions':
                         {
-                            'g_ex_AMPA__X__spikesExc': 
-                                '__P__g_ex_AMPA__X__spikesExc__g_ex_AMPA__X__spikesExc*g_ex_AMPA__X__spikesExc'
+                            'g_ex_AMPA__X__b_spikes': 
+                                '__P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes*g_ex_AMPA__X__b_spikes'
                         },
-                        'state_variables': ['g_ex_AMPA__X__spikesExc'],
+                        'state_variables': ['g_ex_AMPA__X__b_spikes'],
                         'initial_values':
                         {
-                            'g_ex_AMPA__X__spikesExc': '1',
+                            'g_ex_AMPA__X__b_spikes': '1',
                         },
                         'solver': "analytical",
                         'parameters':
@@ -190,31 +218,40 @@ class ASTSynsInfoEnricher(ASTVisitor):
         "AMPA":
         {
             "inline_expression": ASTInlineExpression,
+            "buffers_used": {"b_spikes"},
             "parameters_used": 
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             }
-            "kernels":
+            "convolutions":
             {
-                "g_ex": 
+                "g_ex_AMPA__X__b_spikes": 
                 {
-                    "ASTKernel": ASTKernel,
-                    "spike_source": str,
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
                     "analytic_solution":
                     {
-                        'analytic_state_variables': ['g_ex_AMPA__X__spikesExc'],
+                        'analytic_state_variables': ['g_ex_AMPA__X__b_spikes'],
                         'analytic_state_symbols':
                         {
-                            'g_ex_AMPA__X__spikesExc': ASTVariable,
+                            'g_ex_AMPA__X__b_spikes': ASTVariable,
                         },
                         'initial_values':
                         {
-                            'g_ex_AMPA__X__spikesExc': '1',
+                            'g_ex_AMPA__X__b_spikes': '1',
                         },
                         'propagators':
                         {
-                            __P__g_ex_AMPA__X__spikesExc__g_ex_AMPA__X__spikesExc: 
+                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes: 
                             {
                                 "ASTVariable": ASTVariable,
                                 "rhs_expression": ASTSimpleExpression,
@@ -222,7 +259,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
                         },
                         'update_expressions':
                         {
-                            'g_ex_AMPA__X__spikesExc': ASTExpression
+                            'g_ex_AMPA__X__b_spikes': ASTExpression
                         },
                     }
                 }
@@ -244,8 +281,8 @@ class ASTSynsInfoEnricher(ASTVisitor):
 
         enriched_syns_info = copy.copy(cm_syns_info)
         for synapse_name, synapse_info in cm_syns_info.items():
-            for kernel_name, kernel_info in synapse_info["kernels"].items():
-                analytic_solution = enriched_syns_info[synapse_name]["kernels"][kernel_name]["analytic_solution"]
+            for convolution_name in synapse_info["convolutions"].keys():
+                analytic_solution = enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"]
                 analytic_solution_transformed = defaultdict(lambda:defaultdict())
 
                 # state variables generated by analytic solution
@@ -271,8 +308,9 @@ class ASTSynsInfoEnricher(ASTVisitor):
                         "rhs_expression": expression,
                     }
                     
-                enriched_syns_info[synapse_name]["kernels"][kernel_name]["analytic_solution"] = analytic_solution_transformed
-
+                enriched_syns_info[synapse_name]["convolutions"][convolution_name]["analytic_solution"] = analytic_solution_transformed
+        
+        return enriched_syns_info 
     
     
     

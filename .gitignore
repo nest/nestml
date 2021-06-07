@@ -33,3 +33,6 @@ venv
 linkingModel.py
 
 
+/generated_aeif_cond_alpha/
+/generated_goal/
+/generated_snapshot/

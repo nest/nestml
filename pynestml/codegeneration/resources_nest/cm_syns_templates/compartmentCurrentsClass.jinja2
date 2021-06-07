@@ -34,7 +34,7 @@
 {%- with %}
 {%- for ion_channel_nm, channel_info in cm_info.items() -%}
     {%- if ion_channel_nm == ion_channel_name -%}
-        {%- for variable_tp, variable_info in channel_info["channel_variables"].items() -%}
+        {%- for variable_tp, variable_info in channel_info["channel_parameters"].items() -%}
             {%- if variable_tp == variable_type -%}
                 {%- set variable = variable_info["parameter_block_variable"] -%}
                 {{ variable.name }}
@@ -66,7 +66,7 @@
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
 nest::{{ion_channel_name}}::{{ion_channel_name}}()
 
-{%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+{%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
 // state variable {{pure_variable_name -}}
 {%- set variable = variable_info["state_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
@@ -74,7 +74,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}()
 {{- variable.name}}({{ printer.print_expression(rhs_expression) -}}) 
 {%- endfor -%}
 
-{% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+{% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
 // channel parameter {{variable_type -}}
 {%- set variable = variable_info["parameter_block_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
@@ -84,7 +84,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}()
 
 nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_params)
 
-{%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+{%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
 // state variable {{pure_variable_name -}}
 {%- set variable = variable_info["state_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
@@ -92,7 +92,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
 {{- variable.name}}({{printer.print_expression(rhs_expression) -}}) 
 {%- endfor -%}
 
-{% for variable_type, variable_info in channel_info["channel_variables"].items() %}
+{% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
 // channel parameter {{variable_type -}}
 {%- set variable = variable_info["parameter_block_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
@@ -101,7 +101,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
 // update {{ion_channel_name}} channel parameters
 {
     {%- with %}
-    {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
+    {%- for variable_type, variable_info in channel_info["channel_parameters"].items() %}
         {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
     // {{ion_channel_name}} channel parameter {{dynamic_variable }} 
@@ -116,10 +116,10 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
     double g_val = 0., i_val = 0.;
     {%- set inline_expression = channel_info["ASTInlineExpression"] %}
     {%- set dynamic_variable = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
-    {%- set gbar_variable = channel_info["channel_variables"]["gbar"]["parameter_block_variable"] %}    
+    {%- set gbar_variable = channel_info["channel_parameters"]["gbar"]["parameter_block_variable"] %}    
     if ({{gbar_variable.name}} > 1e-9)
     {
-        {% for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
         // activation and timescale of state variable '{{pure_variable_name}}'
             {%- set inner_variable = variable_info["ASTVariable"] %}
             {%- set expected_functions_info = variable_info["expected_functions"] %}
@@ -136,7 +136,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
         {%- endfor %}
             {%- endfor %}
         
-        {% for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+        {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
         // advance state variable {{pure_variable_name}} one timestep
             {%- set inner_variable = variable_info["ASTVariable"] %}
             {%- set expected_functions_info = variable_info["expected_functions"] %}
@@ -165,7 +165,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 
 }
 
-{%- for pure_variable_name, state_variable_info in channel_info["inner_variables"].items() %}
+{%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
 {%- for function_type, function_info in state_variable_info["expected_functions"].items() %}
 {{render_channel_function(function_info["ASTFunction"], ion_channel_name)}}
 {%- endfor %}

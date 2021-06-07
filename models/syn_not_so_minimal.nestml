@@ -31,12 +31,12 @@ neuron not_so_minimal:
   equations:
     #synapses are inlines that utilize kernels
     kernel g_ex_AMPA = exp(-t / tau_syn_AMPA)
-    inline AMPA real = convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+    inline AMPA real = convolve(g_ex_AMPA, b_spikes) * (v_comp - e_AMPA)
     
     kernel g_ex_NMDA = NMDA_sigmoid(v_comp)
-    inline NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA)
+    inline NMDA real = convolve(g_ex_NMDA, b_spikes) * (v_comp - e_NMDA)
     
-    inline AMPA_NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+    inline AMPA_NMDA real = convolve(g_ex_NMDA, b_spikes) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, b_spikes) * (v_comp - e_AMPA)
 
   end
 
@@ -60,7 +60,7 @@ neuron not_so_minimal:
   end
 
   input:
-    spikesExc nS <- excitatory spike
+    b_spikes nS <- excitatory spike
   end
 
 end

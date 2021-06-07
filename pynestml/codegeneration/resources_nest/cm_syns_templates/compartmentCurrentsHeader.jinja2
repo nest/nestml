@@ -21,14 +21,14 @@ namespace nest
 class {{ion_channel_name}}{
 private:
 // user-defined parameters {{ion_channel_name}} channel (maximal conductance, reversal potential)
-    {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() %}
+    {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
     // state variable {{pure_variable_name -}}
         {%- set variable = variable_info["state_variable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
     {{render_variable_type(variable)}} {{ variable.name}} = {{printer.print_expression(rhs_expression) -}};
     {%- endfor %}
 // state variables {{ion_channel_name}} channel
-    {%- for variable_type, variable_info in channel_info["channel_variables"].items() %}
+    {%- for variable_type, variable_info in channel_info["channel_parameters"].items() %}
     // parameter {{variable_type -}}
         {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
@@ -43,7 +43,7 @@ public:
     
     // initialization
     void init(){
-    {%- for pure_variable_name, variable_info in channel_info["inner_variables"].items() -%}
+    {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() -%}
         {%- set variable = variable_info["state_variable"] -%}
         {%- set rhs_expression = variable_info["rhs_expression"] -%}
         {{ variable.name}} = {{printer.print_expression(rhs_expression) }};
@@ -54,7 +54,7 @@ public:
     std::pair< double, double > f_numstep( const double v_comp, const double dt );
 
     // function declarations
-{%- for pure_variable_name, state_variable_info in channel_info["inner_variables"].items() %}
+{%- for pure_variable_name, state_variable_info in channel_info["gating_variables"].items() %}
 {% for function_type, function_info in state_variable_info["expected_functions"].items() %}
     {{printer.print_function_declaration(function_info["ASTFunction"]) -}};
 {% endfor %}
@@ -64,12 +64,53 @@ public:
 {% endfor -%}
 {% endwith -%}
 
+/*
+{%- with %}
+{%- for synapse_name, synapse_info in syns_info.items() %}
+
+class {{synapse_name}}{
+private:
+  // user defined parameters
+  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+  double {{param_name}}_ = {{printer.print_expression(param_declaration.get_expression())}};
+  {%- endfor %}
+
+  // assigned variables
+  double g_norm_ = 1.0;
+
+  // state variables
+  double g_r_ = 0., g_d_ = 0.;
+
+  // spike buffer
+  std::shared_ptr< RingBuffer >  b_spikes_;
+
+public:
+  // constructor, destructor
+  {{synapse_name}}(std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params);
+  ~{{synapse_name}}(){};
+
+  // initialization of the state variables
+  void init()
+  {
+    g_r_ = 0.; g_d_ = 0.;
+    b_spikes_->clear();
+  };
+
+  // numerical integration step
+  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
+};
+
+
+{% endfor -%}
+{% endwith -%}
+*/
+
 
 class AMPA{
 private:
   // user defined parameters
-  double e_rev_ = 0.0; // mV
-  double tau_r_ = 0.2, tau_d_ = 3.; // ms
+  double e_rev_ = 0.0; // mV -> renamed to e_AMPA_
+  double tau_r_ = 0.2, tau_d_ = 3.; // ms -> renamed to tau_syn_AMPA_
 
   // assigned variables
   double g_norm_ = 1.0;

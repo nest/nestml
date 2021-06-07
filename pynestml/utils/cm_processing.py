@@ -69,22 +69,27 @@ class CmProcessing(object):
         
     Moreover it checks 
     -if all expected sates are defined,
-    -that variables are properly named,
-    -that no variable repeats inside the key inline expression that triggers cm mechanism
+    -that at least one gating variable exists (which is recognize when variable name ends with _{channel_name} )
+    -that no gating variable repeats inside the inline expression that triggers cm mechanism
     Example:
-        inline cm_p_open_Na real = m_Na_**3 * h_Na_**1
+        inline cm_p_open_Na real = m_Na**3 * h_Na**1
         
     #causes the requirement for following entries in the state block
         
         gbar_Na
         e_Na
-        m_Na_
-        h_Na_
+        m_Na
+        h_Na
+    
+    Other allowed examples:
+        # any variable that does not end with _Na is allowed
+        inline cm_p_open_Na real = m_Na**3 * h_Na**1 + x
+        # gbar and e variables will not be counted as gating variables
+        inline cm_p_open_Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp) # gating variables detected: m and h
     
     Not allowed examples:
-        inline cm_p_open_Na real = p_Na_**3 * p**1
-        inline cm_p_open_Na real = p_Na_**3 * p_Ca_**1
-        inline cm_p_open_Na real = p_Na_**3 + p_Na_**1
+        inline cm_p_open_Na real = p_Na_**3 + p_Na_**1  # same gating variable used twice
+        inline cm_p_open_Na real = x**2                 # no gating variables
     
     """
     
@@ -126,7 +131,7 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": [ASTVariable, ASTVariable, ASTVariable, ...],
+            "gating_variables": [ASTVariable, ASTVariable, ASTVariable, ...],
             
         },
         "K":
@@ -157,7 +162,7 @@ class CmProcessing(object):
             info = defaultdict()
             channel_name = cls.cm_expression_to_channel_name(inline_expression)
             info["ASTInlineExpression"] = inline_expression
-            info["inner_variables"] = inner_variables
+            info["gating_variables"] = inner_variables
             cm_info[channel_name] = info
         neuron.is_compartmental_model = is_compartmental_model
         return cm_info
@@ -229,7 +234,7 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": [ASTVariable, ASTVariable, ASTVariable, ...]
+            "gating_variables": [ASTVariable, ASTVariable, ASTVariable, ...]
             
         },
         "K":
@@ -243,27 +248,20 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": str,
                         "inf": str
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": str,
@@ -279,10 +277,6 @@ class CmProcessing(object):
         }
     }
     
-    "is_valid" is needed to throw an error message later
-    we just don't want to throw it here yet because it would 
-    otherwise make it difficult to generate understandable error messages
-    
     """
 
     @classmethod
@@ -291,18 +285,20 @@ class CmProcessing(object):
         
         for ion_channel_name, channel_info in cm_info.items():
             cm_expression = channel_info["ASTInlineExpression"]
-            variables = channel_info["inner_variables"]
+            variables = channel_info["gating_variables"]
             variable_names_seen = set()
             
             variables_info = defaultdict()
-
+            channel_parameters_exclude = cls.getExpectedEquilibirumVarName(ion_channel_name), cls.getExpectedGbarName(ion_channel_name)
+            
             for variable_used in variables:
                 variable_name = variable_used.name.strip(cls.padding_character)
                 if not variable_name.endswith(ion_channel_name):
-                    variables_info[variable_name]=defaultdict()
-                    variables_info[variable_name]["ASTVariable"] = variable_used
-                    variables_info[variable_name]["is_valid"] = False
+                    #not a gating variable
                     continue
+                
+                # exclude expected channel parameters
+                if variable_name in channel_parameters_exclude: continue
                 
                 # enforce unique variable names per channel, i.e n and m , not n and n
                 if variable_name in variable_names_seen:
@@ -320,45 +316,37 @@ class CmProcessing(object):
                 variables_info[pure_variable_name]["expected_functions"][cls.inf_string] = expected_inf_function_name
                 variables_info[pure_variable_name]["expected_functions"][cls.tau_sring] = expected_tau_function_name
                 variables_info[pure_variable_name]["ASTVariable"] = variable_used
-                variables_info[pure_variable_name]["is_valid"] = True
                 
             variables_procesed[ion_channel_name] = copy.copy(variables_info)
             
         for ion_channel_name, variables_info in variables_procesed.items():
-            cm_info[ion_channel_name]["inner_variables"] = variables_info
+            cm_info[ion_channel_name]["gating_variables"] = variables_info
         
         return cm_info
 
     """
     generate Errors on invalid variable names
-    and add channel_variables section to each channel
+    and add channel_parameters section to each channel
     
     input:
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -380,32 +368,25 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "channel_variables":
+            "channel_parameters":
             {
                 "gbar":{"expected_name": "gbar_Na"},
                 "e":{"expected_name": "e_Na"}
             }
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -426,24 +407,22 @@ class CmProcessing(object):
     def addChannelVariablesSectionAndEnforceProperVariableNames(cls, node, cm_info):
         ret = copy.copy(cm_info)
 
-        channel_variables = defaultdict()
+        channel_parameters = defaultdict()
         for ion_channel_name, channel_info in cm_info.items():
-            channel_variables[ion_channel_name] = defaultdict()
-            channel_variables[ion_channel_name][cls.gbar_string] = defaultdict()
-            channel_variables[ion_channel_name][cls.gbar_string]["expected_name"] = cls.getExpectedGbarName(ion_channel_name)
-            channel_variables[ion_channel_name][cls.equilibrium_string] = defaultdict()
-            channel_variables[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.getExpectedEquilibirumVarName(ion_channel_name)
+            channel_parameters[ion_channel_name] = defaultdict()
+            channel_parameters[ion_channel_name][cls.gbar_string] = defaultdict()
+            channel_parameters[ion_channel_name][cls.gbar_string]["expected_name"] = cls.getExpectedGbarName(ion_channel_name)
+            channel_parameters[ion_channel_name][cls.equilibrium_string] = defaultdict()
+            channel_parameters[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.getExpectedEquilibirumVarName(ion_channel_name)
 
-            for pure_variable_name, variable_info in channel_info["inner_variables"].items():
-                variable_used = variable_info["ASTVariable"]
-                is_valid= variable_info["is_valid"]
-                if not is_valid:
-                    code, message = Messages.get_cm_inline_expression_variable_name_must_end_with_channel_name(channel_info["ASTInlineExpression"], variable_used.name, ion_channel_name)
-                    Logger.log_message(code=code, message=message, error_position=variable_used.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
-                    continue
+            if len(channel_info["gating_variables"]) < 1:
+                cm_inline_expr = channel_info["ASTInlineExpression"]
+                code, message = Messages.get_no_gating_variables(cm_inline_expr, ion_channel_name)
+                Logger.log_message(code=code, message=message, error_position=cm_inline_expr.get_source_position(), log_level=LoggingLevel.ERROR, node=cm_inline_expr)
+                continue
                 
         for ion_channel_name, channel_info in cm_info.items():
-            ret[ion_channel_name]["channel_variables"] = channel_variables[ion_channel_name]
+            ret[ion_channel_name]["channel_parameters"] = channel_parameters[ion_channel_name]
                 
         return ret 
     
@@ -456,27 +435,20 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": str,
                         "inf": str
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": str,
@@ -497,27 +469,20 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -546,19 +511,19 @@ class CmProcessing(object):
         
         # check for missing functions
         for ion_channel_name, channel_info in cm_info.items():
-            for pure_variable_name, variable_info in channel_info["inner_variables"].items():
+            for pure_variable_name, variable_info in channel_info["gating_variables"].items():
                 if "expected_functions" in  variable_info.keys():
                     for function_type, expected_function_name in variable_info["expected_functions"].items():
                         if expected_function_name not in function_name_to_function.keys():
                             code, message = Messages.get_expected_cm_function_missing(ion_channel_name, variable_info["ASTVariable"], expected_function_name)
                             Logger.log_message(code=code, message=message, error_position=neuron.get_source_position(), log_level=LoggingLevel.ERROR, node=neuron)
                         else:
-                            ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
-                            ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"] = function_name_to_function[expected_function_name]
-                            ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["function_name"] = expected_function_name
+                            ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
+                            ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"] = function_name_to_function[expected_function_name]
+                            ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["function_name"] = expected_function_name
                             
                             # function must have exactly one argument
-                            astfun = ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"]
+                            astfun = ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"]
                             if len(astfun.parameters) != 1:
                                 code, message = Messages.get_expected_cm_function_wrong_args_count(ion_channel_name, variable_info["ASTVariable"], astfun)
                                 Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
@@ -569,9 +534,9 @@ class CmProcessing(object):
                                 Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
                         
                             if function_type == "tau":                                              
-                                ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedTauResultVariableName(ion_channel_name,pure_variable_name)
+                                ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedTauResultVariableName(ion_channel_name,pure_variable_name)
                             elif function_type == "inf":
-                                ret[ion_channel_name]["inner_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedInfResultVariableName(ion_channel_name,pure_variable_name)
+                                ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedInfResultVariableName(ion_channel_name,pure_variable_name)
                             else:
                                 raise RuntimeError('This should never happen! Unsupported function type '+function_type+' from variable ' + pure_variable_name)    
         
@@ -642,32 +607,25 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "channel_variables":
+            "channel_parameters":
             {
                 "gbar":{"expected_name": "gbar_Na"},
                 "e":{"expected_name": "e_Na"}
             }
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
                         "inf": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str}
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau": {"ASTFunction": ASTFunction, "function_name": str, "result_variable_name": str},
@@ -688,7 +646,7 @@ class CmProcessing(object):
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "channel_variables":
+            "channel_parameters":
             {
                 "gbar": {
                             "expected_name": "gbar_Na",
@@ -701,13 +659,12 @@ class CmProcessing(object):
                             "rhs_expression": ASTSimpleExpression or ASTExpression
                         }
             }
-            "inner_variables": 
+            "gating_variables": 
             {
                 "m":
                 {
                     "ASTVariable": ASTVariable, 
                     "state_variable": ASTVariable,
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau":  {
@@ -724,16 +681,10 @@ class CmProcessing(object):
                                 }
                     }
                 }, 
-                "someinvalidname" 
-                {
-                    "ASTVariable": ASTVariable
-                    "is_valid": False,
-                },
                 "h":  
                 {
                     "ASTVariable": ASTVariable, 
                     "state_variable": ASTVariable,
-                    "is_valid": True,
                     "expected_functions":
                     {
                         "tau":  {
@@ -772,16 +723,15 @@ class StateMissingVisitor(ASTVisitor):
         
         self.values_expected_from_channel = set()
         for ion_channel_name, channel_info in self.cm_info.items():
-            for channel_variable_type, channel_variable_info in channel_info["channel_variables"].items():
+            for channel_variable_type, channel_variable_info in channel_info["channel_parameters"].items():
                 self.values_expected_from_channel.add(channel_variable_info["expected_name"])
                 self.expected_to_object[channel_variable_info["expected_name"]] = channel_info["ASTInlineExpression"]
                 
         self.values_expected_from_variables = set() 
         for ion_channel_name, channel_info in self.cm_info.items():
-            for pure_variable_type, variable_info in channel_info["inner_variables"].items():
-                if variable_info["is_valid"]:
-                    self.values_expected_from_variables.add(variable_info["ASTVariable"].name)
-                    self.expected_to_object[variable_info["ASTVariable"].name] = variable_info["ASTVariable"]
+            for pure_variable_type, variable_info in channel_info["gating_variables"].items():
+                self.values_expected_from_variables.add(variable_info["ASTVariable"].name)
+                self.expected_to_object[variable_info["ASTVariable"].name] = variable_info["ASTVariable"]
         
         self.not_yet_found_variables = set(self.values_expected_from_channel).union(self.values_expected_from_variables)
         
@@ -816,15 +766,15 @@ class StateMissingVisitor(ASTVisitor):
                 # state variables
                 if varname in self.values_expected_from_variables:
                     for ion_channel_name, channel_info in self.cm_info.items():
-                        for pure_variable_name, variable_info in channel_info["inner_variables"].items():
+                        for pure_variable_name, variable_info in channel_info["gating_variables"].items():
                             if variable_info["ASTVariable"].name == varname:
-                                cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["state_variable"] = node
+                                cm_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["state_variable"] = node
                                 rhs_expression = self.current_declaration.get_expression()
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(varname)
                                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-                                cm_info_updated[ion_channel_name]["inner_variables"][pure_variable_name]["rhs_expression"] = rhs_expression
+                                cm_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["rhs_expression"] = rhs_expression
                 self.cm_info = cm_info_updated 
                 
         if self.inside_parameter_block and self.inside_declaration:
@@ -842,15 +792,15 @@ class StateMissingVisitor(ASTVisitor):
                 # channel parameters
                 if varname in self.values_expected_from_channel:
                     for ion_channel_name, channel_info in self.cm_info.items():
-                        for variable_type, variable_info in channel_info["channel_variables"].items():
+                        for variable_type, variable_info in channel_info["channel_parameters"].items():
                             if variable_info["expected_name"] == varname:
-                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["parameter_block_variable"] = node
+                                cm_info_updated[ion_channel_name]["channel_parameters"][variable_type]["parameter_block_variable"] = node
                                 rhs_expression = self.current_declaration.get_expression()
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(varname)
                                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-                                cm_info_updated[ion_channel_name]["channel_variables"][variable_type]["rhs_expression"] = rhs_expression
+                                cm_info_updated[ion_channel_name]["channel_parameters"][variable_type]["rhs_expression"] = rhs_expression
                 self.cm_info = cm_info_updated             
 
     def endvisit_neuron(self, node):

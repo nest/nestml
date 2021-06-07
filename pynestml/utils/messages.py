@@ -110,13 +110,14 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
-    CM_BAD_VARIABLE_NAME = 79
+    CM_NO_GATING_VARIABLES = 79
     CM_FUNCTION_MISSING = 80
     CM_VARIABLES_NOT_DECLARED = 81
     CM_FUNCTION_BAD_NUMBER_ARGS = 82
     CM_FUNCTION_BAD_RETURN_TYPE = 83
     CM_VARIABLE_NAME_MULTI_USE = 84
     CM_NO_VALUE_ASSIGNMENT = 85
+    SYNS_BAD_BUFFER_COUNT = 86
 
 class Messages:
     """
@@ -1176,41 +1177,25 @@ class Messages:
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
 
     @classmethod
-    def get_cm_inline_expression_variable_name_must_end_with_channel_name(cls, cm_inline_expr, bad_variable_name, ion_channel_name):
+    def get_no_gating_variables(cls, cm_inline_expr: ASTInlineExpression, ion_channel_name: str):
         """
         Indicates that if you defined an inline expression inside the equations block
         and it is called cm_p_open_{x}
-        then all variable names in that expression must end with _{x}
-        For example with "cm_p_open_Na" can only contain variables ending with "_Na"
+        then then there must be at least one variable name that ends with _{x}
+        For example an inline "cm_p_open_Na" must have at least one variable ending with "_Na"
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (cm_inline_expr is not None and isinstance(cm_inline_expr, ASTInlineExpression)),\
-            '(PyNestML.Utils.Message) No ASTInlineExpression provided (%s)!' % type(cm_inline_expr)
-        
-        assert (bad_variable_name is not None and isinstance(bad_variable_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(bad_variable_name)
 
-        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)
+        message = "No gating variables found inside declaration of '" + cm_inline_expr.variable_name+"', "
+        message += "\nmeaning no variable ends with the suffix '_"+ion_channel_name+"' here. "
+        message += "This suffix indicates that a variable is a gating variable. "
+        message += "At least one gating variable is expected to exist."
         
-        message = "Bad variable name '"+ bad_variable_name 
-        message += "' inside declaration of '" + cm_inline_expr.variable_name+"'. "
-        message += "\nVariable names are expected to match ion channel name, meaning they must have suffix '"+ion_channel_name+"' here"
-        
-        return MessageCode.CM_BAD_VARIABLE_NAME, message
+        return MessageCode.CM_NO_GATING_VARIABLES, message
     
     @classmethod
-    def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr, bad_variable_name, ion_channel_name):
-        assert (cm_inline_expr is not None and isinstance(cm_inline_expr, ASTInlineExpression)),\
-            '(PyNestML.Utils.Message) No ASTInlineExpression provided (%s)!' % type(cm_inline_expr)
-        
-        assert (bad_variable_name is not None and isinstance(bad_variable_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(bad_variable_name)
-
-        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)
-        
+    def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr: ASTInlineExpression, bad_variable_name: str, ion_channel_name: str): 
         message = "Variable name '"+ bad_variable_name + "' seems to be used multiple times"
         message += "' inside inline expression '" + cm_inline_expr.variable_name+"'. "
         message += "\nVariables are not allowed to occur multiple times here."
@@ -1218,65 +1203,41 @@ class Messages:
         return MessageCode.CM_VARIABLE_NAME_MULTI_USE, message
     
     @classmethod
-    def get_expected_cm_function_missing(cls, ion_channel_name, variable, function_name):
-        assert (function_name is not None and isinstance(function_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(function_name)
-        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)     
-        assert (variable is not None and isinstance(variable, ASTVariable)),\
-            '(PyNestML.Utils.Message) No ASTVariable provided (%s)!' % type(variable)
-                   
+    def get_expected_cm_function_missing(cls, ion_channel_name: str, variable: ASTVariable, function_name: str):         
         message = "Implementation of a function called '" + function_name + "' not found. "
         message += "It is expected because of variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
     
     @classmethod
-    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name, variable, astfun):
-        assert (astfun is not None and isinstance(astfun, ASTFunction)),\
-            '(PyNestML.Utils.Message) No ASTFunction provided (%s)!' % type(ASTFunction)
-        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)     
-        assert (variable is not None and isinstance(variable, ASTVariable)),\
-            '(PyNestML.Utils.Message) No ASTVariable provided (%s)!' % type(variable)
-                   
+    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name: str, variable: ASTVariable, astfun: ASTFunction):      
         message = "Function '" + astfun.name + "' is expected to have exactly one Argument. "
         message += "It is related to variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
     
     @classmethod
-    def get_expected_cm_function_bad_return_type(cls, ion_channel_name, astfun):
-        assert (astfun is not None and isinstance(astfun, ASTFunction)),\
-            '(PyNestML.Utils.Message) No ASTFunction provided (%s)!' % type(ASTFunction)
-        assert (ion_channel_name is not None and isinstance(ion_channel_name, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(ion_channel_name)     
-                   
+    def get_expected_cm_function_bad_return_type(cls, ion_channel_name: str, astfun: ASTFunction):            
         message = "'"+ion_channel_name + "' channel function '" + astfun.name + "' must return real. "
         return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message    
     
     @classmethod
-    def get_expected_cm_variables_missing_in_blocks(cls, missing_variable_to_proper_block, expected_variables_to_reason):
-        assert (missing_variable_to_proper_block is not None and isinstance(missing_variable_to_proper_block, Iterable)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(missing_variable_to_proper_block)
-        assert (expected_variables_to_reason is not None and isinstance(expected_variables_to_reason, dict)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(expected_variables_to_reason)            
-        
+    def get_expected_cm_variables_missing_in_blocks(cls, missing_variable_to_proper_block: Iterable, expected_variables_to_reason: dict):            
         message = "The following variables not found:\n"
         for missing_var, proper_location in missing_variable_to_proper_block.items():
             message += "Variable with name '" + missing_var 
             message += "' not found but expected to exist inside of " + proper_location + " because of position " 
             message += str(expected_variables_to_reason[missing_var].get_source_position())+"\n"
-            
-            
         return MessageCode.CM_VARIABLES_NOT_DECLARED, message
     
     @classmethod
-    def get_cm_variable_value_missing(cls, varname):
-        assert (varname is not None and isinstance(varname, str)),\
-            '(PyNestML.Utils.Message) No str provided (%s)!' % type(varname)
-            
+    def get_cm_variable_value_missing(cls, varname: str):
         message = "The following variable has no value assinged: "+varname+"\n"
-        
         return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
+    
+    @classmethod
+    def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
+        message = "Synapse `\'%s\' uses the following inout buffers: %s" % (synapse_name, buffers)
+        message += "However exaxtly one spike input buffer per synapse is allowed."
+        return MessageCode.SYNS_BAD_BUFFER_COUNT, message
         
     @classmethod
     def get_state_variables_not_initialized(cls, var_name: str):

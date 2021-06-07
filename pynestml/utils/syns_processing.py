@@ -20,8 +20,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
+import copy
+
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector
+from pynestml.utils.messages import Messages
+from pynestml.utils.logger import Logger, LoggingLevel
 
 
 class SynsProcessing(object):
@@ -58,12 +62,20 @@ class SynsProcessing(object):
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
             }
-            "kernels":
+            "convolutions":
             {
-                "g_ex": 
+                "g_ex_AMPA__X__b_spikes": 
                 {
-                    "ASTKernel": ASTKernel,
-                    "spike_source": str,
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
                 }
             }
                 
@@ -90,43 +102,117 @@ class SynsProcessing(object):
             syns_info[synapse_name] = {
                 "inline_expression": synapse_inline,
                 "parameters_used": info_collector.get_synapse_specific_parameter_declarations(synapse_inline),
-                "kernels":{}
+                "convolutions":{}
                 }
         
             kernel_arg_pairs = info_collector.get_extracted_kernel_args(synapse_inline)
             for kernel_var, spikes_var in kernel_arg_pairs:
                 kernel_name = kernel_var.get_name()
-                syns_info[synapse_name]["kernels"][kernel_name] = {
-                    "ASTKernel": info_collector.get_kernel_by_name(kernel_name),
-                    "spike_source": spikes_var.get_name()
+                spikes_name = spikes_var.get_name()
+                convolution_name = info_collector.construct_kernel_X_spike_buf_name(kernel_name, spikes_name, 0)
+                syns_info[synapse_name]["convolutions"][convolution_name] = {
+                    "kernel": {
+                        "name": kernel_name,
+                        "ASTKernel": info_collector.get_kernel_by_name(kernel_name),
+                    },
+                    "spikes": {
+                        "name": spikes_name,
+                        "ASTInputPort": info_collector.get_input_port_by_name(spikes_name),
+                    },
                 }
         
-        return syns_info
+        return syns_info, info_collector
+
+    """
+    input:
+    {
+        "AMPA":
+        {
+            "inline_expression": ASTInlineExpression,
+            "parameters_used": 
+            {
+                "e_AMPA": ASTDeclaration,
+                "tau_syn_AMPA": ASTDeclaration
+            }
+            "convolutions":
+            {
+                "g_ex_AMPA__X__b_spikes": 
+                {
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
+                }
+            }
+                
+        },
+        "GABA":
+        {
+            ...
+        }
+        ...
+    }
+    
+    output:    
+    {
+        "AMPA":
+        {
+            "inline_expression": ASTInlineExpression,
+            "buffers_used": {"b_spikes"},
+            "parameters_used": 
+            {
+                "e_AMPA": ASTDeclaration,
+                "tau_syn_AMPA": ASTDeclaration
+            }
+            "convolutions":
+            {
+                "g_ex_AMPA__X__b_spikes": 
+                {
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
+                }
+            }
+                
+        },
+        "GABA":
+        {
+            ...
+        }
+        ...
+    }
+    """    
+    @classmethod
+    def collect_and_check_inputs_per_synapse(cls, neuron: ASTNeuron, info_collector: ASTSynapseInformationCollector, syns_info: dict):
+        new_syns_info = copy.copy(syns_info)
+        for synapse_name, synapse_info in syns_info.items():
+            new_syns_info[synapse_name]["buffers_used"] = set()
+            for convolution_name, convolution_info in synapse_info["convolutions"].items():
+                input_name = convolution_info["spikes"]["name"]
+                new_syns_info[synapse_name]["buffers_used"].add(input_name)
+
+        for synapse_name, synapse_info in syns_info.items():
+            buffers = new_syns_info[synapse_name]["buffers_used"]
+            if len(buffers) != 1:
+                code, message = Messages.get_syns_bad_buffer_count(buffers, synapse_name)
+                causing_object = synapse_info["inline_expression"]
+                Logger.log_message(code=code, message=message, error_position=causing_object.get_source_position(), log_level=LoggingLevel.ERROR, node=causing_object)
         
-        
-        
-        
-        # inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
-        #
-        # is_compartmental_model = cls.is_compartmental_model(neuron)
-        #
-        # # filter for cm_p_open_{channelType}
-        # relevant_inline_expressions_to_variables = defaultdict(lambda:list())
-        # for expression, variables in inline_expressions_dict.items():
-        #     inline_expression_name = expression.variable_name
-        #     if inline_expression_name.startswith(cls.inline_expression_prefix):
-        #         relevant_inline_expressions_to_variables[expression] = variables
-        #
-        # #create info structure
-        # cm_info = defaultdict()        
-        # for inline_expression, inner_variables in relevant_inline_expressions_to_variables.items():
-        #     info = defaultdict()
-        #     channel_name = cls.cm_expression_to_channel_name(inline_expression)
-        #     info["ASTInlineExpression"] = inline_expression
-        #     info["inner_variables"] = inner_variables
-        #     cm_info[channel_name] = info
-        # neuron.is_compartmental_model = is_compartmental_model
-        # return cm_info
+        return new_syns_info        
+
 
     @classmethod
     def get_syns_info(cls, neuron: ASTNeuron):
@@ -156,20 +242,12 @@ class SynsProcessing(object):
         # subsequent calls will be after AST has been transformed
         # and there would be no kernels or inlines any more
         if cls.first_time_run:
-            cls.syns_info = cls.detectSyns(neuron)
+            syns_info, info_collector = cls.detectSyns(neuron)
+            syns_info = cls.collect_and_check_inputs_per_synapse(neuron, info_collector, syns_info)
+            cls.syns_info = syns_info
             cls.first_time_run = False
         
-        # # further computation not necessary if there were no cm neurons
-        # if not cm_info: return True   
-        #
-        # cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
-        # cm_info = cls.checkAndFindFunctions(neuron, cm_info)
-        # cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
-        #
-        # # now check for existence of expected state variables 
-        # # and add their ASTVariable objects to cm_info
-        # missing_states_visitor = StateMissingVisitor(cm_info)
-        # neuron.accept(missing_states_visitor)
+
     
     
 

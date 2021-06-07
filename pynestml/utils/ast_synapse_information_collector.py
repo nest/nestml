@@ -106,12 +106,16 @@ class ASTSynapseInformationCollector(ASTVisitor):
         return results    
 
     @classmethod 
-    def get_used_kernel_names (self, inline_expression: ASTInlineExpression):
-        return [kernel_var.get_name() for kernel_var, _ in self.get_extracted_kernel_args(inline_expression)]
+    def get_used_kernel_names (cls, inline_expression: ASTInlineExpression):
+        return [kernel_var.get_name() for kernel_var, _ in cls.get_extracted_kernel_args(inline_expression)]
+    
+    @classmethod
+    def get_input_port_by_name(cls, name):
+        return cls.input_port_name_to_input_port[name]
     
     @classmethod     
-    def get_used_spike_names (self, inline_expression: ASTInlineExpression):
-        return [spikes_var.get_name() for _, spikes_var in self.get_extracted_kernel_args(inline_expression)]
+    def get_used_spike_names (cls, inline_expression: ASTInlineExpression):
+        return [spikes_var.get_name() for _, spikes_var in cls.get_extracted_kernel_args(inline_expression)]
         
     def visit_kernel(self, node):
         self.current_kernel = node
