@@ -1,13 +1,14 @@
 """
-CoCoCurrentBufferQualifierSpecified.nestml
-##########################################
+CoCoSpikeInputPortWithoutType.nestml
+####################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
-keywords.
+This model is used to test if broken CoCos are identified correctly. Here, if spike input ports without a data-type are detected.
+
+Negative case.
 
 
 Copyright statement
@@ -30,8 +31,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoCurrentBufferQualifierSpecified:
+neuron CoCoSpikeInputPortWithoutType:
     input:
-        currents pA <- current   # no qualifier specified for current port, thus correct
+        spikeAll <- spike # type not specified
     end
 end

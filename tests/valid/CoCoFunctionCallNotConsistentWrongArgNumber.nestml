@@ -6,8 +6,7 @@ CoCoFunctionCallNotConsistentWrongArgNumber.nestml
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
-keywords.
+This model is used to test if broken CoCos are identified correctly. Here, if function calls have the right number of arguments.
 
 Positive case.
 

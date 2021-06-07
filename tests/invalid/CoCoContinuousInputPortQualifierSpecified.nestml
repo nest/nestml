@@ -1,15 +1,14 @@
 """
-CoCoSpikeBufferWithoutType.nestml
-#################################
+CoCoContinuousInputPortQualifierSpecified.nestml
+################################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if spike buffers without a data-type
-are detected.
+This model is used to test if broken CoCos are identified correctly. Here, if continuous time input ports are not specified by qualifiers.
 
-Positive case.
+Negative case.
 
 
 Copyright statement
@@ -32,8 +31,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoSpikeBufferWithoutType:
-    input: # buffer is provided with a type, thus everything is correct
-        spikeAll integer <- spike
+neuron CoCoContinuousInputPortQualifierSpecified:
+    input:
+        currents pA <- inhibitory continuous   # qualifiers may not be specified for a continuous time input port
     end
 end

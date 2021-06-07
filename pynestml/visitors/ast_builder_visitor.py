@@ -566,8 +566,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             for qual in ctx.inputQualifier():
                 input_qualifiers.append(self.visit(qual))
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
-        if ctx.isCurrent:
-            signal_type = PortSignalType.CURRENT
+        if ctx.isContinuous:
+            signal_type = PortSignalType.CONTINUOUS
         elif ctx.isSpike:
             signal_type = PortSignalType.SPIKE
         else:
@@ -592,12 +592,13 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.SPIKE, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
-        elif ctx.isCurrent is not None:
-            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CURRENT, source_position=source_pos)
+
+        if ctx.isContinuous is not None:
+            ret = ASTNodeFactory.create_ast_output_block(s_type=PortSignalType.CONTINUOUS, source_position=source_pos)
             update_node_comments(ret, self.__comments.visit(ctx))
             return ret
-        else:
-            raise RuntimeError('(PyNestML.ASTBuilder) Type of output buffer not recognized.')
+
+        raise RuntimeError('(PyNestML.ASTBuilder) Type of output buffer not recognized.')
 
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):

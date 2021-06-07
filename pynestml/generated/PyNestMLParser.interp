@@ -36,7 +36,7 @@ null
 'equations'
 'input'
 'output'
-'current'
+'continuous'
 'spike'
 'inhibitory'
 'excitatory'
@@ -121,7 +121,7 @@ UPDATE_KEYWORD
 EQUATIONS_KEYWORD
 INPUT_KEYWORD
 OUTPUT_KEYWORD
-CURRENT_KEYWORD
+CONTINUOUS_KEYWORD
 SPIKE_KEYWORD
 INHIBITORY_KEYWORD
 EXCITATORY_KEYWORD

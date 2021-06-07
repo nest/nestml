@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_buffer_not_assigned.py
+# co_co_input_port_not_assigned_to.py
 #
 # This file is part of NEST.
 #
@@ -18,7 +18,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -26,33 +28,46 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoBufferNotAssigned(CoCo):
+class CoCoInputPortNotAssignedTo(CoCo):
     """
-    This coco ensures that no values are assigned to buffers.
+    This coco ensures that no values are assigned to input ports.
+
+    Given:
+
+    .. code-block:: nestml
+
+       input:
+           current_in pA <- continuous
+       end
+
     Allowed:
-        currentSum = current + 10mV # current being a buffer
+
+    .. code-block:: nestml
+
+       foo = current_in + 10 pA
+
     Not allowed:
-        current = currentSum + 10mV
+
+    .. code-block:: nestml
+
+       current_in = foo + 10 pA
 
     """
 
     @classmethod
-    def check_co_co(cls, node):
+    def check_co_co(cls, node: ASTNeuron):
         """
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
-        :type node: ast_neuron
         """
-        node.accept(NoBufferAssignedVisitor())
+        node.accept(NoInputPortAssignedToVisitor())
 
 
-class NoBufferAssignedVisitor(ASTVisitor):
+class NoInputPortAssignedToVisitor(ASTVisitor):
     def visit_assignment(self, node):
         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-        if symbol is not None and (symbol.block_type == BlockType.INPUT_BUFFER_SPIKE
-                                   or symbol.block_type == BlockType.INPUT_BUFFER_CURRENT):
+        if symbol is not None and symbol.block_type == BlockType.INPUT:
             code, message = Messages.get_value_assigned_to_buffer(node.get_variable().get_complete_name())
             Logger.log_message(code=code, message=message,
                                error_position=node.get_source_position(),
                                log_level=LoggingLevel.ERROR)
-        return

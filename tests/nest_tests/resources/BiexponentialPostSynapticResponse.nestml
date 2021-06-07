@@ -124,7 +124,7 @@ neuron biexp_postsynaptic_response:
       spikeExc nS  <- spike
       spikeGap nS  <- spike
       spikeGABA nS  <- spike
-      I_stim pA <- current
+      I_stim pA <- continuous
   end
 
   output: spike

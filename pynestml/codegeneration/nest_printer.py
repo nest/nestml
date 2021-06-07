@@ -269,37 +269,33 @@ class NestPrinter:
         if variable_symbol.block_type == BlockType.INTERNALS:
             return prefix + 'V_.'
 
-        if variable_symbol.block_type == BlockType.INPUT_BUFFER_CURRENT:
-            return prefix + 'B_.'
-
-        if variable_symbol.block_type == BlockType.INPUT_BUFFER_SPIKE:
+        if variable_symbol.block_type == BlockType.INPUT:
             return prefix + 'B_.'
 
         return ''
 
     @classmethod
-    def print_output_event(cls, ast_body):
+    def print_output_event(cls, ast_body: ASTBody) -> str:
         """
         For the handed over neuron, this operations checks of output event shall be preformed.
         :param ast_body: a single neuron body
-        :type ast_body: ASTBody
         :return: the corresponding representation of the event
-        :rtype: str
         """
         assert (ast_body is not None and isinstance(ast_body, ASTBody)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(ast_body)
         outputs = ast_body.get_output_blocks()
-        if len(outputs) > 0:
-            output = outputs[0]
-            if output.is_spike():
-                return 'nest::SpikeEvent'
-            elif output.is_current():
-                return 'nest::CurrentEvent'
-            else:
-                raise RuntimeError('Unexpected output type. Must be current or spike, is %s.' % str(output))
-        else:
+        if len(outputs) == 0:
             # no output port defined in the model: pretend dummy spike output port to obtain usable model
             return 'nest::SpikeEvent'
+
+        output = outputs[0]
+        if output.is_spike():
+            return 'nest::SpikeEvent'
+
+        if output.is_continuous():
+            return 'nest::CurrentEvent'
+
+        raise RuntimeError('Unexpected output type. Must be continuous or spike, is %s.' % str(output))
 
     @classmethod
     def print_buffer_initialization(cls, variable_symbol):
@@ -389,7 +385,7 @@ class NestPrinter:
         """
         assert (ast_buffer is not None and isinstance(ast_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
-        if ast_buffer.is_spike_buffer() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
+        if ast_buffer.is_spike_input_port() and ast_buffer.is_inhibitory() and ast_buffer.is_excitatory():
             return 'inline ' + PyNestml2NestTypeConverter.convert(ast_buffer.get_type_symbol()) + '&' + ' get_' \
                    + ast_buffer.get_symbol_name() + '() {' + \
                    '  return spike_inputs_[' + ast_buffer.get_symbol_name().upper() + ' - 1]; }'
