@@ -25,14 +25,14 @@ private:
     // state variable {{pure_variable_name -}}
         {%- set variable = variable_info["state_variable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{render_variable_type(variable)}} {{ variable.name}} = {{printer.print_expression(rhs_expression) -}};
+    {{render_variable_type(variable)}} {{ variable.name}} = {{printer.print_expression(rhs_expression, with_origins = False) -}};
     {%- endfor %}
 // state variables {{ion_channel_name}} channel
     {%- for variable_type, variable_info in channel_info["channel_parameters"].items() %}
     // parameter {{variable_type -}}
         {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set rhs_expression = variable_info["rhs_expression"] %}
-    {{render_variable_type(variable)}} {{ variable.name}} = {{printer.print_expression(rhs_expression) -}};
+    {{render_variable_type(variable)}} {{ variable.name}} = {{printer.print_expression(rhs_expression, with_origins = False) -}};
     {%- endfor %}
     
 public:
@@ -46,7 +46,7 @@ public:
     {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() -%}
         {%- set variable = variable_info["state_variable"] -%}
         {%- set rhs_expression = variable_info["rhs_expression"] -%}
-        {{ variable.name}} = {{printer.print_expression(rhs_expression) }};
+        {{ variable.name}} = {{printer.print_expression(rhs_expression, with_origins = False) }};
     {%- endfor -%}
     };
 
@@ -64,7 +64,6 @@ public:
 {% endfor -%}
 {% endwith -%}
 
-/*
 {%- with %}
 {%- for synapse_name, synapse_info in syns_info.items() %}
 
@@ -72,190 +71,58 @@ class {{synapse_name}}{
 private:
   // user defined parameters
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
-  double {{param_name}}_ = {{printer.print_expression(param_declaration.get_expression())}};
+  double {{param_name}}_ = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
   {%- endfor %}
-
+  
+  //initial values for kernel state variables
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  double {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {%- endfor %}
+  {%- endfor %}
+  
+  //initial values for propagators
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
+  double {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {%- endfor %}
+  {%- endfor %}
+  
   // assigned variables
-  double g_norm_ = 1.0;
-
-  // state variables
-  double g_r_ = 0., g_d_ = 0.;
+  // double g_norm_ = 1.0;
 
   // spike buffer
-  std::shared_ptr< RingBuffer >  b_spikes_;
+  std::shared_ptr< RingBuffer > {{synapse_info["buffer_name"]}}_;
 
 public:
   // constructor, destructor
-  {{synapse_name}}(std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params);
+  {{synapse_name}}(std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const DictionaryDatum& receptor_params);
   ~{{synapse_name}}(){};
 
   // initialization of the state variables
   void init()
   {
-    g_r_ = 0.; g_d_ = 0.;
-    b_spikes_->clear();
+  //initial values for kernel state variables
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {%- endfor %}
+  {%- endfor %}
+    {{synapse_info["buffer_name"]}}_->clear();
   };
 
   // numerical integration step
   std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
+
+  // function declarations
+  {% for function in neuron.get_functions() %}
+  {{printer.print_function_declaration(function)}};
+  {% endfor %}
 };
 
 
 {% endfor -%}
 {% endwith -%}
-*/
-
-
-class AMPA{
-private:
-  // user defined parameters
-  double e_rev_ = 0.0; // mV -> renamed to e_AMPA_
-  double tau_r_ = 0.2, tau_d_ = 3.; // ms -> renamed to tau_syn_AMPA_
-
-  // assigned variables
-  double g_norm_ = 1.0;
-
-  // state variables
-  double g_r_ = 0., g_d_ = 0.;
-
-  // spike buffer
-  std::shared_ptr< RingBuffer >  b_spikes_;
-
-public:
-  // constructor, destructor
-  AMPA(std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params);
-  ~AMPA(){};
-
-  // initialization of the state variables
-  void init()
-  {
-    g_r_ = 0.; g_d_ = 0.;
-    b_spikes_->clear();
-  };
-
-  // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
-};
-
-
-class GABA{
-private:
-  // user defined parameters
-  double e_rev_ = 0.0; // mV
-  double tau_r_ = 0.2, tau_d_ = 10.; // ms
-
-  // assigned variables
-  double g_norm_ = 1.0;
-
-  // state variables
-  double g_r_ = 0., g_d_ = 0.;
-
-  // spike buffer
-  std::shared_ptr< RingBuffer > b_spikes_;
-
-public:
-  // constructor, destructor
-  GABA(std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params);
-  ~GABA(){};
-
-  // initialization of the state variables
-  void init()
-  {
-    g_r_ = 0.; g_d_ = 0.;
-    b_spikes_->clear();
-  };
-
-  // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
-};
-
-
-class NMDA{
-private:
-  // user defined parameters
-  double e_rev_ = 0.0; // mV
-  double tau_r_ = 0.2, tau_d_ = 43.; // ms
-
-  // assigned variables
-  double g_norm_ = 1.0;
-
-  // state variables
-  double g_r_ = 0., g_d_ = 0.;
-
-  // spike buffer
-  std::shared_ptr< RingBuffer >  b_spikes_;
-
-public:
-  // constructor, destructor
-  NMDA(std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params);
-  ~NMDA(){};
-
-  // initialization of the state variables
-  void init(){
-    g_r_ = 0.; g_d_ = 0.;
-    b_spikes_->clear();
-  };
-
-  // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
-
-  // synapse specific funtions
-  inline double NMDAsigmoid( double v_comp )
-  {
-    return 1. / ( 1. + 0.3 * std::exp( -.1 * v_comp ) );
-  };
-  inline double d_NMDAsigmoid_dv( double v_comp )
-  {
-    return 0.03 * std::exp( -0.1 * v_comp ) / std::pow( 0.3 * std::exp( -0.1*v_comp ) + 1.0, 2 );
-  };
-};
-
-
-class AMPA_NMDA{
-private:
-  // user defined parameters
-  double e_rev_ = 0.0; // mV
-  double tau_r_AMPA_ = 0.2, tau_d_AMPA_ = 43.; // ms
-  double tau_r_NMDA_ = 0.2, tau_d_NMDA_ = 43.; // ms
-  double NMDA_ratio_ = 2.0;
-
-  // assigned variables
-  double g_norm_AMPA_ = 1.0;
-  double g_norm_NMDA_ = 1.0;
-
-  // state variables
-  double g_r_AMPA_ = 0., g_d_AMPA_ = 0.;
-  double g_r_NMDA_ = 0., g_d_NMDA_ = 0.;
-
-  // spike buffer
-  std::shared_ptr< RingBuffer >  b_spikes_;
-
-public:
-  // constructor, destructor
-  AMPA_NMDA(std::shared_ptr< RingBuffer >  b_spikes, const DictionaryDatum& receptor_params);
-  ~AMPA_NMDA(){};
-
-  // initialization of the state variables
-  void init()
-  {
-    g_r_AMPA_ = 0.; g_d_AMPA_ = 0.;
-    g_r_NMDA_ = 0.; g_d_NMDA_ = 0.;
-    b_spikes_->clear();
-  };
-
-  // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
-
-  // synapse specific funtions
-  inline double NMDAsigmoid( double v_comp )
-  {
-    return 1. / ( 1. + 0.3 * std::exp( -.1 * v_comp ) );
-  };
-  inline double d_NMDAsigmoid_dv( double v_comp )
-  {
-    return 0.03 * std::exp( -0.1 * v_comp ) / std::pow( 0.3 * std::exp( -0.1*v_comp ) + 1.0, 2 );
-  };
-};
 
 
 {%- set channel_suffix = "_chan_" %}
@@ -270,10 +137,16 @@ private:
 {% endwith %}  
 
   // synapses
-  std::vector < AMPA > AMPA_syns_;
-  std::vector < GABA > GABA_syns_;
-  std::vector < NMDA > NMDA_syns_;
-  std::vector < AMPA_NMDA > AMPA_NMDA_syns_;
+  {%- with %}
+  {%- for synapse_name, synapse_info in syns_info.items() %}
+  std::vector < {{synapse_name}} > {{synapse_name}}_syns_;
+  {% endfor -%}
+  {% endwith -%}
+  
+  //std::vector < AMPA > AMPA_syns_;
+  //std::vector < GABA > GABA_syns_;
+  //std::vector < NMDA > NMDA_syns_;
+  //std::vector < AMPA_NMDA > AMPA_NMDA_syns_;
 
 public:
   CompartmentCurrents{{cm_unique_suffix}}(){};
@@ -295,59 +168,40 @@ public:
     {% endfor -%}
   {% endwith -%}  
   
+  
+  {%- with %}
+  {%- for synapse_name, synapse_info in syns_info.items() %}
+    // initialization of {{synapse_name}} synapses
+    for( auto syn_it = {{synapse_name}}_syns_.begin();
+         syn_it != {{synapse_name}}_syns_.end();
+         ++syn_it )
+    {
+      syn_it->init();
+    }
+  {% endfor -%}
+  {% endwith -%}
+  
     // initialization of AMPA synapses
-    for( auto syn_it = AMPA_syns_.begin();
-         syn_it != AMPA_syns_.end();
-         ++syn_it )
-    {
-      syn_it->init();
-
-    }
-    // initialization of GABA synapses
-    for( auto syn_it = GABA_syns_.begin();
-         syn_it != GABA_syns_.end();
-         ++syn_it )
-    {
-      syn_it->init();
-    }
-    // initialization of NMDA synapses
-    for( auto syn_it = NMDA_syns_.begin();
-         syn_it != NMDA_syns_.end();
-         ++syn_it )
-    {
-      syn_it->init();
-    }
-    // initialization of AMPA_NMDA synapses
-    for( auto syn_it = AMPA_NMDA_syns_.begin();
-         syn_it != AMPA_NMDA_syns_.end();
-         ++syn_it )
-    {
-      syn_it->init();
-    }
+    //for( auto syn_it = AMPA_syns_.begin();
+    //     syn_it != AMPA_syns_.end();
+    //     ++syn_it )
+    //{
+    //  syn_it->init();
+    //}
+    
   }
 
   void add_synapse_with_buffer( const std::string& type, std::shared_ptr< RingBuffer > b_spikes, const DictionaryDatum& receptor_params )
   {
-    if ( type == "AMPA" )
+  {%- with %}
+  {%- for synapse_name, synapse_info in syns_info.items() %}
+    {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
-      AMPA syn( b_spikes, receptor_params );
-      AMPA_syns_.push_back( syn );
+      {{synapse_name}} syn( b_spikes, receptor_params );
+      {{synapse_name}}_syns_.push_back( syn );
     }
-    else if ( type == "GABA" )
-    {
-      GABA syn( b_spikes, receptor_params );
-      GABA_syns_.push_back( syn );
-    }
-    else if ( type == "NMDA" )
-    {
-      NMDA syn( b_spikes, receptor_params );
-      NMDA_syns_.push_back( syn );
-    }
-    else if ( type == "AMPA_NMDA" )
-    {
-      AMPA_NMDA syn( b_spikes, receptor_params );
-      AMPA_NMDA_syns_.push_back( syn );
-    }
+  {% endfor -%}
+  {% endwith -%}
     else
     {
       assert( false );
@@ -370,50 +224,36 @@ public:
     
     {% endfor -%}
   {% endwith -%}  
+  
+  {%- with %}
+  {%- for synapse_name, synapse_info in syns_info.items() %}
+    // contribution of {{synapse_name}} synapses
+    for( auto syn_it = {{synapse_name}}_syns_.begin();
+         syn_it != {{synapse_name}}_syns_.end();
+         ++syn_it )
+    {
+      gi = syn_it->f_numstep( v_comp, dt, lag );
+
+      g_val += gi.first;
+      i_val += gi.second;
+    }
+  {% endfor -%}
+  {% endwith -%}
 
     // contribution of AMPA synapses
-    for( auto syn_it = AMPA_syns_.begin();
-         syn_it != AMPA_syns_.end();
-         ++syn_it )
-    {
-      gi = syn_it->f_numstep( v_comp, dt, lag );
+    //for( auto syn_it = AMPA_syns_.begin();
+    //     syn_it != AMPA_syns_.end();
+    //     ++syn_it )
+    //{
+    //  gi = syn_it->f_numstep( v_comp, dt, lag );
 
-      g_val += gi.first;
-      i_val += gi.second;
-    }
-    // contribution of GABA synapses
-    for( auto syn_it = GABA_syns_.begin();
-         syn_it != GABA_syns_.end();
-         ++syn_it )
-    {
-      gi = syn_it->f_numstep( v_comp, dt, lag );
-
-      g_val += gi.first;
-      i_val += gi.second;
-    }
-    // contribution of NMDA synapses
-    for( auto syn_it = NMDA_syns_.begin();
-         syn_it != NMDA_syns_.end();
-         ++syn_it )
-    {
-      gi = syn_it->f_numstep( v_comp, dt, lag );
-
-      g_val += gi.first;
-      i_val += gi.second;
-    }
-    // contribution of AMPA_NMDA synapses
-    for( auto syn_it = AMPA_NMDA_syns_.begin();
-         syn_it != AMPA_NMDA_syns_.end();
-         ++syn_it )
-    {
-      gi = syn_it->f_numstep( v_comp, dt, lag );
-
-      g_val += gi.first;
-      i_val += gi.second;
-    }
+    //  g_val += gi.first;
+    //  i_val += gi.second;
+    //}
 
     return std::make_pair(g_val, i_val);
   };
+  
 };
 
 } // namespace

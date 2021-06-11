@@ -226,7 +226,10 @@ class NESTReferenceConverter(IReferenceConverter):
 
         if symbol.is_state():
             temp = NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else ''
-            if self.uses_gsl:
+            
+            # if with_origins is False then also 
+            # deactivate "ode_state[State_::"
+            if self.uses_gsl and with_origins: 
                 temp += GSLNamesConverter.name(symbol)
             else:
                 temp += NestNamesConverter.name(symbol)

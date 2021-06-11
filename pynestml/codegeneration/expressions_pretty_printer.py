@@ -105,7 +105,7 @@ class ExpressionsPrettyPrinter:
                 else:
                     return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():
-                return self.print_function_call(node.get_function_call(), prefix=prefix)
+                return self.print_function_call(node.get_function_call(), prefix=prefix, with_origins = with_origins)
             raise Exception('Unknown node type')
         elif isinstance(node, ASTExpression):
             # a unary operator
@@ -138,7 +138,7 @@ class ExpressionsPrettyPrinter:
         else:
             raise RuntimeError('Unsupported rhs in rhs pretty printer (%s)!' % str(node))
 
-    def print_function_call(self, function_call, prefix=''):
+    def print_function_call(self, function_call, prefix='', with_origins = True):
         """Print a function call, including bracketed arguments list.
 
         Parameters
@@ -160,15 +160,15 @@ class ExpressionsPrettyPrinter:
             if function_call.get_name() == PredefinedFunctions.PRINT or function_call.get_name() == PredefinedFunctions.PRINTLN:
                 return function_name.format(self.reference_converter.convert_print_statement(function_call))
             else:
-                return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix))
+                return function_name.format(*self.print_function_call_argument_list(function_call, prefix=prefix, with_origins = with_origins))
         else:
             return function_name
 
-    def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str='') -> Tuple[str, ...]:
+    def print_function_call_argument_list(self, function_call: ASTFunctionCall, prefix: str='', with_origins = True) -> Tuple[str, ...]:
         ret = []
 
         for arg in function_call.get_args():
-            ret.append(self.print_expression(arg, prefix=prefix))
+            ret.append(self.print_expression(arg, prefix=prefix, with_origins = with_origins))
 
         return tuple(ret)
 
