@@ -24,7 +24,7 @@ SeeAlso: stdp
 synapse stdp_nn_pre_centered:
 
   state:
-    w nS = 1 nS
+    w real = 1
     pre_trace real = 0.
     post_trace real = 0.
   end
@@ -37,8 +37,8 @@ synapse stdp_nn_pre_centered:
     alpha real = 1.
     mu_plus real = 1.
     mu_minus real = 1.
-    Wmax nS = 100 nS
-    Wmin nS = 0 nS
+    Wmax real = 100.
+    Wmin real = 0.
   end
 
   equations:
@@ -60,7 +60,7 @@ synapse stdp_nn_pre_centered:
     post_trace = 1
 
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     w = min(Wmax, w_)
 
     pre_trace = 0
@@ -70,7 +70,7 @@ synapse stdp_nn_pre_centered:
     pre_trace += 1
 
     # depress synapse
-    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+    w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner

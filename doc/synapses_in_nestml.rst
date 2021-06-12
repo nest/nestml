@@ -17,6 +17,8 @@ From the modeling point of view, a synapse shares many of the same behaviours of
 
 Key to writing the synapse model is the requirement that the event handler for the spiking input port is responsible for submitting the event to the (spiking) output port.
 
+Note that the synaptic strength ("weight") variable is of type real; if the type were given in more specific units, such as nS or pA, the synapse model would only be compatible with either a conductance or current-based postsynaptic neuron model.
+
 
 Writing the NESTML model
 ########################
@@ -63,14 +65,14 @@ The statements in the event handler will be executed sequentially when the event
 .. code-block:: nestml
 
    state:
-     w nS = 1 nS
+     w real = 1
    end
 
    parameters:
      d ms = 1 ms
    end
 
-If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``emit_spike()`` with the updated weight.
+If synaptic plasticity modifies the weight of the synapse, the weight update could (but does not have to) take place before calling ``deliver_spike()`` with the updated weight.
 
 State variables (in particular, synaptic "trace" variables as often used in plasticity models) can be updated in the event handler as follows:
 
@@ -194,7 +196,7 @@ In the synapse, the value will be referred to as ``I_post_dend`` and can be used
 
    postReceive:
      # potentiate synapse
-     w_ nS = # [...] normal STDP update rule
+     w_ real = # [...] normal STDP update rule
      w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
      w = min(Wmax, w_)
    end
@@ -297,8 +299,8 @@ Begin by defining the weight and its initial value:
 
 .. code-block:: nestml
 
-   initial_values:
-     w nS = 1. nS
+   state:
+     w real = 1.
    end
 
 The update rule for facilitation:
@@ -313,7 +315,7 @@ Note that the only difference is that scaling with an absolute maximum weight ``
 
    onReceive(post_spikes):
      # potentiate synapse
-     w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+     w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
      w = min(Wmax, w_)
    end
 
@@ -328,7 +330,7 @@ The update rule for depression:
 
    onReceive(pre_spikes):
      # depress synapse
-     w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+     w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
      w = max(Wmin, w_)
 
      # deliver spike to postsynaptic partner
@@ -346,8 +348,8 @@ Finally, parameters are defined:
      alpha real = 1.
      mu_plus real = 1.
      mu_minus real = 1.
-     Wmax nS = 100 nS
-     Wmin nS = 0 nS
+     Wmax real = 100.
+     Wmin real = 0.
    end
 
 The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py``) runs the model for a variety of pre/post spike timings, and measures the weight change numerically. We can use this to verify that our model approximates the correct STDP window. Note that the dendritic delay in this example has been set to 10 ms, to make its effect on the STDP window more clear: it is not centered around zero, but shifted to the left by the dendritic delay.
@@ -519,19 +521,19 @@ The weight update rules can then be expressed in terms of the traces and paramet
      A2_minus real = 7e-3
      A3_minus real = 2.3e-4
 
-     Wmax nS = 100 nS
-     Wmin nS = 0 nS
+     Wmax real = 100.
+     Wmin real = 0.
    end
 
    onReceive(post_spikes):
      # potentiate synapse
-     w_ nS = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
+     w_ real = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
      w = min(Wmax, w_)
    end
 
    onReceive(pre_spikes):
      # depress synapse
-     w_ nS = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
+     w_ real = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
      w = max(Wmin, w_)
 
      # deliver spike to postsynaptic partner
@@ -609,8 +611,6 @@ In case random numbers are needed inside the synapse, the random number generato
 TODO list
 #########
 
-- *spike* vs. *event:* consistent use
-
 - NESTML only has support for a single, unnamed output port.
 
   Compare
@@ -619,7 +619,7 @@ TODO list
 
      output: spike
 
-  and
+  with
 
   .. code-block:: nestml
 

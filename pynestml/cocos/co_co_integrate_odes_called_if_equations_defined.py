@@ -21,6 +21,7 @@
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
@@ -38,6 +39,8 @@ class CoCoIntegrateOdesCalledIfEquationsDefined(CoCo):
         Ensures the coco for the handed over neuron.
         :param node: a single neuron instance.
         """
+        if isinstance(node, ASTSynapse):
+            return   # XXX: TODO: check that there are no equations other than the ones moved to the neuron (if any)
         equations_defined_visitor = EquationsDefinedVisitor()
         node.accept(equations_defined_visitor)
         integrate_odes_called_visitor = IntegrateOdesCalledVisitor()

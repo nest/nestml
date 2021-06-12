@@ -18,7 +18,7 @@ lambda     real - Step size
 alpha      real - Asymmetry parameter (scales depressing increments as alpha*lambda)
 mu_plus    real - Weight dependence exponent, potentiation
 mu_minus   real - Weight dependence exponent, depression
-Wmax       nS   - Maximum allowed weight
+Wmax       real - Maximum allowed weight (dimensionless)
 
 References:
 
@@ -46,7 +46,7 @@ Adapted by: Philipp Weidel
 synapse stdp:
 
   state:
-    w nS = 1 nS
+    w real = 1.
   end
 
   parameters:
@@ -54,11 +54,11 @@ synapse stdp:
     lambda real = .01
     tau_tr_pre ms = 20 ms
     tau_tr_post ms = 20 ms
-    alpha real = 1.
-    mu_plus real = 1.
-    mu_minus real = 1.
-    Wmax nS = 100 nS
-    Wmin nS = 0 nS
+    alpha real = 1
+    mu_plus real = 1
+    mu_minus real = 1
+    Wmax real = 100.
+    Wmin real = 0.
   end
 
   equations:
@@ -79,13 +79,13 @@ synapse stdp:
 
   postReceive:
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     w = min(Wmax, w_)
   end
 
   preReceive:
     # depress synapse
-    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+    w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     w = max(Wmin, w_)
 
     # deliver spike to postsynaptic partner

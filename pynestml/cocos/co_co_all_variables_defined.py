@@ -71,14 +71,37 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # test if the symbol has been defined at least
                 if symbol is None:
-                    # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
-                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
-                    if symbol is None:
-                        # symbol has not been defined; neither as a variable name nor as a type symbol
-                        code, message = Messages.get_variable_not_defined(var.get_name())
-                        Logger.log_message(node=node, code=code, message=message, log_level=LoggingLevel.ERROR,
-                                           error_position=var.get_source_position())
-                    continue  # symbol is a type symbol
+#                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
+#                     symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
+#                     if symbol is None:
+#                         # symbol has not been defined; neither as a variable name nor as a type symbol
+#                         code, message = Messages.get_variable_not_defined(var.get_name())
+#                         Logger.log_message(node=node, code=code, message=message, log_level=LoggingLevel.ERROR,
+#                                            error_position=var.get_source_position())
+#                     continue  # symbol is a type symbol
+
+                    if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
+                        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                        if symbol is not None:
+                            # an inline expression defining this variable name (ignoring differential order) exists
+                            if "__X__" in str(symbol):     # if this variable was the result of a convolution...
+                                continue
+                    else:
+                        # for kernels, also allow derivatives of that kernel to appear
+                        if node.get_equations_block() is not None:
+                            for inline_expr in node.get_equations_block().get_inline_expressions():
+                                if node.get_variable().get_name() == inline_expr.variable_name:
+                                    from pynestml.utils.ast_utils import ASTUtils
+                                    if ASTUtils.inline_aliases_convolution(inline_expr):
+                                        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                                        if symbol is not None:
+                                            # actually, no problem detected, skip error
+                                            # XXX: TODO: check that differential order is less than or equal to that of the kernel
+                                            continue
+        
+                    code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                       log_level=LoggingLevel.ERROR, node=node)
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
@@ -105,46 +128,7 @@ class CoCoAllVariablesDefined(CoCo):
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-        # now check for each assignment whether the left hand side variable is defined
-        vis = ASTAssignedVariableDefinedVisitor(node, after_ast_rewrite)
-        node.accept(vis)
-
-
-class ASTAssignedVariableDefinedVisitor(ASTVisitor):
-    """XXX: TODO: dissolve this class into CoCoAllVariablesDefined.check_co_co()"""
-    def __init__(self, neuron: ASTNeuron, after_ast_rewrite: bool = False):
-        super(ASTAssignedVariableDefinedVisitor, self).__init__()
-        self.neuron = neuron
-        self.after_ast_rewrite = after_ast_rewrite
-
-    def visit_assignment(self, node):
-        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
-                                                    SymbolKind.VARIABLE)
-        if symbol is None:
-            if self.after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
-                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-                if symbol is not None:
-                    # an inline expression defining this variable name (ignoring differential order) exists
-                    if "__X__" in str(symbol):	 # if this variable was the result of a convolution...
-                        return
-            else:
-                # for kernels, also allow derivatives of that kernel to appear
-                if self.neuron.get_equations_block() is not None:
-                    for inline_expr in self.neuron.get_equations_block().get_inline_expressions():
-                        if node.get_variable().get_name() == inline_expr.variable_name:
-                            from pynestml.utils.ast_utils import ASTUtils
-                            if ASTUtils.inline_aliases_convolution(inline_expr):
-                                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-                                if symbol is not None:
-                                    # actually, no problem detected, skip error
-                                    # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                    return
-
-            code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR, node=self.neuron)
-
-
+                            
 class ASTExpressionCollectorVisitor(ASTVisitor):
 
     def __init__(self):

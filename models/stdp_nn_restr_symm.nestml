@@ -24,7 +24,7 @@ SeeAlso: stdp
 synapse stdp_nn_restr_symm:
 
   state:
-    w nS = 1 nS
+    w real = 1.
     pre_trace real = 0.
     post_trace real = 0.
     pre_handled boolean = True
@@ -38,8 +38,8 @@ synapse stdp_nn_restr_symm:
     alpha real = 1.
     mu_plus real = 1.
     mu_minus real = 1.
-    Wmax nS = 100 nS
-    Wmin nS = 0 nS
+    Wmax real = 100.
+    Wmin real = 0.
   end
 
   equations:
@@ -62,7 +62,7 @@ synapse stdp_nn_restr_symm:
 
     # potentiate synapse
     if not pre_handled:
-      w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+      w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
       w = min(Wmax, w_)
       pre_handled = True
     end
@@ -73,7 +73,7 @@ synapse stdp_nn_restr_symm:
 
     # depress synapse
     if pre_handled:
-      w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+      w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
       w = max(Wmin, w_)
     end
 

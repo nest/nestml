@@ -388,7 +388,7 @@ class PredefinedFunctions:
         Registers the deliver-spike function.
         """
         params = list()
-        params.append(PredefinedTypes.get_type('nS'))
+        params.append(PredefinedTypes.get_real_type())
         params.append(PredefinedTypes.get_type('ms'))
         symbol = FunctionSymbol(name=cls.DELIVER_SPIKE, param_types=params,
                                 return_type=PredefinedTypes.get_real_type(),

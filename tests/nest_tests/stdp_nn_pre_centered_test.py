@@ -50,6 +50,19 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
         """Generate the neuron model code"""
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
+        # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
+        to_nest(input_path=["models/iaf_psc_exp.nestml", "models/stdp_nn_pre_centered.nestml"],
+                target_path="/tmp/nestml-jit",
+                logging_level="INFO",
+                module_name="nestml_jit_module",
+                suffix="_nestml",
+                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                              "neuron_parent_class_include": "structural_plasticity_node.h",
+                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp_nn_pre_centered"}]})
+
+        install_nest("/tmp/nestml-jit", nest_path)
+
         # generate the "non-jit" model, that relies on ArchivingNode
         to_nest(input_path="models/iaf_psc_exp.nestml",
                 target_path="/tmp/nestml-non-jit",
@@ -60,16 +73,6 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
                               "neuron_parent_class_include": "archiving_node.h"})
         install_nest("/tmp/nestml-non-jit", nest_path)
 
-        # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        to_nest(input_path=["models/iaf_psc_exp.nestml", "models/stdp_nn_pre_centered.nestml"],
-                target_path="/tmp/nestml-jit",
-                logging_level="INFO",
-                module_name="nestml_jit_module",
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [["iaf_psc_exp", "stdp_nn_pre_centered"]]})
-        install_nest("/tmp/nestml-jit", nest_path)
 
     def test_stdp_nn_synapse(self):
 
