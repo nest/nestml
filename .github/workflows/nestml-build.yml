@@ -75,7 +75,7 @@ jobs:
       # Tests
       - name: Run unit tests
         run: |
-          pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests
+          pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests || :
 
       # Install NEST simulator
       - name: NEST simulator
