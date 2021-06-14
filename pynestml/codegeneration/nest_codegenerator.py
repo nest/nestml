@@ -1269,7 +1269,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace['propagators'] = self.analytic_solver[synapse.get_name()]["propagators"]
 
-        namespace['uses_numeric_solver'] = synapse.get_name() in self.analytic_solver.keys() \
+        namespace['uses_numeric_solver'] = synapse.get_name() in self.numeric_solver.keys() \
             and self.numeric_solver[synapse.get_name()] is not None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[synapse.get_name()]["state_variables"]
@@ -1432,9 +1432,9 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['numeric_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
                 sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']}
             assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
-            namespace['numeric_update_expressions'] = {}
             for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
+            namespace['numeric_update_expressions'] = {}
             for sym in namespace['numeric_state_variables'] + namespace['numeric_state_variables_moved']:
                 expr_str = self.numeric_solver[neuron.get_name()]["update_expressions"][sym]
                 expr_ast = ModelParser.parse_expression(expr_str)
@@ -1454,7 +1454,6 @@ class NESTCodeGenerator(CodeGenerator):
             converter = NESTReferenceConverter(True)
             unitless_pretty_printer = UnitlessExpressionPrinter(converter)
             namespace['printer'] = NestPrinter(unitless_pretty_printer)
-
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable and not is_delta_kernel(neuron.get_kernel_by_name(sym.name))]

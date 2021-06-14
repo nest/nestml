@@ -33,7 +33,23 @@ try:
 except Exception:
     TEST_PLOTS = False
 
+@pytest.fixture(autouse=True,
+                scope="module")
+def nestml_to_nest_extension_module():
+    """Generate the neuron model code"""
+    nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
+    to_nest(input_path=["models/iaf_psc_delta.nestml", "models/stdp_triplet_naive.nestml"],
+            target_path="/tmp/nestml-triplet-stdp",
+            logging_level="INFO",
+            module_name="nestml_triplet_pair_module",
+            suffix="_nestml",
+            codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                            "neuron_parent_class_include": "structural_plasticity_node.h",
+                            "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                                                      "synapse": "stdp_triplet",
+                                                      "post_ports": ["post_spikes"]}]})
+    install_nest("/tmp/nestml-triplet-stdp", nest_path)
 
 
 def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):

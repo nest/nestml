@@ -297,7 +297,7 @@ void {{neuronName}}::init_buffers_()
 
   B_.__sys.function = {{neuronName}}_dynamics;
   B_.__sys.jacobian = NULL;
-  B_.__sys.dimension = {{stateSize}};
+  B_.__sys.dimension = {{stateSize}}; //{{numeric_state_variables|length + non_equations_state_variables|length}};
   B_.__sys.params = reinterpret_cast< void* >( this );
   B_.__step = nest::Time::get_resolution().get_ms();
   B_.__integration_step = nest::Time::get_resolution().get_ms();

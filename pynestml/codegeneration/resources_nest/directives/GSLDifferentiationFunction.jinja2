@@ -25,6 +25,13 @@ extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], 
 {%-   set variable_sym = numeric_variable_symbols[variable_name] %}
   f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
 {%- endfor %}
+{%- if paired_synapse is defined %}
+{%- for variable_name in numeric_state_variables_moved %}
+{%-   set update_expr = numeric_update_expressions[variable_name] %}
+{%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
+  f[{{names.array_index(variable_sym)}}] = {{printerGSL.print_expression(update_expr, prefix="node.")}};
+{%- endfor %}
+{%- endif %}
 {%- for variable_name in non_equations_state_variables %}
 {%-   set variable_sym = neuron.get_state_blocks().get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE) %}
   f[{{names.array_index(variable_sym)}}] = 0.;
