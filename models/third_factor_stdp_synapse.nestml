@@ -10,7 +10,7 @@ Do not use values of I_post_dend larger than 1 pA!
 synapse third_factor_stdp:
 
   state:
-    w nS = 1 nS
+    w real = 1.
   end
 
   parameters:
@@ -21,8 +21,8 @@ synapse third_factor_stdp:
     alpha real = 1.
     mu_plus real = 1.
     mu_minus real = 1.
-    Wmax nS = 100 nS
-    Wmin nS = 0 nS
+    Wmax real = 100.
+    Wmin real = 0.
   end
 
   equations:
@@ -44,16 +44,16 @@ synapse third_factor_stdp:
 
   postReceive:
     # potentiate synapse
-    w_ nS = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+    w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     if I_post_dend <= 1 pA:
       w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
-	end
+    end
     w = min(Wmax, w_)
   end
 
   preReceive:
     # depress synapse
-    w_ nS = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+    w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     if I_post_dend <= 1 pA:
       w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
     end
