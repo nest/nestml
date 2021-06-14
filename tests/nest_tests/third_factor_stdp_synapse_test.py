@@ -45,12 +45,11 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
     synapse_model_name = "third_factor_stdp_nestml__with_iaf_psc_exp_dend_nestml"
     ref_synapse_model_name = "third_factor_stdp_synapse"
-    
+
     post_trace_var = "I_dend"#"post_trace_kernel__for_stdp_nestml__X__post_spikes__for_stdp_nestml"
 
     def setUp(self):
         """Generate the neuron model code"""
-        return
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
@@ -281,7 +280,8 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             ax[-4].set_ylabel("Post spikes")
 
             if sim_mdl:
-                ax[-3].plot(timevec, nest.GetStatus(mm, "events")[0][self.post_trace_var])
+                third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
+                ax[-3].plot(timevec, third_factor_trace)
                 ax[-3].set_ylabel("3rd factor")
 
             if sim_mdl:
@@ -293,7 +293,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             if sim_ref:
               ax[-1].plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
             ax[-1].set_ylabel("w")
-            
+
             ax[-1].set_xlabel("Time [ms]")
             for _ax in ax:
                 if not _ax == ax[-1]:
@@ -301,8 +301,12 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 _ax.grid(which="major", axis="both")
                 _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
                 _ax.set_xlim(0., sim_time)
-            fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + ".png", dpi=300)
+            fig.savefig("/tmp/stdp_third_factor_synapse_test" + fname_snip + ".png", dpi=300)
 
         # verify
         MAX_ABS_ERROR = 1E-6
-        assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
+        idx = np.where(np.abs(third_factor_trace) < 1E-3)[0]  # find where third_factor_place is (almost) zero
+        times_dw_should_be_zero = timevec[idx]
+        for time_dw_should_be_zero in times_dw_should_be_zero:
+            _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
+            assert np.abs(np.diff(w_hist)[_idx]) < MAX_ABS_ERROR
