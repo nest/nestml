@@ -71,14 +71,10 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # test if the symbol has been defined at least
                 if symbol is None:
-#                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
-#                     symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
-#                     if symbol is None:
-#                         # symbol has not been defined; neither as a variable name nor as a type symbol
-#                         code, message = Messages.get_variable_not_defined(var.get_name())
-#                         Logger.log_message(node=node, code=code, message=message, log_level=LoggingLevel.ERROR,
-#                                            error_position=var.get_source_position())
-#                     continue  # symbol is a type symbol
+                    # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
+                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
+                    if symbol is not None:
+                        continue  # symbol is a type symbol
 
                     if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
                         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
@@ -90,7 +86,7 @@ class CoCoAllVariablesDefined(CoCo):
                         # for kernels, also allow derivatives of that kernel to appear
                         if node.get_equations_block() is not None:
                             for inline_expr in node.get_equations_block().get_inline_expressions():
-                                if node.get_variable().get_name() == inline_expr.variable_name:
+                                if var.get_variable().get_name() == inline_expr.variable_name:
                                     from pynestml.utils.ast_utils import ASTUtils
                                     if ASTUtils.inline_aliases_convolution(inline_expr):
                                         symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
@@ -98,7 +94,7 @@ class CoCoAllVariablesDefined(CoCo):
                                             # actually, no problem detected, skip error
                                             # XXX: TODO: check that differential order is less than or equal to that of the kernel
                                             continue
-        
+
                     code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
@@ -128,7 +124,7 @@ class CoCoAllVariablesDefined(CoCo):
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-                            
+
 class ASTExpressionCollectorVisitor(ASTVisitor):
 
     def __init__(self):
