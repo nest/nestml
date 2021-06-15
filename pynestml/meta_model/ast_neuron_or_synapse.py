@@ -345,7 +345,7 @@ class ASTNeuronOrSynapse(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.PARAMETERS and \
+            if isinstance(symbol, VariableSymbol) and symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS] and \
                     not symbol.is_predefined:
                 ret.append(symbol)
         return ret
@@ -707,6 +707,9 @@ class ASTNeuronOrSynapse(ASTNode):
 
     def get_initial_value(self, variable_name):
         assert type(variable_name) is str
+
+        if self.get_state_blocks() is None:
+            return None
 
         for decl in self.get_state_blocks().get_declarations():
             for var in decl.variables:

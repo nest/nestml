@@ -304,7 +304,7 @@ class ASTNeuron(ASTNeuronOrSynapse):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.PARAMETERS and \
+            if isinstance(symbol, VariableSymbol) and symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS] and \
                     not symbol.is_predefined:
                 ret.append(symbol)
         return ret

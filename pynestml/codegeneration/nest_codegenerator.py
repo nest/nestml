@@ -46,6 +46,7 @@ from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
@@ -139,6 +140,43 @@ class NESTCodeGenerator(CodeGenerator):
         self._template_synapse_h_file = env.get_template('SynapseHeader.jinja2')
 
         self._printer = ExpressionsPrettyPrinter()
+
+    def update_blocktype_for_common_parameters(self, node):
+
+        """Change the BlockType for all homogeneous parameters to BlockType.COMMON_PARAMETER"""
+        # get all homogeneous parameters
+        all_homogeneous_parameters = []
+        for parameter in node.get_parameter_symbols():
+            is_homogeneous = PyNestMLLexer.DECORATOR_HOMOGENEOUS in parameter.get_decorators()
+            if is_homogeneous:
+                all_homogeneous_parameters.append(parameter.name)
+
+        # change the block type
+        class ASTHomogeneousParametersBlockTypeChangeVisitor(ASTVisitor):
+            def __init__(self, all_homogeneous_parameters):
+                super(ASTHomogeneousParametersBlockTypeChangeVisitor, self).__init__()
+                self._all_homogeneous_parameters = all_homogeneous_parameters
+
+            def visit_variable(self, node: ASTNode):
+                if node.get_name() in self._all_homogeneous_parameters:
+                    symbol = node.get_scope().resolve_to_symbol(node.get_complete_name(),
+                                                                SymbolKind.VARIABLE)
+                    if symbol is None:
+                        code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+                        Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                           log_level=LoggingLevel.ERROR, astnode=node)
+                        return
+
+                    assert symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
+                    symbol.block_type = BlockType.COMMON_PARAMETERS
+                    print("Changing block type of variable " + str(node.get_complete_name()))
+
+        if node is None:
+            return
+
+        visitor = ASTHomogeneousParametersBlockTypeChangeVisitor(all_homogeneous_parameters)
+        node.accept(visitor)
+
 
     def is_continuous_port(self, port_name: str, parent_node: ASTNeuronOrSynapse):
         for port in parent_node.get_input_blocks().get_input_ports():
@@ -771,6 +809,8 @@ class NESTCodeGenerator(CodeGenerator):
             new_neuron.accept(ASTSymbolTableVisitor())
             new_synapse.accept(ASTSymbolTableVisitor())
 
+            self.update_blocktype_for_common_parameters(new_synapse)
+
             neurons.append(new_neuron)
             synapses.append(new_synapse)
 
@@ -1153,6 +1193,8 @@ class NESTCodeGenerator(CodeGenerator):
             spike_updates, post_spike_updates = self.get_spike_update_expressions(synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
         else:
             self.add_timestep_symbol(synapse)
+
+        self.update_blocktype_for_common_parameters(synapse)
 
         return spike_updates, post_spike_updates
 

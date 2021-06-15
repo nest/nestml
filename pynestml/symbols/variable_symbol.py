@@ -54,12 +54,13 @@ class BlockType(Enum):
     """
     STATE = 1
     PARAMETERS = 2
-    INTERNALS = 3
-    EQUATION = 4
-    LOCAL = 5
-    INPUT = 6
-    OUTPUT = 7
-    PREDEFINED = 8
+    COMMON_PARAMETERS = 3
+    INTERNALS = 4
+    EQUATION = 5
+    LOCAL = 6
+    INPUT = 7
+    OUTPUT = 8
+    PREDEFINED = 9
 
 
 class VariableSymbol(Symbol):
@@ -211,14 +212,6 @@ class VariableSymbol(Symbol):
         """
         return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_inhibitory()
 
-    def is_post(self) -> bool:
-        """
-        Returns whether this symbol represents a buffer of type post.
-        :return: True if is post, otherwise False.
-        :rtype: bool
-        """
-        return isinstance(self.get_referenced_object(), ASTInputPort) and self.get_referenced_object().is_post()
-
     def is_state(self) -> bool:
         """
         Returns whether this variable symbol has been declared in a state block.
@@ -232,7 +225,7 @@ class VariableSymbol(Symbol):
         :return: True if declared in a parameters block, otherwise False.
         :rtype: bool
         """
-        return self.block_type == BlockType.PARAMETERS
+        return self.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]
 
     def is_internals(self) -> bool:
         """

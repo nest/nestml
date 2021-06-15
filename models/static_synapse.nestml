@@ -1,7 +1,7 @@
 synapse static:
 
   parameters:
-    w nS = 900 pS  @nest::weight @homogeneous
+    w real = 900  @nest::weight @homogeneous
     d ms = .9 ms  @nest::delay @heterogeneous
     a real = 3.141592653589793  @nest::a @homogeneous
     b real = 100.  @nest::b @heterogeneous

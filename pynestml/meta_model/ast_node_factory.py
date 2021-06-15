@@ -269,9 +269,9 @@ class ASTNodeFactory:
                             signal_type=signal_type, source_position=source_position)
 
     @classmethod
-    def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, is_post=False, source_position=None):
+    def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
         # type: (bool,bool,ASTSourceLocation) -> ASTInputQualifier
-        return ASTInputQualifier(is_inhibitory, is_excitatory, is_post, source_position=source_position)
+        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position=source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):

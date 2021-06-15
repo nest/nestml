@@ -276,6 +276,9 @@ class NestPrinter:
         if variable_symbol.block_type == BlockType.PARAMETERS:
             return prefix + 'P_.'
 
+        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
+            return prefix + 'cp.'
+
         if variable_symbol.block_type == BlockType.INTERNALS:
             return prefix + 'V_.'
 

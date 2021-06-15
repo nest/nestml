@@ -237,11 +237,17 @@ private:
   //   Getters/setters for parameters
   // -------------------------------------------------------------------------
 
+
+
+
 {% filter indent(2, True) -%}
 {%- for parameter in synapse.get_parameter_symbols() %}
-{%-    with variable = parameter %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+{%-     if (not isHomogeneous) %}
+{%-     with variable = parameter %}
 {%-        include "directives/MemberVariableGetterSetter.jinja2" %}
-{%-    endwith %}
+{%-     endwith %}
+{%-     endif %}
 {%- endfor %}
 {%- endfilter %}
   // -------------------------------------------------------------------------
@@ -654,7 +660,7 @@ assert(0);
 {%-     include "directives/Block.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
-std::cout <<", new w = " << S_.w << std::endl;
+//std::cout <<", new w = " << S_.w << std::endl;
 
     /**
      *  update all convolutions with pre spikes
@@ -693,6 +699,8 @@ void
 
   // parameters
 {%- for parameter in synapse.get_parameter_symbols() %}
+{%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
+{%-     if (not isHomogeneous) %}
 {%- set namespaceName = parameter.get_namespace_decorator('nest') %}
 {%- if namespaceName == '' %}
 {%-   with variable = parameter %}
@@ -702,6 +710,7 @@ void
 {%-   endwith %}
 {%- else %}
   def< {{declarations.print_variable_type(parameter)}} >( __d, names::{{namespaceName}}, {{printer.print_origin(parameter)}}{{names.name(parameter)}} );
+{%- endif %}
 {%- endif %}
 {%- endfor %}
 
@@ -727,7 +736,7 @@ void
 {%- for parameter in synapse.get_parameter_symbols() %}
 {%-     set namespaceName = parameter.get_namespace_decorator('nest') %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
-{%-     if not isHomogeneous %}
+{%-     if (not isHomogeneous) %}
 {%-         with variable = parameter %}
 {%-             filter indent(2,True) %}
 {%-             include "directives/ReadFromDictionaryToTmp.jinja2" %}
@@ -757,7 +766,7 @@ void
 {%- for parameter in synapse.get_parameter_symbols() %}
 {%-      set namespaceName = parameter.get_namespace_decorator('nest') %}
 {%-      set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
-{%-      if not isHomogeneous %}
+{%-      if (not isHomogeneous) %}
 {%-          with variable = parameter %}
 {%-              filter indent(2,True) %}
 {%-              include "directives/AssignTmpDictionaryValue.jinja2" %}

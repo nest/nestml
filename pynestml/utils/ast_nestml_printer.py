@@ -500,8 +500,6 @@ class ASTNestMLPrinter:
             return 'inhibitory'
         if node.is_excitatory:
             return 'excitatory'
-        if node.is_post:
-            return 'post'
         return ''
 
     @classmethod
@@ -703,7 +701,7 @@ def print_n_spaces(n):
     return ' ' * n
 
 
-def print_ml_comments(comments, indent=0, is_post=False):
+def print_ml_comments(comments, indent=0):
     if comments is None or len(list(comments)) == 0:
         return ''
     ret = ''
@@ -722,7 +720,7 @@ def print_ml_comments(comments, indent=0, is_post=False):
             ret += c_line + '\n'
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
-    if len(comments) > 0 and is_post:
+    if len(comments) > 0:
         ret += '\n'
 
     return ret
