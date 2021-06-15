@@ -705,7 +705,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitInputQualifier(self, ctx):
         is_inhibitory = True if ctx.isInhibitory is not None else False
         is_excitatory = True if ctx.isExcitatory is not None else False
-        is_post = True if ctx.isPost is not None else False
         return ASTNodeFactory.create_ast_input_qualifier(is_inhibitory=is_inhibitory, is_excitatory=is_excitatory, is_post=is_post,
                                                          source_position=create_source_pos(ctx))
 
