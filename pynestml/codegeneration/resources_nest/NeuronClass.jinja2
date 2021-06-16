@@ -331,6 +331,7 @@ void {{neuronName}}::calibrate() {
   B_.logger_.init();
 
   calibrate_variables();
+  clear_history();
 
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
