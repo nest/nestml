@@ -49,7 +49,7 @@ class GSLReferenceConverter(IReferenceConverter):
         """
         self.is_upper_bound = is_upper_bound
 
-    def convert_name_reference(self, ast_variable: ASTVariable, prefix: str = ''):
+    def convert_name_reference(self, variable: ASTVariable, prefix: str = ''):
         """
         Converts a single name reference to a gsl processable format.
         :param ast_variable: a single variable
@@ -57,20 +57,19 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: a gsl processable format of the variable
         :rtype: str
         """
-        variable_name = NestNamesConverter.convert_to_cpp_name(ast_variable.get_name())
 
-        if variable_name == PredefinedVariables.E_CONSTANT:
+        if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
 
-        symbol = ast_variable.get_scope().resolve_to_symbol(ast_variable.get_complete_name(), SymbolKind.VARIABLE)
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
-            if PredefinedUnits.is_unit(ast_variable.get_complete_name()):
-                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(ast_variable.get_complete_name()).get_unit()))
+            if PredefinedUnits.is_unit(variable.get_complete_name()):
+                return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
 
-            code, message = Messages.get_could_not_resolve(variable_name)
+            code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
-                               error_position=ast_variable.get_source_position())
+                               error_position=variable.get_source_position())
             return ''
 
         if symbol.is_state():
@@ -90,6 +89,8 @@ class GSLReferenceConverter(IReferenceConverter):
             if not units_conversion_factor == 1:
                 s += ")"
             return s
+
+        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_name())
 
         if symbol.is_local() or symbol.is_inline_expression:
             return variable_name

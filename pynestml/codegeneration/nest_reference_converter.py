@@ -183,7 +183,7 @@ e();
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
-    def convert_name_reference(self, variable, prefix=''):
+    def convert_name_reference(self, variable: ASTVariable, prefix=''):
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
@@ -192,10 +192,6 @@ e();
         :rtype: str
         """
         from pynestml.codegeneration.nest_printer import NestPrinter
-        assert (variable is not None and isinstance(variable, ASTVariable)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of variable provided (%s)!' % type(
-                variable)
-        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
         if isinstance(variable, ASTExternalVariable):
             _name = str(variable)
@@ -205,26 +201,22 @@ e();
 
             return "((POST_NEURON_TYPE*)(__target))->get_" + _name + "(_tr_t)"
 
-        if PredefinedUnits.is_unit(variable.get_complete_name()):
-            return str(
-                UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
-        if variable_name == PredefinedVariables.E_CONSTANT:
+        if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
 
-        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
-
-        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
                 return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
 
-            code, message = Messages.get_could_not_resolve(variable_name)
+            code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                error_position=variable.get_source_position())
             return ''
 
         if symbol.is_local():
+            variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
             return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_buffer():
