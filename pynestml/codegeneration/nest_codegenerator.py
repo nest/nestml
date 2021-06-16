@@ -1736,7 +1736,7 @@ class NESTCodeGenerator(CodeGenerator):
                         assignment_str += " * (" + \
                             self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
 
-                    if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
+                    if not buffer_type.print_nestml_type() in ["1.", "1.0", "1", "real", "integer"]:
                         assignment_str += " / (" + buffer_type.print_nestml_type() + ")"
 
                     ast_assignment = ModelParser.parse_assignment(assignment_str)
