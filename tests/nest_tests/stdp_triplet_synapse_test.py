@@ -37,7 +37,6 @@ except Exception:
                 scope="module")
 def nestml_to_nest_extension_module():
     """Generate the neuron model code"""
-    return
     nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
     to_nest(input_path=["models/iaf_psc_delta.nestml", "models/stdp_triplet_naive.nestml"],

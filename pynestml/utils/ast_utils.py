@@ -489,3 +489,12 @@ class ASTUtils:
                 var.set_name(var.get_name() + suffix)
 
         astnode.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
+
+    @classmethod
+    def get_inline_expression_by_name(cls, node, name: str) -> Optional[ASTInlineExpression]:
+        if not node.get_equations_block():
+            return None
+        for inline_expr in node.get_equations_block().get_inline_expressions():
+            if name == inline_expr.variable_name:
+                return inline_expr
+        return None
