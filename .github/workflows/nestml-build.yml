@@ -84,7 +84,7 @@ jobs:
           git ls-remote git://github.com/nest/nest-simulator.git | grep refs/heads/master | cut -f 1 > latest_nest_master_commit_hash.txt
 
       # Install NEST simulator
-      - name: NEST simulator
+      - name: NEST simulator cache
         uses: actions/cache@v2
         env:
           cache-name: nest-simulator-cache
@@ -92,6 +92,8 @@ jobs:
           path: ~/nest_install
           key: nest-simulator-${{ hashFiles('latest_nest_master_commit_hash.txt') }}
 
+      # Install NEST simulator
+      - name: NEST simulator
         run: |
           python -m pip install cython
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
