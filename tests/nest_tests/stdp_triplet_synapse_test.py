@@ -380,9 +380,8 @@ def compare_results(timevec, weight_reference, times_weights, weight_simulation)
         w_ref = weight_reference[idx_w_ref]
         w_ref_vec.append(w_ref)
 
-    #np.testing.assert_allclose(weight_simulation, w_ref_vec, atol=1E-6, rtol=1E-6)
-    #print("Test passed!")
-    print("XXX: !!!!!! TEST ASSERTION NOT CHECKED!!!!!!")
+    np.testing.assert_allclose(weight_simulation, w_ref_vec, atol=1E-6, rtol=1E-6)
+    print("Test passed!")
 
 
 def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, timevec, weight_reference, times_weights, weight_simulation, sim_time):
@@ -442,11 +441,10 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
 
     plt.savefig("/tmp/stdp_triplets_[delay=" + "%.3f" % syn_opts["delay"] + "].png", dpi=150.)
 
-
-@pytest.mark.parametrize('delay', [1., 5., 14.3])
-#@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
-@pytest.mark.parametrize('spike_times_len', [10])
-def test_stdp_triplet_synapse(delay, spike_times_len):
+#@pytest.mark.parametrize('delay', [1., 5., 14.3])
+##@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+#@pytest.mark.parametrize('spike_times_len', [10])
+def _test_stdp_triplet_synapse(delay, spike_times_len):
     print("Running test for delay = " + str(delay) + ", spike_times_len = " + str(spike_times_len))
 
     experiment = "test_nestml_pair_synapse"
@@ -513,7 +511,7 @@ def test_stdp_triplet_synapse(delay, spike_times_len):
                     'Aminus_triplet': syn_opts['A3_minus'],
                     'Wmax'              : syn_opts["w_max"],
                     'weight'            : syn_opts["w_init"]}
-                    
+
     fname_snip = "_experiment=[" + experiment + "]"
 
     #post_spike_times = np.arange(1, 20).astype(np.float)
@@ -587,10 +585,10 @@ def test_stdp_triplet_synapse(delay, spike_times_len):
     times_spikes_syn_persp = np.copy(times_spikes)
     times_spikes_syn_persp[senders_spikes==gid_post] += syn_opts["delay"]
 
-    print("Actual post spike times (syn. pers.): " + str(times_spikes_syn_persp))
-
     times_spikes_post_syn_persp = times_spikes_syn_persp[senders_spikes==gid_post]
     times_spikes_syn_persp = np.sort(times_spikes_syn_persp)
+
+    print("Actual post spike times (syn. pers.): " + str(times_spikes_post_syn_persp))
 
     ref_timevec, ref_w = \
         run_reference_simulation(syn_opts=syn_opts,
@@ -600,6 +598,29 @@ def test_stdp_triplet_synapse(delay, spike_times_len):
                                 times_spikes_post_syn_persp=times_spikes_post_syn_persp,
                                 fname_snip=fname_snip)
 
+    plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, ref_timevec, ref_w, nestml_timevec, nestml_w, sim_time)
+
     compare_results(ref_timevec, ref_w, nestml_timevec, nestml_w)
 
-    plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, ref_timevec, ref_w, nestml_timevec, nestml_w, sim_time)
+
+#@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+@pytest.mark.parametrize('spike_times_len', [10])
+def test_stdp_triplet_synapse_delay_1(spike_times_len):
+    delay = 1.
+    _test_stdp_triplet_synapse(delay, spike_times_len)
+
+import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
+@pytest.mark.xfail(strict=True, raises=Exception)
+#@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+@pytest.mark.parametrize('spike_times_len', [10])
+def test_stdp_triplet_synapse_delay_5(spike_times_len):
+    delay = 5.
+    _test_stdp_triplet_synapse(delay, spike_times_len)
+
+import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
+@pytest.mark.xfail(strict=True, raises=Exception)
+#@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
+@pytest.mark.parametrize('spike_times_len', [10])
+def test_stdp_triplet_synapse_delay_10(spike_times_len):
+    delay = 10.
+    _test_stdp_triplet_synapse(delay, spike_times_len)
