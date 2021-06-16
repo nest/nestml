@@ -107,7 +107,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
-          export ALL_MODEL_FILENAMES=`find models | grep -v third_factor | paste -sd " "`
+          export ALL_MODEL_FILENAMES=`find models | tail -n +2 | grep -v third_factor | paste -sd " "`
           nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
           cd target
           echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
