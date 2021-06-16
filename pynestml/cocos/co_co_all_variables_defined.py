@@ -86,16 +86,16 @@ class CoCoAllVariablesDefined(CoCo):
                         # for kernels, also allow derivatives of that kernel to appear
                         if node.get_equations_block() is not None:
                             for inline_expr in node.get_equations_block().get_inline_expressions():
-                                if var.get_variable().get_name() == inline_expr.variable_name:
+                                if var.get_name() == inline_expr.variable_name:
                                     from pynestml.utils.ast_utils import ASTUtils
                                     if ASTUtils.inline_aliases_convolution(inline_expr):
-                                        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
+                                        symbol = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
                                         if symbol is not None:
                                             # actually, no problem detected, skip error
                                             # XXX: TODO: check that differential order is less than or equal to that of the kernel
                                             continue
 
-                    code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
+                    code, message = Messages.get_variable_not_defined(var.get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
 
