@@ -8,6 +8,16 @@ jobs:
       fail-fast: false
 
     steps:
+
+      # cache NEST Simulator installation
+      - name: Cache NEST Simulator
+        uses: actions/cache@v2
+        with:
+          path: 
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+
+
       # Checkout the repository contents
       - name: Checkout NESTML code
         uses: actions/checkout@v2
@@ -65,15 +75,23 @@ jobs:
       - name: Static code style analysis
         run: |
           python3 extras/codeanalysis/check_copyright_headers.py || :
-          python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E303,E714,E713,E714,E252,W503 --exclude=tests --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github || :
+          #python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E303,E714,E713,E714,E252,W503 --exclude=tests --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github || :
 
       # Tests
       - name: Run unit tests
         run: |
-          pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests || :
+          #pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests || :
+          git ls-remote git://github.com/nest/nest-simulator.git | grep refs/heads/master | cut -f 1 > latest_nest_master_commit_hash.txt
 
       # Install NEST simulator
       - name: NEST simulator
+        uses: actions/cache@v2
+        env:
+          cache-name: nest-simulator-cache
+        with:
+          path: ~/nest_install
+          key: nest-simulator-${{ hashFiles('latest_nest_master_commit_hash.txt') }}
+
         run: |
           python -m pip install cython
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
