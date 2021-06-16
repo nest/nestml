@@ -32,7 +32,8 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
     def test_logarithmic_function(self):
         MAX_SSE = 1E-12
 
-        input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")))
+        input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest.nestml"))),
+                      os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest_invalid.nestml")))]
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
