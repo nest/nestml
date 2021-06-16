@@ -79,7 +79,9 @@ jobs:
         env:
           cache-name: nest-simulator-cache
         with:
-          path: ~/nest_install
+          path: |
+            /home/runner/work/nestml/nest-simulator
+            /home/runner/work/nestml/nest_install
           key: nest-simulator-${{ hashFiles('latest_nest_master_commit_hash.txt') }}
 
       # Install NEST simulator
