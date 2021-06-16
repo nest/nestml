@@ -74,7 +74,6 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
     tr *= np.exp(-(t - t_sp_prev) / tau)
     if extra_debug:
         print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(t-t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-    #import pdb;pdb.set_trace()
     return tr
 
 
@@ -247,7 +246,6 @@ def run_nest_simulation(neuron_model_name,
     events            = nest.GetStatus(weight_recorder_E,'events')[0]
     times_weights     = events['times']
     weight_simulation = events['weights']
-    import pdb;pdb.set_trace()
     return times_weights, weight_simulation, gid_pre, gid_post, times_spikes, senders_spikes, sim_time
 
 
@@ -603,5 +601,3 @@ def test_stdp_triplet_synapse(delay, spike_times_len):
     compare_results(ref_timevec, ref_w, nestml_timevec, nestml_w)
 
     plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, ref_timevec, ref_w, nestml_timevec, nestml_w, sim_time)
-    
-    import pdb;pdb.set_trace()
