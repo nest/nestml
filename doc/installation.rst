@@ -6,8 +6,6 @@ Please note that only Python 3.8 (and later versions) are supported. The instruc
 Installing the latest release from PyPI
 ---------------------------------------
 
-.. Attention:: As NESTML is currently getting close to its version 4.0 release, we recommend using the development version (see below under :ref:`Installing the latest development version from GitHub`).
-
 The easiest way to install NESTML is to use the `Python Package Index (PyPI) <https://pypi.org>`_. This requires the Python package management system ``pip`` to be installed. In Ubuntu, Mint and Debian Linux you can install ``pip`` as follows:
 
 .. code-block:: bash
@@ -37,6 +35,15 @@ Install into your local user directory using:
 
    cd nestml
    python setup.py install --user
+
+
+.. Attention::
+
+   When using the latest development version, you may also need the development version of ODE-toolbox. It can be installed by running:
+
+   .. code-block:: bash
+
+      pip install git+https://github.com/nest/ode-toolbox
 
 
 Testing
