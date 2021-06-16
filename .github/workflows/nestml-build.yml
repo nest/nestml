@@ -8,16 +8,6 @@ jobs:
       fail-fast: false
 
     steps:
-
-      # cache NEST Simulator installation
-      - name: Cache NEST Simulator
-        uses: actions/cache@v2
-        with:
-          path: 
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-
-
       # Checkout the repository contents
       - name: Checkout NESTML code
         uses: actions/checkout@v2
