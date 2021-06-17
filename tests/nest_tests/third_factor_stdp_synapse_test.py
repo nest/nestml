@@ -204,6 +204,8 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
             if sim_mdl:
              w_hist.append(nest.GetStatus(syn)[0]['w'])
 
+        third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
+
         # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
@@ -228,8 +230,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
             fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + "_V_m.png", dpi=300)
-
-
 
         # plot
         if TEST_PLOTS:
@@ -279,17 +279,13 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 ax[-4].plot(2 * [post_ref_spike_times_[i]], [0, 1], linewidth=2, color="red", alpha=.4, label=_lbl)
             ax[-4].set_ylabel("Post spikes")
 
-            if sim_mdl:
-                third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
-                ax[-3].plot(timevec, third_factor_trace)
-                ax[-3].set_ylabel("3rd factor")
+            ax[-3].plot(timevec, third_factor_trace)
+            ax[-3].set_ylabel("3rd factor")
 
-            if sim_mdl:
-             ax[-2].plot(t_hist[:-1], np.diff(w_hist), marker="o", label=u"Δw")
-             ax[-2].set_ylabel(u"Δw")
+            ax[-2].plot(t_hist[:-1], np.diff(w_hist), marker="o", label=u"Δw")
+            ax[-2].set_ylabel(u"Δw")
 
-            if sim_mdl:
-             ax[-1].plot(t_hist, w_hist, marker="o")
+            ax[-1].plot(t_hist, w_hist, marker="o")
             if sim_ref:
               ax[-1].plot(t_hist, w_hist_ref, linestyle="--", marker="x", label="ref")
             ax[-1].set_ylabel("w")
