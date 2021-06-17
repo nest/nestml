@@ -1,0 +1,70 @@
+"""
+FIRFilter.nestml
+################
+
+
+Description
++++++++++++
+
+Model for Finite Impulse Response (FIR) filter
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron fir_filter:
+
+ state:
+   # FIR filter output (to be recorded by NEST multimeter)
+   y real = 0.
+
+   # circular buffer for input spike count per timestep
+   x[N] real = 0.
+   i integer = 0
+ end
+
+ parameters:
+   N integer = 51  # filter order
+   h[N] real = 0.   # filter coefficients
+ end
+
+ input:
+   spike_in real <- spike
+ end
+
+ update:
+   # circular buffer for input spike count per timestep
+   x[i] = spike_in
+
+   # compute the new value of y
+   j integer = 0
+   k integer = 0
+   y = 0
+   for j in 0 ... N step 1:
+     k = (i - j + N) % N   # shift the index due to circular buffer starting position
+     y += x[k] * h[j]
+   end
+
+   # Increment i to receive the next input spike
+   i += 1
+   i = i % N
+ end
+
+end
