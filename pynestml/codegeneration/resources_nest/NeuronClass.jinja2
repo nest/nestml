@@ -286,12 +286,6 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
-void {{neuronName}}::init_state_(const Node& proto)
-{
-  const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
-  S_ = pr.S_;
-}
-
 void {{neuronName}}::init_buffers_()
 {
 {%- for port in neuron.get_input_ports() %}
