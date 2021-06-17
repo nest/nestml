@@ -20,12 +20,19 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+
 import numpy as np
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib
+    import matplotlib.pyplot as plt
+
+    TEST_PLOTS = True
+except BaseException:
+    TEST_PLOTS = False
 
 import nest
 import scipy.signal
-
 import scipy.stats
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
@@ -59,6 +66,7 @@ def plot_nestml(spike_times, times, y):
     plt.xlabel("Time (ms)")
     plt.ylabel("Filter output")
     plt.legend()
+    plt.title('FIR Filter (NESTML)')
     plt.savefig("/tmp/fir_filter_output_nestml.png")
 
 
@@ -78,6 +86,7 @@ def plot_scipy(spike_times, num, stop):
     plt.xlabel("Time (ms)")
     plt.ylabel("Filter output")
     plt.legend()
+    plt.title('FIR filter (scipy)')
     plt.savefig('/tmp/fir_filter_output_scipy.png')
 
 
@@ -91,7 +100,7 @@ suffix = '_nestml'
 dev = True
 
 # Generate the NEST code
-input_path = os.path.join(os.path.realpath(nestml_model_file))
+input_path = os.path.join(os.path.realpath(os.path.join('resources', nestml_model_file)))
 nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
 install_nest(target_path, nest_path)
@@ -107,7 +116,8 @@ nest.ResetKernel()
 neuron = nest.Create(nestml_model_name)
 
 # Create a spike generator
-spikes = [1.5, 1.5, 1.5, 6.7, 10., 10.1, 10.1, 11.3, 11.3, 20., 22.5, 30., 40., 42., 42., 42., 50.5, 50.5, 75., 88., 93., 93., 98.9, 98.9]
+spikes = [1.5, 1.5, 1.5, 6.7, 10., 10.1, 10.1, 11.3, 11.3, 20., 22.5, 30., 40., 42., 42., 42., 50.5, 50.5, 75., 88.,
+          93., 93., 98.9, 98.9]
 sg = nest.Create("spike_generator", params={"spike_times": spikes})
 nest.Connect(sg, neuron)
 
@@ -141,5 +151,6 @@ times = events["times"]
 spike_times = nest.GetStatus(sr, keys='events')[0]['times']
 
 # Plots
-plot_nestml(spike_times, times, y)
-plot_scipy(spike_times, t_sim-1, len(y))
+if TEST_PLOTS:
+    plot_nestml(spike_times, times, y)
+    plot_scipy(spike_times, t_sim - 1, len(y))
