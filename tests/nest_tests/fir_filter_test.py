@@ -100,7 +100,7 @@ suffix = '_nestml'
 dev = True
 
 # Generate the NEST code
-input_path = os.path.join(os.path.realpath(os.path.join('resources', nestml_model_file)))
+input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', nestml_model_file)))
 nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
 install_nest(target_path, nest_path)
