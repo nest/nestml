@@ -90,7 +90,7 @@ def plot_scipy(spike_times, num, stop):
     plt.savefig('/tmp/fir_filter_output_scipy.png')
 
 
-nestml_model_file = 'fir_filter.nestml'
+nestml_model_file = 'FIR_Filter.nestml'
 nestml_model_name = 'fir_filter_nestml'
 target_path = '/tmp/fir-filter'
 logging_level = 'INFO'
