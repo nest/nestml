@@ -69,23 +69,24 @@ public:
 
 class {{synapse_name}}{
 private:
-  // user defined parameters
-  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
-  double {{param_name}}_ = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
-  {%- endfor %}
-  
-  //initial values for kernel state variables
-  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-  double {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
-  {%- endfor %}
-  {%- endfor %}
-  
-  //initial values for propagators
+
+  // propagators, initialized via calibrate()
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-  double {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  double {{state_variable_name}};
   {%- endfor %}
+  {%- endfor %}
+  
+  // kernel state variables, initialized via calibrate()
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  double {{state_variable_name}};
+  {%- endfor %}
+  {%- endfor %}
+  
+  // user defined parameters
+  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+  double {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
   {%- endfor %}
   
   // assigned variables
@@ -100,19 +101,13 @@ public:
   ~{{synapse_name}}(){};
 
   // initialization of the state variables
-  void init()
-  {
-  //initial values for kernel state variables
-  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-    {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
-  {%- endfor %}
-  {%- endfor %}
-    {{synapse_info["buffer_name"]}}_->clear();
-  };
+  void init();
 
   // numerical integration step
   std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
+
+  // calibration
+  void calibrate();
 
   // function declarations
   {% for function in neuron.get_functions() %}

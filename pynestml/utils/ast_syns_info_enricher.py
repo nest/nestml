@@ -8,7 +8,9 @@ this splits the variables on per kernel basis
 from _collections import defaultdict
 import copy
 
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
@@ -16,20 +18,9 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 import sympy
 
 from build.lib.pynestml.meta_model.ast_expression import ASTExpression
-from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
 
 class ASTSynsInfoEnricher(ASTVisitor):
-    #
-    # cm_syns_info = {}
-    # kernel_name_to_analytic_solver = {}
-    #
-    # synapse_inline_to_ODE_propagators = defaultdict(lambda:set())
-    # synapse_inline_to_ODE_update_expressions = defaultdict(lambda:set())
-    # synapse_inline_to_ODE_state_variables = defaultdict(lambda:set())
-    # synapse_inline_to_ODE_initial_values = defaultdict(lambda:set())
-    # synapse_inline_to_parameters = defaultdict(lambda:set())
-    #
     
     variables_to_internal_declarations = {}
     internal_variable_name_to_variable = {}
@@ -53,7 +44,17 @@ class ASTSynsInfoEnricher(ASTVisitor):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
-            }
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
             "convolutions":
             {
                 "g_ex_AMPA__X__b_spikes": 
@@ -90,7 +91,17 @@ class ASTSynsInfoEnricher(ASTVisitor):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
-            }
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
             "convolutions":
             {
                 "g_ex_AMPA__X__b_spikes": 
@@ -165,7 +176,17 @@ class ASTSynsInfoEnricher(ASTVisitor):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
-            }
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
             "convolutions":
             {
                 "g_ex_AMPA__X__b_spikes": 
@@ -226,6 +247,24 @@ class ASTSynsInfoEnricher(ASTVisitor):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
+            "analytic_helpers":
+            {
+                "__h":
+                {
+                    "ASTVariable": ASTVariable,
+                    "init_expression": ASTExpression,
+                },
             }
             "convolutions":
             {
@@ -327,8 +366,22 @@ class ASTSynsInfoEnricher(ASTVisitor):
                 ASTSynsInfoEnricher.inline_name_to_transformed_inline[inline_expression_name]
             enriched_syns_info[synapse_name]["inline_expression_d"] = \
                 cls.computeExpressionDerivative(enriched_syns_info[synapse_name]["inline_expression"])
+            
+            # now also idnentify analytic helper variables such as __h
+            enriched_syns_info[synapse_name]["analytic_helpers"] = cls.get_analytic_helper_variable_declarations(enriched_syns_info[synapse_name])
         
         return enriched_syns_info 
+    
+    @classmethod
+    def prettyPrint(cls, syns_info, indent=2):
+        print('\t' * indent + "{")
+        for key, value in syns_info.items():
+            print('\t' * indent + "\""+str(key)+"\":")
+            if isinstance(value, dict):
+                cls.prettyPrint(value, indent+1)
+            else:
+                print('\t' * (indent+1) + str(value) + ", ")
+        print('\t' * indent + "},")
     
     @classmethod
     def computeExpressionDerivative(cls, inline_expression: ASTInlineExpression) -> ASTExpression:
@@ -343,6 +396,90 @@ class ASTSynsInfoEnricher(ASTVisitor):
         
         return ast_expression_d
     
+    @classmethod
+    def get_variable_names_used(cls, node) -> set:
+        variable_names_extractor = ASTUsedVariableNamesExtractor(node)
+        return variable_names_extractor.variable_names
+    
+    # returns all variable names referenced by the synapse inline
+    # and by the analytical solution
+    # assumes that the model has already been transformed
+    @classmethod
+    def get_all_synapse_variables(cls, single_synapse_info):
+        # get all variables from transformed inline
+        inline_variables = cls.get_variable_names_used(single_synapse_info["inline_expression"])
+        
+        analytic_solution_vars = set()
+        # get all variables from transformed analytic solution
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items():
+            analytic_sol = convolution_info["analytic_solution"]
+            # get variables from init and update expressions
+            # for each kernel
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items():
+                analytic_solution_vars.add(kernel_var_name)
+                
+                update_vars = cls.get_variable_names_used(kernel_info["update_expression"])
+                init_vars = cls.get_variable_names_used(kernel_info["init_expression"])
+        
+                analytic_solution_vars.update(update_vars)
+                analytic_solution_vars.update(init_vars)
+                
+            # get variables from init expressions
+            # for each propagator   
+            # include propagator variable itself         
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items():
+                analytic_solution_vars.add(propagator_var_name)
+                
+                init_vars = cls.get_variable_names_used(propagator_info["init_expression"])
+
+                analytic_solution_vars.update(init_vars)
+        
+        return analytic_solution_vars.union(inline_variables)
+    
+    @classmethod
+    def get_new_variables_after_transformation(cls, single_synapse_info):
+        return cls.get_all_synapse_variables(single_synapse_info).difference(single_synapse_info["total_used_declared"])   
+
+    # get new variables that only occur on the right hand side of analytic solution Expressions
+    # but for wich analytic solution does not offer any values
+    # this can isolate out additional variables that suddenly appear such as __h
+    # whose initial values are not inlcuded in the output of analytic solver
+    @classmethod
+    def get_analytic_helper_variable_names(cls, single_synapse_info):    
+        analytic_lhs_vars = set()
+        
+        for convolution_name, convolution_info in single_synapse_info["convolutions"].items():
+            analytic_sol = convolution_info["analytic_solution"]
+            
+            # get variables representing convolutions by kernel
+            for kernel_var_name, kernel_info in analytic_sol["kernel_states"].items():
+                analytic_lhs_vars.add(kernel_var_name)
+                
+            # get propagator variable names    
+            for propagator_var_name, propagator_info in analytic_sol["propagators"].items():
+                analytic_lhs_vars.add(propagator_var_name)
+                
+        return cls.get_new_variables_after_transformation(single_synapse_info).symmetric_difference(analytic_lhs_vars)
+
+    @classmethod
+    def get_analytic_helper_variable_declarations(cls, single_synapse_info):
+        variable_names = cls.get_analytic_helper_variable_names(single_synapse_info)
+        result = dict()
+        for variable_name in variable_names:
+            variable = cls.internal_variable_name_to_variable[variable_name]
+            expression = cls.variables_to_internal_declarations[variable]
+            result[variable_name]={
+                "ASTVariable": variable,
+                "init_expression": expression,
+            }
+            if expression.is_function_call() and expression.get_function_call().callee_name == PredefinedFunctions.TIME_RESOLUTION:
+                result["is_time_resolution"] = True
+            else:
+                result["is_time_resolution"] = False
+                
+                
+        return result
+
     def __init__(self , neuron):
         super(ASTSynsInfoEnricher, self).__init__()
     #     ASTSynsInfoEnricher.cm_syn_info = cm_syns_info
@@ -354,28 +491,28 @@ class ASTSynsInfoEnricher(ASTVisitor):
         self.inside_parameter_block = False
         self.inside_state_block = False
         self.inside_internals_block = False
+        self.inside_inline_expression = False
     #     self.inside_equations_block = False
     #
         self.inside_inline_expression = False
     #     self.inside_kernel = False
     #     self.inside_kernel_call = False
         self.inside_declaration = False
-    #     self.inside_simple_expression = False
+        self.inside_simple_expression = False
     #     self.inside_expression = False
     #
     #     self.current_inline_expression = None
     #     self.current_kernel = None
     #     self.current_synapse_name = None
         neuron.accept(self)
-
-
-
-    # def visit_variable(self, node):
-    #     pass
-    #
+            
     def visit_inline_expression(self, node):
+        self.inside_inline_expression = True
         inline_name = node.variable_name
         ASTSynsInfoEnricher.inline_name_to_transformed_inline[inline_name]=node
+        
+    def endvisit_inline_expression(self, node):
+        self.inside_inline_expression = False
     
     # def visit_equations_block(self, node):
     #     self.inside_equations_block = True
@@ -398,13 +535,12 @@ class ASTSynsInfoEnricher(ASTVisitor):
             self.inside_parameter_block = False
         if node.is_internals: 
             self.inside_internals_block = False
-    #
-    # def visit_simple_expression(self, node):
-    #     self.inside_simple_expression = True
-    #
-    # def endvisit_simple_expression(self, node):
-    #     self.inside_simple_expression = False
-    #
+    
+    def visit_simple_expression(self, node):
+        self.inside_simple_expression = True
+    
+    def endvisit_simple_expression(self, node):
+        self.inside_simple_expression = False
     
     def visit_declaration(self, node):
         self.inside_declaration = True
@@ -422,4 +558,30 @@ class ASTSynsInfoEnricher(ASTVisitor):
     #
     # def endvisit_expression(self, node):
     #     self.inside_expression = False   
+    
+    
+    
+    
+class ASTUsedVariableNamesExtractor(ASTVisitor):
+    def __init__(self , node):
+        super(ASTUsedVariableNamesExtractor, self).__init__()
+        self.variable_names = set()
+        node.accept(self)
+    
+    def visit_variable(self, node):
+        self.variable_names.add(node.get_name())    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         

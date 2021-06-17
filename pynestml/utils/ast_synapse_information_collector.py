@@ -6,14 +6,18 @@ collect all synapse relevant information
 from _collections import defaultdict
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.visitors.ast_visitor import ASTVisitor
+from pynestml.meta_model.ast_kernel import ASTKernel
 
 
 class ASTSynapseInformationCollector(ASTVisitor):
 
     kernel_name_to_kernel = defaultdict()
     inline_expression_to_kernel_args = defaultdict(lambda:set())
-    parameter_name_to_declaration = defaultdict()
-    state_name_to_declaration = defaultdict()
+    inline_expression_to_function_calls = defaultdict(lambda:set())
+    kernel_to_function_calls = defaultdict(lambda:set())
+    parameter_name_to_declaration = defaultdict(lambda:None)
+    state_name_to_declaration = defaultdict(lambda:None)
+    internal_var_name_to_declaration = defaultdict(lambda:None)
     inline_expression_to_variables = defaultdict(lambda:set())
     kernel_to_rhs_variables = defaultdict(lambda:set())
     input_port_name_to_input_port = defaultdict()
@@ -22,7 +26,8 @@ class ASTSynapseInformationCollector(ASTVisitor):
         super(ASTSynapseInformationCollector, self).__init__()
         
         self.inside_parameter_block = False
-        self.inside_state_block = False
+        self.inside_state_block = False 
+        self.inside_internals_block = False
         self.inside_equations_block = False
         self.inside_input_block = False
         self.inside_inline_expression = False
@@ -40,6 +45,11 @@ class ASTSynapseInformationCollector(ASTVisitor):
         
         self.current_synapse_name = None
         
+        
+    @classmethod
+    def get_state_declaration(cls, variable_name):
+        return ASTSynapseInformationCollector.state_name_to_declaration[variable_name]
+        
     @classmethod    
     def get_kernel_by_name(cls, name: str):
         return cls.kernel_name_to_kernel[name]
@@ -48,33 +58,76 @@ class ASTSynapseInformationCollector(ASTVisitor):
     def get_inline_expressions_with_kernels (cls):
         return cls.inline_expression_to_kernel_args.keys()
     
-    @classmethod 
-    def get_synapse_specific_parameter_declarations (cls, synapse_inline: ASTInlineExpression) -> str:
+    @classmethod
+    def get_kernel_function_calls(cls, kernel: ASTKernel):
+        return ASTSynapseInformationCollector.kernel_to_function_calls[kernel]
+    
+    @classmethod
+    def get_inline_function_calls(cls, inline: ASTInlineExpression):
+        return ASTSynapseInformationCollector.inline_expression_to_function_calls[inline]
+    
+    # extracts all variables specific to a single synapse
+    # (which is defined by the inline expression containing kernels)
+    # independently from what block they are declared in
+    @classmethod
+    def get_variable_names_of_synapse(cls, synapse_inline: ASTInlineExpression, exclude_names: set) -> set:
         # find all variables used in the inline
-        potential_parameters = cls.inline_expression_to_variables[synapse_inline]
+        potential_variables = cls.inline_expression_to_variables[synapse_inline]
         
         # find all kernels referenced by the inline 
         # and collect variables used by those kernels
         kernel_arg_pairs = ASTSynapseInformationCollector.get_extracted_kernel_args(synapse_inline)
         for kernel_var, spikes_var in kernel_arg_pairs:
             kernel = ASTSynapseInformationCollector.get_kernel_by_name(kernel_var.get_name())
-            potential_parameters.update(cls.kernel_to_rhs_variables[kernel])
+            potential_variables.update(cls.kernel_to_rhs_variables[kernel])
         
         # transform variables into their names and filter 
-        # out ones that are available to every synapse
-        param_names = set()    
-        for potential_parameter in potential_parameters:
-            param_name = potential_parameter.get_name() 
-            if param_name not in ("t", "v_comp"):
-                param_names.add(param_name)
+        # out anything form exclude_names
+        result = set()    
+        for potential_variable in potential_variables:
+            var_name = potential_variable.get_name() 
+            if var_name not in exclude_names:
+                result.add(var_name)  
+        return result
                 
-        # now match those parameter names with 
-        # variable declarations form the parameter block
+    
+    @classmethod 
+    def get_synapse_specific_internal_declarations (cls, synapse_inline: ASTInlineExpression) -> defaultdict:
+        synapse_variable_names = cls.get_variable_names_of_synapse(synapse_inline, {})
+                
+        # now match those variable names with 
+        # variable declarations from the internals block
         dereferenced = defaultdict()
-        for param_name in param_names:
-            if param_name in cls.parameter_name_to_declaration:
-                dereferenced[param_name] = cls.parameter_name_to_declaration[param_name]
-        return dereferenced  
+        for potential_internals_name in synapse_variable_names:
+            if potential_internals_name in cls.internal_var_name_to_declaration:
+                dereferenced[potential_internals_name] = cls.internal_var_name_to_declaration[potential_internals_name]
+        return dereferenced
+    
+    @classmethod 
+    def get_synapse_specific_state_declarations (cls, synapse_inline: ASTInlineExpression) -> defaultdict:
+        synapse_variable_names = cls.get_variable_names_of_synapse(synapse_inline, {"t"})
+                
+        # now match those variable names with 
+        # variable declarations from the state block
+        dereferenced = defaultdict()
+        for potential_state_name in synapse_variable_names:
+            if potential_state_name in cls.state_name_to_declaration:
+                dereferenced[potential_state_name] = cls.state_name_to_declaration[potential_state_name]
+        return dereferenced
+                
+    
+    @classmethod 
+    def get_synapse_specific_parameter_declarations (cls, synapse_inline: ASTInlineExpression) -> defaultdict:
+        synapse_variable_names = cls.get_variable_names_of_synapse(synapse_inline, {"t", "v_comp"})
+                
+        # now match those variable names with 
+        # variable declarations from the parameter block
+        dereferenced = defaultdict()
+        for potential_param_name in synapse_variable_names:
+            if potential_param_name in cls.parameter_name_to_declaration:
+                dereferenced[potential_param_name] = cls.parameter_name_to_declaration[potential_param_name]
+        return dereferenced
+
       
     @classmethod 
     def get_extracted_kernel_args (cls, inline_expression: ASTInlineExpression) -> set:
@@ -125,14 +178,19 @@ class ASTSynapseInformationCollector(ASTVisitor):
             ASTSynapseInformationCollector.kernel_name_to_kernel[kernel_name]=node
             
     def visit_function_call(self, node):
-        if self.inside_equations_block and self.inside_inline_expression \
-        and self.inside_simple_expression:
-            if node.get_name() == "convolve":
-                self.inside_kernel_call = True
-                kernel, spikes = node.get_args()
-                kernel_var = kernel.get_variables()[0]
-                spikes_var = spikes.get_variables()[0]
-                ASTSynapseInformationCollector.inline_expression_to_kernel_args[self.current_inline_expression].add((kernel_var, spikes_var))
+        if self.inside_equations_block:
+            if self.inside_inline_expression and self.inside_simple_expression:
+                if node.get_name() == "convolve":
+                    self.inside_kernel_call = True
+                    kernel, spikes = node.get_args()
+                    kernel_var = kernel.get_variables()[0]
+                    spikes_var = spikes.get_variables()[0]
+                    ASTSynapseInformationCollector.inline_expression_to_kernel_args[self.current_inline_expression].add((kernel_var, spikes_var))
+                else:
+                    ASTSynapseInformationCollector.inline_expression_to_function_calls[self.current_inline_expression].add(node)
+            if self.inside_kernel and self.inside_simple_expression:
+                ASTSynapseInformationCollector.kernel_to_function_calls[self.current_kernel].add(node)
+                
         
     def endvisit_function_call(self, node):
         self.inside_kernel_call = False   
@@ -176,12 +234,16 @@ class ASTSynapseInformationCollector(ASTVisitor):
             self.inside_state_block = True
         if node.is_parameters: 
             self.inside_parameter_block = True
+        if node.is_internals: 
+            self.inside_internals_block = True
 
     def endvisit_block_with_variables(self, node):
         if node.is_state:
             self.inside_state_block = False
         if node.is_parameters: 
             self.inside_parameter_block = False
+        if node.is_internals: 
+            self.inside_internals_block = False
                 
     def visit_simple_expression(self, node):
         self.inside_simple_expression = True
@@ -197,6 +259,9 @@ class ASTSynapseInformationCollector(ASTVisitor):
         elif self.inside_state_block:
             variable_name = node.get_variables()[0].get_name()
             ASTSynapseInformationCollector.state_name_to_declaration[variable_name] = node
+        elif self.inside_internals_block:
+            variable_name = node.get_variables()[0].get_name()
+            ASTSynapseInformationCollector.internal_var_name_to_declaration[variable_name] = node
     
     def endvisit_declaration(self, node):
         self.inside_declaration = False

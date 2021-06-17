@@ -61,7 +61,17 @@ class SynsProcessing(object):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
-            }
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
             "convolutions":
             {
                 "g_ex_AMPA__X__b_spikes": 
@@ -102,6 +112,9 @@ class SynsProcessing(object):
             syns_info[synapse_name] = {
                 "inline_expression": synapse_inline,
                 "parameters_used": info_collector.get_synapse_specific_parameter_declarations(synapse_inline),
+                "states_used": info_collector.get_synapse_specific_state_declarations(synapse_inline),
+                "internals_used_declared": info_collector.get_synapse_specific_internal_declarations(synapse_inline), 
+                "total_used_declared": info_collector.get_variable_names_of_synapse(synapse_inline, {}),
                 "convolutions":{}
                 }
         
@@ -133,7 +146,17 @@ class SynsProcessing(object):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
-            }
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
             "convolutions":
             {
                 "g_ex_AMPA__X__b_spikes": 
@@ -169,7 +192,17 @@ class SynsProcessing(object):
             {
                 "e_AMPA": ASTDeclaration,
                 "tau_syn_AMPA": ASTDeclaration
-            }
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
             "convolutions":
             {
                 "g_ex_AMPA__X__b_spikes": 
@@ -198,12 +231,15 @@ class SynsProcessing(object):
     @classmethod
     def collect_and_check_inputs_per_synapse(cls, neuron: ASTNeuron, info_collector: ASTSynapseInformationCollector, syns_info: dict):
         new_syns_info = copy.copy(syns_info)
+        
+        # collect all buffers used
         for synapse_name, synapse_info in syns_info.items():
             new_syns_info[synapse_name]["buffers_used"] = set()
             for convolution_name, convolution_info in synapse_info["convolutions"].items():
                 input_name = convolution_info["spikes"]["name"]
                 new_syns_info[synapse_name]["buffers_used"].add(input_name)
 
+        # now make sure each synapse is using exactly one buffer
         for synapse_name, synapse_info in syns_info.items():
             buffers = new_syns_info[synapse_name]["buffers_used"]
             if len(buffers) != 1:

@@ -26,17 +26,24 @@ neuron not_so_minimal:
     # the presence of the state variable [v_comp]
     # triggers compartment model context
     v_comp real = 0
+    
+    tp real = (tau_r * tau_d) / (tau_d - tau_r) * ln( tau_d / tau_r )
+    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
+    
   end
 
   equations:
     #synapses are inlines that utilize kernels
     kernel g_ex_AMPA = exp(-t / tau_syn_AMPA)
-    inline AMPA real = convolve(g_ex_AMPA, b_spikes) * (v_comp - e_AMPA)
+    inline AMPA real = convolve(g_ex_AMPA, b_spikes) * (e_AMPA - v_comp )
     
-    kernel g_ex_NMDA = NMDA_sigmoid(v_comp)
-    inline NMDA real = convolve(g_ex_NMDA, b_spikes) * (v_comp - e_NMDA)
+    kernel g_ex_NMDA = exp(-t / tau_syn_NMDA)
+    inline NMDA real = convolve(g_ex_NMDA, b_spikes) * (e_NMDA - v_comp ) * (1. / ( 1. + 0.3 * exp( -.1 * v_comp ) ))
     
-    inline AMPA_NMDA real = convolve(g_ex_NMDA, b_spikes) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, b_spikes) * (v_comp - e_AMPA)
+    inline AMPA_NMDA real = convolve(g_ex_NMDA, b_spikes) * (e_NMDA - v_comp ) * (1. / ( 1. + 0.3 * exp( -.1 * v_comp ) )) + NMDA_ratio_ * convolve(g_ex_AMPA, b_spikes) * (v_comp - e_AMPA)
+
+    kernel g_exc = g_norm_exc * ( - exp(-t / tau_r) + exp(-t / tau_d) )
+    inline I_syn_exc real = convolve(g_exc, spikesExc) * (E_exc - v_comp )
 
   end
 
@@ -51,6 +58,10 @@ neuron not_so_minimal:
     
     e_AMPA_NMDA real = 0.0      # Excitatory reversal Potential
     NMDA_ratio_ real = 2.0      # Synaptic Time Constant Excitatory Synapse
+    
+    E_exc mV = 0 mV            # Excitatory reversal Potential
+    tau_r ms = 0.2 ms    # Synaptic Rise Time Constant Excitatory Synapse
+    tau_d ms = 3. ms    # Synaptic Decay Time Constant Excitatory Synapse
 
   end
   
@@ -61,6 +72,7 @@ neuron not_so_minimal:
 
   input:
     b_spikes nS <- excitatory spike
+    spikesExc nS <- excitatory spike
   end
 
 end

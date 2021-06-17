@@ -181,23 +181,17 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
-    {{param_name}}_ = ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
+    {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
   {%- endfor %}  
 {
+  //calibrate
+  calibrate();
+
   // update parameters
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
   if( receptor_params->known( "{{param_name}}_{{synapse_name}}" ) )
-    {{param_name}}_ = getValue< double >( receptor_params, "{{param_name}}_{{synapse_name}}" );
+    {{param_name}} = getValue< double >( receptor_params, "{{param_name}}_{{synapse_name}}" );
   {%- endfor %}
-      
-  // initial values for state variables
-{%- filter indent(2) %}
-  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-{{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
-  {%- endfor %}
-  {%- endfor %}
-{%- endfilter %} 
       
   //double tp = (tau_r_ * tau_d_) / (tau_d_ - tau_r_) * std::log( tau_d_ / tau_r_ ); // tau_syn_AMPA_
   //g_norm_ = 1. / ( -std::exp( -tp / tau_r_ ) + std::exp( -tp / tau_d_ ) );
@@ -206,25 +200,53 @@ nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synap
   {{synapse_info["buffer_name"]}}_ = {{synapse_info["buffer_name"]}};
 }
 
-std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_comp, const double dt, const long lag )
+void nest::{{synapse_name}}::calibrate()
 {
-  // construct propagators -> make this in calibrate block(?)
+
+  // initial values for user defined states, in case functions need those
+  // warning: this shadows class variables
+  {%- for state_name, state_declaration in synapse_info["states_used"].items() %}
+  double {{state_name}} = {{printer.print_expression(state_declaration.get_expression(), with_origins = False)}};
+  {%- endfor %}
+
+  // set propagators 
+  // todo set to 0 and use the value as 
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
-  double {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
   {%- endfor %}
   {%- endfor %}
   
-  // get spikes
-  double s_val = {{synapse_info["buffer_name"]}}_->get_value( lag ) //  * g_norm_;
+  //initial values for kernel state variables
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+  {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {%- endfor %}
+  {%- endfor %}
+}
 
-  // update kernel state variable
+void nest::{{synapse_name}}::init()
+{
+  //initial values for kernel state variables
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
+    {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {%- endfor %}
+  {%- endfor %}
+    {{synapse_info["buffer_name"]}}_->clear();
+}
+
+
+std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_comp, const double dt, const long lag )
+{
+  // get spikes
+  double s_val = {{synapse_info["buffer_name"]}}_->get_value( lag ); //  * g_norm_;
+
+  // update kernel state variable / compute synaptic conductance
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
   {{state_variable_name}} = {{printer.print_expression(state_variable_info["update_expression"], with_origins = False)}};
-  {{state_variable_name}} -= s_val;
-  // compute synaptic conductance
-  double g_{{synapse_name}} = {{state_variable_name}};
+  {{state_variable_name}} += s_val;
   {%- endfor %}
   {%- endfor %}
 
@@ -236,16 +258,18 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
   // derivative of that expression
   // voltage derivative of total current
   // compute derivative with respect to current with sympy
-  double d_i_tot_dv = - ({{printer.print_expression(synapse_info["inline_expression_d"], with_origins = False)}}); 
+  double d_i_tot_dv = {{printer.print_expression(synapse_info["inline_expression_d"], with_origins = False)}}; 
 
   // for numerical integration
   double g_val = - d_i_tot_dv / 2.;
   double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
 
   return std::make_pair(g_val, i_val);
-  
+
+}
+
 {%- for function in neuron.get_functions() %}
-{{printer.print_function_definition(function, namespace = synapse_name)}}
+{{printer.print_function_definition(function, namespace = "nest::"+synapse_name)}}
 {
 {%-   filter indent(2,True) %}
 {%-   with ast = function.get_block() %}
@@ -254,8 +278,6 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
 {%-   endfilter %}
 }
 {%- endfor %}
-
-}
 
 // {{synapse_name}} synapse end ///////////////////////////////////////////////////////////
 {%- endfor %}
