@@ -21,7 +21,6 @@
 
 import nest
 import numpy as np
-import os
 import unittest
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
@@ -120,8 +119,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
         nest.set_verbosity("M_WARNING")
 
-        post_weights = {'parrot': []}
-
         nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
@@ -180,7 +177,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         if sim_ref:
          syn_ref = nest.GetConnections(source=pre_neuron_ref, synapse_model=ref_synapse_model_name)
 
-        n_steps = int(np.ceil(sim_time / resolution)) + 1
         t = 0.
         t_hist = []
         if sim_mdl:
@@ -205,22 +201,21 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
              w_hist.append(nest.GetStatus(syn)[0]['w'])
 
         third_factor_trace = nest.GetStatus(mm, "events")[0][self.post_trace_var]
+        timevec = nest.GetStatus(mm, "events")[0]["times"]
 
-        # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=2)
             ax1, ax2 = ax
 
             if sim_mdl:
-             timevec = nest.GetStatus(mm, "events")[0]["times"]
              V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-             ax2.plot(timevec, nest.GetStatus(mm, "events")[0][self.post_trace_var], label="I_dend_post")
+             ax2.plot(timevec, third_factor_trace, label="I_dend_post")
              ax1.plot(timevec, V_m, alpha=.7, linestyle=":")
             if sim_ref:
              pre_ref_spike_times_ = nest.GetStatus(spikedet_pre_ref, "events")[0]["times"]
-             timevec = nest.GetStatus(mm_ref, "events")[0]["times"]
-             V_m = nest.GetStatus(mm_ref, "events")[0]["V_m"]
-             ax1.plot(timevec, V_m, label="nest ref", alpha=.7)
+             timevec_ = nest.GetStatus(mm_ref, "events")[0]["times"]
+             V_m_ = nest.GetStatus(mm_ref, "events")[0]["V_m"]
+             ax1.plot(timevec_, V_m_, label="nest ref", alpha=.7)
             ax1.set_ylabel("V_m")
 
             for _ax in ax:
@@ -231,7 +226,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                 _ax.legend()
             fig.savefig("/tmp/stdp_triplet_synapse_test" + fname_snip + "_V_m.png", dpi=300)
 
-        # plot
         if TEST_PLOTS:
             fig, ax = plt.subplots(nrows=5)
             ax1, ax2, ax3, ax4, ax5 = ax
