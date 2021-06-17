@@ -32,6 +32,7 @@ except BaseException:
     TEST_PLOTS = False
 
 import nest
+import scipy
 import scipy.signal
 import scipy.stats
 
