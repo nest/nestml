@@ -597,7 +597,8 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
                                 times_spikes_post_syn_persp=times_spikes_post_syn_persp,
                                 fname_snip=fname_snip)
 
-    plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, ref_timevec, ref_w, nestml_timevec, nestml_w, sim_time)
+    if TEST_PLOTS:
+        plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_post_syn_persp, ref_timevec, ref_w, nestml_timevec, nestml_w, sim_time)
 
     compare_results(ref_timevec, ref_w, nestml_timevec, nestml_w)
 
