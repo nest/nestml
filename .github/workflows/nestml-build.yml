@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
-          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy
 
       # Install Java
       - name: Install Java 8
@@ -48,6 +48,7 @@ jobs:
           python -m pip install --upgrade pip pytest
           python -m pip install -r requirements.txt
           python -m pip install pycodestyle
+          python -m pip install scipy
 
       - name: Install NESTML
         run: |
