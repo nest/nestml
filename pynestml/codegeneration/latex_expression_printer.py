@@ -29,23 +29,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
-
-
-class TypesPrinter:
-    """
-    Returns a processable format of the handed over element.
-    """
-
-    @classmethod
-    def pretty_print(cls, element):
-        assert (element is not None), \
-            '(PyNestML.CodeGeneration.PrettyPrinter) No element provided (%s)!' % element
-        if isinstance(element, bool) and element:
-            return 'true'
-        elif isinstance(element, bool) and not element:
-            return 'false'
-        elif isinstance(element, int) or isinstance(element, float):
-            return str(element)
+from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
 
 
 class LatexExpressionPrinter:
@@ -58,7 +42,7 @@ class LatexExpressionPrinter:
         if types_printer is not None:
             self.types_printer = types_printer
         else:
-            self.types_printer = TypesPrinter()
+            self.types_printer = LatexTypesPrinter()
 
     def print_expression(self, node: ASTExpressionNode) -> str:
         return self.__do_print(node)
