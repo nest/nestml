@@ -18,10 +18,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
@@ -42,12 +42,11 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNode, after_ast_rewrite: bool):
+    def check_co_co(cls, node: ASTNeuron, after_ast_rewrite: bool = False):
         """
-        Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
-        correct.
+        Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param after_ast_rewrite: indicates whether this coco is checked after the code generator has done rewriting of the abstract syntax tree. If True, checks are not as rigorous. Use False where possible.
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()

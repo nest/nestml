@@ -111,6 +111,13 @@ class UnitSystemTest(unittest.TestCase):
         printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
         self.assertEqual(printed_rhs_expression, '0.001 * (1200*mV)')
 
+    def test_expression_after_magnitude_conversion_in_compound_mult_div(self):
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+                         'CompoundMultDivWithDifferentButCompatibleUnits.nestml'))
+        printed_rhs_expression = print_rhs_of_first_assignment_in_update_block(model)
+        self.assertEqual(printed_rhs_expression, '1200*mV')
+
     def test_expression_after_magnitude_conversion_in_declaration(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
