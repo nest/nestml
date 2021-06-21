@@ -26,10 +26,16 @@ class ASTSynsInfoEnricher(ASTVisitor):
     internal_variable_name_to_variable = {}
     inline_name_to_transformed_inline = {}
     
+    # assuming depth first traversal
+    # collect declaratins in the order
+    # in which they were present in the neuron
+    declarations_ordered = []
+    
     @classmethod
     def enrich_syns_info(cls, neuron: ASTNeuron, cm_syns_info: dict, kernel_name_to_analytic_solver: dict):
         cm_syns_info = cls.add_kernel_analysis(neuron, cm_syns_info, kernel_name_to_analytic_solver)
         cm_syns_info = cls.transform_analytic_solution(neuron, cm_syns_info)
+        cm_syns_info = cls.restoreOrderInternals(neuron, cm_syns_info)
         return cm_syns_info
 
     """
@@ -52,6 +58,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -99,6 +106,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -184,6 +192,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -255,6 +264,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -264,6 +274,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
                 {
                     "ASTVariable": ASTVariable,
                     "init_expression": ASTExpression,
+                    "is_time_resolution": True,
                 },
             }
             "convolutions":
@@ -367,10 +378,191 @@ class ASTSynsInfoEnricher(ASTVisitor):
             enriched_syns_info[synapse_name]["inline_expression_d"] = \
                 cls.computeExpressionDerivative(enriched_syns_info[synapse_name]["inline_expression"])
             
-            # now also idnentify analytic helper variables such as __h
+            # now also identify analytic helper variables such as __h
             enriched_syns_info[synapse_name]["analytic_helpers"] = cls.get_analytic_helper_variable_declarations(enriched_syns_info[synapse_name])
         
         return enriched_syns_info 
+    
+    """
+    input:
+    {
+        "AMPA":
+        {
+            "inline_expression": ASTInlineExpression, #transformed version
+            "inline_expression_d": ASTExpression,
+            "buffer_name": "b_spikes",
+            "parameters_used": 
+            {
+                "e_AMPA": ASTDeclaration,
+                "tau_syn_AMPA": ASTDeclaration
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
+            "analytic_helpers":
+            {
+                "__h":
+                {
+                    "ASTVariable": ASTVariable,
+                    "init_expression": ASTExpression,
+                    "is_time_resolution": True,
+                },
+            }
+            "convolutions":
+            {
+                "g_ex_AMPA__X__b_spikes": 
+                {
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
+                    "analytic_solution":
+                    {
+                        'kernel_states':
+                        {
+                            "g_ex_AMPA__X__b_spikes":
+                            {
+                                "ASTVariable": ASTVariable,
+                                "init_expression": AST(Simple)Expression,
+                                "update_expression": ASTExpression,
+                            }
+                        },
+                        'propagators':
+                        {
+                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes: 
+                            {
+                                "ASTVariable": ASTVariable,
+                                "init_expression": ASTExpression,
+                            },
+                        },
+                    }
+                }
+            }
+                
+        },
+        "GABA":
+        {
+            ...
+        }
+        ...
+    }
+    
+    output:
+    {
+        "AMPA":
+        {
+            "inline_expression": ASTInlineExpression, #transformed version
+            "inline_expression_d": ASTExpression,
+            "buffer_name": "b_spikes",
+            "parameters_used": 
+            {
+                "e_AMPA": ASTDeclaration,
+                "tau_syn_AMPA": ASTDeclaration
+            },
+            "states_used": 
+            {
+                "v_comp": ASTDeclaration,
+            },            
+            "internals_used_declared":
+            {
+                "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
+            },
+            "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
+            ,
+            "analytic_helpers":
+            {
+                "__h":
+                {
+                    "ASTVariable": ASTVariable,
+                    "init_expression": ASTExpression,
+                    "is_time_resolution": True,
+                },
+            }
+            "convolutions":
+            {
+                "g_ex_AMPA__X__b_spikes": 
+                {
+                    "kernel": 
+                    {
+                        "name": "g_ex_AMPA",
+                        "ASTKernel": ASTKernel
+                    },
+                    "spikes": 
+                    {
+                        "name": "b_spikes",
+                        "ASTInputPort": ASTInputPort
+                    },
+                    "analytic_solution":
+                    {
+                        'kernel_states':
+                        {
+                            "g_ex_AMPA__X__b_spikes":
+                            {
+                                "ASTVariable": ASTVariable,
+                                "init_expression": AST(Simple)Expression,
+                                "update_expression": ASTExpression,
+                            }
+                        },
+                        'propagators':
+                        {
+                            __P__g_ex_AMPA__X__b_spikes__g_ex_AMPA__X__b_spikes: 
+                            {
+                                "ASTVariable": ASTVariable,
+                                "init_expression": ASTExpression,
+                            },
+                        },
+                    }
+                }
+            }
+                
+        },
+        "GABA":
+        {
+            ...
+        }
+        ...
+    }
+    """
+    
+    # orders user defined internals
+    # back to the order they were originally defined
+    # this is important if one such variable uses another
+    # user needs to have control over the order
+    @classmethod
+    def restoreOrderInternals (cls, neuron: ASTNeuron, cm_syns_info: dict):
+        
+        # assign each variable a rank
+        # that corresponds to the order in ASTSynsInfoEnricher.declarations_ordered
+        variable_name_to_order = {}
+        for index, declaration in enumerate(ASTSynsInfoEnricher.declarations_ordered):
+            variable_name = declaration.get_variables()[0].get_name()
+            variable_name_to_order[variable_name] = index
+            
+        enriched_syns_info = copy.copy(cm_syns_info)
+        for synapse_name, synapse_info in cm_syns_info.items():
+            user_internals = enriched_syns_info[synapse_name]["internals_used_declared"]
+            user_internals_sorted = sorted(user_internals.items(), key = lambda x: variable_name_to_order[x[0]])
+            enriched_syns_info[synapse_name]["internals_used_declared"] = user_internals_sorted
+            
+        return enriched_syns_info
+            
+            
+        
     
     @classmethod
     def prettyPrint(cls, syns_info, indent=2):
@@ -380,7 +572,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
             if isinstance(value, dict):
                 cls.prettyPrint(value, indent+1)
             else:
-                print('\t' * (indent+1) + str(value) + ", ")
+                print('\t' * (indent+1) + str(value).replace("\n", '\n'+ '\t' * (indent+1)) + ", ")
         print('\t' * indent + "},")
     
     @classmethod
@@ -466,6 +658,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
         variable_names = cls.get_analytic_helper_variable_names(single_synapse_info)
         result = dict()
         for variable_name in variable_names:
+            if variable_name not in cls.internal_variable_name_to_variable: continue
             variable = cls.internal_variable_name_to_variable[variable_name]
             expression = cls.variables_to_internal_declarations[variable]
             result[variable_name]={
@@ -473,9 +666,9 @@ class ASTSynsInfoEnricher(ASTVisitor):
                 "init_expression": expression,
             }
             if expression.is_function_call() and expression.get_function_call().callee_name == PredefinedFunctions.TIME_RESOLUTION:
-                result["is_time_resolution"] = True
+                result[variable_name]["is_time_resolution"] = True
             else:
-                result["is_time_resolution"] = False
+                result[variable_name]["is_time_resolution"] = False
                 
                 
         return result
@@ -543,6 +736,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
         self.inside_simple_expression = False
     
     def visit_declaration(self, node):
+        self.declarations_ordered.append(node)
         self.inside_declaration = True
         if self.inside_internals_block:
             variable = node.get_variables()[0]

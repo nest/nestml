@@ -36,7 +36,7 @@ class SynsProcessing(object):
     
     # used to keep track of whenever check_co_co was already called
     # see inside check_co_co
-    first_time_run = True
+    first_time_run = defaultdict(lambda: True)
     # stores syns_info from the first call of check_co_co
     syns_info = defaultdict()
     
@@ -69,6 +69,7 @@ class SynsProcessing(object):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -114,7 +115,7 @@ class SynsProcessing(object):
                 "parameters_used": info_collector.get_synapse_specific_parameter_declarations(synapse_inline),
                 "states_used": info_collector.get_synapse_specific_state_declarations(synapse_inline),
                 "internals_used_declared": info_collector.get_synapse_specific_internal_declarations(synapse_inline), 
-                "total_used_declared": info_collector.get_variable_names_of_synapse(synapse_inline, {}),
+                "total_used_declared": info_collector.get_variable_names_of_synapse(synapse_inline),
                 "convolutions":{}
                 }
         
@@ -154,6 +155,7 @@ class SynsProcessing(object):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -200,6 +202,7 @@ class SynsProcessing(object):
             "internals_used_declared":
             {
                 "td": ASTDeclaration,
+                "g_norm_exc": ASTDeclaration,
             },
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
@@ -253,15 +256,12 @@ class SynsProcessing(object):
     @classmethod
     def get_syns_info(cls, neuron: ASTNeuron):
         """
-        Checks if this synapse conditions apply for the handed over neuron. 
-        If yes, it checks the presence of expected kernels, inlines and declarations.
-        In addition it organizes and builds a dictionary (syns_info) 
-        which describes all the relevant data that was found
+        returns previously generated syns_info
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
-                
-        return cls.syns_info
+  
+        return copy.copy(cls.syns_info[neuron])
 
     
     @classmethod
@@ -277,11 +277,11 @@ class SynsProcessing(object):
         # make sure we only run this a single time
         # subsequent calls will be after AST has been transformed
         # and there would be no kernels or inlines any more
-        if cls.first_time_run:
+        if cls.first_time_run[neuron]:
             syns_info, info_collector = cls.detectSyns(neuron)
             syns_info = cls.collect_and_check_inputs_per_synapse(neuron, info_collector, syns_info)
-            cls.syns_info = syns_info
-            cls.first_time_run = False
+            cls.syns_info[neuron] = syns_info
+            cls.first_time_run[neuron] = False
         
 
     

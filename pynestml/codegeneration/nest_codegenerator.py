@@ -728,6 +728,10 @@ class NESTCodeGenerator(CodeGenerator):
             syns_info_enricher = ASTSynsInfoEnricher(neuron)
             namespace['syns_info'] = syns_info_enricher.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
 
+            print("syns_info: ")
+            syns_info_enricher.prettyPrint(namespace['syns_info'])
+            
+
             neuron_specific_filenames = {
                 "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),

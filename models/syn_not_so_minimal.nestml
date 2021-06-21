@@ -26,10 +26,6 @@ neuron not_so_minimal:
     # the presence of the state variable [v_comp]
     # triggers compartment model context
     v_comp real = 0
-    
-    tp real = (tau_r * tau_d) / (tau_d - tau_r) * ln( tau_d / tau_r )
-    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
-    
   end
 
   equations:
@@ -68,6 +64,11 @@ neuron not_so_minimal:
   # NMDA
   function NMDA_sigmoid(v_comp real) real:
     return 1. / ( 1. + 0.3 * exp( -.1 * v_comp ) )
+  end
+  
+  internals:
+    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
+    tp real = (tau_r * tau_d) / (tau_d - tau_r) * ln( tau_d / tau_r )
   end
 
   input:
