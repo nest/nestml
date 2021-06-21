@@ -160,5 +160,3 @@ class NestFirFilterTest(unittest.TestCase):
         plt.legend()
         plt.title('FIR filter (scipy)')
         plt.savefig('/tmp/fir_filter_output_scipy.png')
-
-
