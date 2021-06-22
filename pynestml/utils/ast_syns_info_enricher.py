@@ -357,7 +357,11 @@ class ASTSynsInfoEnricher(ASTVisitor):
                     
                 for variable_name, expression_string in analytic_solution["propagators"].items():
                     variable = cls.internal_variable_name_to_variable[variable_name]
-                    expression = cls.variables_to_internal_declarations[variable]
+                    expression = ModelParser.parse_expression(expression_string)
+                    # pretend that update expressions are in "equations" block, 
+                    # which should always be present, as synapses have been defined to get here
+                    expression.update_scope(neuron.get_equations_blocks().get_scope())
+                    expression.accept(ASTSymbolTableVisitor()) 
                     analytic_solution_transformed['propagators'][variable_name]={
                         "ASTVariable": variable,
                         "init_expression": expression,
