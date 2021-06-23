@@ -257,11 +257,13 @@ class SynsProcessing(object):
     def get_syns_info(cls, neuron: ASTNeuron):
         """
         returns previously generated syns_info
+        as a deep copy so it can't be changed externally
+        via object references
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
   
-        return copy.copy(cls.syns_info[neuron])
+        return copy.deepcopy(cls.syns_info[neuron])
 
     
     @classmethod
