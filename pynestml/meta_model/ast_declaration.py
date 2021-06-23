@@ -21,6 +21,8 @@
 
 from typing import Optional, List
 
+import copy
+
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
@@ -59,7 +61,7 @@ class ASTDeclaration(ASTNode):
     """
 
     def __init__(self, is_recordable: bool = False, is_inline_expression: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
-                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, decorators: Optional[ASTNamespaceDecorator] = None, *args, **kwargs):
+                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, decorators=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -86,7 +88,6 @@ class ASTDeclaration(ASTNode):
         self.expression = expression
         self.invariant = invariant
         self.decorators = decorators
-        # self.namespaceDecorators = namespaceDecorators
 
     def clone(self):
         """
@@ -107,6 +108,9 @@ class ASTDeclaration(ASTNode):
         invariant_dup = None
         if self.invariant:
             invariant_dup = self.invariant.clone()
+        decorators_dup = None
+        if self.decorators:
+            decorators_dup = [dec.clone() for dec in self.decorators]
         dup = ASTDeclaration(is_recordable=self.is_recordable,
                              is_inline_expression=self.is_inline_expression,
                              _variables=variables_dup,
@@ -114,6 +118,7 @@ class ASTDeclaration(ASTNode):
                              size_parameter=self.size_parameter,
                              expression=expression_dup,
                              invariant=invariant_dup,
+                             decorators=decorators_dup,
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,

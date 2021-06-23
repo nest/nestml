@@ -798,8 +798,18 @@ void
   }
 {% endif %}
 
-  
-  
+
+
+  // special treatment of NEST delay
+  set_delay(
+{%- for parameter in synapse.get_parameter_symbols() %}
+{%-     set namespaceName = parameter.get_namespace_decorator("nest") %}
+{%-     if namespaceName == "delay" %}
+{{ names.getter(parameter) }}()
+{%-     endif %}
+{%- endfor %}
+  );
+
   
 }
 
@@ -852,6 +862,9 @@ template < typename targetidentifierT >
     t_lastspike_ = 0.;
 }
 
+/**
+ * copy constructor
+**/
 template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}( const {{synapseName}}< targetidentifierT >& rhs )
 {
@@ -872,6 +885,9 @@ template < typename targetidentifierT >
     //weight_ = get_named_parameter<double>(names::weight);
     //set_weight( *rhs.weight_ );
     t_lastspike_  = rhs.t_lastspike_;
+
+    // special treatment of NEST delay
+    set_delay(rhs.get_delay());
 }
 
 } // namespace

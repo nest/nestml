@@ -35,20 +35,38 @@ except Exception:
     TEST_PLOTS = False
 
 
-sim_mdl = True
-sim_ref = True
-
 class NestSTDPSynapseTest(unittest.TestCase):
 
+    def setUp(self):
+        """Generate the neuron model code"""
+        #nest.Install("nestml_jit_module")
+        #return
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+
+        # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
+        to_nest(input_path=["models/iaf_psc_delta.nestml", "models/stdp_synapse.nestml"],
+                target_path="/tmp/nestml-jit",
+                logging_level="INFO",
+                module_name="nestml_jit_module",
+                suffix="_nestml",
+                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                              "neuron_parent_class_include": "structural_plasticity_node.h",
+                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                                                        "synapse": "stdp",
+                                                        "post_ports": ["post_spikes"]}]})
+        install_nest("/tmp/nestml-jit", nest_path)
+        nest.Install("nestml_jit_module")
+
+
     def test_nest_stdp_synapse(self):
-        #neuron_model_name = "iaf_psc_exp_nestml__with_stdp_nestml"
-        neuron_model_name = "iaf_psc_exp"
-        #synapse_model_name = "stdp_nestml__with_iaf_psc_exp_nestml"
-        synapse_model_name = "stdp_synapse"
+        neuron_model_name = "iaf_psc_delta_nestml__with_stdp_nestml"
+        #neuron_model_name = "iaf_psc_delta"
+        synapse_model_name = "stdp_nestml__with_iaf_psc_delta_nestml"
+        #synapse_model_name = "stdp_synapse"
         fname_snip = "stdp_window_test"
 
         sim_time = 1000.  # [ms]
-        pre_spike_time = 100. #sim_time / 2  # [ms]
+        pre_spike_time = 20. #100. #sim_time / 2  # [ms]
 
         # plot
         if TEST_PLOTS:
@@ -56,7 +74,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         dt_vec = []
         dw_vec = []
-        for post_spike_time in np.linspace(1 + .05 * 2 * pre_spike_time, .95 * 2 * pre_spike_time - 1, 111):
+        for post_spike_time in np.linspace(1 + .05 * 2 * pre_spike_time, .95 * 2 * pre_spike_time - 1, 41): #111
             dt, dw = self.run_stdp_network(pre_spike_time, post_spike_time,
                               neuron_model_name,
                               synapse_model_name,
@@ -66,7 +84,6 @@ class NestSTDPSynapseTest(unittest.TestCase):
                               fname_snip=fname_snip)
             dt_vec.append(dt)
             dw_vec.append(dw)
-
 
         # plot
         if TEST_PLOTS:
@@ -79,6 +96,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
                 #_ax.minorticks_on()
                 #_ax.set_xlim(0., sim_time)
+
             fig.savefig("/tmp/stdp_synapse_test" + fname_snip + "_window.png", dpi=300)
 
 
@@ -89,21 +107,28 @@ class NestSTDPSynapseTest(unittest.TestCase):
                               delay=1., # [ms]
                               sim_time=None,  # if None, computed from pre and post spike times
                               fname_snip=""):
-        nest.ResetKernel()
 
         print("Pre spike time: " + str(pre_spike_time))
         print("Post spike time: " + str(post_spike_time))
 
         #nest.set_verbosity("M_WARNING")
         nest.set_verbosity("M_ALL")
-        #nest.Install("models_for_co_gen_module")
 
         nest.ResetKernel()
         nest.SetKernelStatus({'resolution': resolution})
 
         wr = nest.Create('weight_recorder')
-        nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                       {"weight_recorder": wr[0], "weight": 1., "delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+        #nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
+        #               {"weight_recorder": wr[0], "weight": 1., "delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+        if "__with" in synapse_model_name:
+            weight_variable_name = "w"
+            nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
+                        {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "the_delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+    #                       {"weight_recorder": wr[0], "w": 1., "delay": delay, "the_delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
+        else:
+            weight_variable_name = "weight"
+            nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
+                        {"weight_recorder": wr[0], weight_variable_name: 1., "delay": delay, "receptor_type": 0, "mu_minus": 0., "mu_plus": 0.})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -130,10 +155,12 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         # get STDP synapse and weight before protocol
         syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
+        nest.SetStatus(syn, {"lambda":1E-6})
 
-        initial_weight = nest.GetStatus(syn)[0]['weight']
+        initial_weight = nest.GetStatus(syn)[0][weight_variable_name]
+        np.testing.assert_allclose(initial_weight, 1)
         nest.Simulate(sim_time)
-        updated_weight = nest.GetStatus(syn)[0]['weight']
+        updated_weight = nest.GetStatus(syn)[0][weight_variable_name]
 
         actual_t_pre_sp = nest.GetStatus(spikedet_pre)[0]["events"]["times"][0]
         actual_t_post_sp = nest.GetStatus(spikedet_post)[0]["events"]["times"][0]

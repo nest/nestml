@@ -140,7 +140,7 @@ class VariableSymbol(Symbol):
         return self.namespace_decorators
 
     def get_namespace_decorator(self, namespace):
-        if namespace in self.namespace_decorators:
+        if namespace in self.namespace_decorators.keys():
             return self.namespace_decorators[namespace]
         return ''
 
