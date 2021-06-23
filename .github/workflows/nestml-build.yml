@@ -89,7 +89,7 @@ jobs:
 
       # Install NEST simulator
       - name: NEST simulator
-        if: steps.nest_simulator_cache.outputs.cache-hit != 'true'
+        #if: steps.nest_simulator_cache.outputs.cache-hit != 'true'
         run: |
           echo "Latest NEST master commit hash:"
           cat latest_nest_master_commit_hash.txt
