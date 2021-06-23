@@ -72,11 +72,7 @@ class ExpressionsPrettyPrinter:
             return self.__do_print(node, prefix=prefix)
 
     def __do_print(self, node: ASTExpressionNode, prefix: str='') -> str:
-        print("do_print: " + str(node))
-
-        import pdb;pdb.set_trace()
         if isinstance(node, ASTSimpleExpression):
-
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
