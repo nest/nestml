@@ -482,10 +482,10 @@ class ASTSynsInfoEnricher(ASTVisitor):
                 "v_comp": ASTDeclaration,
             },            
             "internals_used_declared":
-            {
-                "td": ASTDeclaration,
-                "g_norm_exc": ASTDeclaration,
-            },
+            [
+                ("td", ASTDeclaration),
+                ("g_norm_exc", ASTDeclaration),
+            ],
             "total_used_declared": {"e_AMPA", ..., "v_comp", ..., "td", ...}
             ,
             "analytic_helpers":

@@ -41,7 +41,7 @@ public:
     {{ion_channel_name}}(const DictionaryDatum& channel_params);
     ~{{ion_channel_name}}(){};
     
-    // initialization
+    // initialization channel
     void init(){
     {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() -%}
         {%- set variable = variable_info["state_variable"] -%}
@@ -64,13 +64,27 @@ public:
 {% endfor -%}
 {% endwith -%}
 
+
+////////////////////////////////////////////////// synapses
+
+{% macro render_time_resolution_variable(synapse_info) -%}
+{# we assume here that there is only one such variable ! #}
+{%- with %}
+{%- for analytic_helper_name, analytic_helper_info in synapse_info["analytic_helpers"].items() -%}
+{%- if analytic_helper_info["is_time_resolution"] -%}
+    {{ analytic_helper_name }}
+{%- endif -%}
+{%- endfor -%}
+{% endwith %} 
+{%- endmacro %}
+
 {%- with %}
 {%- for synapse_name, synapse_info in syns_info.items() %}
 
 class {{synapse_name}}{
 private:
 
-  // propagators, initialized via calibrate()
+  // propagators, initialized via calibrate() to 0, refreshed in numstep
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["propagators"].items()%}
   double {{state_variable_name}};
@@ -84,13 +98,15 @@ private:
   {%- endfor %}
   {%- endfor %}
   
-  // user defined parameters
+  // user defined parameters, initialized via calibrate()
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
-  double {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
+  double {{param_name}}; 
   {%- endfor %}
   
-  // assigned variables
-  // double g_norm_ = 1.0;
+  // user declared internals in order they were declared, initialized via calibrate()
+  {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
+  double {{internal_name}};
+  {%- endfor %}
 
   // spike buffer
   std::shared_ptr< RingBuffer > {{synapse_info["buffer_name"]}}_;
@@ -100,11 +116,8 @@ public:
   {{synapse_name}}(std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const DictionaryDatum& receptor_params);
   ~{{synapse_name}}(){};
 
-  // initialization of the state variables
-  void init();
-
   // numerical integration step
-  std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag );
+  std::pair< double, double > f_numstep( const double v_comp, const double {{render_time_resolution_variable(synapse_info)}}, const long lag );
 
   // calibration
   void calibrate();
@@ -119,6 +132,7 @@ public:
 {% endfor -%}
 {% endwith -%}
 
+///////////////////////////////////////////// currents
 
 {%- set channel_suffix = "_chan_" %}
 
@@ -137,11 +151,6 @@ private:
   std::vector < {{synapse_name}} > {{synapse_name}}_syns_;
   {% endfor -%}
   {% endwith -%}
-  
-  //std::vector < AMPA > AMPA_syns_;
-  //std::vector < GABA > GABA_syns_;
-  //std::vector < NMDA > NMDA_syns_;
-  //std::vector < AMPA_NMDA > AMPA_NMDA_syns_;
 
 public:
   CompartmentCurrents{{cm_unique_suffix}}(){};
@@ -163,7 +172,7 @@ public:
     {% endfor -%}
   {% endwith -%}  
   
-  
+    // initialization of synapses
   {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     // initialization of {{synapse_name}} synapses
@@ -171,18 +180,10 @@ public:
          syn_it != {{synapse_name}}_syns_.end();
          ++syn_it )
     {
-      syn_it->init();
+      syn_it->calibrate();
     }
   {% endfor -%}
   {% endwith -%}
-  
-    // initialization of AMPA synapses
-    //for( auto syn_it = AMPA_syns_.begin();
-    //     syn_it != AMPA_syns_.end();
-    //     ++syn_it )
-    //{
-    //  syn_it->init();
-    //}
     
   }
 
@@ -234,17 +235,6 @@ public:
     }
   {% endfor -%}
   {% endwith -%}
-
-    // contribution of AMPA synapses
-    //for( auto syn_it = AMPA_syns_.begin();
-    //     syn_it != AMPA_syns_.end();
-    //     ++syn_it )
-    //{
-    //  gi = syn_it->f_numstep( v_comp, dt, lag );
-
-    //  g_val += gi.first;
-    //  i_val += gi.second;
-    //}
 
     return std::make_pair(g_val, i_val);
   };

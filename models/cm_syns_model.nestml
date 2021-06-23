@@ -60,6 +60,10 @@ neuron cm_syns_model:
     
     e_AMPA_NMDA real = 0.0
     NMDA_ratio_ real = 2.0
+    
+    E_exc mV = 0 mV            # Excitatory reversal Potential
+    tau_r ms = 0.2 ms    # Synaptic Rise Time Constant Excitatory Synapse
+    tau_d ms = 3. ms    # Synaptic Decay Time Constant Excitatory Synapse
 
   end
 
@@ -103,18 +107,13 @@ neuron cm_syns_model:
     kernel g_ex_GABA = exp(-t / tau_syn_GABA)
     inline GABA real = convolve(g_ex_GABA, spikesExc) * (v_comp - e_GABA)
     
-    kernel g_ex_NMDA = NMDA_sigmoid(v_comp)
+    kernel g_ex_NMDA = exp(-t / tau_syn_NMDA)
     inline NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA)
     
     inline AMPA_NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
 
-    ### ion channels ###
-    # state variables sodium channel
-    m_Na' = ( m_inf_Na(v_comp) - m_Na ) / tau_m_Na(v_comp)
-    h_Na' = ( h_inf_Na(v_comp) - h_Na ) / tau_h_Na(v_comp)
-
-    # state variables potassium channel
-    n_K' = ( n_inf_K(v_comp) - n_K ) / tau_n_K(v_comp)
+    kernel g_exc = g_norm_exc * ( - exp(-t / tau_r) + exp(-t / tau_d) )
+    inline I_syn_exc real = convolve(g_exc, spikesExc) * (E_exc - v_comp )
 
   end
 
@@ -144,12 +143,9 @@ neuron cm_syns_model:
     return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
   end
 
-  # NMDA
-  function NMDA_sigmoid(v_comp real) real:
-    return 1. / ( 1. + 0.3 * exp( -.1 * v_comp ) )
-  end
-
   internals:
+    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
+    tp real = (tau_r * tau_d) / (tau_d - tau_r) * ln( tau_d / tau_r )
   end
 
   input:
