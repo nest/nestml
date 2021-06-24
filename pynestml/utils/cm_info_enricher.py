@@ -1,21 +1,10 @@
-"""
-input: a neuron after ODE-toolbox transformations
-
-the kernel analysis solves all kernels at the same time
-this splits the variables on per kernel basis
-
-"""        
-from _collections import defaultdict
+      
 import copy
-
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.model_parser import ModelParser
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
-from pynestml.visitors.ast_visitor import ASTVisitor
 import sympy
 
 
