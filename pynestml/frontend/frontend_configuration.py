@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Mapping, Sequence
 
 import argparse
 import glob
@@ -103,7 +103,7 @@ appropriate numeric solver otherwise.
         parsed_args = cls.argument_parser.parse_args(args)
 
         # initialize the logger
-        cls.logging_level = parsed_args.logging_level
+        cls.logging_level = Logger.level_to_string(Logger.string_to_level(parsed_args.logging_level))
         Logger.init_logger(Logger.string_to_level(parsed_args.logging_level))
 
         cls.handle_input_path(parsed_args.input_path)
