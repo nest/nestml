@@ -231,13 +231,6 @@ void nest::{{synapse_name}}::calibrate()
   {%- endfor %}
   {%- endfor %}
   
-  //initial values for kernel state variables
-  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
-  {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-    {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
-  {%- endfor %}
-  {%- endfor %}
-  
   // user defined parameters
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
   {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};

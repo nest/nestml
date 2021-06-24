@@ -1180,9 +1180,9 @@ class Messages:
     def get_no_gating_variables(cls, cm_inline_expr: ASTInlineExpression, ion_channel_name: str):
         """
         Indicates that if you defined an inline expression inside the equations block
-        and it is called cm_p_open_{x}
+        that uses no kernels / has no convolution calls
         then then there must be at least one variable name that ends with _{x}
-        For example an inline "cm_p_open_Na" must have at least one variable ending with "_Na"
+        For example an inline "Na" must have at least one variable ending with "_Na"
         :return: a message
         :rtype: (MessageCode,str)
         """

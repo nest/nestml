@@ -54,7 +54,7 @@ neuron cm_model:
     end
 
   equations: 
-    inline cm_p_open_Na real = m_Na**3
+    inline Na real = m_Na**3
     
   end
 

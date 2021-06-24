@@ -6,10 +6,14 @@ CoCoCmVariableName.nestml
 Description
 +++++++++++
 
-This model is used to test whether compartmental variable name used in the inline expression
+This model is used to test whether there is at least 
+one gating variable in the inline expression, meaning it
 is suffixed with '_{channel_name_from_inline}'
 
-Negative case. Here h_K should be h_Na
+Negative case. 
+
+Here _K instad of _Na is used 
+so no variable is recognized to be a gating variable
 
 
 Copyright statement
@@ -40,7 +44,7 @@ neuron cm_model:
     # by declaring an unused variable with the name "v_comp"
     v_comp real = 0.0
     
-    m_Na real = 0.0
+    m_K real = 0.0
     h_K real = 0.0
     
   end
@@ -55,7 +59,7 @@ neuron cm_model:
     end
 
   equations: 
-    inline cm_p_open_Na real = m_Na**3 * h_K**1 
+    inline Na real = m_K**3 * h_K**1 
     
   end
 

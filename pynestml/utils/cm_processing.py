@@ -45,8 +45,8 @@ class CmProcessing(object):
     Otherwise neuron.is_compartmental_model = False 
     
     If compartmental model neuron is detected it triggers further analysis:
-    It ensures that all variables x as used in the inline expression cm_p_open_{channelType}
-    (which is searched for inside ASTEquationsBlock)
+    It ensures that all variables x as used in the inline expression named {channelType}
+    (which has no kernels and is inside ASTEquationsBlock)
     have the following compartmental model functions defined
 
         x_inf_{channelType}(v_comp real) real
@@ -55,7 +55,7 @@ class CmProcessing(object):
 
     Example:
         equations: 
-            inline cm_p_open_Na real = m_Na_**3 * h_Na_**1
+            inline Na real = m_Na_**3 * h_Na_**1
         end
         
         # triggers requirements for functions such as
@@ -72,7 +72,7 @@ class CmProcessing(object):
     -that at least one gating variable exists (which is recognize when variable name ends with _{channel_name} )
     -that no gating variable repeats inside the inline expression that triggers cm mechanism
     Example:
-        inline cm_p_open_Na real = m_Na**3 * h_Na**1
+        inline Na real = m_Na**3 * h_Na**1
         
     #causes the requirement for following entries in the state block
         
@@ -83,23 +83,25 @@ class CmProcessing(object):
     
     Other allowed examples:
         # any variable that does not end with _Na is allowed
-        inline cm_p_open_Na real = m_Na**3 * h_Na**1 + x
+        inline Na real = m_Na**3 * h_Na**1 + x
         # gbar and e variables will not be counted as gating variables
-        inline cm_p_open_Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp) # gating variables detected: m and h
+        inline Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp) # gating variables detected: m and h
     
     Not allowed examples:
-        inline cm_p_open_Na real = p_Na_**3 + p_Na_**1  # same gating variable used twice
-        inline cm_p_open_Na real = x**2                 # no gating variables
+        inline Na real = p_Na **3 + p_Na **1  # same gating variable used twice
+        inline Na real = x**2                 # no gating variables
     
     """
     
-    inline_expression_prefix = "cm_p_open_"
     padding_character = "_"
     inf_string = "inf"
     tau_sring = "tau"
     gbar_string = "gbar"
     equilibrium_string = "e"
     cm_trigger_variable_name = "v_comp"
+    
+    first_time_run = defaultdict(lambda: True)
+    cm_info = defaultdict()
 
     def __init__(self, params):
         '''
@@ -125,13 +127,13 @@ class CmProcessing(object):
     """
     detectCMInlineExpressions
     
-    analyzes any inline cm_p_open_{channelType}
-    and returns 
+    analyzes any inline without kernels and returns 
+
     {
         "Na":
         {
             "ASTInlineExpression": ASTInlineExpression,
-            "gating_variables": [ASTVariable, ASTVariable, ASTVariable, ...],
+            "gating_variables": [ASTVariable, ASTVariable, ASTVariable, ...], # potential gating variables
             
         },
         "K":
@@ -143,17 +145,17 @@ class CmProcessing(object):
     @classmethod
     def detectCMInlineExpressions(cls, neuron):
         # search for inline expressions inside equations block
-        inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsBlockCollectorVisitor()
+        inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsCollectorVisitor()
         neuron.accept(inline_expressions_inside_equations_block_collector_visitor)
         inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
         
         is_compartmental_model = cls.is_compartmental_model(neuron)
         
-        # filter for cm_p_open_{channelType}
+        # filter for any inline that has not kernel
         relevant_inline_expressions_to_variables = defaultdict(lambda:list())
         for expression, variables in inline_expressions_dict.items():
             inline_expression_name = expression.variable_name
-            if inline_expression_name.startswith(cls.inline_expression_prefix):
+            if not inline_expressions_inside_equations_block_collector_visitor.is_synapse_inline(inline_expression_name):
                 relevant_inline_expressions_to_variables[expression] = variables
         
         #create info structure
@@ -168,11 +170,11 @@ class CmProcessing(object):
         return cm_info
     
     # extract channel name from inline expression name
-    # i.e  cm_p_open_Na -> channel name is Na
+    # i.e  Na_ -> channel name is Na
     @classmethod
     def cm_expression_to_channel_name(cls, expr):
         assert(isinstance(expr, ASTInlineExpression))
-        return expr.variable_name[len(cls.inline_expression_prefix):].strip(cls.padding_character)
+        return expr.variable_name.strip(cls.padding_character)
 
     # extract pure variable name from inline expression variable name
     # i.e  p_Na -> pure variable name is p
@@ -228,7 +230,7 @@ class CmProcessing(object):
     # m_inf_Na(v_comp real) real
     # tau_m_Na(v_comp real) real
     """
-    analyzes any inline cm_p_open_{channelType} for expected function names
+    analyzes cm inlines for expected function names
     input:
     {
         "Na":
@@ -545,29 +547,19 @@ class CmProcessing(object):
     @classmethod
     def get_cm_info(cls, neuron: ASTNeuron):
         """
-        Checks if this compartmental conditions apply for the handed over neuron. 
-        If yes, it checks the presence of expected functions and declarations.
-        In addition it organizes and builds a dictionary (cm_info) 
-        which describes all the relevant data that was found
+        returns previously generated cm_info
+        as a deep copy so it can't be changed externally
+        via object references
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
-                
-        cm_info = cls.detectCMInlineExpressions(neuron)
         
-        # further computation not necessary if there were no cm neurons
-        if not cm_info: cm_info = dict()
-        
-        cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
-        cm_info = cls.checkAndFindFunctions(neuron, cm_info)
-        cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
-        
-        # now check for existence of expected state variables 
-        # and add their ASTVariable objects to cm_info
-        missing_states_visitor = StateMissingVisitor(cm_info)
-        neuron.accept(missing_states_visitor)
-        
-        return missing_states_visitor.cm_info
+        # trigger generation via check_co_co
+        # if it has not been called before
+        if cls.first_time_run[neuron]:
+            cls.check_co_co(neuron)
+  
+        return copy.deepcopy(cls.cm_info[neuron])
     
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
@@ -578,20 +570,29 @@ class CmProcessing(object):
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """
-        
-        cm_info = cls.detectCMInlineExpressions(neuron)
-        
-        # further computation not necessary if there were no cm neurons
-        if not cm_info: return True   
-             
-        cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
-        cm_info = cls.checkAndFindFunctions(neuron, cm_info)
-        cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
-        
-        # now check for existence of expected state variables 
-        # and add their ASTVariable objects to cm_info
-        missing_states_visitor = StateMissingVisitor(cm_info)
-        neuron.accept(missing_states_visitor)
+        # make sure we only run this a single time
+        # subsequent calls will be after AST has been transformed
+        # where kernels have been removed
+        # and inlines therefore can't be recognized by kernel calls any more
+        if cls.first_time_run[neuron]:
+            cm_info = cls.detectCMInlineExpressions(neuron)
+            
+            # further computation not necessary if there were no cm neurons
+            if not cm_info: 
+                cls.cm_info[neuron] = dict()
+                return True   
+                 
+            cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
+            cm_info = cls.checkAndFindFunctions(neuron, cm_info)
+            cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
+            
+            # now check for existence of expected state variables 
+            # and add their ASTVariable objects to cm_info
+            missing_states_visitor = StateMissingVisitor(cm_info)
+            neuron.accept(missing_states_visitor)
+            
+            cls.cm_info[neuron] = cm_info
+            cls.first_time_run[neuron] = False
         
         
         
@@ -833,14 +834,20 @@ class StateMissingVisitor(ASTVisitor):
 for each inline expression inside the equations block,
 collect all ASTVariables that are present inside
 """
-class ASTInlineExpressionInsideEquationsBlockCollectorVisitor(ASTVisitor):
+class ASTInlineExpressionInsideEquationsCollectorVisitor(ASTVisitor):
 
     def __init__(self):
-        super(ASTInlineExpressionInsideEquationsBlockCollectorVisitor, self).__init__()
+        super(ASTInlineExpressionInsideEquationsCollectorVisitor, self).__init__()
         self.inline_expressions_to_variables = defaultdict(lambda:list())
+        self.inline_expressions_with_kernels = set()
         self.inside_equations_block = False
         self.inside_inline_expression = False
+        self.inside_kernel_call = False
+        self.inside_simple_expression = False
         self.current_inline_expression = None
+        
+    def is_synapse_inline(self, inline_name):
+        return inline_name in self.inline_expressions_with_kernels
 
     def visit_variable(self, node):
         if self.inside_equations_block and self.inside_inline_expression and self.current_inline_expression is not None:
@@ -859,6 +866,19 @@ class ASTInlineExpressionInsideEquationsBlockCollectorVisitor(ASTVisitor):
     
     def endvisit_equations_block(self, node):
         self.inside_equations_block = False
+        
+    def visit_function_call(self, node):
+        if self.inside_equations_block:
+            if self.inside_inline_expression and self.inside_simple_expression:
+                if node.get_name() == "convolve":
+                    inline_name = self.current_inline_expression.variable_name
+                    self.inline_expressions_with_kernels.add(inline_name)
+        
+    def visit_simple_expression(self, node):
+        self.inside_simple_expression = True
+    
+    def endvisit_simple_expression(self, node):
+        self.inside_simple_expression = False
                 
 
 

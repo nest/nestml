@@ -71,7 +71,7 @@ neuron cm_model:
     end
 
   equations: 
-    inline cm_p_open_Na real = m_Na**3 * h_Na**1 
+    inline Na real = m_Na**3 * h_Na**1 
     
     # extract channel type Na
     # and expect
@@ -88,7 +88,7 @@ neuron cm_model:
     #      function h_inf_Na(v_comp real) real
     #      function tau_h_Na(v_comp real) real
     
-    inline cm_p_open_K real = n_K**1
+    inline K real = n_K**1
     # extract channel type K
     # and expect
     #      state variable of gbar_K = 0.0
@@ -101,8 +101,8 @@ neuron cm_model:
     #      function tau_n_Na(v_comp real) real
     
     # uncomment for testing various things
-    # inline cm_p_open_Ca real = r_Na**3 * s_Ca**1 
-    # inline cm_p_open_Es real = q_Es**1
+    # inline Ca real = r_Na**3 * s_Ca**1 
+    # inline Es real = q_Es**1
 
   end
 
@@ -176,8 +176,8 @@ neuron cm_modelx:
     end
 
   equations: 
-    inline cm_p_open_Na real = m_Na**3 * h_Na**1 
-    inline cm_p_open_K real = n_K**1
+    inline Na real = m_Na**3 * h_Na**1 
+    inline K real = n_K**1
 
   end
 

@@ -122,15 +122,15 @@ class CoCosManager:
     @classmethod
     def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
-        Searches ASTEquationsBlock for inline expressions that trigger 
-        compartmental model mechanisms
+        if state variable v_comp is defined
+        searches ASTEquationsBlock for inline expressions without kernels 
         
-        If such expression is found
-        -finds all Variables x used in that expression
+        If such inline expression is found
+        -finds all gatomg variables x_{channel_name} used in that expression
         -makes sure following functions are defined:
         
-        _x_inf_{channelType}(somevariable real) real
-        _tau_x_{channelType}(somevariable real) real
+        x_inf_{channelType}(somevariable real) real
+        tau_x_{channelType}(somevariable real) real
         
         -makes sure that all such functions have exactly one argument and that
         they return real
@@ -142,7 +142,7 @@ class CoCosManager:
         e_{channelType}
         
         -makes sure that in the key inline expression every variable is used only once
-        
+        -makes sure there is at least one gating variable per cm inline expression
         :param neuron: a single neuron.
         :type neuron: ast_neuron
         """

@@ -27,6 +27,7 @@ import json
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.messages import MessageCode
+from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 
 
 class LoggingLevel(Enum):
@@ -131,8 +132,14 @@ class Logger:
         if cls.no_print:
             return
         if cls.logging_level.value <= log_level.value:
+            node_name = ''
+            if isinstance(node, ASTInlineExpression):
+                node_name = node.variable_name
+            else:
+                node_name = node.get_name()
+                
             to_print = '[' + str(cls.curr_message) + ','
-            to_print = (to_print + (node.get_name() + ', ' if node is not None else
+            to_print = (to_print + (node_name + ', ' if node is not None else
                                     cls.current_node.get_name() + ', ' if cls.current_node is not None else 'GLOBAL, '))
             to_print = to_print + str(log_level.name)
             to_print = to_print + (', ' + str(error_position) if error_position is not None else '') + ']: '
