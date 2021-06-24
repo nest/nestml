@@ -76,23 +76,23 @@ jobs:
           cat latest_nest_master_commit_hash.txt
 
       # Install NEST simulator
-      - name: NEST simulator cache
-        id: nest_simulator_cache
-        uses: actions/cache@v2
-        env:
-          cache-name: nest-simulator-cache
-        with:
-          path: |
-            /home/runner/work/nestml/nest-simulator
-            /home/runner/work/nestml/nest_install
-          key: nest-simulator-${{ hashFiles('latest_nest_master_commit_hash.txt') }}
+      #- name: NEST simulator cache
+      #  id: nest_simulator_cache
+      #  uses: actions/cache@v2
+      #  env:
+      #    cache-name: nest-simulator-cache
+      #  with:
+      #    path: |
+      #      /home/runner/work/nestml/nest-simulator
+      #      /home/runner/work/nestml/nest_install
+      #    key: nest-simulator-${{ hashFiles('latest_nest_master_commit_hash.txt') }}
 
       # Install NEST simulator
       - name: NEST simulator
         #if: steps.nest_simulator_cache.outputs.cache-hit != 'true'
         run: |
-          echo "Latest NEST master commit hash:"
-          cat latest_nest_master_commit_hash.txt
+          #echo "Latest NEST master commit hash:"
+          #cat latest_nest_master_commit_hash.txt
           python -m pip install cython
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           cd $GITHUB_WORKSPACE/..
