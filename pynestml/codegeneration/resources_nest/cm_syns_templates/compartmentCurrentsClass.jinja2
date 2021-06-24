@@ -153,13 +153,12 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
         // compute the conductance of the {{ion_channel_name}} channel         
         double i_tot = {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }}; 
+        // derivative 
         double d_i_tot_dv = {{ printer.print_expression(inline_expression_d, with_origins = False) }}; 
-    
-        // then insert derivative of the inline
         
         // for numerical integration
-        double g_val = - d_i_tot_dv / 2.;
-        double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
+        g_val = - d_i_tot_dv / 2.;
+        i_val = i_tot - d_i_tot_dv * v_comp / 2.;
     }
 
     return std::make_pair(g_val, i_val);
