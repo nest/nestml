@@ -54,6 +54,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
+from pynestml.utils.ast_syns_info_enricher import ASTSynsInfoEnricher
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.cm_processing import CmProcessing
 from pynestml.utils.logger import Logger
@@ -61,13 +62,13 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.ode_transformer import OdeTransformer
+from pynestml.utils.syns_processing import SynsProcessing
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 import sympy
 
-from pynestml.utils.ast_syns_info_enricher import ASTSynsInfoEnricher
-from pynestml.utils.syns_processing import SynsProcessing
+from pynestml.utils.cm_info_enricher import CmInfoEnricher
 
 
 class NESTCodeGenerator(CodeGenerator):
@@ -723,15 +724,17 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['etypeClassName'] = "EType"
             namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
             namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
-            namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
+            namespace['cm_info'] = CmInfoEnricher.enrich_cm_info(neuron, namespace['cm_info'])
             
+            
+            namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
             syns_info_enricher = ASTSynsInfoEnricher(neuron)
             namespace['syns_info'] = syns_info_enricher.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
 
             print("syns_info: ")
             syns_info_enricher.prettyPrint(namespace['syns_info'])
-            
-
+            print("cm_info: ")
+            syns_info_enricher.prettyPrint(namespace['cm_info'])            
             neuron_specific_filenames = {
                 "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),

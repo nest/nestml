@@ -144,8 +144,8 @@ neuron cm_syns_model:
   end
 
   internals:
-    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
     tp real = (tau_r * tau_d) / (tau_d - tau_r) * ln( tau_d / tau_r )
+    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
   end
 
   input:

@@ -115,6 +115,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 {
     double g_val = 0., i_val = 0.;
     {%- set inline_expression = channel_info["ASTInlineExpression"] %}
+    {%- set inline_expression_d = channel_info["inline_derivative"] %}
     {%- set dynamic_variable = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
     {%- set gbar_variable = channel_info["channel_parameters"]["gbar"]["parameter_block_variable"] %}    
     if ({{gbar_variable.name}} > 1e-9)
@@ -150,15 +151,15 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
         {%- endfor %}
         
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
-        // compute the conductance of the {{ion_channel_name}} channel     
-        {{render_inline_expression_type(inline_expression)}} {{ g_dynamic }} = {{gbar_variable.name}} * {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }}; 
+        // compute the conductance of the {{ion_channel_name}} channel         
+        double i_tot = {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }}; 
+        double d_i_tot_dv = {{ printer.print_expression(inline_expression_d, with_origins = False) }}; 
     
-        // add to variables for numerical integration
-        {%- set e_channel = render_static_channel_variable_name("e", ion_channel_name) %}
-        g_val += {{ g_dynamic }} / 2.;
-        i_val += {{ g_dynamic }} * ( {{e_channel}} - v_comp / 2. );
-
-    
+        // then insert derivative of the inline
+        
+        // for numerical integration
+        double g_val = - d_i_tot_dv / 2.;
+        double i_val = i_tot - d_i_tot_dv * v_comp / 2.;
     }
 
     return std::make_pair(g_val, i_val);
@@ -224,10 +225,10 @@ void nest::{{synapse_name}}::calibrate()
   {%- endfor %}
   {%- endfor %}
   
-  //initial values for kernel state variables
+  // initial values for kernel state variables, set to zero
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
-  {{state_variable_name}} = {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  {{state_variable_name}} = 0;
   {%- endfor %}
   {%- endfor %}
   
@@ -261,7 +262,8 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
   {{state_variable_name}} = {{printer.print_expression(state_variable_info["update_expression"], with_origins = False)}};
-  {{state_variable_name}} += s_val;
+  {{state_variable_name}} += s_val * {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
+  
   {%- endfor %}
   {%- endfor %}
 

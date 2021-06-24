@@ -543,6 +543,7 @@ class CmProcessing(object):
                                 raise RuntimeError('This should never happen! Unsupported function type '+function_type+' from variable ' + pure_variable_name)    
         
         return ret
+
     
     @classmethod
     def get_cm_info(cls, neuron: ASTNeuron):
