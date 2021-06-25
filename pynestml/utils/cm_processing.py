@@ -581,6 +581,8 @@ class CmProcessing(object):
             # further computation not necessary if there were no cm neurons
             if not cm_info: 
                 cls.cm_info[neuron] = dict()
+                # mark as done so we don't enter here again
+                cls.first_time_run[neuron] = False
                 return True   
                  
             cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
