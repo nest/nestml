@@ -232,9 +232,9 @@ void nest::{{synapse_name}}::calibrate()
   {%- endfor %}
 
   // user defined parameters
-  {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
-  {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
-  {%- endfor %}
+  // {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
+  // {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
+  // {%- endfor %}
 
   // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
