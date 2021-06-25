@@ -19,14 +19,14 @@
 {%- with -%}
     {%- set symbol = function.get_scope().resolve_to_symbol(function.get_name(), SymbolKind.FUNCTION) -%}
     {{ type_converter.convert(symbol.get_return_type()) }}
-{%- endwith -%} 
+{%- endwith -%}
 {%- endmacro -%}
 
 {% macro render_inline_expression_type(inline_expression) -%}
 {%- with -%}
     {%- set symbol = inline_expression.get_scope().resolve_to_symbol(inline_expression.variable_name, SymbolKind.VARIABLE) -%}
     {{ type_converter.convert(symbol.get_type_symbol()) }}
-{%- endwith -%} 
+{%- endwith -%}
 {%- endmacro -%}
 
 {% macro render_static_channel_variable_name(variable_type, ion_channel_name) -%}
@@ -42,8 +42,8 @@
         {%- endfor -%}
     {%- endif -%}
 {%- endfor -%}
-{% endwith %} 
-   
+{% endwith %}
+
 {%- endmacro %}
 
 {% macro render_channel_function(function, ion_channel_name) -%}
@@ -56,7 +56,7 @@
 {%-   endwith %}
 {%-   endfilter %}
 }
-{% endwith %} 
+{% endwith %}
 {%- endmacro %}
 
 
@@ -71,16 +71,16 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}()
 {%- set variable = variable_info["state_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
 {% if loop.first %}: {% else %}, {% endif %}
-{{- variable.name}}({{ printer.print_expression(rhs_expression, with_origins = False) -}}) 
+{{- variable.name}}({{ printer.print_expression(rhs_expression, with_origins = False) -}})
 {%- endfor -%}
 
 {% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
 // channel parameter {{variable_type -}}
 {%- set variable = variable_info["parameter_block_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
-,{{- variable.name}}({{printer.print_expression(rhs_expression, with_origins = False) -}}) 
+,{{- variable.name}}({{printer.print_expression(rhs_expression, with_origins = False) -}})
 {%- endfor -%}
-{}    
+{}
 
 nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_params)
 
@@ -89,14 +89,14 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
 {%- set variable = variable_info["state_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
 {% if loop.first %}: {% else %}, {% endif %}
-{{- variable.name}}({{printer.print_expression(rhs_expression, with_origins = False) -}}) 
+{{- variable.name}}({{printer.print_expression(rhs_expression, with_origins = False) -}})
 {%- endfor -%}
 
 {% for variable_type, variable_info in channel_info["channel_parameters"].items() %}
 // channel parameter {{variable_type -}}
 {%- set variable = variable_info["parameter_block_variable"] %}
 {%- set rhs_expression = variable_info["rhs_expression"] %}
-,{{- variable.name}}({{printer.print_expression(rhs_expression, with_origins = False) -}}) 
+,{{- variable.name}}({{printer.print_expression(rhs_expression, with_origins = False) -}})
 {%- endfor %}
 // update {{ion_channel_name}} channel parameters
 {
@@ -104,7 +104,7 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
     {%- for variable_type, variable_info in channel_info["channel_parameters"].items() %}
         {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
-    // {{ion_channel_name}} channel parameter {{dynamic_variable }} 
+    // {{ion_channel_name}} channel parameter {{dynamic_variable }}
     if( channel_params->known( "{{dynamic_variable}}" ) )
         {{variable.name}} = getValue< double >( channel_params, "{{dynamic_variable}}" );
     {%- endfor -%}
@@ -117,7 +117,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
     {%- set inline_expression = channel_info["ASTInlineExpression"] %}
     {%- set inline_expression_d = channel_info["inline_derivative"] %}
     {%- set dynamic_variable = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
-    {%- set gbar_variable = channel_info["channel_parameters"]["gbar"]["parameter_block_variable"] %}    
+    {%- set gbar_variable = channel_info["channel_parameters"]["gbar"]["parameter_block_variable"] %}
     if ({{gbar_variable.name}} > 1e-9)
     {
         {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
@@ -136,7 +136,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
         );
         {%- endfor %}
             {%- endfor %}
-        
+
         {% for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
         // advance state variable {{pure_variable_name}} one timestep
             {%- set inner_variable = variable_info["ASTVariable"] %}
@@ -149,13 +149,13 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
         {{state_variable}} *= {{propagator}} ;
         {{state_variable}} += (1. - {{propagator}}) * {{inf_result_variable_name}};
         {%- endfor %}
-        
+
         {% set g_dynamic = render_dynamic_channel_variable_name("gbar", ion_channel_name) %}
-        // compute the conductance of the {{ion_channel_name}} channel         
-        double i_tot = {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }}; 
-        // derivative 
-        double d_i_tot_dv = {{ printer.print_expression(inline_expression_d, with_origins = False) }}; 
-        
+        // compute the conductance of the {{ion_channel_name}} channel
+        double i_tot = {{ printer.print_expression(inline_expression.get_expression(), with_origins = False) }};
+        // derivative
+        double d_i_tot_dv = {{ printer.print_expression(inline_expression_d, with_origins = False) }};
+
         // for numerical integration
         g_val = - d_i_tot_dv / 2.;
         i_val = i_tot - d_i_tot_dv * v_comp / 2.;
@@ -183,29 +183,29 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
     {{ analytic_helper_name }}
 {%- endif -%}
 {%- endfor -%}
-{% endwith %} 
+{% endwith %}
 {%- endmacro %}
 
 
 {%- for synapse_name, synapse_info in syns_info.items() %}
-// {{synapse_name}} synapse ////////////////////////////////////////////////////////////////    
+// {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
 nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
-  {%- endfor %}  
+  {%- endfor %}
 {
-  //calibrate
-  calibrate();
 
   // update parameters
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
-  if( receptor_params->known( "{{param_name}}_{{synapse_name}}" ) )
-    {{param_name}} = getValue< double >( receptor_params, "{{param_name}}_{{synapse_name}}" );
+  if( receptor_params->known( "{{param_name}}" ) )
+    {{param_name}} = getValue< double >( receptor_params, "{{param_name}}" );
   {%- endfor %}
 
   // store pointer to ringbuffer
   {{synapse_info["buffer_name"]}}_ = {{synapse_info["buffer_name"]}};
+  //calibrate only after storing pointer to ringbuffer, otherwise segmentation fault
+  //calibrate();
 }
 
 void nest::{{synapse_name}}::calibrate()
@@ -223,25 +223,25 @@ void nest::{{synapse_name}}::calibrate()
   {{state_variable_name}} = 0;
   {%- endfor %}
   {%- endfor %}
-  
+
   // initial values for kernel state variables, set to zero
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
   {{state_variable_name}} = 0;
   {%- endfor %}
   {%- endfor %}
-  
+
   // user defined parameters
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
   {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
   {%- endfor %}
-  
+
   // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
   {{internal_name}} = {{printer.print_expression(internal_declaration.get_expression(), with_origins = False)}};
   {%- endfor %}
-  
-  
+
+
     {{synapse_info["buffer_name"]}}_->clear();
 }
 
@@ -262,7 +262,7 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
   {%- for state_variable_name, state_variable_info in convolution_info["analytic_solution"]["kernel_states"].items()%}
   {{state_variable_name}} = {{printer.print_expression(state_variable_info["update_expression"], with_origins = False)}};
   {{state_variable_name}} += s_val * {{printer.print_expression(state_variable_info["init_expression"], with_origins = False)}};
-  
+
   {%- endfor %}
   {%- endfor %}
 
@@ -270,11 +270,11 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
   // this expression should be the transformed inline expression
   // g_AMPA * ( e_rev_ - v_comp )
   double i_tot = {{printer.print_expression(synapse_info["inline_expression"].get_expression(), with_origins = False)}};
-  
+
   // derivative of that expression
   // voltage derivative of total current
   // compute derivative with respect to current with sympy
-  double d_i_tot_dv = {{printer.print_expression(synapse_info["inline_expression_d"], with_origins = False)}}; 
+  double d_i_tot_dv = {{printer.print_expression(synapse_info["inline_expression_d"], with_origins = False)}};
 
   // for numerical integration
   double g_val = - d_i_tot_dv / 2.;
