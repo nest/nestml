@@ -13,9 +13,9 @@ class CmInfoEnricher():
 
     """
     Adds derivative of inline expression to cm_info
-    This needs to be done separately from within nest_codegenerator
+    This needs to be done used from within nest_codegenerator
     because the import of ModelParser will otherwise cause 
-    a circular dependency when this is done 
+    a circular dependency when this is used 
     inside CmProcessing
     
     input:

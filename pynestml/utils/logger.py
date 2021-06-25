@@ -28,6 +28,7 @@ from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.messages import MessageCode
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
+from pynestml.meta_model.ast_input_port import ASTInputPort
 
 
 class LoggingLevel(Enum):
@@ -135,6 +136,8 @@ class Logger:
             node_name = ''
             if isinstance(node, ASTInlineExpression):
                 node_name = node.variable_name
+            # elif isinstance (node, ASTInputPort):
+            #     node_name = ""
             else:
                 node_name = node.get_name()
                 

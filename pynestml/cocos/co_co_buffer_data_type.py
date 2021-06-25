@@ -65,4 +65,4 @@ class BufferDatatypeVisitor(ASTVisitor):
         if not node.has_datatype():
             code, message = Messages.get_data_type_not_specified(node.get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
-                               code=code, message=message)
+                               code=code, message=message, node = node)

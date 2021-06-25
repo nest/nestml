@@ -526,7 +526,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         if not node.has_datatype():
             code, message = Messages.get_buffer_type_not_defined(node.get_name())
             Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
+                               log_level=LoggingLevel.ERROR, node = node)
         else:
             node.get_datatype().update_scope(node.get_scope())
 
