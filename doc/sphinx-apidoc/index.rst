@@ -17,6 +17,9 @@ NESTML is a domain-specific language that supports the specification of neuron m
    citing
    license
 
+.. admonition:: **NESTML synapse pre-alpha**
+
+   For information about pre-alpha support for models of synapses and synaptic plasticity, please visit https://nestml-synapse.readthedocs.io/en/latest/synapses_in_nestml.html.
 
 .. .. figure:: nestml-logo/nestml-logo.png
       :scale: 30 %
