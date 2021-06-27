@@ -88,7 +88,6 @@ class ExpressionsPrettyPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                print("Converting name reference "+str(node) + " as " + str(self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)))
                 return self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix)
             elif node.is_function_call():
                 return self.print_function_call(node.get_function_call(), prefix=prefix)
