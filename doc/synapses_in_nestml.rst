@@ -1,9 +1,19 @@
 Modeling synapses in NESTML
 ===========================
 
+.. admonition:: **NESTML synapse pre-alpha**
+
+   Support for synapses and synaptic plasticity rules is currently in pre-alpha. To install the necessary version, the easiest way is to use pip:
+
+   .. code-block:: bash
+
+      pip install git+https://github.com/clinssen/nestml.git@jit-third-factor
+
+   Feedback is greatly appreciated! Please contact us via the NEST Simulator mailing list, or raise an Issue on the main NESTML repository at https://github.com/nest/nestml.
+
 .. toctree::
 
-Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants. Third-factor plasticity rules, such as dopamine-modulated STDP, are planned.
+Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants.
 
 .. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit/doc/fig/synapse_conceptual.png
    :scale: 10 %
