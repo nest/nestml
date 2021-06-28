@@ -34,12 +34,13 @@ The top-level element of the model is ``synapse``, followed by a name. All other
 Input and output ports
 ----------------------
 
-Typically, a single input and output port are defined.
+Depending on whether the plasticity rule depends only on pre-, or on both pre- and postsynaptic activity, one or two input ports are defined. Synapses always have only one (spiking) output port.
 
 .. code-block:: nestml
 
    input:
      pre_spikes nS <- spike
+     post_spikes nS <- spike
    end
 
    output: spike
@@ -48,16 +49,16 @@ Typically, a single input and output port are defined.
 Presynaptic spike event handler
 -------------------------------
 
-It is the responsibility of the event handler for the spiking input port to submit the event to the (spiking) output port. This can be done using the predefined ``emit_spike(w, d)`` function, which takes two optional arguments, a weight ``w`` and delay ``d``.
+It is the responsibility of the event handler for the spiking input port to submit the event to the (spiking) output port. This can be done using the predefined ``deliver_spike(w, d)`` function, which takes two parameters: a weight ``w`` and delay ``d``.
 
 The corresponding event handler has the general structure:
 
 .. code-block:: nestml
 
-   onReceive(pre_spikes):
+   preReceive:
      print("Info: processing a presynaptic spike at time t = {t}")
-     # [...]
-     emit_spike(w, d)     
+     # ... plasticity dynamics go here ...
+     deliver_spike(w, d)     
    end
 
 The statements in the event handler will be executed sequentially when the event occurs. The weight and delay could be defined as follows:
@@ -79,16 +80,16 @@ State variables (in particular, synaptic "trace" variables as often used in plas
 .. code-block:: nestml
 
    state:
-     tr_post real = 0
+     tr_pre real = 0
    end
 
-   onReceive(post_spikes):
-     print("Info: processing a postsynaptic spike at time t = {t}")
-     tr_post += 1
+   postReceive:
+     print("Info: processing a presynaptic spike at time t = {t}")
+     tr_pre += 1
    end
 
    equations:
-     tr_post' = -tr_post / tau_tr
+     tr_pre' = -tr_pre / tau_tr
    end
 
 Equivalently, the trace can be defined as a convolution between a trace kernel and the spiking input port:
@@ -96,8 +97,8 @@ Equivalently, the trace can be defined as a convolution between a trace kernel a
 .. code-block:: nestml
 
    equations:
-     kernel post_tr_kernel = exp(-t / tau_tr)
-     inline post_tr real = convolve(post_tr_kernel, post_spikes)
+     kernel tr_pre_kernel = exp(-t / tau_tr)
+     inline tr_pre real = convolve(tr_pre_kernel, pre_spikes)
    end
 
 
@@ -110,68 +111,31 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
 
    input:
      pre_spikes nS <- spike  # (same as before)
-     post_spikes nS <- post spike
+     post_spikes nS <- spike
    end
 
-   onReceive(post_spikes):
+   postReceive:
      print("Info: processing a postsynaptic spike at time t = {t}")
-     # [...]
+     # ... plasticity dynamics go here ...
    end
 
 
 Sharing parameters between synapses
 -----------------------------------
 
-If one or more synapse parameters are the same across a population (homogeneous), then sharing the parameter value between all synapses can save vast amounts of memory. To mark a particular parameter as homogeneous, use the `@homogeneous` decorator keyword. This can be done on a per-parameter basis. By default, parameters are heterogeneous and can be set on a per-synapse basis by the user. Example:
+If one or more synapse parameters are the same across a population (homogeneous), then sharing the parameter value between all synapses can save vast amounts of memory. To mark a particular parameter as homogeneous, use the `@homogeneous` decorator keyword. This can be done on a per-parameter basis.
+
+By default, parameters are heterogeneous which means can be set on a per-synapse basis by the user.
+
+For example:
 
 .. code-block:: nestml
 
    parameters:
      a real = 3.14159   @homogeneous
-     b real = 100.      @heterogeneous
+     b real = 100.      @heterogeneous  # the default!
    end
 
-will lead to the following C++ code being generated:
-
-.. code-block:: C++
-
-    class static_connectionCommonSynapseProperties : public CommonSynapseProperties
-    {
-    public:
-
-        static_connectionCommonSynapseProperties()
-        : CommonSynapseProperties()
-        {
-            this->a = 3.14159; // as real
-        }
-
-        double a;
-
-        [...]
-    }
-
-and
-
-.. code-block:: C++
-
-    class static_connection : public Connection
-    {
-    private:
-
-        struct Parameters_{
-            double b;
-            [...]
-        }
-
-    public:
-        static_connection() : ConnectionBase()
-        {
-            P_.b = 100.0; // as real
-            [...]
-        }
-
-        [...]
-    }
 
 Third-factor plasticity
 #######################
@@ -233,11 +197,11 @@ Examples
 Spike-Timing Dependent Plasticity (STDP)
 ----------------------------------------
 
-Experiments have shown that synaptic strength changes as a function of the precise spike timing of the presynaptic and postsynaptic neurons. If the pre neuron fires an action potential strictly before the post neuron, the synapse connecting them will be strengthened ("facilitated"). If the pre neuron fires after the post neuron, the synapse will be weakened ("depressed"). The depression and facilitation effects become stronger when the spikes occurred closer together in time. This is illustrated by empirical results (open circles), fitted by exponential curves (solid lines).
+Experiments have shown that synaptic strength changes as a function of the precise spike timing of the presynaptic and postsynaptic neurons. If the pre neuron fires an action potential strictly before the post neuron, the synapse connecting them will be strengthened ("facilitated"). If the pre neuron fires after the post neuron, the synapse will be weakened ("depressed"). The depression and facilitation effects become stronger when the spikes occur closer together in time. This is illustrated by empirical results (open circles), fitted by exponential curves (solid lines).
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/b96d9144664ef8ddb75dce51c8e5b38b7878dde5/doc/fig/Asymmetric-STDP-learning-window-Spike-timing-window-of-STDP-for-the-induction-of.png
 
-   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998) [18], represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The LTP (+) and LTD (-) windows are fitted by the exponential function ∆g = A ± exp(−|∆t|/τ), with parameters A + = 0.86, A − = −0.25, τ + = 19 ms, and τ − = 34 ms. Adopted from Bi and Wang (2002).
+   Asymmetric STDP learning window. Spike-timing window of STDP for the induction of synaptic potentiation and depression characterized in hippocampal cultures. Data points from Bi and Poo (1998), represent the relative change in the amplitude of EPSC after repetitive correlated activity of pre-post spike pairs. The potentiation window (right of the vertical axis) and depression window (left of the vertical axis) are fitted by an exponential function $A^\pm\exp(−|\Delta t|/\tau^\pm)$, with parameters $A^+ = 0.86$, $A^- = -0.25$, $\tau^+ = 19 \text{ms}$, and $\tau^- = 34 \text{ms}$. Adopted from Bi and Wang (2002).
 
 We will define the theoretical model following [3]_.
 
@@ -256,9 +220,9 @@ The weight is increased by :math:`\Delta^+ w` when :math:`t_o>t_i` and decreased
    f_-(w) &= \alpha w^{\mu_-}
    \end{align}
 
-with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP (for further references, see https://nest-simulator.readthedocs.io/en/nest-2.20.1/models/stdp.html?highlight=stdp#_CPPv4I0EN4nest14STDPConnectionE).
+with the parameter :math:`\alpha\in\mathbb{R}, \alpha>0` allowing to set an asymmetry between increasing and decreasing the synaptic efficacy, and :math:`\mu_\pm\in\{0,1\}` allowing to choose between four different kinds of STDP (for references, see https://nest-simulator.readthedocs.io/en/nest-2.20.1/models/stdp.html?highlight=stdp#_CPPv4I0EN4nest14STDPConnectionE).
 
-To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These maintain a history of neuron spikes, being incremented by 1 whenever a spike is generated, and decaying back to zero exponentially; in other words, a convolution between the exponentially decaying kernel and the emitted spike train:
+To implement the kernel, we use two extra state variables, one presynaptic so-called *trace value* and another postsynaptic trace value. These could correspond to calcium concentration in biology, maintaing a history of recent neuron spiking activity. They are incremented by 1 whenever a spike is generated, and decay back to zero exponentially. Mathematically, this can be formulated as a convolution between the exponentially decaying kernel and the emitted spike train:
 
 .. math::
 
@@ -276,12 +240,12 @@ These are implemented in the NESTML model as follows:
 
    equations:
      # all-to-all trace of presynaptic neuron
-     kernel pre_tr_kernel = exp(-t / tau_tr_pre)
-     inline pre_tr real = convolve(pre_tr_kernel, pre_spikes)
+     kernel tr_pre_kernel = exp(-t / tau_tr_pre)
+     inline tr_pre real = convolve(tr_pre_kernel, pre_spikes)
 
      # all-to-all trace of postsynaptic neuron
-     kernel post_tr_kernel = exp(-t / tau_tr_post)
-     inline post_tr real = convolve(post_tr_kernel, post_spikes)
+     kernel tr_post_kernel = exp(-t / tau_tr_post)
+     inline tr_post real = convolve(tr_post_kernel, post_spikes)
    end
 
 with time constants defined as parameters:
@@ -293,9 +257,7 @@ with time constants defined as parameters:
      tau_tr_post ms = 20 ms
    end
 
-With the traces in place, the weight updates can then be expressed closely following the mathematical definitions (repeated here for convenience).
-
-Begin by defining the weight and its initial value:
+With the traces in place, the weight updates can then be expressed closely following the mathematical definitions. Begin by defining the weight state variable and its initial value:
 
 .. code-block:: nestml
 
@@ -303,48 +265,45 @@ Begin by defining the weight and its initial value:
      w real = 1.
    end
 
-The update rule for facilitation:
+Our update rule for facilitation is:
 
 .. math::
 
-   \Delta^+ w = \lambda \cdot (1 - w)^{\mu_{plus}} \cdot \text{pre_trace}
+   \Delta^+ w = \lambda \cdot (1 - w)^{\mu_{plus}} \cdot \text{tr_pre}
 
-Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
+In NESTML, this expression can be entered almost verbatim. Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
 
 .. code-block:: nestml
 
-   onReceive(post_spikes):
+   postReceive:
      # potentiate synapse
-     w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
+     w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * tr_pre ))
      w = min(Wmax, w_)
    end
 
-
-The update rule for depression:
+Our update rule for depression is:
 
 .. math::
 
-   \Delta^- w = w - \alpha \cdot \lambda \cdot w^{\mu_{minus}} \cdot \text{post_trace}
+   \Delta^- w = \alpha \cdot \lambda \cdot w^{\mu_{minus}} \cdot \text{tr_post}
 
 .. code-block:: nestml
 
-   onReceive(pre_spikes):
+   preReceive:
      # depress synapse
-     w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
+     w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * tr_post ))
      w = max(Wmin, w_)
 
      # deliver spike to postsynaptic partner
-     deliver_spike(w, the_delay)
+     deliver_spike(w, d)
    end
 
-Finally, parameters are defined:
+Finally, all remaining parameters are defined:
 
 .. code-block:: nestml
 
    parameters:
      lambda real = .01
-     tau_tr_pre ms = 20 ms
-     tau_tr_post ms = 20 ms
      alpha real = 1.
      mu_plus real = 1.
      mu_minus real = 1.
@@ -356,7 +315,7 @@ The NESTML STDP synapse integration test (``tests/nest_tests/stdp_window_test.py
 
 .. figure:: https://raw.githubusercontent.com/nest/nestml/c4c47d053077b11ad385d5f882696248a55b31af/doc/fig/stdp_test_window.png
 
-   STDP window, obtained from numerical simulation, for purely additive STDP (mu_minus = mu_plus = 0)
+   STDP window, obtained from numerical simulation, for purely additive STDP (mu_minus = mu_plus = 0) and a dendritic delay of 10 ms.
 
 
 STDP synapse with nearest-neighbour spike pairing
@@ -379,27 +338,26 @@ To implement this rule, the pre- and postsynaptic traces are reset to 1 instead 
 .. code-block:: nestml
 
    state:
-     [...]
-     pre_trace real = 0.
-     post_trace real = 0.
+     tr_pre real = 0.
+     tr_post real = 0.
    end
 
    equations:
-     pre_trace' = -pre_trace / tau_tr_pre
-     post_trace' = -post_trace / tau_tr_post
+     tr_pre' = -tr_pre / tau_tr_pre
+     tr_post' = -tr_post / tau_tr_post
    end
 
 Resetting to 1 can then be done by assignment in the pre- and post-event handler blocks:
 
 .. code-block:: nestml
 
-   onReceive(pre_spikes):
-     pre_trace = 1
+   preReceive:
+     tr_pre = 1
      [...]
    end
 
-   onReceive(post_spikes):
-     post_trace = 1
+   postReceive:
+     tr_post = 1
      [...]
    end
 
@@ -417,18 +375,16 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
 
 .. code-block:: nestml
 
-   onReceive(post_spikes):
-     post_tr = 1
-
+   postReceive:
+     tr_post = 1
      w = ...  # facilitation step (omitted)
-
-     pre_tr = 0
+     tr_pre = 0
    end
 
-   onReceive(pre_spikes):
-     pre_tr += 1
-
+   preReceive:
+     tr_pre += 1
      w = ...  # depression step (omitted)
+     deliver_spike(w, d)
    end
 
 The remainder of the model is the same as the all-to-all STDP synapse.
@@ -450,7 +406,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
      pre_handled boolean = True
    end
 
-   onReceive(pre_spikes):
+   preReceive:
     # [...]
 
     # depress synapse
@@ -461,7 +417,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
     # [...]
    end
 
-   onReceive(post_spikes):
+   postReceive:
      # [...]
 
      if not pre_handled:
@@ -525,19 +481,19 @@ The weight update rules can then be expressed in terms of the traces and paramet
      Wmin real = 0.
    end
 
-   onReceive(post_spikes):
+   postReceive:
      # potentiate synapse
      w_ real = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
      w = min(Wmax, w_)
    end
 
-   onReceive(pre_spikes):
+   preReceive:
      # depress synapse
      w_ real = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
      w = max(Wmin, w_)
 
      # deliver spike to postsynaptic partner
-     emit_spike(w, delay)
+     deliver_spike(w, d)
    end
 
 
