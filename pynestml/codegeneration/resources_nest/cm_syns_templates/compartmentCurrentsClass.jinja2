@@ -105,8 +105,8 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
         {%- set variable = variable_info["parameter_block_variable"] %}
         {%- set dynamic_variable = render_dynamic_channel_variable_name(variable_type, ion_channel_name) %}
     // {{ion_channel_name}} channel parameter {{dynamic_variable }}
-    if( channel_params->known( "{{dynamic_variable}}" ) )
-        {{variable.name}} = getValue< double >( channel_params, "{{dynamic_variable}}" );
+    if( channel_params->known( "{{variable.name}}" ) )
+        {{variable.name}} = getValue< double >( channel_params, "{{variable.name}}" );
     {%- endfor -%}
     {% endwith %}
 }
