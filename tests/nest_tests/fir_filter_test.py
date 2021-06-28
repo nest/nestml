@@ -105,6 +105,7 @@ class NestFirFilterTest(unittest.TestCase):
         y = events["y"]
         times = events["times"]
         spike_times = nest.GetStatus(sr, keys='events')[0]['times']
+        print(times)
 
         # Plots
         if TEST_PLOTS:
@@ -150,11 +151,12 @@ class NestFirFilterTest(unittest.TestCase):
         :param stop:
         :return:
         """
-        spikes, bin_edges = np.histogram(spike_times, bins=np.linspace(0, num, stop))  # to create binned spikes
+        spikes, bin_edges = np.histogram(spike_times, np.arange(0.1, stop * 0.1, 0.1))  #bins=np.linspace(0, num, stop))  # to create binned spikes
+        print(bin_edges)
         plt.figure()
         output = scipy.signal.lfilter(h, 1, spikes)
         plt.scatter(spike_times, np.zeros_like(spike_times), label='input', marker="d", color="orange")
-        plt.plot(bin_edges[1:], output, label="filter")
+        plt.plot(bin_edges, output, label="filter")
         plt.xlabel("Time (ms)")
         plt.ylabel("Filter output")
         plt.legend()
