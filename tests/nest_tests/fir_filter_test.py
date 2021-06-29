@@ -62,6 +62,7 @@ class NestFirFilterTest(unittest.TestCase):
         install_nest(target_path, nest_path)
 
         t_sim = 101.
+        resolution = 0.1
 
         nest.set_verbosity("M_ALL")
         nest.Install(module_name)
@@ -72,10 +73,10 @@ class NestFirFilterTest(unittest.TestCase):
         neuron = nest.Create(nestml_model_name)
 
         # Create a spike generator
-        spikes = [1.5, 1.5, 1.5, 6.7, 10., 10.1, 10.1, 11.3, 11.3, 20., 22.5, 30., 40., 42., 42., 42., 50.5, 50.5, 75., 88.,
-                  93., 93., 98.9, 98.9]
+        spikes = [1.0, 1.0, 1.5, 1.5, 1.5, 6.7, 10.0, 10.5, 10.5, 10.5, 10.5, 11.3, 11.3, 11.4, 11.4, 20., 22.5, 30.,
+                  40., 42., 42., 42., 50.5, 50.5, 75., 88., 93., 93.]
         sg = nest.Create("spike_generator", params={"spike_times": spikes})
-        nest.Connect(sg, neuron)
+        nest.Connect(sg, neuron, syn_spec=dict(delay=resolution))
 
         # Get N (order of the filter)
         n = nest.GetStatus(neuron, "N")[0]
@@ -88,7 +89,7 @@ class NestFirFilterTest(unittest.TestCase):
 
         # Multimeter
         multimeter = nest.Create('multimeter')
-        nest.SetStatus(multimeter, {'interval': 0.1})
+        nest.SetStatus(multimeter, {'interval': resolution})
         multimeter.set({"record_from": ["y"]})  # output of the filter
         nest.Connect(multimeter, neuron)
 
@@ -105,12 +106,19 @@ class NestFirFilterTest(unittest.TestCase):
         y = events["y"]
         times = events["times"]
         spike_times = nest.GetStatus(sr, keys='events')[0]['times']
-        print(times)
+
+        # Scipy filtering
+        spikes, bin_edges = np.histogram(spike_times, np.arange(0, t_sim, resolution))
+        output = scipy.signal.lfilter(h, 1, spikes)
 
         # Plots
         if TEST_PLOTS:
-            self.plot_nestml(spike_times, times, y)
-            self.plot_scipy(h, spike_times, t_sim - 1, len(y))
+            self.plot_output(spike_times, times, y, title='FIR FILTER (NESTML)',
+                             filename='fir_filter_output_nestml.png')
+            self.plot_output(spike_times, bin_edges[1:], output, title='FIR FILTER (scipy)',
+                             filename='fir_filter_output_scipy.png')
+
+        np.testing.assert_allclose(y, output)
 
     def generate_filter_coefficients(self, order: int):
         """
@@ -126,12 +134,14 @@ class NestFirFilterTest(unittest.TestCase):
 
         return scipy.signal.firwin(order, cutoff, pass_zero=True)
 
-    def plot_nestml(self, spike_times, times, y):
+    def plot_output(self, spike_times, times, y, title='FIR FILTER', filename='fir_filter_output.png'):
         """
         Generate the filtered output plot computed via NESTML
         :param spike_times: times when spikes occur
         :param times: total simualtion time
         :param y: output of the filter for the simulation time
+        :param filename: file name of the plot
+        :param title: title of the plot
         """
         plt.figure()
         plt.scatter(spike_times, np.zeros_like(spike_times), label='input', marker="d", color="orange")
@@ -139,26 +149,5 @@ class NestFirFilterTest(unittest.TestCase):
         plt.xlabel("Time (ms)")
         plt.ylabel("Filter output")
         plt.legend()
-        plt.title('FIR Filter (NESTML)')
-        plt.savefig("/tmp/fir_filter_output_nestml.png")
-
-    def plot_scipy(self, h, spike_times, num, stop):
-        """
-        Generate the filtered output plot computed via scipy
-        :param h: filter coefficients
-        :param spike_times: times when spikes occur
-        :param num:
-        :param stop:
-        :return:
-        """
-        spikes, bin_edges = np.histogram(spike_times, np.arange(0.1, stop * 0.1, 0.1))  #bins=np.linspace(0, num, stop))  # to create binned spikes
-        print(bin_edges)
-        plt.figure()
-        output = scipy.signal.lfilter(h, 1, spikes)
-        plt.scatter(spike_times, np.zeros_like(spike_times), label='input', marker="d", color="orange")
-        plt.plot(bin_edges, output, label="filter")
-        plt.xlabel("Time (ms)")
-        plt.ylabel("Filter output")
-        plt.legend()
-        plt.title('FIR filter (scipy)')
-        plt.savefig('/tmp/fir_filter_output_scipy.png')
+        plt.title(title)
+        plt.savefig("/tmp/" + filename)
