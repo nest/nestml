@@ -152,7 +152,6 @@ class ExpressionsPrettyPrinter:
         ret = []
 
         for arg in function_call.get_args():
-            print("Printing " + str(self.print_expression(arg, prefix=prefix)))
             ret.append(self.print_expression(arg, prefix=prefix))
 
         return tuple(ret)
