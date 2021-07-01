@@ -150,6 +150,9 @@ class CmProcessing(object):
         inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
         
         is_compartmental_model = cls.is_compartmental_model(neuron)
+        if not is_compartmental_model: 
+            neuron.is_compartmental_model = is_compartmental_model
+            return defaultdict()
         
         # filter for any inline that has not kernel
         relevant_inline_expressions_to_variables = defaultdict(lambda:list())

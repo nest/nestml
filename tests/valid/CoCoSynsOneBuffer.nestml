@@ -1,0 +1,88 @@
+"""
+CoCoSynsOneBuffer.nestml
+###########################
+
+
+Description
++++++++++++
+
+This model is used to test whether each synapse
+uses exactly one buffer
+
+Here the AMPA synapse uses one buffer: spikesAMPA
+and the AMPA_NMDA synapse uses one buffer: spikesExc
+
+Positive case.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+neuron cm_syns_model_one:
+
+  state:
+  
+    # the presence of the state variable [v_comp]
+    # triggers compartment model context
+    v_comp real = 0
+
+  end
+
+
+  parameters:
+
+    ### synapses ###
+    e_AMPA real = 0.0
+    tau_syn_AMPA real = 0.2
+
+    e_NMDA real = 0.0
+    tau_syn_NMDA real = 0.2    # Synaptic Time Constant Excitatory Synapse
+
+    NMDA_ratio_ real = 2.0
+
+  end
+
+  equations:
+
+    ### synapses ###
+    
+    kernel g_ex_AMPA = exp(-t / tau_syn_AMPA)
+    inline AMPA real = convolve(g_ex_AMPA, spikesAMPA) * (v_comp - e_AMPA)
+    
+    kernel g_ex_NMDA = exp(-t / tau_syn_NMDA)
+    inline AMPA_NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+
+  end
+
+  internals:
+
+  end
+
+  input:
+    spikesExc nS <- excitatory spike
+    spikesAMPA ns <- excitatory spike
+  end
+
+  output: spike
+
+  update:
+  end
+
+end

@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-neuron cm_model:
+neuron cm_model_two_invalid:
 
   state:
     # indicate that we have a compartmental model

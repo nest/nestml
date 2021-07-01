@@ -1236,7 +1236,7 @@ class Messages:
     @classmethod
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
         message = "Synapse `\'%s\' uses the following inout buffers: %s" % (synapse_name, buffers)
-        message += "However exaxtly one spike input buffer per synapse is allowed."
+        message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
         
     @classmethod

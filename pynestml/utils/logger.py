@@ -138,6 +138,8 @@ class Logger:
                 node_name = node.variable_name
             # elif isinstance (node, ASTInputPort):
             #     node_name = ""
+            elif node is None:
+                node_name = "unknown node"
             else:
                 node_name = node.get_name()
                 

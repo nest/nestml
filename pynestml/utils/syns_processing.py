@@ -100,11 +100,17 @@ class SynsProcessing(object):
     """
     @classmethod
     def detectSyns(cls, neuron):
+            
         # search for synapse_inline expressions inside equations block
+        # but do not traverse yet because tests run this as well
         info_collector = ASTSynapseInformationCollector()
-        neuron.accept(info_collector)
         
         syns_info = defaultdict()
+        if not neuron.is_compartmental_model:
+            return syns_info, info_collector
+        
+        # tests will arrive here if we actually have compartmental model
+        neuron.accept(info_collector)
             
         synapse_inlines = info_collector.get_inline_expressions_with_kernels()
         for synapse_inline in synapse_inlines:
@@ -281,7 +287,11 @@ class SynsProcessing(object):
         # and there would be no kernels or inlines any more
         if cls.first_time_run[neuron]:
             syns_info, info_collector = cls.detectSyns(neuron)
-            syns_info = cls.collect_and_check_inputs_per_synapse(neuron, info_collector, syns_info)
+            if len(syns_info) > 0:
+                # only do this if any synapses found
+                # otherwise tests may fail
+                syns_info = cls.collect_and_check_inputs_per_synapse(neuron, info_collector, syns_info)
+            
             cls.syns_info[neuron] = syns_info
             cls.first_time_run[neuron] = False
         
