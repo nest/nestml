@@ -97,9 +97,9 @@ If no errors occur, the output will be generated into the specified target direc
 
 .. code-block:: python
 
-   install_nest(models_path, nest_path)
+   install_nest(target_path, nest_path)
 
-Here, ``models_path`` should be set to the ``target`` directory of ``to_nest()``, and ``nest_path`` points to the directory where NEST is installed (e.g., ``/home/nest/work/nest-install``). This path can conveniently be obtained from the ``nest`` module as follows:
+Here, ``target_path`` should be set to the ``target`` directory of ``to_nest()``, and ``nest_path`` points to the directory where NEST is installed (e.g., ``/home/nest/work/nest-install``). This path can conveniently be obtained from the ``nest`` module as follows:
 
 .. code-block:: python
 
