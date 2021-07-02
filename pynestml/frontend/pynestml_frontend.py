@@ -106,27 +106,23 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         raise Exception("Error(s) occurred while processing the model")
 
 
-def install_nest(models_path, nest_path):
-    # type: (str,str) -> None
+def install_nest(target_path: str, nest_path: str) -> None:
     '''
-    This procedure can be used to install generated models into the NEST
-    simulator.
+    This method can be used to build the generated code and install the resulting extension module into NEST.
 
     Parameters
     ----------
-    models_path : str
-        Path to the generated models, which should contain the
-        (automatically generated) CMake file.
+    target_path : str
+        Path to the target directory, which should contain the generated code artifacts (target platform code and CMake configuration file).
     nest_path : str
-        Path to the NEST installation, which should point to the main directory
-        where NEST is installed. This folder contains the bin/, lib(64)/,
-        include/, and share/ folders of the NEST install. Most importantly, the
-        bin/ folder should contain the "nest-config" script. This path is
-        passed through the -Dwith-nest argument of the CMake command during the
-        installation of the generated NEST module. The suffix /bin/nest-config
-        will be automatically attached to `nest_path`.
+        Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
+
+    Raises
+    ------
+    GeneratedCodeBuildException
+        If any kind of failure occurs during cmake configuration, build, or install.
     '''
-    nest_installer(models_path, nest_path)
+    nest_installer(target_path, nest_path)
 
 
 def main() -> int:

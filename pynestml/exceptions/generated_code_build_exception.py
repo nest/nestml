@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# __init__.py
+# generated_code_build_exception.py
 #
 # This file is part of NEST.
 #
@@ -19,4 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['deferred_logging_exception', 'deferred_logging_exception', 'generated_code_build_exception', 'implicit_cast_exception', 'implicit_magnitude_cast_exception', 'invalid_path_exception', 'invalid_target_exception']
+
+class GeneratedCodeBuildException(Exception):
+    """
+    This exception is thrown whenever a failure occurs while compiling/linking/building the generated code for the target platform.
+    """
+    pass
