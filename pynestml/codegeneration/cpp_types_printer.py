@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# latex_types_printer.py
+# cpp_types_printer.py
 #
 # This file is part of NEST.
 #

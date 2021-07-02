@@ -104,6 +104,13 @@ class CoCoAllVariablesDefined(CoCo):
                     # in this case its ok if it is recursive or defined later on
                     continue
 
+                if symbol is None:
+                    code, message = Messages.get_variable_used_before_declaration(var.get_name())
+                    Logger.log_message(node=node, message=message, error_position=var.get_source_position(),
+                                       code=code, log_level=LoggingLevel.ERROR)
+                    continue
+
+
                 # check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
                 if (not symbol.is_predefined) \
                         and symbol.block_type != BlockType.INPUT \
@@ -114,6 +121,7 @@ class CoCoAllVariablesDefined(CoCo):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
                         Logger.log_message(node=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
+                        continue
                     # now check that they are not defined recursively, e.g. V_m mV = V_m + 1
                     # todo: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position())
@@ -121,6 +129,7 @@ class CoCoAllVariablesDefined(CoCo):
                         code, message = Messages.get_variable_defined_recursively(var.get_name())
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, node=node)
+                        continue
 
 
 class ASTExpressionCollectorVisitor(ASTVisitor):

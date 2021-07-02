@@ -701,7 +701,7 @@ def print_n_spaces(n):
     return ' ' * n
 
 
-def print_ml_comments(comments, indent=0):
+def print_ml_comments(comments, indent=0, newline=False):
     if comments is None or len(list(comments)) == 0:
         return ''
     ret = ''
