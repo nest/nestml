@@ -419,7 +419,6 @@ def collect_variable_names_in_expression(expr):
             var = _expr
 
         if var:
-            print("\tcollected dependent variable: " + str(var))
             vars_used_.append(var)
 
     expr.accept(ASTHigherOrderVisitor(lambda x: collect_vars(x)))

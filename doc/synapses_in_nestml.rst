@@ -279,7 +279,7 @@ Our update rule for facilitation is:
 
 .. math::
 
-   \Delta^+ w = \lambda \cdot (1 - w)^{\mu_{plus}} \cdot \text{tr_pre}
+   \Delta^+ w = \lambda \cdot (1 - w)^{\mu_+} \cdot \text{tr_pre}
 
 In NESTML, this expression can be entered almost verbatim. Note that the only difference is that scaling with an absolute maximum weight ``Wmax`` was added:
 
@@ -295,7 +295,7 @@ Our update rule for depression is:
 
 .. math::
 
-   \Delta^- w = \alpha \cdot \lambda \cdot w^{\mu_{minus}} \cdot \text{tr_post}
+   \Delta^- w = -\alpha \cdot \lambda \cdot w^{\mu_-} \cdot \text{tr_post}
 
 .. code-block:: nestml
 
