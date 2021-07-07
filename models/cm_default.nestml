@@ -51,13 +51,13 @@ neuron cm_default:
     tau_r_AMPA real = 0.2 ms      # Synaptic Time Constant Excitatory Synapse
     tau_d_AMPA real = 3.0 ms      # Synaptic Time Constant Excitatory Synapse
 
-    e_GABA real = 0 mV            # Inhibitory reversal Potential
+    e_GABA real = -80. mV            # Inhibitory reversal Potential
     tau_r_GABA real = 0.2 ms      # Synaptic Time Constant Inhibitory Synapse
-    tau_d_GABA real = 3.0 ms      # Synaptic Time Constant Inhibitory Synapse
+    tau_d_GABA real = 10.0 ms      # Synaptic Time Constant Inhibitory Synapse
 
     e_NMDA real = 0 mV            # NMDA reversal Potential
     tau_r_NMDA real = 0.2 ms      # Synaptic Time Constant NMDA Synapse
-    tau_d_NMDA real = 3.0 ms      # Synaptic Time Constant NMDA Synapse
+    tau_d_NMDA real = 43.0 ms      # Synaptic Time Constant NMDA Synapse
 
     e_AN_AMPA real = 0 mV            # Excitatory reversal Potential
     tau_r_AN_AMPA real = 0.2 ms      # Synaptic Time Constant Excitatory Synapse
@@ -98,7 +98,7 @@ neuron cm_default:
     """
     ### ion channels, recognized by lack of convolutions ###
     inline Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp)
-    inline K real = gbar_K * n_K**4 * (e_K - v_comp)
+    inline K real = gbar_K * n_K * (e_K - v_comp)
 
     ### synapses, characterized by convolution(s) with spike input ###
     kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
@@ -116,30 +116,52 @@ neuron cm_default:
                             convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp( -.1 * v_comp ))
   end
 
-  #sodium
-  function m_inf_Na(v_comp real) real:
-    return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
+  # #sodium
+  # function m_inf_Na(v_comp real) real:
+  #   return (0.182*v_comp + 6.3723659999999995)/((1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))*((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp))))
+  # end
+
+  # function tau_m_Na(v_comp real) real:
+  #   return 0.3115264797507788/((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp)))
+  # end
+
+  # function h_inf_Na(v_comp real) real:
+  #   return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
+  # end
+
+  # function tau_h_Na(v_comp real) real:
+  #   return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
+  # end
+
+  # #potassium
+  # function n_inf_K(v_comp real) real:
+  #   return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
+  # end
+
+  # function tau_n_K(v_comp real) real:
+  #   return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
+  # end
+
+  # functions K
+  function n_inf_K (v_comp real) real:
+      return 0.02*(1.0 - exp(0.111111111111111*(25.0 - v_comp)))**(-1)*(-0.002*(-25.0 + v_comp)*(1.0 - exp(0.111111111111111*(-25.0 + v_comp)))**(-1) + 0.02*(-25.0 + v_comp)*(1.0 - exp(0.111111111111111*(25.0 - v_comp)))**(-1))**(-1)*(-25.0 + v_comp)
+  end
+  function tau_n_K (v_comp real) real:
+      return 0.311526479750779*(-0.002*(-25.0 + v_comp)*(1.0 - exp(0.111111111111111*(-25.0 + v_comp)))**(-1) + 0.02*(-25.0 + v_comp)*(1.0 - exp(0.111111111111111*(25.0 - v_comp)))**(-1))**(-1)
   end
 
-  function tau_m_Na(v_comp real) real:
-    return 0.3115264797507788/((-0.124*v_comp - 4.3416119999999996)/(1.0 - 48.927192870146527*exp(0.1111111111111111*v_comp)) + (0.182*v_comp + 6.3723659999999995)/(1.0 - 0.020438532058318047*exp(-0.1111111111111111*v_comp)))
+  # functions Na
+  function m_inf_Na (v_comp real) real:
+      return (1.0 - 0.020438532058318*exp(-0.111111111111111*v_comp))**(-1)*((1.0 - 0.020438532058318*exp(-0.111111111111111*v_comp))**(-1)*(6.372366 + 0.182*v_comp) + (1.0 - 48.9271928701465*exp(0.111111111111111*v_comp))**(-1)*(-4.341612 - 0.124*v_comp))**(-1)*(6.372366 + 0.182*v_comp)
   end
-
-  function h_inf_Na(v_comp real) real:
-    return 1.0/(exp(0.16129032258064516*v_comp + 10.483870967741936) + 1.0)
+  function tau_m_Na (v_comp real) real:
+      return 0.311526479750779*((1.0 - 0.020438532058318*exp(-0.111111111111111*v_comp))**(-1)*(6.372366 + 0.182*v_comp) + (1.0 - 48.9271928701465*exp(0.111111111111111*v_comp))**(-1)*(-4.341612 - 0.124*v_comp))**(-1)
   end
-
-  function tau_h_Na(v_comp real) real:
-    return 0.3115264797507788/((-0.0091000000000000004*v_comp - 0.68261830000000012)/(1.0 - 3277527.8765015295*exp(0.20000000000000001*v_comp)) + (0.024*v_comp + 1.200312)/(1.0 - 4.5282043263959816e-5*exp(-0.20000000000000001*v_comp)))
+  function h_inf_Na (v_comp real) real:
+      return 1.0*(1.0 + 35734.4671267926*exp(0.161290322580645*v_comp))**(-1)
   end
-
-  #potassium
-  function n_inf_K(v_comp real) real:
-    return 0.02*(v_comp - 25.0)/((1.0 - exp((25.0 - v_comp)/9.0))*((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0))))
-  end
-
-  function tau_n_K(v_comp real) real:
-    return 0.3115264797507788/((-0.002)*(v_comp - 25.0)/(1.0 - exp((v_comp - 25.0)/9.0)) + 0.02*(v_comp - 25.0)/(1.0 - exp((25.0 - v_comp)/9.0)))
+  function tau_h_Na (v_comp real) real:
+      return 0.311526479750779*((1.0 - 4.52820432639598e-5*exp(-0.2*v_comp))**(-1)*(1.200312 + 0.024*v_comp) + (1.0 - 3277527.87650153*exp(0.2*v_comp))**(-1)*(-0.6826183 - 0.0091*v_comp))**(-1)
   end
 
   internals:
