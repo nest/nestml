@@ -1,15 +1,14 @@
 """
-CoCoBufferWithRedundantTypes.nestml
+CoCoValueAssignedToInputPort.nestml
 ###################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if each buffer is defined uniquely, i.e.,
-no redundant keywords are used.
+This model is used to test if broken CoCos are identified correctly. Here, if assignment of values to input ports is detected.
 
-Negative case.
+Positive case.
 
 
 Copyright statement
@@ -32,8 +31,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoBufferWithRedundantTypes:
+neuron CoCoValueAssignedToInputPort:
     input:
-        spikeInhX2 integer <- inhibitory inhibitory spike # spike redundant keywords used.
+        spikeInh integer <- inhibitory spike
+    end
+
+    update: # input port not assigned to, thus everything is correct
+        test integer = spikeInh + 10
     end
 end

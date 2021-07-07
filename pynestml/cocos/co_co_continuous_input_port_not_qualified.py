@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_current_buffers_not_specified.py
+# co_co_continuous_input_port_not_qualified.py
 #
 # This file is part of NEST.
 #
@@ -25,37 +25,44 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoCurrentBuffersNotSpecified(CoCo):
+class CoCoContinuousInputPortNotQualified(CoCo):
     """
-    This coco ensures that current buffers are not specified with a qualifier.
+    This coco ensures that continuous time input ports are not specified with a qualifier.
     Allowed:
-        input:
-            current <- current
-        end
+
+    .. code-block:: nestml
+
+       input:
+           x nA <- continuous
+       end
+
     Not allowed:
-        input:
-            current <- inhibitory current
-        end
+
+    .. code-block:: nestml
+
+       input:
+           x nA <- inhibitory continuous
+       end
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param node: a single neuron instance.
+        :type node: ast_neuron
         """
-        neuron.accept(CurrentQualifierSpecifiedVisitor())
+        node.accept(ContinuousPortQualifierSpecifiedVisitor())
 
 
-class CurrentQualifierSpecifiedVisitor(ASTVisitor):
+class ContinuousPortQualifierSpecifiedVisitor(ASTVisitor):
     """
-    This visitor ensures that current buffers are not specified with an `inputQualifier`, e.g. excitatory, inhibitory.
+    This visitor ensures that continuous time input ports are not specified with an `inputQualifier`, e.g. excitatory, inhibitory.
     """
 
     def visit_input_port(self, node):
-        if node.is_current() and node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 0:
-            code, message = Messages.get_current_buffer_specified(node.get_name(),
-                                                                  list((str(buf) for buf in node.get_input_qualifiers())))
+        if node.is_continuous() and node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 0:
+            qualifier_names = list((str(qualifier) for qualifier in node.get_input_qualifiers()))
+            code, message = Messages.get_continuous_input_port_specified(node.get_name(), qualifier_names)
             Logger.log_message(error_position=node.get_source_position(),
                                code=code, message=message, log_level=LoggingLevel.ERROR)

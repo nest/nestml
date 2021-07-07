@@ -75,8 +75,7 @@ class CoCoAllVariablesDefined(CoCo):
 
                 # now check if it has been defined before usage, except for predefined symbols, buffers and variables added by the AST transformation functions
                 elif (not symbol.is_predefined) \
-                        and symbol.block_type != BlockType.INPUT_BUFFER_CURRENT \
-                        and symbol.block_type != BlockType.INPUT_BUFFER_SPIKE \
+                        and symbol.block_type != BlockType.INPUT \
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))

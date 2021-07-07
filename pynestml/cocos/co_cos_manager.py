@@ -22,11 +22,11 @@
 from pynestml.cocos.co_co_compartmental_model import CoCoCompartmentalModel
 from pynestml.cocos.co_co_synapses_model import CoCoSynapsesModel
 from pynestml.cocos.co_co_all_variables_defined import CoCoAllVariablesDefined
-from pynestml.cocos.co_co_buffer_not_assigned import CoCoBufferNotAssigned
+from pynestml.cocos.co_co_input_port_not_assigned_to import CoCoInputPortNotAssignedTo
 from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondCorrectlyBuilt
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
-from pynestml.cocos.co_co_current_buffers_not_specified import CoCoCurrentBuffersNotSpecified
+from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
 from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
@@ -45,12 +45,12 @@ from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
 from pynestml.cocos.co_co_ode_functions_have_consistent_units import CoCoOdeFunctionsHaveConsistentUnits
 from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPortDefinedIfEmitCall
-from pynestml.cocos.co_co_buffer_data_type import CoCoBufferDataType
+from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
-from pynestml.cocos.co_co_buffer_qualifier_unique import CoCoBufferQualifierUnique
+from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
@@ -165,12 +165,12 @@ class CoCosManager:
         CoCoInlineMaxOneLhs.check_co_co(neuron)
 
     @classmethod
-    def check_no_values_assigned_to_buffers(cls, neuron: ASTNeuron):
+    def check_input_ports_not_assigned_to(cls, neuron: ASTNeuron):
         """
-        Checks that no values are assigned to buffers.
+        Checks that no values are assigned to input ports.
         :param neuron: a single neuron object.
         """
-        CoCoBufferNotAssigned.check_co_co(neuron)
+        CoCoInputPortNotAssignedTo.check_co_co(neuron)
 
     @classmethod
     def check_order_of_equations_correct(cls, neuron: ASTNeuron):
@@ -206,12 +206,12 @@ class CoCosManager:
         CoCoNoNestNameSpaceCollision.check_co_co(neuron)
 
     @classmethod
-    def check_buffer_qualifier_unique(cls, neuron: ASTNeuron):
+    def check_input_port_qualifier_unique(cls, neuron: ASTNeuron):
         """
-        Checks that all spike buffers have a unique type, i.e., no buffer is defined with redundant keywords.
+        Checks that no spiking input ports are defined with redundant qualifiers.
         :param neuron: a single neuron object.
         """
-        CoCoBufferQualifierUnique.check_co_co(neuron)
+        CoCoInputPortQualifierUnique.check_co_co(neuron)
 
     @classmethod
     def check_kernel_type(cls, neuron: ASTNeuron) -> None:
@@ -229,12 +229,12 @@ class CoCosManager:
         CoCoParametersAssignedOnlyInParameterBlock.check_co_co(neuron)
 
     @classmethod
-    def check_current_buffers_no_keywords(cls, neuron: ASTNeuron):
+    def check_continuous_input_ports_not_qualified(cls, neuron: ASTNeuron):
         """
-        Checks that input current buffers have not been specified with keywords, e.g., inhibitory.
+        Checks that continuous time input ports have not been specified with keywords, e.g., inhibitory.
         :param neuron: a single neuron object.
         """
-        CoCoCurrentBuffersNotSpecified.check_co_co(neuron)
+        CoCoContinuousInputPortNotQualified.check_co_co(neuron)
 
     @classmethod
     def check_output_port_defined_if_emit_call(cls, neuron: ASTNeuron):
@@ -262,12 +262,12 @@ class CoCosManager:
         CoCoOdeFunctionsHaveConsistentUnits.check_co_co(neuron)
 
     @classmethod
-    def check_buffer_types_are_correct(cls, neuron: ASTNeuron):
+    def check_input_port_data_type(cls, neuron: ASTNeuron):
         """
-        Checks that input buffers have specified the data type if required an no data type if not allowed.
+        Checks that input ports have specified the data type if required and no data type if not allowed.
         :param neuron: a single neuron object.
         """
-        CoCoBufferDataType.check_co_co(neuron)
+        CoCoInputPortDataType.check_co_co(neuron)
 
     @classmethod
     def check_integrate_odes_called_if_equations_defined(cls, neuron: ASTNeuron):
@@ -377,14 +377,14 @@ class CoCosManager:
         cls.check_synapses_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)
         cls.check_inline_has_max_one_lhs(neuron)
-        cls.check_no_values_assigned_to_buffers(neuron)
+        cls.check_input_ports_not_assigned_to(neuron)
         cls.check_order_of_equations_correct(neuron)
         cls.check_numerator_of_unit_is_one_if_numeric(neuron)
         cls.check_no_nest_namespace_collisions(neuron)
-        cls.check_buffer_qualifier_unique(neuron)
+        cls.check_input_port_qualifier_unique(neuron)
         cls.check_parameters_not_assigned_outside_parameters_block(neuron)
-        cls.check_current_buffers_no_keywords(neuron)
-        cls.check_buffer_types_are_correct(neuron)
+        cls.check_continuous_input_ports_not_qualified(neuron)
+        cls.check_input_port_data_type(neuron)
         cls.check_user_defined_function_correctly_built(neuron)
         cls.check_initial_ode_initial_values(neuron)
         cls.check_kernel_type(neuron)

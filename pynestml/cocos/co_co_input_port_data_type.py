@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_buffer_data_type.py
+# co_co_input_port_data_type.py
 #
 # This file is part of NEST.
 #
@@ -20,43 +20,51 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoBufferDataType(CoCo):
+class CoCoInputPortDataType(CoCo):
     """
-    This coco ensures that all spike and current buffers have a data type stated.
+    This coco ensures that all spike and continuous time input ports have a data type stated.
+
     Allowed:
-        input:
-            spikeIn integer <- inhibitory spike
-            current pA <- current
-        end
+
+    .. code-block:: nestml
+
+       input:
+           spikeIn integer <- inhibitory spike
+           current pA <- continuous
+       end
 
     Not allowed:
-        input:
-            spikeIn <- inhibitory spike
-            current <- current
-        end
+
+    .. code-block:: nestml
+
+       input:
+           spikeIn <- inhibitory spike
+           current <- continuous
+       end
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node: ASTNeuron):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param node: a single neuron instance.
         """
-        neuron.accept(BufferDatatypeVisitor())
+        node.accept(InputPortDatatypeVisitor())
 
 
-class BufferDatatypeVisitor(ASTVisitor):
+class InputPortDatatypeVisitor(ASTVisitor):
     """
-    This visitor checks if each buffer has a datatype selected according to the coco.
+    This visitor checks if each input port has a datatype selected according to the coco.
     """
 
-    def visit_input_port(self, node):
+    def visit_input_port(self, node: ASTInputPort):
         """
         Checks the coco on the current node.
         :param node: a single input port node.
@@ -65,4 +73,4 @@ class BufferDatatypeVisitor(ASTVisitor):
         if not node.has_datatype():
             code, message = Messages.get_data_type_not_specified(node.get_name())
             Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
-                               code=code, message=message, node = node)
+                               code=code, message=message)

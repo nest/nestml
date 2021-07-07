@@ -9,6 +9,8 @@ In general, please cite the software release that you are using. In case you wis
 Software releases
 -----------------
 
+Pooja Nagendra Babu, Charl Linssen, Jochen Martin Eppler, Tobias Schulte to Brinke, Abolfazl Ziaeemehr, Tanguy Fardet, Younes Bouhadjar, Renato Duarte, Bernhard Rumpe and Abigail Morrison (2021). **NESTML 4.0.** Zenodo. `doi:10.5281/zenodo.4740083 <https://doi.org/10.5281/zenodo.4740083>`_.
+
 Charl Linssen, Bernhard Rumpe, Sebastian Berns, Tanguy Fardet, Konstantin Perun, Tobias Schulte to Brinke, Dennis Terhorst, Jochen M. Eppler and Abigail Morrison (2020). **NESTML 3.1.** Zenodo. `doi:10.5281/zenodo.3697733 <http://doi.org/10.5281/zenodo.3697733>`_.
 
 Konstantin Perun, Philip Traeder, Jochen Martin Eppler, Dimitri Plotnikov, Tammo Ippen, Tanguy Fardet, Guido Trensch, Sanin Aleksey, Inga Blundell and Jakob Jordan (2018) **NESTML 3.0.** Zenodo. `doi:10.5281/zenodo.1412608 <http://doi.org/10.5281/zenodo.1412608>`_.

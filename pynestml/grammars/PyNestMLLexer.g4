@@ -71,7 +71,7 @@ lexer grammar PyNestMLLexer;
   EQUATIONS_KEYWORD : 'equations';
   INPUT_KEYWORD : 'input';
   OUTPUT_KEYWORD : 'output';
-  CURRENT_KEYWORD : 'current';
+  CONTINUOUS_KEYWORD : 'continuous';
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';

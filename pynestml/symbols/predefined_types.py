@@ -143,12 +143,6 @@ class PredefinedTypes:
         return cls.name2type
 
     @classmethod
-    def get_buffer_type_if_exists(cls, name):
-        result = copy(cls.get_type(name))
-        result.is_buffer = True
-        return result
-
-    @classmethod
     def get_type(cls, name):
         """
         Return a TypeSymbol for
@@ -249,9 +243,6 @@ class PredefinedTypes:
         """
         if not symbol.is_primitive() and symbol.unit.get_name() not in cls.name2type.keys():
             cls.name2type[symbol.unit.get_name()] = symbol
-            code, message = Messages.get_new_type_registered(symbol.unit.get_name())
-            Logger.log_message(code=code, message=message, log_level=LoggingLevel.INFO)
-        return
 
     @classmethod
     def register_unit(cls, unit):

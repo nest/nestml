@@ -209,7 +209,7 @@ parser grammar PyNestMLParser;
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
     @attribute equationsBlock: A block of ode declarations.
-    @attribute inputBlock: A block of input buffer declarations.
+    @attribute inputBlock: A block of input port declarations.
     @attribute outputBlock: A block of output declarations.
     @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute function: A block declaring a user-defined function.
@@ -261,8 +261,8 @@ parser grammar PyNestMLParser;
 
   /** ASTInputBlock represents a single input block, e.g.:
     input:
-      spikeBuffer <- excitatory spike
-      currentBuffer pA <- current
+      spike_in <- excitatory spike
+      current_in pA <- continuous
     end
     @attribute inputPort: A list of input ports.
   */
@@ -271,20 +271,20 @@ parser grammar PyNestMLParser;
               END_KEYWORD;
 
   /** ASTInputPort represents a single input port, e.g.:
-      spikeBuffer type <- excitatory spike
+      spike_in <- excitatory spike
     @attribute name: The name of the input port.
     @attribute sizeParameter: Optional size parameter for multisynapse neuron.
-    @attribute datatype: Optional data type of the buffer.
+    @attribute datatype: Optional data type of the port.
     @attribute inputQualifier: The qualifier keyword of the input port, to indicate e.g. inhibitory-only or excitatory-only spiking inputs on this port.
     @attribute isSpike: Indicates that this input port accepts spikes.
-    @attribute isCurrent: Indicates that this input port accepts current generator input.
+    @attribute isContinuous: Indicates that this input port accepts continuous-time input.
   */
   inputPort:
     name=NAME
     (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     (dataType)?
     LEFT_ANGLE_MINUS inputQualifier*
-    (isCurrent = CURRENT_KEYWORD | isSpike = SPIKE_KEYWORD);
+    (isContinuous = CONTINUOUS_KEYWORD | isSpike = SPIKE_KEYWORD);
 
   /** ASTInputQualifier represents the qualifier of an inputPort. Only valid for spiking inputs.
     @attribute isInhibitory: Indicates that this spiking input port is inhibitory.
@@ -292,12 +292,12 @@ parser grammar PyNestMLParser;
   */
   inputQualifier : (isInhibitory=INHIBITORY_KEYWORD | isExcitatory=EXCITATORY_KEYWORD);
 
-  /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
+  /** ASTOutputBlock Represents the output block of the neuron, i.e., declarations of output ports:
         output: spike
-      @attribute isSpike: true iff the neuron has a spike output.
-      @attribute isCurrent: true iff. the neuron is a current output.
+      @attribute isSpike: true if and only if the neuron has a spike output.
+      @attribute isContinuous: true if and only if the neuron has a continuous-time output.
     */
-  outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isCurrent=CURRENT_KEYWORD) ;
+  outputBlock: OUTPUT_KEYWORD COLON (isSpike=SPIKE_KEYWORD | isContinuous=CONTINUOUS_KEYWORD) ;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):

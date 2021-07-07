@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_buffer_qualifier_unique.py
+# co_co_input_port_qualifier_unique.py
 #
 # This file is part of NEST.
 #
@@ -25,29 +25,38 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CoCoBufferQualifierUnique(CoCo):
+class CoCoInputPortQualifierUnique(CoCo):
     """
-    This coco ensures that each spike buffer has at most one type of modifier inhibitory and excitatory.
+    This coco ensures that each spike input port has at most one type of modifier inhibitory and excitatory.
+
     Allowed:
-        spike <- inhibitory spike
+
+    .. code-block:: nestml
+
+       spike pA <- inhibitory spike
+
     Not allowed:
-        spike <- inhibitory inhibitory spike
+
+    .. code-block:: nestml
+
+       spike pA <- inhibitory inhibitory spike
+
     """
 
     @classmethod
-    def check_co_co(cls, neuron):
+    def check_co_co(cls, node):
         """
         Ensures the coco for the handed over neuron.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        :param node: a single neuron instance.
+        :type node: ast_neuron
         """
-        cls.neuronName = neuron.get_name()
-        neuron.accept(BufferQualifierUniqueVisitor())
+        cls.neuronName = node.get_name()
+        node.accept(InputPortQualifierUniqueVisitor())
 
 
-class BufferQualifierUniqueVisitor(ASTVisitor):
+class InputPortQualifierUniqueVisitor(ASTVisitor):
     """
-    This visitor ensures that all buffers are qualified uniquely by keywords.
+    This visitor ensures that all input ports are qualified uniquely by keywords.
     """
 
     def visit_input_port(self, node):

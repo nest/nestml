@@ -230,7 +230,7 @@ class NESTCodeGenerator(CodeGenerator):
             conv_calls = OdeTransformer.get_convolve_function_calls(expr)
             for conv_call in conv_calls:
                 assert len(
-                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike buffer"
+                    conv_call.args) == 2, "convolve() function call should have precisely two arguments: kernel and spike input port"
                 kernel = conv_call.args[0]
                 if is_delta_kernel(neuron.get_kernel_by_name(kernel.get_variable().get_name())):
                     inport = conv_call.args[1].get_variable()
@@ -261,7 +261,8 @@ class NESTCodeGenerator(CodeGenerator):
             if sym is None:
                 raise Exception("No initial value(s) defined for kernel with variable \""
                                 + convolve.get_args()[0].get_variable().get_complete_name() + "\"")
-            if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
+            if sym.block_type == BlockType.INPUT:
+                # swap the order
                 el = (el[1], el[0])
 
             # find the corresponding kernel object
@@ -341,7 +342,8 @@ class NESTCodeGenerator(CodeGenerator):
                 el = (convolve.get_args()[0], convolve.get_args()[1])
                 sym = convolve.get_args()[0].get_scope().resolve_to_symbol(
                     convolve.get_args()[0].get_variable().name, SymbolKind.VARIABLE)
-                if sym.block_type == BlockType.INPUT_BUFFER_SPIKE:
+                if sym.block_type == BlockType.INPUT:
+                    # swap elements
                     el = (el[1], el[0])
                 var = el[0].get_variable()
                 spike_input_port = el[1].get_variable()
@@ -645,8 +647,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['utils'] = ASTUtils()
         namespace['idemPrinter'] = UnitlessExpressionPrinter()
         namespace['outputEvent'] = namespace['printer'].print_output_event(neuron.get_body())
-        namespace['is_spike_input'] = ASTUtils.is_spike_input(neuron.get_body())
-        namespace['is_current_input'] = ASTUtils.is_current_input(neuron.get_body())
+        namespace['has_spike_input'] = ASTUtils.has_spike_input(neuron.get_body())
+        namespace['has_continuous_input'] = ASTUtils.has_continuous_input(neuron.get_body())
         namespace['odeTransformer'] = OdeTransformer()
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()

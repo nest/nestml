@@ -31,38 +31,37 @@ class MessageCode(Enum):
     A mapping between codes and the corresponding messages.
     """
     START_PROCESSING_FILE = 0
-    TYPE_REGISTERED = 1
-    START_SYMBOL_TABLE_BUILDING = 2
-    FUNCTION_CALL_TYPE_ERROR = 3
-    TYPE_NOT_DERIVABLE = 4
-    IMPLICIT_CAST = 5
-    CAST_NOT_POSSIBLE = 6
-    TYPE_DIFFERENT_FROM_EXPECTED = 7
-    ADD_SUB_TYPE_MISMATCH = 8
-    BUFFER_SET_TO_CONDUCTANCE_BASED = 9
-    ODE_UPDATED = 10
-    NO_VARIABLE_FOUND = 11
-    SPIKE_BUFFER_TYPE_NOT_DEFINED = 12
-    NEURON_CONTAINS_ERRORS = 13
-    START_PROCESSING_NEURON = 14
-    CODE_SUCCESSFULLY_GENERATED = 15
-    MODULE_SUCCESSFULLY_GENERATED = 16
-    NO_CODE_GENERATED = 17
-    VARIABLE_USED_BEFORE_DECLARATION = 18
-    VARIABLE_DEFINED_RECURSIVELY = 19
-    VALUE_ASSIGNED_TO_BUFFER = 20
-    ARG_NOT_KERNEL_OR_EQUATION = 21
-    ARG_NOT_BUFFER = 22
-    NUMERATOR_NOT_ONE = 23
-    ORDER_NOT_DECLARED = 24
-    CURRENT_BUFFER_SPECIFIED = 25
-    BLOCK_NOT_CORRECT = 26
-    VARIABLE_NOT_IN_STATE_BLOCK = 27
-    WRONG_NUMBER_OF_ARGS = 28
-    NO_RHS = 29
-    SEVERAL_LHS = 30
-    FUNCTION_REDECLARED = 31
-    FUNCTION_NOT_DECLARED = 52
+    START_SYMBOL_TABLE_BUILDING = 1
+    FUNCTION_CALL_TYPE_ERROR = 2
+    TYPE_NOT_DERIVABLE = 3
+    IMPLICIT_CAST = 4
+    CAST_NOT_POSSIBLE = 5
+    TYPE_DIFFERENT_FROM_EXPECTED = 6
+    ADD_SUB_TYPE_MISMATCH = 7
+    BUFFER_SET_TO_CONDUCTANCE_BASED = 8
+    ODE_UPDATED = 9
+    NO_VARIABLE_FOUND = 10
+    SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 11
+    NEURON_CONTAINS_ERRORS = 12
+    START_PROCESSING_NEURON = 13
+    CODE_SUCCESSFULLY_GENERATED = 14
+    MODULE_SUCCESSFULLY_GENERATED = 15
+    NO_CODE_GENERATED = 16
+    VARIABLE_USED_BEFORE_DECLARATION = 17
+    VARIABLE_DEFINED_RECURSIVELY = 18
+    VALUE_ASSIGNED_TO_BUFFER = 19
+    ARG_NOT_KERNEL_OR_EQUATION = 20
+    ARG_NOT_SPIKE_INPUT = 21
+    NUMERATOR_NOT_ONE = 22
+    ORDER_NOT_DECLARED = 23
+    CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS = 24
+    BLOCK_NOT_CORRECT = 25
+    VARIABLE_NOT_IN_STATE_BLOCK = 26
+    WRONG_NUMBER_OF_ARGS = 27
+    NO_RHS = 28
+    SEVERAL_LHS = 29
+    FUNCTION_REDECLARED = 30
+    FUNCTION_NOT_DECLARED = 31
     NO_ODE = 32
     NO_INIT_VALUE = 33
     NEURON_REDECLARED = 34
@@ -136,18 +135,6 @@ class Messages:
         """
         message = 'Start processing \'' + file_path + '\'!'
         return MessageCode.START_PROCESSING_FILE, message
-
-    @classmethod
-    def get_new_type_registered(cls, type_name):
-        """
-        Returns a message which indicates that a new type has been registered.
-        :param type_name: a type name
-        :type type_name: str
-        :return: message code tuple
-        :rtype: (MessageCode,str)
-        """
-        message = 'New type registered \'%s\'!' % type_name
-        return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
     def get_input_path_not_found(cls, path):
@@ -359,19 +346,18 @@ class Messages:
         return MessageCode.NO_VARIABLE_FOUND, message
 
     @classmethod
-    def get_buffer_type_not_defined(cls, buffer_name):
+    def get_input_port_type_not_defined(cls, input_port_name: str):
         """
-        Returns a message indicating that a buffer type has not been defined, thus nS is assumed.
-        :param buffer_name: a buffer name
-        :type buffer_name: str
+        Returns a message indicating that a input_port type has not been defined, thus nS is assumed.
+        :param input_port_name: a input_port name
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (buffer_name is not None and isinstance(buffer_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(buffer_name)
+        assert (input_port_name is not None and isinstance(input_port_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(input_port_name)
         from pynestml.symbols.predefined_types import PredefinedTypes
-        message = 'No buffer type declared of \'%s\'!' % buffer_name
-        return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
+        message = 'No type declared for spiking input port \'%s\'!' % input_port_name
+        return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
     @classmethod
     def get_neuron_contains_errors(cls, neuron_name):
@@ -504,18 +490,16 @@ class Messages:
         return MessageCode.ARG_NOT_KERNEL_OR_EQUATION, message
 
     @classmethod
-    def get_second_arg_not_a_buffer(cls, func_name):
+    def get_second_arg_not_a_spike_port(cls, func_name: str) -> Tuple[MessageCode, str]:
         """
-        Indicates that the second argument of an rhs is not a buffer.
+        Indicates that the second argument of the NESTML convolve() call is not a spiking input port.
         :param func_name: the name of the function
-        :type func_name: str
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (func_name is not None and isinstance(func_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(func_name)
-        message = 'Second argument of \'%s\' not a buffer!' % func_name
-        return MessageCode.ARG_NOT_BUFFER, message
+        message = 'Second argument of \'%s\' not a spiking input port!' % func_name
+        return MessageCode.ARG_NOT_SPIKE_INPUT, message
 
     @classmethod
     def get_wrong_numerator(cls, unit):
@@ -546,9 +530,9 @@ class Messages:
         return MessageCode.ORDER_NOT_DECLARED, message
 
     @classmethod
-    def get_current_buffer_specified(cls, name, keyword):
+    def get_continuous_input_port_specified(cls, name, keyword):
         """
-        Indicates that the current buffer has been specified with a type keyword.
+        Indicates that the continuous time input port has been specified with an `inputQualifier` keyword.
         :param name: the name of the buffer
         :type name: str
         :param keyword: the keyword
@@ -558,8 +542,8 @@ class Messages:
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % name
-        message = 'Current buffer \'%s\' specified with type keywords (%s)!' % (name, keyword)
-        return MessageCode.CURRENT_BUFFER_SPECIFIED, message
+        message = 'Continuous time input port \'%s\' specified with type keywords (%s)!' % (name, keyword)
+        return MessageCode.CONTINUOUS_INPUT_PORT_WITH_QUALIFIERS, message
 
     @classmethod
     def get_block_not_defined_correctly(cls, block, missing):

@@ -156,7 +156,7 @@ Source code
       input:
         ex_spikes pA <- excitatory spike
         in_spikes pA <- inhibitory spike
-        I_stim pA <- current
+        I_stim pA <- continuous
       end
 
       output: spike

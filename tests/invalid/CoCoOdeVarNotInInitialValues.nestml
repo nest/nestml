@@ -6,8 +6,7 @@ CoCoOdeVarNotInInitialValues.nestml
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if each buffer is defined uniquely, i.e.,
-no redundant keywords are used.
+This model is used to test if broken CoCos are identified correctly. Here, if each ODE variable is specified with initial values.
 
 Negative case.
 

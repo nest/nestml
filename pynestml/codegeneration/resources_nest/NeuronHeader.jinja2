@@ -112,7 +112,7 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 
   Sends: {{outputEvent}}
 
-  Receives: {% if is_spike_input %}Spike, {% endif %}{% if is_current_input %}Current,{% endif %} DataLoggingRequest
+  Receives: {% if has_spike_input %}Spike, {% endif %}{% if has_continuous_input %}Current,{% endif %} DataLoggingRequest
 */
 class {{neuronName}} : public nest::{{neuron_parent_class}}
 {
@@ -155,18 +155,18 @@ public:
   //   defining handle() for the given event.
   // -------------------------------------------------------------------------
 
-{% if is_spike_input %}
+{% if has_spike_input %}
   void handle(nest::SpikeEvent &);        //! accept spikes
 {%- endif %}
-{%- if is_current_input %}
+{%- if has_continuous_input %}
   void handle(nest::CurrentEvent &);      //! accept input current
 {%- endif %}
   void handle(nest::DataLoggingRequest &);//! allow recording with multimeter
 
-{%- if is_spike_input %}
+{%- if has_spike_input %}
   nest::port handles_test_event(nest::SpikeEvent&, nest::port);
 {%- endif %}
-{%- if is_current_input %}
+{%- if has_continuous_input %}
   nest::port handles_test_event(nest::CurrentEvent&, nest::port);
 {%- endif %}
   nest::port handles_test_event(nest::DataLoggingRequest&, nest::port);
@@ -188,17 +188,12 @@ private:
   enum SynapseTypes
   {
     INF_SPIKE_RECEPTOR = 0,
-{%- for buffer in neuron.get_multiple_receptors() %}
-      {{buffer.get_symbol_name().upper()}} ,
+{%- for port in neuron.get_multiple_receptors() %}
+      {{port.get_symbol_name().upper()}} ,
 {%- endfor %}
     SUP_SPIKE_RECEPTOR
   };
 {%- endif %}
-
-  /**
-   * Reset state of neuron.
-  **/
-  void init_state_(const Node& proto);
 
   /**
    * Reset internal buffers of neuron.
@@ -355,7 +350,7 @@ private:
      * Logger for all analog data
     **/
     nest::UniversalDataLogger<{{neuronName}}> logger_;
-{% if ((neuron.get_multiple_receptors())|length > 1) or neuron.is_array_buffer() %}
+{% if ((neuron.get_multiple_receptors())|length > 1) or neuron.has_vector_port() %}
     std::vector<long> receptor_types_;
 {% endif %}
 
@@ -365,12 +360,12 @@ private:
     // -----------------------------------------------------------------------
     std::vector< nest::RingBuffer > spike_inputs_;
 
-{%- for inputPort in neuron.get_spike_buffers() %}
+{%- for inputPort in neuron.get_spike_input_ports() %}
     {{printer.print_buffer_array_getter(inputPort)}}
     {{printer.print_buffer_declaration_value(inputPort)}};
 {%- endfor %}
 {%- else %}
-{%- for inputPort in neuron.get_spike_buffers() %}
+{%- for inputPort in neuron.get_spike_input_ports() %}
     {{printer.print_buffer_getter(inputPort, true)}}
     {{printer.print_buffer_declaration_header(inputPort)}}
     {{printer.print_buffer_declaration(inputPort)}};
@@ -378,7 +373,7 @@ private:
 {%- endfor %}
 {%- endif %}
 
-{%- for inputPort in neuron.get_current_buffers() %}
+{%- for inputPort in neuron.get_continuous_input_ports() %}
     {{printer.print_buffer_declaration_header(inputPort)}}
     {{printer.print_buffer_declaration(inputPort)}};
     {{printer.print_buffer_getter(inputPort, true)}}
@@ -454,8 +449,8 @@ private:
   //   Getters/setters for input buffers
   // -------------------------------------------------------------------------
 {% filter indent(2, True) -%}
-{%- for buffer in neuron.get_input_buffers() %}
-{{printer.print_buffer_getter(buffer, false)}};
+{%- for port in neuron.get_input_ports() %}
+{{printer.print_buffer_getter(port, false)}};
 {%- endfor %}
 {%- endfilter %}
 {%- if neuron.get_functions()|length > 0 %}
@@ -506,12 +501,12 @@ inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rpor
   e.set_sender(*this);
   return target.handles_test_event(e, receptor_type);
 }
-{%- if is_spike_input %}
+{%- if has_spike_input %}
 
 inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
 {%- if neuron.is_multisynapse_spikes() %}
-    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.get_spike_buffers()[0].get_vector_parameter()}}()) )
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.get_spike_input_ports()[0].get_vector_parameter()}}()) )
     {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
@@ -542,7 +537,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::po
 {%- endif %}
 }
 {%- endif %}
-{%- if is_current_input %}
+{%- if has_continuous_input %}
 
 inline nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type)
 {
@@ -599,8 +594,8 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
 {%- if (neuron.get_multiple_receptors())|length > 1 %}
   DictionaryDatum __receptor_type = new Dictionary();
-{%- for spikeBuffer in neuron.get_multiple_receptors() %}
-  ( *__receptor_type )[ "{{spikeBuffer.get_symbol_name().upper()}}" ] = {{spikeBuffer.get_symbol_name().upper()}};
+{%- for port in neuron.get_multiple_receptors() %}
+  ( *__receptor_type )[ "{{port.get_symbol_name().upper()}}" ] = {{port.get_symbol_name().upper()}};
 {%- endfor %}
   ( *__d )[ "receptor_types" ] = __receptor_type;
 {%- endif %}

@@ -49,11 +49,6 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install pycodestyle
 
-      - name: Install latest ode-toolbox
-        run: |
-          python -m pip uninstall --yes odetoolbox
-          python -m pip install git+https://github.com/nest/ode-toolbox.git
-
       - name: Install NESTML
         run: |
           echo PYTHONPATH=`pwd` >> $GITHUB_ENV
@@ -88,7 +83,6 @@ jobs:
           echo "NEST_INSTALL = $NEST_INSTALL"
 
           git clone --depth=1 https://github.com/nest/nest-simulator
-
           mkdir nest_install
           echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
           cd nest_install
