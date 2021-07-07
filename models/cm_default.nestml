@@ -1,9 +1,9 @@
 """
-cm_syns_model -
-#########################################################################
+Example compartmental model for NESTML
 
 Description
 +++++++++++
+Corresponds to standard compartmental model implemented in NEST.
 
 References
 ++++++++++
@@ -15,35 +15,33 @@ See also
 
 Author
 ++++++
-
-pythonjam
+Willem Wybo
 """
-neuron cm_syns_model:
+neuron cm_default:
 
   state:
-  
+
     # the presence of the state variable [v_comp]
     # triggers compartment model context
     v_comp real = 0
 
     ### ion channels ###
     # initial values state variables sodium channel
-    m_Na real = m_inf_Na(-70.)
-    h_Na real = h_inf_Na(-70.)
+    m_Na real = 0.0
+    h_Na real = 0.0
 
     # initial values state variables potassium channel
-    n_K real = n_inf_K(-70.)
+    n_K real = 0.0
 
   end
 
 
   parameters:
-
     ### ion channels ###
     # default parameters sodium channel
     e_Na real = 50.0
     gbar_Na real = 0.0
-    
+
     # default parameters potassium channel
     e_K real = -85.0
     gbar_K real = 0.0
@@ -51,20 +49,15 @@ neuron cm_syns_model:
     ### synapses ###
     e_AMPA real = 0.0
     tau_syn_AMPA real = 0.2
-    
+
     e_GABA real = -80.0
     tau_syn_GABA real = 0.2
-    
+
     e_NMDA real = 0.0
     tau_syn_NMDA real = 0.2    # Synaptic Time Constant Excitatory Synapse
-    
+
     e_AMPA_NMDA real = 0.0
     NMDA_ratio_ real = 2.0
-    
-    E_exc mV = 0 mV            # Excitatory reversal Potential
-    tau_r ms = 0.2 ms    # Synaptic Rise Time Constant Excitatory Synapse
-    tau_d ms = 3. ms    # Synaptic Decay Time Constant Excitatory Synapse
-
   end
 
   equations:
@@ -99,22 +92,20 @@ neuron cm_syns_model:
     inline Na real = gbar_Na * m_Na**3 * h_Na**1 * (e_Na - v_comp)
     inline K real = gbar_K * n_K**4 * (e_K - v_comp)
 
-    ### synapses ###
-    
-    kernel g_ex_AMPA = exp(-t / tau_syn_AMPA)
-    inline AMPA real = convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
-    
-    kernel g_ex_GABA = exp(-t / tau_syn_GABA)
-    inline GABA real = convolve(g_ex_GABA, spikesExc) * (v_comp - e_GABA)
-    
-    kernel g_ex_NMDA = exp(-t / tau_syn_NMDA)
-    inline NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA)
-    
-    inline AMPA_NMDA real = convolve(g_ex_NMDA, spikesExc) * (v_comp - e_NMDA) + NMDA_ratio_ * convolve(g_ex_AMPA, spikesExc) * (v_comp - e_AMPA)
+    ### synapses, characterized by convolution(s) with spike input ###
+    kernel g_AMPA = g_norm_AMPA * ( - exp(-t / tau_r_AMPA) + exp(-t / tau_d_AMPA) )
+    inline AMPA real = convolve(g_AMPA, spikes_AMPA) * (e_AMPA - v_comp)
 
-    kernel g_exc = g_norm_exc * ( - exp(-t / tau_r) + exp(-t / tau_d) )
-    inline I_syn_exc real = convolve(g_exc, spikesExc) * (E_exc - v_comp )
+    kernel g_GABA = g_norm_GABA * ( - exp(-t / tau_r_GABA) + exp(-t / tau_d_GABA) )
+    inline GABA real = convolve(g_GABA, spikes_GABA) * (e_GABA - v_comp )
 
+    kernel g_NMDA = g_norm_NMDA * ( - exp(-t / tau_r_NMDA) + exp(-t / tau_d_NMDA) )
+    inline NMDA real = convolve(g_NMDA, spikes_NMDA) * (e_NMDA - v_comp ) / (1. + 0.3 * exp( -.1 * v_comp ))
+
+    kernel g_AN_AMPA = g_norm_AN_AMPA * ( - exp(-t / tau_r_AN_AMPA) + exp(-t / tau_d_AN_AMPA) )
+    kernel g_AN_NMDA = g_norm_AN_NMDA * ( - exp(-t / tau_r_AN_NMDA) + exp(-t / tau_d_AN_NMDA) )
+    inline AMPA_NMDA real = convolve(g_AN_AMPA, spikes_AN) * (e_AN_AMPA - v_comp) + NMDA_ratio * \
+                            convolve(g_AN_NMDA, spikes_AN) * (e_AN_NMDA - v_comp) / (1. + 0.3 * exp( -.1 * v_comp ))
   end
 
   #sodium
@@ -144,12 +135,27 @@ neuron cm_syns_model:
   end
 
   internals:
-    tp real = (tau_r * tau_d) / (tau_d - tau_r) * ln( tau_d / tau_r )
-    g_norm_exc real =  1. / ( -exp( -tp / tau_r ) + exp( -tp / tau_d ) )
+    tp_AMPA real = (tau_r_AMPA * tau_d_AMPA) / (tau_d_AMPA - tau_r_AMPA) * ln( tau_d_AMPA / tau_r_AMPA )
+    g_norm_AMPA real =  1. / ( -exp( -tp_AMPA / tau_r_AMPA ) + exp( -tp_AMPA / tau_d_AMPA ) )
+
+    tp_GABA real = (tau_r_GABA * tau_d_GABA) / (tau_d_GABA - tau_r_GABA) * ln( tau_d_GABA / tau_r_GABA )
+    g_norm_GABA real =  1. / ( -exp( -tp_GABA / tau_r_GABA ) + exp( -tp_GABA / tau_d_GABA ) )
+
+    tp_NMDA real = (tau_r_NMDA * tau_d_NMDA) / (tau_d_NMDA - tau_r_NMDA) * ln( tau_d_NMDA / tau_r_NMDA )
+    g_norm_NMDA real =  1. / ( -exp( -tp_NMDA / tau_r_NMDA ) + exp( -tp_NMDA / tau_d_NMDA ) )
+
+    tp_AN_AMPA real = (tau_r_AN_AMPA * tau_d_AN_AMPA) / (tau_d_AN_AMPA - tau_r_AN_AMPA) * ln( tau_d_AN_AMPA / tau_r_AN_AMPA )
+    g_norm_AN_AMPA real =  1. / ( -exp( -tp_AN_AMPA / tau_r_AN_AMPA ) + exp( -tp_AN_AMPA / tau_d_AN_AMPA ) )
+
+    tp_AN_NMDA real = (tau_r_AN_NMDA * tau_d_AN_NMDA) / (tau_d_AN_NMDA - tau_r_AN_NMDA) * ln( tau_d_AN_NMDA / tau_r_AN_NMDA )
+    g_norm_AN_NMDA real =  1. / ( -exp( -tp_AN_NMDA / tau_r_AN_NMDA ) + exp( -tp_AN_NMDA / tau_d_AN_NMDA ) )
   end
 
   input:
-    spikesExc nS <- excitatory spike
+    spikes_AMPA uS <- spike
+    spikes_GABA uS <- spike
+    spikes_NMDA uS <- spike
+    spikes_AN uS <- spike
   end
 
   output: spike
