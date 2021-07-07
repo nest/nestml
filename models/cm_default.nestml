@@ -47,17 +47,25 @@ neuron cm_default:
     gbar_K real = 0.0
 
     ### synapses ###
-    e_AMPA real = 0.0
-    tau_syn_AMPA real = 0.2
+    e_AMPA real = 0 mV            # Excitatory reversal Potential
+    tau_r_AMPA real = 0.2 ms      # Synaptic Time Constant Excitatory Synapse
+    tau_d_AMPA real = 3.0 ms      # Synaptic Time Constant Excitatory Synapse
 
-    e_GABA real = -80.0
-    tau_syn_GABA real = 0.2
+    e_GABA real = 0 mV            # Inhibitory reversal Potential
+    tau_r_GABA real = 0.2 ms      # Synaptic Time Constant Inhibitory Synapse
+    tau_d_GABA real = 3.0 ms      # Synaptic Time Constant Inhibitory Synapse
 
-    e_NMDA real = 0.0
-    tau_syn_NMDA real = 0.2    # Synaptic Time Constant Excitatory Synapse
+    e_NMDA real = 0 mV            # NMDA reversal Potential
+    tau_r_NMDA real = 0.2 ms      # Synaptic Time Constant NMDA Synapse
+    tau_d_NMDA real = 3.0 ms      # Synaptic Time Constant NMDA Synapse
 
-    e_AMPA_NMDA real = 0.0
-    NMDA_ratio_ real = 2.0
+    e_AN_AMPA real = 0 mV            # Excitatory reversal Potential
+    tau_r_AN_AMPA real = 0.2 ms      # Synaptic Time Constant Excitatory Synapse
+    tau_d_AN_AMPA real = 3.0 ms      # Synaptic Time Constant Excitatory Synapse
+    e_AN_NMDA real = 0 mV            # NMDA reversal Potential
+    tau_r_AN_NMDA real = 0.2 ms      # Synaptic Time Constant NMDA Synapse
+    tau_d_AN_NMDA real = 43.0 ms     # Synaptic Time Constant NMDA Synapse
+    NMDA_ratio real = 2.0      # NMDA_ratio
   end
 
   equations:
