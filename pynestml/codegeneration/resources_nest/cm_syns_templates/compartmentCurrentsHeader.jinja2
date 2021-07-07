@@ -49,6 +49,8 @@ public:
         {{ variable.name}} = {{printer.print_expression(rhs_expression, with_origins = False) }};
     {%- endfor -%}
     };
+    void append_recordables(std::map< std::string, double* >* recordables,
+                            const long compartment_idx);
 
     // numerical integration step
     std::pair< double, double > f_numstep( const double v_comp, const double dt );
@@ -83,6 +85,8 @@ public:
 
 class {{synapse_name}}{
 private:
+  // global synapse index
+  long syn_idx = 0;
 
   // propagators, initialized via calibrate() to 0, refreshed in numstep
   {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
@@ -113,7 +117,7 @@ private:
 
 public:
   // constructor, destructor
-  {{synapse_name}}(std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const DictionaryDatum& receptor_params);
+  {{synapse_name}}(std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const long syn_index, const DictionaryDatum& receptor_params);
   ~{{synapse_name}}(){};
 
   // numerical integration step
@@ -121,6 +125,7 @@ public:
 
   // calibration
   void calibrate();
+  void append_recordables(std::map< std::string, double* >* recordables);
 
   // function declarations
   {% for function in neuron.get_functions() %}
@@ -187,7 +192,7 @@ public:
 
   }
 
-  void add_synapse_with_buffer( const std::string& type, std::shared_ptr< RingBuffer > b_spikes, const DictionaryDatum& receptor_params )
+  void add_synapse_with_buffer( const std::string& type, std::shared_ptr< RingBuffer > b_spikes, const long syn_idx, const DictionaryDatum& receptor_params )
   {
   {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
@@ -195,7 +200,7 @@ public:
     {
       //{{synapse_name}} syn( b_spikes, receptor_params );
       //{{synapse_name}}_syns_.push_back( syn );
-      {{synapse_name}}_syns_.push_back( {{synapse_name}}( b_spikes, receptor_params ) );
+      {{synapse_name}}_syns_.push_back( {{synapse_name}}( b_spikes, syn_idx, receptor_params ) );
     }
   {% endfor -%}
   {% endwith -%}
@@ -203,6 +208,28 @@ public:
     {
       assert( false );
     }
+  };
+
+  std::map< std::string, double* > get_recordables( const long compartment_idx )
+  {
+    std::map< std::string, double* > recordables;
+
+    // append ion channel state variables to recordables
+    {%- with %}
+    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {{ion_channel_name}}{{channel_suffix}}.append_recordables( &recordables, compartment_idx );
+    {% endfor -%}
+    {% endwith -%}
+
+    // append synapse state variables to recordables
+    {%- with %}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
+      syn_it->append_recordables( &recordables );
+    {% endfor -%}
+    {% endwith -%}
+
+    return recordables;
   };
 
   std::pair< double, double > f_numstep( const double v_comp, const double dt, const long lag )
