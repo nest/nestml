@@ -111,6 +111,19 @@ nest::{{ion_channel_name}}::{{ion_channel_name}}(const DictionaryDatum& channel_
     {% endwith %}
 }
 
+void
+nest::{{ion_channel_name}}::append_recordables(std::map< std::string, double* >* recordables,
+                                               const long compartment_idx)
+{
+  // add state variables to recordables map
+  {%- with %}
+  {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
+  {%- set variable = variable_info["state_variable"] %}
+  ( *recordables )["{{variable.name}}" + std::to_string(compartment_idx)] = &{{variable.name}};
+  {%- endfor -%}
+  {% endwith %}
+}
+
 std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v_comp, const double dt)
 {
     double g_val = 0., i_val = 0.;
@@ -189,12 +202,13 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
-nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const DictionaryDatum& receptor_params )
+nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
   {%- endfor %}
 {
+  syn_idx = syn_index;
 
   // update parameters
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
@@ -204,8 +218,14 @@ nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synap
 
   // store pointer to ringbuffer
   {{synapse_info["buffer_name"]}}_ = {{synapse_info["buffer_name"]}};
-  //calibrate only after storing pointer to ringbuffer, otherwise segmentation fault
-  //calibrate();
+}
+
+void
+nest::{{synapse_name}}::append_recordables(std::map< std::string, double* >* recordables)
+{
+  {%- for convolution, convolution_info in synapse_info["convolutions"].items() %}
+  ( *recordables )["{{convolution_info["kernel"]["name"]}}" + std::to_string(syn_idx)] = &{{convolution}};
+  {%- endfor %}
 }
 
 void nest::{{synapse_name}}::calibrate()
@@ -231,18 +251,12 @@ void nest::{{synapse_name}}::calibrate()
   {%- endfor %}
   {%- endfor %}
 
-  // user defined parameters
-  // {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
-  // {{param_name}} = {{printer.print_expression(param_declaration.get_expression(), with_origins = False)}};
-  // {%- endfor %}
-
   // user declared internals in order they were declared
   {%- for internal_name, internal_declaration in synapse_info["internals_used_declared"] %}
   {{internal_name}} = {{printer.print_expression(internal_declaration.get_expression(), with_origins = False)}};
   {%- endfor %}
 
-
-    {{synapse_info["buffer_name"]}}_->clear();
+  {{synapse_info["buffer_name"]}}_->clear();
 }
 
 std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_comp, const double {{render_time_resolution_variable(synapse_info)}}, const long lag )
@@ -268,7 +282,6 @@ std::pair< double, double > nest::{{synapse_name}}::f_numstep( const double v_co
 
   // total current
   // this expression should be the transformed inline expression
-  // g_AMPA * ( e_rev_ - v_comp )
   double i_tot = {{printer.print_expression(synapse_info["inline_expression"].get_expression(), with_origins = False)}};
 
   // derivative of that expression
