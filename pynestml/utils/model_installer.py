@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 
+from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 
 
@@ -41,12 +42,14 @@ def install_nest(target_path: str, nest_path: str) -> None:
     ------
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
+    InvalidPathException
+        If a failure occurs while trying to access the target path or the NEST installation path.
     """
     if not os.path.isdir(target_path):
-        raise GeneratedCodeBuildException('Models path (' + target_path + ') is not a directory!')
+        raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
 
     if not os.path.isdir(nest_path):
-        raise GeneratedCodeBuildException('NEST path (' + nest_path + ') is not a directory!')
+        raise InvalidPathException('NEST path (' + nest_path + ') is not a directory!')
 
     cmake_cmd = ['cmake', '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config'), '.']
     make_all_cmd = ['make', 'all']
