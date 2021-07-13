@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# deferred_logging_exception.py
+# generated_code_build_exception.py
 #
 # This file is part of NEST.
 #
@@ -20,12 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class DeferredLoggingException(Exception):
+class GeneratedCodeBuildException(Exception):
     """
-    Exception holding code and message of a logging operation.
-    Used to defer logging until source position (or other data) can be determined
+    This exception is thrown whenever a failure occurs while building or installing the generated code for the target platform.
     """
-
-    def __init__(self, code, message):
-        self.code = code
-        self.message = message
+    pass
