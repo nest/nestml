@@ -64,10 +64,15 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
             break
         _tr_prev = tr
         tr *= np.exp(-(t_sp - t_sp_prev) / tau)
-        if t_sp == t and before_increment: # exact floating point match!
-            if extra_debug:
-                print("\t   [%] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(t-t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
-            return tr
+        if t_sp == t: # exact floating point match!
+            if before_increment:
+                if extra_debug:
+                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(t-t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
+                return tr
+            else:
+                if extra_debug:
+                    print("\t   [%] exact (before_increment = F), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(t-t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr + increment))
+                return tr + increment
         tr += increment
         t_sp_prev = t_sp
     _tr_prev = tr # XXX REMOVE ME -- only for debug print below
@@ -112,11 +117,14 @@ def run_reference_simulation(syn_opts,
         #spike_idx += 1
 
         #print("Jumping to spike at t = " + str(spk_time))
+        import logging;logging.warning("XXX: TODO: before_increment values here are all wrong")
 
         if spk_time in times_spikes_post_syn_persp:
             #print("Post spike --> facilitation")
-            r1 = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_plus"], before_increment=False)#F
-            o2 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_y"], before_increment=True)
+            print("\tgetting pre trace r1")
+            r1 = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_plus"], before_increment=True, extra_debug=True)#F
+            print("\tgetting post trace o2")
+            o2 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_y"], before_increment=False, extra_debug=True)#T
             #print("\tr1 = " + str(r1))
             #print("\to2 = " + str(o2))
             #print("\told weight = " + str(weight))
@@ -127,8 +135,10 @@ def run_reference_simulation(syn_opts,
 
         if spk_time in times_spikes_pre:
             #print("Pre spike --> depression")
+            print("\tgetting post trace o1")
             o1 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_minus"], before_increment=False, extra_debug=True)#F
-            r2 = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_x"], before_increment=True)
+            print("\tgetting pre trace r2")
+            r2 = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_x"], before_increment=True, extra_debug=True)#T
             #print("\to1 = " + str(o1))
             #print("\tr2 = " + str(r2))
             #print("\told weight = " + str(weight))
@@ -411,11 +421,17 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
     ax[1].set_ylabel("Soma trace\n(POST)")
     ax[1].legend()
 
+    _high_resolution_timevec = np.linspace(0, sim_time, 1000)
+    _o1 = [get_trace_at(t, times_spikes_post_syn_persp, syn_opts["tau_minus"]) for t in _high_resolution_timevec]
+    ax[2].plot(_high_resolution_timevec, _o1, label="o1", alpha=.333, color="blue")
+    _o2 = [get_trace_at(t, times_spikes_post_syn_persp, syn_opts["tau_y"]) for t in _high_resolution_timevec]
+    ax[2].plot(_high_resolution_timevec, _o2, label="o2", alpha=.333, color="orange")
+
     _o1 = [get_trace_at(t, times_spikes_post_syn_persp, syn_opts["tau_minus"]) for t in timevec]
     _o2 = [get_trace_at(t, times_spikes_post_syn_persp, syn_opts["tau_y"]) for t in timevec]
-    ax[2].plot(timevec, _o1, label="o1")
+    ax[2].plot(timevec, _o1, label="o1", color="blue")
     ax[2].scatter(timevec, _o1, s=40, marker="o")
-    ax[2].plot(timevec, _o2, label="o2")
+    ax[2].plot(timevec, _o2, label="o2", color="orange")
     ax[2].scatter(timevec, _o2, s=40, marker="o")
     _ylim = ax[2].get_ylim()
     for t_sp in times_spikes_post_syn_persp:
@@ -433,6 +449,7 @@ def plot_comparison(syn_opts, times_spikes_pre, times_spikes_post, times_spikes_
         #_ax.set_xlim(-2*delay + min(np.amin(times_spikes_pre), np.amin(times_spikes_post)), np.amax(timevec) + 2*delay)
         _ax.grid(True)
         _ax.set_xlim(0., sim_time)
+        _ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
         if not _ax == ax[-1]:
             _ax.set_xticklabels([])
 
@@ -536,24 +553,21 @@ def _test_stdp_triplet_synapse(delay, spike_times_len):
     post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
     pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
     '''
-    #pre_spike_times=np.array([  2.,   3.,   7.,   8.,   9.,  10.,  12.,  17.,  19.,  21.,  22.,  24.,  25.,  26.,
-        #28.,  30.,  36.,  37.,  38.,  40.,  43.,  46.,  47.,  48.,  49.,  50.,  51.,  52.,
-        #53.,  55.,  58.,  59.,  60.,  62.,  64.,  65.,  66.,  67.,  68.,  69.,  71.,  72.,
-            #76.,  77.,  78.,  82.,  83.,  84.,  85.,  86.,  87.,  88.,  92.,  96.,  99., 105.,
-            #113., 114., 121., 122., 124., 129., 135., 140., 152., 161., 167., 170., 183., 186.,
-            #192., 202., 218., 224., 303., 311.])
-    #post_spike_times = np.array([  2.,   4.,   5.,   8.,   9.,  12.,  13.,  14.,  17.,  18.,  19.,  21.,  24.,  25.,
-        #26.,  28.,  30.,  32.,  34.,  37.,  38.,  40.,  42.,  44.,  45.,  46.,  49.,  50.,
-        #51.,  53.,  55.,  56.,  60.,  61.,  67.,  68.,  72.,  73.,  74.,  76.,  77.,  78.,
-            #79.,  81.,  82.,  84.,  87.,  88.,  93.,  95.,  96.,  98.,  99., 100., 109., 110.,
-            #111., 115., 116., 118., 120., 121., 124., 125., 127., 128., 140., 144., 149., 150.,
-            #152., 155., 156., 157., 163., 164., 168., 172., 204., 206., 216., 239., 243.])
+    pre_spike_times=np.array([  2.,   3.,   7.,   8.,   9.,  10.,  12.,  17.,  19.,  21.,  22.,  24.,  25.,  26.,
+        28.,  30.,  36.,  37.,  38.,  40.,  43.,  46.,  47.,  48.,  49.,  50.,  51.,  52.,
+        53.,  55.,  58.,  59.,  60.,  62.,  64.,  65.,  66.,  67.,  68.,  69.,  71.,  72.,
+            76.,  77.,  78.,  82.,  83.,  84.,  85.,  86.,  87.,  88.,  92.,  96.,  99., 105.,
+            113., 114., 121., 122., 124., 129., 135., 140., 152., 161., 167., 170., 183., 186.,
+            192., 202., 218., 224., 303., 311.])
+    post_spike_times = np.array([  2.,   4.,   5.,   8.,   9.,  12.,  13.,  14.,  17.,  18.,  19.,  21.,  24.,  25.,
+        26.,  28.,  30.,  32.,  34.,  37.,  38.,  40.,  42.,  44.,  45.,  46.,  49.,  50.,
+        51.,  53.,  55.,  56.,  60.,  61.,  67.,  68.,  72.,  73.,  74.,  76.,  77.,  78.,
+            79.,  81.,  82.,  84.,  87.,  88.,  93.,  95.,  96.,  98.,  99., 100., 109., 110.,
+            111., 115., 116., 118., 120., 121., 124., 125., 127., 128., 140., 144., 149., 150.,
+            152., 155., 156., 157., 163., 164., 168., 172., 204., 206., 216., 239., 243.])
 
-
-
-    pre_spike_times = 1 + 5 * np.arange(spike_times_len).astype(float)
-    post_spike_times = 1 + 5 * np.arange(spike_times_len).astype(float)
-
+    # pre_spike_times = 1 + 5 * np.arange(spike_times_len).astype(float)
+    # post_spike_times = 1 + 5 * np.arange(spike_times_len).astype(float)
 
     nestml_timevec, nestml_w, gid_pre, gid_post, times_spikes, senders_spikes, sim_time = \
         run_nest_simulation(neuron_model_name=neuron_model_name,
@@ -609,16 +623,16 @@ def test_stdp_triplet_synapse_delay_1(spike_times_len):
     delay = 1.
     _test_stdp_triplet_synapse(delay, spike_times_len)
 
-import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
-@pytest.mark.xfail(strict=True, raises=Exception)
+# import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
+# @pytest.mark.xfail(strict=True, raises=Exception)
 #@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
 @pytest.mark.parametrize('spike_times_len', [10])
 def test_stdp_triplet_synapse_delay_5(spike_times_len):
     delay = 5.
     _test_stdp_triplet_synapse(delay, spike_times_len)
 
-import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
-@pytest.mark.xfail(strict=True, raises=Exception)
+# import logging;logging.warning("XXX: TODO: xfail test due to https://github.com/nest/nestml/issues/661")
+# @pytest.mark.xfail(strict=True, raises=Exception)
 #@pytest.mark.parametrize('spike_times_len', [1, 10, 100])
 @pytest.mark.parametrize('spike_times_len', [10])
 def test_stdp_triplet_synapse_delay_10(spike_times_len):

@@ -69,7 +69,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 #define POST_NEURON_TYPE {{ paired_neuron }}
 
-// #define DEBUG
+#define DEBUG
 
 namespace nest
 {
@@ -576,7 +576,7 @@ assert(0);
         assert( minus_dt < -kernel().connection_manager.get_stdp_eps() );
 
 #ifdef DEBUG
-    std::cout << "{{synapseName}}::send(): \tprocessing post spike at t = " << start->t_ << std::endl;
+        std::cout << "{{synapseName}}::send(): \tprocessing post spike at t = " << start->t_ << std::endl;
 #endif
         
         /**
@@ -602,9 +602,10 @@ assert(0);
          *  NESTML generated postReceive code block begins here!
         **/
 
-//std::cout << "\tFacilitating, old w = " << S_.w << ", lambda = " << P_.lambda << ", mu_plus = " << P_.mu_plus << ", pre_tr = " << get_pre_trace();
-
-    const double _tr_t = start->t_;
+#ifdef DEBUG
+        std::cout << "\tFacilitating, old w = " << S_.w << "\n";
+#endif
+        const double _tr_t = start->t_;
 
 {%- filter indent(6, True) %}
 {%- if synapse.get_post_receive() is not none %}
@@ -615,7 +616,9 @@ assert(0);
 {%- endif %}
 {%- endfilter %}
 
-//std::cout << ", new w = " << S_.w << std::endl;
+#ifdef DEBUG
+      std::cout << "\t--> new w = " << S_.w << std::endl;
+#endif
 
         /**
          * internal state has now been fully updated to `start->t_ + __dendritic_delay`
@@ -652,7 +655,12 @@ assert(0);
 
     const double _tr_t = __t_spike - __dendritic_delay;
 
-//std::cout << "\tDepressing, old w = " << S_.w << ", alpha = " << P_.alpha << ", lambda = " << P_.lambda << ", mu_minus = " << P_.mu_minus << ", post_tr = " << ((POST_NEURON_TYPE*)(__target))->get_post_trace__for_stdp_nestml(_tr_t);
+#ifdef DEBUG
+    std::cout << "\tDepressing, old w = " << S_.w << "\n";
+#endif
+    // XXX
+    std::cout << "r2 = " << get_tr_r2() << std::endl;
+
 
 {%- filter indent(4,True) %}
 {%- set dynamics = synapse.get_pre_receive() %}
@@ -660,11 +668,16 @@ assert(0);
 {%-     include "directives/Block.jinja2" %}
 {%- endwith %}
 {%- endfilter %}
-//std::cout <<", new w = " << S_.w << std::endl;
+
+#ifdef DEBUG
+    std::cout <<"\t-> new w = " << S_.w << std::endl;
+#endif
 
     /**
      *  update all convolutions with pre spikes
     **/
+
+    // XXX: TODO: place this before resp. after the preReceive block to emulate ``before_increment``
 
 {# {%- for inputLine in synapse.get_spike_buffers() %} #}
 {%- for spike_update in spike_updates: %}
