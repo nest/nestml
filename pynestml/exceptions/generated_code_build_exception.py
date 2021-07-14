@@ -22,6 +22,6 @@
 
 class GeneratedCodeBuildException(Exception):
     """
-    This exception is thrown whenever a failure occurs while compiling/linking/building the generated code for the target platform.
+    This exception is thrown whenever a failure occurs while building or installing the generated code for the target platform.
     """
     pass
