@@ -52,6 +52,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('--store_log')
         params.append('--dev')
+
         exit_code = None
         with patch.object(sys, 'argv', params):
             exit_code = main()
@@ -126,6 +127,44 @@ class PyNestMLFrontendTest(unittest.TestCase):
         FrontendConfiguration.parse_config(params)
 
         assert len(FrontendConfiguration.paths_to_compilation_units) == 2
+
+    def test_code_generation_with_code_opts(self):
+        import json
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                 os.path.join('..', 'models', 'iaf_psc_exp.nestml'))))
+        code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                           os.path.join('resources', 'code_options.json'))))
+        codegen_opts = {"templates": {
+            "path": os.path.join(os.path.dirname(__file__), '..', 'pynestml', 'codegeneration',
+                                 'resources_nest', 'point_neuron'),
+            "module_templates": ['setup'],
+            "model_templates": [os.path.join(os.path.dirname(__file__), '..', 'pynestml', 'codegeneration',
+                                            'resources_nest', 'point_neuron')]
+        }}
+
+        with open(code_opts_path, 'w+') as f:
+            json.dump(codegen_opts, f)
+
+        params = list()
+        params.append('nestml')
+        params.append('--input_path')
+        params.append(path)
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append('target/models')
+        params.append('--store_log')
+        params.append('--dev')
+        params.append('--codegen_opts')
+        params.append(code_opts_path)
+
+        exit_code = None
+        with patch.object(sys, 'argv', params):
+            exit_code = main()
+        self.assertTrue(exit_code == 0)
+
+        if os.path.isfile(code_opts_path):
+            os.remove(code_opts_path)
 
     def tearDown(self):
         # clean up
