@@ -3,7 +3,7 @@ Example comparison of a two-compartment model with an active dendritic
 compartment and a two-compartment model with a passive dendritic compartment.
 """
 
-import nest, nestml
+import nest, pynestml
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 import os
@@ -63,7 +63,7 @@ class CMTest(unittest.TestCase):
     def install_nestml_model(self):
         print("Compiled nestml model \'cm_main_cm_default\' not found, installing...")
 
-        path_nestml = nestml.__path__[0]
+        path_nestml = pynestml.__path__[0]
         path_target = "target/"
         # get the path to the nest installation
         path_nest = nest.ll_api.sli_func("statusdict/prefix ::")
@@ -71,7 +71,7 @@ class CMTest(unittest.TestCase):
         if not os.path.exists(path_target):
                 os.makedirs(path_target)
 
-        to_nest(input_path=os.path.join(path_nestml, "models/cm_default.nestml"),
+        to_nest(input_path=os.path.join(path_nestml, "../models/cm_default.nestml"),
                 target_path=os.path.join(path_target, "compartmental_model/"),
                 module_name="cm_defaultmodule",
                 logging_level="ERROR")
@@ -82,9 +82,9 @@ class CMTest(unittest.TestCase):
 
     def get_model(self):
         if self.nestml_flag:
-            # nest.Install("NaK_neatmodule")
-            # cm_pas = nest.Create('cm_main_NaK')
-            # cm_act = nest.Create('cm_main_NaK')
+            nest.Install("NaK_neatmodule")
+            cm_pas = nest.Create('cm_main_NaK')
+            cm_act = nest.Create('cm_main_NaK')
             try:
                 nest.Install("cm_defaultmodule")
 
