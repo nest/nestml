@@ -39,8 +39,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
     def setUp(self):
         """Generate the neuron model code"""
-        #nest.Install("nestml_jit_module")
-        #return
+        # nest.Install("nestml_jit_module")
+        # return
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
@@ -66,7 +66,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
         fname_snip = "stdp_window_test"
 
         sim_time = 1000.  # [ms]
-        pre_spike_time = 20. #100. #sim_time / 2  # [ms]
+        pre_spike_time = 100. #sim_time / 2  # [ms]
+        delay = 10.   # [ms]
 
         # plot
         if TEST_PLOTS:
@@ -74,14 +75,17 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         dt_vec = []
         dw_vec = []
-        for post_spike_time in np.linspace(1 + .05 * 2 * pre_spike_time, .95 * 2 * pre_spike_time - 1, 41): #111
+#        for post_spike_time in np.arange(99, 102).astype(float) - delay:
+        for post_spike_time in np.arange(25, 175).astype(float) - delay:
             dt, dw = self.run_stdp_network(pre_spike_time, post_spike_time,
                               neuron_model_name,
                               synapse_model_name,
                               resolution=1., # [ms]
-                              delay=10., # [ms]
+                              delay=delay, # [ms]
                               sim_time=sim_time,  # if None, computed from pre and post spike times
-                              fname_snip=fname_snip)
+                              fname_snip=fname_snip,
+                              custom_synapse_properties={"lambda":1E-6, "alpha": -1.})
+            print("---------------------------------------------------")
             dt_vec.append(dt)
             dw_vec.append(dw)
 
@@ -106,7 +110,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
                               resolution=1., # [ms]
                               delay=1., # [ms]
                               sim_time=None,  # if None, computed from pre and post spike times
-                              fname_snip=""):
+                              fname_snip="",
+                              custom_synapse_properties=None):
 
         print("Pre spike time: " + str(pre_spike_time))
         print("Post spike time: " + str(post_spike_time))
@@ -154,8 +159,9 @@ class NestSTDPSynapseTest(unittest.TestCase):
         nest.Connect(post_neuron, spikedet_post)
 
         # get STDP synapse and weight before protocol
-        syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
-        nest.SetStatus(syn, {"lambda":1E-6})
+        if custom_synapse_properties:
+            syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
+            nest.SetStatus(syn, custom_synapse_properties)
 
         initial_weight = nest.GetStatus(syn)[0][weight_variable_name]
         np.testing.assert_allclose(initial_weight, 1)
