@@ -117,7 +117,7 @@ class CodeGeneratorTest(unittest.TestCase):
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
         codegen_opts = {"templates": {
-            "path": os.path.join(os.path.dirname(__file__), '..', 'pynestml', 'codegeneration',
+            "path": os.path.join(os.path.dirname(__file__), os.pardir, 'pynestml', 'codegeneration',
                                  'resources_nest', 'point_neuron'),
             "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2'
                                  'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2'],
