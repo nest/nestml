@@ -138,9 +138,9 @@ An example ``codegen_options.json`` file is as follows:
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
-            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-            "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
-                                 'setup/ModuleHeader.h.jinja2','setup/ModuleClass.cpp.jinja2']
+            "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
+            "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/SLI_Init.sli.jinja2",
+                                 "setup/ModuleHeader.h.jinja2","setup/ModuleClass.cpp.jinja2"]
         }
    }
 
@@ -159,8 +159,8 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
-            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2']
-            "module_templates": ['setup']
+            "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"]
+            "module_templates": ["setup"]
         }
    }
 
