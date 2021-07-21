@@ -516,7 +516,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace['initial_values'] = {}
         namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
-                                            and self.analytic_solver[neuron.get_name()] is not None
+            and self.analytic_solver[neuron.get_name()] is not None
         if namespace['uses_analytic_solver']:
             namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
             namespace['analytic_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
@@ -540,7 +540,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['non_equations_state_variables'] = _names
 
         namespace['uses_numeric_solver'] = neuron.get_name() in self.numeric_solver.keys() \
-                                           and self.numeric_solver[neuron.get_name()] is not None
+            and self.numeric_solver[neuron.get_name()] is not None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
             namespace['numeric_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
@@ -754,8 +754,7 @@ class NESTCodeGenerator(CodeGenerator):
                 if not declaration_in_state_block(neuron, var_name):
                     add_declaration_to_state_block(neuron, var_name, expr)
 
-    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> List[
-        ASTAssignment]:
+    def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
         """
         Generate the equations that update the dynamical variables when incoming spikes arrive. To be invoked after ode-toolbox.
 
@@ -925,8 +924,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return odetoolbox_indict
 
-    def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[
-        ASTInlineExpression]:
+    def make_inline_expressions_self_contained(self, inline_expressions: List[ASTInlineExpression]) -> List[ASTInlineExpression]:
         """
         Make inline_expressions self contained, i.e. without any references to other inline_expressions.
 
@@ -956,8 +954,7 @@ class NESTCodeGenerator(CodeGenerator):
 
     def replace_inline_expressions_through_defining_expressions(self,
                                                                 definitions: Sequence[ASTOdeEquation],
-                                                                inline_expressions: Sequence[ASTInlineExpression]) -> \
-    Sequence[ASTOdeEquation]:
+                                                                inline_expressions: Sequence[ASTInlineExpression]) -> Sequence[ASTOdeEquation]:
         """
         Replaces symbols from `inline_expressions` in `definitions` with corresponding defining expressions from `inline_expressions`.
 
