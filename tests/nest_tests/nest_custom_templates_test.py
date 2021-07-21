@@ -46,9 +46,8 @@ class NestCustomTemplatesTest(unittest.TestCase):
         codegen_opts = {"templates": {
             "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
                                  'resources_nest', 'point_neuron'),
-            "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2'
-                                                                'setup/ModuleHeader.h.jinja2',
-                                 'setup/ModuleClass.cpp.jinja2'],
+            "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
+                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2'],
             "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2']
         }}
 
