@@ -84,8 +84,8 @@ class NESTCodeGenerator(CodeGenerator):
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **templates**: Path containing jinja templates used to generate code for NEST simulator.
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
-        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
         - **model_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to the neuron model(s).
+        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     """
 
     _default_options = {
@@ -95,8 +95,8 @@ class NESTCodeGenerator(CodeGenerator):
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
             "path": os.path.join(os.path.dirname(__file__), 'resources_nest', 'point_neuron'),
-            "module_templates": ['setup'],
-            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2']
+            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+            "module_templates": ['setup']
         }
     }
 

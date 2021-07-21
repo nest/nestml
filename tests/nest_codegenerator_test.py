@@ -119,9 +119,9 @@ class CodeGeneratorTest(unittest.TestCase):
         codegen_opts = {"templates": {
             "path": os.path.join(os.path.dirname(__file__), os.pardir, 'pynestml', 'codegeneration',
                                  'resources_nest', 'point_neuron'),
+            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
             "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2'
-                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2'],
-            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2']
+                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
         }}
 
         with open(code_opts_path, 'w+') as f:
