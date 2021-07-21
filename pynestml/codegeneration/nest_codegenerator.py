@@ -121,32 +121,32 @@ class NESTCodeGenerator(CodeGenerator):
         """
 
         # Get templates path
-        parent_templates_dir = self.get_option("templates")['path']
-        if not os.path.isabs(parent_templates_dir):
-            raise InvalidPathException('Templates path '"" + parent_templates_dir + ""' is not an absolute path.')
-        if not os.path.isdir(parent_templates_dir):
-            raise InvalidPathException('Templates path '"" + parent_templates_dir + ""'  is not a directory')
+        templates_root_dir = self.get_option("templates")['path']
+        if not os.path.isabs(templates_root_dir):
+            raise InvalidPathException('Templates path '"" + templates_root_dir + ""' is not an absolute path.')
+        if not os.path.isdir(templates_root_dir):
+            raise InvalidPathException('Templates path '"" + templates_root_dir + ""'  is not a directory')
 
         # Setup models template environment
         model_templates = self.get_option("templates")['model_templates']
         if not model_templates:
             raise Exception('A list of neuron model template files/directories is missing.')
-        self._model_templates.extend(self.__setup_template_env(model_templates, parent_templates_dir))
+        self._model_templates.extend(self.__setup_template_env(model_templates, templates_root_dir))
 
         # Setup modules template environment
         module_templates = self.get_option("templates")['module_templates']
         if not module_templates:
             raise Exception('A list of module template files/directories is missing.')
-        self._module_templates.extend(self.__setup_template_env(module_templates, parent_templates_dir))
+        self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
 
-    def __setup_template_env(self, template_files: List[str], parent_templates_dir: str) -> List[Template]:
+    def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
         """
         A helper function to setup the jinja2 template environment
-        :param template_files: A list of template file names or a directory (relative to ``parent_templates_dir``) containing the templates
-        :param parent_templates_dir: path of the parent directory containing all the jinja2 templates
+        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
+        :param templates_root_dir: path of the root directory containing all the jinja2 templates
         :return: A list of jinja2 template objects
         """
-        _template_files = self._get_abs_template_paths(template_files, parent_templates_dir)
+        _template_files = self._get_abs_template_paths(template_files, templates_root_dir)
         _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
 
         # Environment for neuron model templates
@@ -161,17 +161,17 @@ class NESTCodeGenerator(CodeGenerator):
 
         return _templates
 
-    def _get_abs_template_paths(self, template_files: List[str], parent_templates_dir: str) -> List[str]:
+    def _get_abs_template_paths(self, template_files: List[str], templates_root_dir: str) -> List[str]:
         """
         Resolve the directory paths and get the absolute paths of the jinja templates.
-        :param template_files: A list of template file names or a directory (relative to ``parent_templates_dir``) containing the templates
-        :param parent_templates_dir: path of the parent directory containing all the jinja2 templates
+        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
+        :param templates_root_dir: path of the root directory containing all the jinja2 templates
         :return: A list of absolute paths of the ``template_files``
         """
         _abs_template_paths = list()
         for _path in template_files:
             # Convert from relative to absolute path
-            _path = os.path.join(parent_templates_dir, _path)
+            _path = os.path.join(templates_root_dir, _path)
             if os.path.isdir(_path):
                 for file in glob.glob(os.path.join(_path, "*.jinja2")):
                     _abs_template_paths.append(os.path.join(_path, file))
