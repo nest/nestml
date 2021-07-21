@@ -24,9 +24,10 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 import datetime
 import os
 import re
+
 import sympy
 import glob
-from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
+from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
 from odetoolbox import analysis
 
 import pynestml
@@ -81,6 +82,10 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
+    - **templates**: Path containing jinja templates used to generate code for NEST simulator.
+        - **path**: Path containing jinja templates used to generate code for NEST simulator.
+        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
+        - **model_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to the neuron model(s).
     """
 
     _default_options = {
@@ -111,7 +116,9 @@ class NESTCodeGenerator(CodeGenerator):
         raise TemplateRuntimeError(msg)
 
     def setup_template_env(self):
-        """setup the Jinja2 template environment"""
+        """
+        Setup the Jinja2 template environment
+        """
 
         # Get templates path
         parent_templates_dir = self.get_option("templates")['path']
@@ -132,7 +139,13 @@ class NESTCodeGenerator(CodeGenerator):
             raise Exception('A list of module template files/directories is missing.')
         self._module_templates.extend(self.__setup_template_env(module_templates, parent_templates_dir))
 
-    def __setup_template_env(self, template_files, parent_templates_dir):
+    def __setup_template_env(self, template_files: List[str], parent_templates_dir: str) -> List[Template]:
+        """
+        A helper function to setup the jinja2 template environment
+        :param template_files: A list of template file names or a directory (relative to ``parent_templates_dir``) containing the templates
+        :param parent_templates_dir: path of the parent directory containing all the jinja2 templates
+        :return: A list of jinja2 template objects
+        """
         _template_files = self._get_abs_template_paths(template_files, parent_templates_dir)
         _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
 
@@ -148,7 +161,13 @@ class NESTCodeGenerator(CodeGenerator):
 
         return _templates
 
-    def _get_abs_template_paths(self, template_files, parent_templates_dir):
+    def _get_abs_template_paths(self, template_files: List[str], parent_templates_dir: str) -> List[str]:
+        """
+        Resolve the directory paths and get the absolute paths of the jinja templates.
+        :param template_files: A list of template file names or a directory (relative to ``parent_templates_dir``) containing the templates
+        :param parent_templates_dir: path of the parent directory containing all the jinja2 templates
+        :return: A list of absolute paths of the ``template_files``
+        """
         _abs_template_paths = list()
         for _path in template_files:
             # Convert from relative to absolute path
@@ -161,7 +180,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return _abs_template_paths
 
-    def generate_code(self, neurons):
+    def generate_code(self, neurons: List[ASTNeuron]) -> None:
         self.analyse_transform_neurons(neurons)
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
@@ -178,6 +197,9 @@ class NESTCodeGenerator(CodeGenerator):
         if not os.path.exists(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
 
+        if not os.path.isdir(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli'))):
+            os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli')))
+
         for _module_temp in self._module_templates:
             file_name_parts = os.path.basename(_module_temp.filename).split('.')
             file_extension = file_name_parts[-2]
@@ -187,16 +209,12 @@ class NESTCodeGenerator(CodeGenerator):
                 filename = file_name_parts[0]
 
             if file_extension == 'sli':
-                if not os.path.isdir(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli'))):
-                    os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli')))
-                with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'sli', filename))
-                          + '.' + file_extension,
-                          'w+') as f:
-                    f.write(str(_module_temp.render(namespace)))
+                file_path = str(os.path.join(FrontendConfiguration.get_target_path(), 'sli', filename))
             else:
-                with open(str(os.path.join(FrontendConfiguration.get_target_path(), filename)) + '.' + file_extension,
-                          'w+') as f:
-                    f.write(str(_module_temp.render(namespace)))
+                file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
+
+            with open(file_path + '.' + file_extension, 'w+') as f:
+                f.write(str(_module_temp.render(namespace)))
 
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
