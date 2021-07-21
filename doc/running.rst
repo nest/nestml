@@ -145,9 +145,9 @@ An example ``codegen_options.json`` file is as follows:
    }
 
 The ``templates`` option in the JSON file contains information on the custom jinja templates to be used for code generation.
-- The ``path`` option indicates the root directory of the custom jinja templates.
-- The ``model_templates`` option indicates the names of the jinja templates for neuron model(s) or relative path to a directory containing the neuron model(s) templates.
-- The ``module_templates`` option indicates the names or relative path to a directory containing the jinja templates used to build a NEST extension module.
+* The ``path`` option indicates the root directory of the custom jinja templates.
+* The ``model_templates`` option indicates the names of the jinja templates for neuron model(s) or relative path to a directory containing the neuron model(s) templates.
+* The ``module_templates`` option indicates the names or relative path to a directory containing the jinja templates used to build a NEST extension module.
 
 The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as follows:
 
