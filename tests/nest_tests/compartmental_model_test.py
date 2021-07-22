@@ -82,9 +82,6 @@ class CMTest(unittest.TestCase):
 
     def get_model(self):
         if self.nestml_flag:
-            nest.Install("NaK_neatmodule")
-            cm_pas = nest.Create('cm_main_NaK')
-            cm_act = nest.Create('cm_main_NaK')
             try:
                 nest.Install("cm_defaultmodule")
 
