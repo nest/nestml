@@ -71,6 +71,21 @@ nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
 
 namespace nest
 {
+
+namespace names
+{
+{%- if recordable_state_variables|length > 0 %}
+{%- for sym in recordable_state_variables %}
+    const Name {{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if recordable_inline_expressions|length > 0 %}
+{%- for sym in recordable_inline_expressions %}
+    const Name {{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
+
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
   template <> void RecordablesMap<{{neuronName}}>::create()
@@ -78,14 +93,14 @@ namespace nest
 {%- if recordable_state_variables|length > 0 %}
     // add state variables to recordables map
 {%- for sym in recordable_state_variables %}
-    insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+    insert_(names::{{sym.get_symbol_name()}}, &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
 {%- if recordable_inline_expressions|length > 0 %}
 
     // add recordable inline expressions to recordables map
 {%- for sym in recordable_inline_expressions %}
-	insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+	insert_(names::{{sym.get_symbol_name()}}, &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
   }
