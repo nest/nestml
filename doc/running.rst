@@ -165,3 +165,23 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
    }
 
    to_nest(input_path, target_path, logging_level, module_name, store_log, dev, options)
+
+Running in NEST 2.* compatibility mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.1), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py`_):
+
+.. code-block:: python
+
+   codegen_opts = {
+       "neuron_parent_class_include": "archiving_node.h",
+       "neuron_parent_class": "Archiving_Node",
+       "templates": {
+           "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
+                                'resources_nest', 'point_neuron_nest2'),
+           "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+           "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
+                                'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
+   }}
+
+The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2`_.
