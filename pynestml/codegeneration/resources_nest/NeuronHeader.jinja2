@@ -79,12 +79,12 @@ namespace names
 {
 {%- if recordable_state_variables|length > 0 %}
 {%- for sym in recordable_state_variables %}
-    extern const Name {{sym.get_symbol_name()}};
+    extern const Name {{neuronName}}_{{sym.get_symbol_name()}};
 {%- endfor %}
 {%- endif %}
 {%- if recordable_inline_expressions|length > 0 %}
 {%- for sym in recordable_inline_expressions %}
-    extern const Name {{sym.get_symbol_name()}};
+    extern const Name {{neuronName}}_{{sym.get_symbol_name()}};
 {%- endfor %}
 {%- endif %}
 }
