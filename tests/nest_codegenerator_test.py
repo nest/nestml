@@ -117,8 +117,7 @@ class CodeGeneratorTest(unittest.TestCase):
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
         codegen_opts = {"templates": {
-            "path": os.path.join(os.path.dirname(__file__), os.pardir, 'pynestml', 'codegeneration',
-                                 'resources_nest', 'point_neuron'),
+            "path": "point_neuron",
             "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
             "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2'
                                  'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
@@ -135,6 +134,8 @@ class CodeGeneratorTest(unittest.TestCase):
         params.append('--target_path')
         params.append(self.target_path)
         params.append('--dev')
+        params.append('--codegen_opts')
+        params.append(code_opts_path)
         FrontendConfiguration.parse_config(params)
 
         compilation_unit = ModelParser.parse_model(input_path)

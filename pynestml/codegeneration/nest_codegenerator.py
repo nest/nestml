@@ -94,7 +94,7 @@ class NESTCodeGenerator(CodeGenerator):
         "preserve_expressions": False,
         "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
         "templates": {
-            "path": os.path.join(os.path.dirname(__file__), 'resources_nest', 'point_neuron'),
+            "path": 'point_neuron',
             "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
             "module_templates": ['setup']
         }
@@ -123,9 +123,12 @@ class NESTCodeGenerator(CodeGenerator):
         # Get templates path
         templates_root_dir = self.get_option("templates")['path']
         if not os.path.isabs(templates_root_dir):
-            raise InvalidPathException('Templates path '"" + templates_root_dir + ""' is not an absolute path.')
+            # Prefix the default templates location
+            templates_root_dir = os.path.join(os.path.dirname(__file__), 'resources_nest', templates_root_dir)
+            code, message = Messages.get_template_root_path_created(templates_root_dir)
+            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
         if not os.path.isdir(templates_root_dir):
-            raise InvalidPathException('Templates path '"" + templates_root_dir + ""'  is not a directory')
+            raise InvalidPathException('Templates path (' + templates_root_dir + ')  is not a directory')
 
         # Setup models template environment
         model_templates = self.get_option("templates")['model_templates']
@@ -149,15 +152,15 @@ class NESTCodeGenerator(CodeGenerator):
         _template_files = self._get_abs_template_paths(template_files, templates_root_dir)
         _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
 
-        # Environment for neuron model templates
+        # Environment for neuron templates
         env = Environment(loader=FileSystemLoader(_template_dirs))
         env.globals['raise'] = self.raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel
 
         # Load all the templates
         _templates = list()
-        for _temp_file in _template_files:
-            _templates.append(env.get_template(os.path.basename(_temp_file)))
+        for _templ_file in _template_files:
+            _templates.append(env.get_template(os.path.basename(_templ_file)))
 
         return _templates
 
@@ -191,9 +194,7 @@ class NESTCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons
         :type neurons: list(ASTNeuron)
         """
-        namespace = {'neurons': neurons,
-                     'moduleName': FrontendConfiguration.get_module_name(),
-                     'now': datetime.datetime.utcnow()}
+        namespace = self._get_module_namespace(neurons)
         if not os.path.exists(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
 
@@ -211,6 +212,17 @@ class NESTCodeGenerator(CodeGenerator):
 
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+
+    def _get_module_namespace(self, neurons: List[ASTNeuron]) -> Dict:
+        """
+        Creates a namespace for generating NEST extension module code
+        :param neurons: List of neurons
+        :return: a context dictionary for rendering templates
+        """
+        namespace = {'neurons': neurons,
+                     'moduleName': FrontendConfiguration.get_module_name(),
+                     'now': datetime.datetime.utcnow()}
+        return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
         """
@@ -462,18 +474,16 @@ class NESTCodeGenerator(CodeGenerator):
 
         for _model_temp in self._model_templates:
             file_extension = _model_temp.filename.split('.')[-2]
-            _file = _model_temp.render(self.setup_generation_helpers(neuron))
+            _file = _model_temp.render(self._get_model_namespace(neuron))
             with open(str(os.path.join(FrontendConfiguration.get_target_path(),
                                        neuron.get_name())) + '.' + file_extension, 'w+') as f:
                 f.write(str(_file))
 
-    def setup_generation_helpers(self, neuron: ASTNeuron) -> Dict:
+    def _get_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
-        Returns a standard namespace with often required functionality.
+        Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
-        :return: a map from name to functionality.
-        :rtype: dict
+        :return: a context dictionary for rendering templates
         """
         gsl_converter = GSLReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)

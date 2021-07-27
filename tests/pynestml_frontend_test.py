@@ -135,8 +135,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
         codegen_opts = {"templates": {
-            "path": os.path.join(os.path.dirname(__file__), '..', 'pynestml', 'codegeneration',
-                                 'resources_nest', 'point_neuron'),
+            "path": 'point_neuron',
             "model_templates": [os.path.join(os.path.dirname(__file__), '..', 'pynestml', 'codegeneration',
                                              'resources_nest', 'point_neuron')],
             "module_templates": ['setup']
