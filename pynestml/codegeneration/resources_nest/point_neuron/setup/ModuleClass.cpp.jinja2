@@ -115,13 +115,6 @@ const std::string
   return std::string("{{moduleName}}"); // Return name of the module
 }
 
-const std::string
-{{moduleName}}::commandstring( void ) const
-{
-  // Instruct the interpreter to load {{moduleName}}-init.sli
-  return std::string( "({{moduleName}}-init) run" );
-}
-
 //-------------------------------------------------------------------------------------
 void
 {{moduleName}}::init( SLIInterpreter* i )

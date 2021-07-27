@@ -197,9 +197,6 @@ class NESTCodeGenerator(CodeGenerator):
         if not os.path.exists(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
 
-        if not os.path.isdir(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli'))):
-            os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli')))
-
         for _module_temp in self._module_templates:
             file_name_parts = os.path.basename(_module_temp.filename).split('.')
             file_extension = file_name_parts[-2]
@@ -208,11 +205,7 @@ class NESTCodeGenerator(CodeGenerator):
             else:
                 filename = file_name_parts[0]
 
-            if file_extension == 'sli':
-                file_path = str(os.path.join(FrontendConfiguration.get_target_path(), 'sli', filename))
-            else:
-                file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
-
+            file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
             with open(file_path + '.' + file_extension, 'w+') as f:
                 f.write(str(_module_temp.render(namespace)))
 
