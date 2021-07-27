@@ -69,7 +69,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 #define POST_NEURON_TYPE {{ paired_neuron }}
 
-#define DEBUG
+// #define DEBUG
 
 namespace nest
 {
@@ -166,7 +166,7 @@ class {{synapseName}} : public Connection< targetidentifierT >
 
 private:
 
-  double *weight_;
+//  double *weight_;
   double t_lastspike_;
 
 
@@ -658,8 +658,6 @@ assert(0);
 #ifdef DEBUG
     std::cout << "\tDepressing, old w = " << S_.w << "\n";
 #endif
-    // XXX
-    std::cout << "r2 = " << get_tr_r2() << std::endl;
 
 
 {%- filter indent(4,True) %}
