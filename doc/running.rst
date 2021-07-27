@@ -122,7 +122,7 @@ A typical script, therefore, could look like the following. For this example, we
 
 Running NESTML with custom templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory ``/home/nest/work/pynestml/codegeneration/resources_nest/point_neuron``. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
+NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory ``pynestml/codegeneration/resources_nest/point_neuron``. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
 
 The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file.
 
