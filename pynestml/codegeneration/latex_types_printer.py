@@ -31,8 +31,6 @@ class LatexTypesPrinter(TypesPrinter):
 
     @classmethod
     def pretty_print(cls, element):
-        assert element is not None, '(PyNestML.CodeGeneration.LatexTypesPrinter) No element provided (%s)!' % element
-
         if isinstance(element, bool) and element:
             return 'true'
 
@@ -41,5 +39,5 @@ class LatexTypesPrinter(TypesPrinter):
 
         if isinstance(element, int) or isinstance(element, float):
             return str(element)
-        
+
         raise Exception("Tried to print unknown type: " + str(type(element)) + " (string representation: " + str(element) + ")")
