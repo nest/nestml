@@ -119,7 +119,7 @@ class CodeGeneratorTest(unittest.TestCase):
         codegen_opts = {"templates": {
             "path": "point_neuron",
             "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-            "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2'
+            "module_templates": ['setup/CMakeLists.txt.jinja2',
                                  'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
         }}
 
@@ -140,7 +140,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
         compilation_unit = ModelParser.parse_model(input_path)
 
-        nestCodeGenerator = NESTCodeGenerator()
+        nestCodeGenerator = NESTCodeGenerator(codegen_opts)
         nestCodeGenerator.generate_code(compilation_unit.get_neuron_list())
 
     def tearDown(self):
