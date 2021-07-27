@@ -139,7 +139,7 @@ An example ``codegen_options.json`` file is as follows:
         {
             "path": "/home/nest/work/custom_templates",
             "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-            "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/SLI_Init.sli.jinja2",
+            "module_templates": ["setup/CMakeLists.txt.jinja2",
                                  "setup/ModuleHeader.h.jinja2","setup/ModuleClass.cpp.jinja2"]
         }
    }
