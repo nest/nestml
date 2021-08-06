@@ -17,7 +17,7 @@ synapse noisy_synapse:
 
   output: spike
 
-  preReceive:
+  onReceive(pre_spikes):
     # temporary variable for the "weight" that will be transmitted
     w_ nS = w + A_noise * random_normal(0, 1)
 

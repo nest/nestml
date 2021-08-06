@@ -252,22 +252,16 @@ parser grammar PyNestMLParser;
     @attribute inputBlock: A block of input buffer declarations.
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
+    @attribute onReceive: A block declaring an event handler.
   */
   synapseBody:
-         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | preReceiveBlock | postReceiveBlock )*
+         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock )*
          END_KEYWORD;
 
-  /** ASTPreReceiveBlock 
+  /** ASTOnReceiveBlock 
      @attribute block implementation of the dynamics
    */
-  preReceiveBlock: PRE_RECEIVE_KEYWORD COLON
-                block
-                END_KEYWORD;
-
-  /** ASTPostReceiveBlock 
-     @attribute block implementation of the dynamics
-   */
-  postReceiveBlock: POST_RECEIVE_KEYWORD COLON
+  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (parameter (COMMA parameter)*)? RIGHT_PAREN COLON
                 block
                 END_KEYWORD;
 

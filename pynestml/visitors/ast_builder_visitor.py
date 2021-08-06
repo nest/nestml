@@ -590,11 +590,8 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         a list of elements and returns the one with the smallest source line.
         """
         body_elements = list()
-        if ctx.preReceiveBlock() is not None:
-            for child in ctx.preReceiveBlock():
-                body_elements.append(child)
-        if ctx.postReceiveBlock() is not None:
-            for child in ctx.postReceiveBlock():
+        if ctx.onReceiveBlock() is not None:
+            for child in ctx.onReceiveBlock():
                 body_elements.append(child)
         if ctx.blockWithVariables() is not None:
             for child in ctx.blockWithVariables():
@@ -752,15 +749,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         compound = self.visit(ctx.compoundStmt()) if ctx.compoundStmt() is not None else None
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
 
-    def visitPreReceiveBlock(self, ctx):
+    def visitOnReceiveBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
-        ret = ASTNodeFactory.create_ast_pre_receive(block=block, source_position=create_source_pos(ctx))
-        update_node_comments(ret, self.__comments.visit(ctx))
-        return ret
-
-    def visitPostReceiveBlock(self, ctx):
-        block = self.visit(ctx.block()) if ctx.block() is not None else None
-        ret = ASTNodeFactory.create_ast_post_receive(block=block, source_position=create_source_pos(ctx))
+        port_name = ctx.inputPortName.text
+        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 

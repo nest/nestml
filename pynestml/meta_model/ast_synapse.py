@@ -112,27 +112,10 @@ class ASTSynapse(ASTNeuronOrSynapse):
         """
         return self.body
 
-
-    def get_pre_receive(self):
-        """
-        Returns the pre_receive block
-        :return: the pre_receive block
-        :rtype: ...
-        """
+    def get_on_receive_block(self, port_name):
         if not self.get_body():
             return None
-        return self.get_body().get_pre_receive()
-
-
-    def get_post_receive(self):
-        """
-        Returns the post_receive block
-        :return: the post_receive block
-        :rtype: ...
-        """
-        if not self.get_body():
-            return None
-        return self.get_body().get_post_receive()
+        return self.get_body().get_on_receive_block(port_name)
 
     def get_input_blocks(self):
         """

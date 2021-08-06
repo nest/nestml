@@ -34,8 +34,7 @@ from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
-from pynestml.meta_model.ast_pre_receive import ASTPreReceive
-from pynestml.meta_model.ast_post_receive import ASTPostReceive
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
@@ -121,12 +120,8 @@ class ASTNodeFactory:
         return ASTNamespaceDecorator(namespace, name, source_position=source_position)
 
     @classmethod
-    def create_ast_pre_receive(cls, block=None, source_position=None):
-        return ASTPreReceive(block, source_position=source_position)
-
-    @classmethod
-    def create_ast_post_receive(cls, block=None, source_position=None):
-        return ASTPostReceive(block, source_position=source_position)
+    def create_ast_on_receive_block(cls, block=None, port_name=None, source_position=None):
+        return ASTOnReceiveBlock(block, port_name, source_position=source_position)
 
     @classmethod
     def create_ast_neuron_body(cls, body_elements, source_position):

@@ -7,7 +7,11 @@ synapse static:
     b real = 100.  @nest::b @heterogeneous
   end
 
-  preReceive:
+  input:
+    pre_spikes <- spike
+  end
+
+  onReceive(pre_spikes):
     deliver_spike(3.18E-3 * a * b * w, d)
   end
 

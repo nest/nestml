@@ -220,39 +220,20 @@ class ASTSymbolTableVisitor(ASTVisitor):
         self.block_type_stack.pop()
         return
 
-    def visit_pre_receive(self, node):
+    def visit_on_receive_block(self, node):
         """
-        Private method: Used to visit a single preReceive block and create the corresponding scope.
-        :param node: an preReceive block object.
-        :type node: ASTPreReceive
+        Private method: Used to visit a single onReceive block and create the corresponding scope.
+        :param node: an onReceive block object.
+        :type node: ASTOnReceiveBlock
         """
         self.block_type_stack.push(BlockType.LOCAL)
-        scope = Scope(scope_type=ScopeType.PRE_RECEIVE, enclosing_scope=node.get_scope(),
+        scope = Scope(scope_type=ScopeType.ON_RECEIVE, enclosing_scope=node.get_scope(),
                       source_position=node.get_source_position())
         node.get_scope().add_scope(scope)
         node.get_block().update_scope(scope)
-        return
 
-    def endvisit_pre_receive(self, node=None):
+    def endvisit_on_receive_block(self, node=None):
         self.block_type_stack.pop()
-        return
-
-    def visit_post_receive(self, node):
-        """
-        Private method: Used to visit a single postReceive block and create the corresponding scope.
-        :param node: a postReceive block object.
-        :type node: ASTPostReceive
-        """
-        self.block_type_stack.push(BlockType.LOCAL)
-        scope = Scope(scope_type=ScopeType.POST_RECEIVE, enclosing_scope=node.get_scope(),
-                      source_position=node.get_source_position())
-        node.get_scope().add_scope(scope)
-        node.get_block().update_scope(scope)
-        return
-
-    def endvisit_post_receive(self, node=None):
-        self.block_type_stack.pop()
-        return
 
     def visit_block(self, node):
         """

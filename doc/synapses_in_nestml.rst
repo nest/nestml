@@ -65,7 +65,7 @@ The corresponding event handler has the general structure:
 
 .. code-block:: nestml
 
-   preReceive:
+   onReceive(pre_spikes):
      print("Info: processing a presynaptic spike at time t = {t}")
      # ... plasticity dynamics go here ...
      deliver_spike(w, d)     
@@ -93,7 +93,7 @@ State variables (in particular, synaptic "trace" variables as often used in plas
      tr_pre real = 0
    end
 
-   postReceive:
+   onReceive(post_spikes):
      print("Info: processing a presynaptic spike at time t = {t}")
      tr_pre += 1
    end
@@ -124,7 +124,7 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
      post_spikes nS <- spike
    end
 
-   postReceive:
+   onReceive(post_spikes):
      print("Info: processing a postsynaptic spike at time t = {t}")
      # ... plasticity dynamics go here ...
    end
@@ -168,7 +168,7 @@ In the synapse, the value will be referred to as ``I_post_dend`` and can be used
 
 .. code-block:: nestml
 
-   postReceive:
+   onReceive(post_spikes):
      # potentiate synapse
      w_ real = # [...] normal STDP update rule
      w_ = (I_post_dend / pA) * w_ + (1 - I_post_dend / pA) * w   # "gating" of the weight update
@@ -285,7 +285,7 @@ In NESTML, this expression can be entered almost verbatim. Note that the only di
 
 .. code-block:: nestml
 
-   postReceive:
+   onReceive(post_spikes):
      # potentiate synapse
      w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * tr_pre ))
      w = min(Wmax, w_)
@@ -299,7 +299,7 @@ Our update rule for depression is:
 
 .. code-block:: nestml
 
-   preReceive:
+   onReceive(pre_spikes):
      # depress synapse
      w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * tr_post ))
      w = max(Wmin, w_)
@@ -361,12 +361,12 @@ Resetting to 1 can then be done by assignment in the pre- and post-event handler
 
 .. code-block:: nestml
 
-   preReceive:
+   onReceive(pre_spikes):
      tr_pre = 1
      [...]
    end
 
-   postReceive:
+   onReceive(post_spikes):
      tr_post = 1
      [...]
    end
@@ -385,13 +385,13 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
 
 .. code-block:: nestml
 
-   postReceive:
+   onReceive(post_spikes):
      tr_post = 1
      w = ...  # facilitation step (omitted)
      tr_pre = 0
    end
 
-   preReceive:
+   onReceive(pre_spikes):
      tr_pre += 1
      w = ...  # depression step (omitted)
      deliver_spike(w, d)
@@ -416,7 +416,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
      pre_handled boolean = True
    end
 
-   preReceive:
+   onReceive(pre_spikes):
     # [...]
 
     # depress synapse
@@ -427,7 +427,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
     # [...]
    end
 
-   postReceive:
+   onReceive(post_spikes):
      # [...]
 
      if not pre_handled:
@@ -491,13 +491,13 @@ The weight update rules can then be expressed in terms of the traces and paramet
      Wmin real = 0.
    end
 
-   postReceive:
+   onReceive(post_spikes):
      # potentiate synapse
      w_ real = w + tr_r1 * ( A2_plus + A3_plus * tr_o2 )
      w = min(Wmax, w_)
    end
 
-   preReceive:
+   onReceive(pre_spikes):
      # depress synapse
      w_ real = w  -  tr_o1 * ( A2_minus + A3_minus * tr_r2 )
      w = max(Wmin, w_)

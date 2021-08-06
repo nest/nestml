@@ -180,13 +180,8 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#preReceiveBlock.
-    def visitPreReceiveBlock(self, ctx):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNestMLParser#postReceiveBlock.
-    def visitPostReceiveBlock(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#onReceiveBlock.
+    def visitOnReceiveBlock(self, ctx):
         return self.visitChildren(ctx)
 
 

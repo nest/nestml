@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_post_receive.py
+# ast_on_receive_block.py
 #
 # This file is part of NEST.
 #
@@ -23,28 +23,11 @@ from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_node import ASTNode
 
 
-class ASTPostReceive(ASTNode):
+class ASTOnReceiveBlock(ASTNode):
     """
-    This class is used to store dynamic blocks.
-    ASTUpdateBlock is a special function definition:
-      update:
-        if r == 0: # not refractory
-          integrate(V)
-        end
-      end
-     @attribute block Implementation of the dynamics.
-
-    Grammar:
-        updateBlock:
-            'update'
-            BLOCK_OPEN
-              block
-            BLOCK_CLOSE;
-    Attributes:
-        block = None
     """
 
-    def __init__(self, block, *args, **kwargs):
+    def __init__(self, block, port_name, *args, **kwargs):
         """
         Standard constructor.
         :param block: a block of definitions.
@@ -52,25 +35,27 @@ class ASTPostReceive(ASTNode):
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         """
-        super(ASTPostReceive, self).__init__(*args, **kwargs)
+        super(ASTOnReceiveBlock, self).__init__(*args, **kwargs)
         self.block = block
+        self.port_name = port_name
 
     def clone(self):
         """
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTPostReceive
+        :rtype: ASTOnReceive
         """
-        dup = ASTPostReceive(block=self.block.clone(),
-                             # ASTNode common attributes:
-                             source_position=self.source_position,
-                             scope=self.scope,
-                             comment=self.comment,
-                             pre_comments=[s for s in self.pre_comments],
-                             in_comment=self.in_comment,
-                             post_comments=[s for s in self.post_comments],
-                             implicit_conversion_factor=self.implicit_conversion_factor)
+        dup = ASTOnReceiveBlock(block=self.block.clone(),
+                                port_name=self.port_name,
+                                # ASTNode common attributes:
+                                source_position=self.source_position,
+                                scope=self.scope,
+                                comment=self.comment,
+                                pre_comments=[s for s in self.pre_comments],
+                                in_comment=self.in_comment,
+                                post_comments=[s for s in self.post_comments],
+                                implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -81,6 +66,13 @@ class ASTPostReceive(ASTNode):
         :rtype: ast_block
         """
         return self.block
+
+    def get_port_name(self) -> str:
+        """
+        Returns the port name.
+        :return: the port name
+        """
+        return self.port_name
 
     def get_parent(self, ast):
         """
@@ -104,6 +96,6 @@ class ASTPostReceive(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTPostReceive):
+        if not isinstance(other, ASTOnReceiveBlock):
             return False
-        return self.get_block().equals(other.get_block())
+        return self.get_block().equals(other.get_block()) and self.port_name == other.port_name

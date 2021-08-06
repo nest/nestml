@@ -211,6 +211,13 @@ class NESTCodeGenerator(CodeGenerator):
                     return True
         return False
 
+    def get_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
+        post_port_names = []
+        for port in synapse.get_input_blocks().get_input_ports():
+            if self.is_post_port(port.name, neuron_name, synapse_name):
+                post_port_names.append(port.get_name())
+        return post_port_names
+
     def get_neuron_var_name_from_syn_port_name(self, port_name: str, neuron_name: str, synapse_name: str) -> Optional[str]:
         """Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense for synapses."""
         if not "neuron_synapse_pairs" in self._options.keys():
@@ -387,9 +394,11 @@ class NESTCodeGenerator(CodeGenerator):
             all_conv_vars = self.get_all_Variables_used_in_convolutions(synapse.get_equations_blocks(), synapse)
             Logger.log_message(None, -1, "All variables due to convolutions: " + str(all_conv_vars), None, LoggingLevel.INFO)
 
-            # if any variable is assigned to in the `preReceive` block, is put in the "strictly synaptic" list
-            strictly_synaptic_variables = self.get_all_variables_assigned_to(synapse.get_pre_receive())
-            Logger.log_message(None, -1, "Assigned-to variables in preReceive: " + ", ".join(strictly_synaptic_variables), None, LoggingLevel.INFO)
+            # if any variable is assigned to in any block that is not connected to a postsynaptic port
+            for port in new_synapse.get_input_blocks().get_input_ports():
+                if not self.is_post_port(port.name, neuron.name, synapse.name):
+                    strictly_synaptic_variables = self.get_all_variables_assigned_to(synapse.get_on_receive_block(port.name))
+            Logger.log_message(None, -1, "Assigned-to variables in onReceive blocks other than post: " + ", ".join(strictly_synaptic_variables), None, LoggingLevel.INFO)
 
             convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
             Logger.log_message(None, -1, "Variables used in convolve with other than 'spike post' port: " + str(convolve_with_not_post_vars), None, LoggingLevel.INFO)
@@ -621,15 +630,19 @@ class NESTCodeGenerator(CodeGenerator):
 
             for state_var in syn_to_neuron_state_vars:
                 Logger.log_message(None, -1, "Moving onPost updates for " + str(state_var), None, LoggingLevel.INFO)
-                """move_updates_syn_neuron(state_var, new_synapse.get_post_receive(), new_neuron.get_update_blocks(), var_name_suffix)"""
+                post_port_names = self.get_post_port_names(synapse, neuron.name, synapse.name)
 
-                if new_synapse.get_post_receive():
-                    stmts = get_statements_from_block(state_var, new_synapse.get_post_receive())
+                assert len(post_port_names) == 1, "Can only handle one \"post\" port"
+                post_port_name = post_port_names[0]
+                post_receive_block = new_synapse.get_on_receive_block(post_port_name)
+                self.is_post_port(port.name, neuron.name, synapse.name)
+                if post_receive_block:
+                    stmts = get_statements_from_block(state_var, post_receive_block)
                     if stmts:
                         Logger.log_message(None, -1, "Moving state var updates for " + state_var + " from synapse to neuron", None, LoggingLevel.INFO)
                         for stmt in stmts:
                             vars_used.extend(collect_variable_names_in_expression(stmt))
-                            new_synapse.get_post_receive().get_block().stmts.remove(stmt)
+                            post_receive_block.stmts.remove(stmt)
                             add_suffix_to_variable_names(stmt, suffix=var_name_suffix)
 #                            neuron_block.get_block().stmts.append(stmt)
                             stmt.update_scope(new_neuron.get_update_blocks().get_scope())
@@ -1271,6 +1284,15 @@ class NESTCodeGenerator(CodeGenerator):
 
         if 'paired_neuron' in dir(synapse):
             namespace['paired_neuron'] = synapse.paired_neuron.get_name()
+            base_neuron_name = namespace['paired_neuron'][:namespace['paired_neuron'].index("__with_") - len(FrontendConfiguration.suffix)]
+            base_synapse_name = synapse.name[:synapse.name.index("__with_") - len(FrontendConfiguration.suffix)]
+            namespace["post_ports"] = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
+            all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
+            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
+
+        if not "pre_ports" in namespace.keys():
+            all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
+            namespace["pre_ports"] = all_input_port_names
 
         namespace['synapseName'] = synapse.get_name()
         namespace['synapse'] = synapse

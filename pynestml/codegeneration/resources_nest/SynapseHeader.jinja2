@@ -598,21 +598,23 @@ assert(0);
         init_internals_block_symbols();  // XXX: can be skipped?
 
 
-        /**
-         *  NESTML generated postReceive code block begins here!
-        **/
-
 #ifdef DEBUG
         std::cout << "\tFacilitating, old w = " << S_.w << "\n";
 #endif
         const double _tr_t = start->t_;
 
 {%- filter indent(6, True) %}
-{%- if synapse.get_post_receive() is not none %}
-{%- set dynamics = synapse.get_post_receive() %}
-{%- with ast = dynamics.get_block() %}
-{%-     include "directives/Block.jinja2" %}
-{%- endwith %}
+{%- if post_ports is defined %}
+{%-     for post_port in post_ports %}
+        /**
+         *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
+        **/
+
+{%-         set dynamics = synapse.get_on_receive_block(post_port) %}
+{%-         with ast = dynamics.get_block() %}
+{%-             include "directives/Block.jinja2" %}
+{%-         endwith %}
+{%-     endfor %}
 {%- endif %}
 {%- endfilter %}
 
@@ -649,24 +651,25 @@ assert(0);
     init_internals_block_symbols();  // XXX: can be skipped?
 
 
-    /**
-     *  NESTML generated preReceive code block begins here!
-    **/
-
     const double _tr_t = __t_spike - __dendritic_delay;
 
 #ifdef DEBUG
     std::cout << "\tDepressing, old w = " << S_.w << "\n";
 #endif
     // XXX
-    std::cout << "r2 = " << get_tr_r2() << std::endl;
+    //std::cout << "r2 = " << get_tr_r2() << std::endl;
 
+{%- filter indent(4, True) %}
+{%- for pre_port in pre_ports %}
+        /**
+         *  NESTML generated onReceive code block for presynaptic port "{{pre_port}}" begins here!
+        **/
 
-{%- filter indent(4,True) %}
-{%- set dynamics = synapse.get_pre_receive() %}
-{%- with ast = dynamics.get_block() %}
-{%-     include "directives/Block.jinja2" %}
-{%- endwith %}
+{%-     set dynamics = synapse.get_on_receive_block(pre_port) %}
+{%-     with ast = dynamics.get_block() %}
+{%-         include "directives/Block.jinja2" %}
+{%-     endwith %}
+{%- endfor %}
 {%- endfilter %}
 
 #ifdef DEBUG

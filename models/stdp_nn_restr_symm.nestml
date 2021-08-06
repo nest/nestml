@@ -57,7 +57,7 @@ synapse stdp_nn_restr_symm:
 
   output: spike
 
-  postReceive:
+  onReceive(post_spikes):
     post_trace = 1
 
     # potentiate synapse
@@ -68,7 +68,7 @@ synapse stdp_nn_restr_symm:
     end
   end
 
-  preReceive:
+  onReceive(pre_spikes):
     pre_trace = 1
 
     # depress synapse

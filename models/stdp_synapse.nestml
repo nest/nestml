@@ -47,6 +47,8 @@ synapse stdp:
 
   state:
     w real = 1.
+    #pre_trace real = 0.
+    #post_trace real = 0.
   end
 
   parameters:
@@ -68,6 +70,9 @@ synapse stdp:
     # all-to-all trace of postsynaptic neuron
     kernel post_trace_kernel = exp(-t / tau_tr_post)
     inline post_trace real = convolve(post_trace_kernel, post_spikes)
+
+#     pre_trace' = -pre_trace / tau_tr_pre
+#     post_trace' = -post_trace / tau_tr_post
   end
 
   input:
@@ -77,13 +82,17 @@ synapse stdp:
 
   output: spike
 
-  postReceive:
+  onReceive(post_spikes):
+    #post_trace += 1
+
     # potentiate synapse
     w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     w = min(Wmax, w_)
   end
 
-  preReceive:
+  onReceive(pre_spikes):
+    #pre_trace += 1
+
     # depress synapse
     w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     w = max(Wmin, w_)

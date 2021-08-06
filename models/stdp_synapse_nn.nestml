@@ -57,7 +57,7 @@ synapse stdp_nn:
 
   output: spike
 
-  postReceive:
+  onReceive(post_spikes):
     if nearest_neighbour_behaviour == ALL_TO_ALL:
       post_trace += 1.
     else:
@@ -79,7 +79,7 @@ synapse stdp_nn:
     end
   end
 
-  preReceive:
+  onReceive(pre_spikes):
     if nearest_neighbour_behaviour == NEAREST_NEIGHBOUR_RESTRICTED_SYMMETRIC:
         pre_trace = 1
     else:

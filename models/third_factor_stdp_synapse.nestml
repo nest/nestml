@@ -42,7 +42,7 @@ synapse third_factor_stdp:
 
   output: spike
 
-  postReceive:
+  onReceive(post_spikes):
     # potentiate synapse
     w_ real = Wmax * ( w / Wmax  + (lambda * ( 1. - ( w / Wmax ) )**mu_plus * pre_trace ))
     if I_post_dend <= 1 pA:
@@ -51,7 +51,7 @@ synapse third_factor_stdp:
     w = min(Wmax, w_)
   end
 
-  preReceive:
+  onReceive(pre_spikes):
     # depress synapse
     w_ real = Wmax * ( w / Wmax  - ( alpha * lambda * ( w / Wmax )**mu_minus * post_trace ))
     if I_post_dend <= 1 pA:

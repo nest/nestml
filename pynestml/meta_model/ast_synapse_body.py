@@ -132,18 +132,11 @@ class ASTSynapseBody(ASTNode):
                 ret.append(elem)
         return ret
 
-    def get_pre_receive(self):
-        from pynestml.meta_model.ast_pre_receive import ASTPreReceive
+    def get_on_receive_block(self, port_name):
+        from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
         for elem in self.get_body_elements():
-            if isinstance(elem, ASTPreReceive):
+            if isinstance(elem, ASTOnReceiveBlock) and elem.port_name == port_name:
                 return elem
-
-    def get_post_receive(self):
-        from pynestml.meta_model.ast_post_receive import ASTPostReceive
-        for elem in self.get_body_elements():
-            if isinstance(elem, ASTPostReceive):
-                return elem
-
 
     def get_equations_blocks(self):
         """
