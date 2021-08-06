@@ -23,6 +23,7 @@ from typing import Tuple
 
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
+from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
@@ -30,7 +31,6 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
-
 
 class LatexExpressionPrinter:
     """

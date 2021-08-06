@@ -33,16 +33,16 @@ class CppTypesPrinter(TypesPrinter):
     def pretty_print(cls, element):
         if isinstance(element, bool) and element:
             return 'true'
-        
+
         if isinstance(element, bool) and not element:
             return 'false'
-        
+
         if isinstance(element, int):
             return str(element)
-        
+
         if isinstance(element, float):
             return "{0:E}".format(element)
-        
+
         if isinstance(element, str):
             return element
 
