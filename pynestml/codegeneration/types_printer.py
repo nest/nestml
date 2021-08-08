@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# deferred_logging_exception.py
+# types_printer.py
 #
 # This file is part of NEST.
 #
@@ -19,13 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+import abc
 
-class DeferredLoggingException(Exception):
+
+class TypesPrinter(metaclass=abc.ABCMeta):
     """
-    Exception holding code and message of a logging operation.
-    Used to defer logging until source position (or other data) can be determined
+    Returns a processable format of the handed over element.
     """
 
-    def __init__(self, code, message):
-        self.code = code
-        self.message = message
+    @classmethod
+    @abc.abstractmethod
+    def pretty_print(cls, element):
+        pass
