@@ -1,6 +1,6 @@
 """
-CompoundMultDivWithDifferentButCompatibleUnits.nestml
-########################################################
+CompoundOperatorWithDifferentButCompatibleUnits.nestml
+######################################################
 
 
 Copyright statement
@@ -23,13 +23,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron MultDivTest:
+neuron CompoundOperatorTest:
     state:
         lhs V = 1 V
     end
 
     update:
-        lhs *= 1200 nA
-        lhs /= 1200 m
+        lhs *= 1 nA
+        lhs /= 1 m
+        lhs *= (1. mA) * (1 Ohm)
+        lhs += 1 A
+        lhs -= 1 nS
     end
 end
