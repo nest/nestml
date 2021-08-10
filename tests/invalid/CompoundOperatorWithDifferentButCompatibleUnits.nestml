@@ -1,14 +1,6 @@
 """
-CoCoVariableDefinedAfterUsage.nestml
-####################################
-
-
-Description
-+++++++++++
-
-This model is used to test if broken CoCos are identified correctly. Here, if usage before declaration is detected.
-
-Negative case.
+CompoundOperatorWithDifferentButCompatibleUnits.nestml
+######################################################
 
 
 Copyright statement
@@ -31,13 +23,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoVariableDefinedAfterUsage:
+neuron CompoundOperatorTest:
     state:
-        test2 integer = 10
+        lhs V = 1 V
     end
 
     update:
-        test1 = test2
-        test1 integer = 20
+        lhs *= 1 nA
+        lhs /= 1 m
+        lhs *= (1. mA) * (1 Ohm)
+        lhs += 1 A
+        lhs -= 1 nS
     end
 end

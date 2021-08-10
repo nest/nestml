@@ -44,7 +44,7 @@ class RandomNumberGeneratorsTest(unittest.TestCase):
         PredefinedVariables.register_variables()
         PredefinedFunctions.register_functions()
 
-    def test_invalid_element_defined_after_usage(self):
+    def test_random_number_generators(self):
         model = ModelParser.parse_model(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'random_number_generators_test.nestml'))
