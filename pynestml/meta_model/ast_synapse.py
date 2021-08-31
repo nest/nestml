@@ -19,10 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List, Optional
+
+from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -112,7 +115,12 @@ class ASTSynapse(ASTNeuronOrSynapse):
         """
         return self.body
 
-    def get_on_receive_block(self, port_name):
+    def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
+        if not self.get_body():
+            return []
+        return self.get_body().get_on_receive_blocks()
+        
+    def get_on_receive_block(self, port_name: str) -> Optional[ASTOnReceiveBlock]:
         if not self.get_body():
             return None
         return self.get_body().get_on_receive_block(port_name)

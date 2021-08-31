@@ -19,6 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional, Mapping
+
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_node import ASTNode
 
@@ -27,7 +29,7 @@ class ASTOnReceiveBlock(ASTNode):
     """
     """
 
-    def __init__(self, block, port_name, *args, **kwargs):
+    def __init__(self, block, port_name, const_parameters: Optional[Mapping] = None, *args, **kwargs):
         """
         Standard constructor.
         :param block: a block of definitions.
@@ -38,6 +40,9 @@ class ASTOnReceiveBlock(ASTNode):
         super(ASTOnReceiveBlock, self).__init__(*args, **kwargs)
         self.block = block
         self.port_name = port_name
+        self.const_parameters = const_parameters
+        if self.const_parameters is None:
+            self.const_parameters = {}
 
     def clone(self):
         """
@@ -48,6 +53,7 @@ class ASTOnReceiveBlock(ASTNode):
         """
         dup = ASTOnReceiveBlock(block=self.block.clone(),
                                 port_name=self.port_name,
+                                const_parameters=self.const_parameters,
                                 # ASTNode common attributes:
                                 source_position=self.source_position,
                                 scope=self.scope,
@@ -58,6 +64,9 @@ class ASTOnReceiveBlock(ASTNode):
                                 implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
+
+    def get_const_parameters(self):
+        return self.const_parameters
 
     def get_block(self):
         """

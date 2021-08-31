@@ -97,7 +97,7 @@ class CoCosTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
         self.assertEqual(len(Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0],
-                                                                             LoggingLevel.ERROR)), 6)
+                                                                             LoggingLevel.ERROR)), 7)
 
     def test_valid_element_not_defined_in_scope(self):
         Logger.set_logging_level(LoggingLevel.INFO)
@@ -578,3 +578,23 @@ class CoCosTest(unittest.TestCase):
                          'CoCoStateVariablesInitialized.nestml'))
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 2)
+
+    def test_invalid_co_co_priorities_correctly_specified(self):
+        """
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoPrioritiesCorrectlySpecified.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_synapse_list()[0], LoggingLevel.ERROR)), 1)
+
+    def test_valid_co_co_priorities_correctly_specified(self):
+        """
+        """
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoPrioritiesCorrectlySpecified.nestml'))
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_synapse_list()[0], LoggingLevel.ERROR)), 0)

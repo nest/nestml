@@ -93,10 +93,10 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 {%- if paired_synapse is defined %}
 
 // entry in the spiking history
-class histentry__
+class histentry__{{neuronName}}
 {
 public:
-  histentry__( double t,
+  histentry__{{neuronName}}( double t,
 {%- for var in numeric_state_variables_moved|sort%}
 double {{var}},
 {%- endfor %}
@@ -227,8 +227,8 @@ public:
    */
   void get_history__( double t1,
     double t2,
-    std::deque< histentry__ >::iterator* start,
-    std::deque< histentry__ >::iterator* finish );
+    std::deque< histentry__{{neuronName}} >::iterator* start,
+    std::deque< histentry__{{neuronName}} >::iterator* finish );
 
   /**
    * Register a new incoming STDP connection.
@@ -276,7 +276,7 @@ private:
   double last_spike_;
 
   // spiking history needed by stdp synapses
-  std::deque< histentry__ > history_;
+  std::deque< histentry__{{neuronName}} > history_;
 
   // cache for initial values
 {%- for var in transferred_variables %}

@@ -62,7 +62,8 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
     for t_sp in t_spikes:
         if t_sp > t:
             break
-        _tr_prev = tr
+        if extra_debug:
+            _tr_prev = tr
         tr *= np.exp(-(t_sp - t_sp_prev) / tau)
         if t_sp == t: # exact floating point match!
             if before_increment:
@@ -75,7 +76,8 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
                 return tr + increment
         tr += increment
         t_sp_prev = t_sp
-    _tr_prev = tr # XXX REMOVE ME -- only for debug print below
+    if extra_debug:
+        _tr_prev = tr
     tr *= np.exp(-(t - t_sp_prev) / tau)
     if extra_debug:
         print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " + str(t-t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
@@ -257,118 +259,6 @@ def run_nest_simulation(neuron_model_name,
     times_weights     = events['times']
     weight_simulation = events['weights']
     return times_weights, weight_simulation, gid_pre, gid_post, times_spikes, senders_spikes, sim_time
-
-
-
-
-
-
-    #nest.SetKernelStatus({'resolution': resolution})
-
-    #wr = nest.Create('weight_recorder')
-    #_syn_nestml_model_params = {"weight_recorder": wr[0], "w": 1., "receptor_type": 0}
-    #_syn_nestml_model_params.update(nestml_syn_params)
-    #nest.CopyModel(synapse_model_name, "stdp_nestml_rec", _syn_nestml_model_params)
-
-    ## create spike_generators with these times
-    #pre_sg = nest.Create("spike_generator",
-                            #params={"spike_times": pre_spike_times})
-    #post_sg = nest.Create("spike_generator",
-                            #params={"spike_times": post_spike_times,
-                                    #'allow_offgrid_times': True})
-
-    ## create parrot neurons and connect spike_generators
-    #pre_neuron = nest.Create("parrot_neuron")
-    #post_neuron = nest.Create(neuron_model_name, params=nestml_neuron_params)
-    #spikedet_pre = nest.Create("spike_recorder")
-    #spikedet_post = nest.Create("spike_recorder")
-    #mm = nest.Create("multimeter", params={"record_from" : ["V_m", "tr_o1_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml", "tr_o2_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"],
-                                            #"interval": resolution})
-    #nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-    #n\et(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-    #nest.Connect(pre_neuron, post_neuron, "one_to_one", syn_spec={'synapse_model': 'stdp_nestml_rec'})
-    #nest.Connect(mm, post_neuron)
-    #nest.Connect(pre_neuron, spikedet_pre)
-    #nest.Connect(post_neuron, spikedet_post)
-
-    ## get STDP synapse and weight before protocol
-    #syn = nest.GetConnections(source=pre_neuron, synapse_model="stdp_nestml_rec")
-
-    #n_steps = int(np.ceil(sim_time / resolution)) + 1
-    #t = 0.
-    #t_hist = []
-    #w_hist = []
-    #while t <= sim_time:
-        #nest.Simulate(resolution)
-        #t += resolution
-        #t_hist.append(t)
-        #if nest.GetStatus(syn):
-            #w_hist.append(nest.GetStatus(syn)[0]['w'])
-
-    ## plot
-    #if TEST_PLOTS:
-        #fig, ax = plt.subplots(nrows=2)
-        #ax1, ax2 = ax
-
-        #timevec = nest.GetStatus(mm, "events")[0]["times"]
-        #V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-        #ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["tr_o1_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"], label="post_tr nestml")
-        #ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["tr_o2_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"], label="post_tr nestml")
-        #ax1.plot(timevec, V_m, label="nestml")
-        #ax1.set_ylabel("V_m")
-
-        #for _ax in ax:
-            #_ax.grid(which="major", axis="both")
-            #_ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-            ##_ax.minorticks_on()
-            #_ax.set_xlim(0., sim_time)
-            #_ax.legend()
-        #fig.savefig("/tmp/stdp_triplet_test" + fname_snip + "_V_m.png", dpi=300)
-
-    ## plot
-    #if TEST_PLOTS:
-        #fig, ax = plt.subplots(nrows=3)
-        #ax1, ax2, ax3 = ax
-
-        #pre_spike_times_ = nest.GetStatus(spikedet_pre, "events")[0]["times"]
-        #print("Actual pre spike times: "+ str(pre_spike_times_))
-
-        #n_spikes = len(pre_spike_times_)
-        #for i in range(n_spikes):
-            #if i == 0:
-            #_lbl = "nestml"
-            #else:
-            #_lbl = None
-            #ax1.plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4,label=_lbl)
-
-        #post_spike_times_ = nest.GetStatus(spikedet_post, "events")[0]["times"]
-        #print("Actual post spike times: "+ str(post_spike_times_))
-        #n_spikes = len(post_spike_times_)
-        #for i in range(n_spikes):
-            #if i == 0:
-            #_lbl = "nestml"
-            #else:
-            #_lbl = None
-            #ax2.plot(2 * [post_spike_times_[i]], [0, 1], linewidth=2, color="black", alpha=.4, label=_lbl)
-        #ax2.plot(timevec, nest.GetStatus(mm, "events")[0]["tr_o1_kernel__for_stdp_triplet_nestml__X__post_spikes__for_stdp_triplet_nestml"], label="nestml post tr")
-        #ax2.set_ylabel("Post spikes")
-
-        #if w_hist:
-            #ax3.plot(t_hist, w_hist, marker="o", label="nestml")
-
-        #ax3.set_xlabel("Time [ms]")
-        #ax3.set_ylabel("w")
-        #for _ax in ax:
-            #_ax.grid(which="major", axis="both")
-            #_ax.xaxis.set_major_locator(matplotlib.ticker.FixedLocator(np.arange(0, np.ceil(sim_time))))
-            ##_ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-            ##_ax.minorticks_on()
-            #_ax.set_xlim(0., sim_time)
-            #_ax.legend()
-        #fig.savefig("/tmp/stdp_triplet_test" + fname_snip + ".png", dpi=300)
-
-    #return t_hist, w_hist
-
 
 
 def compare_results(timevec, weight_reference, times_weights, weight_simulation):

@@ -494,7 +494,7 @@ void
   // connections afterwards without leaving spikes in the history.
   // For details see bug #218. MH 08-04-22
 
-  for ( std::deque< histentry__ >::iterator runner = history_.begin();
+  for ( std::deque< histentry__{{neuronName}} >::iterator runner = history_.begin();
         runner != history_.end() and ( t_first_read - runner->t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps() );
         ++runner )
   {
@@ -510,8 +510,8 @@ void
 void
 {{neuronName}}::get_history__( double t1,
   double t2,
-  std::deque< histentry__ >::iterator* start,
-  std::deque< histentry__ >::iterator* finish )
+  std::deque< histentry__{{neuronName}} >::iterator* start,
+  std::deque< histentry__{{neuronName}} >::iterator* finish )
 {
   *finish = history_.end();
   if ( history_.empty() )
@@ -519,7 +519,7 @@ void
     *start = *finish;
     return;
   }
-  std::deque< histentry__ >::reverse_iterator runner = history_.rbegin();
+  std::deque< histentry__{{neuronName}} >::reverse_iterator runner = history_.rbegin();
   const double t2_lim = t2 + nest::kernel().connection_manager.get_stdp_eps();
   const double t1_lim = t1 + nest::kernel().connection_manager.get_stdp_eps();
   while ( runner != history_.rend() and runner->t_ >= t2_lim )
@@ -654,7 +654,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- endfor %}
 
     last_spike_ = t_sp_ms;
-    history_.push_back( histentry__( last_spike_
+    history_.push_back( histentry__{{neuronName}}( last_spike_
 {%- for var in numeric_state_variables_moved|sort %}
     , get_{{var}}()
 {%- endfor %}

@@ -261,7 +261,7 @@ parser grammar PyNestMLParser;
   /** ASTOnReceiveBlock 
      @attribute block implementation of the dynamics
    */
-  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (parameter (COMMA parameter)*)? RIGHT_PAREN COLON
+  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON
                 block
                 END_KEYWORD;
 
@@ -367,4 +367,12 @@ parser grammar PyNestMLParser;
   */
   parameter : NAME dataType;
 
-
+  /** ASTConstParameter represents a single parameter consisting of a name and a literal default value, e.g. "foo=42".
+    @attribute name: The name of the parameter.
+    @attribute value: The corresponding default value.
+  */
+  constParameter : name=NAME EQUALS value=(BOOLEAN_LITERAL
+                                      | UNSIGNED_INTEGER
+                                      | FLOAT
+                                      | STRING_LITERAL
+                                      | INF_KEYWORD);

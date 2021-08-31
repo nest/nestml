@@ -54,6 +54,7 @@ from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUse
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
+from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_neuron import ASTNeuron
 
 
@@ -334,6 +335,13 @@ class CoCosManager:
         CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
 
     @classmethod
+    def check_co_co_priorities_correctly_specified(cls, neuron: ASTNeuron):
+        """
+        :param neuron: a single neuron object.
+        """
+        CoCoPrioritiesCorrectlySpecified.check_co_co(neuron)
+
+    @classmethod
     def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -371,3 +379,5 @@ class CoCosManager:
         cls.check_expression_correct(neuron)
         cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
+        cls.check_co_co_priorities_correctly_specified(neuron)
+

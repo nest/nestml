@@ -107,6 +107,8 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
+    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 79
+    REPEATED_PRIORITY_VALUE = 80
 
 
 class Messages:
@@ -1182,10 +1184,20 @@ class Messages:
 
     @classmethod
     def get_state_variables_not_initialized(cls, var_name: str):
-        message = "The variable `\'%s\' is not initialized." % var_name
+        message = "The variable \'%s\' is not initialized." % var_name
         return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
 
     @classmethod
     def get_equations_defined_but_integrate_odes_not_called(cls):
         message = "Equations defined but integrate_odes() not called"
         return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message
+
+    @classmethod
+    def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
+        message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
+        return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message
+
+    @classmethod
+    def get_repeated_priorty_value(cls):
+        message = "Priority values for event handlers need to be unique"
+        return MessageCode.REPEATED_PRIORITY_VALUE, message

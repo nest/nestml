@@ -1,6 +1,6 @@
 """
-SynapseEventSequenceTest.nestml
-################
+synapse_event_priority_test
+###########################
 
 
 Description
@@ -29,9 +29,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-synapse SynapseEventSequenceTest:
+synapse synapse_event_priority_test:
   state:
     tr real = 1.
+  end
+
+  parameters:
+    d ms = 1. ms  @nest::delay
   end
 
   input:
@@ -41,6 +45,7 @@ synapse SynapseEventSequenceTest:
 
   onReceive(pre_spikes, priority=1):
     tr += 1.
+    deliver_spike(1., d)
   end
 
   onReceive(post_spikes, priority=2):

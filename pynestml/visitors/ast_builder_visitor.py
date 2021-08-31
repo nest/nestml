@@ -752,7 +752,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitOnReceiveBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         port_name = ctx.inputPortName.text
-        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, source_position=create_source_pos(ctx))
+        const_parameters = {}
+        for el in ctx.constParameter():
+            const_parameters[el.name.text] = el.value.text
+        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, const_parameters=const_parameters, source_position=create_source_pos(ctx))
         update_node_comments(ret, self.__comments.visit(ctx))
         return ret
 
