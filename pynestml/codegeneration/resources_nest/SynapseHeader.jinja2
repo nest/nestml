@@ -459,7 +459,22 @@ public:
   }
 */
 inline void set_weight(double w) {
-assert(0);
+{# special case for weights in NEST: only in case a NESTML state variable was decorated by @nest::weight #}
+{%- for init in synapse.get_state_symbols() %}
+{%-     with variable = init %}
+{%-         if variable.get_namespace_decorator("nest")|length > 0 %}
+    // special case for variable marked with @nest::weight decorator
+{%-             set nest_namespace_name = variable.get_namespace_decorator("nest") %}
+{%-             if nest_namespace_name == "weight" %}
+    {{names.setter(variable)}}(w);
+    return;
+{%-             endif %}
+{%-         endif %}
+{%-     endwith %}
+{%- endfor %}
+
+    // no variable was decorated by @nest::weight, so no "weight" defined from the NEST perspective
+    assert(0);
 }
 {#
 /*
