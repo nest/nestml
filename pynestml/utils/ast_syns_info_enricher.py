@@ -678,28 +678,14 @@ class ASTSynsInfoEnricher(ASTVisitor):
 
     def __init__(self , neuron):
         super(ASTSynsInfoEnricher, self).__init__()
-    #     ASTSynsInfoEnricher.cm_syn_info = cm_syns_info
-    #     ASTSynsInfoEnricher.kernel_name_to_analytic_solver = kernel_name_to_analytic_solver
-    #
-    #     self.enrich
-    #
-    
+
         self.inside_parameter_block = False
         self.inside_state_block = False
         self.inside_internals_block = False
         self.inside_inline_expression = False
-    #     self.inside_equations_block = False
-    #
         self.inside_inline_expression = False
-    #     self.inside_kernel = False
-    #     self.inside_kernel_call = False
         self.inside_declaration = False
         self.inside_simple_expression = False
-    #     self.inside_expression = False
-    #
-    #     self.current_inline_expression = None
-    #     self.current_kernel = None
-    #     self.current_synapse_name = None
         neuron.accept(self)
             
     def visit_inline_expression(self, node):
@@ -710,12 +696,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
     def endvisit_inline_expression(self, node):
         self.inside_inline_expression = False
     
-    # def visit_equations_block(self, node):
-    #     self.inside_equations_block = True
-    #
-    # def endvisit_equations_block(self, node):
-    #     self.inside_equations_block = False
-    #
+
     def visit_block_with_variables(self, node):
         if node.is_state:
             self.inside_state_block = True
@@ -749,15 +730,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
     
     def endvisit_declaration(self, node):
         self.inside_declaration = False
-    #
-    # def visit_expression(self, node):
-    #     self.inside_expression = True
-    #
-    # def endvisit_expression(self, node):
-    #     self.inside_expression = False   
-    
-    
-    
+  
     
 class ASTUsedVariableNamesExtractor(ASTVisitor):
     def __init__(self , node):

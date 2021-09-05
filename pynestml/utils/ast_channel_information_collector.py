@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# cm_processing.py
+# ast_channel_information_collector.py
 #
 # This file is part of NEST.
 #
@@ -30,7 +30,7 @@ from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
 
 
-class CmProcessing(object):
+class ASTChannelInformationCollector(object):
     """
     This class is used to enforce constraint conditions on a compartmental model neuron
     

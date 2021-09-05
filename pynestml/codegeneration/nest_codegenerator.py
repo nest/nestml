@@ -56,7 +56,7 @@ from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_syns_info_enricher import ASTSynsInfoEnricher
 from pynestml.utils.ast_utils import ASTUtils
-from pynestml.utils.cm_processing import CmProcessing
+from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
@@ -723,9 +723,9 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
         
         if neuron.is_compartmental_model:
-            namespace['etypeClassName'] = "EType"
+            namespace['etypeClassName'] = "EType" # this may be deprecated
             namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
-            namespace['cm_info'] = CmProcessing.get_cm_info(neuron)
+            namespace['cm_info'] = ASTChannelInformationCollector.get_cm_info(neuron)
             namespace['cm_info'] = CmInfoEnricher.enrich_cm_info(neuron, namespace['cm_info'])
             
             
@@ -733,10 +733,12 @@ class NESTCodeGenerator(CodeGenerator):
             syns_info_enricher = ASTSynsInfoEnricher(neuron)
             namespace['syns_info'] = syns_info_enricher.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
 
-            print("syns_info: ")
-            syns_info_enricher.prettyPrint(namespace['syns_info'])
-            print("cm_info: ")
-            syns_info_enricher.prettyPrint(namespace['cm_info'])            
+            # maybe log this on DEBUG?
+            # print("syns_info: ")
+            # syns_info_enricher.prettyPrint(namespace['syns_info'])
+            # print("cm_info: ")
+            # syns_info_enricher.prettyPrint(namespace['cm_info'])       
+                 
             neuron_specific_filenames = {
                 "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),
                 "main": self.get_cm_syns_main_file_prefix(neuron),
