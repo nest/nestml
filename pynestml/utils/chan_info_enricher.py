@@ -8,11 +8,11 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 import sympy
 
 
-class CmInfoEnricher():
+class ChanInfoEnricher():
     
 
     """
-    Adds derivative of inline expression to cm_info
+    Adds derivative of inline expression to chan_info
     This needs to be done used from within nest_codegenerator
     because the import of ModelParser will otherwise cause 
     a circular dependency when this is used 
@@ -162,11 +162,11 @@ class CmInfoEnricher():
 """
 
     @classmethod
-    def enrich_cm_info(cls, neuron: ASTNeuron, cm_info: dict):
-        cm_info_copy = copy.copy(cm_info)
-        for ion_channel_name, ion_channel_info in cm_info_copy.items():
-            cm_info[ion_channel_name]["inline_derivative"] = cls.computeExpressionDerivative(cm_info[ion_channel_name]["ASTInlineExpression"])
-        return cm_info
+    def enrich_chan_info(cls, neuron: ASTNeuron, chan_info: dict):
+        chan_info_copy = copy.copy(chan_info)
+        for ion_channel_name, ion_channel_info in chan_info_copy.items():
+            chan_info[ion_channel_name]["inline_derivative"] = cls.computeExpressionDerivative(chan_info[ion_channel_name]["ASTInlineExpression"])
+        return chan_info
     
     @classmethod
     def computeExpressionDerivative(cls, inline_expression: ASTInlineExpression) -> ASTExpression:

@@ -43,7 +43,7 @@ class {{etypeClassName~cm_unique_suffix}}{
 private:
 
 {%- with %}
-{%- for ion_channel_name, channel_info in cm_info.items() %}
+{%- for ion_channel_name, channel_info in chan_info.items() %}
     // {{ion_channel_name}} channel state variables
     {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() %}
         // state variable {{pure_variable_name -}}

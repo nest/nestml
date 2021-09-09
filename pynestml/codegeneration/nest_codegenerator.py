@@ -54,7 +54,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
-from pynestml.utils.ast_syns_info_enricher import ASTSynsInfoEnricher
+from pynestml.utils.syns_info_enricher import SynsInfoEnricher
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.ast_channel_information_collector import ASTChannelInformationCollector
 from pynestml.utils.logger import Logger
@@ -68,7 +68,7 @@ from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumbe
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 import sympy
 
-from pynestml.utils.cm_info_enricher import CmInfoEnricher
+from pynestml.utils.chan_info_enricher import ChanInfoEnricher
 
 
 class NESTCodeGenerator(CodeGenerator):
@@ -455,62 +455,50 @@ class NESTCodeGenerator(CodeGenerator):
         
         if (neuron.is_compartmental_model):
             # separate analytic solutions by kernel
-            # this is is needed for the cm_syns case
+            # this is is needed for the synaptic case
             self.kernel_name_to_analytic_solver[neuron.get_name()] = self.ode_toolbox_anaysis_cm_syns(neuron, kernel_buffers)
 
         self.analytic_solver[neuron.get_name()] = analytic_solver
         self.numeric_solver[neuron.get_name()] = numeric_solver
         
         # get all variables from state block that are not found in equations
-        #
         self.non_equations_state_variables[neuron.get_name()] = \
             self.find_non_equations_state_variables(neuron)
         
         # gather all variables used by kernels and delete their declarations
         # they will be inserted later again, but this time with values redefined
-        # by odetoolbox
+        # by odetoolbox, higher order variables don't get deleted here
         self.remove_initial_values_for_kernels(neuron)
         
         # delete all kernels as they are all converted into buffers 
         # and corresponding update formulas calculated by odetoolbox
-        # Hold them externally though
+        # Remember them in a variable though
         kernels = self.remove_kernel_definitions_from_equations_block(neuron)
         
-        # for each still existing state variable, check if solving evolution 
-        # of that variable by odetoolbox analytically or numerically required
-        # variable (Variable was not directly in the kernel, but was smuggled in
-        # when solver attempted to find a solution according to all givens)
-        # set their differencital order to 0 if not already
-        # set value to the one recommended by odetoolbox
-        # it can be the same value as the originally stated one
-        # but it doesn't have to be
+        # Every ODE variable (a variable of order > 0) is renamed according to ODE-toolbox conventions
+        # their initial values are replaced by expressions suggested by ODE-toolbox. 
+        # Differential order can now be set to 0, becase they can directly represent the value of the derivative now. 
+        # initial value can be the same value as the originally stated one but it doesn't have to be
         self.update_initial_values_for_odes(neuron, [analytic_solver, numeric_solver], kernels)
         
         # remove differential equations from equations block
         # those are now resolved into zero order variables and their corresponding updates
         self.remove_ode_definitions_from_equations_block(neuron)
         
-        # restore kernel variables initial values in form of initial values for 
-        # their representing variables aliasing buffer convolutions 
-        # make sure every buffer created from kernel variables
-        # has an initialized state variable again
+        # restore state variables that were referenced by kernels
+        # and set their initial values by those suggested by ODE-toolbox
         self.create_initial_values_for_kernels(neuron, [analytic_solver, numeric_solver], kernels)
         
-        # rename every remaining variable or ASTSimpleExpression 
-        # if variable name was in the solver, by the name as in the solver
-        # this does not necessarily mean that variable name will always change
-        # but order will always be set to 0, as we replace derivative of value with 
-        # the actual value that is governed by that derivative
+        # Inside all remaining expressions, translate all remaining variable names 
+        # according to the naming conventions of ODE-toolbox.
         self.replace_variable_names_in_expressions(neuron, [analytic_solver, numeric_solver])
         
-        # find all inlines defined as ASTSimpleExpression 
+        # find all inline kernels defined as ASTSimpleExpression 
         # that have a single kernel convolution aliasing variable ('__X__')
-        # rename those inlines into that variable but 
-        # if they have higer order, suffix with __d instead of '
+        # translate all remaining variable names according to the naming conventions of ODE-toolbox
         self.replace_convolution_aliasing_inlines(neuron)
         
         # add variable __h to internals block
-        #
         self.add_timestep_symbol(neuron)
 
         # add propagator variables calculated by odetoolbox into internal blocks
@@ -518,8 +506,8 @@ class NESTCodeGenerator(CodeGenerator):
             neuron = add_declarations_to_internals(neuron, self.analytic_solver[neuron.get_name()]["propagators"])
 
         # generate how to calculate the next spike update
-        # 
         self.update_symbol_table(neuron, kernel_buffers)
+        # find any spike update expressions defined by the user
         spike_updates = self.get_spike_update_expressions(
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
@@ -725,19 +713,19 @@ class NESTCodeGenerator(CodeGenerator):
         if neuron.is_compartmental_model:
             namespace['etypeClassName'] = "EType" # this may be deprecated
             namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
-            namespace['cm_info'] = ASTChannelInformationCollector.get_cm_info(neuron)
-            namespace['cm_info'] = CmInfoEnricher.enrich_cm_info(neuron, namespace['cm_info'])
+            namespace['chan_info'] = ASTChannelInformationCollector.get_chan_info(neuron)
+            namespace['chan_info'] = ChanInfoEnricher.enrich_chan_info(neuron, namespace['chan_info'])
             
             
             namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
-            syns_info_enricher = ASTSynsInfoEnricher(neuron)
+            syns_info_enricher = SynsInfoEnricher(neuron)
             namespace['syns_info'] = syns_info_enricher.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
 
             # maybe log this on DEBUG?
             # print("syns_info: ")
             # syns_info_enricher.prettyPrint(namespace['syns_info'])
-            # print("cm_info: ")
-            # syns_info_enricher.prettyPrint(namespace['cm_info'])       
+            # print("chan_info: ")
+            # syns_info_enricher.prettyPrint(namespace['chan_info'])       
                  
             neuron_specific_filenames = {
                 "compartmentcurrents": self.get_cm_syns_compartmentcurrents_file_prefix(neuron),

@@ -35,7 +35,7 @@ class ASTChannelInformationCollector(object):
     This class is used to enforce constraint conditions on a compartmental model neuron
     
     While checking compartmental model constraints it also builds a nested
-    data structure (cm_info) that can be used for code generation later 
+    data structure (chan_info) that can be used for code generation later 
     
     Constraints:
     
@@ -101,7 +101,7 @@ class ASTChannelInformationCollector(object):
     cm_trigger_variable_name = "v_comp"
     
     first_time_run = defaultdict(lambda: True)
-    cm_info = defaultdict()
+    chan_info = defaultdict()
 
     def __init__(self, params):
         '''
@@ -162,15 +162,15 @@ class ASTChannelInformationCollector(object):
                 relevant_inline_expressions_to_variables[expression] = variables
         
         #create info structure
-        cm_info = defaultdict()        
+        chan_info = defaultdict()        
         for inline_expression, inner_variables in relevant_inline_expressions_to_variables.items():
             info = defaultdict()
             channel_name = cls.cm_expression_to_channel_name(inline_expression)
             info["ASTInlineExpression"] = inline_expression
             info["gating_variables"] = inner_variables
-            cm_info[channel_name] = info
+            chan_info[channel_name] = info
         neuron.is_compartmental_model = is_compartmental_model
-        return cm_info
+        return chan_info
     
     # extract channel name from inline expression name
     # i.e  Na_ -> channel name is Na
@@ -285,10 +285,10 @@ class ASTChannelInformationCollector(object):
     """
 
     @classmethod
-    def calcExpectedFunctionNamesForChannels(cls, cm_info):
+    def calcExpectedFunctionNamesForChannels(cls, chan_info):
         variables_procesed = defaultdict()
         
-        for ion_channel_name, channel_info in cm_info.items():
+        for ion_channel_name, channel_info in chan_info.items():
             cm_expression = channel_info["ASTInlineExpression"]
             variables = channel_info["gating_variables"]
             variable_names_seen = set()
@@ -325,9 +325,9 @@ class ASTChannelInformationCollector(object):
             variables_procesed[ion_channel_name] = copy.copy(variables_info)
             
         for ion_channel_name, variables_info in variables_procesed.items():
-            cm_info[ion_channel_name]["gating_variables"] = variables_info
+            chan_info[ion_channel_name]["gating_variables"] = variables_info
         
-        return cm_info
+        return chan_info
 
     """
     generate Errors on invalid variable names
@@ -409,11 +409,11 @@ class ASTChannelInformationCollector(object):
     
     """
     @classmethod
-    def addChannelVariablesSectionAndEnforceProperVariableNames(cls, node, cm_info):
-        ret = copy.copy(cm_info)
+    def addChannelVariablesSectionAndEnforceProperVariableNames(cls, node, chan_info):
+        ret = copy.copy(chan_info)
 
         channel_parameters = defaultdict()
-        for ion_channel_name, channel_info in cm_info.items():
+        for ion_channel_name, channel_info in chan_info.items():
             channel_parameters[ion_channel_name] = defaultdict()
             channel_parameters[ion_channel_name][cls.gbar_string] = defaultdict()
             channel_parameters[ion_channel_name][cls.gbar_string]["expected_name"] = cls.getExpectedGbarName(ion_channel_name)
@@ -426,7 +426,7 @@ class ASTChannelInformationCollector(object):
                 Logger.log_message(code=code, message=message, error_position=cm_inline_expr.get_source_position(), log_level=LoggingLevel.ERROR, node=cm_inline_expr)
                 continue
                 
-        for ion_channel_name, channel_info in cm_info.items():
+        for ion_channel_name, channel_info in chan_info.items():
             ret[ion_channel_name]["channel_parameters"] = channel_parameters[ion_channel_name]
                 
         return ret 
@@ -504,8 +504,8 @@ class ASTChannelInformationCollector(object):
     }
     """  
     @classmethod
-    def checkAndFindFunctions(cls, neuron, cm_info):
-        ret = copy.copy(cm_info)
+    def checkAndFindFunctions(cls, neuron, chan_info):
+        ret = copy.copy(chan_info)
         # get functions and collect their names    
         declared_functions = neuron.get_functions()
         
@@ -515,7 +515,7 @@ class ASTChannelInformationCollector(object):
         
         
         # check for missing functions
-        for ion_channel_name, channel_info in cm_info.items():
+        for ion_channel_name, channel_info in chan_info.items():
             for pure_variable_name, variable_info in channel_info["gating_variables"].items():
                 if "expected_functions" in  variable_info.keys():
                     for function_type, expected_function_name in variable_info["expected_functions"].items():
@@ -549,9 +549,9 @@ class ASTChannelInformationCollector(object):
 
     
     @classmethod
-    def get_cm_info(cls, neuron: ASTNeuron):
+    def get_chan_info(cls, neuron: ASTNeuron):
         """
-        returns previously generated cm_info
+        returns previously generated chan_info
         as a deep copy so it can't be changed externally
         via object references
         :param neuron: a single neuron instance.
@@ -563,7 +563,7 @@ class ASTChannelInformationCollector(object):
         if cls.first_time_run[neuron]:
             cls.check_co_co(neuron)
   
-        return copy.deepcopy(cls.cm_info[neuron])
+        return copy.deepcopy(cls.chan_info[neuron])
     
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
@@ -579,25 +579,25 @@ class ASTChannelInformationCollector(object):
         # where kernels have been removed
         # and inlines therefore can't be recognized by kernel calls any more
         if cls.first_time_run[neuron]:
-            cm_info = cls.detectCMInlineExpressions(neuron)
+            chan_info = cls.detectCMInlineExpressions(neuron)
             
             # further computation not necessary if there were no cm neurons
-            if not cm_info: 
-                cls.cm_info[neuron] = dict()
+            if not chan_info: 
+                cls.chan_info[neuron] = dict()
                 # mark as done so we don't enter here again
                 cls.first_time_run[neuron] = False
                 return True   
                  
-            cm_info = cls.calcExpectedFunctionNamesForChannels(cm_info)
-            cm_info = cls.checkAndFindFunctions(neuron, cm_info)
-            cm_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, cm_info)
+            chan_info = cls.calcExpectedFunctionNamesForChannels(chan_info)
+            chan_info = cls.checkAndFindFunctions(neuron, chan_info)
+            chan_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, chan_info)
             
             # now check for existence of expected state variables 
-            # and add their ASTVariable objects to cm_info
-            missing_states_visitor = StateMissingVisitor(cm_info)
+            # and add their ASTVariable objects to chan_info
+            missing_states_visitor = StateMissingVisitor(chan_info)
             neuron.accept(missing_states_visitor)
             
-            cls.cm_info[neuron] = cm_info
+            cls.chan_info[neuron] = chan_info
             cls.first_time_run[neuron] = False
         
         
@@ -609,7 +609,7 @@ class ASTChannelInformationCollector(object):
     which contains the desired state value 
     
     
-    cm_info input
+    chan_info input
     {
         "Na":
         {
@@ -648,7 +648,7 @@ class ASTChannelInformationCollector(object):
         }
     }
     
-    cm_info output
+    chan_info output
     {
         "Na":
         {
@@ -720,22 +720,22 @@ class ASTChannelInformationCollector(object):
 """
 class StateMissingVisitor(ASTVisitor):
 
-    def __init__(self, cm_info):
+    def __init__(self, chan_info):
         super(StateMissingVisitor, self).__init__()
-        self.cm_info = cm_info
+        self.chan_info = chan_info
         
         # store ASTElement that causes the expecation of existence of state value
         # needed to generate sufficiently informative error message
         self.expected_to_object = defaultdict() 
         
         self.values_expected_from_channel = set()
-        for ion_channel_name, channel_info in self.cm_info.items():
+        for ion_channel_name, channel_info in self.chan_info.items():
             for channel_variable_type, channel_variable_info in channel_info["channel_parameters"].items():
                 self.values_expected_from_channel.add(channel_variable_info["expected_name"])
                 self.expected_to_object[channel_variable_info["expected_name"]] = channel_info["ASTInlineExpression"]
                 
         self.values_expected_from_variables = set() 
-        for ion_channel_name, channel_info in self.cm_info.items():
+        for ion_channel_name, channel_info in self.chan_info.items():
             for pure_variable_type, variable_info in channel_info["gating_variables"].items():
                 self.values_expected_from_variables.add(variable_info["ASTVariable"].name)
                 self.expected_to_object[variable_info["ASTVariable"].name] = variable_info["ASTVariable"]
@@ -766,23 +766,23 @@ class StateMissingVisitor(ASTVisitor):
                 
                 # make a copy because we can't write into the structure directly
                 # while iterating over it
-                cm_info_updated = copy.copy(self.cm_info)
+                chan_info_updated = copy.copy(self.chan_info)
                 
-                # now that we found the satate defintion, extract information into cm_info
+                # now that we found the satate defintion, extract information into chan_info
                 
                 # state variables
                 if varname in self.values_expected_from_variables:
-                    for ion_channel_name, channel_info in self.cm_info.items():
+                    for ion_channel_name, channel_info in self.chan_info.items():
                         for pure_variable_name, variable_info in channel_info["gating_variables"].items():
                             if variable_info["ASTVariable"].name == varname:
-                                cm_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["state_variable"] = node
+                                chan_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["state_variable"] = node
                                 rhs_expression = self.current_declaration.get_expression()
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(varname)
                                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-                                cm_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["rhs_expression"] = rhs_expression
-                self.cm_info = cm_info_updated 
+                                chan_info_updated[ion_channel_name]["gating_variables"][pure_variable_name]["rhs_expression"] = rhs_expression
+                self.chan_info = chan_info_updated 
                 
         if self.inside_parameter_block and self.inside_declaration:
             varname = node.name
@@ -793,22 +793,22 @@ class StateMissingVisitor(ASTVisitor):
                 
                 # make a copy because we can't write into the structure directly
                 # while iterating over it
-                cm_info_updated = copy.copy(self.cm_info)
-                # now that we found the defintion, extract information into cm_info
+                chan_info_updated = copy.copy(self.chan_info)
+                # now that we found the defintion, extract information into chan_info
 
                 # channel parameters
                 if varname in self.values_expected_from_channel:
-                    for ion_channel_name, channel_info in self.cm_info.items():
+                    for ion_channel_name, channel_info in self.chan_info.items():
                         for variable_type, variable_info in channel_info["channel_parameters"].items():
                             if variable_info["expected_name"] == varname:
-                                cm_info_updated[ion_channel_name]["channel_parameters"][variable_type]["parameter_block_variable"] = node
+                                chan_info_updated[ion_channel_name]["channel_parameters"][variable_type]["parameter_block_variable"] = node
                                 rhs_expression = self.current_declaration.get_expression()
                                 if rhs_expression is None:
                                     code, message = Messages.get_cm_variable_value_missing(varname)
                                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
-                                cm_info_updated[ion_channel_name]["channel_parameters"][variable_type]["rhs_expression"] = rhs_expression
-                self.cm_info = cm_info_updated             
+                                chan_info_updated[ion_channel_name]["channel_parameters"][variable_type]["rhs_expression"] = rhs_expression
+                self.chan_info = chan_info_updated             
 
     def endvisit_neuron(self, node):
         missing_variable_to_proper_block = {}

@@ -19,7 +19,7 @@ from pynestml.visitors.ast_visitor import ASTVisitor
 import sympy
 
 
-class ASTSynsInfoEnricher(ASTVisitor):
+class SynsInfoEnricher(ASTVisitor):
     
     variables_to_internal_declarations = {}
     internal_variable_name_to_variable = {}
@@ -377,7 +377,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
             
             inline_expression_name = enriched_syns_info[synapse_name]["inline_expression"].variable_name    
             enriched_syns_info[synapse_name]["inline_expression"] = \
-                ASTSynsInfoEnricher.inline_name_to_transformed_inline[inline_expression_name]
+                SynsInfoEnricher.inline_name_to_transformed_inline[inline_expression_name]
             enriched_syns_info[synapse_name]["inline_expression_d"] = \
                 cls.computeExpressionDerivative(enriched_syns_info[synapse_name]["inline_expression"])
             
@@ -550,9 +550,9 @@ class ASTSynsInfoEnricher(ASTVisitor):
     def restoreOrderInternals (cls, neuron: ASTNeuron, cm_syns_info: dict):
         
         # assign each variable a rank
-        # that corresponds to the order in ASTSynsInfoEnricher.declarations_ordered
+        # that corresponds to the order in SynsInfoEnricher.declarations_ordered
         variable_name_to_order = {}
-        for index, declaration in enumerate(ASTSynsInfoEnricher.declarations_ordered):
+        for index, declaration in enumerate(SynsInfoEnricher.declarations_ordered):
             variable_name = declaration.get_variables()[0].get_name()
             variable_name_to_order[variable_name] = index
             
@@ -677,7 +677,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
         return result
 
     def __init__(self , neuron):
-        super(ASTSynsInfoEnricher, self).__init__()
+        super(SynsInfoEnricher, self).__init__()
 
         self.inside_parameter_block = False
         self.inside_state_block = False
@@ -691,7 +691,7 @@ class ASTSynsInfoEnricher(ASTVisitor):
     def visit_inline_expression(self, node):
         self.inside_inline_expression = True
         inline_name = node.variable_name
-        ASTSynsInfoEnricher.inline_name_to_transformed_inline[inline_name]=node
+        SynsInfoEnricher.inline_name_to_transformed_inline[inline_name]=node
         
     def endvisit_inline_expression(self, node):
         self.inside_inline_expression = False
@@ -725,8 +725,8 @@ class ASTSynsInfoEnricher(ASTVisitor):
         if self.inside_internals_block:
             variable = node.get_variables()[0]
             expression = node.get_expression()
-            ASTSynsInfoEnricher.variables_to_internal_declarations[variable] = expression
-            ASTSynsInfoEnricher.internal_variable_name_to_variable[variable.get_name()] = variable
+            SynsInfoEnricher.variables_to_internal_declarations[variable] = expression
+            SynsInfoEnricher.internal_variable_name_to_variable[variable.get_name()] = variable
     
     def endvisit_declaration(self, node):
         self.inside_declaration = False

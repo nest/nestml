@@ -16,7 +16,7 @@ namespace nest
 {
 
 {%- with %}
-{%- for ion_channel_name, channel_info in cm_info.items() %}
+{%- for ion_channel_name, channel_info in chan_info.items() %}
 
 class {{ion_channel_name}}{
 private:
@@ -145,7 +145,7 @@ class CompartmentCurrents{{cm_unique_suffix}} {
 private:
   // ion channels
 {% with %}
-  {%- for ion_channel_name, channel_info in cm_info.items() %}
+  {%- for ion_channel_name, channel_info in chan_info.items() %}
   {{ion_channel_name}} {{ion_channel_name}}{{channel_suffix}};
   {% endfor -%}
 {% endwith %}
@@ -162,7 +162,7 @@ public:
   CompartmentCurrents{{cm_unique_suffix}}(const DictionaryDatum& channel_params)
   {
   {%- with %}
-    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}} = {{ion_channel_name}}( channel_params );
     {% endfor -%}
   {% endwith -%}
@@ -172,7 +172,7 @@ public:
   void init(){
     // initialization of the ion channels
   {%- with %}
-    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.init();
     {% endfor -%}
   {% endwith -%}
@@ -216,7 +216,7 @@ public:
 
     // append ion channel state variables to recordables
     {%- with %}
-    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
     {{ion_channel_name}}{{channel_suffix}}.append_recordables( &recordables, compartment_idx );
     {% endfor -%}
     {% endwith -%}
@@ -239,7 +239,7 @@ public:
     double i_val = 0.;
 
   {%- with %}
-    {%- for ion_channel_name, channel_info in cm_info.items() %}
+    {%- for ion_channel_name, channel_info in chan_info.items() %}
     // contribution of {{ion_channel_name}} channel
     gi = {{ion_channel_name}}{{channel_suffix}}.f_numstep( v_comp, dt );
 

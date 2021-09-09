@@ -32,7 +32,7 @@
 {% macro render_static_channel_variable_name(variable_type, ion_channel_name) -%}
 
 {%- with %}
-{%- for ion_channel_nm, channel_info in cm_info.items() -%}
+{%- for ion_channel_nm, channel_info in chan_info.items() -%}
     {%- if ion_channel_nm == ion_channel_name -%}
         {%- for variable_tp, variable_info in channel_info["channel_parameters"].items() -%}
             {%- if variable_tp == variable_type -%}
@@ -61,7 +61,7 @@
 
 
 {%- with %}
-{%- for ion_channel_name, channel_info in cm_info.items() %}
+{%- for ion_channel_name, channel_info in chan_info.items() %}
 
 // {{ion_channel_name}} channel //////////////////////////////////////////////////////////////////
 nest::{{ion_channel_name}}::{{ion_channel_name}}()
