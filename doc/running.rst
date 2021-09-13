@@ -122,7 +122,7 @@ A typical script, therefore, could look like the following. For this example, we
 
 Running NESTML with custom templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory ``pynestml/codegeneration/resources_nest/point_neuron``. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
+NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
 
 The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file.
 
@@ -169,7 +169,7 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
 Running in NEST 2.* compatibility mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.1), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py`_):
+To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.1), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
 
 .. code-block:: python
 
@@ -184,4 +184,4 @@ To generate code that is compatible with NEST Simulator major version 2 (in part
                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
    }}
 
-The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2`_.
+The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.
