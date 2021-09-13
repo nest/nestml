@@ -169,7 +169,7 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
 Running in NEST 2.* compatibility mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.1), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py`_):
+To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.1), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
 
 .. code-block:: python
 
@@ -184,4 +184,4 @@ To generate code that is compatible with NEST Simulator major version 2 (in part
                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
    }}
 
-The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2`_.
+The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.
