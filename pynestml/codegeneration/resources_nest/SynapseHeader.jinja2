@@ -550,6 +550,7 @@ inline void set_weight(double w) {
     // use accessor functions (inherited from Connection< >) to obtain delay and target
 {%- if paired_neuron is not none and paired_neuron|length > 0 %}
     {{paired_neuron}}* __target = static_cast<{{paired_neuron}}*>(get_target(tid));
+    assert(__target != NULL);
 {%- else %}
     Node* __target = get_target( tid );
 {%- endif %}
@@ -772,26 +773,22 @@ void
 {%- endfor %}
 
   // initial values for state variables in ODE or kernel
+{%- filter indent(2,True) %}
 {%- for init in synapse.get_state_symbols() %}
 {%-     with variable = init %}
 {%-     if not is_delta_kernel(synapse.get_kernel_by_name(init.name)) %}
-{%-         filter indent(2,True) %}
+{%-             include "directives/WriteInDictionary.jinja2" %}
 {%-             if variable.get_namespace_decorator("nest")|length > 0 %}
-                // special treatment for variable marked with @nest::name decorator
+// special treatment for variable marked with @nest::name decorator
 {%-                 set nest_namespace_name = variable.get_namespace_decorator("nest") %}
-
-{%- if not variable.is_internals() %}
+{%-                 if not variable.is_internals() %}
 def<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", {{names.getter(variable)}}());
-{%- endif %}
-
-
-{%-             else %}
-{%-                 include "directives/WriteInDictionary.jinja2" %}
+{%-                 endif %}
 {%-             endif %}
-{%-         endfilter %}
 {%-     endif %}
 {%-     endwith %}
 {%- endfor %}
+{%- endfilter %}
 }
 
 template < typename targetidentifierT >
@@ -814,34 +811,31 @@ void
 {%- endfor %}
 
   // initial values for state variables in ODE or kernel
+{%- filter indent(2,True) %}
 {%- for init in synapse.get_state_symbols() %}
 {%-     with variable = init %}
 {%-         if not is_delta_kernel(synapse.get_kernel_by_name(init.name)) %}
-{%-             filter indent(2,True) %}
-{%-             if variable.get_namespace_decorator("nest")|length > 0 %}
-                // special treatment for variable marked with @nest::name decorator
-{%-                 set nest_namespace_name = variable.get_namespace_decorator("nest") %}
+{%-             include "directives/ReadFromDictionaryToTmp.jinja2" %}
 
-{# -------- XXX: TODO: this is almost the content of directives/ReadFromDictionaryToTmp.jinja2 verbatim, refactor this ----------  #}
+{%-             if variable.get_namespace_decorator("nest")|length > 0 %}
+// special treatment for variables marked with @nest::name decorator
+{%-                 set nest_namespace_name = variable.get_namespace_decorator("nest") %}
+{#- -------- XXX: TODO: this is almost the content of directives/ReadFromDictionaryToTmp.jinja2 verbatim, refactor this ----------  #}
 {%- if not variable.is_inline_expression and not variable.is_state() %}
-{{declarations.print_variable_type(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
+tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", tmp_{{names.name(variable)}});
 {%- elif not variable.is_inline_expression and variable.is_state() %}
-{{declarations.print_variable_type(variable)}} tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}} = {{names.getter(variable)}}();
+tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}} = {{names.getter(variable)}}();
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", tmp_{{names.convert_to_cpp_name(variable.get_symbol_name())}});
 {%- else %}
   // ignores '{{names.name(variable)}}' {{declarations.print_variable_type(variable)}}' since it is an function and setter isn't defined
 {%- endif %}
-{# -------------------------------------------------------------------------------------------------------------------------------- #}
-
-{%-             else %}
-{%-                 include "directives/ReadFromDictionaryToTmp.jinja2" %}
+{#- -------------------------------------------------------------------------------------------------------------------------------- #}
 {%-             endif %}
-
-{%-             endfilter %}
 {%-         endif %}
 {%-     endwith %}
 {%- endfor %}
+{%- endfilter %}
 
 
   // We now know that (ptmp, stmp) are consistent. We do not
