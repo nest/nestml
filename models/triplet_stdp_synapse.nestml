@@ -1,6 +1,6 @@
 """
 """
-synapse stdp_triplet:
+synapse stdp_triplet_nn:
 
   state:
     w nS = 1 nS
@@ -37,7 +37,7 @@ synapse stdp_triplet:
 
   input:
     pre_spikes nS <- spike
-    post_spikes nS <- post spike
+    post_spikes nS <- spike
   end
 
   output: spike
