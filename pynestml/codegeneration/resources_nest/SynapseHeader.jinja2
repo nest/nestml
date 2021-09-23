@@ -949,6 +949,7 @@ template < typename targetidentifierT >
 **/
 template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}( const {{synapseName}}< targetidentifierT >& rhs )
+: ConnectionBase( rhs )
 {
 {%- for parameter in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
