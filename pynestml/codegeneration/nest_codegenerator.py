@@ -279,7 +279,11 @@ class NESTCodeGenerator(CodeGenerator):
 
     def replace_convolution_aliasing_inlines(self, neuron):
         """
-        Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
+        Replace all occurrences of kernel names
+        (e.g. ``I_dend`` and ``I_dend'`` 
+        for a definition involving a second-order kernel 
+        `inline kernel I_dend = convolve(kern_name, spike_buf)``) 
+        with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
         """
         def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
@@ -711,15 +715,14 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['norm_rng'] = rng_visitor._norm_rng_is_used
         
         if neuron.is_compartmental_model:
-            namespace['etypeClassName'] = "EType" # this may be deprecated
             namespace['cm_unique_suffix'] = self.getUniqueSuffix(neuron)
             namespace['chan_info'] = ASTChannelInformationCollector.get_chan_info(neuron)
-            namespace['chan_info'] = ChanInfoEnricher.enrich_chan_info(neuron, namespace['chan_info'])
+            namespace['chan_info'] = ChanInfoEnricher.enrich_with_additional_info(neuron, namespace['chan_info'])
             
             
             namespace['syns_info'] = SynsProcessing.get_syns_info(neuron)
             syns_info_enricher = SynsInfoEnricher(neuron)
-            namespace['syns_info'] = syns_info_enricher.enrich_syns_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
+            namespace['syns_info'] = syns_info_enricher.enrich_with_additional_info(neuron, namespace['syns_info'], self.kernel_name_to_analytic_solver)
 
             # maybe log this on DEBUG?
             # print("syns_info: ")
@@ -735,7 +738,7 @@ class NESTCodeGenerator(CodeGenerator):
             
             namespace['neuronSpecificFileNamesCmSyns'] = neuron_specific_filenames
             
-            #currently empty
+            # there is no shared files any more
             namespace['sharedFileNamesCmSyns'] = {
             }
             

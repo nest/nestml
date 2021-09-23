@@ -31,7 +31,7 @@ class SynsInfoEnricher(ASTVisitor):
     declarations_ordered = []
     
     @classmethod
-    def enrich_syns_info(cls, neuron: ASTNeuron, cm_syns_info: dict, kernel_name_to_analytic_solver: dict):
+    def enrich_with_additional_info(cls, neuron: ASTNeuron, cm_syns_info: dict, kernel_name_to_analytic_solver: dict):
         cm_syns_info = cls.add_kernel_analysis(neuron, cm_syns_info, kernel_name_to_analytic_solver)
         cm_syns_info = cls.transform_analytic_solution(neuron, cm_syns_info)
         cm_syns_info = cls.restoreOrderInternals(neuron, cm_syns_info)

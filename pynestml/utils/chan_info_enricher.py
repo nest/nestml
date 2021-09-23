@@ -162,7 +162,7 @@ class ChanInfoEnricher():
 """
 
     @classmethod
-    def enrich_chan_info(cls, neuron: ASTNeuron, chan_info: dict):
+    def enrich_with_additional_info(cls, neuron: ASTNeuron, chan_info: dict):
         chan_info_copy = copy.copy(chan_info)
         for ion_channel_name, ion_channel_info in chan_info_copy.items():
             chan_info[ion_channel_name]["inline_derivative"] = cls.computeExpressionDerivative(chan_info[ion_channel_name]["ASTInlineExpression"])

@@ -125,7 +125,7 @@ class ASTChannelInformationCollector(object):
         return False
 
     """
-    detectCMInlineExpressions
+    detect_cm_inline_expressions
     
     analyzes any inline without kernels and returns 
 
@@ -143,18 +143,19 @@ class ASTChannelInformationCollector(object):
     }
     """        
     @classmethod
-    def detectCMInlineExpressions(cls, neuron):
-        # search for inline expressions inside equations block
-        inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsCollectorVisitor()
-        neuron.accept(inline_expressions_inside_equations_block_collector_visitor)
-        inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
+    def detect_cm_inline_expressions(cls, neuron):
         
         is_compartmental_model = cls.is_compartmental_model(neuron)
         if not is_compartmental_model: 
             neuron.is_compartmental_model = is_compartmental_model
             return defaultdict()
+
+        # search for inline expressions inside equations block
+        inline_expressions_inside_equations_block_collector_visitor = ASTInlineExpressionInsideEquationsCollectorVisitor()
+        neuron.accept(inline_expressions_inside_equations_block_collector_visitor)
+        inline_expressions_dict = inline_expressions_inside_equations_block_collector_visitor.inline_expressions_to_variables
         
-        # filter for any inline that has not kernel
+        # filter for any inline that has no kernel
         relevant_inline_expressions_to_variables = defaultdict(lambda:list())
         for expression, variables in inline_expressions_dict.items():
             inline_expression_name = expression.variable_name
@@ -190,39 +191,39 @@ class ASTChannelInformationCollector(object):
     # generate gbar variable name from ion channel name
     # i.e  Na -> gbar_Na
     @classmethod
-    def getExpectedGbarName(cls, ion_channel_name):
+    def get_expected_gbar_name(cls, ion_channel_name):
         return cls.gbar_string+cls.padding_character+ion_channel_name
     
     # generate equilibrium variable name from ion channel name
     # i.e  Na -> e_Na
     @classmethod
-    def getExpectedEquilibirumVarName(cls, ion_channel_name):
+    def get_expected_equilibrium_var_name(cls, ion_channel_name):
         return cls.equilibrium_string+cls.padding_character+ion_channel_name
     
     # generate tau function name from ion channel name
     # i.e  Na, p -> tau_p_Na
     @classmethod
-    def getExpectedTauResultVariableName(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.getExpectedTauFunctionName(ion_channel_name, pure_variable_name)
+    def get_expected_tau_result_var_name(cls, ion_channel_name, pure_variable_name):
+        return cls.padding_character+cls.get_expected_tau_function_name(ion_channel_name, pure_variable_name)
     
     # generate tau variable name (stores return value) 
     # from ion channel name and pure variable name
     # i.e  Na, p -> _tau_p_Na
     @classmethod
-    def getExpectedTauFunctionName(cls, ion_channel_name, pure_variable_name):
+    def get_expected_tau_function_name(cls, ion_channel_name, pure_variable_name):
         return cls.tau_sring+cls.padding_character+pure_variable_name+cls.padding_character+ion_channel_name
     
     # generate inf function name from ion channel name and pure variable name
     # i.e  Na, p -> p_inf_Na  
     @classmethod
-    def getExpectedInfResultVariableName(cls, ion_channel_name, pure_variable_name):
-        return cls.padding_character+cls.getExpectedInfFunctionName(ion_channel_name, pure_variable_name)
+    def get_expected_inf_result_var_name(cls, ion_channel_name, pure_variable_name):
+        return cls.padding_character+cls.get_expected_inf_function_name(ion_channel_name, pure_variable_name)
 
     # generate inf variable name (stores return value) 
     # from ion channel name and pure variable name
     # i.e  Na, p -> _p_inf_Na    
     @classmethod
-    def getExpectedInfFunctionName (cls, ion_channel_name, pure_variable_name):
+    def get_expected_inf_function_name (cls, ion_channel_name, pure_variable_name):
         return pure_variable_name+cls.padding_character+cls.inf_string+cls.padding_character + ion_channel_name
     
     
@@ -285,7 +286,7 @@ class ASTChannelInformationCollector(object):
     """
 
     @classmethod
-    def calcExpectedFunctionNamesForChannels(cls, chan_info):
+    def calc_expected_function_names_for_channels(cls, chan_info):
         variables_procesed = defaultdict()
         
         for ion_channel_name, channel_info in chan_info.items():
@@ -294,7 +295,7 @@ class ASTChannelInformationCollector(object):
             variable_names_seen = set()
             
             variables_info = defaultdict()
-            channel_parameters_exclude = cls.getExpectedEquilibirumVarName(ion_channel_name), cls.getExpectedGbarName(ion_channel_name)
+            channel_parameters_exclude = cls.get_expected_equilibrium_var_name(ion_channel_name), cls.get_expected_gbar_name(ion_channel_name)
             
             for variable_used in variables:
                 variable_name = variable_used.name.strip(cls.padding_character)
@@ -314,8 +315,8 @@ class ASTChannelInformationCollector(object):
                     variable_names_seen.add(variable_name)
                 
                 pure_variable_name = cls.extract_pure_variable_name(variable_name, ion_channel_name)
-                expected_inf_function_name = cls.getExpectedInfFunctionName(ion_channel_name, pure_variable_name)
-                expected_tau_function_name = cls.getExpectedTauFunctionName(ion_channel_name, pure_variable_name)
+                expected_inf_function_name = cls.get_expected_inf_function_name(ion_channel_name, pure_variable_name)
+                expected_tau_function_name = cls.get_expected_tau_function_name(ion_channel_name, pure_variable_name)
                 
                 variables_info[pure_variable_name]=defaultdict(lambda: defaultdict())
                 variables_info[pure_variable_name]["expected_functions"][cls.inf_string] = expected_inf_function_name
@@ -409,16 +410,16 @@ class ASTChannelInformationCollector(object):
     
     """
     @classmethod
-    def addChannelVariablesSectionAndEnforceProperVariableNames(cls, node, chan_info):
+    def add_channel_parameters_section_and_enforce_proper_variable_names(cls, node, chan_info):
         ret = copy.copy(chan_info)
 
         channel_parameters = defaultdict()
         for ion_channel_name, channel_info in chan_info.items():
             channel_parameters[ion_channel_name] = defaultdict()
             channel_parameters[ion_channel_name][cls.gbar_string] = defaultdict()
-            channel_parameters[ion_channel_name][cls.gbar_string]["expected_name"] = cls.getExpectedGbarName(ion_channel_name)
+            channel_parameters[ion_channel_name][cls.gbar_string]["expected_name"] = cls.get_expected_gbar_name(ion_channel_name)
             channel_parameters[ion_channel_name][cls.equilibrium_string] = defaultdict()
-            channel_parameters[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.getExpectedEquilibirumVarName(ion_channel_name)
+            channel_parameters[ion_channel_name][cls.equilibrium_string]["expected_name"] = cls.get_expected_equilibrium_var_name(ion_channel_name)
 
             if len(channel_info["gating_variables"]) < 1:
                 cm_inline_expr = channel_info["ASTInlineExpression"]
@@ -504,7 +505,7 @@ class ASTChannelInformationCollector(object):
     }
     """  
     @classmethod
-    def checkAndFindFunctions(cls, neuron, chan_info):
+    def check_and_find_functions(cls, neuron, chan_info):
         ret = copy.copy(chan_info)
         # get functions and collect their names    
         declared_functions = neuron.get_functions()
@@ -539,9 +540,9 @@ class ASTChannelInformationCollector(object):
                                 Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
                         
                             if function_type == "tau":                                              
-                                ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedTauResultVariableName(ion_channel_name,pure_variable_name)
+                                ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.get_expected_tau_result_var_name(ion_channel_name,pure_variable_name)
                             elif function_type == "inf":
-                                ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.getExpectedInfResultVariableName(ion_channel_name,pure_variable_name)
+                                ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["result_variable_name"] = cls.get_expected_inf_result_var_name(ion_channel_name,pure_variable_name)
                             else:
                                 raise RuntimeError('This should never happen! Unsupported function type '+function_type+' from variable ' + pure_variable_name)    
         
@@ -579,7 +580,7 @@ class ASTChannelInformationCollector(object):
         # where kernels have been removed
         # and inlines therefore can't be recognized by kernel calls any more
         if cls.first_time_run[neuron]:
-            chan_info = cls.detectCMInlineExpressions(neuron)
+            chan_info = cls.detect_cm_inline_expressions(neuron)
             
             # further computation not necessary if there were no cm neurons
             if not chan_info: 
@@ -588,18 +589,19 @@ class ASTChannelInformationCollector(object):
                 cls.first_time_run[neuron] = False
                 return True   
                  
-            chan_info = cls.calcExpectedFunctionNamesForChannels(chan_info)
-            chan_info = cls.checkAndFindFunctions(neuron, chan_info)
-            chan_info = cls.addChannelVariablesSectionAndEnforceProperVariableNames(neuron, chan_info)
+            chan_info = cls.calc_expected_function_names_for_channels(chan_info)
+            chan_info = cls.check_and_find_functions(neuron, chan_info)
+            chan_info = cls.add_channel_parameters_section_and_enforce_proper_variable_names(neuron, chan_info)
             
             # now check for existence of expected state variables 
             # and add their ASTVariable objects to chan_info
-            missing_states_visitor = StateMissingVisitor(chan_info)
+            missing_states_visitor = VariableMissingVisitor(chan_info)
             neuron.accept(missing_states_visitor)
             
             cls.chan_info[neuron] = chan_info
             cls.first_time_run[neuron] = False
         
+        return True
         
         
 #------------------- Helper classes
@@ -718,10 +720,10 @@ class ASTChannelInformationCollector(object):
     }
         
 """
-class StateMissingVisitor(ASTVisitor):
+class VariableMissingVisitor(ASTVisitor):
 
     def __init__(self, chan_info):
-        super(StateMissingVisitor, self).__init__()
+        super(VariableMissingVisitor, self).__init__()
         self.chan_info = chan_info
         
         # store ASTElement that causes the expecation of existence of state value
