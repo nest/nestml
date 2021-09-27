@@ -107,6 +107,7 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
+    TEMPLATE_ROOT_PATH_CREATED = 79
     PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 79
     REPEATED_PRIORITY_VALUE = 80
 
@@ -1193,6 +1194,10 @@ class Messages:
         return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message
 
     @classmethod
+    def get_template_root_path_created(cls, templates_root_dir: str):
+        message = "Given template root path is not an absolute path. " \
+                  "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
+        return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
     def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
         message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
         return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message

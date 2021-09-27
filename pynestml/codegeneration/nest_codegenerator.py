@@ -18,17 +18,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+import glob
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
-import copy
-import json
 import datetime
 import os
 import re
 import sympy
 import sympy.parsing
-from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
+from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
 from odetoolbox import analysis
 
 import pynestml
@@ -45,6 +43,7 @@ from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHel
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLLexer import PyNestMLLexer
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
@@ -55,18 +54,14 @@ from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
-from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import BlockType
 
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
@@ -77,7 +72,6 @@ from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
@@ -93,6 +87,12 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_synapse_pairs**: List of pairs of (neuron, synapse) model names.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
+    - **templates**: Path containing jinja templates used to generate code for NEST simulator.
+        - **path**: Path containing jinja templates used to generate code for NEST simulator.
+        - **model_templates**: A list of the jinja templates or a relative path to a directory containing the neuron and synapse model templates.
+            - **neuron**: A list of neuron model jinja templates.
+            - **synapse**: A list of synapse model jinja templates.
+        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     """
 
     _default_options = {
@@ -100,46 +100,106 @@ class NESTCodeGenerator(CodeGenerator):
         "neuron_parent_class_include": "archiving_node.h",
         "neuron_synapse_pairs": [],
         "preserve_expressions": False,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
+        "templates": {
+            "path": 'point_neuron',
+            "model_templates": {
+                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+                "synapse": ['SynapseHeader.h.jinja2']
+            },
+            "module_templates": ['setup']
+        }
     }
 
     _variable_matching_template = r'(\b)({})(\b)'
+    _model_templates = dict()
+    _module_templates = list()
 
-    def __init__(self, options: Optional[Mapping[str, Any]]=None):
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
+        self._printer = ExpressionsPrettyPrinter()
         self.analytic_solver = {}
         self.numeric_solver = {}
         self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
-        self._setup_template_env()
+        self.setup_template_env()
 
-    def _setup_template_env(self):
-        """setup the Jinja2 template environment"""
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
 
-        def raise_helper(msg):
-            raise TemplateRuntimeError(msg)
+    def setup_template_env(self):
+        """
+        Setup the Jinja2 template environment
+        """
 
-        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
-        env.globals['raise'] = raise_helper
+        # Get templates path
+        templates_root_dir = self.get_option("templates")['path']
+        if not os.path.isabs(templates_root_dir):
+            # Prefix the default templates location
+            templates_root_dir = os.path.join(os.path.dirname(__file__), 'resources_nest', templates_root_dir)
+            code, message = Messages.get_template_root_path_created(templates_root_dir)
+            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+        if not os.path.isdir(templates_root_dir):
+            raise InvalidPathException('Templates path (' + templates_root_dir + ')  is not a directory')
+
+        # Setup neuron template environment
+        neuron_model_templates = self.get_option("templates")['model_templates']['neuron']
+        if not neuron_model_templates:
+            raise Exception('A list of neuron model template files/directories is missing.')
+        self._model_templates["neuron"] = list()
+        self._model_templates["neuron"].extend(self.__setup_template_env(neuron_model_templates, templates_root_dir))
+
+        # Setup synapse template environment
+        synapse_model_templates = self.get_option("templates")['model_templates']['synapse']
+        if synapse_model_templates:
+            self._model_templates["synapse"] = list()
+            self._model_templates["synapse"].extend(self.__setup_template_env(synapse_model_templates, templates_root_dir))
+
+        # Setup modules template environment
+        module_templates = self.get_option("templates")['module_templates']
+        if not module_templates:
+            raise Exception('A list of module template files/directories is missing.')
+        self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
+
+    def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
+        """
+        A helper function to setup the jinja2 template environment
+        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
+        :param templates_root_dir: path of the root directory containing all the jinja2 templates
+        :return: A list of jinja2 template objects
+        """
+        _template_files = self._get_abs_template_paths(template_files, templates_root_dir)
+        _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
+
+        # Environment for neuron templates
+        env = Environment(loader=FileSystemLoader(_template_dirs))
+        env.globals['raise'] = self.raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel
-        setup_env = Environment(loader=FileSystemLoader(os.path.join(
-            os.path.dirname(__file__), 'resources_nest', 'setup')))
-        setup_env.globals['raise'] = raise_helper
-        # setup the cmake template
-        self._template_cmakelists = setup_env.get_template('CMakeLists.jinja2')
-        # setup the module class template
-        self._template_module_class = env.get_template('ModuleClass.jinja2')
-        # setup the NEST module template
-        self._template_module_header = env.get_template('ModuleHeader.jinja2')
-        # setup the SLI_Init file
-        self._template_sli_init = setup_env.get_template('SLI_Init.jinja2')
-        # setup the neuron header template
-        self._template_neuron_h_file = env.get_template('NeuronHeader.jinja2')
-        # setup the neuron implementation template
-        self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
-        # setup the synapse header template
-        self._template_synapse_h_file = env.get_template('SynapseHeader.jinja2')
 
-        self._printer = ExpressionsPrettyPrinter()
+        # Load all the templates
+        _templates = list()
+        for _templ_file in _template_files:
+            _templates.append(env.get_template(os.path.basename(_templ_file)))
+
+        return _templates
+
+    def _get_abs_template_paths(self, template_files: List[str], templates_root_dir: str) -> List[str]:
+        """
+        Resolve the directory paths and get the absolute paths of the jinja templates.
+        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
+        :param templates_root_dir: path of the root directory containing all the jinja2 templates
+        :return: A list of absolute paths of the ``template_files``
+        """
+        _abs_template_paths = list()
+        for _path in template_files:
+            # Convert from relative to absolute path
+            _path = os.path.join(templates_root_dir, _path)
+            if os.path.isdir(_path):
+                for file in glob.glob(os.path.join(_path, "*.jinja2")):
+                    _abs_template_paths.append(os.path.join(_path, file))
+            else:
+                _abs_template_paths.append(_path)
+
+        return _abs_template_paths
 
     def update_blocktype_for_common_parameters(self, node):
 
@@ -845,8 +905,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return neurons, synapses
 
-
-    def generate_code(self, neurons, synapses):
+    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> None:
         if self._options and "neuron_synapse_pairs" in self._options:
             neurons, synapses = self.analyse_transform_neuron_synapse_pairs(neurons, synapses)
         self.analyse_transform_neurons(neurons)
@@ -855,41 +914,42 @@ class NESTCodeGenerator(CodeGenerator):
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
 
-
     def generate_module_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]):
         """
         Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param neurons: a list of neurons
         :type neurons: list(ASTNeuron)
         """
+        namespace = self._get_module_namespace(neurons, synapses)
+        if not os.path.exists(FrontendConfiguration.get_target_path()):
+            os.makedirs(FrontendConfiguration.get_target_path())
+
+        for _module_templ in self._module_templates:
+            file_name_parts = os.path.basename(_module_templ.filename).split('.')
+            file_extension = file_name_parts[-2]
+            if file_extension in ['cpp', 'h']:
+                filename = FrontendConfiguration.get_module_name()
+            else:
+                filename = file_name_parts[0]
+
+            file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
+            with open(file_path + '.' + file_extension, 'w+') as f:
+                f.write(str(_module_templ.render(namespace)))
+
+        code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
+        Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+
+    def _get_module_namespace(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> Dict:
+        """
+        Creates a namespace for generating NEST extension module code
+        :param neurons: List of neurons
+        :return: a context dictionary for rendering templates
+        """
         namespace = {'neurons': neurons,
                      'synapses': synapses,
                      'moduleName': FrontendConfiguration.get_module_name(),
                      'now': datetime.datetime.utcnow()}
-        if not os.path.exists(FrontendConfiguration.get_target_path()):
-            os.makedirs(FrontendConfiguration.get_target_path())
-
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                   FrontendConfiguration.get_module_name())) + '.h', 'w+') as f:
-            f.write(str(self._template_module_header.render(namespace)))
-
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                   FrontendConfiguration.get_module_name())) + '.cpp', 'w+') as f:
-            f.write(str(self._template_module_class.render(namespace)))
-
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                   'CMakeLists')) + '.txt', 'w+') as f:
-            f.write(str(self._template_cmakelists.render(namespace)))
-
-        if not os.path.isdir(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli'))):
-            os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli')))
-
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'sli',
-                                   FrontendConfiguration.get_module_name() + "-init")) + '.sli', 'w+') as f:
-            f.write(str(self._template_sli_init.render(namespace)))
-
-        code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
-        Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+        return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
         """
@@ -1225,62 +1285,35 @@ class NESTCodeGenerator(CodeGenerator):
 
         return spike_updates, post_spike_updates
 
-
-    def generate_neuron_code(self, neuron):
-        # type: (ASTNeuron) -> None
+    def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """
         For a handed over neuron, this method generates the corresponding header and implementation file.
         :param neuron: a single neuron object.
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        self.generate_neuron_h_file(neuron)
-        self.generate_neuron_cpp_file(neuron)
+        for _model_templ in self._model_templates["neuron"]:
+            file_extension = _model_templ.filename.split('.')[-2]
+            _file = _model_templ.render(self._get_neuron_model_namespace(neuron))
+            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
+                                       neuron.get_name())) + '.' + file_extension, 'w+') as f:
+                f.write(str(_file))
 
-    def generate_neuron_cpp_file(self, neuron):
-        # type: (ASTNeuron) -> None
-        """
-        For a handed over neuron, this method generates the corresponding implementation file.
-        :param neuron: a single neuron object.
-        """
-        neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_neuron_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
-            f.write(str(neuron_cpp_file))
-
-    def generate_synapse_code(self, synapse):
-        # type: (ASTsynapse) -> None
+    def generate_synapse_code(self, synapse: ASTSynapse) -> None:
         """
         For a handed over synapse, this method generates the corresponding header and implementation file.
         :param synapse: a single synapse object.
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        self.generate_synapse_h_file(synapse)
-        # self.generate_synapse_cpp_file(synapse)
+        for _model_templ in self._model_templates["synapse"]:
+            file_extension = _model_templ.filename.split('.')[-2]
+            _file = _model_templ.render(self._get_synapse_model_namespace(synapse))
+            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
+                                       synapse.get_name())) + '.' + file_extension, 'w+') as f:
+                f.write(str(_file))
 
-
-    def generate_neuron_h_file(self, neuron):
-        # type: (ASTNeuron) -> None
-        """
-        For a handed over neuron, this method generates the corresponding header file.
-        :param neuron: a single neuron object.
-        """
-        neuron_h_file = self._template_neuron_h_file.render(self.setup_neuron_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
-            f.write(str(neuron_h_file))
-
-
-    def generate_synapse_h_file(self, synapse):
-        # type: (ASTsynapse) -> None
-        """
-        For a handed over synapse, this method generates the corresponding header file.
-        :param synapse: a single synapse object.
-        """
-        synapse_h_file = self._template_synapse_h_file.render(self.setup_synapse_generation_helpers(synapse))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), synapse.get_name())) + '.h', 'w+') as f:
-            f.write(str(synapse_h_file))
-
-    def setup_synapse_generation_helpers(self, synapse: ASTSynapse) -> Dict:
+    def _get_synapse_model_namespace(self, synapse: ASTSynapse) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
@@ -1408,8 +1441,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         return namespace
 
-
-    def setup_neuron_generation_helpers(self, neuron: ASTNeuron) -> Dict:
+    def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
         Returns a standard namespace with often required functionality.
         :param neuron: a single neuron instance

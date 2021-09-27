@@ -1,5 +1,5 @@
 {#
-# CMakeLists.jinja2
+# CMakeLists.txt.jinja2
 #
 # This file is part of NEST.
 #
@@ -37,8 +37,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required( VERSION 2.8.12 )
-
 # This CMakeLists.txt is configured to build your external module for NEST. For
 # illustrative reasons this module is called 'my' (change SHORT_NAME to your
 # preferred module name). NEST requires you to extend the 'SLIModule' (see
@@ -73,9 +71,6 @@ set( MODULE_HEADER ${MODULE_NAME}.h )
 set( MODULE_VERSION_MAJOR 1 )
 set( MODULE_VERSION_MINOR 0 )
 set( MODULE_VERSION "${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}" )
-
-# 5) Leave the rest as is. All files in `sli` will be installed to
-#    `share/nest/sli/`, so that NEST will find the during initialization.
 
 # Leave the call to "project(...)" for after the compiler is determined.
 
@@ -207,7 +202,7 @@ execute_process(
 # on OS X
 set( CMAKE_MACOSX_RPATH ON )
 
-# Install all stuff to NEST's install directories.
+# Install all binaries to NEST's install directories.
 set( CMAKE_INSTALL_LIBDIR ${NEST_LIBDIR}/nest CACHE STRING "object code libraries (lib/nest or lib64/nest or lib/<multiarch-tuple>/nest on Debian)" FORCE )
 set( CMAKE_INSTALL_DOCDIR ${NEST_DOCDIR} CACHE STRING "documentation root (DATAROOTDIR/doc/nest)" FORCE )
 set( CMAKE_INSTALL_DATADIR ${NEST_DATADIR} CACHE STRING "read-only architecture-independent data (DATAROOTDIR/nest)" FORCE )
@@ -281,11 +276,6 @@ set_target_properties( ${MODULE_NAME}_lib
     COMPILE_FLAGS "${NEST_CXXFLAGS}"
     LINK_FLAGS "${NEST_LIBS}"
     OUTPUT_NAME ${MODULE_NAME} )
-
-# Install library, header and sli init files.
-install( TARGETS ${MODULE_NAME}_lib DESTINATION ${CMAKE_INSTALL_LIBDIR} )
-install( FILES ${MODULE_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
-install( DIRECTORY sli DESTINATION ${CMAKE_INSTALL_DATADIR} )
 
 # Install help.
 if ( NOT CMAKE_CROSSCOMPILING )

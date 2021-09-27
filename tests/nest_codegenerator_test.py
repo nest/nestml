@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+import json
 import os
 import unittest
 
@@ -108,6 +109,42 @@ class CodeGeneratorTest(unittest.TestCase):
 
         nestCodeGenerator = NESTCodeGenerator()
         nestCodeGenerator.generate_code(iaf_cond_alpha_functional, [])
+
+    def test_iaf_psc_alpha_with_codegen_opts(self):
+        input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
+            os.pardir, 'models', 'iaf_psc_alpha.nestml'))))
+
+        code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                           os.path.join('resources', 'code_options.json'))))
+        codegen_opts = {"templates": {
+            "path": "point_neuron",
+            "model_templates": {
+                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+                "synapse": []
+            },
+            "module_templates": ['setup/CMakeLists.txt.jinja2',
+                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
+        }}
+
+        with open(code_opts_path, 'w+') as f:
+            json.dump(codegen_opts, f)
+
+        params = list()
+        params.append('--input_path')
+        params.append(input_path)
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append(self.target_path)
+        params.append('--dev')
+        params.append('--codegen_opts')
+        params.append(code_opts_path)
+        FrontendConfiguration.parse_config(params)
+
+        compilation_unit = ModelParser.parse_model(input_path)
+
+        nestCodeGenerator = NESTCodeGenerator(codegen_opts)
+        nestCodeGenerator.generate_code(compilation_unit.get_neuron_list(), list())
 
     def tearDown(self):
         import shutil

@@ -304,6 +304,13 @@ public: // XXX! TODO: should be private
   };
 {%- endif %}
 
+#if NEST2_COMPAT
+  /**
+   * Reset state of neuron.
+  **/
+  void init_state_(const Node& proto);
+#endif
+
   /**
    * Reset internal buffers of neuron.
   **/

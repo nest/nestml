@@ -1,5 +1,5 @@
 {#/*
-*  ModuleClass.jinja2
+*  ModuleClass.cpp.jinja2
 *
 *  This file is part of NEST.
 *
@@ -116,13 +116,6 @@ const std::string
 {{moduleName}}::name(void) const
 {
   return std::string("{{moduleName}}"); // Return name of the module
-}
-
-const std::string
-{{moduleName}}::commandstring( void ) const
-{
-  // Instruct the interpreter to load {{moduleName}}-init.sli
-  return std::string( "({{moduleName}}-init) run" );
 }
 
 //-------------------------------------------------------------------------------------
