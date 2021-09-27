@@ -538,6 +538,14 @@ This file can then be passed to NESTML when generating code on the command line.
 Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
 
 
+.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit-third-factor/doc/fig/code_gen_opts.png
+   :scale: 50 %
+   :align: center
+
+   Code generator options instruct the target platform code generator (in this case, NEST) how to process the models.
+
+
+
 The NEST target
 ---------------
 
