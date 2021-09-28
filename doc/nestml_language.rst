@@ -293,7 +293,7 @@ For example, the following model will result in one warning and one error:
 Documentation string
 ~~~~~~~~~~~~~~~~~~~~
 
-Each neuron model may be documented by a block of text in reStructuredText format. Following [PEP 257 "Docstring Conventions"](https://www.python.org/dev/peps/pep-0257/), this block should be enclosed in triple double quotes (``"""``...``"""``) and appear directly before the definition of the neuron. For example:
+Each neuron model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
 
 .. code-block:: nestml
 
@@ -315,7 +315,7 @@ Each neuron model may be documented by a block of text in reStructuredText forma
      # [...]
    end
 
-This documentation block is rendered as HTML on the [NESTML Models Library](https://nestml.readthedocs.io/en/latest/models_library/index.html).
+This documentation block is rendered as HTML on the `NESTML Models Library <https://nestml.readthedocs.io/en/latest/models_library/index.html>`_.
 
 
 Comments in the model
