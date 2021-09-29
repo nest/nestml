@@ -106,12 +106,12 @@ fns = [ fn for fn in fns if fn.endswith(".rst") and not "sphinx-apidoc" in fn ]
 print(fns)
 """
 for fn in matches:
-	if "sphinx-apidoc" in fn:
-		continue
-	fn_from = fn
-	fn_to = os.path.join(static_docs_dir, "sphinx-apidoc", fn[len(static_docs_dir)+1:])
-	print("From " + fn_from + " to " + fn_to)
-	os.system('install -v -D ' + fn_from + " " + fn_to)
+    if "sphinx-apidoc" in fn:
+        continue
+    fn_from = fn
+    fn_to = os.path.join(static_docs_dir, "sphinx-apidoc", fn[len(static_docs_dir)+1:])
+    print("From " + fn_from + " to " + fn_to)
+    os.system('install -v -D ' + fn_from + " " + fn_to)
 #os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
 
 """os.system('cp -v '
@@ -235,9 +235,9 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 
 def setup(app):
-    app.add_stylesheet('css/custom.css')
-    app.add_stylesheet('css/pygments.css')
-    app.add_javascript("js/custom.js")
+    app.add_css_file('css/custom.css')
+    app.add_css_file('css/pygments.css')
+    app.add_css_file("js/custom.js")
 
 
 # -- Options for LaTeX output ---------------------------------------------
