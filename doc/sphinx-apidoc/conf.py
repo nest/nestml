@@ -219,6 +219,13 @@ html_logo = "nestml-logo/nestml-logo.png"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'css/custom.css',
+    'css/pygments.css'
+]
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
@@ -232,13 +239,6 @@ html_show_copyright = False
 github_doc_root = ''
 
 intersphinx_mapping = {'https://docs.python.org/': None}
-
-
-def setup(app):
-    app.add_css_file('css/custom.css')
-    app.add_css_file('css/pygments.css')
-    app.add_css_file("js/custom.js")
-
 
 # -- Options for LaTeX output ---------------------------------------------
 
