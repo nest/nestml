@@ -244,8 +244,9 @@ class NESTCodeGenerator(CodeGenerator):
                 return True
         return False
 
-    def is_post_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
+    def is_special_port(self, special_type: str, port_name: str, neuron_name: str, synapse_name: str) -> bool:
         """Check if a port by the given name is specified as connecting to the postsynaptic neuron. Only makes sense for synapses."""
+        assert special_type in ["post", "vt"]
         if not "neuron_synapse_pairs" in self._options.keys():
             return False
 
@@ -254,10 +255,10 @@ class NESTCodeGenerator(CodeGenerator):
                     and synapse_name in [neuron_synapse_pair["synapse"], neuron_synapse_pair["synapse"] + FrontendConfiguration.suffix]):
                 continue
 
-            if not "post_ports" in neuron_synapse_pair.keys():
+            if not special_type + "_ports" in neuron_synapse_pair.keys():
                 return False
 
-            post_ports = neuron_synapse_pair["post_ports"]
+            post_ports = neuron_synapse_pair[special_type + "_ports"]
             if not isinstance(post_ports, list):
                 # only one port name given, not a list
                 return port_name == post_ports
@@ -271,10 +272,23 @@ class NESTCodeGenerator(CodeGenerator):
                     return True
         return False
 
+    def is_post_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
+        return self.is_special_port("post", port_name, neuron_name, synapse_name)
+
+    def is_vt_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
+        return self.is_special_port("vt", port_name, neuron_name, synapse_name)
+
     def get_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
         post_port_names = []
         for port in synapse.get_input_blocks().get_input_ports():
             if self.is_post_port(port.name, neuron_name, synapse_name):
+                post_port_names.append(port.get_name())
+        return post_port_names
+
+    def get_vt_port_names(self, synapse, neuron_name: str, synapse_name: str):
+        post_port_names = []
+        for port in synapse.get_input_blocks().get_input_ports():
+            if self.is_vt_port(port.name, neuron_name, synapse_name):
                 post_port_names.append(port.get_name())
         return post_port_names
 

@@ -973,6 +973,53 @@ template < typename targetidentifierT >
     set_delay(rhs.get_delay());
 }
 
+{%- if vt_ports is defined %}
+/* neuromodulation due to volme transmitters */
+template < typename targetidentifierT >
+inline void
+{{synapseName}}< targetidentifierT >::trigger_update_weight( thread t,
+  const std::vector< spikecounter >& vt_spikes,
+  const double t_trig,
+  const CommonPropertiesType& cp )
+{
+  // propagate all state variables in the synapse to time t_trig
+
+  // purely dendritic delay
+  double dendritic_delay = get_delay();
+
+  // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
+  std::deque< histentry >::iterator start;
+  std::deque< histentry >::iterator finish;
+  get_target( t )->get_history( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+
+  // facilitation due to postsyn. spikes since last update
+  double t0 = t_last_update_;
+  double minus_dt;
+  while ( start != finish )
+  {
+{%-     for vt_port in vt_ports %}
+    process_{{vt_port}}_spikes_( {{vt_port}}_spikes, t0, start->t_ + dendritic_delay, cp );
+{%-     endfor %}
+    t0 = start->t_ + dendritic_delay;
+    minus_dt = t_last_update_ - t0;
+    facilitate_( Kplus_ * std::exp( minus_dt / cp.tau_plus_ ), cp );
+    ++start;
+  }
+
+  // propagate synapse state variables
+{%-     for vt_port in vt_ports %}
+  process_{{vt_port}}_spikes_( {{vt_port}}_spikes, t0, t_trig, cp );
+{%-     endfor %}
+  n_ = n_ * std::exp( ( dopa_spikes[ dopa_spikes_idx_ ].spike_time_ - t_trig ) / cp.tau_n_ );
+  Kplus_ = Kplus_ * std::exp( ( t_last_update_ - t_trig ) / cp.tau_plus_ );
+
+  t_last_update_ = t_trig;
+  dopa_spikes_idx_ = 0;
+}
+
+{%- endfor %}
+{%- endif %}
+
 } // namespace
 
 #endif /* #ifndef {{synapseName.upper()}}_H */

@@ -594,7 +594,7 @@ void
         }
         else {
 {%- for var in numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.;
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // XXX: not 0 but initial value!
 {%- endfor %}
         }
 

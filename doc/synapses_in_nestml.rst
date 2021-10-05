@@ -177,18 +177,7 @@ In the synapse, the value will be referred to as ``I_post_dend`` and can be used
 
 In the neuron, no special output port is required; all state variables are accessible for the third factor rules.
 
-NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron:	 
-
-.. code-block:: python
-
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp",
-                                                    "post_ports": ["post_spikes",
-                                                                  ["I_post_dend", "I_dend"]]}]})
-
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`).
 
 In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
@@ -566,6 +555,42 @@ In NEST, all synapses are expected to specify a nonzero dendritic delay, that is
      dend_delay ms = 1 ms     @nest::delay
    end
 
+Generating code
+---------------
+
+When NESTML is invoked to generate code for plastic synapses, the code generator needs to know which neuron model the synapses will be connected to, so that it can generate fast C++ code for the neuron and the synapse that is mutually dependent at runtime. These pairs can be specified as a list of two-element dictionaries of the form :python:`{"neuron": "neuron_model_name", "synapse": "synapse_model_name"}`, for example:
+
+.. code-block:: python
+
+   to_nest(...,
+           codegen_opts={...,
+                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                   "synapse": "third_factor_stdp"}]})
+
+Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
+
+.. code-block:: python
+
+   to_nest(...,
+           codegen_opts={...,
+                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                   "synapse": "third_factor_stdp",
+                                                    "post_ports": ["post_spikes",
+                                                                  ["I_post_dend", "I_dend"]]}]})
+
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+
+Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
+
+.. code-block:: python
+
+   to_nest(...,
+           codegen_opts={...,
+                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                   "synapse": "third_factor_stdp",
+                                                   "vt_ports": ["dopa_spikes"]}]})
+
+
 
 Implementation notes
 ~~~~~~~~~~~~~~~~~~~~
@@ -595,3 +620,5 @@ References
 .. [3] Rubin, Lee and Sompolinsky. Equilibrium Properties of Temporally Asymmetric Hebbian Plasticity. Physical Review Letters, 8 Jan 2001, Vol 86, No 2
 
 .. [4] Pfister JP, Gerstner W (2006). Triplets of spikes in a model of spike timing-dependent plasticity.  The Journal of Neuroscience 26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
+
+.. [5] Potjans W, Morrison A and Diesmann M (2010) Enabling functional neural circuit simulations with distributed computing of neuromodulated plasticity. Front. Comput. Neurosci. 4:141. doi: 10.3389/fncom.2010.00141
