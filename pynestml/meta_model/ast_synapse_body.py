@@ -24,6 +24,7 @@ from typing import List, Optional
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 
+
 class ASTSynapseBody(ASTNode):
     """
     ...

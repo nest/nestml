@@ -119,7 +119,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
         if not self.get_body():
             return []
         return self.get_body().get_on_receive_blocks()
-        
+
     def get_on_receive_block(self, port_name: str) -> Optional[ASTOnReceiveBlock]:
         if not self.get_body():
             return None

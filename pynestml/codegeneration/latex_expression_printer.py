@@ -32,6 +32,7 @@ from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
 
+
 class LatexExpressionPrinter:
     """
     Pretty printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.

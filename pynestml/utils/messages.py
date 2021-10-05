@@ -1198,6 +1198,7 @@ class Messages:
         message = "Given template root path is not an absolute path. " \
                   "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
+
     def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
         message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
         return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message
