@@ -106,12 +106,12 @@ fns = [ fn for fn in fns if fn.endswith(".rst") and not "sphinx-apidoc" in fn ]
 print(fns)
 """
 for fn in matches:
-	if "sphinx-apidoc" in fn:
-		continue
-	fn_from = fn
-	fn_to = os.path.join(static_docs_dir, "sphinx-apidoc", fn[len(static_docs_dir)+1:])
-	print("From " + fn_from + " to " + fn_to)
-	os.system('install -v -D ' + fn_from + " " + fn_to)
+    if "sphinx-apidoc" in fn:
+        continue
+    fn_from = fn
+    fn_to = os.path.join(static_docs_dir, "sphinx-apidoc", fn[len(static_docs_dir)+1:])
+    print("From " + fn_from + " to " + fn_to)
+    os.system('install -v -D ' + fn_from + " " + fn_to)
 #os.system('for i in `find .. -name "*.rst"` ; do if [[ ${i} != *"sphinx-apidoc"* ]] ; then install -v -D ${i} ${i/\.\.\//}; fi ; done')
 
 """os.system('cp -v '
@@ -212,12 +212,19 @@ html_theme = 'sphinx_rtd_theme'
 # documentation.
 
 html_theme_options = {'logo_only': True}
-html_logo = "nestml-logo.png"
+html_logo = "nestml-logo/nestml-logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static', 'nestml-logo']
+html_static_path = ['_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'css/custom.css',
+    'css/pygments.css'
+]
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -232,13 +239,6 @@ html_show_copyright = False
 github_doc_root = ''
 
 intersphinx_mapping = {'https://docs.python.org/': None}
-
-
-def setup(app):
-    app.add_stylesheet('css/custom.css')
-    app.add_stylesheet('css/pygments.css')
-    app.add_javascript("js/custom.js")
-
 
 # -- Options for LaTeX output ---------------------------------------------
 
