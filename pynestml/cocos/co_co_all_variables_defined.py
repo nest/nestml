@@ -18,11 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
@@ -43,12 +44,11 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, node: ASTNode, after_ast_rewrite: bool):
+    def check_co_co(cls, node: ASTNeuron, after_ast_rewrite: bool = False):
         """
-        Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
-        correct.
+        Checks if this coco applies for the handed over neuron. Models which contain undefined variables are not correct.
         :param node: a single neuron instance.
-        :type node: ASTNeuron
+        :param after_ast_rewrite: indicates whether this coco is checked after the code generator has done rewriting of the abstract syntax tree. If True, checks are not as rigorous. Use False where possible.
         """
         # for each variable in all expressions, check if the variable has been defined previously
         from pynestml.utils.ast_utils import ASTUtils
@@ -72,29 +72,35 @@ class CoCoAllVariablesDefined(CoCo):
                 # test if the symbol has been defined at least
                 if symbol is None:
                     if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
-                        symbol = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                        if symbol is not None:
+                        symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                        if symbol2 is not None:
                             # an inline expression defining this variable name (ignoring differential order) exists
-                            if "__X__" in str(symbol):     # if this variable was the result of a convolution...
+                            if "__X__" in str(symbol2):     # if this variable was the result of a convolution...
                                 continue
-
-                    # for kernels, also allow derivatives of that kernel to appear
-                    inline_expr = ASTUtils.get_inline_expression_by_name(node, var.get_name())
-                    if inline_expr is not None and ASTUtils.inline_aliases_convolution(inline_expr):
-                        symbol = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
-                        if symbol is not None:
-                            # actually, no problem detected, skip error
-                            # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                            continue
+                    else:
+                        # for kernels, also allow derivatives of that kernel to appear
+                        if node.get_equations_block() is not None:
+                            inline_expr_names = [inline_expr.variable_name for inline_expr in node.get_equations_block().get_inline_expressions()]
+                            if var.get_name() in inline_expr_names:
+                                inline_expr_idx = inline_expr_names.index(var.get_name())
+                                inline_expr = node.get_equations_block().get_inline_expressions()[inline_expr_idx]
+                                from pynestml.utils.ast_utils import ASTUtils
+                                if ASTUtils.inline_aliases_convolution(inline_expr):
+                                    symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                                    if symbol2 is not None:
+                                        # actually, no problem detected, skip error
+                                        # XXX: TODO: check that differential order is less than or equal to that of the kernel
+                                        continue
 
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
-                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
-                    if symbol is not None:
+                    symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
+                    if symbol2 is not None:
                         continue  # symbol is a type symbol
 
                     code, message = Messages.get_variable_not_defined(var.get_complete_name())
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
                                        log_level=LoggingLevel.ERROR, node=node)
+                    return
 
                 # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
@@ -104,8 +110,8 @@ class CoCoAllVariablesDefined(CoCo):
                     # in this case its ok if it is recursive or defined later on
                     continue
 
-                if symbol is None:
-                    code, message = Messages.get_variable_used_before_declaration(var.get_name())
+                # check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
+                if (not symbol.is_predefined) \
                     Logger.log_message(node=node, message=message, error_position=var.get_source_position(),
                                        code=code, log_level=LoggingLevel.ERROR)
                     continue
@@ -130,7 +136,6 @@ class CoCoAllVariablesDefined(CoCo):
                         Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
                                            get_source_position(), log_level=LoggingLevel.ERROR, node=node)
                         continue
-
 
 class ASTExpressionCollectorVisitor(ASTVisitor):
 

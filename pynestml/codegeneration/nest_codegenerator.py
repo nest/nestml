@@ -24,14 +24,20 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 import datetime
 import os
 import re
+
 import sympy
+import glob
 import sympy.parsing
 from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
 from odetoolbox import analysis
 
 import pynestml
 
-from pynestml.codegeneration.ast_transformers import add_declarations_to_internals, add_declaration_to_state_block, declaration_in_state_block, is_delta_kernel, replace_rhs_variables, construct_kernel_X_spike_buf_name, get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, is_ode_variable, variable_in_solver, recursive_dependent_variables_search, get_input_port_by_name, collect_variable_names_in_expression, get_eq_declarations_from_block
+from pynestml.codegeneration.ast_transformers import add_declarations_to_internals, add_declaration_to_state_block, \
+    declaration_in_state_block, is_delta_kernel, replace_rhs_variables, construct_kernel_X_spike_buf_name, \
+    get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, \
+    get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, \
+    is_ode_variable, variable_in_solver
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
@@ -89,6 +95,7 @@ class NESTCodeGenerator(CodeGenerator):
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
     - **templates**: Path containing jinja templates used to generate code for NEST simulator.
         - **path**: Path containing jinja templates used to generate code for NEST simulator.
+        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
         - **model_templates**: A list of the jinja templates or a relative path to a directory containing the neuron and synapse model templates.
             - **neuron**: A list of neuron model jinja templates.
             - **synapse**: A list of synapse model jinja templates.
@@ -120,7 +127,7 @@ class NESTCodeGenerator(CodeGenerator):
         self._printer = ExpressionsPrettyPrinter()
         self.analytic_solver = {}
         self.numeric_solver = {}
-        self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
+        self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
         self.setup_template_env()
 
     def raise_helper(self, msg):
@@ -1041,11 +1048,13 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
         """
+
         def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(), differential_order=0)
+                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
+                                               differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
 
@@ -1058,11 +1067,11 @@ class NESTCodeGenerator(CodeGenerator):
         for decl in neuron.get_equations_block().get_declarations():
             from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
-               and isinstance(decl.get_expression(), ASTSimpleExpression) \
-               and '__X__' in str(decl.get_expression()):
+                    and isinstance(decl.get_expression(), ASTSimpleExpression) \
+                    and '__X__' in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
-                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
-
+                neuron.accept(
+                    ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
 
     def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """
@@ -1071,6 +1080,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
+
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
@@ -1148,7 +1158,8 @@ class NESTCodeGenerator(CodeGenerator):
             from pynestml.utils.ast_utils import ASTUtils
             # add all declared state variables as none of them are used in equations block
             self.non_equations_state_variables[neuron.get_name()] = []
-            self.non_equations_state_variables[neuron.get_name()].extend(ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
+            self.non_equations_state_variables[neuron.get_name()].extend(
+                ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
             return [], []
 
@@ -1298,12 +1309,9 @@ class NESTCodeGenerator(CodeGenerator):
             with open(str(os.path.join(FrontendConfiguration.get_target_path(),
                                        neuron.get_name())) + '.' + file_extension, 'w+') as f:
                 f.write(str(_file))
-
     def generate_synapse_code(self, synapse: ASTSynapse) -> None:
-        """
         For a handed over synapse, this method generates the corresponding header and implementation file.
         :param synapse: a single synapse object.
-        """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
         for _model_templ in self._model_templates["synapse"]:
@@ -1314,15 +1322,15 @@ class NESTCodeGenerator(CodeGenerator):
                 f.write(str(_file))
 
     def _get_synapse_model_namespace(self, synapse: ASTSynapse) -> Dict:
-        """
+            file_extension = _model_temp.filename.split('.')[-2]
         Returns a standard namespace with often required functionality.
         :param synapse: a single synapse instance
         :return: a map from name to functionality.
         :rtype: dict
-        """
-        from pynestml.utils.ast_utils import ASTUtils
-        gsl_converter = GSLReferenceConverter()
-        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
+            _file = _model_temp.render(self._get_model_namespace(neuron))
+            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
+                                       neuron.get_name())) + '.' + file_extension, 'w+') as f:
+                f.write(str(_file))
         # helper classes and objects
         converter = NESTReferenceConverter(False)
         unitless_pretty_printer = UnitlessExpressionPrinter(converter)
@@ -1443,11 +1451,9 @@ class NESTCodeGenerator(CodeGenerator):
 
     def _get_neuron_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
-        Returns a standard namespace with often required functionality.
+        Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
-        :return: a map from name to functionality.
-        :rtype: dict
+        :return: a context dictionary for rendering templates
         """
         from pynestml.utils.ast_utils import ASTUtils
         gsl_converter = GSLReferenceConverter()
@@ -1587,10 +1593,17 @@ class NESTCodeGenerator(CodeGenerator):
             namespace['printer'] = NestPrinter(unitless_pretty_printer)
         namespace["spike_updates"] = neuron.spike_updates
 
-        namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable and not is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
-        namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable]
+        namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if
+                                                   namespace['declarations'].get_domain_from_type(
+                                                       sym.get_type_symbol()) == "double" and sym.is_recordable and not is_delta_kernel(
+                                                       neuron.get_kernel_by_name(sym.name))]
+        namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if
+                                                      namespace['declarations'].get_domain_from_type(
+                                                          sym.get_type_symbol()) == "double" and sym.is_recordable]
 
-        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
+        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if
+                                               sym.has_declaring_expression() and (
+                                                   not neuron.get_kernel_by_name(sym.name))]
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
@@ -1741,7 +1754,7 @@ class NESTCodeGenerator(CodeGenerator):
             for var_name, expr in solver_dict["initial_values"].items():
                 # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
                 if variable_in_kernels(var_name, kernels):
-                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
                     if not declaration_in_state_block(neuron, var_name):
                         add_declaration_to_state_block(neuron, var_name, expr)
 
@@ -1764,11 +1777,10 @@ class NESTCodeGenerator(CodeGenerator):
                 # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
 
                 if variable_in_kernels(var_name, kernels):
-                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
 
                 if not declaration_in_state_block(neuron, var_name):
                     add_declaration_to_state_block(neuron, var_name, expr)
-
 
     def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
         """
@@ -1806,14 +1818,15 @@ class NESTCodeGenerator(CodeGenerator):
             assert not buffer_type is None
 
             for kernel_var in kernel.get_variables():
-                for var_order in range(get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
+                for var_order in range(
+                        get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
                     kernel_spike_buf_name = construct_kernel_X_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, var_order)
                     expr = get_initial_value_from_ode_toolbox_result(kernel_spike_buf_name, solver_dicts)
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
-                        continue    # skip adding the statement if we're only adding zero
+                        continue  # skip adding the statement if we're only adding zero
 
                     assignment_str = kernel_spike_buf_name + " += "
                     if "_is_post_port" in dir(spike_input_port.get_variable()) \
@@ -1823,7 +1836,7 @@ class NESTCodeGenerator(CodeGenerator):
                         assignment_str += "(" + str(spike_input_port) + ")"
                     if not expr in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + \
-                            self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+                                          self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
 
                     if not buffer_type.print_nestml_type() in ["1.", "1.0", "1", "real", "integer"]:
                         assignment_str += " / (" + buffer_type.print_nestml_type() + ")"

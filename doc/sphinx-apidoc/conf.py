@@ -132,7 +132,7 @@ os.system('cp -v '
 # The master toctree document.
 master_doc = "index"
 
-source_suffix = ['.rst', '.ipynb']
+source_suffix = ['.rst']
 
 
 # -- General configuration ------------------------------------------------

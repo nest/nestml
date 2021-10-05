@@ -122,24 +122,23 @@ A typical script, therefore, could look like the following. For this example, we
 
 Running NESTML with custom templates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory ``pynestml/codegeneration/resources_nest/point_neuron``. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
+NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
 
 The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file.
 
 .. code-block:: bash
+
    nestml --input_path models/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
 
 An example ``codegen_options.json`` file is as follows:
 
 .. code-block:: json
+
    {
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
-            "model_templates": {
-                "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
-                "synapse": ["SynapseHeader.h.jinja2"]
-            },
+            "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
             "module_templates": ["setup/CMakeLists.txt.jinja2",
                                  "setup/ModuleHeader.h.jinja2","setup/ModuleClass.cpp.jinja2"]
         }
@@ -147,25 +146,24 @@ An example ``codegen_options.json`` file is as follows:
 
 The ``templates`` option in the JSON file contains information on the custom jinja templates to be used for code generation.
 * The ``path`` option indicates the root directory of the custom jinja templates.
-* The ``model_templates`` option indicates a list of the jinja templates or a relative path to a directory containing the neuron and synapse model templates.
-The neuron model templates are provided using the ``neuron`` sub-option and synapse templates using the ``synapse`` sub-option.
+* The ``model_templates`` option indicates the names of the jinja templates for neuron model(s) or relative path to a directory containing the neuron model(s) templates.
 * The ``module_templates`` option indicates the names or relative path to a directory containing the jinja templates used to build a NEST extension module.
 
 The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as follows:
 
 .. code-block:: python
+
    from pynestml.frontend.pynestml_frontend import to_nest
+
    options = {
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
-            "model_templates": {
-                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-                "synapse": ['SynapseHeader.h.jinja2']
-            },
+            "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"]
             "module_templates": ["setup"]
         }
    }
+
    to_nest(input_path, target_path, logging_level, module_name, store_log, dev, options)
 
 Running in NEST 2.* compatibility mode
@@ -181,10 +179,12 @@ To generate code that is compatible with NEST Simulator major version 2 (in part
        "templates": {
            "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
                                 'resources_nest', 'point_neuron_nest2'),
-           "model_templates": {
-                    "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-                    "synapse":  ['SynapseHeader.h.jinja2']
-           },
+           "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+           "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
+                                'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
+   }}
+
+The templates are in the directory `pynestml/codegeneration/resources_nest/point_neuron_nest2 <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron_nest2>`__.
            "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
    }}

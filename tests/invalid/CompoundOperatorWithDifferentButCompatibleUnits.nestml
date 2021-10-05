@@ -1,5 +1,10 @@
-{#-
-NeuronHeader.h.jinja2
+"""
+CompoundOperatorWithDifferentButCompatibleUnits.nestml
+######################################################
+
+
+Copyright statement
++++++++++++++++++++
 
 This file is part of NEST.
 
@@ -17,7 +22,17 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#}
-#define NEST2_COMPAT    1
+"""
+neuron CompoundOperatorTest:
+    state:
+        lhs V = 1 V
+    end
 
-{%- include "common/NeuronHeader.jinja2" %}
+    update:
+        lhs *= 1 nA
+        lhs /= 1 m
+        lhs *= (1. mA) * (1 Ohm)
+        lhs += 1 A
+        lhs -= 1 nS
+    end
+end
