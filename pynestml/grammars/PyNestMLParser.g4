@@ -255,7 +255,7 @@ parser grammar PyNestMLParser;
     @attribute onReceive: A block declaring an event handler.
   */
   synapseBody:
-         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock )*
+         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )*
          END_KEYWORD;
 
   /** ASTOnReceiveBlock 
