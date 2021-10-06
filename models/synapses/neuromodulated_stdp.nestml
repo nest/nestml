@@ -1,0 +1,70 @@
+"""
+neuromodulated_stdp - Synapse type for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine.
+"""
+synapse neuromodulated_stdp:
+
+  state:
+    w real = 1.
+    n real = 0.
+    c real = 0.
+  end
+
+  parameters:
+    the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
+    lambda real = .01
+    tau_tr_pre ms = 20 ms
+    tau_tr_post ms = 20 ms
+    tau_c ms = 20 ms
+    tau_n ms = 20 ms
+    b real = 42.
+    alpha real = 1.
+    C1 real = 1.
+    C2 real = 1.
+    Wmax real = 100.
+    Wmin real = 0.
+  end
+
+  internals:
+    tau_s 1/ms = (tau_c + tau_n) / (tau_c * tau_n)
+  end
+
+  input:
+    pre_spikes nS <- spike
+    post_spikes nS <- spike
+    mod_spikes real <- spike
+  end
+
+  output: spike
+
+  onReceive(mod_spikes):
+    n += 1.
+  end
+
+  onReceive(post_spikes):
+    post_tr += 1.
+
+    # facilitation
+    c += A_plus * pre_tr
+  end
+
+  onReceive(pre_spikes):
+    pre_tr += 1.
+
+    # depression
+    c -= A_minus * post_tr
+
+    # deliver spike to postsynaptic partner
+    deliver_spike(w, the_delay)
+  end
+
+  # update from time t to t + timestep
+  update:
+    # timestep is implicitly defined here as a variable
+    # the sequence here matters: the update step for w requires the "old" values of c and n
+    w -= c * ( n / tau_s * expm1( -tau_s * timestep )
+             - b * tau_c * expm1( -timestep / tau_c ))
+    c = c * np.exp(-timestep / tau_c)
+    n = n * np.exp(-timestep / tau_n)
+  end
+
+end

@@ -44,7 +44,7 @@ class NoisySynapseTest(unittest.TestCase):
         """Generate the neuron model code"""
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
-        to_nest(input_path="models/noisy_synapse.nestml",
+        to_nest(input_path="models/synapses/noisy_synapse.nestml",
                 target_path="/tmp/nestml-noisy-synapse",
                 logging_level="INFO",
                 module_name="nestml_noisy_synapse_module",

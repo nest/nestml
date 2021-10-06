@@ -186,8 +186,8 @@ In this example, the ``I_dend`` state variable of the neuron will be simply an e
 For a full example, please see the following files:
 
 * ``tests/nest_tests/third_factor_stdp_synapse_test.py`` (produces the figure)
-* ``models/iaf_psc_exp_dend.nestml`` (neuron model)
-* ``models/third_factor_stdp_synapse.nestml`` (synapse model)
+* ``models/neurons/iaf_psc_exp_dend.nestml`` (neuron model)
+* ``models/synapses/third_factor_stdp_synapse.nestml`` (synapse model)
 
 
 Examples
@@ -362,7 +362,7 @@ Resetting to 1 can then be done by assignment in the pre- and post-event handler
 
 The rest of the model is equivalent to the normal (all-to-all spike pairing) STDP.
 
-The full model can be downloaded here: `stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/stdp_nn_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_symm.nestml>`_.
 
 
 Presynaptic centered
@@ -388,7 +388,7 @@ To implement this rule, the postsynaptic trace is reset to 1 upon a spike, where
 
 The remainder of the model is the same as the all-to-all STDP synapse.
 
-The full model can be downloaded here: `stdp_nn_pre_centered.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/stdp_nn_pre_centered.nestml>`_.
+The full model can be downloaded here: `stdp_nn_pre_centered.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_pre_centered.nestml>`_.
 
 
 Restricted symmetric
@@ -429,7 +429,7 @@ To implement this rule, depression and facilitation are gated through a boolean,
 
 The remainder of the model is the same as the :ref:`Presynaptic centered` variant.
 
-The full model can be downloaded here: `stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/stdp_nn_restr_symm.nestml>`_.
+The full model can be downloaded here: `stdp_nn_restr_symm.nestml <https://github.com/nest/nestml/blob/348047823eede02a0b2687e318fb1c02bea591b8/models/synapses/stdp_nn_restr_symm.nestml>`_.
 
 
 Triplet-rule STDP synapse

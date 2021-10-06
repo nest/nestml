@@ -41,7 +41,7 @@ class NestSynapsePriorityTest(unittest.TestCase):
         """Generate the neuron model code"""
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
-        to_nest(input_path=["models/iaf_psc_delta.nestml",
+        to_nest(input_path=["models/neurons/iaf_psc_delta.nestml",
                             "tests/resources/synapse_event_priority_test.nestml",
                             "tests/resources/synapse_event_inv_priority_test.nestml"],
                 target_path="/tmp/nestml-synapse-event-priority-test",

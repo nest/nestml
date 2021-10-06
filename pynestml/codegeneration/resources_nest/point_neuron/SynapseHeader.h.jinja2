@@ -973,7 +973,7 @@ template < typename targetidentifierT >
     set_delay(rhs.get_delay());
 }
 
-{%- if vt_ports is defined %}
+{%- if vt_ports is defined and vt_ports|length > 0  %}
 /* neuromodulation due to volme transmitters */
 template < typename targetidentifierT >
 inline void
@@ -1016,8 +1016,6 @@ inline void
   t_last_update_ = t_trig;
   dopa_spikes_idx_ = 0;
 }
-
-{%- endfor %}
 {%- endif %}
 
 } // namespace

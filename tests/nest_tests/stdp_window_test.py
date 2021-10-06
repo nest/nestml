@@ -44,7 +44,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        to_nest(input_path=["models/iaf_psc_delta.nestml", "models/stdp_synapse.nestml"],
+        to_nest(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_synapse.nestml"],
                 target_path="/tmp/nestml-jit",
                 logging_level="INFO",
                 module_name="nestml_jit_module",

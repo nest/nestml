@@ -46,7 +46,7 @@ Adapted by: Philipp Weidel
 synapse stdp:
 
   state:
-    w real = 1.
+    w real = 1.    @nest::weight
     #pre_trace real = 0.
     #post_trace real = 0.
   end
@@ -99,6 +99,7 @@ synapse stdp:
 
     # deliver spike to postsynaptic partner
     deliver_spike(w, the_delay)
+#weight += 1.
   end
 
 end

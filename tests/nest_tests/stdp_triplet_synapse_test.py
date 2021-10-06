@@ -39,7 +39,7 @@ def nestml_to_nest_extension_module():
     """Generate the neuron model code"""
     nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
-    to_nest(input_path=["models/iaf_psc_delta.nestml", "models/stdp_triplet_naive.nestml"],
+    to_nest(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"],
             target_path="/tmp/nestml-triplet-stdp",
             logging_level="INFO",
             module_name="nestml_triplet_pair_module",

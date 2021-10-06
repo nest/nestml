@@ -128,7 +128,7 @@ The default directory can be changed through ``--codegen_opts`` by providing a p
 
 .. code-block:: bash
 
-   nestml --input_path models/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
+   nestml --input_path models/neurons/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
 
 An example ``codegen_options.json`` file is as follows:
 
