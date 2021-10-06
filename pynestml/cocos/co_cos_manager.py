@@ -380,4 +380,3 @@ class CoCosManager:
         cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
         cls.check_co_co_priorities_correctly_specified(neuron)
-

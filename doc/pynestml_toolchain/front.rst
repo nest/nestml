@@ -8,7 +8,7 @@ In this section we will demonstrate how the model-processing frontend of PyNESTM
 .. figure:: https://raw.githubusercontent.com/nest/NESTML/master/doc/pynestml_toolchain/pic/front_overview_cropped.jpg
    :alt: Overview of the model-processing Frontend
 
-   Overview of the model-processing Frontend: The lexer and parser process a textual model to the corresponding parse tree and can be completely generated from a grammar artifact. The ASTBuilderVisitor is responsible for the initialization of a model's AST, employing classes which conform to the DSL's grammar. After the AST has been constructed, the CommentCollectorVisitor collects and stores all comments stated in the source model. The ASTSymbolTableVisitor subsequently collects context information of the model by utilizing Symbols and the predefined subsystem. Semantic Checks conclude the rocessing by checking the model for semantical correctness. All steps are orchestrated by the ModelParser.
+   Overview of the model-processing Frontend: The lexer and parser process a textual model to the corresponding parse tree and can be completely generated from a grammar artifact. The ASTBuilderVisitor is responsible for the initialization of a model's AST, employing classes which conform to the DSL's grammar. After the AST has been constructed, the CommentCollectorVisitor collects and stores all comments stated in the source model. The ASTSymbolTableVisitor subsequently collects context information of the model by utilizing Symbols and the predefined subsystem. Semantic Checks conclude the processing by checking the model for semantical correctness. All steps are orchestrated by the ModelParser.
 
 .. _sec-lexer-parser-overview:
 

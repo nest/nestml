@@ -48,7 +48,7 @@ class CoCoPrioritiesCorrectlySpecified(CoCo):
         for on_receive_block in node.get_on_receive_blocks():
             if "priority" in on_receive_block.get_const_parameters():
                 priorities[on_receive_block.get_port_name()] = int(on_receive_block.get_const_parameters()["priority"])
-        
+
         if len(priorities) == 1:
             on_receive_block_name = priorities.keys()[0]
 

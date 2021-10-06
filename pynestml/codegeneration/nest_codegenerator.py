@@ -459,7 +459,6 @@ class NESTCodeGenerator(CodeGenerator):
                 return neurons, synapses
             synapse = synapses[synapse_names.index(synapse_name + FrontendConfiguration.suffix)]
             paired_synapses.append(synapse)
-            #synapses.clear()
             new_synapse = synapse.clone()
 
 
@@ -712,7 +711,7 @@ class NESTCodeGenerator(CodeGenerator):
                 post_port_names = self.get_post_port_names(synapse, neuron.name, synapse.name)
 
                 assert len(post_port_names) <= 1, "Can only handle one \"post\" port"
-                if len(post_port_names)  == 0:
+                if len(post_port_names) == 0:
                     continue
                 post_port_name = post_port_names[0]
                 post_receive_block = new_synapse.get_on_receive_block(post_port_name)
@@ -744,7 +743,6 @@ class NESTCodeGenerator(CodeGenerator):
                 Logger.log_message(None, -1, "\t• Copying variable " + str(state_var), None, LoggingLevel.INFO)
                 equations_from_syn_to_neuron(state_var, new_synapse.get_equations_block(), new_neuron.get_equations_block(), var_name_suffix, mode="move")
 
-
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
             #
@@ -753,6 +751,7 @@ class NESTCodeGenerator(CodeGenerator):
                 """
                 Replace all occurrences of variables (`ASTVariable`s) (e.g. `post_trace'`) with `ASTExternalVariable`s, indicating that they are moved to the postsynaptic partner.
                 """
+
                 def replace_var(_expr=None):
                     if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                         var = _expr.get_variable()
