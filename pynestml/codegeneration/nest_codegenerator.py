@@ -1344,14 +1344,16 @@ class NESTCodeGenerator(CodeGenerator):
         namespace = dict()
 
         if 'paired_neuron' in dir(synapse):
+            # synapse is being co-generated with neuron
             namespace['paired_neuron'] = synapse.paired_neuron.get_name()
             base_neuron_name = namespace['paired_neuron'][:namespace['paired_neuron'].index("__with_") - len(FrontendConfiguration.suffix)]
             base_synapse_name = synapse.name[:synapse.name.index("__with_") - len(FrontendConfiguration.suffix)]
             namespace["post_ports"] = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
+            namespace["vt_ports"] = self.get_vt_port_names(synapse, base_neuron_name, base_synapse_name)
             all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
-            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]))
-
-        if not "pre_ports" in namespace.keys():
+            namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]) - set(namespace["vt_ports"]))
+        else:
+            # separate (not neuron+synapse co-generated)
             all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
             namespace["pre_ports"] = all_input_port_names
 
