@@ -428,6 +428,10 @@ def collect_variable_names_in_expression(expr):
 
 def get_eq_declarations_from_block(var_name, block):
     decls = []
+
+    if block is None:
+        return decls
+
     if not type(var_name) is str:
         var_name = str(var_name)
 

@@ -596,9 +596,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         if ctx.blockWithVariables() is not None:
             for child in ctx.blockWithVariables():
                 body_elements.append(child)
-        """if ctx.updateBlock() is not None:
+        if ctx.updateBlock() is not None:
             for child in ctx.updateBlock():
-                body_elements.append(child)"""
+                body_elements.append(child)
         if ctx.equationsBlock() is not None:
             for child in ctx.equationsBlock():
                 body_elements.append(child)

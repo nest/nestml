@@ -121,23 +121,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(elem)
         return ret
 
-    def get_update_blocks(self):
-        """
-        Returns a list of all update blocks defined in this body.
-        :return: a list of update-block elements.
-        :rtype: list(ASTUpdateBlock)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_update_block import ASTUpdateBlock
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTUpdateBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
-        return ret
-
     def get_state_blocks(self):
         """
         Returns a list of all state blocks defined in this body.
