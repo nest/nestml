@@ -172,12 +172,13 @@ public:
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
 {
+{%- if vt_ports is defined and vt_ports|length > 0  %}
 public:
   void trigger_update_weight( thread t,
     const std::vector< spikecounter >& vt_spikes,
     double t_trig,
     const {{synapseName}}CommonSynapseProperties& cp );
-
+{%- endif %}
 private:
 
 //  double *weight_;
