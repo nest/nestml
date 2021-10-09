@@ -41,7 +41,7 @@ synapse neuromodulated_stdp:
   output: spike
 
   onReceive(mod_spikes):
-    n += 1.
+    n += 1. / tau_n
   end
 
   onReceive(post_spikes):

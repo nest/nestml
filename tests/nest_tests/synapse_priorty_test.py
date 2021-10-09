@@ -178,8 +178,6 @@ class NestSynapsePriorityTest(unittest.TestCase):
         np.testing.assert_allclose(tr, 7.28318)
         np.testing.assert_allclose(tr_inv, 5.14159)
 
-        #import pdb;pdb.set_trace()
-
         # verify
         # MAX_ABS_ERROR = 1E-6
         # assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
