@@ -145,6 +145,20 @@ public:
 {%-     endif %}
 {%- endfor %}
 {%- endfilter %}
+
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+  long vtnode_id;
+  if ( updateValue< long >( d, names::vt, vtnode_id ) )
+  {
+    const thread tid = kernel().vp_manager.get_thread_id();
+    Node* vt = kernel().node_manager.get_node_or_proxy( vtnode_id, tid );
+    vt_ = dynamic_cast< volume_transmitter* >( vt );
+    if ( vt_ == 0 )
+    {
+      throw BadProperty( "Neuromodulatory source must be volume transmitter" );
+    }
+  }
+{%- endif %}
     }
 
     // N.B.: we define all parameters as public for easy reference conversion later on.
