@@ -24,13 +24,19 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 import datetime
 import os
 import re
+
 import sympy
-from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError
+import glob
+from jinja2 import Environment, FileSystemLoader, TemplateRuntimeError, Template
 from odetoolbox import analysis
 
 import pynestml
 
-from pynestml.codegeneration.ast_transformers import add_declarations_to_internals, add_declaration_to_state_block, declaration_in_state_block, is_delta_kernel, replace_rhs_variables, construct_kernel_X_spike_buf_name, get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, is_ode_variable, variable_in_solver
+from pynestml.codegeneration.ast_transformers import add_declarations_to_internals, add_declaration_to_state_block, \
+    declaration_in_state_block, is_delta_kernel, replace_rhs_variables, construct_kernel_X_spike_buf_name, \
+    get_expr_from_kernel_var, to_ode_toolbox_name, to_ode_toolbox_processed_name, \
+    get_kernel_var_order_from_ode_toolbox_result, get_initial_value_from_ode_toolbox_result, variable_in_kernels, \
+    is_ode_variable, variable_in_solver
 from pynestml.codegeneration.codegenerator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
@@ -42,6 +48,7 @@ from pynestml.codegeneration.nest_declarations_helper import NestDeclarationsHel
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.nest_printer import NestPrinter
 from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -75,51 +82,108 @@ class NESTCodeGenerator(CodeGenerator):
     - **neuron_parent_class_include**: The C++ header filename to include that contains **neuron_parent_class**. Default: ``"archiving_node.h"``.
     - **preserve_expressions**: Set to True, or a list of strings corresponding to individual variable names, to disable internal rewriting of expressions, and return same output as input expression where possible. Only applies to variables specified as first-order differential equations. (This parameter is passed to ODE-toolbox.)
     - **simplify_expression**: For all expressions ``expr`` that are rewritten by ODE-toolbox: the contents of this parameter string are ``eval()``ed in Python to obtain the final output expression. Override for custom expression simplification steps. Example: ``sympy.simplify(expr)``. Default: ``"sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"``. (This parameter is passed to ODE-toolbox.)
+    - **templates**: Path containing jinja templates used to generate code for NEST simulator.
+        - **path**: Path containing jinja templates used to generate code for NEST simulator.
+        - **model_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to the neuron model(s).
+        - **module_templates**: A list of the jinja templates or a relative path to a directory containing the templates related to generating the NEST module.
     """
 
     _default_options = {
         "neuron_parent_class": "ArchivingNode",
         "neuron_parent_class_include": "archiving_node.h",
         "preserve_expressions": False,
-        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))"
+        "simplify_expression": "sympy.logcombine(sympy.powsimp(sympy.expand(expr)))",
+        "templates": {
+            "path": 'point_neuron',
+            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+            "module_templates": ['setup']
+        }
     }
 
     _variable_matching_template = r'(\b)({})(\b)'
+    _model_templates = list()
+    _module_templates = list()
 
-    def __init__(self, options: Optional[Mapping[str, Any]]=None):
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
         super().__init__("NEST", options)
+        self._printer = ExpressionsPrettyPrinter()
         self.analytic_solver = {}
         self.numeric_solver = {}
-        self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
-        self._setup_template_env()
+        self.non_equations_state_variables = {}  # those state variables not defined as an ODE in the equations block
+        self.setup_template_env()
 
-    def _setup_template_env(self):
-        """setup the Jinja2 template environment"""
+    def raise_helper(self, msg):
+        raise TemplateRuntimeError(msg)
 
-        def raise_helper(msg):
-            raise TemplateRuntimeError(msg)
+    def setup_template_env(self):
+        """
+        Setup the Jinja2 template environment
+        """
 
-        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'resources_nest')))
-        env.globals['raise'] = raise_helper
+        # Get templates path
+        templates_root_dir = self.get_option("templates")['path']
+        if not os.path.isabs(templates_root_dir):
+            # Prefix the default templates location
+            templates_root_dir = os.path.join(os.path.dirname(__file__), 'resources_nest', templates_root_dir)
+            code, message = Messages.get_template_root_path_created(templates_root_dir)
+            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+        if not os.path.isdir(templates_root_dir):
+            raise InvalidPathException('Templates path (' + templates_root_dir + ')  is not a directory')
+
+        # Setup models template environment
+        model_templates = self.get_option("templates")['model_templates']
+        if not model_templates:
+            raise Exception('A list of neuron model template files/directories is missing.')
+        self._model_templates.extend(self.__setup_template_env(model_templates, templates_root_dir))
+
+        # Setup modules template environment
+        module_templates = self.get_option("templates")['module_templates']
+        if not module_templates:
+            raise Exception('A list of module template files/directories is missing.')
+        self._module_templates.extend(self.__setup_template_env(module_templates, templates_root_dir))
+
+    def __setup_template_env(self, template_files: List[str], templates_root_dir: str) -> List[Template]:
+        """
+        A helper function to setup the jinja2 template environment
+        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
+        :param templates_root_dir: path of the root directory containing all the jinja2 templates
+        :return: A list of jinja2 template objects
+        """
+        _template_files = self._get_abs_template_paths(template_files, templates_root_dir)
+        _template_dirs = set([os.path.dirname(_file) for _file in _template_files])
+
+        # Environment for neuron templates
+        env = Environment(loader=FileSystemLoader(_template_dirs))
+        env.globals['raise'] = self.raise_helper
         env.globals["is_delta_kernel"] = is_delta_kernel
-        setup_env = Environment(loader=FileSystemLoader(os.path.join(
-            os.path.dirname(__file__), 'resources_nest', 'setup')))
-        setup_env.globals['raise'] = raise_helper
-        # setup the cmake template
-        self._template_cmakelists = setup_env.get_template('CMakeLists.jinja2')
-        # setup the module class template
-        self._template_module_class = env.get_template('ModuleClass.jinja2')
-        # setup the NEST module template
-        self._template_module_header = env.get_template('ModuleHeader.jinja2')
-        # setup the SLI_Init file
-        self._template_sli_init = setup_env.get_template('SLI_Init.jinja2')
-        # setup the neuron header template
-        self._template_neuron_h_file = env.get_template('NeuronHeader.jinja2')
-        # setup the neuron implementation template
-        self._template_neuron_cpp_file = env.get_template('NeuronClass.jinja2')
-        self._printer = ExpressionsPrettyPrinter()
 
-    def generate_code(self, neurons):
+        # Load all the templates
+        _templates = list()
+        for _templ_file in _template_files:
+            _templates.append(env.get_template(os.path.basename(_templ_file)))
+
+        return _templates
+
+    def _get_abs_template_paths(self, template_files: List[str], templates_root_dir: str) -> List[str]:
+        """
+        Resolve the directory paths and get the absolute paths of the jinja templates.
+        :param template_files: A list of template file names or a directory (relative to ``templates_root_dir``) containing the templates
+        :param templates_root_dir: path of the root directory containing all the jinja2 templates
+        :return: A list of absolute paths of the ``template_files``
+        """
+        _abs_template_paths = list()
+        for _path in template_files:
+            # Convert from relative to absolute path
+            _path = os.path.join(templates_root_dir, _path)
+            if os.path.isdir(_path):
+                for file in glob.glob(os.path.join(_path, "*.jinja2")):
+                    _abs_template_paths.append(os.path.join(_path, file))
+            else:
+                _abs_template_paths.append(_path)
+
+        return _abs_template_paths
+
+    def generate_code(self, neurons: List[ASTNeuron]) -> None:
         self.analyse_transform_neurons(neurons)
         self.generate_neurons(neurons)
         self.generate_module_code(neurons)
@@ -130,33 +194,35 @@ class NESTCodeGenerator(CodeGenerator):
         :param neurons: a list of neurons
         :type neurons: list(ASTNeuron)
         """
-        namespace = {'neurons': neurons,
-                     'moduleName': FrontendConfiguration.get_module_name(),
-                     'now': datetime.datetime.utcnow()}
+        namespace = self._get_module_namespace(neurons)
         if not os.path.exists(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
 
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                   FrontendConfiguration.get_module_name())) + '.h', 'w+') as f:
-            f.write(str(self._template_module_header.render(namespace)))
+        for _module_temp in self._module_templates:
+            file_name_parts = os.path.basename(_module_temp.filename).split('.')
+            file_extension = file_name_parts[-2]
+            if file_extension in ['cpp', 'h']:
+                filename = FrontendConfiguration.get_module_name()
+            else:
+                filename = file_name_parts[0]
 
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                   FrontendConfiguration.get_module_name())) + '.cpp', 'w+') as f:
-            f.write(str(self._template_module_class.render(namespace)))
-
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                   'CMakeLists')) + '.txt', 'w+') as f:
-            f.write(str(self._template_cmakelists.render(namespace)))
-
-        if not os.path.isdir(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli'))):
-            os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.get_target_path(), 'sli')))
-
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), 'sli',
-                                   FrontendConfiguration.get_module_name() + "-init")) + '.sli', 'w+') as f:
-            f.write(str(self._template_sli_init.render(namespace)))
+            file_path = str(os.path.join(FrontendConfiguration.get_target_path(), filename))
+            with open(file_path + '.' + file_extension, 'w+') as f:
+                f.write(str(_module_temp.render(namespace)))
 
         code, message = Messages.get_module_generated(FrontendConfiguration.get_target_path())
         Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+
+    def _get_module_namespace(self, neurons: List[ASTNeuron]) -> Dict:
+        """
+        Creates a namespace for generating NEST extension module code
+        :param neurons: List of neurons
+        :return: a context dictionary for rendering templates
+        """
+        namespace = {'neurons': neurons,
+                     'moduleName': FrontendConfiguration.get_module_name(),
+                     'now': datetime.datetime.utcnow()}
+        return namespace
 
     def analyse_transform_neurons(self, neurons: List[ASTNeuron]) -> None:
         """
@@ -233,11 +299,13 @@ class NESTCodeGenerator(CodeGenerator):
         """
         Replace all occurrences of kernel names (e.g. ``I_dend`` and ``I_dend'`` for a definition involving a second-order kernel ``inline kernel I_dend = convolve(kern_name, spike_buf)``) with the ODE-toolbox generated variable ``kern_name__X__spike_buf``.
         """
+
         def replace_var(_expr, replace_var_name: str, replace_with_var_name: str):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(), differential_order=0)
+                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
+                                               differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
 
@@ -250,11 +318,11 @@ class NESTCodeGenerator(CodeGenerator):
         for decl in neuron.get_equations_block().get_declarations():
             from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
-               and isinstance(decl.get_expression(), ASTSimpleExpression) \
-               and '__X__' in str(decl.get_expression()):
+                    and isinstance(decl.get_expression(), ASTSimpleExpression) \
+                    and '__X__' in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
-                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
-
+                neuron.accept(
+                    ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
 
     def replace_variable_names_in_expressions(self, neuron, solver_dicts):
         """
@@ -263,6 +331,7 @@ class NESTCodeGenerator(CodeGenerator):
 
         Variables aliasing convolutions should already have been covered by replace_convolution_aliasing_inlines().
         """
+
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
@@ -339,7 +408,8 @@ class NESTCodeGenerator(CodeGenerator):
         if equations_block is None:
             # add all declared state variables as none of them are used in equations block
             self.non_equations_state_variables[neuron.get_name()] = []
-            self.non_equations_state_variables[neuron.get_name()].extend(ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
+            self.non_equations_state_variables[neuron.get_name()].extend(
+                ASTUtils.all_variables_defined_in_block(neuron.get_state_blocks()))
 
             return []
 
@@ -401,34 +471,19 @@ class NESTCodeGenerator(CodeGenerator):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-        self.generate_model_h_file(neuron)
-        self.generate_neuron_cpp_file(neuron)
 
-    def generate_model_h_file(self, neuron: ASTNeuron) -> None:
-        """
-        For a handed over neuron, this method generates the corresponding header file.
-        :param neuron: a single neuron object.
-        """
-        neuron_h_file = self._template_neuron_h_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.h', 'w+') as f:
-            f.write(str(neuron_h_file))
+        for _model_temp in self._model_templates:
+            file_extension = _model_temp.filename.split('.')[-2]
+            _file = _model_temp.render(self._get_model_namespace(neuron))
+            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
+                                       neuron.get_name())) + '.' + file_extension, 'w+') as f:
+                f.write(str(_file))
 
-    def generate_neuron_cpp_file(self, neuron: ASTNeuron) -> None:
+    def _get_model_namespace(self, neuron: ASTNeuron) -> Dict:
         """
-        For a handed over neuron, this method generates the corresponding implementation file.
-        :param neuron: a single neuron object.
-        """
-        neuron_cpp_file = self._template_neuron_cpp_file.render(self.setup_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.cpp', 'w+') as f:
-            f.write(str(neuron_cpp_file))
-
-    def setup_generation_helpers(self, neuron: ASTNeuron) -> Dict:
-        """
-        Returns a standard namespace with often required functionality.
+        Returns a standard namespace for generating neuron code for NEST
         :param neuron: a single neuron instance
-        :type neuron: ASTNeuron
-        :return: a map from name to functionality.
-        :rtype: dict
+        :return: a context dictionary for rendering templates
         """
         gsl_converter = GSLReferenceConverter()
         gsl_printer = UnitlessExpressionPrinter(gsl_converter)
@@ -514,10 +569,17 @@ class NESTCodeGenerator(CodeGenerator):
 
         namespace["spike_updates"] = neuron.spike_updates
 
-        namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable and not is_delta_kernel(neuron.get_kernel_by_name(sym.name))]
-        namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if namespace['declarations'].get_domain_from_type(sym.get_type_symbol()) == "double" and sym.is_recordable]
+        namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols() if
+                                                   namespace['declarations'].get_domain_from_type(
+                                                       sym.get_type_symbol()) == "double" and sym.is_recordable and not is_delta_kernel(
+                                                       neuron.get_kernel_by_name(sym.name))]
+        namespace["recordable_inline_expressions"] = [sym for sym in neuron.get_inline_expression_symbols() if
+                                                      namespace['declarations'].get_domain_from_type(
+                                                          sym.get_type_symbol()) == "double" and sym.is_recordable]
 
-        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if sym.has_declaring_expression() and (not neuron.get_kernel_by_name(sym.name))]
+        namespace["parameter_syms_with_iv"] = [sym for sym in neuron.get_parameter_symbols() if
+                                               sym.has_declaring_expression() and (
+                                                   not neuron.get_kernel_by_name(sym.name))]
 
         rng_visitor = ASTRandomNumberGeneratorVisitor()
         neuron.accept(rng_visitor)
@@ -668,7 +730,7 @@ class NESTCodeGenerator(CodeGenerator):
             for var_name, expr in solver_dict["initial_values"].items():
                 # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
                 if variable_in_kernels(var_name, kernels):
-                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
                     if not declaration_in_state_block(neuron, var_name):
                         add_declaration_to_state_block(neuron, var_name, expr)
 
@@ -691,11 +753,10 @@ class NESTCodeGenerator(CodeGenerator):
                 # here, overwrite is allowed because initial values might be repeated between numeric and analytic solver
 
                 if variable_in_kernels(var_name, kernels):
-                    expr = "0"    # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
+                    expr = "0"  # for kernels, "initial value" returned by ode-toolbox is actually the increment value; the actual initial value is assumed to be 0
 
                 if not declaration_in_state_block(neuron, var_name):
                     add_declaration_to_state_block(neuron, var_name, expr)
-
 
     def get_spike_update_expressions(self, neuron: ASTNeuron, kernel_buffers, solver_dicts, delta_factors) -> List[ASTAssignment]:
         """
@@ -711,26 +772,28 @@ class NESTCodeGenerator(CodeGenerator):
             if neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE) is None:
                 continue
 
-            buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port), SymbolKind.VARIABLE).get_type_symbol()
+            buffer_type = neuron.get_scope().resolve_to_symbol(str(spike_input_port),
+                                                               SymbolKind.VARIABLE).get_type_symbol()
 
             if is_delta_kernel(kernel):
                 continue
 
             for kernel_var in kernel.get_variables():
-                for var_order in range(get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
+                for var_order in range(
+                        get_kernel_var_order_from_ode_toolbox_result(kernel_var.get_name(), solver_dicts)):
                     kernel_spike_buf_name = construct_kernel_X_spike_buf_name(
                         kernel_var.get_name(), spike_input_port, var_order)
                     expr = get_initial_value_from_ode_toolbox_result(kernel_spike_buf_name, solver_dicts)
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
-                        continue    # skip adding the statement if we're only adding zero
+                        continue  # skip adding the statement if we're only adding zero
 
                     assignment_str = kernel_spike_buf_name + " += "
                     assignment_str += "(" + str(spike_input_port) + ")"
                     if not expr in ["1.", "1.0", "1"]:
                         assignment_str += " * (" + \
-                            self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
+                                          self._printer.print_expression(ModelParser.parse_expression(expr)) + ")"
 
                     if not buffer_type.print_nestml_type() in ["1.", "1.0", "1"]:
                         assignment_str += " / (" + buffer_type.print_nestml_type() + ")"

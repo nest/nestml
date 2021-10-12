@@ -105,6 +105,7 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
+    TEMPLATE_ROOT_PATH_CREATED = 79
 
 
 class Messages:
@@ -1158,3 +1159,9 @@ class Messages:
     def get_equations_defined_but_integrate_odes_not_called(cls):
         message = "Equations defined but integrate_odes() not called"
         return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message
+
+    @classmethod
+    def get_template_root_path_created(cls, templates_root_dir: str):
+        message = "Given template root path is not an absolute path. " \
+                  "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
+        return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
