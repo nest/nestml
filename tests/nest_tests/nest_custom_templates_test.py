@@ -69,9 +69,10 @@ class NestCustomTemplatesTest(unittest.TestCase):
         nest.Simulate(5.0)
 
     def test_custom_templates_with_synapse(self):
-        models = ["iaf_psc_delta.nestml", "stdp_triplet_naive.nestml"]
+        models = [os.path.join("neurons", "iaf_psc_delta.nestml"),
+                  os.path.join("synapses", "stdp_triplet_naive.nestml")]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "neurons", fn)))) for fn in models]
+            os.pardir, os.pardir, "models", fn)))) for fn in models]
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
