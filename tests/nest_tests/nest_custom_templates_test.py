@@ -34,7 +34,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
 
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
@@ -71,7 +71,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
     def test_custom_templates_with_synapse(self):
         models = ["iaf_psc_delta.nestml", "stdp_triplet_naive.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", fn)))) for fn in models]
+            os.pardir, os.pardir, "models", "neurons", fn)))) for fn in models]
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'

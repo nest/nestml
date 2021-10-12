@@ -41,7 +41,7 @@ class NestSTNExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "../../models", "terub_stn.nestml")))
+            os.path.dirname(__file__), "../../models/neurons", "terub_stn.nestml")))
         target_path = "target"
         module_name = 'terub_stn_module'
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")

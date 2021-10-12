@@ -89,7 +89,7 @@ class NestIntegrationTest(unittest.TestCase):
             self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
                                           nest_ref_model_opts, custom_model_opts)
 
-        all_models = [s[:-7] for s in list(os.walk("models"))[0][2] if s[-7:] == ".nestml"]
+        all_models = [s[:-7] for s in list(os.walk("models/neurons"))[0][2] if s[-7:] == ".nestml"]
         self.generate_models_documentation(models, all_models)
 
     def generate_models_documentation(self, models, allmodels):

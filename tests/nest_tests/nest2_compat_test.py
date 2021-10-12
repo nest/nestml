@@ -36,7 +36,7 @@ class Nest2CompatTest(unittest.TestCase):
 
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
