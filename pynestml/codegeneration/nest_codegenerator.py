@@ -76,6 +76,15 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
+def find_spiking_post_port(synapse, namespace):
+    if 'paired_neuron' in dir(synapse):
+        for post_port_name in namespace["post_ports"]:
+            if synapse.get_input_blocks() \
+                    and synapse.get_input_blocks().get_input_ports() \
+                    and get_input_port_by_name(synapse.get_input_blocks(), post_port_name).is_spike():
+                return post_port_name
+    return None
+
 
 class NESTCodeGenerator(CodeGenerator):
     """
@@ -1374,13 +1383,7 @@ class NESTCodeGenerator(CodeGenerator):
         # event handlers priority
         # XXX: this should be refactored in case we have additional modulatory (3rd-factor) spiking input ports in the synapse
         namespace['pre_before_post_update'] = 0   # C++-compatible boolean...
-        spiking_post_port = None
-        for post_port_name in namespace["post_ports"]:
-            if synapse.get_input_blocks() \
-                    and synapse.get_input_blocks().get_input_ports() \
-                    and get_input_port_by_name(synapse.get_input_blocks(), post_port_name).is_spike():
-                spiking_post_port = post_port_name
-                break
+        spiking_post_port = find_spiking_post_port(synapse, namespace)
         if spiking_post_port:
             post_spike_port_priority = None
             if "priority" in synapse.get_on_receive_block(spiking_post_port).get_const_parameters().keys():
