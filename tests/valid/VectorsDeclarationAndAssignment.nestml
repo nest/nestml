@@ -37,12 +37,12 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 neuron vector_declaration:
     state:
         g_in [20] mV = 11mV
-        ten integer = 10
         g_ex [ten] mV = 1mV
     end
 
     parameters:
         taus [15] ms = 2 ms
         V_thr mV = -55 mV
+        ten integer = 10
     end
 end
