@@ -44,10 +44,6 @@ neuron CoCoVectorParameterDeclaration:
     end
 
     internals:
-        size_y real = 5.
-    end
-
-    update:
-        v_m [2.] = -11.2
+        size_y integer = 5
     end
 end
