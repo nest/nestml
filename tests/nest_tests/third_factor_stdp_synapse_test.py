@@ -300,3 +300,5 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
         for time_dw_should_be_zero in times_dw_should_be_zero:
             _idx = np.argmin((time_dw_should_be_zero - np.array(t_hist))**2)
             assert np.abs(np.diff(w_hist)[_idx]) < MAX_ABS_ERROR
+
+        assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"

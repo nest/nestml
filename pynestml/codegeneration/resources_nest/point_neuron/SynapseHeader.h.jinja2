@@ -689,7 +689,7 @@ inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
 
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
-{%-     for post_port in post_ports %}
+{%-     for post_port in spiking_post_ports %}
         /**
          *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
         **/
@@ -715,6 +715,7 @@ inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
       }
     }
 {%- endif %}
+
     /**
      * update synapse internal state from `t_lastspike_` to `__t_spike`
     **/
@@ -781,7 +782,7 @@ inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
     {
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
-{%-     for post_port in post_ports %}
+{%-     for post_port in spiking_post_ports %}
         /**
          *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
         **/
@@ -1106,7 +1107,7 @@ inline void
 
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
-{%-     for post_port in post_ports %}
+{%-     for post_port in spiking_post_ports %}
     /**
      *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
     **/

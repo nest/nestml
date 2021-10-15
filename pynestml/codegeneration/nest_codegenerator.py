@@ -287,6 +287,13 @@ class NESTCodeGenerator(CodeGenerator):
     def is_vt_port(self, port_name: str, neuron_name: str, synapse_name: str) -> bool:
         return self.is_special_port("vt", port_name, neuron_name, synapse_name)
 
+    def get_spiking_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
+        post_port_names = []
+        for port in synapse.get_input_blocks().get_input_ports():
+            if self.is_post_port(port.name, neuron_name, synapse_name) and port.is_spike():
+                post_port_names.append(port.get_name())
+        return post_port_names
+
     def get_post_port_names(self, synapse, neuron_name: str, synapse_name: str):
         post_port_names = []
         for port in synapse.get_input_blocks().get_input_ports():
@@ -615,7 +622,6 @@ class NESTCodeGenerator(CodeGenerator):
 
                     if var \
                        and self.is_post_port(var.name, neuron.name, synapse.name):
-                        print("\tsynapse " + synapse.name + " uses spike port " + str(var.name) + " for neuron " + neuron.name)
                         post_ports.append(var)
 
                         var._is_post_port = True
@@ -718,14 +724,13 @@ class NESTCodeGenerator(CodeGenerator):
 
             for state_var in syn_to_neuron_state_vars:
                 Logger.log_message(None, -1, "Moving onPost updates for " + str(state_var), None, LoggingLevel.INFO)
-                post_port_names = self.get_post_port_names(synapse, neuron.name, synapse.name)
+                spiking_post_port_names = self.get_spiking_post_port_names(synapse, neuron.name, synapse.name)
 
-                assert len(post_port_names) <= 1, "Can only handle one \"post\" port"
-                if len(post_port_names) == 0:
+                assert len(spiking_post_port_names) <= 1, "Can only handle one spiking \"post\" port"
+                if len(spiking_post_port_names) == 0:
                     continue
-                post_port_name = post_port_names[0]
+                post_port_name = spiking_post_port_names[0]
                 post_receive_block = new_synapse.get_on_receive_block(post_port_name)
-                self.is_post_port(port.name, neuron.name, synapse.name)
                 if post_receive_block:
                     stmts = get_statements_from_block(state_var, post_receive_block)
                     if stmts:
@@ -1355,6 +1360,7 @@ class NESTCodeGenerator(CodeGenerator):
             base_neuron_name = namespace['paired_neuron'][:namespace['paired_neuron'].index("__with_") - len(FrontendConfiguration.suffix)]
             base_synapse_name = synapse.name[:synapse.name.index("__with_") - len(FrontendConfiguration.suffix)]
             namespace["post_ports"] = self.get_post_port_names(synapse, base_neuron_name, base_synapse_name)
+            namespace["spiking_post_ports"] = self.get_spiking_post_port_names(synapse, base_neuron_name, base_synapse_name)
             namespace["vt_ports"] = self.get_vt_port_names(synapse, base_neuron_name, base_synapse_name)
             all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
             namespace["pre_ports"] = list(set(all_input_port_names) - set(namespace["post_ports"]) - set(namespace["vt_ports"]))

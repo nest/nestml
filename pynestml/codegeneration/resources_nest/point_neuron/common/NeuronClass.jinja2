@@ -339,7 +339,6 @@ void {{neuronName}}::calibrate() {
   B_.logger_.init();
 
   calibrate_variables();
-  clear_history();
 
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
@@ -710,7 +709,7 @@ double
   std::cout << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
 #endif
 
-  const bool before_increment = false;
+  const bool before_increment = true;
 
   // case when the neuron has not yet spiked
   if ( history_.empty() )
@@ -734,7 +733,7 @@ double
 
 {%- for var_ in numeric_state_variables_moved %}
       S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
-      if ( before_increment )
+      if ( before_increment && t == history_[ i ].t_ )
       {
         S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} -= 1;
       }

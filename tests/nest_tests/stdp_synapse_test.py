@@ -47,7 +47,7 @@ class NestSTDPSynapseTest(unittest.TestCase):
     ref_synapse_model_name = "stdp_synapse"
 
     def setUp(self):
-        """Generate the neuron model code"""
+        """Generate the model code"""
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
@@ -136,7 +136,8 @@ class NestSTDPSynapseTest(unittest.TestCase):
         print("Pre spike times: " + str(pre_spike_times))
         print("Post spike times: " + str(post_spike_times))
 
-        nest.set_verbosity("M_WARNING")
+        #nest.set_verbosity("M_WARNING")
+        nest.set_verbosity("M_ERROR")
 
         post_weights = {'parrot': []}
 
@@ -315,4 +316,5 @@ class NestSTDPSynapseTest(unittest.TestCase):
 
         # verify
         MAX_ABS_ERROR = 1E-6
-        assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR)
+        assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"
+        assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR), "Difference between NESTML model and reference model!"
