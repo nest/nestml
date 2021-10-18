@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_vector_parameter_right_type.py
+# co_co_vector_parameter_right_type_and_size.py
 #
 # This file is part of NEST.
 #
@@ -50,9 +50,19 @@ class VectorVariablesVisitor(ASTVisitor):
                                                                         SymbolKind.VARIABLE)
 
             # vector parameter is a variable
+            vector_parameter_val = None
             if symbol is not None:
                 if not isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
                     code, message = Messages.get_vector_parameter_wrong_type(vector_parameter_var.get_complete_name())
                     Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
-
                                        code=code, message=message)
+                elif isinstance(symbol.get_type_symbol(), IntegerTypeSymbol):
+                    vector_parameter_val = int(str(symbol.get_declaring_expression()))
+            else:
+                vector_parameter_val = int(vector_parameter)
+
+            if vector_parameter_val is not None and vector_parameter_val <= 0:
+                code, message = Messages.get_vector_parameter_wrong_size(vector_parameter_var.get_complete_name(),
+                                                                         str(vector_parameter_val))
+                Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.ERROR,
+                                   code=code, message=message)

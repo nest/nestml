@@ -1,0 +1,45 @@
+"""
+CoCoVectorParameterSize.nestml
+##############################
+
+
+Description
++++++++++++
+
+This model is used to test if broken CoCos are identified correctly.
+Here, if the vector parameter or the size of the vector is greater than 0.
+
+Negative case.
+
+
+Copyright statement
++++++++++++++++++++
+
+This file is part of NEST.
+
+Copyright (C) 2004 The NEST Initiative
+
+NEST is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+NEST is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+neuron CoCoVectorParameterSize:
+    state:
+        V_m [0] mV = -10. mV
+    end
+
+    parameters:
+        N integer = -12
+        coeff [N] real = 0
+    end
+end

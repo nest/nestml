@@ -108,6 +108,7 @@ class MessageCode(Enum):
     TEMPLATE_ROOT_PATH_CREATED = 79
     VECTOR_PARAMETER_WRONG_BLOCK = 80
     VECTOR_PARAMETER_WRONG_TYPE = 81
+    VECTOR_PARAMETER_WRONG_SIZE = 82
 
 
 class Messages:
@@ -1179,3 +1180,9 @@ class Messages:
         message = "The vector parameter '" + var + "' is of the wrong type." \
                   "The vector parameter can be only of type integer."
         return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
+
+    @classmethod
+    def get_vector_parameter_wrong_size(cls, var, value):
+        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+                  "which is less than or equal to 0."
+        return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
