@@ -560,7 +560,7 @@ public: // XXX! TODO: should be private
   /* getters/setters for variables transferred from synapse */
 
 {%- for var in transferred_variables %}
-  double get_{{var}}( double t );
+  double get_{{var}}( double t, const bool before_increment = true );
 {%- endfor %}
 {%- endif %}
 
