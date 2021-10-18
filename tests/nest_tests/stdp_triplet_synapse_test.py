@@ -126,7 +126,7 @@ def run_reference_simulation(syn_opts,
             print("\tgetting pre trace r1")
             r1 = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_plus"], before_increment=True, extra_debug=True)#F
             print("\tgetting post trace o2")
-            o2 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_y"], before_increment=False, extra_debug=True)#T
+            o2 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_y"], before_increment=True, extra_debug=True)#T
             #print("\tr1 = " + str(r1))
             #print("\to2 = " + str(o2))
             #print("\told weight = " + str(weight))
@@ -138,7 +138,7 @@ def run_reference_simulation(syn_opts,
         if spk_time in times_spikes_pre:
             #print("Pre spike --> depression")
             print("\tgetting post trace o1")
-            o1 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_minus"], before_increment=False, extra_debug=True)#F
+            o1 = get_trace_at(spk_time, times_spikes_post_syn_persp, syn_opts["tau_minus"], before_increment=True, extra_debug=True)#F
             print("\tgetting pre trace r2")
             r2 = get_trace_at(spk_time, times_spikes_pre, syn_opts["tau_x"], before_increment=True, extra_debug=True)#T
             #print("\to1 = " + str(o1))

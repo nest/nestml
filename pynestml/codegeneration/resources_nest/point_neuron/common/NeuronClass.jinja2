@@ -604,6 +604,7 @@ void
 
         const double old___h = V_.__h;
         V_.__h = t_sp_ms - last_spike_;
+        if (V_.__h > 1E-12) {
         assert(V_.__h > 0);
         calibrate_variables(true);
 {%- filter indent(6, True) %}
@@ -654,7 +655,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 {%- endfilter %}
         V_.__h = old___h;
         calibrate_variables(true);
-
+      }
 
         /**
          * apply spike updates
