@@ -51,6 +51,7 @@ from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectPara
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
+from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
 from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
 from pynestml.cocos.co_co_vector_parameter_greater_than_zero import CoCoVectorParameterGreaterThanZero
 from pynestml.cocos.co_co_vector_parameter_right_type_and_size import CoCoVectorParameterRightType
@@ -343,6 +344,14 @@ class CoCosManager:
         CoCoVectorParameterRightType.check_co_co(neuron)
 
     @classmethod
+    def check_vector_declaration_size(cls, neuron: ASTNeuron):
+        """
+        Checks if the vector is declared with a size greater than 0
+        :param neuron: a single neuron object
+        """
+        CoCoVectorDeclarationRightSize.check_co_co(neuron)
+
+    @classmethod
     def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -382,3 +391,4 @@ class CoCosManager:
         cls.check_function_argument_template_types_consistent(neuron)
         cls.check_vector_parameter_declaration(neuron)
         cls.check_vector_parameter_type(neuron)
+        cls.check_vector_declaration_size(neuron)
