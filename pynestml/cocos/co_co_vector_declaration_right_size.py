@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_vector_parameter_right_type_and_size.py
+# co_co_vector_declaration_right_size.py
 #
 # This file is part of NEST.
 #
