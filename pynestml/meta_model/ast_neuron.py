@@ -344,6 +344,23 @@ class ASTNeuron(ASTNode):
                 vector_state_symbols.append(symbol)
         return vector_state_symbols
 
+    def get_vector_symbols(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all the vector variables declared in State, Parameters, and Internals block
+        :return: a list of vector symbols
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        vector_symbols = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) \
+                    and (symbol.block_type == BlockType.STATE or symbol.block_type == BlockType.PARAMETERS
+                         or symbol.block_type == BlockType.INTERNALS) \
+                    and not symbol.is_predefined \
+                    and symbol.has_vector_parameter():
+                vector_symbols.append(symbol)
+
+        return vector_symbols
+
     def get_internal_symbols(self):
         """
         Returns a list of all internals symbol defined in the model.
@@ -434,7 +451,8 @@ class ASTNeuron(ASTNode):
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in
+                                                           decl.get_variable_names()]:
                 return decl
 
         return None

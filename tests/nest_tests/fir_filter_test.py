@@ -70,7 +70,7 @@ class NestFirFilterTest(unittest.TestCase):
         nest.ResetKernel()
 
         # Create a fir_filter node
-        neuron = nest.Create(nestml_model_name)
+        neuron = nest.Create(nestml_model_name, {"N": 256})
 
         # Create a spike generator
         spikes = [1.0, 1.0, 1.5, 1.5, 1.5, 6.7, 10.0, 10.5, 10.5, 10.5, 10.5, 11.3, 11.3, 11.4, 11.4, 20., 22.5, 30.,

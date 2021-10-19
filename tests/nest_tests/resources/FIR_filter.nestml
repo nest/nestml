@@ -41,8 +41,8 @@ neuron fir_filter:
  end
 
  parameters:
-   N integer = 51  # filter order
-   h[N] real = 0.   # filter coefficients
+   N integer = 1  # filter order
+   h[N] real = 1.   # filter coefficients
  end
 
  input:
