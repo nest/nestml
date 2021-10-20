@@ -123,11 +123,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   void {{neuronName}}::insert_recordables(size_t first)
   {
 {%- for variable in neuron.get_vector_state_symbols() %}
-{%- set size = variable.get_vector_parameter() %}
-{%-   if size|int == 0 -%}
-{%-   set size = utils.get_numeric_vector_size(variable) %}
-{%-   endif %}
-      for (size_t i = 0; i < {{size}}; i++)
+      for (size_t i = 0; i < {{printer.print_vector_size_parameter(variable)}}; i++)
       {
         size_t elem = {{neuronName}}::State_::{{names.name(variable).upper()}} + i;
         recordablesMap_.insert(get_var_name(i, "{{names.name(variable).upper()}}_"), this->get_data_access_functor(elem));
