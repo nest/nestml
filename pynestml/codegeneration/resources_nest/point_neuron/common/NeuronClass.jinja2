@@ -186,12 +186,6 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
-{%- if has_vectors %}
-  recordablesMap_.create(*this);
-{%- else %}
-  recordablesMap_.create();
-{%- endif %}
-
   calibrate();
 {%- if useGSL %}
 
@@ -220,6 +214,12 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+{%- if has_vectors %}
+  recordablesMap_.create(*this);
+{%- else %}
+  recordablesMap_.create();
+{%- endif %}
+
 }
 
 // ---------------------------------------------------------------------------
@@ -228,10 +228,6 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
   {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
-
-{%- if has_vectors %}
-  recordablesMap_.create(*this);
-{%- endif %}
 
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
@@ -250,6 +246,10 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- for internal in neuron.get_internal_symbols() %}
   V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
+
+{%- if has_vectors %}
+  recordablesMap_.create(*this);
+{%- endif %}
 }
 
 // ---------------------------------------------------------------------------
