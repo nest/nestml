@@ -619,7 +619,7 @@ void
 {% endif -%}
 
 
-
+{%- if useGSL %}
 // update only synapse->neuron moved variables; back-up and restore the rest
 double ode_state_bak[State_::STATE_VEC_SIZE];
 
@@ -641,6 +641,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
 {%-     endfor %}
 
+{%- endif %}
 
 
 /* replace analytically solvable variables with precisely integrated values  */
