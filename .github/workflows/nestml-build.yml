@@ -45,7 +45,7 @@ jobs:
       # Install Python dependencies
       - name: Python dependencies
         run: |
-          python -m pip install --upgrade pip pytest
+          python -m pip install --upgrade pip pytest jupyterlab
           python -m pip install -r requirements.txt
           python -m pip install pycodestyle
 
@@ -105,6 +105,8 @@ jobs:
           for fn in $ipynb_fns; do
               ipython3 ${fn} || rc=1
           done;
+          echo "Exit code:"
+          echo $rc
           exit $rc
 
       # Integration tests: prepare (make module containing all NESTML models)
