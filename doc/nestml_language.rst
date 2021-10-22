@@ -385,13 +385,33 @@ The declaration of a vector variable consists of the name of the variable follow
      g_ex [20] mV = 10mV
    end
 
-Size of the vector can be a positive integer or a previously declared integer variable. For example, an integer variable named ``ten`` can be used to specify the size of the vector variable ``g_ex`` as:
+Size of the vector can be a positive integer or an integer variable previously declared in either ``parameters`` or ``internals`` block. For example, an integer variable named ``ten`` declared in the ``parameters``block can be used to specify the size of the vector variable ``g_ex`` as:
 
 .. code-block:: nestml
 
    state:
-     ten integer = 10
      g_ex [ten] mV = 10mV
+   end
+
+   parameters:
+     ten integer = 10
+   end
+
+Vector variables can be used in expressions as an array with an index. For example,
+
+.. code-block:: nestml
+
+   state:
+     g_ex [ten] mV = 10mV
+     x[15] real = 0.
+   end
+
+   update:
+     g_ex[2] = -55. mV
+
+     integer j = 0
+     x[j] = g_ex[2]
+     j += 1
    end
 
 Functions
