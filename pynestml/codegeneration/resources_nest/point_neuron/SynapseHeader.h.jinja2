@@ -178,11 +178,6 @@ public:
 };
 
 
-/**
- * Class representing a static connection. A static connection has the
- * properties weight, delay and receiver port. A suitable Connector containing
- * these connections can be obtained from the template GenericConnector.
- */
 template < typename targetidentifierT >
 class {{synapseName}} : public Connection< targetidentifierT >
 {
@@ -204,7 +199,7 @@ private:
 
   // vt_spikes_idx_ refers to the vt spike that has just been processes
   // after trigger_update_weight a pseudo vt spike at t_trig is stored at
-  // index 0 and dopa_spike_idx_ = 0
+  // index 0 and vt_spikes_idx_ = 0
   index vt_spikes_idx_;
 {%- endif %}
 
@@ -420,6 +415,17 @@ public:
     {{synapseName}}( const {{synapseName}}& rhs );
   
 
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+{%- set vt_port = vt_ports[0] %}
+void process_{{vt_port}}_spikes_( const std::vector< spikecounter >& vt_spikes,
+    double t0,
+    double t1,
+    const {{synapseName}}CommonSynapseProperties& cp );
+
+inline void
+update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp);
+{%- endif %}
+
     void init_internals_block_symbols();
 
   // Explicitly declare all methods inherited from the dependent base
@@ -572,15 +578,6 @@ inline void set_weight(double w) {
 {%- endif %}
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
-{%- if vt_ports is defined and vt_ports|length > 0  %}
-
-inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
-    double t0,
-    double t1,
-    const {{synapseName}}CommonSynapseProperties& cp )
-{
-}
-{%- endif %}
 
   void
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
@@ -645,7 +642,8 @@ inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
       while ( start != finish )
       {
         {%- if vt_ports is defined and vt_ports|length > 0  %}
-        process_vt_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
+        {%- set vt_port = vt_ports[0] %}
+        process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + __dendritic_delay, cp );
         t0 = start->t_ + __dendritic_delay;
         {%- endif %}
         const double minus_dt = t_lastspike_ - ( start->t_ + __dendritic_delay );
@@ -720,7 +718,8 @@ inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
      * update synapse internal state from `t_lastspike_` to `__t_spike`
     **/
 {%- if vt_ports is defined and vt_ports|length > 0  %}
-    process_vt_spikes_( vt_spikes, t_lastspike_, __t_spike, cp );
+{%- set vt_port = vt_ports[0] %}
+    process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, __t_spike, cp );
 {%- endif %}
 
     const double old___h = V_.__h;
@@ -812,6 +811,52 @@ inline void process_vt_spikes_( const std::vector< spikecounter >& vt_spikes,
   nest::normal_distribution normal_dev_; //!< random deviate generator
 {%- endif %}
 };
+
+
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+{%- set vt_port = vt_ports[0] %}
+template < typename targetidentifierT >
+void
+{{synapseName}}< targetidentifierT >::process_{{vt_port}}_spikes_( const std::vector< spikecounter >& vt_spikes,
+    double t0,
+    double t1,
+    const {{synapseName}}CommonSynapseProperties& cp )
+{
+  // process dopa spikes in (t0, t1]
+  // propagate weight from t0 to t1
+  if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
+    && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
+  {
+    // there is at least 1 dopa spike in (t0, t1]
+    // propagate up to first dopa spike
+    update_internal_state_(t0, vt_spikes[ vt_spikes_idx_ ].spike_time_ - t0, cp );
+    ++vt_spikes_idx_;
+
+    // process remaining dopa spikes in (t0, t1]
+    double cd;
+    while ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
+      && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
+    {
+      // propagate up to next dopa spike
+      update_internal_state_(vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
+                             vt_spikes[ vt_spikes_idx_ ].spike_time_ - vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
+                             cp );
+      ++vt_spikes_idx_;
+    }
+
+    // propagate up to t1
+    update_internal_state_(vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
+                           t1 - vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
+                           cp );
+  }
+  else
+  {
+    // no dopamine spikes in (t0, t1]
+    update_internal_state_( t0, t1, cp );
+  }
+}
+{%- endif %}
+
 
 template < typename targetidentifierT >
 void
@@ -1039,6 +1084,41 @@ template < typename targetidentifierT >
 }
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
+template < typename targetidentifierT >
+inline void
+{{synapseName}}< targetidentifierT >::update_internal_state_(double t_start, double timestep, const {{synapseName}}CommonSynapseProperties& cp)
+{
+  if (timestep < 1E-12)
+  {
+    return;
+  }
+
+  const double old___h = V_.__h;
+  V_.__h = timestep;
+  this->timestep += V_.__h;
+  init_internals_block_symbols();
+{%- filter indent(6, True) %}
+{%- include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%- if uses_numeric_solver %}
+{%-     include "directives/GSLIntegrationStep.jinja2" %}
+{%- endif %}
+{%- include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endfilter %}
+    V_.__h = old___h;
+    init_internals_block_symbols();  // XXX: can be skipped?
+ 
+   // XXX: TODO: set timestep to ``(start->t_ + dendritic_delay) - t_lastspike_``
+ 
+{%- if synapse.get_update_blocks() %}
+{%- filter indent(2) %}
+{%- set dynamics = synapse.get_update_blocks() %}
+{%- with ast = dynamics.get_block() %}
+{%-   include "directives/Block.jinja2" %}
+{%- endwith %}
+{%- endfilter %}
+{%- endif %}
+}
+
 /**
  * Update to end of timestep ``t_trig``, while processing vt spikes and post spikes
 **/
@@ -1061,47 +1141,23 @@ inline void
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
-    double minus_dt;
-        double timestep = 0;
+  double minus_dt;
+  double timestep = 0;
 
   while ( start != finish )
   {
-
-{#
-{%-     for vt_port in vt_ports %}
-      process_{{vt_port}}_spikes_( {{vt_port}}_spikes, t0, start->t_ + dendritic_delay, cp );
-{%-     endfor %}
-#}
-    process_vt_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
+{%- for vt_port in vt_ports %}
+{%- set vt_port = vt_ports[0] %}
+    process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
+{%- endfor %}
 
     /**
-     * update synapse internal state from `t_lastspike_` to `start->t_`
+     * update synapse internal state from `t_last_update_` to `start->t_`
     **/
 
-    const double old___h = V_.__h;
-    V_.__h = (start->t_ + dendritic_delay) - t_lastspike_;
-    timestep += V_.__h;
-    init_internals_block_symbols();
-{%- filter indent(6, True) %}
-{%- include "directives/AnalyticIntegrationStep_begin.jinja2" %}
-{%- if uses_numeric_solver %}
-{%-     include "directives/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-{%- include "directives/AnalyticIntegrationStep_end.jinja2" %}
-{%- endfilter %}
-    V_.__h = old___h;
-    init_internals_block_symbols();  // XXX: can be skipped?
-
-    // XXX: TODO: set timestep to ``(start->t_ + dendritic_delay) - t_lastspike_``
-
-{%- if synapse.get_update_blocks() %}
-{%- filter indent(2) %}
-{%- set dynamics = synapse.get_update_blocks() %}
-{%- with ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
-{%- endif %}
+    update_internal_state_(t_last_update_,
+                           (start->t_ + dendritic_delay) - t_last_update_,
+                           cp);
 
     const double _tr_t = start->t_;
 
@@ -1134,42 +1190,18 @@ inline void
     ++start;
   }
 
+  /**
+    * update synapse internal state from `t_lastspike_` to `t_trig`
+  **/
 
-    /**
-     * update synapse internal state from `t_lastspike_` to `t_trig`
-    **/
+{%- for vt_port in vt_ports %}
+{%- set vt_port = vt_ports[0] %}
+  process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
+{%- endfor %}
 
-{#
-{%-     for vt_port in vt_ports %}
-  process_{{vt_port}}_spikes_( {{vt_port}}_spikes, t_lastspike_, t_trig, cp );
-{%-     endfor %}
-#}
-    process_vt_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
-
-    const double old___h = V_.__h;
-    V_.__h = (t_trig + dendritic_delay) - t_lastspike_;
-    timestep += V_.__h;
-    init_internals_block_symbols();
-{%- filter indent(6, True) %}
-{%- include "directives/AnalyticIntegrationStep_begin.jinja2" %}
-{%- if uses_numeric_solver %}
-{%-     include "directives/GSLIntegrationStep.jinja2" %}
-{%- endif %}
-{%- include "directives/AnalyticIntegrationStep_end.jinja2" %}
-{%- endfilter %}
-    V_.__h = old___h;
-    init_internals_block_symbols();  // XXX: can be skipped?
-
-    // XXX: TODO: set timestep to ``(t_trig + dendritic_delay) - t_lastspike_``
-
-{%- if synapse.get_update_blocks() %}
-{%- filter indent(2) %}
-{%- set dynamics = synapse.get_update_blocks() %}
-{%- with ast = dynamics.get_block() %}
-{%-   include "directives/Block.jinja2" %}
-{%- endwith %}
-{%- endfilter %}
-{%- endif %}
+  update_internal_state_(t_lastspike,
+                         (t_trig + dendritic_delay) - t_lastspike_,
+                         cp);
 
   t_last_update_ = t_trig;
   vt_spikes_idx_ = 0;
