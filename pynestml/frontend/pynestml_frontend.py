@@ -24,10 +24,6 @@ from typing import Any, Mapping, Optional, Sequence, Union
 import os
 import sys
 import platform
-from pathlib import Path
-import subprocess
-
-
 
 
 from pynestml.cocos.co_cos_manager import CoCosManager
@@ -47,8 +43,6 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 
 
-def test():
-    print("hello from nestml")
 
 def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
@@ -142,13 +136,13 @@ def install_nest(target_path: str, **path) -> None:
     if actual == expected:
          nest_installer(target_path, path["nest_path"], path["install_path"])         
     else:
-        raise ValueError("Path can only contain \"nest_path\" or \"install_path\" ")
+        raise ValueError("Path must contain \"nest_path\" or \"install_path\" ")
 
     
-    osx = platform.system()
+    system = platform.system()
     lib_key = ""
 
-    if osx == "Linux":
+    if system == "Linux":
        lib_key = "LD_LIBRARY_PATH"
     else:
         lib_key = "DYLD_LIBRARY_PATH"
@@ -255,7 +249,7 @@ def update_lib_path(path, lib_key):
     #shell_script_path = os.path.join(str(Path(frontend_location).parent.parent), "shell", "add_lib_path.sh") 
 
     shell_script_path = os.path.expanduser("~/.bashrc")
-
+    
     lines = []
     with open(shell_script_path, "r") as bashrc:
         lines = bashrc.readlines()
