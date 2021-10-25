@@ -1339,6 +1339,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['astnode'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
         namespace['printer'] = NestPrinter(unitless_pretty_printer)
+        namespace['nest_printer'] = NestPrinter(unitless_pretty_printer, names_converter=NestNamesConverter)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()

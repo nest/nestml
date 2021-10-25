@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
+from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
@@ -74,7 +75,7 @@ class NestPrinter:
     This class contains all methods as required to transform
     """
 
-    def __init__(self, expression_pretty_printer, reference_convert=None):
+    def __init__(self, expression_pretty_printer, reference_convert=None, names_converter=None):
         """
         The standard constructor.
         :param reference_convert: a single reference converter
@@ -84,7 +85,11 @@ class NestPrinter:
             self.expression_pretty_printer = expression_pretty_printer
         else:
             self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
-        return
+
+        if names_converter is not None:
+            self.names_converter = names_converter
+        else:
+            self.names_converter = GSLNamesConverter
 
     def print_node(self, node):
         ret = ''
@@ -181,10 +186,9 @@ class NestPrinter:
 
     def print_assignment(self, node, prefix=""):
         # type: (ASTAssignment) -> str
-        from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
         symbol.block_type = BlockType.STATE
-        ret = self.print_origin(symbol) + GSLNamesConverter.name(symbol) + ' '
+        ret = self.print_origin(symbol) + self.names_converter.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:

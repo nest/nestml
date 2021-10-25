@@ -590,9 +590,15 @@ void
 {%- for var in numeric_state_variables_moved|sort %}
             S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
 {%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+{%- endfor %}
         }
         else {
 {%- for var in numeric_state_variables_moved|sort %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // XXX: not 0 but initial value!
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
             S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // XXX: not 0 but initial value!
 {%- endfor %}
         }
@@ -663,7 +669,11 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
         **/
 
 {%- for stmt in spike_update_stmts %}
-{{printer.print_node(stmt)}};
+{%- if useGSL %}
+        {{printer.print_node(stmt)}};
+{%- else %}
+        {{nest_printer.print_node(stmt)}};
+{%- endif %}
 {%- endfor %}
 
 {%- for _, spike_update in post_spike_updates.items() %}
@@ -673,6 +683,9 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_
 {%- for var in numeric_state_variables_moved|sort %}
+    , get_{{var}}()
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
     , get_{{var}}()
 {%- endfor %}
 , 0
@@ -736,6 +749,9 @@ double
 #endif
 
 {%- for var_ in numeric_state_variables_moved %}
+      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+{%- endfor %}
+{%- for var_ in analytic_state_variables_moved %}
       S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 
@@ -809,6 +825,9 @@ double
 {%- for var_ in numeric_state_variables_moved %}
     S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
+{%- for var_ in analytic_state_variables_moved %}
+    S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
+{%- endfor %}
 
 #ifdef DEBUG
     std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{names.getter(var_sym)}}() << std::endl;
@@ -828,6 +847,9 @@ double
 
   // set to initial value
 {%- for var_ in numeric_state_variables_moved %}
+      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // XXX: not 0 but real "initial value"!
+{%- endfor %}
+{%- for var_ in analytic_state_variables_moved %}
       S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // XXX: not 0 but real "initial value"!
 {%- endfor %}
 
