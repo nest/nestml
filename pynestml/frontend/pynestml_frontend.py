@@ -134,7 +134,7 @@ def install_nest(target_path: str, **path) -> None:
     actual = set(path.keys())
 
     if actual == expected:
-         nest_installer(target_path, path["nest_path"], path["install_path"])         
+        nest_installer(target_path, path["nest_path"], path["install_path"])         
     else:
         raise ValueError("Path must contain \"nest_path\" or \"install_path\" ")
 
@@ -143,7 +143,7 @@ def install_nest(target_path: str, **path) -> None:
     lib_key = ""
 
     if system == "Linux":
-       lib_key = "LD_LIBRARY_PATH"
+        lib_key = "LD_LIBRARY_PATH"
     else:
         lib_key = "DYLD_LIBRARY_PATH"
 
@@ -243,14 +243,9 @@ def store_log_to_file():
 
 
 def update_lib_path(path, lib_key):
-    
-    # local testing
-    #frontend_location = os.path.dirname(os.path.realpath(__file__))
-    #shell_script_path = os.path.join(str(Path(frontend_location).parent.parent), "shell", "add_lib_path.sh") 
-
     shell_script_path = os.path.expanduser("~/.bashrc")
-    
     lines = []
+
     with open(shell_script_path, "r") as bashrc:
         lines = bashrc.readlines()
 
