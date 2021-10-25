@@ -27,7 +27,7 @@ from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 
 
-def install_nest(target_path: str, nest_path: str) -> None:
+def install_nest(target_path: str, nest_path: str, install_path:str = None) -> None:
     """
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
@@ -37,6 +37,8 @@ def install_nest(target_path: str, nest_path: str) -> None:
         Path to the target directory, which should contain the generated code artifacts (target platform code and CMake configuration file).
     nest_path : str
         Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
+    install_dir: str
+        Path to the install directory, where the generated module library will be created.
 
     Raises
     ------
@@ -45,13 +47,21 @@ def install_nest(target_path: str, nest_path: str) -> None:
     InvalidPathException
         If a failure occurs while trying to access the target path or the NEST installation path.
     """
-    if not os.path.isdir(target_path):
-        raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
 
     if not os.path.isdir(nest_path):
         raise InvalidPathException('NEST path (' + nest_path + ') is not a directory!')
+    nest_config_path = '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config')
+    
+    if not os.path.isabs(install_path):
+        raise InvalidPathException(f"Install directory: {install_path} must be absolute path")
+    install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
+    
+    if not os.path.isdir(target_path):
+        raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
 
-    cmake_cmd = ['cmake', '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config'), '.']
+    
+
+    cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
     make_all_cmd = ['make', 'all']
     make_install_cmd = ['make', 'install']
 

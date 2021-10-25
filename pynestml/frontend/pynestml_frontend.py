@@ -23,6 +23,12 @@ from typing import Any, Mapping, Optional, Sequence, Union
 
 import os
 import sys
+import platform
+from pathlib import Path
+import subprocess
+
+
+
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
@@ -39,6 +45,10 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
+
+
+def test():
+    print("hello from nestml")
 
 def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
@@ -106,7 +116,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         raise Exception("Error(s) occurred while processing the model")
 
 
-def install_nest(target_path: str, nest_path: str) -> None:
+def install_nest(target_path: str, **path) -> None:
     '''
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
@@ -117,12 +127,35 @@ def install_nest(target_path: str, nest_path: str) -> None:
     nest_path : str
         Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
 
+    install_dir: str
+        Path to the install directory, where the generated module library will be created.
+
     Raises
     ------
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
     '''
-    nest_installer(target_path, nest_path)
+    
+    expected = {"nest_path", "install_path"}
+    actual = set(path.keys())
+
+    if actual == expected:
+         nest_installer(target_path, path["nest_path"], path["install_path"])         
+    else:
+        raise ValueError("Path can only contain \"nest_path\" or \"install_path\" ")
+
+    
+    osx = platform.system()
+    lib_key = ""
+
+    if osx == "Linux":
+       lib_key = "LD_LIBRARY_PATH"
+    else:
+        lib_key = "DYLD_LIBRARY_PATH"
+
+    update_lib_path(path["install_path"], lib_key)
+
+
 
 
 def main():
@@ -213,3 +246,48 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
+
+
+def update_lib_path(path, lib_key):
+    
+    # local testing
+    #frontend_location = os.path.dirname(os.path.realpath(__file__))
+    #shell_script_path = os.path.join(str(Path(frontend_location).parent.parent), "shell", "add_lib_path.sh") 
+
+    shell_script_path = os.path.expanduser("~/.bashrc")
+
+    lines = []
+    with open(shell_script_path, "r") as bashrc:
+        lines = bashrc.readlines()
+
+    with open(shell_script_path, "w+") as new_bashrc:  
+        expression = f"export {lib_key}"
+        expression_not_found = True
+        to_write_back = []
+        for line in lines:
+            if expression in line:
+                split_line = line.split("=")
+                paths = split_line[1].split(":")
+                paths = [p.strip() for p in paths]
+                if path not in paths:
+                    new_expression = line + os.pathsep + path
+                    to_write_back.append(new_expression)
+
+                expression_not_found = False
+    
+            else:
+                to_write_back.append(line)
+        
+        if expression_not_found:
+            line = f"export {lib_key}={path}"
+            to_write_back.append(line)
+        new_bashrc.writelines(to_write_back)
+    
+    if lib_key in os.environ :
+        os.environ[lib_key] += os.pathsep + path
+    else:
+        os.environ[lib_key] = path
+    
+
+    
+
