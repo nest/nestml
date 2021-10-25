@@ -102,7 +102,6 @@ jobs:
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
           rc=0
           for fn in $ipynb_fns; do
-              cd $GITHUB_WORKSPACE/doc/tutorials
               cd `dirname ${fn}`
               ipython3 ${fn} || rc=1
           done;
