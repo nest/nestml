@@ -125,7 +125,7 @@ class NestWBCondExpTest(unittest.TestCase):
             ax[1].set_ylabel("I_syn")
             ax[1].legend(frameon=False, loc="upper right")
 
-            plt.savefig("resources/traub_cond_multisyn.png")
+            plt.savefig("traub_cond_multisyn.png")
             # plt.show()
 
 
