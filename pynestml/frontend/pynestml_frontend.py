@@ -131,20 +131,25 @@ def install_nest(target_path: str, **path) -> None:
     '''
     expected = {"nest_path", "install_path"}
     actual = set(path.keys())
-
+    must_use_diferent_path = False
     if actual == expected:
         nest_installer(target_path, path["nest_path"], path["install_path"])
+        must_use_diferent_path = True
     else:
-        raise ValueError("Path must contain \"nest_path\" or \"install_path\" ")
-    system = platform.system()
-    lib_key = ""
+        if "nest_path" in path:
+            nest_installer(target_path, path["nest_path"], path["nest_path"])
+        else:
+            raise ValueError("Path must contain at least\"nest_path\" and \"install_path\" is optional ")
+    if must_use_diferent_path:
+        system = platform.system()
+        lib_key = ""
 
-    if system == "Linux":
-        lib_key = "LD_LIBRARY_PATH"
-    else:
-        lib_key = "DYLD_LIBRARY_PATH"
+        if system == "Linux":
+            lib_key = "LD_LIBRARY_PATH"
+        else:
+            lib_key = "DYLD_LIBRARY_PATH"
 
-    update_lib_path(path["install_path"], lib_key)
+        update_lib_path(path["install_path"], lib_key)
 
 
 
