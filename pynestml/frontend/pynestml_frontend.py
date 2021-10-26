@@ -269,7 +269,7 @@ def update_lib_path(path, lib_key):
             to_write_back.append(line)
         new_bashrc.writelines(to_write_back)
     
-    if lib_key in os.environ :
+    if lib_key in os.environ:
         os.environ[lib_key] += os.pathsep + path
     else:
         os.environ[lib_key] = path
