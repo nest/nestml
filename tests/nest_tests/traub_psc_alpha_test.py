@@ -102,7 +102,7 @@ class NestWBCondExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/traub_psc_alpha.png")
+            plt.savefig("traub_psc_alpha.png")
             # plt.show()
 
 
