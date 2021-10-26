@@ -27,7 +27,7 @@ from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 
 
-def install_nest(target_path: str, nest_path: str, install_path:str = None) -> None:
+def install_nest(target_path: str, nest_path: str, install_path: str = None) -> None:
     """
     This method can be used to build the generated code and install the resulting extension module into NEST.
 

@@ -128,17 +128,14 @@ def install_nest(target_path: str, **path) -> None:
     ------
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
-    '''
-    
+    '''    
     expected = {"nest_path", "install_path"}
     actual = set(path.keys())
 
     if actual == expected:
-        nest_installer(target_path, path["nest_path"], path["install_path"])         
+        nest_installer(target_path, path["nest_path"], path["install_path"])   
     else:
         raise ValueError("Path must contain \"nest_path\" or \"install_path\" ")
-
-    
     system = platform.system()
     lib_key = ""
 
