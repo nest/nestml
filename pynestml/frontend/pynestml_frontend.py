@@ -128,12 +128,12 @@ def install_nest(target_path: str, **path) -> None:
     ------
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
-    '''    
+    '''
     expected = {"nest_path", "install_path"}
     actual = set(path.keys())
 
     if actual == expected:
-        nest_installer(target_path, path["nest_path"], path["install_path"])   
+        nest_installer(target_path, path["nest_path"], path["install_path"])
     else:
         raise ValueError("Path must contain \"nest_path\" or \"install_path\" ")
     system = platform.system()
@@ -245,8 +245,7 @@ def update_lib_path(path, lib_key):
 
     with open(shell_script_path, "r") as bashrc:
         lines = bashrc.readlines()
-
-    with open(shell_script_path, "w+") as new_bashrc:  
+    with open(shell_script_path, "w+") as new_bashrc:
         expression = f"export {lib_key}"
         expression_not_found = True
         to_write_back = []
@@ -260,20 +259,13 @@ def update_lib_path(path, lib_key):
                     to_write_back.append(new_expression)
 
                 expression_not_found = False
-    
             else:
                 to_write_back.append(line)
-        
         if expression_not_found:
             line = f"export {lib_key}={path}"
             to_write_back.append(line)
         new_bashrc.writelines(to_write_back)
-    
     if lib_key in os.environ:
         os.environ[lib_key] += os.pathsep + path
     else:
         os.environ[lib_key] = path
-    
-
-    
-
