@@ -240,31 +240,31 @@ def store_log_to_file():
 
 
 def update_lib_path(path, lib_key):
-    shell_script_path = os.path.expanduser("~/.bashrc")
-    lines = []
+    # shell_script_path = os.path.expanduser("~/.bashrc")
+    # lines = []
 
-    with open(shell_script_path, "r") as bashrc:
-        lines = bashrc.readlines()
-    with open(shell_script_path, "w+") as new_bashrc:
-        expression = f"export {lib_key}"
-        expression_not_found = True
-        to_write_back = []
-        for line in lines:
-            if expression in line:
-                split_line = line.split("=")
-                paths = split_line[1].split(":")
-                paths = [p.strip() for p in paths]
-                if path not in paths:
-                    new_expression = line + os.pathsep + path
-                    to_write_back.append(new_expression)
+    # with open(shell_script_path, "r") as bashrc:
+    #     lines = bashrc.readlines()
+    # with open(shell_script_path, "w+") as new_bashrc:
+    #     expression = f"export {lib_key}"
+    #     expression_not_found = True
+    #     to_write_back = []
+    #     for line in lines:
+    #         if expression in line:
+    #             split_line = line.split("=")
+    #             paths = split_line[1].split(":")
+    #             paths = [p.strip() for p in paths]
+    #             if path not in paths:
+    #                 new_expression = line + os.pathsep + path
+    #                 to_write_back.append(new_expression)
 
-                expression_not_found = False
-            else:
-                to_write_back.append(line)
-        if expression_not_found:
-            line = f"export {lib_key}={path}"
-            to_write_back.append(line)
-        new_bashrc.writelines(to_write_back)
+    #             expression_not_found = False
+    #         else:
+    #             to_write_back.append(line)
+    #     if expression_not_found:
+    #         line = f"export {lib_key}={path}"
+    #         to_write_back.append(line)
+    #     new_bashrc.writelines(to_write_back)
     if lib_key in os.environ:
         os.environ[lib_key] += os.pathsep + path
     else:
