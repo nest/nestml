@@ -51,16 +51,11 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     if not os.path.isdir(nest_path):
         raise InvalidPathException('NEST path (' + nest_path + ') is not a directory!')
     nest_config_path = '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config')
-    
     if not os.path.isabs(install_path):
         raise InvalidPathException(f"Install directory: {install_path} must be absolute path")
     install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
-    
     if not os.path.isdir(target_path):
         raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
-
-    
-
     cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
     make_all_cmd = ['make', 'all']
     make_install_cmd = ['make', 'install']
