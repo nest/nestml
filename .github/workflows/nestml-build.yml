@@ -103,7 +103,7 @@ jobs:
           nestml --input_path models --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
           cd target
           echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
-          cmake -Dwith-nest=${{ env.NEST_INSTALL }}/bin/nest-config .
+          cmake -Dwith-nest=${{ env.NEST_INSTALL }}/bin/nest-config -DCMAKE_INSTALL_PREFIX=${{ env.NEST_INSTALL }} .
           make && make install
 
       - name: Run integration tests
