@@ -110,7 +110,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         raise Exception("Error(s) occurred while processing the model")
 
 
-def install_nest(target_path: str, **path) -> None:
+def install_nest(target_path: str, nest_path: str, install_path: str=None) -> None:
     '''
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
@@ -121,7 +121,7 @@ def install_nest(target_path: str, **path) -> None:
     nest_path : str
         Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
 
-    install_dir: str
+    install_path: str
         Path to the install directory, where the generated module library will be created.
 
     Raises
@@ -129,17 +129,12 @@ def install_nest(target_path: str, **path) -> None:
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
     '''
-    expected = {"nest_path", "install_path"}
-    actual = set(path.keys())
     must_use_diferent_path = False
-    if actual == expected:
-        nest_installer(target_path, path["nest_path"], path["install_path"])
+    if install_path is not None:
+        nest_installer(target_path, nest_path, install_path)
         must_use_diferent_path = True
     else:
-        if "nest_path" in path:
-            nest_installer(target_path, path["nest_path"], path["nest_path"])
-        else:
-            raise ValueError("Path must contain at least\"nest_path\" and \"install_path\" is optional ")
+        nest_installer(target_path, nest_path, nest_path)
     if must_use_diferent_path:
         system = platform.system()
         lib_key = ""
@@ -149,7 +144,7 @@ def install_nest(target_path: str, **path) -> None:
         else:
             lib_key = "DYLD_LIBRARY_PATH"
 
-        update_lib_path(path["install_path"], lib_key)
+        update_lib_path(install_path, lib_key)
 
 
 
