@@ -101,7 +101,7 @@ class NestWBCondExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/wb_cond_exp.png")
+            plt.savefig("wb_cond_exp.png")
             # plt.show()
 
         self.assertLessEqual(expected_value, tolerance_value)

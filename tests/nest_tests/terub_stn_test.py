@@ -103,7 +103,7 @@ class NestSTNExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("/tmp/terub_stn.png")
+            plt.savefig("terub_stn.png")
 
 
 if __name__ == "__main__":

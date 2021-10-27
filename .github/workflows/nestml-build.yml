@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
-          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
 
       # Install Java
       - name: Install Java 8
@@ -45,9 +45,8 @@ jobs:
       # Install Python dependencies
       - name: Python dependencies
         run: |
-          python -m pip install --upgrade pip pytest
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle
           python -m pip install -r requirements.txt
-          python -m pip install pycodestyle
           python -m pip uninstall --yes odetoolbox
           python -m pip install --yes git+https://github.com/clinssen/ode-toolbox.git@inhomogeneous_odes
 
@@ -69,7 +68,7 @@ jobs:
           python3 extras/codeanalysis/check_copyright_headers.py || :
           python3 -m pycodestyle $GITHUB_WORKSPACE -v --ignore=E241,E501,E303,E714,E713,E714,E252,W503 --exclude=tests --exclude=$GITHUB_WORKSPACE/doc,$GITHUB_WORKSPACE/.git,$GITHUB_WORKSPACE/NESTML.egg-info,$GITHUB_WORKSPACE/pynestml/generated,$GITHUB_WORKSPACE/extras,$GITHUB_WORKSPACE/build,$GITHUB_WORKSPACE/.github || :
 
-      # Tests
+      # Unit tests
       - name: Run unit tests
         run: |
           pytest -s -o norecursedirs='*'  -o log_cli=true -o log_cli_level="DEBUG" tests || :
@@ -117,7 +116,20 @@ jobs:
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
           python setup.py install
 
-      # Integration tests
+      # Run IPython/Jupyter notebooks
+      - name: Run Jupyter notebooks
+        run: |
+          cd $GITHUB_WORKSPACE
+          ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
+          rc=0
+          for fn in $ipynb_fns; do
+              cd `dirname ${fn}`
+              ipython3 ${fn} || rc=1
+          done;
+          cd $GITHUB_WORKSPACE
+          exit $rc
+
+      # Integration tests: prepare (make module containing all NESTML models)
       - name: Setup integration tests
         run: |
           cd $GITHUB_WORKSPACE
@@ -130,6 +142,7 @@ jobs:
           cmake -Dwith-nest=${{ env.NEST_INSTALL }}/bin/nest-config .
           make && make install
 
+      # Integration tests
       - name: Run integration tests
         run: |
           cd $GITHUB_WORKSPACE
