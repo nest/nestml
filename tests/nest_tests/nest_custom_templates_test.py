@@ -24,7 +24,7 @@ import unittest
 import nest
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-#from pynestml.utils.model_installer import install_nest
+# from pynestml.utils.model_installer import install_nest
 
 
 class NestCustomTemplatesTest(unittest.TestCase):
