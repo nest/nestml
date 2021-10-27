@@ -48,6 +48,8 @@ jobs:
           python -m pip install --upgrade pip pytest
           python -m pip install -r requirements.txt
           python -m pip install pycodestyle
+          python -m pip uninstall --yes odetoolbox
+          python -m pip install --yes git+https://github.com/clinssen/ode-toolbox.git@inhomogeneous_odes
 
       - name: Install NESTML
         run: |
