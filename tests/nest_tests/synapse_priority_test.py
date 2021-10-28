@@ -58,7 +58,6 @@ class NestSynapsePriorityTest(unittest.TestCase):
                                                         "post_ports": ["post_spikes"]}]})
         install_nest("/tmp/nestml-synapse-event-priority-test", nest_path)
 
-
     def test_synapse_event_priority(self):
 
         fname_snip = ""
@@ -72,24 +71,25 @@ class NestSynapsePriorityTest(unittest.TestCase):
         post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
         pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))      # [ms]
 
-        pre_spike_times = np.array([  3., 50.])   # one additional pre spike to ensure processing of post spikes in the intermediate interval
-        post_spike_times = np.array([  2.])
+        # one additional pre spike to ensure processing of post spikes in the intermediate interval
+        pre_spike_times = np.array([3., 50.])
+        post_spike_times = np.array([2.])
 
         self.run_synapse_test(
-                              resolution=.5, # [ms]
-                              delay=1., # [ms]
-                              pre_spike_times=pre_spike_times,
-                              post_spike_times=post_spike_times,
-                              fname_snip=fname_snip)
+            resolution=.5,  # [ms]
+            delay=1.,  # [ms]
+            pre_spike_times=pre_spike_times,
+            post_spike_times=post_spike_times,
+            fname_snip=fname_snip)
 
     def run_nest_simulation(self, neuron_model_name,
-                              synapse_model_name,
-                              resolution=1., # [ms]
-                              delay=1., # [ms]
-                              sim_time=None,  # if None, computed from pre and post spike times
-                              pre_spike_times=None,
-                              post_spike_times=None,
-                              fname_snip=""):
+                            synapse_model_name,
+                            resolution=1.,  # [ms]
+                            delay=1.,  # [ms]
+                            sim_time=None,  # if None, computed from pre and post spike times
+                            pre_spike_times=None,
+                            post_spike_times=None,
+                            fname_snip=""):
 
         if pre_spike_times is None:
             pre_spike_times = []
@@ -115,7 +115,7 @@ class NestSynapsePriorityTest(unittest.TestCase):
         # wr = nest.Create('weight_recorder')
         nest.CopyModel(synapse_model_name, "syn_nestml",
                        {"d": delay})
-                    #    {"weight_recorder": wr[0], "d": delay})
+        #    {"weight_recorder": wr[0], "d": delay})
 
         # create spike_generators with these times
         pre_sg = nest.Create("spike_generator",
@@ -144,36 +144,35 @@ class NestSynapsePriorityTest(unittest.TestCase):
         nest.Simulate(sim_time)
         return syn.get("tr")
 
-    def run_synapse_test(self, 
-                              resolution=1., # [ms]
-                              delay=1., # [ms]
-                              sim_time=None,  # if None, computed from pre and post spike times
-                              pre_spike_times=None,
-                              post_spike_times=None,
-                              fname_snip=""):
-
+    def run_synapse_test(self,
+                         resolution=1.,  # [ms]
+                         delay=1.,  # [ms]
+                         sim_time=None,  # if None, computed from pre and post spike times
+                         pre_spike_times=None,
+                         post_spike_times=None,
+                         fname_snip=""):
 
         neuron_model_name = "iaf_psc_delta_nestml__with_synapse_event_priority_test_nestml"
         synapse_model_name = "synapse_event_priority_test_nestml__with_iaf_psc_delta_nestml"
         tr = self.run_nest_simulation(neuron_model_name=neuron_model_name,
-                                 synapse_model_name=synapse_model_name,
-                                 resolution=resolution,
-                                 delay=delay,
-                                 sim_time=sim_time,
-                                 pre_spike_times=pre_spike_times,
-                                 post_spike_times=post_spike_times,
-                                 fname_snip=fname_snip)
+                                      synapse_model_name=synapse_model_name,
+                                      resolution=resolution,
+                                      delay=delay,
+                                      sim_time=sim_time,
+                                      pre_spike_times=pre_spike_times,
+                                      post_spike_times=post_spike_times,
+                                      fname_snip=fname_snip)
 
         neuron_model_name = "iaf_psc_delta_nestml__with_synapse_event_inv_priority_test_nestml"
         synapse_model_name = "synapse_event_inv_priority_test_nestml__with_iaf_psc_delta_nestml"
         tr_inv = self.run_nest_simulation(neuron_model_name=neuron_model_name,
-                                 synapse_model_name=synapse_model_name,
-                                 resolution=resolution,
-                                 delay=delay,
-                                 sim_time=sim_time,
-                                 pre_spike_times=pre_spike_times,
-                                 post_spike_times=post_spike_times,
-                                 fname_snip=fname_snip)
+                                          synapse_model_name=synapse_model_name,
+                                          resolution=resolution,
+                                          delay=delay,
+                                          sim_time=sim_time,
+                                          pre_spike_times=pre_spike_times,
+                                          post_spike_times=post_spike_times,
+                                          fname_snip=fname_snip)
 
         np.testing.assert_allclose(tr, 7.28318)
         np.testing.assert_allclose(tr_inv, 5.14159)

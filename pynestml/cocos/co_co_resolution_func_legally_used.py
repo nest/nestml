@@ -66,7 +66,7 @@ class CoCoResolutionFuncLegallyUsedVisitor(ASTVisitor):
                 _node = self.neuron.get_parent(_node)
 
                 if isinstance(_node, ASTEquationsBlock) \
-                 or isinstance(_node, ASTFunction):
+                        or isinstance(_node, ASTFunction):
                     code, message = Messages.get_could_not_resolve(function_name)
                     Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                    log_level=LoggingLevel.ERROR)
+                                       log_level=LoggingLevel.ERROR)

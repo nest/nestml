@@ -59,18 +59,18 @@ class NoisySynapseTest(unittest.TestCase):
 
         self.run_synapse_test(neuron_model_name=self.neuron_model_name,
                               synapse_model_name=self.synapse_model_name,
-                              resolution=.1, # [ms]
-                              delay=1., # [ms]
+                              resolution=.1,  # [ms]
+                              delay=1.,  # [ms]
                               pre_spike_times=pre_spike_times,
                               fname_snip=fname_snip)
 
     def run_synapse_test(self, neuron_model_name,
-                              synapse_model_name,
-                              resolution=.1, # [ms]
-                              delay=1., # [ms]
-                              sim_time=None,  # if None, computed from pre and post spike times
-                              pre_spike_times=None,
-                              fname_snip=""):
+                         synapse_model_name,
+                         resolution=.1,  # [ms]
+                         delay=1.,  # [ms]
+                         sim_time=None,  # if None, computed from pre and post spike times
+                         pre_spike_times=None,
+                         fname_snip=""):
 
         if pre_spike_times is None:
             pre_spike_times = []
@@ -104,7 +104,7 @@ class NoisySynapseTest(unittest.TestCase):
         post_neuron = nest.Create(neuron_model_name, {"tau_m": 2.})
 
         spikedet_pre = nest.Create("spike_recorder")
-        mm = nest.Create("multimeter", params={"record_from" : ["V_m"]})
+        mm = nest.Create("multimeter", params={"record_from": ["V_m"]})
 
         nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
         nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'noisy_synapse_nestml_rec'})
@@ -129,15 +129,15 @@ class NoisySynapseTest(unittest.TestCase):
             fig, ax = plt.subplots(nrows=3)
 
             pre_spike_times_ = nest.GetStatus(spikedet_pre, "events")[0]["times"]
-            print("Actual pre spike times: "+ str(pre_spike_times_))
+            print("Actual pre spike times: " + str(pre_spike_times_))
 
             n_spikes = len(pre_spike_times_)
             for i in range(n_spikes):
-               if i == 0:
-                _lbl = "nestml"
-               else:
-                _lbl = None
-               ax[0].plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4,label=_lbl)
+                if i == 0:
+                    _lbl = "nestml"
+                else:
+                    _lbl = None
+                ax[0].plot(2 * [pre_spike_times_[i] + delay], [0, 1], linewidth=2, color="blue", alpha=.4, label=_lbl)
 
             timevec = nest.GetStatus(mm, "events")[0]["times"]
             V_m = nest.GetStatus(mm, "events")[0]["V_m"]
@@ -149,7 +149,7 @@ class NoisySynapseTest(unittest.TestCase):
             for _ax in ax:
                 _ax.grid(which="major", axis="both")
                 _ax.grid(which="minor", axis="x", linestyle=":", alpha=.4)
-                #_ax.minorticks_on()
+                # _ax.minorticks_on()
                 _ax.set_xlim(0., sim_time)
                 _ax.legend()
 
