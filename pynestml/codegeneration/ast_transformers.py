@@ -414,15 +414,15 @@ class ASTTransformers:
             expr = kernel
 
         rhs_is_delta_kernel = type(expr) is ASTSimpleExpression \
-                              and expr.is_function_call() \
-                              and expr.get_function_call().get_scope().resolve_to_symbol(
+            and expr.is_function_call() \
+            and expr.get_function_call().get_scope().resolve_to_symbol(
             expr.get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function["delta"]
         rhs_is_multiplied_delta_kernel = type(expr) is ASTExpression \
-                                         and type(expr.get_rhs()) is ASTSimpleExpression \
-                                         and expr.get_rhs().is_function_call() \
-                                         and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
+            and type(expr.get_rhs()) is ASTSimpleExpression \
+            and expr.get_rhs().is_function_call() \
+            and expr.get_rhs().get_function_call().get_scope().resolve_to_symbol(
             expr.get_rhs().get_function_call().get_name(), SymbolKind.FUNCTION) == PredefinedFunctions.name2function[
-                                             "delta"]
+            "delta"]
         return rhs_is_delta_kernel or rhs_is_multiplied_delta_kernel
 
     @classmethod
@@ -881,7 +881,8 @@ class ASTTransformers:
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(), differential_order=0)
+                    ast_variable = ASTVariable(replace_with_var_name + '__d' *
+                                               var.get_differential_order(), differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
 
@@ -897,7 +898,8 @@ class ASTTransformers:
                and isinstance(decl.get_expression(), ASTSimpleExpression) \
                and '__X__' in str(decl.get_expression()):
                 replace_with_var_name = decl.get_expression().get_variable().get_name()
-                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(x, decl.get_variable_name(), replace_with_var_name)))
+                neuron.accept(ASTHigherOrderVisitor(lambda x: replace_var(
+                    x, decl.get_variable_name(), replace_with_var_name)))
 
     @classmethod
     def replace_variable_names_in_expressions(cls, neuron: ASTNeuron, solver_dicts: List[dict]) -> None:
