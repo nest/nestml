@@ -69,8 +69,8 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
         if t_sp == t:  # exact floating point match!
             if before_increment:
                 if extra_debug:
-                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) +
-                          ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
+                    print("\t   [%] exact (before_increment = T), prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev)
+                          + ", decayed by dt = " + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
                 return tr
             else:
                 if extra_debug:
@@ -83,8 +83,8 @@ def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=Fa
         _tr_prev = tr
     tr *= np.exp(-(t - t_sp_prev) / tau)
     if extra_debug:
-        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = " +
-              str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
+        print("\t   [&] prev trace = " + str(_tr_prev) + " at t = " + str(t_sp_prev) + ", decayed by dt = "
+              + str(t - t_sp_prev) + ", tau = " + str(tau) + " to t = " + str(t) + ": returning trace: " + str(tr))
     return tr
 
 
@@ -127,8 +127,8 @@ def run_reference_simulation(syn_opts,
             weight = np.clip(weight + r1 * (syn_opts["A2_plus"] + syn_opts["A3_plus"]
                              * o2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
             # print("\tnew weight = " + str(weight))
-            print("[NESTML] stdp_connection: facilitating from " + str(old_weight) + " to " +
-                  str(weight) + " with pre tr = " + str(r1) + ", post tr = " + str(o2))
+            print("[NESTML] stdp_connection: facilitating from " + str(old_weight) + " to "
+                  + str(weight) + " with pre tr = " + str(r1) + ", post tr = " + str(o2))
 
         if spk_time in times_spikes_pre:
             # print("Pre spike --> depression")
@@ -145,8 +145,8 @@ def run_reference_simulation(syn_opts,
             weight = np.clip(weight - o1 * (syn_opts["A2_minus"] + syn_opts["A3_minus"]
                              * r2), a_min=syn_opts["w_min"], a_max=syn_opts["w_max"])
             # print("\tnew weight = " + str(weight))
-            print("[NESTML] stdp_connection: depressing from " + str(old_weight) + " to " +
-                  str(weight) + " with pre tr = " + str(r2) + ", post tr = " + str(o1))
+            print("[NESTML] stdp_connection: depressing from " + str(old_weight) + " to "
+                  + str(weight) + " with pre tr = " + str(r2) + ", post tr = " + str(o1))
 
         log[spk_time] = {"weight": weight}
 

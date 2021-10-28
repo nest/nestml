@@ -103,5 +103,3 @@ class NestCustomTemplatesTest(unittest.TestCase):
         to_nest(input_paths, target_path, logging_level, module_name, store_log, suffix, dev, codegen_opts)
         install_nest(target_path, nest_path)
         nest.set_verbosity("M_ALL")
-
-

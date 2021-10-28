@@ -881,8 +881,8 @@ class ASTTransformers:
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
                 if var.get_name() == replace_var_name:
-                    ast_variable = ASTVariable(replace_with_var_name + '__d' *
-                                               var.get_differential_order(), differential_order=0)
+                    ast_variable = ASTVariable(replace_with_var_name + '__d' * var.get_differential_order(),
+                                               differential_order=0)
                     ast_variable.set_source_position(var.get_source_position())
                     _expr.set_variable(ast_variable)
 

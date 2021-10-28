@@ -318,5 +318,5 @@ class NestSTDPSynapseTest(unittest.TestCase):
         # verify
         MAX_ABS_ERROR = 1E-6
         assert np.any(np.abs(np.array(w_hist) - 1) > MAX_ABS_ERROR), "No change in the weight!"
-        assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) <
-                      MAX_ABS_ERROR), "Difference between NESTML model and reference model!"
+        assert np.all(np.abs(np.array(w_hist) - np.array(w_hist_ref)) < MAX_ABS_ERROR), \
+            "Difference between NESTML model and reference model!"
