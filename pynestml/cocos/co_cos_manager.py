@@ -47,6 +47,7 @@ from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPort
 from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
@@ -342,6 +343,13 @@ class CoCosManager:
         CoCoPrioritiesCorrectlySpecified.check_co_co(neuron)
 
     @classmethod
+    def check_resolution_func_legally_used(cls, neuron: ASTNeuron):
+        """
+        :param neuron: a single neuron object.
+        """
+        CoCoResolutionFuncLegallyUsed.check_co_co(neuron)
+
+    @classmethod
     def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -380,3 +388,4 @@ class CoCosManager:
         cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
         cls.check_co_co_priorities_correctly_specified(neuron)
+        cls.check_resolution_func_legally_used(neuron)

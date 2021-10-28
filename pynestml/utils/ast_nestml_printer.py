@@ -708,7 +708,7 @@ def print_ml_comments(comments, indent=0, newline=False):
             ret += c_line + '\n'
         if len(comment.splitlines(True)) > 1:
             ret += print_n_spaces(indent)
-    if len(comments) > 0:
+    if len(comments) > 0 and newline:
         ret += '\n'
 
     return ret

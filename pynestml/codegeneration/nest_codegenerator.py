@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import glob
+from re import S
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import datetime
@@ -152,10 +153,11 @@ class NESTCodeGenerator(CodeGenerator):
         self._model_templates["neuron"].extend(self.__setup_template_env(neuron_model_templates, templates_root_dir))
 
         # Setup synapse template environment
-        synapse_model_templates = self.get_option("templates")['model_templates']['synapse']
-        if synapse_model_templates:
-            self._model_templates["synapse"] = list()
-            self._model_templates["synapse"].extend(self.__setup_template_env(synapse_model_templates, templates_root_dir))
+        if 'synapse' in self.get_option("templates")['model_templates']:
+            synapse_model_templates = self.get_option("templates")['model_templates']['synapse']
+            if synapse_model_templates:
+                self._model_templates["synapse"] = list()
+                self._model_templates["synapse"].extend(self.__setup_template_env(synapse_model_templates, templates_root_dir))
 
         # Setup modules template environment
         module_templates = self.get_option("templates")['module_templates']
@@ -947,7 +949,9 @@ class NESTCodeGenerator(CodeGenerator):
 
         return neurons, synapses
 
-    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse]) -> None:
+    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
+        if synapses is None:
+            synapses = []
         if self._options and "neuron_synapse_pairs" in self._options:
             neurons, synapses = self.analyse_transform_neuron_synapse_pairs(neurons, synapses)
         self.analyse_transform_neurons(neurons)

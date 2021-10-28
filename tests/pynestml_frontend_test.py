@@ -18,6 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import pytest
 import sys
@@ -41,7 +42,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
     def test_codegeneration_for_single_model(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join('..', 'models', 'iaf_psc_exp.nestml'))))
+                                                 os.path.join('..', 'models', 'neurons', 'iaf_psc_exp.nestml'))))
         params = list()
         params.append('nestml')
         params.append('--input_path')

@@ -54,7 +54,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'iaf_psc_alpha.nestml'))))
+            os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -73,7 +73,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_delta(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'iaf_psc_delta.nestml'))))
+            os.pardir, 'models', 'neurons', 'iaf_psc_delta.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -92,7 +92,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_cond_alpha_functional(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'iaf_cond_alpha.nestml'))))
+            os.pardir, 'models', 'neurons', 'iaf_cond_alpha.nestml'))))
 
         params = list()
         params.append('--input_path')
@@ -113,7 +113,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha_with_codegen_opts(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'iaf_psc_alpha.nestml'))))
+            os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
@@ -149,13 +149,13 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_iaf_psc_alpha_with_codegen_opts(self):
         input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, 'models', 'iaf_psc_alpha.nestml'))))
+            os.pardir, 'models', 'neurons', 'iaf_psc_alpha.nestml'))))
 
         code_opts_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                            os.path.join('resources', 'code_options.json'))))
         codegen_opts = {"templates": {
             "path": "point_neuron",
-            "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+            "model_templates": {"neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2']},
             "module_templates": ['setup/CMakeLists.txt.jinja2',
                                  'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
         }}
