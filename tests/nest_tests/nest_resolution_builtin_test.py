@@ -34,7 +34,7 @@ class NestResolutionBuiltinTest(unittest.TestCase):
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        to_nest(input_path=["tests/nest_tests/resources/iaf_psc_exp_resolution_test.nestml", os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),"..", "valid", "CoCoResolutionLegallyUsed.nestml")))],
+        to_nest(input_path=["tests/nest_tests/resources/iaf_psc_exp_resolution_test.nestml", os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "valid", "CoCoResolutionLegallyUsed.nestml")))],
                 target_path="target",
                 logging_level="INFO",
                 module_name="nestmlmodule",
