@@ -31,6 +31,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 synapse CoCoResolutionLegallyUsed:
   parameters:
+    d ms = 1 ms  @nest::delay
     a ms = resolution()
   end
 
@@ -44,15 +45,10 @@ synapse CoCoResolutionLegallyUsed:
     
   input:
     pre_spikes real <- spike
-    post_spikes real <- spike
   end
 
   onReceive(pre_spikes):
     x ms = resolution()
-  end
-
-  onReceive(post_spikes):
-    y ms = resolution()
   end
 
   update:

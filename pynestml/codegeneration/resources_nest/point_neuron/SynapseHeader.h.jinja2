@@ -582,6 +582,7 @@ inline void set_weight(double w) {
   void
   send( Event& e, const thread tid, const {{synapseName}}CommonSynapseProperties& cp )
   {
+    const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
     auto get_thread = [tid]()
     {
@@ -1015,6 +1016,8 @@ updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespa
 template < typename targetidentifierT >
 void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
 {
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
 {%- for variable in synapse.get_internal_symbols() %}
 {%-     if not variable.get_symbol_name() == "__h" %}
 {%-         include "directives/Calibrate.jinja2" %}
@@ -1028,6 +1031,7 @@ void {{synapseName}}< targetidentifierT >::init_internals_block_symbols()
 template < typename targetidentifierT >
 {{synapseName}}< targetidentifierT >::{{synapseName}}() : ConnectionBase()
 {
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
 {%- for parameter in synapse.get_parameter_symbols() %}
 {%-     with variable = parameter %}

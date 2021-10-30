@@ -105,7 +105,8 @@ class NESTReferenceConverter(IReferenceConverter):
             return '||'
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
-            return 'nest::Time::get_resolution().get_ms()'
+            # context dependent; we assume the template contains the necessary definitions
+            return '__resolution'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'

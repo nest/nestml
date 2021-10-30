@@ -140,6 +140,8 @@ namespace nest
 
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
   recordablesMap_.create();
 
   calibrate();
@@ -307,6 +309,8 @@ void {{neuronName}}::init_buffers_()
 }
 
 void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
   if (exclude_timestep) {
 {%- filter indent(4,True) %}
 {%- for variable in neuron.get_internal_symbols() %}
@@ -381,6 +385,8 @@ void {{neuronName}}::calibrate() {
 {%- endif %}
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
+    const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
 {%- if useGSL %}
 //  double __t = 0;
 {%- endif %}
