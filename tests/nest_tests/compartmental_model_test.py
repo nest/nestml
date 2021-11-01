@@ -77,22 +77,22 @@ class CMTest(unittest.TestCase):
                 logging_level="ERROR")
         install_nest(os.path.join(path_target, "compartmental_model/"), path_nest)
 
-        nest.Install("cm_defaultmodule")
 
-
-    def get_model(self):
+    def get_model(self, reinstall_flag=False):
         if self.nestml_flag:
             try:
+                if reinstall_flag:
+                    raise AssertionError
+
                 nest.Install("cm_defaultmodule")
 
-                cm_act = nest.Create("cm_main_cm_default")
-                cm_pas = nest.Create("cm_main_cm_default")
-
-            except nest.pynestkernel.NESTError as e:
+            except (nest.pynestkernel.NESTError, AssertionError) as e:
                 self.install_nestml_model()
 
-                cm_act = nest.Create("cm_main_cm_default")
-                cm_pas = nest.Create("cm_main_cm_default")
+                nest.Install("cm_defaultmodule")
+
+            cm_act = nest.Create("cm_main_cm_default")
+            cm_pas = nest.Create("cm_main_cm_default")
 
         else:
             cm_pas = nest.Create('cm_main')
@@ -189,7 +189,7 @@ class CMTest(unittest.TestCase):
             # plot voltage for somatic compartment
             ax_soma = plt.subplot(221)
             ax_soma.set_title('NEST')
-            ax_soma.plot(res_pas_nest['times'], res_act_nestml['v_comp0'], c='b', label='passive dend')
+            ax_soma.plot(res_pas_nest['times'], res_pas_nest['v_comp0'], c='b', label='passive dend')
             ax_soma.plot(res_act_nest['times'], res_act_nest['v_comp0'], c='b', ls='--', lw=2., label='active dend')
             ax_soma.set_xlabel(r'$t$ (ms)')
             ax_soma.set_ylabel(r'$v_{soma}$ (mV)')

@@ -202,7 +202,7 @@ std::pair< double, double > nest::{{ion_channel_name}}::f_numstep(const double v
 
 {%- for synapse_name, synapse_info in syns_info.items() %}
 // {{synapse_name}} synapse ////////////////////////////////////////////////////////////////
-nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const long syn_index, const DictionaryDatum& receptor_params )
+nest::{{synapse_name}}::{{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params )
   {%- for param_name, param_declaration in synapse_info["parameters_used"].items() %}
     {% if loop.first %}: {% else %}, {% endif -%}
     {{param_name}} ({{printer.print_expression(param_declaration.get_expression(), with_origins = False)}})
@@ -215,9 +215,6 @@ nest::{{synapse_name}}::{{synapse_name}}( std::shared_ptr< RingBuffer >  {{synap
   if( receptor_params->known( "{{param_name}}" ) )
     {{param_name}} = getValue< double >( receptor_params, "{{param_name}}" );
   {%- endfor %}
-
-  // store pointer to ringbuffer
-  {{synapse_info["buffer_name"]}}_ = {{synapse_info["buffer_name"]}};
 }
 
 void
