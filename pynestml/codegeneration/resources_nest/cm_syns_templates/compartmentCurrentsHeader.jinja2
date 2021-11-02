@@ -42,7 +42,7 @@ public:
     ~{{ion_channel_name}}(){};
 
     // initialization channel
-    void init(){
+    void calibrate(){
     {%- for pure_variable_name, variable_info in channel_info["gating_variables"].items() -%}
         {%- set variable = variable_info["state_variable"] -%}
         {%- set rhs_expression = variable_info["rhs_expression"] -%}
@@ -113,11 +113,11 @@ private:
   {%- endfor %}
 
   // spike buffer
-  std::shared_ptr< RingBuffer > {{synapse_info["buffer_name"]}}_;
+  RingBuffer* {{synapse_info["buffer_name"]}}_;
 
 public:
   // constructor, destructor
-  {{synapse_name}}(std::shared_ptr< RingBuffer >  {{synapse_info["buffer_name"]}}, const long syn_index, const DictionaryDatum& receptor_params);
+  {{synapse_name}}( const long syn_index, const DictionaryDatum& receptor_params);
   ~{{synapse_name}}(){};
 
   // numerical integration step
@@ -126,6 +126,10 @@ public:
   // calibration
   void calibrate();
   void append_recordables(std::map< std::string, double* >* recordables);
+  void set_buffer_ptr( std::vector< RingBuffer >& syn_buffers )
+  {
+    {{synapse_info["buffer_name"]}}_ = &syn_buffers[ syn_idx ];
+  };
 
   // function declarations
   {% for function in neuron.get_functions() %}
@@ -169,11 +173,11 @@ public:
   };
   ~CompartmentCurrents{{cm_unique_suffix}}(){};
 
-  void init(){
+  void calibrate(){
     // initialization of the ion channels
   {%- with %}
     {%- for ion_channel_name, channel_info in chan_info.items() %}
-    {{ion_channel_name}}{{channel_suffix}}.init();
+    {{ion_channel_name}}{{channel_suffix}}.calibrate();
     {% endfor -%}
   {% endwith -%}
 
@@ -192,15 +196,13 @@ public:
 
   }
 
-  void add_synapse_with_buffer( const std::string& type, std::shared_ptr< RingBuffer > b_spikes, const long syn_idx, const DictionaryDatum& receptor_params )
+  void add_synapse( const std::string& type, const long syn_idx, const DictionaryDatum& receptor_params )
   {
   {%- with %}
   {%- for synapse_name, synapse_info in syns_info.items() %}
     {% if not loop.first %}else{% endif %} if ( type == "{{synapse_name}}" )
     {
-      //{{synapse_name}} syn( b_spikes, receptor_params );
-      //{{synapse_name}}_syns_.push_back( syn );
-      {{synapse_name}}_syns_.push_back( {{synapse_name}}( b_spikes, syn_idx, receptor_params ) );
+      {{synapse_name}}_syns_.push_back( {{synapse_name}}( syn_idx, receptor_params ) );
     }
   {% endfor -%}
   {% endwith -%}
@@ -208,6 +210,17 @@ public:
     {
       assert( false );
     }
+  };
+
+  void set_syn_buffers( std::vector< RingBuffer >& syn_buffers )
+  {
+    // spike buffers for synapses
+    {%- with %}
+    {%- for synapse_name, synapse_info in syns_info.items() %}
+    for( auto syn_it = {{synapse_name}}_syns_.begin(); syn_it != {{synapse_name}}_syns_.end(); syn_it++)
+      syn_it->set_buffer_ptr( syn_buffers );
+    {% endfor -%}
+    {% endwith -%}
   };
 
   std::map< std::string, double* > get_recordables( const long compartment_idx )
