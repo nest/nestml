@@ -112,7 +112,7 @@ class NESTCodeGenerator(CodeGenerator):
         env = Environment(loader=FileSystemLoader(
                 [
                     os.path.join(os.path.dirname(__file__), 'resources_nest'),
-                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_syns_templates')
+                    os.path.join(os.path.dirname(__file__), 'resources_nest', 'cm_templates')
                 ]
             ))
         env.globals['raise'] = raise_helper
@@ -142,12 +142,12 @@ class NESTCodeGenerator(CodeGenerator):
 
     # setup compartmental model files
     def setupCmSynsFiles(self, env):
-        self._cm_syns_template_compartmentcurrents_cpp_file = env.get_template('compartmentCurrentsClass.jinja2')
-        self._cm_syns_template_compartmentcurrents_h_file = env.get_template('compartmentCurrentsHeader.jinja2')
-        self._cm_syns_template_main_cpp_file = env.get_template('cmSynsMainClass.jinja2')
-        self._cm_syns_template_main_h_file = env.get_template('cmSynsMainHeader.jinja2')
-        self._cm_syns_template_tree_cpp_file = env.get_template('cmSynsTreeClass.jinja2')
-        self._cm_syns_template_tree_h_file = env.get_template('cmSynsTreeHeader.jinja2')
+        self._cm_syns_template_compartmentcurrents_cpp_file = env.get_template('CompartmentCurrentsClass.jinja2')
+        self._cm_syns_template_compartmentcurrents_h_file = env.get_template('CompartmentCurrentsHeader.jinja2')
+        self._cm_syns_template_main_cpp_file = env.get_template('MainClass.jinja2')
+        self._cm_syns_template_main_h_file = env.get_template('MainHeader.jinja2')
+        self._cm_syns_template_tree_cpp_file = env.get_template('TreeClass.jinja2')
+        self._cm_syns_template_tree_h_file = env.get_template('TreeHeader.jinja2')
 
     def generate_code(self, neurons):
         self.analyse_transform_neurons(neurons)
