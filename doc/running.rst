@@ -1,6 +1,9 @@
 Running NESTML
 ##############
 
+From the command line
+---------------------
+
 After the installation, the toolchain can be executed by the following command.
 
 .. code-block:: bash
@@ -18,7 +21,7 @@ where arguments are:
    * - ``-h`` or ``--help``
      - Print help message.
    * - ``--input_path``
-     - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching '*.nestml'.
+     - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching '\*.nestml'.
    * - ``--target_path``
      - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
    * - ``--target``
@@ -50,13 +53,17 @@ where ``<nest_install_dir>`` is the installation directory of NEST (e.g. ``/home
 
    nest.Install("nestmlmodule")
 
-PyNESTML is also available as a component and can therefore be used from within other Python tools and scripts. After PyNESTML has been installed, the following modules have to be imported:
+
+From Python
+-----------
+
+PyNESTML is also available as a Python package, and can therefore be used from within other Python tools and scripts. After PyNESTML has been installed, the following functions have to be imported:
 
 .. code-block:: python
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-Subsequently, it is possible to call PyNESTML from other Python tools and scripts via:
+Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``to_nest()``, which generates the C++ code for NEST, and ``install_nest()``, which compiles and builds the code into a NEST extension module. ``to_nest()`` can be called as follows:
 
 .. code-block:: python
 
@@ -91,9 +98,9 @@ This operation expects the same set of arguments as in the case of command line 
      - False
    * - codegen_opts
      - Optional[Mapping[str, Any]]
-     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator.
+     - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. These options are specific to a given target platform, see for example :ref:`Running NESTML with custom templates`.
 
-If no errors occur, the output will be generated into the specified target directory. In order to avoid an execution of all required module-installation routines by hand, PyNESTML features a function for an installation of NEST models directly into NEST:
+If no errors occur, code for the target platform will be generated into the specified target directory. The code is then compiled and built into a NEST extension module by the following call.
 
 .. code-block:: python
 
@@ -120,11 +127,13 @@ A typical script, therefore, could look like the following. For this example, we
    # ...
    nest.Simulate(400.)
 
-Running NESTML with custom templates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.
 
-The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file.
+Running NESTML with custom templates
+------------------------------------
+
+NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. (For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.)
+
+The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file. (Note that this parameter also exists in the ``to_nest()`` function.)
 
 .. code-block:: bash
 
@@ -144,10 +153,10 @@ An example ``codegen_options.json`` file is as follows:
         }
    }
 
-The ``templates`` option in the JSON file contains information on the custom jinja templates to be used for code generation.
-* The ``path`` option indicates the root directory of the custom jinja templates.
-* The ``model_templates`` option indicates the names of the jinja templates for neuron model(s) or relative path to a directory containing the neuron model(s) templates.
-* The ``module_templates`` option indicates the names or relative path to a directory containing the jinja templates used to build a NEST extension module.
+The ``templates`` option in the JSON file contains information on the custom Jinja templates to be used for code generation.
+* The ``path`` option indicates the root directory of the custom Jinja templates.
+* The ``model_templates`` option indicates the names of the Jinja templates for neuron model(s) or relative path to a directory containing the neuron model(s) templates.
+* The ``module_templates`` option indicates the names or relative path to a directory containing the Jinja templates used to build a NEST extension module.
 
 The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as follows:
 
@@ -166,16 +175,15 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
 
    to_nest(input_path, target_path, logging_level, module_name, store_log, dev, options)
 
+
 Running in NEST 2.* compatibility mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.1), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
+To generate code that is compatible with NEST Simulator major version 2 (in particular, 2.20.\*), use the following for the code generator dictionary (this is extracted from `tests/nest_tests/nest2_compat_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest2_compat_test.py>`__):
 
 .. code-block:: python
 
    codegen_opts = {
-       "neuron_parent_class_include": "archiving_node.h",
-       "neuron_parent_class": "Archiving_Node",
        "templates": {
            "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
                                 'resources_nest', 'point_neuron_nest2'),
