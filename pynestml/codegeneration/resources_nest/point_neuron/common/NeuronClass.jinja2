@@ -67,14 +67,14 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // ---------------------------------------------------------------------------
 //   Recordables map
 // ---------------------------------------------------------------------------
-{%- if not has_vectors %}
+{%- if not has_state_vectors %}
 nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
 {%- endif %}
 namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
-{%- if has_vectors %}
+{%- if has_state_vectors %}
 template <> void DynamicRecordablesMap<{{neuronName}}>::create({{neuronName}}& host)
 {%- else %}
 template <> void RecordablesMap<{{neuronName}}>::create()
@@ -82,7 +82,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   {
 
 {%- if recordable_state_variables|length > 0 %}
-{%- if has_vectors %}
+{%- if has_state_vectors %}
 {%-   for sym in recordable_state_variables %}
 {%-     if not sym.has_vector_parameter() %}
     insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{names.name(sym).upper()}} ));
@@ -105,14 +105,14 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
     // Add vector variables
 {%- filter indent(2,True) %}
-{%- if has_vectors %}
+{%- if has_state_vectors %}
     host.insert_recordables();
 {%- endif %}
 {%- endfilter %}
   }
 }
 
-{%- if has_vectors %}
+{%- if has_state_vectors %}
   std::string {{neuronName}}::get_var_name(size_t elem, std::string var_name)
   {
     std::stringstream n;
@@ -214,7 +214,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
-{%- if has_vectors %}
+{%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- else %}
   recordablesMap_.create();
@@ -247,7 +247,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
 
-{%- if has_vectors %}
+{%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- endif %}
 }

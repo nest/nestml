@@ -6,7 +6,7 @@
 {%- if not variable.is_inline_expression and not variable.is_state() %}
 {{declarations.print_variable_type(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{names.name(variable)}}", tmp_{{names.name(variable)}});
-{%- if (has_vectors) %}
+{%- if neuron.get_vector_symbols()|length > 0 %}
 // Resize vectors
 if (tmp_{{names.name(variable)}} != {{names.getter(variable)}}())
 {

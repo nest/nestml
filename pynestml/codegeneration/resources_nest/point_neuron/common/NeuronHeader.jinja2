@@ -218,7 +218,7 @@ private:
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
-{%- if (has_vectors) %}
+{%- if (has_state_vectors) %}
   friend class nest::DynamicRecordablesMap< {{neuronName}} >;
   friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
   friend class nest::DataAccessFunctor< {{neuronName}} >;
@@ -288,7 +288,7 @@ private:
   struct State_
   {
 {%- if not useGSL %}
-{%- if has_vectors %}
+{%- if has_state_vectors %}
 {%  include "directives/StateVariablesEnum.jinja2" %}
 {%- endif %}
 {%-   filter indent(4,True) %}
@@ -297,7 +297,7 @@ private:
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
-{%- if has_vectors %}
+{%- if has_state_vectors %}
 {%- include "directives/VectorVariablesEnum.jinja2" %}
 {%- endif %}
     //! Symbolic indices to the elements of the state vector y
@@ -368,7 +368,7 @@ private:
     /**
      * Logger for all analog data
     **/
-{%- if (has_vectors) %}
+{%- if (has_state_vectors) %}
     nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
 {%- else %}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
@@ -505,7 +505,7 @@ private:
   Buffers_    B_;  //!< Buffers.
 
   //! Mapping of recordables names to access functions
-{%- if has_vectors %}
+{%- if has_state_vectors %}
   nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
   nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
   std::string get_var_name(size_t elem, std::string var_name);

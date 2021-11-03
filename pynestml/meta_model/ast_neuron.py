@@ -517,7 +517,7 @@ class ASTNeuron(ASTNode):
                 return True
         return False
 
-    def has_vectors(self) -> bool:
+    def has_state_vectors(self) -> bool:
         """
         This method indicates if the neuron has variables defined as vectors.
         :return: True if vectors are defined, false otherwise.

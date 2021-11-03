@@ -12,7 +12,7 @@
 {%- if assignments.is_vectorized_assignment(ast) %}
 {%-   if lhs_variable.has_vector_parameter() %}
 {%-   set lhs_vector_variable = assignments.lhs_vector_variable(ast) %}
-{%-     if lhs_vector_variable == None %}
+{%-     if lhs_vector_variable is none %}
         {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}[{{ast.get_variable().get_vector_parameter()}}]
 {%-     else %}
         {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}[{{printer.print_origin(lhs_vector_variable)}}{{names.name(lhs_vector_variable)}}]

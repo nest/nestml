@@ -61,9 +61,9 @@ class NestAssignmentsHelper:
                                                           SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
-        else:
-            Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.WARNING)
-            return None
+
+        Logger.log_message(message='No symbol could be resolved!', log_level=LoggingLevel.WARNING)
+        return None
 
     @classmethod
     def print_assignments_operation(cls, assignment):
