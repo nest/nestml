@@ -61,7 +61,7 @@ synapse neuromodulated_stdp:
     deliver_spike(w, the_delay)
   end
 
-  # update from time t to t + resolution
+  # update from time t to t + resolution()
   update:
     # resolution() returns the timestep to be made (in units of time)
     # the sequence here matters: the update step for w requires the "old" values of c and n

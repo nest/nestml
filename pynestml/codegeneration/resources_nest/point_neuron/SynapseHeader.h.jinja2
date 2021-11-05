@@ -174,6 +174,19 @@ public:
 
 {%- if vt_ports is defined and vt_ports|length > 0  %}
     volume_transmitter* vt_;
+
+    inline long get_vt_node_id() const
+    {
+      if ( vt_ != 0 )
+      {
+        return vt_->get_node_id();
+      }
+      else
+      {
+        return -1;
+      }
+    }
+
 {%- endif %}
 };
 
@@ -562,7 +575,7 @@ inline void set_weight(double w) {
   check_connection( Node& s,
     Node& t,
     rport receptor_type,
-    const CommonPropertiesType& )
+    const CommonPropertiesType& cp )
   {
     ConnTestDummyNode dummy_target;
     ConnectionBase::check_connection_( dummy_target, s, t, receptor_type );
@@ -576,6 +589,14 @@ inline void set_weight(double w) {
       exit(1);
     }
 {%- endif %}
+{%- if vt_ports is defined and vt_ports|length > 0  %}
+
+    if ( cp.vt_ == 0 )
+    {
+      throw BadProperty( "No volume transmitter has been assigned to the dopamine synapse." );
+    }
+{%- endif %}
+
     t.register_stdp_connection( t_lastspike_ - get_delay(), get_delay() );
   }
 
@@ -679,7 +700,6 @@ inline void set_weight(double w) {
 {%- endfilter %}
         V_.__h = old___h;
         init_internals_block_symbols();  // XXX: can be skipped?
-
 
 #ifdef DEBUG
         std::cout << "\tFacilitating, old w = " << S_.w << "\n";
@@ -1097,9 +1117,10 @@ inline void
     return;
   }
 
+  const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
+
   const double old___h = V_.__h;
   V_.__h = timestep;
-  this->timestep += V_.__h;
   init_internals_block_symbols();
 {%- filter indent(6, True) %}
 {%- include "directives/AnalyticIntegrationStep_begin.jinja2" %}
@@ -1134,14 +1155,16 @@ inline void
   const CommonPropertiesType& cp )
 {
   // propagate all state variables in the synapse to time t_trig
-
+#ifdef DEBUG
+    std::cout << "{{synapseName}}::trigger_update_weight(): propagating until t = " << t_trig << std::endl;
+#endif
   // purely dendritic delay
   double dendritic_delay = get_delay();
 
   // get spike history in relevant range (t_last_update, t_trig] from postsyn. neuron
-  std::deque< histentry >::iterator start;
-  std::deque< histentry >::iterator finish;
-  get_target( t )->get_history( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
+  std::deque< histentry__{{paired_neuron}} >::iterator start;
+  std::deque< histentry__{{paired_neuron}} >::iterator finish;
+  static_cast<{{paired_neuron}}*>(get_target(t))->get_history__( t_last_update_ - dendritic_delay, t_trig - dendritic_delay, &start, &finish );
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
@@ -1154,6 +1177,10 @@ inline void
 {%- set vt_port = vt_ports[0] %}
     process_{{vt_port}}_spikes_( vt_spikes, t0, start->t_ + dendritic_delay, cp );
 {%- endfor %}
+
+#ifdef DEBUG
+    std::cout << "{{synapseName}}::trigger_update_weight(): \tprocessing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
+#endif
 
     /**
      * update synapse internal state from `t_last_update_` to `start->t_`
@@ -1203,13 +1230,19 @@ inline void
   process_{{vt_port}}_spikes_( vt_spikes, t_lastspike_, t_trig, cp );
 {%- endfor %}
 
-  update_internal_state_(t_lastspike,
+#ifdef DEBUG
+    std::cout << "{{synapseName}}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
+#endif
+
+  update_internal_state_(t_lastspike_,
                          (t_trig + dendritic_delay) - t_lastspike_,
                          cp);
 
   t_last_update_ = t_trig;
   vt_spikes_idx_ = 0;
   t_lastspike_ = t_trig;
+
+  
 }
 
 
