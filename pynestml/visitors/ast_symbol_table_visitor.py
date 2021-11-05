@@ -248,11 +248,11 @@ class ASTSymbolTableVisitor(ASTVisitor):
         is_recordable = (node.is_recordable
                          or self.block_type_stack.top() == BlockType.STATE)
         init_value = node.get_expression() if self.block_type_stack.top() == BlockType.STATE else None
-        vector_parameter = node.get_size_parameter()
         # now for each variable create a symbol and update the scope
         for var in node.get_variables():  # for all variables declared create a new symbol
             var.update_scope(node.get_scope())
             type_symbol = PredefinedTypes.get_type(type_name)
+            vector_parameter = var.get_vector_parameter()
             symbol = VariableSymbol(element_reference=node,
                                     scope=node.get_scope(),
                                     name=var.get_complete_name(),

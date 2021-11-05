@@ -106,6 +106,9 @@ class MessageCode(Enum):
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
     TEMPLATE_ROOT_PATH_CREATED = 79
+    VECTOR_PARAMETER_WRONG_BLOCK = 80
+    VECTOR_PARAMETER_WRONG_TYPE = 81
+    VECTOR_PARAMETER_WRONG_SIZE = 82
 
 
 class Messages:
@@ -1165,3 +1168,21 @@ class Messages:
         message = "Given template root path is not an absolute path. " \
                   "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
+
+    @classmethod
+    def get_vector_parameter_wrong_block(cls, var, block):
+        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
+                  "The vector parameter can only be declared in parameters or internals block."
+        return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
+
+    @classmethod
+    def get_vector_parameter_wrong_type(cls, var):
+        message = "The vector parameter '" + var + "' is of the wrong type." \
+                  "The vector parameter can be only of type integer."
+        return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
+
+    @classmethod
+    def get_vector_parameter_wrong_size(cls, var, value):
+        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+                  "which is less than or equal to 0."
+        return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message

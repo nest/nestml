@@ -67,29 +67,76 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // ---------------------------------------------------------------------------
 //   Recordables map
 // ---------------------------------------------------------------------------
+{%- if not has_state_vectors %}
 nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
-
+{%- endif %}
 namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
-  template <> void RecordablesMap<{{neuronName}}>::create()
-  {
-{%- if recordable_state_variables|length > 0 %}
-    // add state variables to recordables map
-{%- for sym in recordable_state_variables %}
-    insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
-{%- endfor %}
+{%- if has_state_vectors %}
+template <> void DynamicRecordablesMap<{{neuronName}}>::create({{neuronName}}& host)
+{%- else %}
+template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endif %}
-{%- if recordable_inline_expressions|length > 0 %}
+  {
 
+{%- if recordable_state_variables|length > 0 %}
+{%- if has_state_vectors %}
+{%-   for sym in recordable_state_variables %}
+{%-     if not sym.has_vector_parameter() %}
+    insert("{{sym.get_symbol_name()}}", host.get_data_access_functor( {{neuronName}}::State_::{{names.name(sym).upper()}} ));
+{%-     endif %}
+{%-   endfor %}
+{%- else %}
+    // add state variables to recordables map
+{%-   for sym in recordable_state_variables %}
+   insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+{%-   endfor %}
+{%- endif %}
+{%- endif %}
+
+{%- if recordable_inline_expressions|length > 0 %}
     // add recordable inline expressions to recordables map
 {%- for sym in recordable_inline_expressions %}
 	insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
+
+    // Add vector variables
+{%- filter indent(2,True) %}
+{%- if has_state_vectors %}
+    host.insert_recordables();
+{%- endif %}
+{%- endfilter %}
   }
 }
+
+{%- if has_state_vectors %}
+  std::string {{neuronName}}::get_var_name(size_t elem, std::string var_name)
+  {
+    std::stringstream n;
+    n << var_name << elem + 1;
+    return n.str();
+  }
+
+  void {{neuronName}}::insert_recordables(size_t first)
+  {
+{%- for variable in neuron.get_vector_state_symbols() %}
+      for (size_t i = 0; i < {{printer.print_vector_size_parameter(variable)}}; i++)
+      {
+        size_t elem = {{neuronName}}::State_::{{names.name(variable).upper()}} + i;
+        recordablesMap_.insert(get_var_name(i, "{{names.name(variable).upper()}}_"), this->get_data_access_functor(elem));
+      }
+{%- endfor %}
+  }
+
+  nest::DataAccessFunctor< {{neuronName}} >
+  {{neuronName}}::get_data_access_functor( size_t elem )
+  {
+    return nest::DataAccessFunctor< {{neuronName}} >( *this, elem );
+  }
+{%- endif %}
 
 // ---------------------------------------------------------------------------
 //   Default constructors defining default parameters and state
@@ -139,16 +186,14 @@ namespace nest
 
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
-  recordablesMap_.create();
-
   calibrate();
 {%- if useGSL %}
 
   // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
   P_.__gsl_error_tol = 1e-3;
 {%- endif %}
-{%- if parameter_syms_with_iv|length > 0 %}
 
+{%- if parameter_syms_with_iv|length > 0 %}
   // initial values for parameters
 {%- filter indent(2) %}
 {%- for parameter in parameter_syms_with_iv %}
@@ -158,8 +203,8 @@ namespace nest
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
-{%- if neuron.get_state_symbols()|length > 0 %}
 
+{%- if neuron.get_state_symbols()|length > 0 %}
   // initial values for state variables
 {%- filter indent(2) %}
 {%- for init in neuron.get_state_symbols() %}
@@ -169,6 +214,12 @@ namespace nest
 {%- endfor %}
 {%- endfilter %}
 {%- endif %}
+{%- if has_state_vectors %}
+  recordablesMap_.create(*this);
+{%- else %}
+  recordablesMap_.create();
+{%- endif %}
+
 }
 
 // ---------------------------------------------------------------------------
@@ -177,6 +228,7 @@ namespace nest
 
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n):
   {{neuron_parent_class}}(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this) {
+
   // copy parameter struct P_
 {%- for parameter in neuron.get_parameter_symbols() %}
   P_.{{names.name(parameter)}} = __n.P_.{{names.name(parameter)}};
@@ -184,19 +236,20 @@ namespace nest
 
   // copy state struct S_
 {%- for state in neuron.get_state_symbols() %}
+{%-   if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
   S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
-{%- endfor %}
-
-{%- for init in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
-  S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
 {%-   endif %}
 {%- endfor %}
+
 
   // copy internals V_
 {%- for internal in neuron.get_internal_symbols() %}
   V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
+
+{%- if has_state_vectors %}
+  recordablesMap_.create(*this);
+{%- endif %}
 }
 
 // ---------------------------------------------------------------------------
@@ -293,15 +346,7 @@ void {{neuronName}}::calibrate()
 {%- endfor %}
 {%- endfilter %}
 
-  // state S_
 {%- filter indent(2) %}
-{%- for variable in neuron.get_state_symbols() %}
-{%-   if variable.has_vector_parameter() %}
-{%-     include "directives/Calibrate.jinja2" %}
-{%-   endif %}
-{%- endfor %}
-{%- endfilter %}
-
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
 {%-   if port.has_vector_parameter() %}
@@ -309,13 +354,14 @@ void {{neuronName}}::calibrate()
   B_.{{port.get_symbol_name()}}_grid_sum_.resize(P_.{{port.get_vector_parameter()}});
 {%-   endif %}
 {%- endfor %}
+{%- endfilter %}
 }
-{%- if neuron.get_functions()|length > 0 %}
 
 // ---------------------------------------------------------------------------
 //   Functions defined in the NESTML model
 // ---------------------------------------------------------------------------
 
+{%- if neuron.get_functions()|length > 0 %}
 {%- for function in neuron.get_functions() %}
 {{printer.print_function_definition(function, neuronName)}}
 {

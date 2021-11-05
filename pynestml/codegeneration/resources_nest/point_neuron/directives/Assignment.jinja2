@@ -8,17 +8,19 @@
 {%- if lhs_variable is none %}
 {{ raise('Symbol with name "%s" could not be resolved' % ast.lhs.get_complete_name()) }}
 {%- endif %}
+
 {%- if assignments.is_vectorized_assignment(ast) %}
-for (long i=0; i < P_.{{assignments.print_size_parameter(ast)}}; i++)
-{
 {%-   if lhs_variable.has_vector_parameter() %}
-  {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}[i]
+{%-   set lhs_vector_variable = assignments.lhs_vector_variable(ast) %}
+{%-     if lhs_vector_variable is none %}
+        {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}[{{ast.get_variable().get_vector_parameter()}}]
+{%-     else %}
+        {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}[{{printer.print_origin(lhs_vector_variable)}}{{names.name(lhs_vector_variable)}}]
+{%-     endif %}
 {%-   else %}
-  {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}
+      {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}}
 {%-   endif %}
-  {{assignments.print_assignments_operation(ast)}}
-  {{printer.print_expression(ast.get_expression())}};
-}
+      {{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}};
 {%- else %}
-{{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}} {{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}};
+    {{printer.print_origin(lhs_variable)}}{{names.name(lhs_variable)}} {{assignments.print_assignments_operation(ast)}} {{printer.print_expression(ast.get_expression())}};
 {%- endif %}

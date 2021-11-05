@@ -249,9 +249,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
     def visitVariable(self, ctx):
+        vector_parameter = None
+        if ctx.vectorParameter is not None:
+            if ctx.vectorParameter.sizeStr is not None:
+                vector_parameter = ctx.vectorParameter.sizeStr.text
+            elif ctx.vectorParameter.sizeInt is not None:
+                vector_parameter = ctx.vectorParameter.sizeInt.text
+
         differential_order = (len(ctx.DIFFERENTIAL_ORDER()) if ctx.DIFFERENTIAL_ORDER() is not None else 0)
         return ASTNodeFactory.create_ast_variable(name=str(ctx.NAME()),
                                                   differential_order=differential_order,
+                                                  vector_parameter=vector_parameter,
                                                   source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
@@ -358,12 +366,10 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         for var in ctx.variable():
             variables.append(self.visit(var))
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
-        size_param = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_inline_expression=is_inline_expression,
                                                             variables=variables, data_type=data_type,
-                                                            size_parameter=size_param,
                                                             expression=expression,
                                                             invariant=invariant, source_position=create_source_pos(ctx))
         update_node_comments(declaration, self.__comments.visit(ctx))
