@@ -180,7 +180,6 @@ namespace nest
   last_spike_ = -1.;
 
   // cache initial values
-
 {%- for var in transferred_variables %}
 {%- with var_sym = transferred_variables_syms[var] %}
 {%- if not var == var_sym.get_symbol_name() %}
@@ -219,6 +218,17 @@ namespace nest
   n_incoming_ = __n.n_incoming;
   max_delay_ = __n.max_delay_;
   last_spike_ = __n.last_spike_;
+{%- endif %}
+
+  // cache initial values
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
+  {{var}}__iv = {{names.getter(var_sym)}}();
+{%- endwith %}
+{%- endfor %}
 {%- endif %}
 
   // cache initial values
