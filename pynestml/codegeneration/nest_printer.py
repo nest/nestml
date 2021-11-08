@@ -24,6 +24,13 @@ from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
+from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_expression_node import ASTExpressionNode
+from pynestml.meta_model.ast_for_stmt import ASTForStmt
+from pynestml.meta_model.ast_function import ASTFunction
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
+from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
@@ -208,7 +215,7 @@ class NestPrinter:
             ret += "__d"
         return ret
 
-    def print_expression(self, node: ASTExpressionNode, prefix: str="") -> str:
+    def print_expression(self, node: ASTExpressionNode, prefix: str = "") -> str:
         """
         Pretty Prints the handed over rhs to a nest readable format.
         :param node: a single meta_model node.
@@ -485,3 +492,38 @@ class NestPrinter:
         assert isinstance(ast_buffer, VariableSymbol), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of ast_buffer symbol provided (%s)!' % type(ast_buffer)
         return '//!< Buffer for input (type: ' + ast_buffer.get_type_symbol().get_symbol_name() + ')'
+
+    def print_vector_size_parameter(self, variable: VariableSymbol) -> str:
+        """
+        Prints NEST compatible vector size parameter
+        :param variable: Vector variable
+        :return: vector size parameter
+        """
+        vector_parameter = variable.get_vector_parameter()
+        vector_parameter_var = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
+        symbol = vector_parameter_var.get_scope().resolve_to_symbol(vector_parameter_var.get_complete_name(),
+                                                                    SymbolKind.VARIABLE)
+        vector_param = ""
+        if symbol is not None:
+            # size parameter is a variable
+            vector_param += self.print_origin(symbol) + vector_parameter
+        else:
+            # size parameter is an integer
+            vector_param += vector_parameter
+
+        return vector_param
+
+    def print_vector_declaration(self, variable: VariableSymbol) -> str:
+        """
+        Prints the vector declaration
+        :param variable: Vector variable
+        :return: the corresponding vector declaration statement
+        """
+        assert isinstance(variable, VariableSymbol), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of variable symbol provided (%s)!' % type(variable)
+
+        decl_str = self.print_origin(variable) + variable.get_symbol_name() + \
+            ".resize(" + self.print_vector_size_parameter(variable) + ", " + \
+            self.print_expression(variable.get_declaring_expression()) + \
+            ");"
+        return decl_str

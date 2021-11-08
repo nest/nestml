@@ -305,6 +305,36 @@ class ASTNeuron(ASTNeuronOrSynapse):
                 ret.append(symbol)
         return ret
 
+    def get_vector_state_symbols(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all state symbols that are vectors
+        :return: a list of vector state symbols
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        vector_state_symbols = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.STATE and \
+                    not symbol.is_predefined and symbol.has_vector_parameter():
+                vector_state_symbols.append(symbol)
+        return vector_state_symbols
+
+    def get_vector_symbols(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all the vector variables declared in State, Parameters, and Internals block
+        :return: a list of vector symbols
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        vector_symbols = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) \
+                    and (symbol.block_type == BlockType.STATE or symbol.block_type == BlockType.PARAMETERS
+                         or symbol.block_type == BlockType.INTERNALS) \
+                    and not symbol.is_predefined \
+                    and symbol.has_vector_parameter():
+                vector_symbols.append(symbol)
+
+        return vector_symbols
+
     def get_internal_symbols(self):
         """
         Returns a list of all internals symbol defined in the model.
@@ -395,7 +425,8 @@ class ASTNeuron(ASTNeuronOrSynapse):
 
         # check if defined for a higher order of differentiation
         for decl in self.get_equations_block().get_declarations():
-            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in decl.get_variable_names()]:
+            if type(decl) is ASTKernel and kernel_name in [s.replace("$", "__DOLLAR").replace("'", "") for s in
+                                                           decl.get_variable_names()]:
                 return decl
 
         return None
@@ -458,6 +489,18 @@ class ASTNeuron(ASTNeuronOrSynapse):
         for port in ports:
             if port.has_vector_parameter():
                 return True
+        return False
+
+    def has_state_vectors(self) -> bool:
+        """
+        This method indicates if the neuron has variables defined as vectors.
+        :return: True if vectors are defined, false otherwise.
+        """
+        state_symbols = self.get_state_symbols()
+        for symbol in state_symbols:
+            if symbol.has_vector_parameter():
+                return True
+
         return False
 
     def get_parameter_invariants(self):

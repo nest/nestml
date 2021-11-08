@@ -100,12 +100,16 @@ parser grammar PyNestMLParser;
 
   logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
+  indexParameter : (sizeStr=NAME | sizeInt=UNSIGNED_INTEGER);
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptors]'.
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
-  variable : name=NAME (DIFFERENTIAL_ORDER)*;
+  variable : name=NAME
+  (LEFT_SQUARE_BRACKET vectorParameter=indexParameter RIGHT_SQUARE_BRACKET)?
+  (DIFFERENTIAL_ORDER)*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
@@ -155,7 +159,6 @@ parser grammar PyNestMLParser;
     @attribute isInlineExpression: Is true iff. declaration is an inline expression.
     @attribute variable: List with variables.
     @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
-    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
     @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
@@ -163,7 +166,6 @@ parser grammar PyNestMLParser;
     (isRecordable=RECORDABLE_KEYWORD)? (isInlineExpression=INLINE_KEYWORD)?
     variable (COMMA variable)*
     dataType
-    (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     ( EQUALS rhs = expression)?
     (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?
     decorator=anyDecorator*;

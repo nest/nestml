@@ -216,6 +216,8 @@ e();
                                error_position=variable.get_source_position())
             return ''
 
+        if symbol.is_local():
+            return variable_name + ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
                 units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
@@ -226,10 +228,13 @@ e();
                 s += "(" + str(units_conversion_factor) + " * "
             s += NestPrinter.print_origin(symbol, prefix=prefix) + NestNamesConverter.buffer_value(symbol)
             if symbol.has_vector_parameter():
-                s += '[i]'
+                s += '[' + variable.get_vector_parameter() + ']'
             if not units_conversion_factor == 1:
                 s += ")"
             return s
+
+        if symbol.is_inline_expression:
+            return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_kernel():
             assert False, "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
@@ -240,7 +245,7 @@ e();
                 temp += GSLNamesConverter.name(symbol)
             else:
                 temp += NestNamesConverter.name(symbol)
-            temp += ('[i]' if symbol.has_vector_parameter() else '')
+            temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
 
         variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
@@ -252,7 +257,7 @@ e();
 
         return NestPrinter.print_origin(symbol, prefix=prefix) + \
             NestNamesConverter.name(symbol) + \
-            ('[i]' if symbol.has_vector_parameter() else '')
+            ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
 
     def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \
