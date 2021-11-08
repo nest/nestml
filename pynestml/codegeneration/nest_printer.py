@@ -24,13 +24,6 @@ from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ast_body import ASTBody
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-from pynestml.meta_model.ast_for_stmt import ASTForStmt
-from pynestml.meta_model.ast_function import ASTFunction
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator

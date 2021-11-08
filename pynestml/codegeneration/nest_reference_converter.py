@@ -217,7 +217,7 @@ e();
             return ''
 
         if symbol.is_local():
-            return variable_name + ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
+            return variable.get_name() + ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
                 units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
