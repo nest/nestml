@@ -1264,6 +1264,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['printerGSL'] = gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
+        namespace['has_state_vectors'] = False
+        namespace['vector_symbols'] = []
 
         # event handlers priority
         # XXX: this should be refactored in case we have additional modulatory (3rd-factor) spiking input ports in the synapse
@@ -1390,6 +1392,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
         namespace['has_state_vectors'] = neuron.has_state_vectors()
+        namespace['vector_symbols'] = neuron.get_vector_symbols()
 
         namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
         namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')

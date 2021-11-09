@@ -234,7 +234,7 @@ e();
             return s
 
         if symbol.is_inline_expression:
-            return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
+            return 'get_' + variable.get_name() + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_kernel():
             assert False, "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
