@@ -100,7 +100,7 @@ This operation expects the same set of arguments as in the case of command line 
      - Optional[Mapping[str, Any]]
      - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. These options are specific to a given target platform, see for example :ref:`Running NESTML with custom templates`.
 
-If no errors occur, code for the target platform will be generated into the specified target directory. The code is then compiled and built into a NEST extension module by the following call.
+If no errors occur, code for the target platform will be generated into the specified target directory. The code is then compiled and built into a NEST extension module and installed to the NEST install directory by the following call.
 
 .. code-block:: python
 
