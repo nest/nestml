@@ -27,7 +27,7 @@ where arguments are:
    * - ``--target``
      - (Optional) The name of the target platform to generate code for. Default is NEST.
    * - ``--logging_level``
-     - (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [INFO, WARNING, ERROR, NO]
+     - (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [DEBUG, INFO, WARNING, ERROR, NO]
    * - ``--module_name``
      - (Optional) Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in "module". Default is `nestmlmodule`.
    * - ``--store_log``
@@ -69,7 +69,7 @@ Subsequently, it is possible to call PyNESTML from other Python tools and script
 
    to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
 
-This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
+This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
 
 .. list-table::
    :header-rows: 1
