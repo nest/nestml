@@ -63,7 +63,7 @@ PyNESTML is also available as a Python package, and can therefore be used from w
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``to_nest()``, which generates the C++ code for NEST, and ``install_nest()``, which compiles and builds the code into a NEST extension module. ``to_nest()`` can be called as follows:
+Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``to_nest()``, which generates the C++ code for NEST, and ``install_nest()``, which compiles and builds the code into a NEST extension module and installs it to the NEST install directory. ``to_nest()`` can be called as follows:
 
 .. code-block:: python
 
@@ -100,7 +100,7 @@ This operation expects the same set of arguments as in the case of command line 
      - Optional[Mapping[str, Any]]
      - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. These options are specific to a given target platform, see for example :ref:`Running NESTML with custom templates`.
 
-If no errors occur, code for the target platform will be generated into the specified target directory. The code is then compiled and built into a NEST extension module by the following call.
+If no errors occur, code for the target platform will be generated into the specified target directory. The code is then compiled and built into a NEST extension module and installed to the NEST install directory by the following call.
 
 .. code-block:: python
 
