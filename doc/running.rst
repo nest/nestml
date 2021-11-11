@@ -63,7 +63,7 @@ PyNESTML is also available as a Python package, and can therefore be used from w
 
    from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
-Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``to_nest()``, which generates the C++ code for NEST, and ``install_nest()``, which compiles and builds the code into a NEST extension module. ``to_nest()`` can be called as follows:
+Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``to_nest()``, which generates the C++ code for NEST, and ``install_nest()``, which compiles and builds the code into a NEST extension module and installs it to the NEST install directory. ``to_nest()`` can be called as follows:
 
 .. code-block:: python
 
