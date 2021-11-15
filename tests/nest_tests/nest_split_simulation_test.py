@@ -80,7 +80,6 @@ class NestSplitSimulationTest(unittest.TestCase):
 
         return ts, Vms
 
-
     def test_nest_split_simulation(self):
         ts, Vms = self.run_simulation(T_sim=100., split=False)
         ts_split, Vms_split = self.run_simulation(T_sim=100., split=True)

@@ -222,7 +222,6 @@ appropriate numeric solver otherwise.
             Logger.log_message(code=MessageCode.MODULE_NAME_INFO, message='No module name specified; the generated module will be named "'
                                + cls.module_name + '"', log_level=LoggingLevel.INFO)
 
-
     @classmethod
     def handle_target(cls, target):
         if target is None or target.upper() == 'NONE':
