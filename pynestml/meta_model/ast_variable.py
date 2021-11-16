@@ -42,8 +42,8 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None, vector_parameter: Optional[str] = None, is_homogeneous: bool = False, *args, **kwargs):
-        r"""
+    def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
+                 vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
         Standard constructor.
         :param name: the name of the variable
         :type name: str
@@ -51,6 +51,7 @@ class ASTVariable(ASTNode):
         :type differential_order: int
         :param type_symbol: the type of the variable
         :param vector_parameter: the vector parameter of the variable
+        :param delay_parameter: the delay value to be used in the differential equation
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
@@ -64,6 +65,7 @@ class ASTVariable(ASTNode):
         self.type_symbol = type_symbol
         self.vector_parameter = vector_parameter
         self.is_homogeneous = is_homogeneous
+        self.delay_parameter = delay_parameter
 
     def clone(self):
         r"""
@@ -73,6 +75,7 @@ class ASTVariable(ASTNode):
                            differential_order=self.differential_order,
                            type_symbol=self.type_symbol,
                            vector_parameter=self.vector_parameter,
+                           delay_parameter=self.delay_parameter,
                            # ASTNode common attriutes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
@@ -160,8 +163,24 @@ class ASTVariable(ASTNode):
         """
         self.vector_parameter = vector_parameter
 
-    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+    def get_delay_parameter(self):
         r"""
+        """
+        Returns the delay parameter
+        :return: delay parameter
+        """
+        return self.delay_parameter
+
+    def set_delay_parameter(self, delay: str):
+        """
+        Updates the current delay parameter to the handed over value
+        :param delay: delay parameter
+        """
+        assert (delay is not None), '(PyNestML.AST.Variable) No delay parameter provided'
+        self.delay_parameter = delay
+
+    def get_parent(self, ast):
+        """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
         :return: AST if this or one of the child nodes contains the handed over element.
