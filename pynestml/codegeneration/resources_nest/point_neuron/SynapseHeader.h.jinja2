@@ -1135,7 +1135,9 @@ template < typename targetidentifierT >
     //weight_ = get_named_parameter<double>(names::weight);
     //set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
     t_lastspike_ = 0.;
+{%- if vt_ports is defined and vt_ports|length > 0  %}
     t_last_update_ = 0.;
+{%- endif %}
 }
 
 /**
@@ -1161,7 +1163,9 @@ template < typename targetidentifierT >
 
     //weight_ = get_named_parameter<double>(names::weight);
     //set_weight( *rhs.weight_ );
+{%- if vt_ports is defined and vt_ports|length > 0  %}
     t_last_update_ = rhs.t_last_update_;
+{%- endif %}
     t_lastspike_  = rhs.t_lastspike_;
 
     // special treatment of NEST delay
@@ -1214,7 +1218,9 @@ std::cout << "\tUpdating state from w = " << S_.w << " (with c = " << S_.c << ",
 {%- endfilter %}
 {%- endif %}
 
+{%- if vt_ports is defined and vt_ports|length > 0  %}
   t_last_update_ = t_start + timestep;
+{%- endif %}
 }
 
 /**

@@ -408,6 +408,7 @@ void {{neuronName}}::calibrate() {
   B_.logger_.init();
 
   calibrate_variables();
+
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
 {%-   if port.has_vector_parameter() %}
@@ -415,14 +416,13 @@ void {{neuronName}}::calibrate() {
   B_.{{port.get_symbol_name()}}_grid_sum_.resize(P_.{{port.get_vector_parameter()}});
 {%-   endif %}
 {%- endfor %}
-{%- endfilter %}
 }
+{%- if neuron.get_functions()|length > 0 %}
 
 // ---------------------------------------------------------------------------
 //   Functions defined in the NESTML model
 // ---------------------------------------------------------------------------
 
-{%- if neuron.get_functions()|length > 0 %}
 {%- for function in neuron.get_functions() %}
 {{printer.print_function_definition(function, neuronName)}}
 {
