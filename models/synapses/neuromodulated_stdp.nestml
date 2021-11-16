@@ -13,19 +13,23 @@ synapse neuromodulated_stdp:
 
   parameters:
     the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
-    lambda real = .01
     tau_tr_pre ms = 20 ms
     tau_tr_post ms = 20 ms
-    tau_c ms = 20 ms
-    tau_n ms = 20 ms
-    b real = 42.
+    tau_c ms = 1000 ms
+    tau_n ms = 200 ms
+    b real = 0.
     alpha real = 1.
     C1 real = 1.
     C2 real = 1.
-    Wmax real = 100.
+    Wmax real = 200.
     Wmin real = 0.
     A_plus real = 1.
-    A_minus real = 1.
+    A_minus real = 1.5
+  end
+
+  equations:
+    pre_tr' = -pre_tr / tau_tr_pre
+    post_tr' = -post_tr / tau_tr_post
   end
 
   internals:

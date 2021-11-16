@@ -97,7 +97,7 @@ class histentry__{{neuronName}}
 {
 public:
   histentry__{{neuronName}}( double t,
-{%- for var in numeric_state_variables_moved|sort%}
+{%- for var in purely_numeric_state_variables_moved|sort%}
 double {{var}},
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort%}
@@ -105,7 +105,7 @@ double {{var}},
 {%- endfor %}
 size_t access_counter )
   : t_( t )
-{%- for var in numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved|sort %}
   , {{var}}_( {{var}} )
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
@@ -116,7 +116,7 @@ size_t access_counter )
   }
 
   double t_;              //!< point in time when spike occurred (in ms)
-{%- for var in numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved|sort %}
    double {{var}}_;
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
@@ -415,7 +415,7 @@ public: // XXX! TODO: should be private
       {{variable_name}},
 {%-     endfor %}
       // moved state variables from synapse
-{%-     for variable_name in numeric_state_variables_moved|sort %}
+{%-     for variable_name in purely_numeric_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
 {%-     for variable_name in analytic_state_variables_moved|sort %}

@@ -214,11 +214,10 @@ namespace nest
   V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
 {%- endfor %}
 
-{%- if paired_neuron is defined %}
-  n_incoming_ = __n.n_incoming;
+{%- if paired_synapse is defined %}
+  n_incoming_ = __n.n_incoming_;
   max_delay_ = __n.max_delay_;
   last_spike_ = __n.last_spike_;
-{%- endif %}
 
   // cache initial values
 {%- for var in transferred_variables %}
@@ -229,18 +228,6 @@ namespace nest
   {{var}}__iv = {{names.getter(var_sym)}}();
 {%- endwith %}
 {%- endfor %}
-{%- endif %}
-
-  // cache initial values
-
-{%- for var in transferred_variables %}
-{%- with var_sym = transferred_variables_syms[var] %}
-{%- if not var == var_sym.get_symbol_name() %}
-{{ raise('Error in resolving variable to symbol') }}
-{%- endif %}
-  {{var}}__iv = {{names.getter(var_sym)}}();
-{%- endwith %}
-{%- endfor %}                        
 {%- endif %}
 }
 
@@ -440,7 +427,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
   }
-
 }
 
 // Do not move this function as inline to h-file. It depends on
@@ -615,7 +601,7 @@ void
         if (history_.size() > 0) {
             assert(history_.back().t_ == last_spike_);
 
-{%- for var in numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved|sort %}
             S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
@@ -623,7 +609,7 @@ void
 {%- endfor %}
         }
         else {
-{%- for var in numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved|sort %}
             S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // XXX: not 0 but initial value!
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
@@ -710,7 +696,7 @@ S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}
 
     last_spike_ = t_sp_ms;
     history_.push_back( histentry__{{neuronName}}( last_spike_
-{%- for var in numeric_state_variables_moved|sort %}
+{%- for var in purely_numeric_state_variables_moved|sort %}
     , get_{{var}}()
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
@@ -776,7 +762,7 @@ double
       std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
 #endif
 
-{%- for var_ in numeric_state_variables_moved %}
+{%- for var_ in purely_numeric_state_variables_moved %}
       S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
@@ -850,7 +836,7 @@ double
   // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
   if ( (!before_increment) && t == history_[ 0 ].t_)
   {
-{%- for var_ in numeric_state_variables_moved %}
+{%- for var_ in purely_numeric_state_variables_moved %}
     S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
@@ -874,7 +860,7 @@ double
   }
 
   // set to initial value
-{%- for var_ in numeric_state_variables_moved %}
+{%- for var_ in purely_numeric_state_variables_moved %}
       S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // XXX: not 0 but real "initial value"!
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}

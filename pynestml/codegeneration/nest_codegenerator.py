@@ -1415,7 +1415,6 @@ class NESTCodeGenerator(CodeGenerator):
                                 moved = True
                     if not moved:
                         namespace['analytic_state_variables'].append(sv)
-                        print("analytic_state_variables: " + str(namespace['analytic_state_variables']))
                 namespace['analytic_variable_symbols_moved'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
                     sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables_moved']}
             else:

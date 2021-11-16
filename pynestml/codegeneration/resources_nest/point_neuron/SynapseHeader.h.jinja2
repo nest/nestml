@@ -74,7 +74,7 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 #define POST_NEURON_TYPE {{ paired_neuron }}
 
-// #define DEBUG
+//#define DEBUG
 
 namespace nest
 {
@@ -680,7 +680,7 @@ inline void set_weight(double w) {
         }
 
 #ifdef DEBUG
-        std::cout << "{{synapseName}}::send(): \tprocessing post spike at t = " << start->t_ << std::endl;
+        std::cout << "\tprocessing post spike at t = " << start->t_ << std::endl;
 #endif
 
         /**
@@ -701,10 +701,14 @@ inline void set_weight(double w) {
         V_.__h = old___h;
         init_internals_block_symbols();  // XXX: can be skipped?
 
-#ifdef DEBUG
-        std::cout << "\tFacilitating, old w = " << S_.w << "\n";
-#endif
         const double _tr_t = start->t_;
+
+// #ifdef DEBUG
+//         std::cout << "\tFacilitating, old w = " << S_.w << "\n";
+// #endif
+#ifdef DEBUG
+        std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
+#endif
 
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
@@ -721,8 +725,11 @@ inline void set_weight(double w) {
 {%- endif %}
 {%- endfilter %}
 
+// #ifdef DEBUG
+//       std::cout << "\t--> new w = " << S_.w << std::endl;
+// #endif
 #ifdef DEBUG
-      std::cout << "\t--> new w = " << S_.w << std::endl;
+      std::cout << " to " << S_.c << std::endl;
 #endif
 
         /**
@@ -806,7 +813,9 @@ inline void set_weight(double w) {
         /**
          *  NESTML generated onReceive code block for postsynaptic port "{{post_port}}" begins here!
         **/
-
+#ifdef DEBUG
+        std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
+#endif
 {%-         set dynamics = synapse.get_on_receive_block(post_port) %}
 {%-         with ast = dynamics.get_block() %}
 {%-             include "directives/Block.jinja2" %}
@@ -814,6 +823,9 @@ inline void set_weight(double w) {
 {%-     endfor %}
 {%- endif %}
 {%- endfilter %}
+#ifdef DEBUG
+      std::cout << " to " << S_.c << std::endl;
+#endif
     }
 
     /**
@@ -843,6 +855,9 @@ void
     double t1,
     const {{synapseName}}CommonSynapseProperties& cp )
 {
+#ifdef DEBUG
+  std::cout << "\tIn process_{{vt_port}}_spikes_(): t0 = " << t0 << ", t1 = " << t1 << "\n";
+#endif
   // process dopa spikes in (t0, t1]
   // propagate weight from t0 to t1
   if ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
@@ -850,30 +865,74 @@ void
   {
     // there is at least 1 dopa spike in (t0, t1]
     // propagate up to first dopa spike
-    update_internal_state_(t0, vt_spikes[ vt_spikes_idx_ ].spike_time_ - t0, cp );
+#ifdef DEBUG
+  std::cout << "\t\tHandling (1) spike at t = " << vt_spikes[ vt_spikes_idx_ +1].spike_time_ << "\n";
+#endif
+    update_internal_state_(t0, vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ - t0, cp );
     ++vt_spikes_idx_;
+#ifdef DEBUG
+std::cout<<"\t\tIncrementing n_ from " << S_.n << " to " ;
+#endif
+    /**
+     *  NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}" begins here!
+    **/
 
+{%- filter indent(4, True) %}
+{%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
+{%-     with ast = dynamics.get_block() %}
+{%-         include "directives/Block.jinja2" %}
+{%-     endwith %}
+{%- endfilter %}
+#ifdef DEBUG
+std::cout << S_.n << "\n";
+#endif
     // process remaining dopa spikes in (t0, t1]
     double cd;
     while ( ( vt_spikes.size() > vt_spikes_idx_ + 1 )
       && ( t1 - vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ > -1.0 * kernel().connection_manager.get_stdp_eps() ) )
     {
+#ifdef DEBUG
+  std::cout << "\t\tHandling (2) spike at t = " << vt_spikes[ vt_spikes_idx_ ].spike_time_ << "\n";
+#endif
       // propagate up to next dopa spike
-      update_internal_state_(vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
-                             vt_spikes[ vt_spikes_idx_ ].spike_time_ - vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
+      update_internal_state_(vt_spikes[ vt_spikes_idx_ ].spike_time_,
+                             vt_spikes[ vt_spikes_idx_ + 1 ].spike_time_ - vt_spikes[ vt_spikes_idx_ ].spike_time_,
                              cp );
       ++vt_spikes_idx_;
+
+      /**
+       *  NESTML generated onReceive code block for volume transmitter synaptic port "{{vt_port}}" begins here!
+      **/
+#ifdef DEBUG
+std::cout<<"\t\tIncrementing n_ from " << S_.n << " to " ;
+#endif
+{%- filter indent(6, True) %}
+{%-     set dynamics = synapse.get_on_receive_block(vt_port) %}
+{%-     with ast = dynamics.get_block() %}
+{%-         include "directives/Block.jinja2" %}
+{%-     endwith %}
+{%- endfilter %}
+#ifdef DEBUG
+std::cout << S_.n << "\n";
+#endif
     }
+#ifdef DEBUG
+  std::cout << "\t\t3\n";
+#endif
 
     // propagate up to t1
-    update_internal_state_(vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
-                           t1 - vt_spikes[ vt_spikes_idx_ - 1 ].spike_time_,
+    update_internal_state_(vt_spikes[ vt_spikes_idx_ ].spike_time_,
+                           t1 - vt_spikes[ vt_spikes_idx_ ].spike_time_,
                            cp );
   }
   else
   {
+#ifdef DEBUG
+  std::cout << "\t\t4: updating internal state from t0 = " << t0 << " to t1 = " << t1 << "\n";
+#endif
+
     // no dopamine spikes in (t0, t1]
-    update_internal_state_( t0, t1, cp );
+    update_internal_state_( t0, t1 - t0, cp );
   }
 }
 {%- endif %}
@@ -1076,6 +1135,7 @@ template < typename targetidentifierT >
     //weight_ = get_named_parameter<double>(names::weight);
     //set_weight( 1. );   // XXX: TODO: set weight to default value specified in nestml file; if no default specified, use 1.
     t_lastspike_ = 0.;
+    t_last_update_ = 0.;
 }
 
 /**
@@ -1101,6 +1161,7 @@ template < typename targetidentifierT >
 
     //weight_ = get_named_parameter<double>(names::weight);
     //set_weight( *rhs.weight_ );
+    t_last_update_ = rhs.t_last_update_;
     t_lastspike_  = rhs.t_lastspike_;
 
     // special treatment of NEST delay
@@ -1114,11 +1175,18 @@ inline void
 {
   if (timestep < 1E-12)
   {
+  #ifdef DEBUG
+  std::cout << "\tupdate_internal_state_() called with dt = 0\n" ;
+  #endif
     return;
   }
 
   const double __resolution = timestep;  // do not remove, this is necessary for the resolution() function
 
+#ifdef DEBUG
+std::cout<<"\tUpdating internal state: t_start = " << t_start << ", dt = " << timestep << "\n";
+std::cout << "\tUpdating state from pre_tr = " << S_.pre_tr << " to " ;
+#endif
   const double old___h = V_.__h;
   V_.__h = timestep;
   init_internals_block_symbols();
@@ -1131,9 +1199,12 @@ inline void
 {%- endfilter %}
     V_.__h = old___h;
     init_internals_block_symbols();  // XXX: can be skipped?
- 
-   // XXX: TODO: set timestep to ``(start->t_ + dendritic_delay) - t_lastspike_``
- 
+#ifdef DEBUG
+ std::cout << S_.pre_tr << "\n";
+
+std::cout << "\tUpdating state from w = " << S_.w << " (with c = " << S_.c << ", n = " << S_.n << ", dt = " << __resolution << ") to ";
+
+ #endif
 {%- if synapse.get_update_blocks() %}
 {%- filter indent(2) %}
 {%- set dynamics = synapse.get_update_blocks() %}
@@ -1142,6 +1213,8 @@ inline void
 {%- endwith %}
 {%- endfilter %}
 {%- endif %}
+
+  t_last_update_ = t_start + timestep;
 }
 
 /**
@@ -1156,7 +1229,7 @@ inline void
 {
   // propagate all state variables in the synapse to time t_trig
 #ifdef DEBUG
-    std::cout << "{{synapseName}}::trigger_update_weight(): propagating until t = " << t_trig << std::endl;
+    std::cout << "\n{{synapseName}}::trigger_update_weight(): t = " << t_trig << std::endl;
 #endif
   // purely dendritic delay
   double dendritic_delay = get_delay();
@@ -1168,7 +1241,7 @@ inline void
 
   // facilitation due to postsyn. spikes since last update
   double t0 = t_last_update_;
-  double minus_dt;
+  // double minus_dt;
   double timestep = 0;
 
   while ( start != finish )
@@ -1179,7 +1252,7 @@ inline void
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "{{synapseName}}::trigger_update_weight(): \tprocessing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
+    std::cout << "\tprocessing post spike from " << t_last_update_ << " to " << start->t_ + dendritic_delay << std::endl;
 #endif
 
     /**
@@ -1191,7 +1264,9 @@ inline void
                            cp);
 
     const double _tr_t = start->t_;
-
+#ifdef DEBUG
+        std::cout << "\tFacilitating from c = " << S_.c << " (using trace = " << S_.pre_tr << ")";
+#endif
 {%- filter indent(6, True) %}
 {%- if post_ports is defined %}
 {%-     for post_port in spiking_post_ports %}
@@ -1207,16 +1282,18 @@ inline void
 {%- endif %}
 {%- endfilter %}
 
+// #ifdef DEBUG
+//   std::cout << "\t--> new w = " << S_.w << std::endl;
+// #endif
 #ifdef DEBUG
-  std::cout << "\t--> new w = " << S_.w << std::endl;
+      std::cout << " to " << S_.c << std::endl;
 #endif
-
     /**
      * internal state has now been fully updated to `start->t_ + dendritic_delay`
     **/
     
     t0 = start->t_ + dendritic_delay;
-    minus_dt = t_last_update_ - t0;
+    // minus_dt = t_last_update_ - t0;
     t_lastspike_ = start->t_ + dendritic_delay;
     ++start;
   }
@@ -1231,18 +1308,15 @@ inline void
 {%- endfor %}
 
 #ifdef DEBUG
-    std::cout << "{{synapseName}}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
+    //std::cout << "{{synapseName}}::trigger_update_weight(): \tupdating from " << t_lastspike_ << " to " << t_trig + dendritic_delay << std::endl;
 #endif
 
-  update_internal_state_(t_lastspike_,
-                         (t_trig + dendritic_delay) - t_lastspike_,
-                         cp);
+ /* update_internal_state_(t_lastspike_,
+                         t_trig - t_lastspike_,
+                         cp);*/
 
-  t_last_update_ = t_trig;
   vt_spikes_idx_ = 0;
   t_lastspike_ = t_trig;
-
-  
 }
 
 
