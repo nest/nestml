@@ -65,7 +65,6 @@ class NestSTNExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-
         neuron.set({'I_e': 10.0})
         multimeter = nest.Create("multimeter")
         multimeter.set({"record_from": ["V_m"],
