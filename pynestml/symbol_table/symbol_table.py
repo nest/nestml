@@ -101,7 +101,6 @@ class SymbolTable:
             del cls.name2synapse_scope[name]
         return
 
-
     @classmethod
     def clean_up_table(cls):
         """

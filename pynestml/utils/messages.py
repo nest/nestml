@@ -1124,7 +1124,6 @@ class Messages:
         message = "Unknown type or unit literal: " + provided_type_str
         return MessageCode.UNKNOWN_TYPE, message
 
-
     @classmethod
     def astdatatype_type_symbol_could_not_be_derived(cls):
         """

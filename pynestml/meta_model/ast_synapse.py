@@ -91,7 +91,6 @@ class ASTSynapse(ASTNeuronOrSynapse):
         self._default_delay_expression = expr
         self._default_delay_dtype = dtype
 
-
     def get_default_delay_expression(self):
         return self._default_delay_expression
 

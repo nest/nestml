@@ -75,7 +75,6 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                               "neuron_parent_class_include": "archiving_node.h"})
         install_nest("/tmp/nestml-non-jit", nest_path)
 
-
     def test_nest_stdp_synapse(self):
 
         fname_snip = ""

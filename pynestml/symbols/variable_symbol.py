@@ -123,7 +123,6 @@ class VariableSymbol(Symbol):
         self.decorators = decorators
         self.namespace_decorators = namespace_decorators
 
-
     def is_homogeneous(self):
         return PyNestMLLexer.DECORATOR_HOMOGENEOUS in self.decorators
 

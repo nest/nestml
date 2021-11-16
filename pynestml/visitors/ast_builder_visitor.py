@@ -389,9 +389,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         # if is_homogeneous:
         #     print("\t----> is homogeneous")
 
-
-
-
         declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
                                                             variables=variables,
                                                             data_type=data_type,

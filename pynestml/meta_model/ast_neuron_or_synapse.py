@@ -103,13 +103,11 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         return self.name
 
-
     def set_name(self, name):
         """
         Set the name of the node.
         """
         self.name = name
-
 
     def get_body(self):
         """
@@ -119,7 +117,6 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         return self.body
 
-
     def get_artifact_name(self):
         """
         Returns the name of the artifact this neuron has been stored in.
@@ -127,7 +124,6 @@ class ASTNeuronOrSynapse(ASTNode):
         :rtype: str
         """
         return self.artifact_name
-
 
     def get_functions(self):
         """
@@ -141,7 +137,6 @@ class ASTNeuronOrSynapse(ASTNode):
             if isinstance(elem, ASTFunction):
                 ret.append(elem)
         return ret
-
 
     def get_update_blocks(self):
         """
@@ -734,7 +729,6 @@ class ASTNeuronOrSynapse(ASTNode):
                     return decl
 
         return None
-
 
     def get_all_kernels(self):
         kernels = []

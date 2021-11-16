@@ -96,7 +96,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         for bodyElement in node.get_body_elements():
             bodyElement.update_scope(node.get_scope())
 
-
     def visit_synapse(self, node):
         """
         Private method: Used to visit a single synapse and create the corresponding global as well as local scopes.
@@ -130,7 +129,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.post_symbol_table_builder_checks(node)
         Logger.set_current_node(None)
-
 
     def endvisit_synapse_body(self, node):
         return
