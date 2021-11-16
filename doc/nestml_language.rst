@@ -372,6 +372,54 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
 
+Vectors
+~~~~~~~
+
+Variables can be declared as vectors to store an array of values. They can be declared in the ``parameters``, ``state``, and ``internals`` blocks. See :ref:`Block types` for more information on different types of blocks available in NESTML.
+
+The declaration of a vector variable consists of the name of the variable followed by the size of the vector enclosed in ``[`` and ``]``. The vector must be initialized with a default value and all the values in the vector will be initialized to the specified initial value. For example,
+
+.. code-block:: nestml
+
+   parameters:
+     g_ex [20] mV = 10mV
+   end
+
+Here, ``g_ex`` is a vector of size 20 and all the elements of the vector are initialized to 10mV. Note that the vector index always starts from 0.
+Size of the vector can be a positive integer or an integer variable previously declared in either ``parameters`` or ``internals`` block. For example, an integer variable named ``ten`` declared in the ``parameters`` block can be used to specify the size of the vector variable ``g_ex`` as:
+
+.. code-block:: nestml
+
+   state:
+     g_ex [ten] mV = 10mV
+     x [12] real = 0.
+   end
+
+   parameters:
+     ten integer = 10
+   end
+
+If the size of a vector is a variable (as ``ten`` in the above example), the vector will be resized if the value of size variable changes during the simulation. On the other hand, the vector cannot be resized if the size is a fixed integer value.
+Vector variables can be used in expressions as an array with an index. For example,
+
+.. code-block:: nestml
+
+   state:
+     g_ex [ten] mV = 10mV
+     x[15] real = 0.
+   end
+
+   parameters:
+     ten integer = 10
+   end
+
+   update:
+     integer j = 0
+     g_ex[2] = -55. mV
+     x[j] = g_ex[2]
+     j += 1
+   end
+
 Functions
 ~~~~~~~~~
 

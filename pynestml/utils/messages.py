@@ -108,8 +108,11 @@ class MessageCode(Enum):
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
     TEMPLATE_ROOT_PATH_CREATED = 79
-    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 79
-    REPEATED_PRIORITY_VALUE = 80
+    VECTOR_PARAMETER_WRONG_BLOCK = 80
+    VECTOR_PARAMETER_WRONG_TYPE = 81
+    VECTOR_PARAMETER_WRONG_SIZE = 82
+    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 83
+    REPEATED_PRIORITY_VALUE = 84
 
 
 class Messages:
@@ -1199,6 +1202,25 @@ class Messages:
                   "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
 
+    @classmethod
+    def get_vector_parameter_wrong_block(cls, var, block):
+        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
+                  "The vector parameter can only be declared in parameters or internals block."
+        return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
+
+    @classmethod
+    def get_vector_parameter_wrong_type(cls, var):
+        message = "The vector parameter '" + var + "' is of the wrong type." \
+                  "The vector parameter can be only of type integer."
+        return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
+
+    @classmethod
+    def get_vector_parameter_wrong_size(cls, var, value):
+        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+                  "which is less than or equal to 0."
+        return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
+
+    @classmethod
     def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
         message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
         return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message

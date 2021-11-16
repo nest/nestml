@@ -336,8 +336,14 @@ public: // XXX! TODO: should be private
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
+{%- if (has_state_vectors) %}
+  friend class nest::DynamicRecordablesMap< {{neuronName}} >;
+  friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
+  friend class nest::DataAccessFunctor< {{neuronName}} >;
+{%- else %}
   friend class nest::RecordablesMap<{{neuronName}}>;
   friend class nest::UniversalDataLogger<{{neuronName}}>;
+{%- endif %}
 
   /**
    * Free parameters of the neuron.
@@ -400,12 +406,18 @@ public: // XXX! TODO: should be private
   struct State_
   {
 {%- if not useGSL %}
+{%- if has_state_vectors %}
+{%  include "directives/StateVariablesEnum.jinja2" %}
+{%- endif %}
 {%-   filter indent(4,True) %}
 {%-   for variable in neuron.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
+{%- if has_state_vectors %}
+{%- include "directives/VectorVariablesEnum.jinja2" %}
+{%- endif %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
     {
@@ -458,7 +470,7 @@ public: // XXX! TODO: should be private
   {
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   filter indent(4) %}
-{%-     include "directives/MemberDeclaration.jinja2" -%}
+{%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfilter %}
 {%- endfor %}
   };
@@ -481,10 +493,15 @@ public: // XXX! TODO: should be private
     /**
      * Logger for all analog data
     **/
+{%- if (has_state_vectors) %}
+    nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
+{%- else %}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
-{% if ((neuron.get_multiple_receptors())|length > 1) or neuron.has_vector_port() %}
+{%- endif %}
+
+{%- if ((neuron.get_multiple_receptors())|length > 1) or neuron.has_vector_port() %}
     std::vector<long> receptor_types_;
-{% endif %}
+{%- endif %}
 
 {%- if ((neuron.get_multiple_receptors())|length > 1) %}
     // -----------------------------------------------------------------------
@@ -624,7 +641,17 @@ public: // XXX! TODO: should be private
   Buffers_    B_;  //!< Buffers.
 
   //! Mapping of recordables names to access functions
+{%- if has_state_vectors %}
+  nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
+  nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
+  std::string get_var_name(size_t elem, std::string var_name);
+  void insert_recordables(size_t first=0);
+
+{% include "directives/DynamicStateElement.jinja2" %}
+
+{%- else %}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
+{%- endif %}
 
 {%- if useGSL %}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
@@ -720,7 +747,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& d
 inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {
   // parameters
-{%- for parameter in neuron.get_parameter_symbols() -%}
+{%- for parameter in neuron.get_parameter_symbols() %}
 {%- with variable = parameter %}
 {%- filter indent(2) %}
 {%- include "directives/WriteInDictionary.jinja2" %}

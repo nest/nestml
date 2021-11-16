@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from copy import copy
+from typing import Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.either import Either
@@ -39,13 +40,15 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, type_symbol=None, is_homogeneous=False, *args, **kwargs):
+    def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None, vector_parameter: Optional[str] = None, is_homogeneous=False, *args, **kwargs):
         """
         Standard constructor.
         :param name: the name of the variable
         :type name: str
         :param differential_order: the differential order of the variable.
         :type differential_order: int
+        :param type_symbol: the type of the variable
+        :param vector_parameter: the vector parameter of the variable
         """
         super(ASTVariable, self).__init__(*args, **kwargs)
         assert isinstance(differential_order, int), \
@@ -57,6 +60,7 @@ class ASTVariable(ASTNode):
         self.name = name
         self.differential_order = differential_order
         self.type_symbol = type_symbol
+        self.vector_parameter = vector_parameter
         self.is_homogeneous = is_homogeneous
 
     def clone(self):
@@ -66,6 +70,7 @@ class ASTVariable(ASTNode):
         return ASTVariable(name=self.name,
                            differential_order=self.differential_order,
                            type_symbol=self.type_symbol,
+                           vector_parameter=self.vector_parameter,
                            # ASTNode common attriutes:
                            source_position=self.get_source_position(),
                            scope=self.scope,
@@ -149,6 +154,19 @@ class ASTVariable(ASTNode):
         assert (type_symbol is not None and isinstance(type_symbol, Either)), \
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
         self.type_symbol = type_symbol
+
+    def get_vector_parameter(self) -> str:
+        """
+        Returns the vector parameter of the variable
+        :return: the vector parameter
+        """
+        return self.vector_parameter
+
+    def set_size_parameter(self, vector_parameter):
+        """
+        Updates the vector parameter of the variable
+        """
+        self.vector_parameter = vector_parameter
 
     def get_parent(self, ast):
         """

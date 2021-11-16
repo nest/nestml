@@ -53,6 +53,10 @@ from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectPara
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
+from pynestml.cocos.co_co_vector_declaration_right_size import CoCoVectorDeclarationRightSize
+from pynestml.cocos.co_co_vector_parameter_declared_in_right_block import CoCoVectorParameterDeclaredInRightBlock
+from pynestml.cocos.co_co_vector_parameter_greater_than_zero import CoCoVectorParameterGreaterThanZero
+from pynestml.cocos.co_co_vector_parameter_right_type import CoCoVectorParameterRightType
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
 from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
@@ -336,6 +340,30 @@ class CoCosManager:
         CoCoFunctionArgumentTemplateTypesConsistent.check_co_co(neuron)
 
     @classmethod
+    def check_vector_parameter_declaration(cls, neuron: ASTNeuron):
+        """
+        Checks if the vector parameter is declared in the right block
+        :param neuron: a single neuron object
+        """
+        CoCoVectorParameterDeclaredInRightBlock.check_co_co(neuron)
+
+    @classmethod
+    def check_vector_parameter_type(cls, neuron: ASTNeuron):
+        """
+        Checks if the vector parameter has the right type.
+        :param neuron: a single neuron object
+        """
+        CoCoVectorParameterRightType.check_co_co(neuron)
+
+    @classmethod
+    def check_vector_declaration_size(cls, neuron: ASTNeuron):
+        """
+        Checks if the vector is declared with a size greater than 0
+        :param neuron: a single neuron object
+        """
+        CoCoVectorDeclarationRightSize.check_co_co(neuron)
+
+    @classmethod
     def check_co_co_priorities_correctly_specified(cls, neuron: ASTNeuron):
         """
         :param neuron: a single neuron object.
@@ -387,5 +415,8 @@ class CoCosManager:
         cls.check_expression_correct(neuron)
         cls.check_simple_delta_function(neuron)
         cls.check_function_argument_template_types_consistent(neuron)
+        cls.check_vector_parameter_declaration(neuron)
+        cls.check_vector_parameter_type(neuron)
         cls.check_co_co_priorities_correctly_specified(neuron)
         cls.check_resolution_func_legally_used(neuron)
+        cls.check_vector_declaration_size(neuron)
