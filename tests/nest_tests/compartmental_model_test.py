@@ -78,7 +78,7 @@ class CMTest(unittest.TestCase):
         install_nest(os.path.join(path_target, "compartmental_model/"), path_nest)
 
 
-    def get_model(self, reinstall_flag=False):
+    def get_model(self, reinstall_flag=True):
         if self.nestml_flag:
             try:
                 if reinstall_flag:
