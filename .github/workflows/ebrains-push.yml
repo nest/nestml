@@ -15,7 +15,7 @@ jobs:
           source_repo: "nest/nestml"
           source_branch: "master"
           destination_repo: "https://ghpusher:${{ secrets.EBRAINS_NESTML_GITLAB }}@gitlab.ebrains.eu/nest/nestml.git"
-          destination_branch: "master"
+          destination_branch: "main"
       - name: synctags
         uses: wei/git-sync@v3
         with:
