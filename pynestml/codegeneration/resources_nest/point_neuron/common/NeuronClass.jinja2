@@ -392,15 +392,6 @@ void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
 {%-   include "directives/Calibrate.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
-
-    // state S_
-{%- filter indent(4) %}
-{%- for variable in neuron.get_state_symbols() %}
-{%-   if variable.has_vector_parameter() %}
-{%-     include "directives/Calibrate.jinja2" %}
-{%-   endif %}
-{%- endfor %}
-{%- endfilter %}
   }
 }
 
