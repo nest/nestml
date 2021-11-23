@@ -73,7 +73,7 @@ from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
 
 
-class NESTCodeGenerator(CodeGenerator):
+class NESTCodeGeneratorCM(CodeGenerator):
     """
     Code generator for a C++ NEST extension module.
 

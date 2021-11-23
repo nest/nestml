@@ -90,6 +90,9 @@ class CodeGenerator:
         if target_name.upper() == "NEST":
             from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
             return NESTCodeGenerator(options)
+        if target_name.upper() == "NEST_COMPARTMENTAL":
+            from pynestml.codegeneration.nest_codegenerator_cm import NESTCodeGeneratorCM
+            return NESTCodeGeneratorCM(options)
         elif target_name.upper() == "AUTODOC":
             from pynestml.codegeneration.autodoc_codegenerator import AutoDocCodeGenerator
             assert options is None or options == {}, "\"autodoc\" code generator does not support options"
