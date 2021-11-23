@@ -52,6 +52,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('target/models')
         params.append('--store_log')
         params.append('--dev')
+
         exit_code = None
         with patch.object(sys, 'argv', params):
             exit_code = main()

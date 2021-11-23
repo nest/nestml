@@ -109,14 +109,15 @@ class MessageCode(Enum):
     NO_FILES_IN_INPUT_PATH = 76
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
-    CM_NO_GATING_VARIABLES = 79
-    CM_FUNCTION_MISSING = 80
-    CM_VARIABLES_NOT_DECLARED = 81
-    CM_FUNCTION_BAD_NUMBER_ARGS = 82
-    CM_FUNCTION_BAD_RETURN_TYPE = 83
-    CM_VARIABLE_NAME_MULTI_USE = 84
-    CM_NO_VALUE_ASSIGNMENT = 85
-    SYNS_BAD_BUFFER_COUNT = 86
+    TEMPLATE_ROOT_PATH_CREATED = 79
+    CM_NO_GATING_VARIABLES = 80
+    CM_FUNCTION_MISSING = 81
+    CM_VARIABLES_NOT_DECLARED = 82
+    CM_FUNCTION_BAD_NUMBER_ARGS = 83
+    CM_FUNCTION_BAD_RETURN_TYPE = 84
+    CM_VARIABLE_NAME_MULTI_USE = 85
+    CM_NO_VALUE_ASSIGNMENT = 86
+    SYNS_BAD_BUFFER_COUNT = 87
 
 class Messages:
     """
@@ -1058,7 +1059,7 @@ class Messages:
 
     @classmethod
     def templated_arg_types_inconsistent(cls, function_name, failing_arg_idx, other_args_idx, failing_arg_type_str, other_type_str):
-        """https://github.com/nest/nestml/pull/651
+        """
         For templated function arguments, indicates inconsistency between (formal) template argument types and actual derived types.
         :param name: the name of the neuron model
         :type name: ASTNeuron
@@ -1161,6 +1162,22 @@ class Messages:
         return MessageCode.NO_FILES_IN_INPUT_PATH, message
 
     @classmethod
+    def get_state_variables_not_initialized(cls, var_name: str):
+        message = "The variable `\'%s\' is not initialized." % var_name
+        return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
+
+    @classmethod
+    def get_equations_defined_but_integrate_odes_not_called(cls):
+        message = "Equations defined but integrate_odes() not called"
+        return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message
+
+    @classmethod
+    def get_template_root_path_created(cls, templates_root_dir: str):
+        message = "Given template root path is not an absolute path. " \
+                  "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
+        return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
+
+    @classmethod
     def get_no_gating_variables(cls, cm_inline_expr: ASTInlineExpression, ion_channel_name: str):
         """
         Indicates that if you defined an inline expression inside the equations block
@@ -1175,60 +1192,51 @@ class Messages:
         message += "\nmeaning no variable ends with the suffix '_"+ion_channel_name+"' here. "
         message += "This suffix indicates that a variable is a gating variable. "
         message += "At least one gating variable is expected to exist."
-        
+
         return MessageCode.CM_NO_GATING_VARIABLES, message
-    
+
     @classmethod
-    def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr: ASTInlineExpression, bad_variable_name: str, ion_channel_name: str): 
+    def get_cm_inline_expression_variable_used_mulitple_times(cls, cm_inline_expr: ASTInlineExpression, bad_variable_name: str, ion_channel_name: str):
         message = "Variable name '"+ bad_variable_name + "' seems to be used multiple times"
         message += "' inside inline expression '" + cm_inline_expr.variable_name+"'. "
         message += "\nVariables are not allowed to occur multiple times here."
-        
+
         return MessageCode.CM_VARIABLE_NAME_MULTI_USE, message
-    
+
     @classmethod
-    def get_expected_cm_function_missing(cls, ion_channel_name: str, variable: ASTVariable, function_name: str):         
+    def get_expected_cm_function_missing(cls, ion_channel_name: str, variable: ASTVariable, function_name: str):
         message = "Implementation of a function called '" + function_name + "' not found. "
         message += "It is expected because of variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
-    
+
     @classmethod
-    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name: str, variable: ASTVariable, astfun: ASTFunction):      
+    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name: str, variable: ASTVariable, astfun: ASTFunction):
         message = "Function '" + astfun.name + "' is expected to have exactly one Argument. "
         message += "It is related to variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
-    
+
     @classmethod
-    def get_expected_cm_function_bad_return_type(cls, ion_channel_name: str, astfun: ASTFunction):            
+    def get_expected_cm_function_bad_return_type(cls, ion_channel_name: str, astfun: ASTFunction):
         message = "'"+ion_channel_name + "' channel function '" + astfun.name + "' must return real. "
-        return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message    
-    
+        return MessageCode.CM_FUNCTION_BAD_RETURN_TYPE, message
+
     @classmethod
-    def get_expected_cm_variables_missing_in_blocks(cls, missing_variable_to_proper_block: Iterable, expected_variables_to_reason: dict):            
+    def get_expected_cm_variables_missing_in_blocks(cls, missing_variable_to_proper_block: Iterable, expected_variables_to_reason: dict):
         message = "The following variables not found:\n"
         for missing_var, proper_location in missing_variable_to_proper_block.items():
-            message += "Variable with name '" + missing_var 
-            message += "' not found but expected to exist inside of " + proper_location + " because of position " 
+            message += "Variable with name '" + missing_var
+            message += "' not found but expected to exist inside of " + proper_location + " because of position "
             message += str(expected_variables_to_reason[missing_var].get_source_position())+"\n"
         return MessageCode.CM_VARIABLES_NOT_DECLARED, message
-    
+
     @classmethod
     def get_cm_variable_value_missing(cls, varname: str):
         message = "The following variable has no value assinged: "+varname+"\n"
         return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
-    
+
     @classmethod
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
         message = "Synapse `\'%s\' uses the following inout buffers: %s" % (synapse_name, buffers)
         message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
-        
-    @classmethod
-    def get_state_variables_not_initialized(cls, var_name: str):
-        message = "The variable `\'%s\' is not initialized." % var_name
-        return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
 
-    @classmethod
-    def get_equations_defined_but_integrate_odes_not_called(cls):
-        message = "Equations defined but integrate_odes() not called"
-        return MessageCode.EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED, message

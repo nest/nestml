@@ -18,10 +18,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.cocos.co_co import CoCo
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -41,93 +42,87 @@ class CoCoAllVariablesDefined(CoCo):
     """
 
     @classmethod
-    def check_co_co(cls, neuron: ASTNode, after_ast_rewrite: bool):
+    def check_co_co(cls, node: ASTNeuron, after_ast_rewrite: bool = False):
         """
-        Checks if this coco applies for the handed over neuron. Models which use not defined elements are not
-        correct.
-        :param neuron: a single neuron instance.
-        :type neuron: ast_neuron
+        Checks if this coco applies for the handed over neuron.
+        Models which contain undefined variables are not correct.
+        :param node: a single neuron instance.
+        :param after_ast_rewrite: indicates whether this coco is checked
+            after the code generator has done rewriting of the abstract syntax tree.
+            If True, checks are not as rigorous. Use False where possible.
         """
         # for each variable in all expressions, check if the variable has been defined previously
         expression_collector_visitor = ASTExpressionCollectorVisitor()
-        neuron.accept(expression_collector_visitor)
+        node.accept(expression_collector_visitor)
         expressions = expression_collector_visitor.ret
         for expr in expressions:
-            for var in expr.get_variables():
+            if isinstance(expr, ASTVariable):
+                vars = [expr]
+            else:
+                vars = expr.get_variables()
+
+            for var in vars:
                 symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.VARIABLE)
                 # this part is required to check that we handle invariants differently
-                expr_par = neuron.get_parent(expr)
+                expr_par = node.get_parent(expr)
 
+                # test if the symbol has been defined at least
                 if symbol is None:
+                    if after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
+                        symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                        if symbol2 is not None:
+                            # an inline expression defining this variable name (ignoring differential order) exists
+                            if "__X__" in str(symbol2):     # if this variable was the result of a convolution...
+                                continue
+                    else:
+                        # for kernels, also allow derivatives of that kernel to appear
+                        if node.get_equations_block() is not None:
+                            inline_expr_names = [inline_expr.variable_name for inline_expr in node.get_equations_block().get_inline_expressions()]
+                            if var.get_name() in inline_expr_names:
+                                inline_expr_idx = inline_expr_names.index(var.get_name())
+                                inline_expr = node.get_equations_block().get_inline_expressions()[inline_expr_idx]
+                                from pynestml.utils.ast_utils import ASTUtils
+                                if ASTUtils.inline_aliases_convolution(inline_expr):
+                                    symbol2 = node.get_scope().resolve_to_symbol(var.get_name(), SymbolKind.VARIABLE)
+                                    if symbol2 is not None:
+                                        # actually, no problem detected, skip error
+                                        # XXX: TODO: check that differential order is less than or equal to that of the kernel
+                                        continue
+
                     # check if this symbol is actually a type, e.g. "mV" in the expression "(1 + 2) * mV"
-                    symbol = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
-                    if symbol is None:
-                        # symbol has not been defined; neither as a variable name nor as a type symbol
-                        code, message = Messages.get_variable_not_defined(var.get_name())
-                        Logger.log_message(node=neuron, code=code, message=message, log_level=LoggingLevel.ERROR,
-                                           error_position=var.get_source_position())
-                # first check if it is part of an invariant
+                    symbol2 = var.get_scope().resolve_to_symbol(var.get_complete_name(), SymbolKind.TYPE)
+                    if symbol2 is not None:
+                        continue  # symbol is a type symbol
+
+                    code, message = Messages.get_variable_not_defined(var.get_complete_name())
+                    Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                                       log_level=LoggingLevel.ERROR, node=node)
+                    return
+
+                # check if it is part of an invariant
                 # if it is the case, there is no "recursive" declaration
                 # so check if the parent is a declaration and the expression the invariant
-                elif isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
+                if isinstance(expr_par, ASTDeclaration) and expr_par.get_invariant() == expr:
                     # in this case its ok if it is recursive or defined later on
                     continue
 
-                # now check if it has been defined before usage, except for predefined symbols, buffers and variables added by the AST transformation functions
-                elif (not symbol.is_predefined) \
+                # check if it has been defined before usage, except for predefined symbols, input ports and variables added by the AST transformation functions
+                if (not symbol.is_predefined) \
                         and symbol.block_type != BlockType.INPUT \
                         and not symbol.get_referenced_object().get_source_position().is_added_source_position():
                     # except for parameters, those can be defined after
                     if ((not symbol.get_referenced_object().get_source_position().before(var.get_source_position()))
-                            and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS])):
+                            and (not symbol.block_type in [BlockType.PARAMETERS, BlockType.INTERNALS, BlockType.STATE])):
                         code, message = Messages.get_variable_used_before_declaration(var.get_name())
-                        Logger.log_message(node=neuron, message=message, error_position=var.get_source_position(),
+                        Logger.log_message(node=node, message=message, error_position=var.get_source_position(),
                                            code=code, log_level=LoggingLevel.ERROR)
-                        # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
+                    # now check that they are not defined recursively, e.g. V_m mV = V_m + 1
                     # todo: we should not check this for invariants
                     if (symbol.get_referenced_object().get_source_position().encloses(var.get_source_position())
                             and not symbol.get_referenced_object().get_source_position().is_added_source_position()):
                         code, message = Messages.get_variable_defined_recursively(var.get_name())
-                        Logger.log_message(node = neuron, code=code, message=message, error_position=symbol.get_referenced_object().
-                                           get_source_position(), log_level=LoggingLevel.ERROR)
-
-        # now check for each assignment whether the left hand side variable is defined
-        vis = ASTAssignedVariableDefinedVisitor(neuron, after_ast_rewrite)
-        neuron.accept(vis)
-
-
-class ASTAssignedVariableDefinedVisitor(ASTVisitor):
-    def __init__(self, neuron: ASTNeuron, after_ast_rewrite: bool = False):
-        super(ASTAssignedVariableDefinedVisitor, self).__init__()
-        self.neuron = neuron
-        self.after_ast_rewrite = after_ast_rewrite
-
-    def visit_assignment(self, node):
-        symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_complete_name(),
-                                                    SymbolKind.VARIABLE)
-        if symbol is None:
-            if self.after_ast_rewrite:   # after ODE-toolbox transformations, convolutions are replaced by state variables, so cannot perform this check properly
-                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-                if symbol is not None:
-                    # an inline expression defining this variable name (ignoring differential order) exists
-                    if "__X__" in str(symbol):	 # if this variable was the result of a convolution...
-                        return
-            else:
-                # for kernels, also allow derivatives of that kernel to appear
-                if self.neuron.get_equations_block() is not None:
-                    for inline_expr in self.neuron.get_equations_block().get_inline_expressions():
-                        if node.get_variable().get_name() == inline_expr.variable_name:
-                            from pynestml.utils.ast_utils import ASTUtils
-                            if ASTUtils.inline_aliases_convolution(inline_expr):
-                                symbol = node.get_scope().resolve_to_symbol(node.get_variable().get_name(), SymbolKind.VARIABLE)
-                                if symbol is not None:
-                                    # actually, no problem detected, skip error
-                                    # XXX: TODO: check that differential order is less than or equal to that of the kernel
-                                    return
-
-            code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
-            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                               log_level=LoggingLevel.ERROR, node=self.neuron)
+                        Logger.log_message(code=code, message=message, error_position=symbol.get_referenced_object().
+                                           get_source_position(), log_level=LoggingLevel.ERROR, node=node)
 
 
 class ASTExpressionCollectorVisitor(ASTVisitor):
@@ -135,6 +130,9 @@ class ASTExpressionCollectorVisitor(ASTVisitor):
     def __init__(self):
         super(ASTExpressionCollectorVisitor, self).__init__()
         self.ret = list()
+
+    def visit_assignment(self, node):
+        self.ret.append(node.get_variable())
 
     def visit_expression(self, node):
         self.ret.append(node)

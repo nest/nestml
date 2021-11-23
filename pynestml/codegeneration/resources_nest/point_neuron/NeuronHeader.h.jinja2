@@ -1,18 +1,5 @@
-"""
-CoCoVariableDefinedAfterUsage.nestml
-####################################
-
-
-Description
-+++++++++++
-
-This model is used to test if broken CoCos are identified correctly. Here, if usage before declaration is detected.
-
-Negative case.
-
-
-Copyright statement
-+++++++++++++++++++
+{#-
+NeuronHeader.h.jinja2
 
 This file is part of NEST.
 
@@ -30,14 +17,5 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-"""
-neuron CoCoVariableDefinedAfterUsage:
-    state:
-        test2 integer = 10
-    end
-
-    update:
-        test1 = test2
-        test1 integer = 20
-    end
-end
+#}
+{%- include "common/NeuronHeader.jinja2" %}

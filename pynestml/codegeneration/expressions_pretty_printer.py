@@ -21,8 +21,7 @@
 
 from typing import Tuple
 
-from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.nest_reference_converter import NESTReferenceConverter
+from pynestml.codegeneration.cpp_types_printer import CppTypesPrinter
 from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
@@ -41,8 +40,6 @@ class ExpressionsPrettyPrinter:
     """
 
     def __init__(self, reference_converter=None, types_printer=None):
-        # type: (IReferenceConverter,TypesPrinter) -> None
-        # todo by kp: this should expect a ITypesPrinter as the second arg
         if reference_converter is not None:
             self.reference_converter = reference_converter
         else:
@@ -51,7 +48,7 @@ class ExpressionsPrettyPrinter:
         if types_printer is not None:
             self.types_printer = types_printer
         else:
-            self.types_printer = TypesPrinter()
+            self.types_printer = CppTypesPrinter()
 
     def print_expression(self, node, prefix='', with_origins = True):
         """Print an expression.
@@ -79,7 +76,7 @@ class ExpressionsPrettyPrinter:
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
                 if isinstance(self.reference_converter, NESTReferenceConverter):
-                    # NESTReferenceConverter takes the extra with_origins parameter 
+                    # NESTReferenceConverter takes the extra with_origins parameter
                     # which is used in compartmental models
                     return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
                         self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins = with_origins)
@@ -97,7 +94,7 @@ class ExpressionsPrettyPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                # NESTReferenceConverter takes the extra with_origins parameter 
+                # NESTReferenceConverter takes the extra with_origins parameter
                 # which is used in cm models
                 if isinstance(self.reference_converter, NESTReferenceConverter):
                     return self.reference_converter.convert_name_reference\
@@ -116,7 +113,7 @@ class ExpressionsPrettyPrinter:
             # encapsulated in brackets
             elif node.is_encapsulated:
                 return self.reference_converter.convert_encapsulated() % self.print_expression(node.get_expression(),
-                                                                                               prefix=prefix, 
+                                                                                               prefix=prefix,
                                                                                                with_origins = with_origins)
             # logical not
             elif node.is_logical_not:
@@ -171,22 +168,3 @@ class ExpressionsPrettyPrinter:
             ret.append(self.print_expression(arg, prefix=prefix, with_origins = with_origins))
 
         return tuple(ret)
-
-
-class TypesPrinter:
-    """
-    Returns a processable format of the handed over element.
-    """
-
-    @classmethod
-    def pretty_print(cls, element):
-        assert (element is not None), \
-            '(PyNestML.CodeGeneration.PrettyPrinter) No element provided (%s)!' % element
-        if isinstance(element, bool) and element:
-            return 'true'
-        elif isinstance(element, bool) and not element:
-            return 'false'
-        elif isinstance(element, int) or isinstance(element, float):
-            return str(element)
-        elif isinstance(element, str):
-            return element

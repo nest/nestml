@@ -229,6 +229,14 @@ namespace nest
 //   Node initialization functions
 // ---------------------------------------------------------------------------
 
+#if NEST2_COMPAT
+void {{neuronName}}::init_state_(const Node& proto)
+{
+  const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
+  S_ = pr.S_;
+}
+#endif
+
 void {{neuronName}}::init_buffers_()
 {
 {%- for port in neuron.get_input_ports() %}
@@ -378,7 +386,11 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e)
 {% if has_spike_input %}
 void {{neuronName}}::handle(nest::SpikeEvent &e)
 {
+#if NEST2_COMPAT
+  assert(e.get_delay() > 0);
+#else
   assert(e.get_delay_steps() > 0);
+#endif
 {%- if neuron.is_multisynapse_spikes() %}
 {%-   set port = neuron.get_spike_input_ports()[0] %}
   B_.{{port.get_symbol_name()}}[e.get_rport() - 1].add_value(
@@ -422,7 +434,11 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 
 void {{neuronName}}::handle(nest::CurrentEvent& e)
 {
+#if NEST2_COMPAT
+  assert(e.get_delay() > 0);
+#else
   assert(e.get_delay_steps() > 0);
+#endif
 
   const double current = e.get_current();     // we assume that in NEST, this returns a current in pA
   const double weight = e.get_weight();
