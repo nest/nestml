@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-#
+#}
 # {{moduleName}}/CMakeLists.txt
 #
 # This file is part of NEST.
@@ -58,9 +58,22 @@ set( MODULE_NAME ${SHORT_NAME} )
 # 2) Add all your sources here
 set( MODULE_SOURCES
     {{moduleName}}.h {{moduleName}}.cpp
-    {% for neuron in neurons %}
-      {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
-    {% endfor %}
+    {%- set what_happened = namespace(cm_neuron_exists=False) %}
+    {%- for neuron in neurons %}
+        {%- if neuron.is_compartmental_model -%}
+            {%- set what_happened.cm_neuron_exists = True %}
+    {{perNeuronFileNamesCm[neuron.get_name()]["compartmentcurrents"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["compartmentcurrents"]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h
+    {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.cpp {{perNeuronFileNamesCm[neuron.get_name()]["tree"]}}.h
+        {%- else %}
+    {{neuron.get_name()}}.cpp {{neuron.get_name()}}.h
+        {% endif -%}
+    {% endfor -%}
+    {%- if what_happened.cm_neuron_exists -%}
+        {%- for cm_file_name in sharedFileNamesCmSyns.values() %}
+    {{cm_file_name}}.cpp {{cm_file_name}}.h
+        {% endfor -%}
+    {%- endif %}
     )
 
 # 3) We require a header name like this:

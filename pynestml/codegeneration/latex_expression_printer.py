@@ -24,6 +24,7 @@ from typing import Tuple
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
 from pynestml.codegeneration.latex_reference_converter import LatexReferenceConverter
 from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
+from pynestml.codegeneration.types_printer import TypesPrinter
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_expression_node import ASTExpressionNode
 from pynestml.meta_model.ast_function_call import ASTFunctionCall

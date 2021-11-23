@@ -75,8 +75,8 @@ class ExpressionsPrettyPrinter:
         if isinstance(node, ASTSimpleExpression):
             if node.has_unit():
                 # todo by kp: this should not be done in the typesPrinter, obsolete
-                if isinstance(self.reference_converter, NESTReferenceConverter):
-                    # NESTReferenceConverter takes the extra with_origins parameter
+                if isinstance(self.reference_converter, NestMLReferenceConverter):
+                    # NestMLReferenceConverter takes the extra with_origins parameter
                     # which is used in compartmental models
                     return self.types_printer.pretty_print(node.get_numeric_literal()) + '*' + \
                         self.reference_converter.convert_name_reference(node.get_variable(), prefix=prefix, with_origins = with_origins)
@@ -94,9 +94,9 @@ class ExpressionsPrettyPrinter:
             elif node.is_boolean_false:
                 return self.types_printer.pretty_print(False)
             elif node.is_variable():
-                # NESTReferenceConverter takes the extra with_origins parameter
+                # NestMLReferenceConverter takes the extra with_origins parameter
                 # which is used in cm models
-                if isinstance(self.reference_converter, NESTReferenceConverter):
+                if isinstance(self.reference_converter, NestMLReferenceConverter):
                     return self.reference_converter.convert_name_reference\
                     (node.get_variable(), prefix=prefix, with_origins = with_origins)
                 else:
@@ -140,7 +140,7 @@ class ExpressionsPrettyPrinter:
 
         Parameters
         ----------
-        node : ASTFunctionCall
+        function_call : ASTFunctionCall
             The function call node to print.
         prefix : str
             Optional string that will be prefixed to the function call. For example, to refer to a function call in the class "node", use a prefix equal to "node." or "node->".

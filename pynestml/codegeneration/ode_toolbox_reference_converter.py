@@ -19,9 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.utils.ast_utils import ASTUtils
 
 
 class ODEToolboxReferenceConverter(NestMLReferenceConverter):

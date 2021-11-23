@@ -21,8 +21,6 @@
 
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.codegeneration.nestml_reference_converter import NestMLReferenceConverter
-from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.predefined_units import PredefinedUnits
