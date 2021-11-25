@@ -702,7 +702,15 @@ class NESTCodeGeneratorCM(CodeGenerator):
             os.makedirs(FrontendConfiguration.get_target_path())
 
         for _model_temp in self._model_templates:
-            file_extension = _model_temp.filename.split('.')[-2]
+            file_name_no_extension = os.path.basename(_model_temp.filename).split(".")[0]
+            file_extension = ''
+            if file_name_no_extension.lower().endswith("class"):
+                file_extension = "cpp"
+            elif file_name_no_extension.lower().endswith("header"):
+                file_extension = "h"
+            else:
+                file_extension = "unknown"
+                
             _file = _model_temp.render(self._get_model_namespace(neuron))
             with open(str(os.path.join(FrontendConfiguration.get_target_path(),
                                        neuron.get_name())) + '.' + file_extension, 'w+') as f:

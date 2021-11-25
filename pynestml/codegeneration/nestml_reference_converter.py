@@ -44,7 +44,7 @@ class NestMLReferenceConverter(IReferenceConverter):
     # of nest_reference_converter.convert_name_reference
     # this fixes an error where these converters are used exchangeably in the
     # compartmental case
-    def convert_name_reference(self, ast_variable, prefix='', with_origins = True):
+    def convert_name_reference(self, ast_variable, prefix='', with_origins=True):
         """
         Returns the same string
         :param ast_variable: a single variable
