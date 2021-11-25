@@ -92,7 +92,7 @@ appropriate numeric solver otherwise.
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
         cls.argument_parser.add_argument(qualifier_target_arg, choices=[
-                                         'NEST', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
+                                         'NEST', 'NEST_COMPARTMENTAL', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
                                          'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)

@@ -79,7 +79,7 @@ class CodeGenerator:
 
     @staticmethod
     def get_known_targets():
-        targets = ["NEST", "autodoc", ""]     # include the empty string here to represent "no code generated"
+        targets = ["NEST", "NEST_COMPARTMENTAL", "autodoc", ""]     # include the empty string here to represent "no code generated"
         targets = [s.upper() for s in targets]
         return targets
 

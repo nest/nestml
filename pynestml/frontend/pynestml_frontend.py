@@ -40,7 +40,7 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
+def to_nest(input_path: Union[str, Sequence[str]], target_path=None, target='NEST', logging_level='ERROR',
             module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
@@ -50,6 +50,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
+    target : str, optional, the name of the target platform to generate code for.
     logging_level : str, optional (default: 'ERROR')
         Sets which level of information should be displayed duing code generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
     module_name : str, optional (default: "nestmlmodule")
@@ -79,7 +80,12 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         args.append(str(target_path))
 
     args.append(qualifier_target_arg)
-    args.append(str("NEST"))
+    known_targets = CodeGenerator.get_known_targets()
+    if target in known_targets:
+        args.append(str(target))
+    else:
+        raise Exception("target argument must be one of: "+str(known_targets))
+        
     args.append(qualifier_logging_level_arg)
     args.append(str(logging_level))
 

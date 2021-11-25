@@ -114,9 +114,9 @@ class NESTCodeGeneratorCM(CodeGenerator):
             "path": 'cm_templates',
             "model_templates": [
                 'CompartmentCurrentsClass.jinja2',
-                'CompartmentCurrentsHeader.jinja2'
+                'CompartmentCurrentsHeader.jinja2',
                 'MainClass.jinja2',
-                'MainHeader.jinja2'
+                'MainHeader.jinja2',
                 'TreeClass.jinja2',
                 'TreeHeader.jinja2'
             ],
@@ -129,7 +129,7 @@ class NESTCodeGeneratorCM(CodeGenerator):
     _module_templates = list()
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):
-        super().__init__("NEST", options)
+        super().__init__("NEST_COMPARTMENTAL", options)
         self._printer = ExpressionsPrettyPrinter()
         self.analytic_solver = {}
         self.numeric_solver = {}

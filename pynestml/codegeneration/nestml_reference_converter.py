@@ -41,6 +41,7 @@ class NestMLReferenceConverter(IReferenceConverter):
         return str(ast_unary_operator) + '%s'
 
     def convert_name_reference(self, ast_variable, prefix=''):
+        # todo: fix here (with_origins = with_origins)
         """
         Returns the same string
         :param ast_variable: a single variable
