@@ -40,8 +40,11 @@ class NestMLReferenceConverter(IReferenceConverter):
         """
         return str(ast_unary_operator) + '%s'
 
-    def convert_name_reference(self, ast_variable, prefix=''):
-        # todo: fix here (with_origins = with_origins)
+    # with_origins doesn't do anything, it's just here to match signature
+    # of nest_reference_converter.convert_name_reference
+    # this fixes an error where these converters are used exchangeably in the
+    # compartmental case
+    def convert_name_reference(self, ast_variable, prefix='', with_origins = True):
         """
         Returns the same string
         :param ast_variable: a single variable
