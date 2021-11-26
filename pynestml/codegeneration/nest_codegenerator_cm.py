@@ -731,7 +731,7 @@ class NESTCodeGeneratorCM(CodeGenerator):
         for _model_temp in self._model_templates:
             _file = _model_temp.render(self._get_model_namespace(neuron))
             _generated_file = self.compute_name_of_generated_file(_model_temp.filename, neuron)
-            print ("file to generate: " + _generated_file)
+            print ("generated file: " + _generated_file)
             with open(_generated_file, 'w+') as f:
                 f.write(str(_file))
 
