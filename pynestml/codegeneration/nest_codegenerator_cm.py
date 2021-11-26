@@ -692,6 +692,33 @@ class NESTCodeGeneratorCM(CodeGenerator):
             neuron, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
 
         return spike_updates
+    
+    def compute_name_of_generated_file(self, jinja_file_name, neuron):
+        file_name_no_extension = os.path.basename(jinja_file_name).split(".")[0]
+        
+        file_name_calculators = {
+            "CompartmentCurrents": self.get_cm_syns_compartmentcurrents_file_prefix,
+            "Tree":  self.get_cm_syns_tree_file_prefix,
+            "Main": self.get_cm_syns_main_file_prefix,
+            }
+
+        def compute_prefix (file_name):
+            for indication, file_prefix_calculator in file_name_calculators.items():
+                if file_name.lower().startswith(indication.lower()):
+                    return file_prefix_calculator(neuron)
+            return file_name_no_extension.lower() + "_" + neuron.get_name()
+        
+        file_extension = ''
+        if file_name_no_extension.lower().endswith("class"):
+            file_extension = "cpp"
+        elif file_name_no_extension.lower().endswith("header"):
+            file_extension = "h"
+        else:
+            file_extension = "unknown"
+        
+        return str(os.path.join(FrontendConfiguration.get_target_path(),
+                                       compute_prefix(file_name_no_extension))) + '.' + file_extension
+        
 
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """
@@ -700,20 +727,12 @@ class NESTCodeGeneratorCM(CodeGenerator):
         """
         if not os.path.isdir(FrontendConfiguration.get_target_path()):
             os.makedirs(FrontendConfiguration.get_target_path())
-
+            
         for _model_temp in self._model_templates:
-            file_name_no_extension = os.path.basename(_model_temp.filename).split(".")[0]
-            file_extension = ''
-            if file_name_no_extension.lower().endswith("class"):
-                file_extension = "cpp"
-            elif file_name_no_extension.lower().endswith("header"):
-                file_extension = "h"
-            else:
-                file_extension = "unknown"
-                
             _file = _model_temp.render(self._get_model_namespace(neuron))
-            with open(str(os.path.join(FrontendConfiguration.get_target_path(),
-                                       neuron.get_name())) + '.' + file_extension, 'w+') as f:
+            _generated_file = self.compute_name_of_generated_file(_model_temp.filename, neuron)
+            print ("file to generate: " + _generated_file)
+            with open(_generated_file, 'w+') as f:
                 f.write(str(_file))
 
     def getUniqueSuffix(self, neuron: ASTNeuron):
