@@ -37,7 +37,7 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         Path to the target directory, which should contain the generated code artifacts (target platform code and CMake configuration file).
     nest_path : str
         Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
-    install_dir: str
+    install_path: str
         Path to the install directory, where the generated module library will be created.
 
     Raises
@@ -49,13 +49,19 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     """
 
     if not os.path.isdir(nest_path):
-        raise InvalidPathException('NEST path (' + nest_path + ') is not a directory!')
-    nest_config_path = '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config')
+        raise InvalidPathException(
+            'NEST path (' + nest_path + ') is not a directory!')
+    nest_config_path = '-Dwith-nest=' + \
+        os.path.join(nest_path, 'bin', 'nest-config')
+
     if not os.path.isabs(install_path):
-        raise InvalidPathException(f"Install directory: {install_path} must be absolute path")
+        install_path = os.path.abspath(install_path)
     install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
+
     if not os.path.isdir(target_path):
-        raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
+        raise InvalidPathException(
+            'Target path (' + target_path + ') is not a directory!')
+
     cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
     make_all_cmd = ['make', 'all']
     make_install_cmd = ['make', 'install']
@@ -71,18 +77,21 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         result = subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, shell=shell,
                                        cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
-        raise GeneratedCodeBuildException('Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')
+        raise GeneratedCodeBuildException(
+            'Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')
 
     # now execute make all
     try:
         subprocess.check_call(make_all_cmd, stderr=subprocess.STDOUT, shell=shell,
                               cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
-        raise GeneratedCodeBuildException('Error occurred during \'make all\'! More detailed error messages can be found in stdout.')
+        raise GeneratedCodeBuildException(
+            'Error occurred during \'make all\'! More detailed error messages can be found in stdout.')
 
     # finally execute make install
     try:
         subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, shell=shell,
                               cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
-        raise GeneratedCodeBuildException('Error occurred during \'make install\'! More detailed error messages can be found in stdout.')
+        raise GeneratedCodeBuildException(
+            'Error occurred during \'make install\'! More detailed error messages can be found in stdout.')

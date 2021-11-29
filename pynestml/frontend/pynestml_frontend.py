@@ -42,10 +42,8 @@ from pynestml.utils.model_parser import ModelParser
 from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-
-
 def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
-            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
@@ -110,7 +108,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         raise Exception("Error(s) occurred while processing the model")
 
 
-def install_nest(target_path: str, nest_path: str, install_path: str=None) -> None:
+def install_nest(target_path: str, nest_path: str, install_path: str = None) -> None:
     '''
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
@@ -129,13 +127,9 @@ def install_nest(target_path: str, nest_path: str, install_path: str=None) -> No
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
     '''
-    must_use_diferent_path = False
     if install_path is not None:
         nest_installer(target_path, nest_path, install_path)
-        must_use_diferent_path = True
-    else:
-        nest_installer(target_path, nest_path, nest_path)
-    if must_use_diferent_path:
+        # add the install_path to the python library
         system = platform.system()
         lib_key = ""
 
@@ -144,9 +138,13 @@ def install_nest(target_path: str, nest_path: str, install_path: str=None) -> No
         else:
             lib_key = "DYLD_LIBRARY_PATH"
 
-        update_lib_path(install_path, lib_key)
-
-
+        lib_path = os.path.join(install_path, "lib", "nest")
+        if lib_key in os.environ:
+            os.environ[lib_key] += os.pathsep + lib_path
+        else:
+            os.environ[lib_key] = lib_path
+    else:
+        nest_installer(target_path, nest_path, nest_path)
 
 
 def main():
@@ -201,7 +199,8 @@ def process():
         if not FrontendConfiguration.is_dev:
             for neuron in neurons:
                 if Logger.has_errors(neuron):
-                    code, message = Messages.get_neuron_contains_errors(neuron.get_name())
+                    code, message = Messages.get_neuron_contains_errors(
+                        neuron.get_name())
                     Logger.log_message(node=neuron, code=code, message=message,
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
@@ -230,42 +229,11 @@ def init_predefined():
 
 def create_report_dir():
     if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report')):
-        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report'))
+        os.makedirs(os.path.join(
+            FrontendConfiguration.get_target_path(), '..', 'report'))
 
 
 def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
                                'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
-
-
-def update_lib_path(path, lib_key):
-    # shell_script_path = os.path.expanduser("~/.bashrc")
-    # lines = []
-
-    # with open(shell_script_path, "r") as bashrc:
-    #     lines = bashrc.readlines()
-    # with open(shell_script_path, "w+") as new_bashrc:
-    #     expression = f"export {lib_key}"
-    #     expression_not_found = True
-    #     to_write_back = []
-    #     for line in lines:
-    #         if expression in line:
-    #             split_line = line.split("=")
-    #             paths = split_line[1].split(":")
-    #             paths = [p.strip() for p in paths]
-    #             if path not in paths:
-    #                 new_expression = line + os.pathsep + path
-    #                 to_write_back.append(new_expression)
-
-    #             expression_not_found = False
-    #         else:
-    #             to_write_back.append(line)
-    #     if expression_not_found:
-    #         line = f"export {lib_key}={path}"
-    #         to_write_back.append(line)
-    #     new_bashrc.writelines(to_write_back)
-    if lib_key in os.environ:
-        os.environ[lib_key] += os.pathsep + path
-    else:
-        os.environ[lib_key] = path
