@@ -65,7 +65,6 @@ class NestSTNExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-
         neuron.set({'I_e': 10.0})
         multimeter = nest.Create("multimeter")
         multimeter.set({"record_from": ["V_m"],
@@ -103,7 +102,7 @@ class NestSTNExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/terub_stn.png")
+            plt.savefig("terub_stn.png")
             # plt.show()
 
 

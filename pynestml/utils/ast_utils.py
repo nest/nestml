@@ -29,6 +29,7 @@ from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
@@ -285,6 +286,21 @@ class ASTUtils:
             if symbol is not None and symbol.has_vector_parameter():
                 return symbol
         return None
+
+    @classmethod
+    def get_numeric_vector_size(cls, variable: VariableSymbol) -> int:
+        """
+        Returns the numerical size of the vector by resolving any variable used as a size parameter in declaration
+        :param variable: vector variable
+        :return: the size of the vector as a numerical value
+        """
+        vector_parameter = variable.get_vector_parameter()
+        vector_variable = ASTVariable(vector_parameter, scope=variable.get_corresponding_scope())
+        symbol = vector_variable.get_scope().resolve_to_symbol(vector_variable.get_complete_name(), SymbolKind.VARIABLE)
+        if symbol is not None:
+            # vector size is a variable. Get the value from RHS
+            return symbol.get_declaring_expression().get_numeric_literal()
+        return int(vector_parameter)
 
     @classmethod
     def get_function_call(cls, ast, function_name):

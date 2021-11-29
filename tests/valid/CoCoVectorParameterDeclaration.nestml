@@ -1,13 +1,13 @@
 """
-CoCoVectorInNonVectorDeclaration.nestml
-#######################################
+CoCoVectorParameterDeclaration.nestml
+#####################################
 
 
 Description
 +++++++++++
 
-This model is used to test if broken CoCos are identified correctly. Here, if vectors in non-vector declaration
-are detected.
+This model is used to test if broken CoCos are identified correctly.
+Here, if the vector parameter is declared in the correct block.
 
 Positive case.
 
@@ -32,12 +32,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
-neuron CoCoVectorInNonVectorDeclaration:
+
+neuron CoCoVectorParameterDeclaration:
     state:
-        g_ex [ten] mV = 10mV
+        v_m [size] mV = -55 mV
+        y [size_y] real = 1.5
     end
 
     parameters:
-        ten integer = 10
+        size integer = 20
+    end
+
+    internals:
+        size_y integer = 5
     end
 end
