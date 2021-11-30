@@ -100,6 +100,7 @@ jobs:
       - name: Run Jupyter notebooks
         run: |
           echo $NEST_INSTALL
+          ls $NEST_INSTALL/share/nest/help_generator
           if [ -d "$NEST_INSTALL/share/nest/help_generator" ]; then echo "Dir exists"; else echo "Dir is missing"; fi
           cd $GITHUB_WORKSPACE
           ipynb_fns=$(find $GITHUB_WORKSPACE/doc/tutorials -name '*.ipynb')
