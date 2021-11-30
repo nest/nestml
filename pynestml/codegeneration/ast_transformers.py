@@ -476,20 +476,20 @@ class ASTTransformers:
         return vars_used_
 
     @classmethod
-    def get_eq_declarations_from_block(cls, var_name: str, block: ASTBlock) -> List[ASTDeclaration]:
+    def get_declarations_from_block(cls, var_name: str, block: ASTBlock) -> List[ASTDeclaration]:
         """
         Get declarations from the given block containing the given variable.
         :param var_name: variable name
         :param block: block to collect the variable declarations
         :return: a list of declarations
         """
-        decls = []
-
         if block is None:
-            return decls
+            return []
 
         if not type(var_name) is str:
             var_name = str(var_name)
+
+        decls = []
 
         for decl in block.get_declarations():
             if isinstance(decl, ASTInlineExpression):
@@ -498,6 +498,7 @@ class ASTTransformers:
                 var_names = [decl.get_lhs().get_name()]
             else:
                 var_names = [var.get_name() for var in decl.get_variables()]
+
             for _var_name in var_names:
                 if _var_name == var_name:
                     decls.append(decl)
@@ -508,7 +509,7 @@ class ASTTransformers:
     @classmethod
     def recursive_dependent_variables_search(cls, vars: List[str], node: ASTNode) -> List[str]:
         """
-        Collect all the variable names used in the defining expressions of variables moved from synapse to neuron.
+        Collect all the variable names used in the defining expressions of a list of variables.
         :param vars: list of variable names moved from synapse to neuron
         :param node: ASTNode to perform the recursive search
         :return: list of variable names from the recursive search
@@ -527,7 +528,7 @@ class ASTTransformers:
             if not var:
                 # all variables checked
                 break
-            decls = cls.get_eq_declarations_from_block(var, node.get_equations_blocks())
+            decls = cls.get_declarations_from_block(var, node.get_equations_blocks())
 
             if decls:
                 decl = decls[0]
@@ -540,7 +541,7 @@ class ASTTransformers:
                     for expr in decl.get_expressions():
                         vars_used.extend(cls.collect_variable_names_in_expression(expr))
                 else:
-                    raise Exception("Tried to move unknown type " + str(type(decl)))
+                    raise Exception("Unknown type " + str(type(decl)))
                 vars_used = [str(var) for var in vars_used]
                 vars_to_check = vars_to_check.union(set(vars_used))
             vars_checked.add(var)

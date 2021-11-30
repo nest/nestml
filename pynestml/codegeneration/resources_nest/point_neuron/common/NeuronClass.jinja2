@@ -238,7 +238,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endif %}
   {{var}}__iv = {{names.getter(var_sym)}}();
 {%- endwith %}
-{%- endfor %}                        
+{%- endfor %}
 {%- endif %}
 }
 
@@ -366,7 +366,7 @@ void {{neuronName}}::init_buffers_()
 
   B_.__sys.function = {{neuronName}}_dynamics;
   B_.__sys.jacobian = NULL;
-  B_.__sys.dimension = {{stateSize}}; //{{numeric_state_variables|length + non_equations_state_variables|length}};
+  B_.__sys.dimension = {{stateSize}};
   B_.__sys.params = reinterpret_cast< void* >( this );
   B_.__step = nest::Time::get_resolution().get_ms();
   B_.__integration_step = nest::Time::get_resolution().get_ms();
@@ -441,11 +441,7 @@ void {{neuronName}}::calibrate() {
 {%- endif %}
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
-    const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
-
-{%- if useGSL %}
-//  double __t = 0;
-{%- endif %}
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   for ( long lag = from ; lag < to ; ++lag )
   {
@@ -657,10 +653,10 @@ void
         }
         else {
 {%- for var in purely_numeric_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // XXX: not 0 but initial value!
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
 {%- endfor %}
 {%- for var in analytic_state_variables_moved|sort %}
-            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // XXX: not 0 but initial value!
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
 {%- endfor %}
         }
 
@@ -903,15 +899,15 @@ double
 #endif
 
   if (t == 0.) {
-    return 0.;  // XXX: not 0 but real "initial value"!
+    return 0.;  // initial value for convoluation is always 0
   }
 
   // set to initial value
 {%- for var_ in purely_numeric_state_variables_moved %}
-      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // XXX: not 0 but real "initial value"!
+      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
 {%- endfor %}
 {%- for var_ in analytic_state_variables_moved %}
-      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // XXX: not 0 but real "initial value"!
+      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
 {%- endfor %}
 
   // propagate in time

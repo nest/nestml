@@ -1,26 +1,19 @@
 """
-Name: stdp - Synapse type for spike-timing dependent plasticity.
+stdp - Synapse model for spike-timing dependent plasticity
+#########################################################
 
-Description:
+Description
++++++++++++
 
-stdp_synapse is a synapses with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression.
-
-Examples:
+stdp_synapse is a synapse with spike time dependent plasticity (as defined in [1]). Here the weight dependence exponent can be set separately for potentiation and depression. Examples::
 
 Multiplicative STDP [2]  mu_plus = mu_minus = 1
 Additive STDP       [3]  mu_plus = mu_minus = 0
 Guetig STDP         [1]  mu_plus, mu_minus in [0, 1]
 Van Rossum STDP     [4]  mu_plus = 0 mu_minus = 1
 
-Parameters:
-
-lambda     real - Step size
-alpha      real - Asymmetry parameter (scales depressing increments as alpha*lambda)
-mu_plus    real - Weight dependence exponent, potentiation
-mu_minus   real - Weight dependence exponent, depression
-Wmax       real - Maximum allowed weight (dimensionless)
-
-References:
+References
+++++++++++
 
 [1] Guetig et al. (2003) Learning Input Correlations through Nonlinear
     Temporally Asymmetric Hebbian Plasticity. Journal of Neuroscience
@@ -36,12 +29,6 @@ References:
 [4] van Rossum, M. C. W., Bi, G-Q and Turrigiano, G. G. (2000).
     Stable Hebbian learning from spike timing-dependent
     plasticity, Journal of Neuroscience, 20:23,8812--8821
-
-FirstVersion: March 2006
-
-Author: Moritz Helias, Abigail Morrison
-
-Adapted by: Philipp Weidel
 """
 synapse stdp:
 

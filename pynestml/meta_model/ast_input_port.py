@@ -19,6 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
+from typing import Any, List, Optional
+
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_node import ASTNode
@@ -26,7 +30,7 @@ from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTInputPort(ASTNode):
-    """
+    r"""
     This class is used to store a declaration of an input port.
     ASTInputPort represents a single input port, e.g.:
 
@@ -51,61 +55,47 @@ class ASTInputPort(ASTNode):
 
     """
 
-    def __init__(self, name=None, size_parameter=None, data_type=None, input_qualifiers=None, signal_type=None,
+    def __init__(self,
+                 name: str,
+                 signal_type: PortSignalType,
+                 size_parameter: Optional[str] = None,
+                 data_type: Optional[ASTDataType] = None,
+                 input_qualifiers: Optional[List[ASTInputQualifier]] = None,
                  *args, **kwargs):
-        """
+        r"""
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
         :param name: the name of the port
-        :type name: str
         :param size_parameter: a parameter indicating the index in an array.
-        :type size_parameter: str
         :param data_type: the data type of this input port
-        :type data_type: ASTDataType
         :param input_qualifiers: a list of input qualifiers for this port.
-        :type input_qualifiers: list(ASTInputQualifier)
         :param signal_type: type of signal received, i.e., spikes or continuous
-        :type signal_type: SignalType
         """
         super(ASTInputPort, self).__init__(*args, **kwargs)
-        assert name is not None and isinstance(name, str), \
-            '(PyNestML.ASTInputPort) No or wrong type of name provided (%s)!' % type(name)
-        assert signal_type is not None and isinstance(signal_type, PortSignalType), \
-            '(PyNestML.ASTInputPort) No or wrong type of input signal type provided (%s)!' % type(signal_type)
         if input_qualifiers is None:
             input_qualifiers = []
-        assert input_qualifiers is not None and isinstance(input_qualifiers, list), \
-            '(PyNestML.ASTInputPort) No or wrong type of input qualifiers provided (%s)!' % type(input_qualifiers)
-        for qual in input_qualifiers:
-            assert qual is not None and isinstance(qual, ASTInputQualifier), \
-                '(PyNestML.ASTInputPort) No or wrong type of input qualifier provided (%s)!' % type(qual)
-        assert size_parameter is None or isinstance(size_parameter, str), \
-            '(PyNestML.ASTInputPort) Wrong type of index parameter provided (%s)!' % type(size_parameter)
-        assert data_type is None or isinstance(data_type, ASTDataType), \
-            '(PyNestML.ASTInputPort) Wrong type of data-type provided (%s)!' % type(data_type)
-        self.signal_type = signal_type
-        self.input_qualifiers = input_qualifiers
-        self.size_parameter = size_parameter
         self.name = name
+        self.signal_type = signal_type
+        self.size_parameter = size_parameter
         self.data_type = data_type
+        self.input_qualifiers = input_qualifiers
 
-    def clone(self):
-        """
+    def clone(self) -> ASTInputPort:
+        r"""
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTInputPort
         """
         data_type_dup = None
         if self.data_type:
             data_type_dup = self.data_type.clone()
         dup = ASTInputPort(name=self.name,
+                           signal_type=self.signal_type,
                            size_parameter=self.size_parameter,
                            data_type=data_type_dup,
                            input_qualifiers=[input_qualifier.clone() for input_qualifier in self.input_qualifiers],
-                           signal_type=self.signal_type,
                            # ASTNode common attributes:
                            source_position=self.source_position,
                            scope=self.scope,
@@ -118,60 +108,56 @@ class ASTInputPort(ASTNode):
         return dup
 
     def get_name(self) -> str:
-        """
+        r"""
         Returns the name of the declared input port.
         :return: the name.
         """
         return self.name
 
-    def has_index_parameter(self):
-        """
+    def has_index_parameter(self) -> bool:
+        r"""
         Returns whether a index parameter has been defined.
         :return: True if index has been used, otherwise False.
-        :rtype: bool
         """
         return self.size_parameter is not None
 
-    def get_index_parameter(self):
-        """
+    def get_index_parameter(self) -> str:
+        r"""
         Returns the index parameter.
         :return: the index parameter.
-        :rtype: str
         """
         return self.size_parameter
 
-    def has_input_qualifiers(self):
-        """
+    def has_input_qualifiers(self) -> bool:
+        r"""
         Returns whether input qualifiers have been defined.
         :return: True, if at least one input qualifier has been defined.
-        :rtype: bool
         """
         return len(self.input_qualifiers) > 0
 
-    def get_input_qualifiers(self):
-        """
+    def get_input_qualifiers(self) -> List[ASTInputQualifier]:
+        r"""
         Returns the list of input qualifiers.
         :return: a list of input qualifiers.
-        :rtype: list(ASTInputQualifier)
         """
         return self.input_qualifiers
 
     def is_spike(self) -> bool:
-        """
+        r"""
         Returns whether this is a spiking input port or not.
         :return: True if spike input port, False otherwise.
         """
         return self.signal_type is PortSignalType.SPIKE
 
     def is_continuous(self) -> bool:
-        """
+        r"""
         Returns whether this is a continous time port or not.
         :return: True if continuous time, False otherwise.
         """
         return self.signal_type is PortSignalType.CONTINUOUS
 
     def is_excitatory(self) -> bool:
-        """
+        r"""
         Returns whether this port is excitatory or not. For this, it has to be marked explicitly by the
         excitatory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if excitatory, False otherwise.
@@ -184,7 +170,7 @@ class ASTInputPort(ASTNode):
         return False
 
     def is_inhibitory(self) -> bool:
-        """
+        r"""
         Returns whether this port is inhibitory or not. For this, it has to be marked explicitly by the
         inhibitory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if inhibitory, False otherwise.
@@ -197,27 +183,24 @@ class ASTInputPort(ASTNode):
         return False
 
     def has_datatype(self):
-        """
+        r"""
         Returns whether this port has a defined data type or not.
         :return: True if it has a datatype, otherwise False.
         """
         return self.data_type is not None and isinstance(self.data_type, ASTDataType)
 
-    def get_datatype(self):
-        """
+    def get_datatype(self) -> ASTDataType:
+        r"""
         Returns the currently used data type of this port.
         :return: a single data type object.
-        :rtype: ASTDataType
         """
         return self.data_type
 
-    def get_parent(self, ast):
-        """
+    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+        r"""
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: AST_
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
         """
         if self.has_datatype():
             if self.get_datatype() is ast:
@@ -231,13 +214,11 @@ class ASTInputPort(ASTNode):
                 return qual.get_parent(ast)
         return None
 
-    def equals(self, other):
-        """
+    def equals(self, other: Any) -> bool:
+        r"""
         The equals method.
         :param other: a different object.
-        :type other: object
         :return: True if equal,otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTInputPort):
             return False

@@ -40,7 +40,7 @@ class CoCoIntegrateOdesCalledIfEquationsDefined(CoCo):
         :param node: a single neuron instance.
         """
         if isinstance(node, ASTSynapse):
-            return   # XXX: TODO: check that there are no equations other than the ones moved to the neuron (if any)
+            return
         equations_defined_visitor = EquationsDefinedVisitor()
         node.accept(equations_defined_visitor)
         integrate_odes_called_visitor = IntegrateOdesCalledVisitor()

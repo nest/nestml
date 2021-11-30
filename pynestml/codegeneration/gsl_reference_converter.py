@@ -179,17 +179,15 @@ class GSLReferenceConverter(IReferenceConverter):
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
 
         if function_name == PredefinedFunctions.DELIVER_SPIKE:
-            return '''
-        set_delay( {1!s} );
-        const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
-        set_delay_steps(__delay_steps);
-        e.set_receiver( *__target );
-  e.set_weight( {0!s} );
-  // use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
-  e.set_delay_steps( get_delay_steps() );
-  e.set_rport( get_rport() );
-e();
-'''
+            return '''set_delay( {1!s} );
+const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
+set_delay_steps(__delay_steps);
+e.set_receiver( *__target );
+e.set_weight( {0!s} );
+// use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
+e.set_delay_steps( get_delay_steps() );
+e.set_rport( get_rport() );
+e();'''
 
         # suppress prefix for misc. predefined functions
         # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here

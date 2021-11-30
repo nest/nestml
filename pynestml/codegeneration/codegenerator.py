@@ -48,7 +48,7 @@ class CodeGenerator:
         if options:
             self.set_options(options)
 
-    def generate_code(self, neurons: Sequence[ASTNeuron], synapases: Sequence[ASTSynapse]) -> None:
+    def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 

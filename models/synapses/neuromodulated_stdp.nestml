@@ -1,30 +1,38 @@
 """
-neuromodulated_stdp - Synapse type for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine.
+neuromodulated_stdp - Synapse model for spike-timing dependent plasticity modulated by a neurotransmitter such as dopamine
+##########################################################################################################################
+
+Description
++++++++++++
+stdp_dopamine_synapse is a connection to create synapses with
+dopamine-modulated spike-timing dependent plasticity (used as a
+benchmark model in [1]_, based on [2]_). The dopaminergic signal is a
+low-pass filtered version of the spike rate of a user-specific pool
+of neurons. The spikes emitted by the pool of dopamine neurons are
+delivered to the synapse via the assigned volume transmitter. The
+dopaminergic dynamics is calculated in the synapse itself.
 """
 synapse neuromodulated_stdp:
 
   state:
     w real = 1.
-    n real = 0.
-    c real = 0.
+    n real = 0.   # Neuromodulator concentration
+    c real = 0.   # Eligibility trace
     pre_tr real = 0.
     post_tr real = 0.
   end
 
   parameters:
     the_delay ms = 1 ms  @nest::delay   # !!! cannot have a variable called "delay"
-    tau_tr_pre ms = 20 ms
-    tau_tr_post ms = 20 ms
-    tau_c ms = 1000 ms
-    tau_n ms = 200 ms
-    b real = 0.
-    alpha real = 1.
-    C1 real = 1.
-    C2 real = 1.
-    Wmax real = 200.
-    Wmin real = 0.
-    A_plus real = 1.
-    A_minus real = 1.5
+    tau_tr_pre ms = 20 ms   # STDP time constant for weight changes caused by pre-before-post spike pairings.
+    tau_tr_post ms = 20 ms    # STDP time constant for weight changes caused by post-before-pre spike pairings.
+    tau_c ms = 1000 ms    # Time constant of eligibility trace
+    tau_n ms = 200 ms   # Time constant of dopaminergic trace
+    b real = 0.   # Dopaminergic baseline concentration
+    Wmax real = 200.    # Maximal synaptic weight
+    Wmin real = 0.    # Minimal synaptic weight
+    A_plus real = 1.    # Multiplier applied to weight changes caused by pre-before-post spike pairings. If b (dopamine baseline concentration) is zero, then A_plus is simply the multiplier for facilitation (as in the stdp_synapse model). If b is not zero, then A_plus will be the multiplier for facilitation only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_plus will be the multiplier for depression.
+    A_minus real = 1.5    # Multiplier applied to weight changes caused by post-before-pre spike pairings. If b (dopamine baseline concentration) is zero, then A_minus is simply the multiplier for depression (as in the stdp_synapse model). If b is not zero, then A_minus will be the multiplier for depression only if n - b is positive, where n is the instantenous dopamine concentration in the volume transmitter. If n - b is negative, A_minus will be the multiplier for facilitation.
   end
 
   equations:

@@ -23,6 +23,7 @@ from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
+from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.symbol_table.scope import Scope, ScopeType
 from pynestml.symbols.function_symbol import FunctionSymbol
@@ -31,6 +32,7 @@ from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.either import Either
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
@@ -83,7 +85,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # update the equations
         if node.get_equations_blocks() is not None and len(node.get_equations_blocks().get_declarations()) > 0:
             equation_block = node.get_equations_blocks()
-            assign_ode_to_variables(equation_block)
+            ASTUtils.assign_ode_to_variables(equation_block)
 
         Logger.set_current_node(None)
 
@@ -355,7 +357,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         # the invariant update
         if node.has_invariant():
             node.get_invariant().update_scope(node.get_scope())
-        return
 
     def visit_return_stmt(self, node):
         """
@@ -365,7 +366,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
         """
         if node.has_expression():
             node.get_expression().update_scope(node.get_scope())
-        return
 
     def visit_if_stmt(self, node):
         """
@@ -378,7 +378,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             elIf.update_scope(node.get_scope())
         if node.has_else_clause():
             node.get_else_clause().update_scope(node.get_scope())
-        return
 
     def visit_if_clause(self, node):
         """
@@ -450,7 +449,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             if isinstance(node.lhs, ASTUnitType):  # lhs can be a numeric Or a unit-type
                 node.lhs.update_scope(node.get_scope())
             node.get_rhs().update_scope(node.get_scope())
-        return
 
     def visit_expression(self, node):
         """
@@ -476,7 +474,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_condition().update_scope(node.get_scope())
             node.get_if_true().update_scope(node.get_scope())
             node.get_if_not().update_scope(node.get_scope())
-        return
 
     def visit_simple_expression(self, node):
         """
@@ -488,7 +485,6 @@ class ASTSymbolTableVisitor(ASTVisitor):
             node.get_function_call().update_scope(node.get_scope())
         elif node.is_variable() or node.has_unit():
             node.get_variable().update_scope(node.get_scope())
-        return
 
     def visit_inline_expression(self, node):
         """
@@ -559,11 +555,9 @@ class ASTSymbolTableVisitor(ASTVisitor):
             BlockType.PARAMETERS)
         for decl in node.get_declarations():
             decl.update_scope(node.get_scope())
-        return
 
     def endvisit_block_with_variables(self, node):
         self.block_type_stack.pop()
-        return
 
     def visit_equations_block(self, node):
         """
@@ -611,81 +605,12 @@ class ASTSymbolTableVisitor(ASTVisitor):
         symbol.set_comment(node.get_comment())
         node.get_scope().add_symbol(symbol)
 
-    def visit_stmt(self, node):
+    def visit_stmt(self, node: ASTStmt):
         """
         Private method: Used to visit a single stmt and update its scope.
         :param node: a single statement
-        :type node: ast_stmt
         """
         if node.is_small_stmt():
             node.small_stmt.update_scope(node.get_scope())
         if node.is_compound_stmt():
             node.compound_stmt.update_scope(node.get_scope())
-
-
-def assign_ode_to_variables(ode_block):
-    """
-    Adds for each variable symbol the corresponding ode declaration if present.
-    :param ode_block: a single block of ode declarations.
-    :type ode_block: ASTEquations
-    """
-    from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-    from pynestml.meta_model.ast_kernel import ASTKernel
-    for decl in ode_block.get_declarations():
-        if isinstance(decl, ASTOdeEquation):
-            add_ode_to_variable(decl)
-        elif isinstance(decl, ASTKernel):
-            add_kernel_to_variable(decl)
-
-
-def add_ode_to_variable(ode_equation):
-    """
-    Resolves to the corresponding symbol and updates the corresponding ode-declaration.
-    :param ode_equation: a single ode-equation
-    :type ode_equation: ast_ode_equation
-    """
-    for diff_order in range(ode_equation.get_lhs().get_differential_order()):
-        var_name = ode_equation.get_lhs().get_name() + "'" * diff_order
-        existing_symbol = ode_equation.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-
-        if existing_symbol is None:
-            code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
-            Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                               log_level=LoggingLevel.ERROR)
-            return
-
-        existing_symbol.set_ode_or_kernel(ode_equation)
-
-        ode_equation.get_scope().update_variable_symbol(existing_symbol)
-        code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
-        Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
-                           code=code, message=message, log_level=LoggingLevel.INFO)
-
-
-def add_kernel_to_variable(kernel):
-    """
-    Adds the kernel as the defining equation.
-
-    If the definition of the kernel is e.g. `g'' = ...` then variable symbols `g` and `g'` will have their kernel definition and variable type set.
-
-    :param kernel: a single kernel object.
-    :type kernel: ASTKernel
-    """
-    if len(kernel.get_variables()) == 1 \
-            and kernel.get_variables()[0].get_differential_order() == 0:
-        # we only update those which define an ODE; skip "direct function of time" specifications
-        return
-
-    for var, expr in zip(kernel.get_variables(), kernel.get_expressions()):
-        for diff_order in range(var.get_differential_order()):
-            var_name = var.get_name() + "'" * diff_order
-            existing_symbol = kernel.get_scope().resolve_to_symbol(var_name, SymbolKind.VARIABLE)
-
-            if existing_symbol is None:
-                code, message = Messages.get_no_variable_found(var.get_name_of_lhs())
-                Logger.log_message(code=code, message=message, error_position=kernel.get_source_position(), log_level=LoggingLevel.ERROR)
-                return
-
-            existing_symbol.set_ode_or_kernel(expr)
-            existing_symbol.set_variable_type(VariableType.KERNEL)
-            kernel.get_scope().update_variable_symbol(existing_symbol)
