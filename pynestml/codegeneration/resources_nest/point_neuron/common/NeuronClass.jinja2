@@ -270,8 +270,8 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
 {%- endif %}
-{%- if paired_neuron is defined %}
-  n_incoming_ = __n.n_incoming;
+{%- if paired_synapse is defined %}
+  n_incoming_ = __n.n_incoming_;
   max_delay_ = __n.max_delay_;
   last_spike_ = __n.last_spike_;
 

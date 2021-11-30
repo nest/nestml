@@ -61,7 +61,6 @@ class ASTExternalVariable(ASTVariable):
                                    post_comments=[s for s in self.post_comments],
                                    implicit_conversion_factor=self.implicit_conversion_factor)
 
-
     def update_alt_scope(self, scope):
         self._altscope = scope
 

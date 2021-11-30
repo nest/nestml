@@ -533,7 +533,7 @@ public: // XXX! TODO: should be private
     // -----------------------------------------------------------------------
     //   GSL ODE solver data structures
     // -----------------------------------------------------------------------
-    
+
     gsl_odeiv_step* __s;    //!< stepping function
     gsl_odeiv_control* __c; //!< adaptive stepsize control function
     gsl_odeiv_evolve* __e;  //!< evolution function
@@ -630,7 +630,7 @@ public: // XXX! TODO: should be private
   //   which are one instance each of the parameters, state, buffers and variables
   //   structures. Experience indicates that the state and variables member should
   //   be next to each other to achieve good efficiency (caching).
-  //   Note: Devices require one additional data member, an instance of the 
+  //   Note: Devices require one additional data member, an instance of the
   //   ``Device`` child class they belong to.
   // -------------------------------------------------------------------------
 

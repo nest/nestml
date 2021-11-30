@@ -86,7 +86,6 @@ synapse stdp:
 
     # deliver spike to postsynaptic partner
     deliver_spike(w, the_delay)
-#weight += 1.
   end
 
 end

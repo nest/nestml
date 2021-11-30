@@ -34,14 +34,6 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
-def symbol_by_name(name, symbols, symbol_kind):
-    """get a symbol from a list of symbols by the given name"""
-    for sym in symbols:
-        if sym.name == name and sym.get_symbol_kind() == symbol_kind:
-            return sym
-    return None
-
-
 class ASTNeuronOrSynapse(ASTNode):
     """
     This class is used to stuff common to neurons and synapses

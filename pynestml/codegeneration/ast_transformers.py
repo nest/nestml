@@ -531,6 +531,7 @@ class ASTTransformers:
             decls = cls.get_declarations_from_block(var, node.get_equations_blocks())
 
             if decls:
+                assert len(decls) == 1
                 decl = decls[0]
                 if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
                         or type(decl) is ASTInlineExpression:
@@ -546,7 +547,7 @@ class ASTTransformers:
                 vars_to_check = vars_to_check.union(set(vars_used))
             vars_checked.add(var)
 
-        return vars_checked
+        return list(set(vars_checked))
 
     @classmethod
     def remove_initial_values_for_kernels(cls, neuron: ASTNeuron) -> None:

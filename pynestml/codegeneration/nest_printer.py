@@ -187,7 +187,6 @@ class NestPrinter:
     def print_assignment(self, node, prefix=""):
         # type: (ASTAssignment) -> str
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        symbol.block_type = BlockType.STATE
         ret = self.print_origin(symbol) + self.names_converter.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='
@@ -204,7 +203,6 @@ class NestPrinter:
 
     def print_variable(self, node: ASTVariable) -> str:
         symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
-        symbol.block_type = BlockType.STATE
         ret = self.print_origin(symbol) + node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"

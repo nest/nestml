@@ -427,7 +427,6 @@ class NESTCodeGenerator(CodeGenerator):
 
             var_name_suffix = "__for_" + synapse.get_name()
 
-
             #
             #   determine which variables and dynamics in synapse can be transferred to neuron
             #
@@ -457,14 +456,12 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
                                None, LoggingLevel.INFO)
 
-
             #
             #   collect all the variable/parameter/kernel/function/etc. names used in defining expressions of `syn_to_neuron_state_vars`
             #
 
-            recursive_vars_used = ASTTransformers.recursive_dependent_variables_search(
-                syn_to_neuron_state_vars, synapse)
-
+            recursive_vars_used = ASTTransformers.recursive_dependent_variables_search(syn_to_neuron_state_vars, synapse)
+            new_neuron.recursive_vars_used = recursive_vars_used
             new_neuron._transferred_variables = [neuron_state_var + var_name_suffix
                                                  for neuron_state_var in syn_to_neuron_state_vars
                                                  if new_synapse.get_kernel_by_name(neuron_state_var) is None]
@@ -501,13 +498,16 @@ class NESTCodeGenerator(CodeGenerator):
 
             # XXX: TODO
 
-
             #
             #   move state variable declarations from synapse to neuron
             #
 
             for state_var in syn_to_neuron_state_vars:
-                decls = ASTUtils.move_decls(state_var, neuron.get_state_blocks(), synapse.get_state_blocks(), var_name_suffix)
+                decls = ASTUtils.move_decls(state_var,
+                                            neuron.get_state_blocks(),
+                                            synapse.get_state_blocks(),
+                                            var_name_suffix,
+                                            block_type=BlockType.STATE)
                 ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
 
             #
@@ -517,13 +517,30 @@ class NESTCodeGenerator(CodeGenerator):
             for state_var in syn_to_neuron_state_vars:
                 Logger.log_message(None, -1, "Moving state var defining equation(s) " + str(state_var),
                                    None, LoggingLevel.INFO)
-                decls = ASTUtils.equations_from_block_to_block(state_var, new_synapse.get_equations_block(),
-                                             new_neuron.get_equations_block(), var_name_suffix, mode="move")
+                decls = ASTUtils.equations_from_block_to_block(state_var,
+                                                               new_synapse.get_equations_block(),
+                                                               new_neuron.get_equations_block(),
+                                                               var_name_suffix,
+                                                               mode="move")
                 ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
 
+            #
+            #    move initial values for equations
+            #
+
+            for state_var in syn_to_neuron_state_vars:
+                Logger.log_message(None, -1, "Moving state variables for equation(s) " + str(state_var),
+                                   None, LoggingLevel.INFO)
+                ASTUtils.move_decls(var_name=state_var,
+                                    from_block=new_synapse.get_state_blocks(),
+                                    to_block=new_neuron.get_state_blocks(),
+                                    var_name_suffix=var_name_suffix,
+                                    block_type=BlockType.STATE,
+                                    mode="move")
 
             #
-            #     mark postsynaptically connected input ports in the synapse
+            #     mark variables in the neuron pertaining to synapse postsynaptic ports
+            #
             #     convolutions with them ultimately yield variable updates when post neuron calls emit_spike()
             #
 
@@ -546,35 +563,14 @@ class NESTCodeGenerator(CodeGenerator):
 
                 mark_node.accept(ASTHigherOrderVisitor(lambda x: mark_post_port(x)))
                 return post_ports
-# XXX: lastlog: marking is not being done????????
-            #mark_post_ports(new_neuron, new_synapse, new_synapse)
-
-            #
-            #     mark variables in the neuron pertaining to synapse postsynaptic ports
-            #
-            #     convolutions with them ultimately yield variable updates when post neuron calls emit_spike()
-            #
 
             mark_post_ports(new_neuron, new_synapse, new_neuron)
 
-
             #
-            #    move updates in post receive block from synapse to ``new_neuron.moved_spike_updates``
+            #    move statements in post receive block from synapse to ``new_neuron.moved_spike_updates``
             #
 
             vars_used = []
-
-            def get_statements_from_block(var_name, block):
-                """XXX: only simple statements such as assignments are supported for now. if..then..else compound statements and so are not yet supported."""
-                block = block.get_block()
-                all_stmts = block.get_stmts()
-                stmts = []
-                for node in all_stmts:
-                    if node.is_small_stmt() \
-                       and node.small_stmt.is_assignment() \
-                       and node.small_stmt.get_assignment().lhs.get_name() == var_name:
-                        stmts.append(node)
-                return stmts
 
             new_neuron.moved_spike_updates = []
 
@@ -587,10 +583,10 @@ class NESTCodeGenerator(CodeGenerator):
                 for state_var in syn_to_neuron_state_vars:
                     Logger.log_message(None, -1, "Moving onPost updates for " + str(state_var), None, LoggingLevel.INFO)
 
-                    stmts = get_statements_from_block(state_var, post_receive_block)
+                    stmts = ASTUtils.get_statements_from_block(state_var, post_receive_block)
                     if stmts:
                         Logger.log_message(None, -1, "Moving state var updates for " + state_var
-                                            + " from synapse to neuron", None, LoggingLevel.INFO)
+                                           + " from synapse to neuron", None, LoggingLevel.INFO)
                         for stmt in stmts:
                             vars_used.extend(ASTTransformers.collect_variable_names_in_expression(stmt))
                             post_receive_block.block.stmts.remove(stmt)
@@ -599,6 +595,9 @@ class NESTCodeGenerator(CodeGenerator):
                             stmt.update_scope(new_neuron.get_update_blocks().get_scope())
                             stmt.accept(ASTSymbolTableVisitor())
                             new_neuron.moved_spike_updates.append(stmt)
+
+            vars_used = list(set([v.name for v in vars_used]))
+            syn_to_neuron_params.extend([v for v in vars_used if v in [p + var_name_suffix for p in all_declared_params]])
 
             #
             #   replace ``continuous`` type input ports that are connected to postsynaptic neuron with suffixed external variable references
@@ -626,10 +625,13 @@ class NESTCodeGenerator(CodeGenerator):
             Logger.log_message(None, -1, "Copying parameters from synapse to neuron...", None, LoggingLevel.INFO)
             for param_var in syn_to_neuron_params:
                 Logger.log_message(None, -1, "\tCopying parameter with name " + str(param_var)
-                                    + " from synapse to neuron", None, LoggingLevel.INFO)
-                decls = ASTUtils.move_decls(param_var, new_synapse.get_parameter_blocks(),
-                                            new_neuron.get_parameter_blocks(), var_name_suffix, mode="copy")
-                #ASTUtils.add_suffix_to_variable_names(decls, var_name_suffix)
+                                   + " from synapse to neuron", None, LoggingLevel.INFO)
+                decls = ASTUtils.move_decls(param_var,
+                                            new_synapse.get_parameter_blocks(),
+                                            new_neuron.get_parameter_blocks(),
+                                            var_name_suffix,
+                                            block_type=BlockType.PARAMETERS,
+                                            mode="copy")
 
             #
             #   add suffix to variables in spike updates
@@ -642,7 +644,6 @@ class NESTCodeGenerator(CodeGenerator):
                 for param_var in syn_to_neuron_params:
                     param_var = str(param_var)
                     ASTUtils.add_suffix_to_variable_name(param_var, stmt, var_name_suffix, scope=new_neuron.get_update_blocks().get_scope())
-                    #stmt.update_scope(new_neuron.get_update_blocks().get_scope())
 
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
@@ -654,8 +655,6 @@ class NESTCodeGenerator(CodeGenerator):
                 Logger.log_message(None, -1, "\t• Replacing variable " + str(state_var), None, LoggingLevel.INFO)
                 ASTUtils.replace_with_external_variable(
                     state_var, new_synapse, var_name_suffix, new_neuron.get_equations_blocks())
-
-            new_neuron.recursive_vars_used = recursive_vars_used
 
             #
             #     rename neuron
@@ -862,16 +861,7 @@ class NESTCodeGenerator(CodeGenerator):
         if equations_block is not None:
             delta_factors = ASTTransformers.get_delta_factors_(synapse, equations_block)
             kernel_buffers = ASTTransformers.generate_kernel_buffers_(synapse, equations_block)
-            # print("kernel_buffers = " + str([(str(a), str(b)) for a, b in kernel_buffers]))
             ASTTransformers.replace_convolve_calls_with_buffers_(synapse, equations_block)
-
-            # print("NEST codegenerator step 0...")
-            # self.mark_kernel_variable_symbols(synapse, kernel_buffers)
-
-            # print("NEST codegenerator step 3...")
-            # self.update_symbol_table(synapse, kernel_buffers)
-
-            # print("NEST codegenerator: replacing functions through defining expressions...")
             ASTTransformers.make_inline_expressions_self_contained(equations_block.get_inline_expressions())
             ASTTransformers.replace_inline_expressions_through_defining_expressions(
                 equations_block.get_ode_equations(), equations_block.get_inline_expressions())
@@ -889,27 +879,11 @@ class NESTCodeGenerator(CodeGenerator):
             ASTTransformers.add_timestep_symbol(synapse)
             self.update_symbol_table(synapse, kernel_buffers)
 
-            # print("NEST codegenerator: Adding ode-toolbox processed kernels to AST...")
-            # self.add_kernel_odes(synapse, [analytic_solver, numeric_solver], kernel_buffers)
-            # self.replace_convolve_calls_with_buffers_(synapse, equations_block, kernel_buffers)
-
             if not self.analytic_solver[synapse.get_name()] is None:
-                # print("NEST codegenerator: Adding propagators...")
                 synapse = ASTTransformers.add_declarations_to_internals(
                     synapse, self.analytic_solver[synapse.get_name()]["propagators"])
 
             self.update_symbol_table(synapse, kernel_buffers)
-            # self.remove_kernel_definitions_from_equations_block(synapse, self.analytic_solver["state_variables"])
-
-            # if not self.numeric_solver is None:
-            #     functional_kernels_to_odes(synapse, self.numeric_solver)
-
-            # update kernel buffers in case direct functions of time have been replaced by higher-order differential
-
-            # print("NEST codegenerator step 5...")
-            self.update_symbol_table(synapse, kernel_buffers)
-
-            # print("NEST codegenerator step 6...")
             spike_updates, post_spike_updates = self.get_spike_update_expressions(
                 synapse, kernel_buffers, [analytic_solver, numeric_solver], delta_factors)
         else:

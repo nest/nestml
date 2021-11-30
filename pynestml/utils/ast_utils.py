@@ -39,14 +39,14 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol
+from pynestml.symbols.symbol import Symbol, SymbolKind
+from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
+from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_visitor import ASTVisitor
-
 
 
 class ASTUtils:
@@ -505,7 +505,6 @@ class ASTUtils:
         from pynestml.symbols.variable_symbol import BlockType
         from pynestml.symbols.variable_symbol import VariableSymbol, BlockType, VariableType
 
-
         def replace_var(_expr=None):
             if isinstance(_expr, ASTSimpleExpression) and _expr.is_variable():
                 var = _expr.get_variable()
@@ -584,8 +583,8 @@ class ASTUtils:
                 return
 
             ast_ext_var = ASTExternalVariable(var.get_name() + suffix,
-                                                differential_order=var.get_differential_order(),
-                                                source_position=var.get_source_position())
+                                              differential_order=var.get_differential_order(),
+                                              source_position=var.get_source_position())
             if alternate_name:
                 ast_ext_var.set_alternate_name(alternate_name)
 
@@ -603,7 +602,7 @@ class ASTUtils:
                 if isinstance(node.get_parent(_expr), ASTAssignment):
                     node.get_parent(_expr).lhs = ast_ext_var
                     Logger.log_message(None, -1, "ASTVariable replacement made in expression: "
-                                        + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
+                                       + str(node.get_parent(_expr)), None, LoggingLevel.INFO)
                 elif isinstance(node.get_parent(_expr), ASTSimpleExpression) and node.get_parent(_expr).is_variable():
                     node.get_parent(_expr).set_variable(ast_ext_var)
                 elif isinstance(node.get_parent(_expr), ASTDeclaration):
@@ -611,13 +610,13 @@ class ASTUtils:
                     pass
                 else:
                     Logger.log_message(None, -1, "Error: unhandled use of variable "
-                                        + var_name + " in expression " + str(_expr), None, LoggingLevel.INFO)
+                                       + var_name + " in expression " + str(_expr), None, LoggingLevel.INFO)
                     raise Exception()
                 return
 
             p = node.get_parent(var)
             Logger.log_message(None, -1, "Error: unhandled use of variable "
-                                + var_name + " in expression " + str(p), None, LoggingLevel.INFO)
+                               + var_name + " in expression " + str(p), None, LoggingLevel.INFO)
             raise Exception()
 
         node.accept(ASTHigherOrderVisitor(lambda x: replace_var(x)))
@@ -668,6 +667,7 @@ class ASTUtils:
     def get_all_variables_used_in_convolutions(cls, node: ASTNode, parent_node: ASTNode) -> List[str]:
         """Make a list of all variable symbol names that are in ``node`` and used in a convolution"""
         from pynestml.codegeneration.ast_transformers import ASTTransformers
+
         class ASTAllVariablesUsedInConvolutionVisitor(ASTVisitor):
             _variables = []
             parent_node = None
@@ -703,9 +703,9 @@ class ASTUtils:
         return visitor._variables
 
     @classmethod
-    def move_decls(cls, var_name, from_block, to_block, var_name_suffix, mode="move") -> List[ASTDeclaration]:
+    def move_decls(cls, var_name, from_block, to_block, var_name_suffix, block_type: BlockType, mode="move", scope=None) -> List[ASTDeclaration]:
         from pynestml.codegeneration.ast_transformers import ASTTransformers
-
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
         assert mode in ["move", "copy"]
 
         if not from_block \
@@ -713,19 +713,27 @@ class ASTUtils:
             return []
 
         decls = ASTTransformers.get_declarations_from_block(var_name, from_block)
+        if var_name.endswith(var_name_suffix):
+            decls.extend(ASTTransformers.get_declarations_from_block(var_name.removesuffix(var_name_suffix), from_block))
+
         if decls:
-            Logger.log_message(None, -1, "Moving state var definition of " + var_name + " from synapse to neuron",
-                                None, LoggingLevel.INFO)
+            Logger.log_message(None, -1, "Moving definition of " + var_name + " from synapse to neuron",
+                               None, LoggingLevel.INFO)
             for decl in decls:
                 if mode == "move":
                     from_block.declarations.remove(decl)
-                ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
+                if mode == "copy":
+                    decl = decl.clone()
+                assert len(decl.get_variables()) <= 1
+                if not decl.get_variables()[0].name.endswith(var_name_suffix):
+                    ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
                 to_block.get_declarations().append(decl)
                 decl.update_scope(to_block.get_scope())
-                #decl.accept(ASTSymbolTableVisitor())
 
-                # ASTUtils.replace_variable_with_external_variable(
-                #     var_name.get_name(), new_neuron, var_name_suffix)
+                ast_symbol_table_visitor = ASTSymbolTableVisitor()
+                ast_symbol_table_visitor.block_type_stack.push(block_type)
+                decl.accept(ast_symbol_table_visitor)
+                ast_symbol_table_visitor.block_type_stack.pop()
 
         return decls
 
@@ -746,7 +754,6 @@ class ASTUtils:
             ASTUtils.add_suffix_to_decl_lhs(decl, suffix=var_name_suffix)
             to_block.get_declarations().append(decl)
             decl.update_scope(to_block.get_scope())
-            #decl.accept(ASTSymbolTableVisitor())
 
         return decls
 
@@ -761,7 +768,7 @@ class ASTUtils:
         if decls:
             for decl in decls:
                 if (type(decl) in [ASTDeclaration, ASTReturnStmt] and decl.has_expression()) \
-                    or type(decl) is ASTInlineExpression:
+                   or type(decl) is ASTInlineExpression:
                     vars_used.extend(
                         ASTTransformers.collect_variable_names_in_expression(decl.get_expression()))
                 elif type(decl) is ASTOdeEquation:
@@ -831,7 +838,7 @@ class ASTUtils:
             if existing_symbol is None:
                 code, message = Messages.get_no_variable_found(ode_equation.get_lhs().get_name_of_lhs())
                 Logger.log_message(code=code, message=message, error_position=ode_equation.get_source_position(),
-                                log_level=LoggingLevel.ERROR)
+                                   log_level=LoggingLevel.ERROR)
                 return
 
             existing_symbol.set_ode_or_kernel(ode_equation)
@@ -839,4 +846,17 @@ class ASTUtils:
             ode_equation.get_scope().update_variable_symbol(existing_symbol)
             code, message = Messages.get_ode_updated(ode_equation.get_lhs().get_name_of_lhs())
             Logger.log_message(error_position=existing_symbol.get_referenced_object().get_source_position(),
-                            code=code, message=message, log_level=LoggingLevel.INFO)
+                               code=code, message=message, log_level=LoggingLevel.INFO)
+
+    @classmethod
+    def get_statements_from_block(cls, var_name, block):
+        """XXX: only simple statements such as assignments are supported for now. if..then..else compound statements and so are not yet supported."""
+        block = block.get_block()
+        all_stmts = block.get_stmts()
+        stmts = []
+        for node in all_stmts:
+            if node.is_small_stmt() \
+               and node.small_stmt.is_assignment() \
+               and node.small_stmt.get_assignment().lhs.get_name() == var_name:
+                stmts.append(node)
+        return stmts
