@@ -24,7 +24,6 @@ import unittest
 import nest
 
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-# from pynestml.utils.model_installer import install_nest
 
 
 class NestCustomTemplatesTest(unittest.TestCase):
@@ -50,7 +49,8 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                  'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
         }}
 
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+        to_nest(input_path, target_path, logging_level,
+                module_name, store_log, suffix, dev, codegen_opts)
         install_nest(target_path, nest_path)
         nest.set_verbosity("M_ALL")
 
