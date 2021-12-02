@@ -248,6 +248,51 @@ public:
   void register_stdp_connection( double t_first_read, double delay );
 {%- endif %}
 
+  // -------------------------------------------------------------------------
+  //   Getters/setters for state block
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for state in neuron.get_state_symbols() %}
+{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
+{%- with variable = state %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endif %}
+{%- endfor %}
+{%- endfilter %}
+  // -------------------------------------------------------------------------
+  //   Getters/setters for parameters
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for parameter in neuron.get_parameter_symbols() %}
+{%- with variable = parameter %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endfor %}
+{%- endfilter %}
+  // -------------------------------------------------------------------------
+  //   Getters/setters for internals
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for internal in neuron.get_internal_symbols() %}
+{%- with variable = internal %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endfor %}
+{%- endfilter %}
+
+{%- if paired_synapse is defined %}
+
+  /* getters/setters for variables transferred from synapse */
+
+{%- for var in transferred_variables %}
+  double get_{{var}}( double t, const bool before_increment = true );
+{%- endfor %}
+{%- endif %}
+
 protected:
 {%- if paired_synapse is defined %}
   // support for spike archiving
@@ -295,8 +340,7 @@ private:
 
 {%- endif %}
 
-public: // XXX! TODO: should be private
-//private:
+private:
   {% if (neuron.get_multiple_receptors())|length > 1 -%}
   /**
    * Synapse types to connect to
@@ -547,51 +591,6 @@ public: // XXX! TODO: should be private
     double __integration_step; //!< current integration time step, updated by GSL
 {%- endif %}
   };
-
-  // -------------------------------------------------------------------------
-  //   Getters/setters for state block
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for state in neuron.get_state_symbols() %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- with variable = state %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endif %}
-{%- endfor %}
-{%- endfilter %}
-  // -------------------------------------------------------------------------
-  //   Getters/setters for parameters
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for parameter in neuron.get_parameter_symbols() %}
-{%- with variable = parameter %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
-  // -------------------------------------------------------------------------
-  //   Getters/setters for internals
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for internal in neuron.get_internal_symbols() %}
-{%- with variable = internal %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
-
-{%- if paired_synapse is defined %}
-
-  /* getters/setters for variables transferred from synapse */
-
-{%- for var in transferred_variables %}
-  double get_{{var}}( double t, const bool before_increment = true );
-{%- endfor %}
-{%- endif %}
 
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
