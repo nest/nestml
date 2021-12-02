@@ -25,7 +25,6 @@ from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
@@ -52,7 +51,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
         :param name: the name of the synapse.
         :type name: str
         :param body: the body containing the definitions.
-        :type body: ASTSynapseBody
+        :type body: ASTNeuronOrSynapseBody
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file this synapse is contained in
@@ -110,7 +109,7 @@ class ASTSynapse(ASTNeuronOrSynapse):
         """
         Return the body of the synapse.
         :return: the body containing the definitions.
-        :rtype: ASTSynapseBody
+        :rtype: ASTNeuronOrSynapseBody
         """
         return self.body
 

@@ -89,7 +89,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
 
         Logger.set_current_node(None)
 
-    def visit_neuron_body(self, node):
+    def visit_neuron_or_synapse_body(self, node):
         """
         Private method: Used to visit a single neuron body and create the corresponding scope.
         :param node: a single body element.
@@ -191,7 +191,7 @@ class ASTSymbolTableVisitor(ASTVisitor):
                                         block_type=BlockType.LOCAL, is_predefined=False, is_inline_expression=False,
                                         is_recordable=False,
                                         type_symbol=PredefinedTypes.get_type(type_name),
-                                        variable_type=VariableType.VARIABLE)        # XXX FUNCTION??
+                                        variable_type=VariableType.VARIABLE)
             assert isinstance(scope, Scope)
             scope.add_symbol(var_symbol)
         if node.has_return_type():

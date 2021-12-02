@@ -22,8 +22,7 @@
 from typing import Dict, List, Optional, Union
 
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
@@ -48,7 +47,7 @@ class ASTNeuronOrSynapse(ASTNode):
         :param name: the name of the neuron.
         :type name: str
         :param body: the body containing the definitions.
-        :type body: ASTSynapseBody or ASTNeuronBody
+        :type body: ASTNeuronOrSynapseBody or ASTNeuronOrSynapseBody
         :param source_position: the position of this element in the source file.
         :type source_position: ASTSourceLocation.
         :param artifact_name: the name of the file this neuron is contained in
@@ -57,7 +56,7 @@ class ASTNeuronOrSynapse(ASTNode):
         super(ASTNeuronOrSynapse, self).__init__(*args, **kwargs)
         assert isinstance(name, str), \
             '(PyNestML.AST.ASTNeuronOrSynapse) No  or wrong type of neuron name provided (%s)!' % type(name)
-        assert isinstance(body, ASTSynapseBody) or isinstance(body, ASTNeuronBody), \
+        assert isinstance(body, ASTNeuronOrSynapseBody) or isinstance(body, ASTNeuronOrSynapseBody), \
             '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(body)
         assert (artifact_name is not None and isinstance(artifact_name, str)), \
             '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
@@ -105,7 +104,7 @@ class ASTNeuronOrSynapse(ASTNode):
         """
         Return the body of the neuron.
         :return: the body containing the definitions.
-        :rtype: ASTSynapseBody or ASTNeuronBody
+        :rtype: ASTNeuronOrSynapseBody or ASTNeuronOrSynapseBody
         """
         return self.body
 

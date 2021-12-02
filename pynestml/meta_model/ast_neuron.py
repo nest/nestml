@@ -25,7 +25,7 @@ from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
@@ -96,7 +96,7 @@ class ASTNeuron(ASTNeuronOrSynapse):
         """
         Return the body of the neuron.
         :return: the body containing the definitions.
-        :rtype: ASTNeuronBody
+        :rtype: ASTNeuronOrSynapseBody
         """
         return self.body
 

@@ -31,9 +31,8 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -140,7 +139,7 @@ class ASTUtils:
         return function_call.get_name() == PredefinedFunctions.INTEGRATE_ODES
 
     @classmethod
-    def has_spike_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
+    def has_spike_input(cls, body: ASTNeuronOrSynapseBody) -> bool:
         """
         Checks if the handed over neuron contains a spike input port.
         :param body: a single body element.
@@ -153,7 +152,7 @@ class ASTUtils:
         return False
 
     @classmethod
-    def has_continuous_input(cls, body: Union[ASTNeuronBody, ASTSynapseBody]) -> bool:
+    def has_continuous_input(cls, body: ASTNeuronOrSynapseBody) -> bool:
         """
         Checks if the handed over neuron contains a continuous time input port.
         :param body: a single body element.

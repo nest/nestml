@@ -49,7 +49,7 @@ from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -60,7 +60,6 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -103,8 +102,8 @@ class NestPrinter:
             ret = self.print_block(node)
         if isinstance(node, ASTBlockWithVariables):
             ret = self.print_block_with_variables(node)
-        if isinstance(node, ASTNeuronBody):
-            ret = self.print_neuron_body(node)
+        if isinstance(node, ASTNeuronOrSynapseBody):
+            ret = self.print_neuron_or_synapse_body(node)
         if isinstance(node, ASTComparisonOperator):
             ret = self.print_comparison_operator(node)
         if isinstance(node, ASTCompoundStmt):
@@ -292,13 +291,13 @@ class NestPrinter:
         return ''
 
     @classmethod
-    def print_output_event(cls, ast_body: ASTNeuronBody) -> str:
+    def print_output_event(cls, ast_body: ASTNeuronOrSynapseBody) -> str:
         """
         For the handed over neuron, print its defined output type.
         :param ast_body: a single neuron body
         :return: the corresponding representation of the event
         """
-        assert (ast_body is not None and isinstance(ast_body, ASTNeuronBody)), \
+        assert (ast_body is not None and isinstance(ast_body, ASTNeuronOrSynapseBody)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(ast_body)
         outputs = ast_body.get_output_blocks()
         if len(outputs) == 0:

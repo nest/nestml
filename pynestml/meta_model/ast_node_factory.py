@@ -54,9 +54,8 @@ from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
-from pynestml.meta_model.ast_neuron_body import ASTNeuronBody
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
@@ -66,7 +65,6 @@ from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_synapse import ASTSynapse
-from pynestml.meta_model.ast_synapse_body import ASTSynapseBody
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.port_signal_type import PortSignalType
@@ -124,14 +122,9 @@ class ASTNodeFactory:
         return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
 
     @classmethod
-    def create_ast_neuron_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTNeuronBody
-        return ASTNeuronBody(body_elements, source_position=source_position)
-
-    @classmethod
-    def create_ast_synapse_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTSynapseBody
-        return ASTSynapseBody(body_elements, source_position=source_position)
+    def create_ast_neuron_or_synapse_body(cls, body_elements, source_position):
+        # type: (list,ASTSourceLocation) -> ASTNeuronOrSynapseBody
+        return ASTNeuronOrSynapseBody(body_elements, source_position=source_position)
 
     @classmethod
     def create_ast_comparison_operator(cls, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False,
@@ -290,7 +283,7 @@ class ASTNodeFactory:
 
     @classmethod
     def create_ast_synapse(cls, name, body, source_position, artifact_name):
-        # type: (str,ASTSynapseBody,ASTSourceLocation,str) -> ASTSynapse
+        # type: (str,ASTNeuronOrSynapseBody,ASTSourceLocation,str) -> ASTSynapse
         return ASTSynapse(name, body, artifact_name=artifact_name, source_position=source_position)
 
     @classmethod

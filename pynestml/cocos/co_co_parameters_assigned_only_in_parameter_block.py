@@ -65,7 +65,7 @@ class ParametersAssignmentVisitor(ASTVisitor):
     This visitor checks that no parameters have been assigned outside the parameters block.
     """
 
-    def visit_assignment(self, node: ASTAssignment):
+    def visit_assignment(self, node: ASTAssignment) -> None:
         """
         Checks the coco on the current node.
         :param node: a single node.

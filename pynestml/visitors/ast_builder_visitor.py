@@ -528,19 +528,6 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         synapse = ASTNodeFactory.create_ast_synapse(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
                                                     artifact_name=artifact_name)
 
-        # # find the @heterogeneous/@homogeneous magic keyword
-        """for parameter_block in body.get_parameter_blocks():
-            for i, astDeclaration in enumerate(parameter_block.declarations):
-                assert not (PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_variables() \
-                    and PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_variables()), PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS + " and " + PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS + " keywords cannot be combined"
-                if PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS in astDeclaration.get_magic_keywords():
-                    assert len(astDeclaration.get_variables()) == 1, PyNestMLLexer.MAGIC_KEYWORD_HETEROGENEOUS + " keyword can only apply to a single variable"
-                    # synapse.set_default_weight(astDeclaration.get_variables()[0])
-                    synapse.set_parameter_heterogeneous(var=astDeclaration.get_variables()[0])
-                elif PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS in astDeclaration.get_magic_keywords():
-                    assert len(astDeclaration.get_variables()) == 1, PyNestMLLexer.MAGIC_KEYWORD_HOMOGENEOUS + " keyword can only apply to a single variable"
-                    synapse.set_parameter_homogeneous(var=astDeclaration.get_variables()[0])"""
-
         # update the comments
         update_node_comments(synapse, self.__comments.visit(ctx))
 
@@ -583,7 +570,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             elem = get_next(body_elements)
             elements.append(self.visit(elem))
             body_elements.remove(elem)
-        body = ASTNodeFactory.create_ast_neuron_body(elements, create_source_pos(ctx))
+        body = ASTNodeFactory.create_ast_neuron_or_synapse_body(elements, create_source_pos(ctx))
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#synapseBody.
@@ -619,7 +606,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             elem = get_next(body_elements)
             elements.append(self.visit(elem))
             body_elements.remove(elem)
-        body = ASTNodeFactory.create_ast_synapse_body(elements, create_source_pos(ctx))
+        body = ASTNodeFactory.create_ast_neuron_or_synapse_body(elements, create_source_pos(ctx))
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.

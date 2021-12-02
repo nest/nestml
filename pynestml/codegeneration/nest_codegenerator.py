@@ -995,12 +995,13 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
 
         namespace['initial_values'] = {}
+        namespace['variable_symbols'] = {}
         namespace['uses_analytic_solver'] = synapse.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[synapse.get_name()] is not None
         if namespace['uses_analytic_solver']:
             namespace['analytic_state_variables'] = self.analytic_solver[synapse.get_name()]["state_variables"]
-            namespace['analytic_variable_symbols'] = {sym: synapse.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']}
+            namespace['variable_symbols'].update({sym: synapse.get_equations_block().get_scope().resolve_to_symbol(
+                sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']})
             namespace['update_expressions'] = {}
             for sym, expr in self.analytic_solver[synapse.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
@@ -1018,9 +1019,9 @@ class NESTCodeGenerator(CodeGenerator):
             and self.numeric_solver[synapse.get_name()] is not None
         if namespace['uses_numeric_solver']:
             namespace['numeric_state_variables'] = self.numeric_solver[synapse.get_name()]["state_variables"]
-            namespace['numeric_variable_symbols'] = {sym: synapse.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']}
-            assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
+            namespace['variable_symbols'].update({sym: synapse.get_equations_block().get_scope().resolve_to_symbol(
+                sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']})
+            assert not any([sym is None for sym in namespace['variable_symbols'].values()])
             namespace['numeric_update_expressions'] = {}
             for sym, expr in self.numeric_solver[synapse.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
@@ -1110,6 +1111,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['SymbolKind'] = pynestml.symbols.symbol.SymbolKind
 
         namespace['initial_values'] = {}
+        namespace['variable_symbols'] = {}
         namespace['uses_analytic_solver'] = neuron.get_name() in self.analytic_solver.keys() \
             and self.analytic_solver[neuron.get_name()] is not None
         if namespace['uses_analytic_solver']:
@@ -1127,12 +1129,12 @@ class NESTCodeGenerator(CodeGenerator):
                                 moved = True
                     if not moved:
                         namespace['analytic_state_variables'].append(sv)
-                namespace['analytic_variable_symbols_moved'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                    sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables_moved']}
+                namespace['variable_symbols'].update({sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                    sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables_moved']})
             else:
                 namespace['analytic_state_variables'] = self.analytic_solver[neuron.get_name()]["state_variables"]
-            namespace['analytic_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']}
+            namespace['variable_symbols'].update({sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                sym, SymbolKind.VARIABLE) for sym in namespace['analytic_state_variables']})
 
             namespace['update_expressions'] = {}
             for sym, expr in self.analytic_solver[neuron.get_name()]["initial_values"].items():
@@ -1170,14 +1172,14 @@ class NESTCodeGenerator(CodeGenerator):
                                 moved = True
                     if not moved:
                         namespace['numeric_state_variables'].append(sv)
-                namespace['numeric_variable_symbols_moved'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                    sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables_moved']}
+                namespace['variable_symbols'].update({sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                    sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables_moved']})
             else:
                 namespace['numeric_state_variables'] = self.numeric_solver[neuron.get_name()]["state_variables"]
 
-            namespace['numeric_variable_symbols'] = {sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
-                sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']}
-            assert not any([sym is None for sym in namespace['numeric_variable_symbols'].values()])
+            namespace['variable_symbols'].update({sym: neuron.get_equations_block().get_scope().resolve_to_symbol(
+                sym, SymbolKind.VARIABLE) for sym in namespace['numeric_state_variables']})
+            assert not any([sym is None for sym in namespace['variable_symbols'].values()])
             for sym, expr in self.numeric_solver[neuron.get_name()]["initial_values"].items():
                 namespace['initial_values'][sym] = expr
             namespace['numeric_update_expressions'] = {}

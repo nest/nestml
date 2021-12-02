@@ -206,18 +206,10 @@ class ModelParser:
         return ret
 
     @classmethod
-    def parse_neuron_body(cls, string):
-        # type: (str) -> ASTNeuronBody
+    def parse_neuron_or_synapse_body(cls, string):
+        # type: (str) -> ASTNeuronOrSynapseBody
         (builder, parser) = tokenize(string)
         ret = builder.visit(parser.body())
-        ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
-        return ret
-
-    @classmethod
-    def parse_synapse_body(cls, string):
-        # type: (str) -> ASTSynapseBody
-        (builder, parser) = tokenize(string)
-        ret = builder.visit(parser.synapse_body())
         ret.accept(ASTHigherOrderVisitor(log_set_added_source_position))
         return ret
 
