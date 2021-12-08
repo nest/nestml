@@ -89,10 +89,110 @@ class NestIntegrationTest(unittest.TestCase):
             self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
                                           nest_ref_model_opts, custom_model_opts)
 
-        all_models = [s[:-7] for s in list(os.walk("models/neurons"))[0][2] if s[-7:] == ".nestml"]
-        self.generate_models_documentation(models, all_models)
+        s = "Models library\n==============\n\n"
 
-    def generate_models_documentation(self, models, allmodels):
+        all_neuron_models = [s[:-7] for s in list(os.walk("models/neurons"))[0][2] if s[-7:] == ".nestml"]
+        s += self.generate_neuron_models_documentation(models, all_neuron_models)
+
+        all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
+        s += self.generate_synapse_models_documentation(models, all_synapse_models)
+
+        with open('models_library.rst', 'w') as f:
+            f.write(s)
+
+    def generate_synapse_models_documentation(self, models, allmodels):
+        r"""
+        allmodels : list of str
+            List of all model file names (e.g. "iaf_psc_exp") found in the models directory.
+        models : list of tuples
+            Tested models and test conditions, in order.
+        """
+
+        print("allmodels = " + str(allmodels))
+
+        untested_models = copy.deepcopy(allmodels)
+        for model in models:
+            testant = model[1]
+            model_name = testant[:-7]
+            assert model_name in allmodels or (model_name[-9:] == "_implicit" and model_name[:-9] in allmodels)
+            if model_name in untested_models:
+                untested_models.remove(model_name)
+        print("untested_models = " + str(untested_models))
+
+        for model in models:
+            reference = model[0]
+            testant = model[1]
+            gsl_error_tol = model[2]
+            tolerance = model[3]
+
+            if testant in untested_models:
+                untested_models.remove(testant)
+
+            if len(model) > 4:
+                nest_ref_model_opts = model[4]
+            else:
+                nest_ref_model_opts = {}
+            if len(model) > 5:
+                custom_model_opts = model[5]
+            else:
+                custom_model_opts = {}
+
+            model_fname = testant[:-7] + ".nestml"  # strip "_nestml"
+            model_name = testant[:-7]
+
+            s += "\n"
+            s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
+            s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
+
+            '''s += model_name + "\n"
+            s += "~" * len(model_name) + "\n"
+            s += "\n"
+            s += ":doc:`" + model_name + " <" + testant + ">`" + "\n"
+            s += "\n"'''
+
+            s += "\n"
+            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/" + model_fname + ">`_\n"
+            s += "\n"
+            s += ".. list-table::\n"
+            s += "\n"
+            s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                model_name + "]_synaptic_response_small.png\n"
+            s += "          :alt: " + model_name + "\n"
+            s += "\n"
+            s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                model_name + "]_f-I_curve_small.png\n"
+            s += "          :alt: " + model_name + "\n"
+            s += "\n"
+
+            with open(model_name + '_characterisation.rst', 'w') as f:
+                s_ = "Synaptic response\n-----------------\n\n"
+                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                    model_name + "]_synaptic_response.png\n"
+                s_ += "   :alt: " + testant + "\n"
+                s_ += "\n"
+                s_ += "f-I curve\n---------\n\n"
+                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
+                    model_name + "]_f-I_curve.png\n"
+                s_ += "   :alt: " + testant + "\n"
+                s_ += "\n"
+                f.write(s_)
+
+        for model_name in untested_models:
+            testant = model_name + "_nestml"
+            model_fname = model_name + ".nestml"
+
+            s += "\n"
+            s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
+            s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
+
+            s += "\n"
+            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/" + model_fname + ">`_\n"
+            s += "\n"
+
+        return s
+
+
+    def generate_neuron_models_documentation(self, models, allmodels):
         """
         allmodels : list of str
             List of all model file names (e.g. "iaf_psc_exp") found in the models directory.
@@ -183,8 +283,7 @@ class NestIntegrationTest(unittest.TestCase):
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" + model_fname + ">`_\n"
             s += "\n"
 
-        with open('models_library.rst', 'w') as f:
-            f.write(s)
+        return s
 
     def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
         t_stop = 1000.   # [ms]

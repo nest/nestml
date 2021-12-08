@@ -31,7 +31,7 @@ from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
 from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
-
+from pynestml.codegeneration.types_printer import TypesPrinter
 
 class LatexExpressionPrinter:
     """

@@ -8,7 +8,7 @@ synapse static:
   end
 
   input:
-    pre_spikes <- spike
+    pre_spikes mV <- spike
   end
 
   onReceive(pre_spikes):
