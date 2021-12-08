@@ -1,8 +1,8 @@
-iaf_psc_exp
-###########
+iaf_psc_exp_dend
+################
 
 
-iaf_psc_exp - Leaky integrate-and-fire neuron model with exponential PSCs
+iaf_psc_exp_dend - Leaky integrate-and-fire neuron model with exponential PSCs
 
 Description
 +++++++++++
@@ -77,7 +77,8 @@ State variables
 
     
     "r", "integer", "0", "counts number of tick during the refractory period"    
-    "V_abs", "mV", "0mV", ""
+    "V_abs", "mV", "0mV", ""    
+    "I_dend", "pA", "0pA", "third factor, to be read out by synapse during weight update"
 
 
 
@@ -100,10 +101,11 @@ Source code
 
 .. code-block:: nestml
 
-   neuron iaf_psc_exp:
+   neuron iaf_psc_exp_dend:
      state:
        r integer = 0 # counts number of tick during the refractory period
        V_abs mV = 0mV
+       I_dend pA = 0pA # third factor, to be read out by synapse during weight update
      end
      equations:
        kernel I_kernel_in = exp(-1 / tau_syn_in * t)
@@ -139,6 +141,7 @@ Source code
      output: spike
 
      update:
+       I_dend *= 0.95
        if r == 0: # neuron not refractory, so evolve V
          integrate_odes()
        else:
@@ -158,9 +161,9 @@ Source code
 Characterisation
 ++++++++++++++++
 
-.. include:: iaf_psc_exp_characterisation.rst
+.. include:: iaf_psc_exp_dend_characterisation.rst
 
 
 .. footer::
 
-   Generated at 2021-12-09 08:22:32.716927
+   Generated at 2021-12-09 08:22:32.569392

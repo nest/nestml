@@ -59,6 +59,27 @@ class PyNestMLFrontendTest(unittest.TestCase):
             exit_code = main()
         self.assertTrue(exit_code == 0)
 
+    def test_codegeneration_autodoc(self):
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                 os.path.join('..', 'models', 'neurons', 'iaf_psc_exp.nestml'))))
+        params = list()
+        params.append('nestml')
+        params.append('--input_path')
+        params.append(path)
+        params.append('--target')
+        params.append('autodoc')
+        params.append('--logging_level')
+        params.append('INFO')
+        params.append('--target_path')
+        params.append('target_autodoc')
+        params.append('--store_log')
+        params.append('--dev')
+
+        exit_code = None
+        with patch.object(sys, 'argv', params):
+            exit_code = main()
+        self.assertTrue(exit_code == 0)
+
     def test_module_name_parsing_right_module_name_specified(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models'))))
 
