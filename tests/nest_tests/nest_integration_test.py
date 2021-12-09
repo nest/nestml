@@ -37,28 +37,76 @@ except BaseException:
 
 class NestIntegrationTest(unittest.TestCase):
 
+    def generate_all_models(self):
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+        all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
+        to_nest(input_path=["models"],
+                target_path="/tmp/nestml-allmodels",
+                logging_level="INFO",
+                module_name="nestml_allmodels_module",
+                suffix="_nestml",
+                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                              "neuron_parent_class_include": "structural_plasticity_node.h",
+                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                        "synapse": "neuromodulated_stdp",
+                                                        "post_ports": ["post_spikes"],
+                                                        "vt_ports": ["mod_spikes"]},
+                                                       {"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp",
+                                                        "post_ports": ["post_spikes"]},
+                                                       {"neuron": "iaf_psc_delta",
+                                                        "synapse": "stdp_triplet",
+                                                        "post_ports": ["post_spikes"]},
+                                                       {"neuron": "iaf_psc_delta",
+                                                        "synapse": "stdp_triplet_nn",
+                                                        "post_ports": ["post_spikes"]},
+                                                       {"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp_nn_symm",
+                                                        "post_ports": ["post_spikes"]},
+                                                       {"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp_nn_restr_symm",
+                                                        "post_ports": ["post_spikes"]},
+                                                       {"neuron": "iaf_psc_exp_dend",
+                                                        "synapse": "third_factor_stdp",
+                                                        "post_ports": ["post_spikes",
+                                                                      ["I_post_dend", "I_dend"]]},
+                                                       {"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp_nn_pre_centered",
+                                                        "post_ports": ["post_spikes"]}]})
+
+        install_nest("/tmp/nestml-allmodels", nest_path)
+
     def test_nest_integration(self):
         # N.B. all models are assumed to have been already built (see .travis.yml)
 
         nest.ResetKernel()
         nest.set_verbosity("M_ALL")
-        nest.Install("nestml_allmodels_module")
+        try:
+            nest.Install("nestml_allmodels_module")
+        except:
+            self.generate_all_models()
+            nest.Install("nestml_allmodels_module")
 
-        models = []
 
-        models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
-        models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
-        models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
+        s = "Models library\n==============\n\n"
 
-        models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
-        models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.}, {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2., "tau_syn_decay_I": 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+        s += "Neuron models\n~~~~~~~~~~~~~\n\n"
 
-        models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
-        models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
-        models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
-        models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
-        models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
+        neuron_models = []
+
+        neuron_models.append(("iaf_psc_delta", "iaf_psc_delta_nestml", None, 1E-3))
+        neuron_models.append(("iaf_psc_exp", "iaf_psc_exp_nestml", None, .01))
+        neuron_models.append(("iaf_psc_alpha", "iaf_psc_alpha_nestml", None, 1E-3))
+
+        neuron_models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
+        neuron_models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
+        neuron_models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.}, {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2., "tau_syn_decay_I": 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+
+        neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
+        neuron_models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
+        neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
+        neuron_models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
 
         # --------------
         # XXX: TODO!
@@ -69,7 +117,7 @@ class NestIntegrationTest(unittest.TestCase):
         # models.append(("iaf_tum_2000", "iaf_tum_2000_nestml", None, 0.01))
         # models.append(("mat2_psc_exp", "mat2_psc_exp_nestml", None, 0.1))
 
-        for model in models:
+        for model in neuron_models:
             reference = model[0]
             testant = model[1]
             gsl_error_tol = model[2]
@@ -89,13 +137,25 @@ class NestIntegrationTest(unittest.TestCase):
             self._test_model_subthreshold(reference, testant, gsl_error_tol, tolerance,
                                           nest_ref_model_opts, custom_model_opts)
 
-        s = "Models library\n==============\n\n"
-
         all_neuron_models = [s[:-7] for s in list(os.walk("models/neurons"))[0][2] if s[-7:] == ".nestml"]
         s += self.generate_neuron_models_documentation(models, all_neuron_models)
 
+        s += "Synapse models\n~~~~~~~~~~~~~~\n\n"
+
+        synapse_models = []
+        synapse_models.append(("static", "static_synapse.nestml"))
+        synapse_models.append(("noisy_synapse", "noisy_synapse.nestml"))
+        synapse_models.append(("stdp", "stdp_synapse.nestml"))
+        synapse_models.append(("stdp_nn_pre_centered", "stdp_nn_pre_centered.nestml"))
+        synapse_models.append(("stdp_nn_restr_symm", "stdp_nn_restr_symm.nestml"))
+        synapse_models.append(("stdp_nn_symm", "stdp_nn_symm.nestml"))
+        synapse_models.append(("stdp_triplet_nn", "triplet_stdp_synapse.nestml"))
+        synapse_models.append(("stdp_triplet", "stdp_triplet_naive.nestml"))
+        synapse_models.append(("third_factor_stdp", "third_factor_stdp_synapse.nestml"))
+        synapse_models.append(("neuromodulated_stdp", "neuromodulated_stdp.nestml"))
+
         all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
-        s += self.generate_synapse_models_documentation(models, all_synapse_models)
+        s += self.generate_synapse_models_documentation(synapse_models, all_synapse_models)
 
         with open('models_library.rst', 'w') as f:
             f.write(s)
@@ -112,33 +172,22 @@ class NestIntegrationTest(unittest.TestCase):
 
         untested_models = copy.deepcopy(allmodels)
         for model in models:
-            testant = model[1]
-            model_name = testant[:-7]
-            assert model_name in allmodels or (model_name[-9:] == "_implicit" and model_name[:-9] in allmodels)
-            if model_name in untested_models:
-                untested_models.remove(model_name)
+            model_fname = model[1]
+            assert model_fname.removesuffix(".nestml") in allmodels
+            if model_fname in untested_models:
+                untested_models.remove(model_fname)
         print("untested_models = " + str(untested_models))
+        import pdb;pdb.set_trace()
+
+        s = ""
 
         for model in models:
-            reference = model[0]
-            testant = model[1]
-            gsl_error_tol = model[2]
-            tolerance = model[3]
+            model_name = model[0]
+            model_fname = model[1]
+            model_fname_stripped = model_fname.removesuffix(".nestml")
 
-            if testant in untested_models:
-                untested_models.remove(testant)
-
-            if len(model) > 4:
-                nest_ref_model_opts = model[4]
-            else:
-                nest_ref_model_opts = {}
-            if len(model) > 5:
-                custom_model_opts = model[5]
-            else:
-                custom_model_opts = {}
-
-            model_fname = testant[:-7] + ".nestml"  # strip "_nestml"
-            model_name = testant[:-7]
+            if model_fname_stripped in untested_models:
+                untested_models.remove(model_fname_stripped)
 
             s += "\n"
             s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
@@ -153,29 +202,6 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/" + model_fname + ">`_\n"
             s += "\n"
-            s += ".. list-table::\n"
-            s += "\n"
-            s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                model_name + "]_synaptic_response_small.png\n"
-            s += "          :alt: " + model_name + "\n"
-            s += "\n"
-            s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                model_name + "]_f-I_curve_small.png\n"
-            s += "          :alt: " + model_name + "\n"
-            s += "\n"
-
-            with open(model_name + '_characterisation.rst', 'w') as f:
-                s_ = "Synaptic response\n-----------------\n\n"
-                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                    model_name + "]_synaptic_response.png\n"
-                s_ += "   :alt: " + testant + "\n"
-                s_ += "\n"
-                s_ += "f-I curve\n---------\n\n"
-                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                    model_name + "]_f-I_curve.png\n"
-                s_ += "   :alt: " + testant + "\n"
-                s_ += "\n"
-                f.write(s_)
 
         for model_name in untested_models:
             testant = model_name + "_nestml"
