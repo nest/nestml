@@ -76,7 +76,7 @@ class NestIntegrationTest(unittest.TestCase):
                                                        {"neuron": "iaf_psc_exp_dend",
                                                         "synapse": "third_factor_stdp",
                                                         "post_ports": ["post_spikes",
-                                                                      ["I_post_dend", "I_dend"]]},
+                                                                       ["I_post_dend", "I_dend"]]},
                                                        {"neuron": "iaf_psc_exp",
                                                         "synapse": "stdp_nn_pre_centered",
                                                         "post_ports": ["post_spikes"]}]})
@@ -90,10 +90,9 @@ class NestIntegrationTest(unittest.TestCase):
         nest.set_verbosity("M_ALL")
         try:
             nest.Install("nestml_allmodels_module")
-        except:
+        except Exception:
             self.generate_all_models()
             nest.Install("nestml_allmodels_module")
-
 
         s = "Models library\n==============\n\n"
 
@@ -110,12 +109,9 @@ class NestIntegrationTest(unittest.TestCase):
         neuron_models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3,
                               {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.},
                               {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
-                               "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical
-                                                          # singularity occurs in the propagators)
+                               "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
 
-        neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST
-                                                                                  # Simulator model does not use GSL
-                                                                                  # solver, but simple forward Euler
+        neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
         neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
         neuron_models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
         neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1E-3, 1E-3))
@@ -190,7 +186,6 @@ class NestIntegrationTest(unittest.TestCase):
             if model_fname in untested_models:
                 untested_models.remove(model_fname)
         print("untested_models = " + str(untested_models))
-        import pdb;pdb.set_trace()
 
         s = ""
 
