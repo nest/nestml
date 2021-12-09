@@ -1,4 +1,11 @@
 """
+noisy_synapse - Static synapse with Gaussian noise
+##################################################
+
+Description
++++++++++++
+
+Each presynaptic spike is passed to the postsynaptic partner with a weight sampled as :math:`w + A_\text{noise} \mathcal{N}(0, 1)`.
 """
 synapse noisy_synapse:
 

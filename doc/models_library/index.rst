@@ -201,12 +201,6 @@ Source file: `iaf_cond_exp_sfa_rr.nestml <https://www.github.com/nest/nestml/blo
 Source file: `traub_psc_alpha.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/traub_psc_alpha.nestml>`_
 
 
-:doc:`lif_sorn <lif_sorn>`
---------------------------
-
-Source file: `lif_sorn.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/lif_sorn.nestml>`_
-
-
 :doc:`iaf_psc_exp_dend <iaf_psc_exp_dend>`
 ------------------------------------------
 
@@ -248,11 +242,6 @@ Source file: `izhikevich_psc_alpha.nestml <https://www.github.com/nest/nestml/bl
 
 Source file: `wb_cond_multisyn.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/wb_cond_multisyn.nestml>`_
 
-
-:doc:`lorenz_attractor <lorenz_attractor>`
-------------------------------------------
-
-Source file: `lorenz_attractor.nestml <https://www.github.com/nest/nestml/blob/master/models/neurons/lorenz_attractor.nestml>`_
 
 Synapse models
 ~~~~~~~~~~~~~~

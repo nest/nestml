@@ -1,5 +1,23 @@
 """
-XXX: NAIVE VERSION: unclear about relative timing of pre and post trace updates due to incoming pre and post spikes
+stdp_triplet - Synapse type with triplet spike-timing dependent plasticity
+##########################################################################
+
+Description
++++++++++++
+
+stdp_triplet_synapse is a connection with spike time dependent
+plasticity accounting for spike triplet effects (as defined in [1]_).
+
+.. warning::
+
+   NAIVE VERSION: unclear about relative timing of pre and post trace updates due to incoming pre and post spikes
+
+
+References
+++++++++++
+.. [1] Pfister JP, Gerstner W (2006). Triplets of spikes in a model
+       of spike timing-dependent plasticity.  The Journal of Neuroscience
+       26(38):9673-9682. DOI: https://doi.org/10.1523/JNEUROSCI.1425-06.2006
 """
 synapse stdp_triplet:
 
@@ -14,12 +32,12 @@ synapse stdp_triplet:
     tau_x ms = 101 ms  # time constant for tr_r2
     tau_minus ms = 33.7 ms  # time constant for tr_o1
     tau_y ms = 125 ms  # time constant for tr_o2
-    
+
     A2_plus real = 7.5e-10
     A3_plus real = 9.3e-3
     A2_minus real = 7e-3
     A3_minus real = 2.3e-4
-    
+
     Wmax nS = 100 nS
     Wmin nS = 0 nS
   end
@@ -61,5 +79,5 @@ synapse stdp_triplet:
     # deliver spike to postsynaptic partner
     deliver_spike(w, the_delay)
   end
-  
+
 end

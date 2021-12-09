@@ -24,7 +24,7 @@ import nest
 import numpy as np
 import os
 import unittest
-import glob
+import re
 from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 
 try:
@@ -34,6 +34,12 @@ try:
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
+
+
+def get_model_doc_title(model_fname: str):
+    with open(model_fname) as f:
+        model = f.read()
+        return re.compile(r'\"\"\"[^#]*###').search(model).group()[3:-3].strip()
 
 
 class NestIntegrationTest(unittest.TestCase):
@@ -200,11 +206,11 @@ class NestIntegrationTest(unittest.TestCase):
             s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
             s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
 
-            '''s += model_name + "\n"
-            s += "~" * len(model_name) + "\n"
-            s += "\n"
-            s += ":doc:`" + model_name + " <" + testant + ">`" + "\n"
-            s += "\n"'''
+            model_doc_title = get_model_doc_title(os.path.join("models", "synapses", model_fname))
+            if model_doc_title.startswith(model_name):
+                model_doc_title = model_doc_title.removeprefix(model_name)
+                model_doc_title = model_doc_title.removeprefix(" - ")
+            s += "\n" + model_doc_title + "\n"
 
             s += "\n"
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/"\
@@ -218,6 +224,12 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"
             s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
             s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
+
+            model_doc_title = get_model_doc_title(os.path.join("models", "synapses", model_fname))
+            if model_doc_title.startswith(model_name):
+                model_doc_title = model_doc_title.removeprefix(model_name)
+                model_doc_title = model_doc_title.removeprefix(" - ")
+            s += "\n" + model_doc_title + "\n"
 
             s += "\n"
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/"\
@@ -234,9 +246,7 @@ class NestIntegrationTest(unittest.TestCase):
             Tested models and test conditions, in order.
         """
 
-        s = "Models library\n==============\n\n"
-
-        print("allmodels = " + str(allmodels))
+        print("All neuron models = " + str(allmodels))
 
         untested_models = copy.deepcopy(allmodels)
         for model in models:
@@ -245,7 +255,9 @@ class NestIntegrationTest(unittest.TestCase):
             assert model_name in allmodels or (model_name[-9:] == "_implicit" and model_name[:-9] in allmodels)
             if model_name in untested_models:
                 untested_models.remove(model_name)
-        print("untested_models = " + str(untested_models))
+        print("Untested neuron models = " + str(untested_models))
+
+        s = ""
 
         for model in models:
             reference = model[0]
@@ -272,11 +284,11 @@ class NestIntegrationTest(unittest.TestCase):
             s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
             s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
 
-            '''s += model_name + "\n"
-            s += "~" * len(model_name) + "\n"
-            s += "\n"
-            s += ":doc:`" + model_name + " <" + testant + ">`" + "\n"
-            s += "\n"'''
+            model_doc_title = get_model_doc_title(os.path.join("models", "neurons", model_fname))
+            if model_doc_title.startswith(model_name):
+                model_doc_title = model_doc_title.removeprefix(model_name)
+                model_doc_title = model_doc_title.removeprefix(" - ")
+            s += "\n" + model_doc_title + "\n"
 
             s += "\n"
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" \
@@ -317,6 +329,12 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"
             s += ":doc:`" + model_name + " <" + model_name + ">`" + "\n"
             s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
+
+            model_doc_title = get_model_doc_title(os.path.join("models", "neurons", model_fname))
+            if model_doc_title.startswith(model_name):
+                model_doc_title = model_doc_title.removeprefix(model_name)
+                model_doc_title = model_doc_title.removeprefix(" - ")
+            s += "\n" + model_doc_title + "\n"
 
             s += "\n"
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" \

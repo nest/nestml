@@ -1,29 +1,30 @@
 """
-Name: traub_cond_multisyn - Traub model according to Borgers 2017.
+traub_cond_multisyn - Traub model according to Borgers 2017
+###########################################################
 
-Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus[1].
-parameters got from reference [2] chapter 5.
+Description
++++++++++++
 
+Reduced Traub-Miles Model of a Pyramidal Neuron in Rat Hippocampus [1]_.
+parameters got from reference [2]_ chapter 5.
 
-Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
-
-- AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
- beta-function (difference of two exponentials) time course corresponding
- to "hill_tononi" model.
+AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+beta-function (difference of two exponentials) time course corresponding
+to "hill_tononi" model.
 
 
-References:
+References
+++++++++++
 
-[1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
-[2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
+.. [1] R. D. Traub and R. Miles, Neuronal Networks of the Hippocampus,Cam- bridge University Press, Cambridge, UK, 1991.
+.. [2] Borgers, C., 2017. An introduction to modeling neuronal dynamics (Vol. 66). Cham: Springer.
 
 
-SeeAlso: hh_cond_exp_traub
+See also
+++++++++
+
+hh_cond_exp_traub
 """
-
 neuron traub_cond_multisyn:
   state:
     r integer = 0 # number of steps in the current refractory phase
@@ -49,12 +50,12 @@ neuron traub_cond_multisyn:
     recordable inline I_syn_nmda pA = -convolve(g_NMDA, NMDA) * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
     recordable inline I_syn_gaba_a pA = -convolve(g_GABAA, GABA_A) * ( V_m - GABA_A_E_rev )
     recordable inline I_syn_gaba_b pA = -convolve(g_GABAB, GABA_B) * ( V_m - GABA_B_E_rev )
-    recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b  
-    
+    recordable inline I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+
     inline I_Na  pA = g_Na * Act_m * Act_m * Act_m * Inact_h * ( V_m - E_Na )
     inline I_K   pA  = g_K * Act_n * Act_n * Act_n * Act_n * ( V_m - E_K )
     inline I_L   pA = g_L * ( V_m - E_L )
-    
+
     V_m' = ( -( I_Na + I_K + I_L ) + I_e + I_stim + I_syn ) / C_m
 
     # Act_n
@@ -71,7 +72,7 @@ neuron traub_cond_multisyn:
     inline alpha_h real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
     inline beta_h  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
     Inact_h' = ( alpha_h * ( 1 - Inact_h ) - beta_h * Inact_h ) / ms # h-variable
-    
+
     #############
     # Synapses
     #############
@@ -99,25 +100,25 @@ neuron traub_cond_multisyn:
     E_K mV = -100. mV       # Potassium reversal potentia
     E_L mV = -67. mV        # Leak reversal Potential (aka resting potential)
     V_Tr mV = -20. mV       # Spike Threshold
-    
+
     # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
     AMPA_g_peak nS = 0.1 nS      # peak conductance
     AMPA_E_rev mV = 0.0 mV       # reversal potential
     tau_AMPA_1 ms = 0.5 ms       # rise time
     tau_AMPA_2 ms = 2.4 ms       # decay time, Tau_1 < Tau_2
-    
+
     NMDA_g_peak nS = 0.075 nS    # peak conductance
     tau_NMDA_1 ms = 4.0 ms       # rise time
     tau_NMDA_2 ms = 40.0 ms      # decay time, Tau_1 < Tau_2
     NMDA_E_rev mV = 0.0 mV       # reversal potential
     NMDA_Vact mV = -58.0 mV      # inactive for V << Vact, inflection of sigmoid
     NMDA_Sact mV = 2.5 mV        # scale of inactivation
-    
+
     GABA_A_g_peak nS = 0.33 nS   # peak conductance
     tau_GABAA_1 ms = 1.0 ms     # rise time
     tau_GABAA_2 ms = 7.0 ms     # decay time, Tau_1 < Tau_2
     GABA_A_E_rev mV = -70.0 mV   # reversal potential
-    
+
     GABA_B_g_peak nS = 0.0132 nS # peak conductance
     tau_GABAB_1 ms = 60.0 ms    # rise time
     tau_GABAB_2 ms = 200.0 ms   # decay time, Tau_1 < Tau_2
@@ -127,17 +128,17 @@ neuron traub_cond_multisyn:
     I_e pA = 0 pA
   end
 
-  internals:    
+  internals:
     AMPAInitialValue real = compute_synapse_constant( tau_AMPA_1, tau_AMPA_2, AMPA_g_peak )
     NMDAInitialValue real = compute_synapse_constant( tau_NMDA_1, tau_NMDA_2, NMDA_g_peak )
     GABA_AInitialValue real = compute_synapse_constant( tau_GABAA_1, tau_GABAA_2, GABA_A_g_peak )
     GABA_BInitialValue real = compute_synapse_constant( tau_GABAB_1, tau_GABAB_2, GABA_B_g_peak )
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
 
-    alpha_n_init real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))     
-    beta_n_init  real = 0.5 * exp(-(V_m / mV + 57.) / 40.)    
-    alpha_m_init real = 0.32 * (V_m / mV + 54.) / (1.0 - exp(-(V_m / mV + 54.) / 4.))   
-    beta_m_init  real = 0.28 * (V_m / mV + 27.) / (exp((V_m / mV + 27.) / 5.) - 1.)    
+    alpha_n_init real = 0.032 * (V_m / mV + 52.) / (1. - exp(-(V_m / mV + 52.) / 5.))
+    beta_n_init  real = 0.5 * exp(-(V_m / mV + 57.) / 40.)
+    alpha_m_init real = 0.32 * (V_m / mV + 54.) / (1.0 - exp(-(V_m / mV + 54.) / 4.))
+    beta_m_init  real = 0.28 * (V_m / mV + 27.) / (exp((V_m / mV + 27.) / 5.) - 1.)
     alpha_h_init real = 0.128 * exp(-(V_m / mV + 50.0) / 18.0)
     beta_h_init  real = 4.0 / (1.0 + exp(-(V_m / mV + 27.) / 5.))
   end
@@ -156,7 +157,7 @@ neuron traub_cond_multisyn:
     U_old mV = V_m
     integrate_odes()
 
-    # sending spikes: 
+    # sending spikes:
     if r > 0: # is refractory?
       r -= 1
     elif V_m > V_Tr and U_old > V_Tr: # threshold && maximum
