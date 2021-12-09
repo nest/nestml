@@ -76,7 +76,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param neuron: a single neuron object.
         """
         nestml_model_doc = self._template_neuron_nestml_model.render(self.setup_neuron_model_generation_helpers(neuron))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.rst', 'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), neuron.get_name())) + '.rst',
+                  'w+') as f:
             f.write(str(nestml_model_doc))
 
     def generate_synapse_code(self, synapse: ASTSynapse):
@@ -85,7 +86,8 @@ class AutoDocCodeGenerator(CodeGenerator):
         :param synapse: a single synapse object.
         """
         nestml_model_doc = self._template_synapse_nestml_model.render(self.setup_synapse_model_generation_helpers(synapse))
-        with open(str(os.path.join(FrontendConfiguration.get_target_path(), synapse.get_name())) + '.rst', 'w+') as f:
+        with open(str(os.path.join(FrontendConfiguration.get_target_path(), synapse.get_name())) + '.rst',
+                  'w+') as f:
             f.write(str(nestml_model_doc))
 
     def setup_neuron_model_generation_helpers(self, neuron: ASTNeuron):

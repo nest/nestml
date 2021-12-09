@@ -30,6 +30,7 @@ from pynestml.frontend.pynestml_frontend import to_nest, install_nest
 try:
     import matplotlib
     import matplotlib.pyplot as plt
+
     TEST_PLOTS = True
 except BaseException:
     TEST_PLOTS = False
@@ -91,6 +92,11 @@ class NestIntegrationTest(unittest.TestCase):
         s = "Models library\n==============\n\n"
 
         s += "Neuron models\n~~~~~~~~~~~~~\n\n"
+        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.}, {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2., "tau_syn_decay_I": 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+                       {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.},
+                       {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
+                        "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical
+        # singularity occurs in the propagators)
 
         neuron_models = []
 
@@ -200,8 +206,14 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"'''
 
             s += "\n"
-            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/" + model_fname + ">`_\n"
+            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/"\
+                 + model_fname + ">`_\n"
             s += "\n"
+                 "/nestml_models_library_[" + \
+                 model_name + "]_synaptic_response_small.png\n"
+                 "/nestml_models_library_[" + \
+                      "/nestml_models_library_[" + \
+                      "/nestml_models_library_[" + \
 
         for model_name in untested_models:
             testant = model_name + "_nestml"
@@ -212,11 +224,11 @@ class NestIntegrationTest(unittest.TestCase):
             s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
 
             s += "\n"
-            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/" + model_fname + ">`_\n"
+            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/"\
+                 + model_fname + ">`_\n"
             s += "\n"
 
         return s
-
 
     def generate_neuron_models_documentation(self, models, allmodels):
         """
@@ -271,28 +283,33 @@ class NestIntegrationTest(unittest.TestCase):
             s += "\n"'''
 
             s += "\n"
-            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" + model_fname + ">`_\n"
+            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" \
+                 + model_fname + ">`_\n"
             s += "\n"
             s += ".. list-table::\n"
             s += "\n"
-            s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                model_name + "]_synaptic_response_small.png\n"
+            s += "   * - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                 "/nestml_models_library_[" + \
+                 model_name + "]_synaptic_response_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
-            s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                model_name + "]_f-I_curve_small.png\n"
+            s += "     - .. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                 "/nestml_models_library_[" + \
+                 model_name + "]_f-I_curve_small.png\n"
             s += "          :alt: " + model_name + "\n"
             s += "\n"
 
             with open(model_name + '_characterisation.rst', 'w') as f:
                 s_ = "Synaptic response\n-----------------\n\n"
-                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                    model_name + "]_synaptic_response.png\n"
+                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                      "/nestml_models_library_[" + \
+                      model_name + "]_synaptic_response.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
                 s_ += "f-I curve\n---------\n\n"
-                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library/nestml_models_library_[" + \
-                    model_name + "]_f-I_curve.png\n"
+                s_ += ".. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/models_library" \
+                      "/nestml_models_library_[" + \
+                      model_name + "]_f-I_curve.png\n"
                 s_ += "   :alt: " + testant + "\n"
                 s_ += "\n"
                 f.write(s_)
@@ -306,13 +323,15 @@ class NestIntegrationTest(unittest.TestCase):
             s += "-" * len(":doc:`" + model_name + " <" + model_name + ">`") + "\n"
 
             s += "\n"
-            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" + model_fname + ">`_\n"
+            s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/neurons/" \
+                 + model_fname + ">`_\n"
             s += "\n"
 
         return s
 
-    def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
-        t_stop = 1000.   # [ms]
+    def _test_model_subthreshold(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001,
+                                 nest_ref_model_opts=None, custom_model_opts=None):
+        t_stop = 1000.  # [ms]
 
         I_stim_vec = np.linspace(10E-12, 1E-9, 100)  # [A]
         rate_testant = float("nan") * np.ones_like(I_stim_vec)
@@ -367,7 +386,10 @@ class NestIntegrationTest(unittest.TestCase):
                     _ax.grid()
                 fig.suptitle("Rate: " + str(rate_testant[i]) + " Hz")
                 plt.savefig(
-                    "/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_[I_stim=" + str(I_stim) + "].png")
+                    "/tmp/nestml_nest_integration_test_subthreshold_[" + referenceModel + "]_[" + testant + "]_["
+                                                                                                            "I_stim="
+                    + str(
+                        I_stim) + "].png")
                 plt.close(fig)
 
         if TEST_PLOTS:
@@ -405,7 +427,8 @@ class NestIntegrationTest(unittest.TestCase):
 
         print(testant + " PASSED")
 
-    def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None, custom_model_opts=None):
+    def _test_model(self, referenceModel, testant, gsl_error_tol, tolerance=0.000001, nest_ref_model_opts=None,
+                    custom_model_opts=None):
 
         spike_times = [100.0, 200.0]
         spike_weights = [1., -1.]

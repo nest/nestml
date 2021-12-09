@@ -1,7 +1,7 @@
 {{ synapseName }}
 {% for i in range(synapseName | length) %}#{%- endfor %}
 
-{{ synapse.print_comment() | trim }}
+{{ synapse.print_comment() | trim | replace('"""', '') | replace('#', '') }}
 
 
 Parameters

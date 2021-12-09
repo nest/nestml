@@ -1,7 +1,7 @@
 {{ neuronName }}
 {% for i in range(neuronName | length) %}#{%- endfor %}
 
-{{ neuron.print_comment() | trim }}
+{{ neuron.print_comment() | trim | replace('"""', '') | replace('#', '') }}
 
 
 Parameters
