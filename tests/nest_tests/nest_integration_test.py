@@ -92,11 +92,6 @@ class NestIntegrationTest(unittest.TestCase):
         s = "Models library\n==============\n\n"
 
         s += "Neuron models\n~~~~~~~~~~~~~\n\n"
-        models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.}, {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2., "tau_syn_decay_I": 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
-                       {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.},
-                       {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
-                        "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical
-        # singularity occurs in the propagators)
 
         neuron_models = []
 
@@ -106,13 +101,19 @@ class NestIntegrationTest(unittest.TestCase):
 
         neuron_models.append(("iaf_cond_exp", "iaf_cond_exp_nestml", 1E-3, 1E-3))
         neuron_models.append(("iaf_cond_alpha", "iaf_cond_alpha_nestml", 1E-3, 1E-3))
-        neuron_models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3, {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.}, {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2., "tau_syn_decay_I": 10.}))        # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical singularity occurs in the propagators)
+        neuron_models.append(("iaf_cond_beta", "iaf_cond_beta_nestml", 1E-3, 1E-3,
+                              {"tau_rise_ex": 2., "tau_decay_ex": 10., "tau_rise_in": 2., "tau_decay_in": 10.},
+                              {"tau_syn_rise_E": 2., "tau_syn_decay_E": 10., "tau_syn_rise_I": 2.,
+                               "tau_syn_decay_I": 10.}))  # XXX: TODO: does not work yet when tau_rise = tau_fall (numerical
+                                                          # singularity occurs in the propagators)
 
-        neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))     # large tolerance because NEST Simulator model does not use GSL solver, but simple forward Euler
+        neuron_models.append(("izhikevich", "izhikevich_nestml", 1E-3, 1))        # large tolerance because NEST
+                                                                                  # Simulator model does not use GSL
+                                                                                  # solver, but simple forward Euler
         neuron_models.append(("hh_psc_alpha", "hh_psc_alpha_nestml", 1E-3, 1E-3))
         neuron_models.append(("iaf_chxk_2008", "iaf_chxk_2008_nestml", 1E-3, 1E-3))
-        neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1.e-3, 1E-3))
-        neuron_models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1.e-3, 1E-3))
+        neuron_models.append(("aeif_cond_exp", "aeif_cond_exp_nestml", 1E-3, 1E-3))
+        neuron_models.append(("aeif_cond_alpha", "aeif_cond_alpha_nestml", 1E-3, 1E-3))
 
         # --------------
         # XXX: TODO!
@@ -144,7 +145,7 @@ class NestIntegrationTest(unittest.TestCase):
                                           nest_ref_model_opts, custom_model_opts)
 
         all_neuron_models = [s[:-7] for s in list(os.walk("models/neurons"))[0][2] if s[-7:] == ".nestml"]
-        s += self.generate_neuron_models_documentation(models, all_neuron_models)
+        s += self.generate_neuron_models_documentation(neuron_models, all_neuron_models)
 
         s += "Synapse models\n~~~~~~~~~~~~~~\n\n"
 
@@ -209,11 +210,6 @@ class NestIntegrationTest(unittest.TestCase):
             s += "Source file: `" + model_fname + " <https://www.github.com/nest/nestml/blob/master/models/synapses/"\
                  + model_fname + ">`_\n"
             s += "\n"
-                 "/nestml_models_library_[" + \
-                 model_name + "]_synaptic_response_small.png\n"
-                 "/nestml_models_library_[" + \
-                      "/nestml_models_library_[" + \
-                      "/nestml_models_library_[" + \
 
         for model_name in untested_models:
             testant = model_name + "_nestml"
