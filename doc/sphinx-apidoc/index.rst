@@ -34,9 +34,9 @@ Summary of language features and syntax
 Models library
 ##############
 
-Out of the box, use any of :doc:`over 20 neuron models <models_library/index>` that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
+Out of the box, use any of the :doc:`neuron models <models_library/index>` that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
 
-Synaptic plasticity models, such as spike-timing dependent plasticity (STDP) and third-factor plasticity rules, can be found on the :doc:`same page <models_library/index>`.
+Several synaptic plasticity models, such as spike-timing dependent plasticity (STDP) and third-factor plasticity rules, can be found under :doc:`Synapse models`.
 
 
 Tutorials
