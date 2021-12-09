@@ -21,6 +21,6 @@ Writing synapse models
 
   An STDP window describes how the strength of the synapse changes as a function of the relative timing of pre- and postsynaptic spikes. Several different STDP model variants with different window functions are implemented.
 
-* :doc:`Triplet STDP syanpse </tutorials/triplet_stdp_synapse/triplet_stdp_synapse>`
+* :doc:`Triplet STDP synapse </tutorials/triplet_stdp_synapse/triplet_stdp_synapse>`
 
   A triplet STDP rule is sensitive to third-order correlations of pre- and postsynaptic spike times, and accounts better for experimentally seen dependence on timing and frequency.
