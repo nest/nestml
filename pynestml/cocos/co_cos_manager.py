@@ -25,7 +25,8 @@ from pynestml.cocos.co_co_convolve_cond_correctly_built import CoCoConvolveCondC
 from pynestml.cocos.co_co_correct_numerator_of_unit import CoCoCorrectNumeratorOfUnit
 from pynestml.cocos.co_co_correct_order_in_equation import CoCoCorrectOrderInEquation
 from pynestml.cocos.co_co_continuous_input_port_not_qualified import CoCoContinuousInputPortNotQualified
-from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_co_equations_only_for_init_values import CoCoEquationsOnlyForInitValues
 from pynestml.cocos.co_co_function_calls_consistent import CoCoFunctionCallsConsistent
 from pynestml.cocos.co_co_function_unique import CoCoFunctionUnique
@@ -37,7 +38,7 @@ from pynestml.cocos.co_co_invariant_is_boolean import CoCoInvariantIsBoolean
 from pynestml.cocos.co_co_neuron_name_unique import CoCoNeuronNameUnique
 from pynestml.cocos.co_co_no_nest_name_space_collision import CoCoNoNestNameSpaceCollision
 from pynestml.cocos.co_co_no_kernels_except_in_convolve import CoCoNoKernelsExceptInConvolve
-from pynestml.cocos.co_co_no_two_neurons_in_set_of_compilation_units import CoCoNoTwoNeuronsInSetOfCompilationUnits
+from pynestml.cocos.co_co_no_duplicate_compilation_unit_names import CoCoNoDuplicateCompilationUnitNames
 from pynestml.cocos.co_co_odes_have_consistent_units import CoCoOdesHaveConsistentUnits
 from pynestml.cocos.co_co_kernel_type import CoCoKernelType
 from pynestml.cocos.co_co_simple_delta_function import CoCoSimpleDeltaFunction
@@ -46,6 +47,7 @@ from pynestml.cocos.co_co_output_port_defined_if_emit_call import CoCoOutputPort
 from pynestml.cocos.co_co_input_port_data_type import CoCoInputPortDataType
 from pynestml.cocos.co_co_parameters_assigned_only_in_parameter_block import \
     CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.cocos.co_co_resolution_func_legally_used import CoCoResolutionFuncLegallyUsed
 from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesInitialized
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
@@ -57,6 +59,7 @@ from pynestml.cocos.co_co_vector_parameter_greater_than_zero import CoCoVectorPa
 from pynestml.cocos.co_co_vector_parameter_right_type import CoCoVectorParameterRightType
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
+from pynestml.cocos.co_co_priorities_correctly_specified import CoCoPrioritiesCorrectlySpecified
 from pynestml.meta_model.ast_neuron import ASTNeuron
 
 
@@ -75,10 +78,19 @@ class CoCosManager:
     @classmethod
     def check_each_block_unique_and_defined(cls, neuron: ASTNeuron):
         """
-        Checks if in the handed over neuron each block ist defined at most once and mandatory blocks are defined.
+        Checks if in the handed over neuron each block is defined at most once and mandatory blocks are defined.
         :param neuron: a single neuron instance
         """
-        CoCoEachBlockUniqueAndDefined.check_co_co(neuron)
+        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(neuron)
+
+    @classmethod
+    def check_each_synapse_block_unique_and_defined(cls, neuron):
+        """
+        Checks if in the handed over neuron each block is defined at most once and mandatory blocks are defined.
+        :param neuron: a single neuron instance
+        :type neuron: ast_neuron
+        """
+        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(neuron)
 
     @classmethod
     def check_function_declared_and_correctly_typed(cls, neuron: ASTNeuron):
@@ -275,13 +287,13 @@ class CoCosManager:
         CoCoNoKernelsExceptInConvolve.check_co_co(neuron)
 
     @classmethod
-    def check_not_two_neurons_across_units(cls, compilation_units):
+    def check_no_duplicate_compilation_unit_names(cls, compilation_units):
         """
-        Checks if in a set of compilation units, two neurons have the same name.
-        :param compilation_units: a  list of compilation units
+        Checks if in a set of compilation units, two nodes have the same name.
+        :param compilation_units: a list of compilation units
         :type compilation_units: list(ASTNestMLCompilationUnit)
         """
-        CoCoNoTwoNeuronsInSetOfCompilationUnits.check_co_co(compilation_units)
+        CoCoNoDuplicateCompilationUnitNames.check_co_co(compilation_units)
 
     @classmethod
     def check_invariant_type_correct(cls, neuron: ASTNeuron):
@@ -352,6 +364,20 @@ class CoCosManager:
         CoCoVectorDeclarationRightSize.check_co_co(neuron)
 
     @classmethod
+    def check_co_co_priorities_correctly_specified(cls, neuron: ASTNeuron):
+        """
+        :param neuron: a single neuron object.
+        """
+        CoCoPrioritiesCorrectlySpecified.check_co_co(neuron)
+
+    @classmethod
+    def check_resolution_func_legally_used(cls, neuron: ASTNeuron):
+        """
+        :param neuron: a single neuron object.
+        """
+        CoCoResolutionFuncLegallyUsed.check_co_co(neuron)
+
+    @classmethod
     def post_symbol_table_builder_checks(cls, neuron: ASTNeuron, after_ast_rewrite: bool = False):
         """
         Checks all context conditions.
@@ -391,4 +417,6 @@ class CoCosManager:
         cls.check_function_argument_template_types_consistent(neuron)
         cls.check_vector_parameter_declaration(neuron)
         cls.check_vector_parameter_type(neuron)
+        cls.check_co_co_priorities_correctly_specified(neuron)
+        cls.check_resolution_func_legally_used(neuron)
         cls.check_vector_declaration_size(neuron)

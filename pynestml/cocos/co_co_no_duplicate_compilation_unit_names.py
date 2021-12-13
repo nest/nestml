@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_no_two_neurons_in_set_of_compilation_units.py
+# co_co_no_duplicate_compilation_unit_names.py
 #
 # This file is part of NEST.
 #
@@ -24,9 +24,9 @@ from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 
 
-class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
+class CoCoNoDuplicateCompilationUnitNames(CoCo):
     """
-    This Coco checks that for a handed over list of compilation units, not two neurons have the same name.
+    This Coco checks that for a handed over list of compilation units, there are not two units that have the same name.
     """
 
     @classmethod
@@ -36,16 +36,16 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
         :param list_of_compilation_units: a list of compilation units.
         :type list_of_compilation_units: list(ASTNestMLCompilationUnit)
         """
-        list_of_neurons = ASTUtils.get_all_neurons(list_of_compilation_units)
-        conflicting_neurons = list()
+        # list_of_nodes = ASTUtils.get_all_nodes(list_of_compilation_units)
+        conflicting_nodes = list()
         checked = list()
-        for neuronA in list_of_neurons:
-            for neuronB in list_of_neurons:
-                if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name():
-                    code, message = Messages.get_compilation_unit_name_collision(neuronA.get_name(),
-                                                                                 neuronA.get_artifact_name(),
-                                                                                 neuronB.get_artifact_name())
+        for nodeA in list_of_compilation_units:
+            for nodeB in list_of_compilation_units:
+                if nodeA is not nodeB and nodeA.get_name() == nodeB.get_name():
+                    code, message = Messages.get_compilation_unit_name_collision(nodeA.get_name(),
+                                                                                 nodeA.get_artifact_name(),
+                                                                                 nodeB.get_artifact_name())
                     Logger.log_message(code=code, message=message, log_level=LoggingLevel.ERROR)
-                conflicting_neurons.append(neuronB)
-            checked.append(neuronA)
-        return conflicting_neurons
+                conflicting_nodes.append(nodeB)
+            checked.append(nodeA)
+        return conflicting_nodes

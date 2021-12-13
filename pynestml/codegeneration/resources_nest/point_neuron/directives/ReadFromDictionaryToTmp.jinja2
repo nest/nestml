@@ -6,11 +6,11 @@
 {%- if not variable.is_inline_expression and not variable.is_state() %}
 {{declarations.print_variable_type(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
 updateValue<{{declarations.print_variable_type(variable)}}>(__d, "{{names.name(variable)}}", tmp_{{names.name(variable)}});
-{%- if neuron.get_vector_symbols()|length > 0 %}
+{%- if vector_symbols|length > 0 %}
 // Resize vectors
 if (tmp_{{names.name(variable)}} != {{names.getter(variable)}}())
 {
-{%- for vector_var in neuron.get_vector_symbols() %}
+{%- for vector_var in vector_symbols %}
 {%- if vector_var.get_vector_parameter() == variable.get_symbol_name() %}
   {{declarations.print_variable_type(vector_var)}} _tmp_{{names.name(vector_var)}} = {{names.getter(vector_var)}}();
   _tmp_{{names.name(vector_var)}}.resize(tmp_{{names.name(variable)}}, 0.);

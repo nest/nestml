@@ -33,8 +33,8 @@ from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 from pynestml.meta_model.ast_if_stmt import ASTIfStmt
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
 from pynestml.meta_model.ast_for_stmt import ASTForStmt
@@ -52,13 +52,19 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
+from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
+from pynestml.meta_model.ast_synapse import ASTSynapse
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_output_block import ASTOutputBlock
 from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
+from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.utils.port_signal_type import PortSignalType
@@ -108,9 +114,17 @@ class ASTNodeFactory:
                                      source_position=source_position)
 
     @classmethod
-    def create_ast_body(cls, body_elements, source_position):
-        # type: (list,ASTSourceLocation) -> ASTBody
-        return ASTBody(body_elements, source_position=source_position)
+    def create_ast_namespace_decorator(cls, namespace=None, name=None, source_position=None):
+        return ASTNamespaceDecorator(namespace, name, source_position=source_position)
+
+    @classmethod
+    def create_ast_on_receive_block(cls, block=None, port_name=None, const_parameters=None, source_position=None):
+        return ASTOnReceiveBlock(block, port_name, const_parameters, source_position=source_position)
+
+    @classmethod
+    def create_ast_neuron_or_synapse_body(cls, body_elements, source_position):
+        # type: (list,ASTSourceLocation) -> ASTNeuronOrSynapseBody
+        return ASTNeuronOrSynapseBody(body_elements, source_position=source_position)
 
     @classmethod
     def create_ast_comparison_operator(cls, is_lt=False, is_le=False, is_eq=False, is_ne=False, is_ne2=False,
@@ -138,9 +152,11 @@ class ASTNodeFactory:
                                size_parameter=None,  # type: str
                                expression=None,  # type: Union(ASTSimpleExpression,ASTExpression)
                                invariant=None,  # type: Union(ASTSimpleExpression,ASTExpression)
-                               source_position=None  # type: ASTSourceLocation
+                               source_position=None,  # type: ASTSourceLocation
+                               decorators=None,  # type: list
                                ) -> ASTDeclaration:
-        return ASTDeclaration(is_recordable, is_inline_expression, variables, data_type, size_parameter, expression, invariant, source_position=source_position)
+        return ASTDeclaration(is_recordable, is_inline_expression, variables, data_type, size_parameter, expression, invariant, decorators,
+                              source_position=source_position)
 
     @classmethod
     def create_ast_elif_clause(cls, condition, block, source_position=None):
@@ -251,14 +267,24 @@ class ASTNodeFactory:
         return ASTLogicalOperator(is_logical_and, is_logical_or, source_position=source_position)
 
     @classmethod
-    def create_ast_nestml_compilation_unit(cls, list_of_neurons, source_position, artifact_name):
+    def create_ast_nestml_compilation_unit(cls, list_of_neurons, list_of_synapses, source_position, artifact_name):
         # type: (list(ASTNeuron),ASTSourceLocation,str) -> ASTNestMLCompilationUnit
-        return ASTNestMLCompilationUnit(artifact_name=artifact_name, neuron_list=list_of_neurons, source_position=source_position)
+        instance = ASTNestMLCompilationUnit(artifact_name=artifact_name, source_position=source_position)
+        for i in list_of_neurons:
+            instance.add_neuron(i)
+        for i in list_of_synapses:
+            instance.add_synapse(i)
+        return instance
 
     @classmethod
     def create_ast_neuron(cls, name, body, source_position, artifact_name):
         # type: (str,ASTBody,ASTSourceLocation,str) -> ASTNeuron
         return ASTNeuron(name, body, artifact_name, source_position=source_position)
+
+    @classmethod
+    def create_ast_synapse(cls, name, body, source_position, artifact_name):
+        # type: (str,ASTNeuronOrSynapseBody,ASTSourceLocation,str) -> ASTSynapse
+        return ASTSynapse(name, body, artifact_name=artifact_name, source_position=source_position)
 
     @classmethod
     def create_ast_ode_equation(cls, lhs, rhs, source_position):
@@ -342,9 +368,9 @@ class ASTNodeFactory:
         return ASTUpdateBlock(block, source_position=source_position)
 
     @classmethod
-    def create_ast_variable(cls, name, differential_order=0, vector_parameter=None, source_position=None):
+    def create_ast_variable(cls, name, differential_order=0, vector_parameter=None, is_homogeneous=False, source_position=None):
         # type: (str,int,ASTSourceLocation) -> ASTVariable
-        return ASTVariable(name, differential_order, vector_parameter=vector_parameter, source_position=source_position)
+        return ASTVariable(name, differential_order, vector_parameter=vector_parameter, is_homogeneous=is_homogeneous, source_position=source_position)
 
     @classmethod
     def create_ast_while_stmt(cls,

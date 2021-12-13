@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# co_co_each_block_unique_and_defined.py
+# co_co_each_neuron_block_unique_and_defined.py
 #
 # This file is part of NEST.
 #
@@ -24,17 +24,21 @@ from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 
 
-class CoCoEachBlockUniqueAndDefined(CoCo):
+class CoCoEachNeuronBlockUniqueAndDefined(CoCo):
     """
-    This context  condition ensures that each block is defined at most once.
+    This context condition ensures that each block is defined at most once.
+
     Not allowed:
-        state:
-            ...
-        end
-        ...
-        state:
-            ...
-        end
+
+    .. code:: nestml
+
+       state:
+           ...
+       end
+       ...
+       state:
+           ...
+       end
     """
 
     @classmethod

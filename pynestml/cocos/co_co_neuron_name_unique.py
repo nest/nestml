@@ -56,7 +56,7 @@ class CoCoNeuronNameUnique(CoCo):
         for neuronA in compilation_unit.get_neuron_list():
             for neuronB in compilation_unit.get_neuron_list():
                 if neuronA is not neuronB and neuronA.get_name() == neuronB.get_name() and neuronB not in checked:
-                    code, message = Messages.get_neuron_redeclared(neuronB.get_name())
+                    code, message = Messages.get_model_redeclared(neuronB.get_name())
                     Logger.log_message(error_position=neuronB.get_source_position(),
                                        code=code, message=message,
                                        log_level=LoggingLevel.ERROR)

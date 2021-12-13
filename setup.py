@@ -48,7 +48,7 @@ setup(
     license="GNU General Public License v2.0",
     url="https://github.com/nest/nestml",
     packages=find_packages(),
-    package_data={"pynestml": ["codegeneration/resources_autodoc",
+    package_data={"pynestml": ["codegeneration/resources_autodoc/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/common/*.jinja2",
                                "codegeneration/resources_nest/point_neuron/directives/*.jinja2",

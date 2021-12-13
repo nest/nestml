@@ -1,4 +1,5 @@
-{#-
+#define DEBUG 1
+{#
 NeuronClass.jinja2
 
 This file is part of NEST.
@@ -186,6 +187,8 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {{neuronName}}::{{neuronName}}():{{neuron_parent_class}}(), P_(), S_(), B_(*this)
 {
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
+
   calibrate();
 {%- if useGSL %}
 
@@ -220,6 +223,23 @@ template <> void RecordablesMap<{{neuronName}}>::create()
   recordablesMap_.create();
 {%- endif %}
 
+
+{%- if paired_synapse is defined %}
+  // state variables for archiving state for paired synapse
+  n_incoming_ = 0;
+  max_delay_ = 0;
+  last_spike_ = -1.;
+
+  // cache initial values
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
+  {{var}}__iv = {{names.getter(var_sym)}}();
+{%- endwith %}
+{%- endfor %}
+{%- endif %}
 }
 
 // ---------------------------------------------------------------------------
@@ -235,9 +255,9 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- endfor %}
 
   // copy state struct S_
-{%- for state in neuron.get_state_symbols() %}
-{%-   if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-  S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
+{%- for init in neuron.get_state_symbols() %}
+{%-   if not is_delta_kernel(neuron.get_kernel_by_name(init.name)) %}
+  S_.{{names.name(init)}} = __n.S_.{{names.name(init)}};
 {%-   endif %}
 {%- endfor %}
 
@@ -249,6 +269,21 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 
 {%- if has_state_vectors %}
   recordablesMap_.create(*this);
+{%- endif %}
+{%- if paired_synapse is defined %}
+  n_incoming_ = __n.n_incoming_;
+  max_delay_ = __n.max_delay_;
+  last_spike_ = __n.last_spike_;
+
+  // cache initial values
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
+  {{var}}__iv = {{names.getter(var_sym)}}();
+{%- endwith %}
+{%- endfor %}
 {%- endif %}
 }
 
@@ -296,7 +331,10 @@ void {{neuronName}}::init_buffers_()
   {{ printer.print_buffer_initialization(port) }}
 {%- endfor %}
   B_.logger_.reset(); // includes resize
-  {{neuron_parent_class}}::clear_history();
+
+{%- if paired_neuron is defined %}
+  clear_history();
+{%- endif %}
 {%- if useGSL %}
 
   if ( B_.__s == 0 )
@@ -335,18 +373,33 @@ void {{neuronName}}::init_buffers_()
 {%- endif %}
 }
 
-void {{neuronName}}::calibrate()
-{
-  B_.logger_.init();
+void {{neuronName}}::calibrate_variables(bool exclude_timestep) {
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
-  // internals V_
-{%- filter indent(2) %}
+  if (exclude_timestep) {
+{%- filter indent(4,True) %}
+{%- for variable in neuron.get_internal_symbols() %}
+{%- if variable.name != "__h" %}
+{%-   include "directives/Calibrate.jinja2" %}
+{%- endif %}
+{%- endfor %}
+{%- endfilter %}
+  }
+  else {
+    // internals V_
+{%- filter indent(4) %}
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   include "directives/Calibrate.jinja2" %}
 {%- endfor %}
 {%- endfilter %}
+  }
+}
 
-{%- filter indent(2) %}
+void {{neuronName}}::calibrate() {
+  B_.logger_.init();
+
+  calibrate_variables();
+
   // buffers B_
 {%- for port in neuron.get_input_ports() %}
 {%-   if port.has_vector_parameter() %}
@@ -354,14 +407,13 @@ void {{neuronName}}::calibrate()
   B_.{{port.get_symbol_name()}}_grid_sum_.resize(P_.{{port.get_vector_parameter()}});
 {%-   endif %}
 {%- endfor %}
-{%- endfilter %}
 }
+{%- if neuron.get_functions()|length > 0 %}
 
 // ---------------------------------------------------------------------------
 //   Functions defined in the NESTML model
 // ---------------------------------------------------------------------------
 
-{%- if neuron.get_functions()|length > 0 %}
 {%- for function in neuron.get_functions() %}
 {{printer.print_function_definition(function, neuronName)}}
 {
@@ -389,9 +441,7 @@ void {{neuronName}}::calibrate()
 {%- endif %}
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
-{%- if useGSL %}
-  double __t = 0;
-{%- endif %}
+  const double __resolution = nest::Time::get_resolution().get_ms();  // do not remove, this is necessary for the resolution() function
 
   for ( long lag = from ; lag < to ; ++lag )
   {
@@ -420,7 +470,6 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     // voltage logging
     B_.logger_.record_data(origin.get_steps() + lag);
   }
-
 }
 
 // Do not move this function as inline to h-file. It depends on
@@ -495,5 +544,395 @@ void {{neuronName}}::handle(nest::CurrentEvent& e)
                weight * current );
 {%- endfor %}
 }
+{%- endif %}
+
+
+
+{%- if paired_synapse is defined %}
+
+
+inline double
+{{neuronName}}::get_spiketime_ms() const
+{
+  return last_spike_;
+}
+
+
+void
+{{neuronName}}::register_stdp_connection( double t_first_read, double delay )
+{
+  // Mark all entries in the deque, which we will not read in future as read by
+  // this input input, so that we safely increment the incoming number of
+  // connections afterwards without leaving spikes in the history.
+  // For details see bug #218. MH 08-04-22
+
+  for ( std::deque< histentry__{{neuronName}} >::iterator runner = history_.begin();
+        runner != history_.end() and ( t_first_read - runner->t_ > -1.0 * nest::kernel().connection_manager.get_stdp_eps() );
+        ++runner )
+  {
+    ( runner->access_counter_ )++;
+  }
+
+  n_incoming_++;
+
+  max_delay_ = std::max( delay, max_delay_ );
+}
+
+
+void
+{{neuronName}}::get_history__( double t1,
+  double t2,
+  std::deque< histentry__{{neuronName}} >::iterator* start,
+  std::deque< histentry__{{neuronName}} >::iterator* finish )
+{
+  *finish = history_.end();
+  if ( history_.empty() )
+  {
+    *start = *finish;
+    return;
+  }
+  std::deque< histentry__{{neuronName}} >::reverse_iterator runner = history_.rbegin();
+  const double t2_lim = t2 + nest::kernel().connection_manager.get_stdp_eps();
+  const double t1_lim = t1 + nest::kernel().connection_manager.get_stdp_eps();
+  while ( runner != history_.rend() and runner->t_ >= t2_lim )
+  {
+    ++runner;
+  }
+  *finish = runner.base();
+  while ( runner != history_.rend() and runner->t_ >= t1_lim )
+  {
+    runner->access_counter_++;
+    ++runner;
+  }
+  *start = runner.base();
+}
+
+void
+{{neuronName}}::set_spiketime( nest::Time const& t_sp, double offset )
+{
+    {{neuron_parent_class}}::set_spiketime( t_sp, offset );
+
+    unsigned int num_transferred_variables = 0;
+{%- for var in transferred_variables %}
+    ++num_transferred_variables;
+{%- endfor %}
+
+    const double t_sp_ms = t_sp.get_ms() - offset;
+
+    if ( n_incoming_ )
+    {
+        // prune all spikes from history which are no longer needed
+        // only remove a spike if:
+        // - its access counter indicates it has been read out by all connected
+        //     STDP synapses, and
+        // - there is another, later spike, that is strictly more than
+        //     (max_delay_ + eps) away from the new spike (at t_sp_ms)
+        while ( history_.size() > 1 )
+        {
+            const double next_t_sp = history_[ 1 ].t_;
+            if ( history_.front().access_counter_ >= n_incoming_ * num_transferred_variables
+                and t_sp_ms - next_t_sp > max_delay_ + nest::kernel().connection_manager.get_stdp_eps() )
+            {
+                history_.pop_front();
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (history_.size() > 0) {
+            assert(history_.back().t_ == last_spike_);
+
+{%- for var in purely_numeric_state_variables_moved|sort %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = history_.back().{{var}}_;
+{%- endfor %}
+        }
+        else {
+{%- for var in purely_numeric_state_variables_moved|sort %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+            S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var, SymbolKind.VARIABLE))}} = 0.; // initial value for convoluation is always 0
+{%- endfor %}
+        }
+
+
+        /**
+         * update state variables transferred from synapse from `last_spike_` to `t_sp_ms`
+        **/
+
+        const double old___h = V_.__h;
+        V_.__h = t_sp_ms - last_spike_;
+        if (V_.__h > 1E-12) {
+          calibrate_variables(true);
+{#
+  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
+#}
+
+{%- filter indent(6, True) %}
+{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
+{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%- endwith %}
+
+{%- if useGSL %}
+// update only synapse->neuron moved variables; back-up and restore the rest
+double ode_state_bak[State_::STATE_VEC_SIZE];
+
+{%-   for variable_name in numeric_state_variables %}
+ode_state_bak[State_::{{variable_name}}] = S_.ode_state[State_::{{variable_name}}];
+{%-     endfor %}
+
+{%- if uses_numeric_solver %}
+{%-     include "directives/GSLIntegrationStep.jinja2" %}
+{%- endif %}
+
+// restore non-synapse->neuron-moved variables
+{%-   for variable_name in numeric_state_variables %}
+S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+{%-     endfor %}
+
+// restore variables solved analytically
+{%-   for variable_name in numeric_state_variables %}
+S_.ode_state[State_::{{variable_name}}] = ode_state_bak[State_::{{variable_name}}];
+{%-     endfor %}
+
+{%- endif %}
+
+{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
+{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endwith %}
+
+{%- endfilter %}
+        V_.__h = old___h;
+        calibrate_variables(true);
+      }
+
+        /**
+         * apply spike updates
+        **/
+
+{%- for stmt in spike_update_stmts %}
+{%- if useGSL %}
+        {{printer.print_node(stmt)}};
+{%- else %}
+        {{nest_printer.print_node(stmt)}};
+{%- endif %}
+{%- endfor %}
+
+{%- for _, spike_update in post_spike_updates.items() %}
+        S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(spike_update.get_variable().get_complete_name(), SymbolKind.VARIABLE))}} += 1.;
+{%- endfor %}
+
+    last_spike_ = t_sp_ms;
+    history_.push_back( histentry__{{neuronName}}( last_spike_
+{%- for var in purely_numeric_state_variables_moved|sort %}
+    , get_{{var}}()
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+    , get_{{var}}()
+{%- endfor %}
+, 0
+ ) );
+  }
+  else
+  {
+    last_spike_ = t_sp_ms;
+  }
+}
+
+
+void
+{{neuronName}}::clear_history()
+{
+  last_spike_ = -1.0;
+  history_.clear();
+}
+
+
+{#
+	generate getter functions for the transferred variables
+#}
+
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
+
+double
+{{neuronName}}::get_{{var}}( double t, const bool before_increment )
+{
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var}}: getting value at t = " << t << std::endl;
+#endif
+
+  // case when the neuron has not yet spiked
+  if ( history_.empty() )
+  {
+#ifdef DEBUG
+    std::cout << "{{neuronName}}::get_{{var}}: \thistory empty, returning initial value = " << {{var}}__iv << std::endl;
+#endif
+    // return initial value
+    return {{var}}__iv;
+  }
+
+  // search for the latest post spike in the history buffer that came strictly before `t`
+  int i = history_.size() - 1;
+  double eps = 0.;
+  if ( before_increment ) {
+   eps = nest::kernel().connection_manager.get_stdp_eps();
+  }
+  while ( i >= 0 )
+  {
+    if ( t - history_[ i ].t_ >= eps )
+    {
+#ifdef DEBUG
+      std::cout<<"{{neuronName}}::get_{{var}}: \tspike occurred at history[i].t_ = " << history_[i].t_ << std::endl;
+#endif
+
+{%- for var_ in purely_numeric_state_variables_moved %}
+      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+{%- endfor %}
+{%- for var_ in analytic_state_variables_moved %}
+      S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ i ].{{var_}}_;
+{%- endfor %}
+
+      /**
+       * update state variables transferred from synapse from `history[i].t_` to `t`
+      **/
+
+      if ( t - history_[ i ].t_ >= nest::kernel().connection_manager.get_stdp_eps() )
+      {
+        const double old___h = V_.__h;
+        V_.__h = t - history_[i].t_;
+        assert(V_.__h > 0);
+        calibrate_variables(true);
+{#
+  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
+#}
+
+{%- filter indent(6, True) %}
+{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
+{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%- endwith %}
+
+{%- if purely_numeric_state_variables_moved|length > 0 %}
+double ode_state_tmp[STATE_VEC_SIZE];
+
+for (int i = 0; i < STATE_VEC_SIZE; ++i) {
+  ode_state_tmp[i] = S_.ode_state[i];
+}
+
+{%- if uses_numeric_solver %}
+{%-     include "directives/GSLIntegrationStep.jinja2" %}
+{%- endif %}
+
+{%- for variable_name in numeric_state_variables_moved|sort %}
+{%- if not variable_name in analytic_state_variables_moved %}
+S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
+{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endwith %}
+{%- endfilter %}
+
+        V_.__h = old___h;
+        calibrate_variables(true);
+      }
+
+#ifdef DEBUG
+      std::cout << "{{neuronName}}::get_{{var}}: \treturning " << {{names.getter(var_sym)}}() << std::endl;
+#endif
+      return {{names.getter(var_sym)}}();       // type: {{declarations.print_variable_type(var_sym)}}
+    }
+    --i;
+  }
+
+  // this case occurs when the trace was requested at a time precisely at that of the first spike in the history
+  if ( (!before_increment) && t == history_[ 0 ].t_)
+  {
+{%- for var_ in purely_numeric_state_variables_moved %}
+    S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
+{%- endfor %}
+{%- for var_ in analytic_state_variables_moved %}
+    S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = history_[ 0 ].{{var_}}_;
+{%- endfor %}
+
+#ifdef DEBUG
+    std::cout << "{{neuronName}}::get_{{var}}: \ttrace requested at exact time of history entry 0, returning " << {{names.getter(var_sym)}}() << std::endl;
+#endif
+    return {{names.getter(var_sym)}}();
+  }
+
+  // this case occurs when the trace was requested at a time before the first spike in the history
+  // return initial value propagated in time
+#ifdef DEBUG
+  std::cout << "{{neuronName}}::get_{{var}}: \tfall-through, returning initial value = " << {{var}}__iv << std::endl;
+#endif
+
+  if (t == 0.) {
+    return 0.;  // initial value for convoluation is always 0
+  }
+
+  // set to initial value
+{%- for var_ in purely_numeric_state_variables_moved %}
+  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
+{%- endfor %}
+{%- for var_ in analytic_state_variables_moved %}
+  S_.{{names.name(neuron.get_equations_block().get_scope().resolve_to_symbol(var_, SymbolKind.VARIABLE))}} = 0.;  // initial value for convoluation is always 0
+{%- endfor %}
+
+  // propagate in time
+  const double old___h = V_.__h;
+  V_.__h = t;   // from time 0 to the requested time
+  assert(V_.__h > 0);
+  calibrate_variables(true);
+{#
+  Generates a series of C++ statements which perform one integration step of all ODEs that are solved by the analytic integrator.
+#}
+{%- filter indent(2, True) %}
+{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
+{%-     include "directives/AnalyticIntegrationStep_begin.jinja2" %}
+{%- endwith %}
+
+{%- if purely_numeric_state_variables_moved|length > 0 %}
+double ode_state_tmp[STATE_VEC_SIZE];
+
+for (int i = 0; i < STATE_VEC_SIZE; ++i) {
+    ode_state_tmp[i] = S_.ode_state[i];
+}
+
+{%- if uses_numeric_solver %}
+{%-     include "directives/GSLIntegrationStep.jinja2" %}
+{%- endif %}
+
+{%- for variable_name in numeric_state_variables_moved|sort %}
+{%- if not variable_name in analytic_state_variables_moved %}
+  S_.ode_state[State_::{{variable_name}}] = ode_state_tmp[State_::{{variable_name}}];
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{%- with analytic_state_variables_ = analytic_state_variables_moved|sort %}
+{%-     include "directives/AnalyticIntegrationStep_end.jinja2" %}
+{%- endwith %}
+
+{%- endfilter %}
+  V_.__h = old___h;
+  calibrate_variables(true);
+
+  return {{names.getter(var_sym)}}();
+}
+{%- endwith -%}
+{%- endfor %}
+
 {%- endif %}
 {# leave this comment here to ensure newline is generated at end of file -#}

@@ -21,10 +21,13 @@
 
 from typing import Optional, List
 
+import copy
+
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_namespace_decorator import ASTNamespaceDecorator
 
 
 class ASTDeclaration(ASTNode):
@@ -32,6 +35,7 @@ class ASTDeclaration(ASTNode):
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
     'a,b,c real = 0'.
+    @attribute hide is true iff. declaration is not traceable.
     @attribute function is true iff. declaration is an function.
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
@@ -57,7 +61,7 @@ class ASTDeclaration(ASTNode):
     """
 
     def __init__(self, is_recordable: bool = False, is_inline_expression: bool = False, _variables: Optional[List[ASTVariable]] = None, data_type: Optional[ASTDataType] = None, size_parameter: Optional[str] = None,
-                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, *args, **kwargs):
+                 expression: Optional[ASTExpression] = None, invariant: Optional[ASTExpression] = None, decorators=None, *args, **kwargs):
         """
         Standard constructor.
 
@@ -76,11 +80,14 @@ class ASTDeclaration(ASTNode):
         self.is_inline_expression = is_inline_expression
         if _variables is None:
             _variables = []
+        if decorators is None:
+            decorators = []
         self.variables = _variables
         self.data_type = data_type
         self.size_parameter = size_parameter
         self.expression = expression
         self.invariant = invariant
+        self.decorators = decorators
 
     def clone(self):
         """
@@ -101,6 +108,9 @@ class ASTDeclaration(ASTNode):
         invariant_dup = None
         if self.invariant:
             invariant_dup = self.invariant.clone()
+        decorators_dup = None
+        if self.decorators:
+            decorators_dup = [dec.clone() for dec in self.decorators]
         dup = ASTDeclaration(is_recordable=self.is_recordable,
                              is_inline_expression=self.is_inline_expression,
                              _variables=variables_dup,
@@ -108,6 +118,7 @@ class ASTDeclaration(ASTNode):
                              size_parameter=self.size_parameter,
                              expression=expression_dup,
                              invariant=invariant_dup,
+                             decorators=decorators_dup,
                              # ASTNode common attributes:
                              source_position=self.source_position,
                              scope=self.scope,
@@ -126,6 +137,11 @@ class ASTDeclaration(ASTNode):
         :rtype: list(ASTVariables)
         """
         return self.variables
+
+    def get_decorators(self):
+        """
+        """
+        return self.decorators
 
     def get_data_type(self):
         """

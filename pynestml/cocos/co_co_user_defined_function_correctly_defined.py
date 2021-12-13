@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.cocos.co_co import CoCo
@@ -49,16 +50,16 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
     processed_function = None
 
     @classmethod
-    def check_co_co(cls, _neuron=None):
+    def check_co_co(cls, _node=None):
         """
-        Checks the coco for the handed over neuron.
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        Checks the coco for the handed over node.
+        :param _node: a single node instance.
+        :type _node: ASTNeuron or ASTSynapse
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.get_name()
-        for userDefinedFunction in _neuron.get_functions():
+        assert (_node is not None and (isinstance(_node, ASTNeuron) or isinstance(_node, ASTSynapse))), \
+            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of node provided (%s)!' % type(_node)
+        cls.__nodeName = _node.get_name()
+        for userDefinedFunction in _node.get_functions():
             cls.processed_function = userDefinedFunction
             symbol = userDefinedFunction.get_scope().resolve_to_symbol(userDefinedFunction.get_name(),
                                                                        SymbolKind.FUNCTION)
@@ -71,7 +72,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif symbol is not None and userDefinedFunction.has_return_type() and \
                     not symbol.get_return_type().equals(PredefinedTypes.get_void_type()):
                 code, message = Messages.get_no_return()
-                Logger.log_message(node=_neuron, code=code, message=message,
+                Logger.log_message(node=_node, code=code, message=message,
                                    error_position=userDefinedFunction.get_source_position(),
                                    log_level=LoggingLevel.ERROR)
         return

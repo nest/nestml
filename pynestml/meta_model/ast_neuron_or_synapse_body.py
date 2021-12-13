@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# ast_body.py
+# ast_neuron_or_synapse_body.py
 #
 # This file is part of NEST.
 #
@@ -19,16 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List
+from typing import List, Optional
 
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
 
 
-class ASTBody(ASTNode):
+class ASTNeuronOrSynapseBody(ASTNode):
     """
-    This class is used to store the body of a neuron, an object containing all the definitions.
-    ASTBody The body of the neuron, e.g. internal, state, parameter...
+    This class is used to store the body of a neuron or synapse, an object containing all the definitions.
+    ASTNeuronOrSynapseBody The body of the neuron, e.g. internal, state, parameter...
     Grammar:
         body : BLOCK_OPEN
                (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
@@ -46,7 +47,7 @@ class ASTBody(ASTNode):
         :param body_elements: a list of elements, e.g. variable blocks.
         :type body_elements: List[ASTNode]
         """
-        super(ASTBody, self).__init__(*args, **kwargs)
+        super(ASTNeuronOrSynapseBody, self).__init__(*args, **kwargs)
         self.body_elements = body_elements
 
     def clone(self):
@@ -54,20 +55,20 @@ class ASTBody(ASTNode):
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTBody
+        :rtype: ASTNeuronOrSynapseBody
         """
         body_elements_dup = None
         if self.body_elements:
             body_elements_dup = [body_element.clone() for body_element in self.body_elements]
-        dup = ASTBody(body_elements=body_elements_dup,
-                      # ASTNode common attriutes:
-                      source_position=self.source_position,
-                      scope=self.scope,
-                      comment=self.comment,
-                      pre_comments=[s for s in self.pre_comments],
-                      in_comment=self.in_comment,
-                      post_comments=[s for s in self.post_comments],
-                      implicit_conversion_factor=self.implicit_conversion_factor)
+        dup = ASTNeuronOrSynapseBody(body_elements=body_elements_dup,
+                                     # ASTNode common attriutes:
+                                     source_position=self.source_position,
+                                     scope=self.scope,
+                                     comment=self.comment,
+                                     pre_comments=[s for s in self.pre_comments],
+                                     in_comment=self.in_comment,
+                                     post_comments=[s for s in self.post_comments],
+                                     implicit_conversion_factor=self.implicit_conversion_factor)
 
         return dup
 
@@ -143,6 +144,19 @@ class ASTBody(ASTNode):
             if isinstance(elem, ASTBlockWithVariables) and elem.is_internals:
                 ret.append(elem)
         return ret
+
+    def get_on_receive_block(self, port_name) -> Optional[ASTOnReceiveBlock]:
+        for elem in self.get_body_elements():
+            if isinstance(elem, ASTOnReceiveBlock) and elem.port_name == port_name:
+                return elem
+        return None
+
+    def get_on_receive_blocks(self) -> List[ASTOnReceiveBlock]:
+        on_receive_blocks = []
+        for elem in self.get_body_elements():
+            if isinstance(elem, ASTOnReceiveBlock):
+                on_receive_blocks.append(elem)
+        return on_receive_blocks
 
     def get_equations_blocks(self):
         """
@@ -220,7 +234,7 @@ class ASTBody(ASTNode):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(other, ASTBody):
+        if not isinstance(other, ASTNeuronOrSynapseBody):
             return False
         if len(self.get_body_elements()) != len(other.get_body_elements()):
             return False

@@ -67,7 +67,7 @@ Subsequently, it is possible to call PyNESTML from other Python tools and script
 
 .. code-block:: python
 
-   to_nest(input_path, target_path, logging_level, module_name, store_log, dev)    
+   to_nest(input_path, target_path, logging_level, module_name, store_log, dev)
 
 This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
 
@@ -137,7 +137,7 @@ The default directory can be changed through ``--codegen_opts`` by providing a p
 
 .. code-block:: bash
 
-   nestml --input_path models/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
+   nestml --input_path models/neurons/iaf_psc_exp.nestml --codegen_opts /home/nest/work/codegen_options.json
 
 An example ``codegen_options.json`` file is as follows:
 
@@ -147,7 +147,10 @@ An example ``codegen_options.json`` file is as follows:
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
-            "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
+            "model_templates": {
+                "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
+                "synapse": ["SynapseHeader.h.jinja2"]
+            },
             "module_templates": ["setup/CMakeLists.txt.jinja2",
                                  "setup/ModuleHeader.h.jinja2","setup/ModuleClass.cpp.jinja2"]
         }
@@ -155,7 +158,7 @@ An example ``codegen_options.json`` file is as follows:
 
 The ``templates`` option in the JSON file contains information on the custom Jinja templates to be used for code generation.
 * The ``path`` option indicates the root directory of the custom Jinja templates.
-* The ``model_templates`` option indicates the names of the Jinja templates for neuron model(s) or relative path to a directory containing the neuron model(s) templates.
+* The ``model_templates`` option indicates the names of the Jinja templates for neuron and synapse model(s) or relative path to a directory containing the neuron and synapse model(s) templates.
 * The ``module_templates`` option indicates the names or relative path to a directory containing the Jinja templates used to build a NEST extension module.
 
 The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as follows:
@@ -168,7 +171,10 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
-            "model_templates": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"]
+            "model_templates": {
+                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+                "synapse": ['SynapseHeader.h.jinja2']
+            },
             "module_templates": ["setup"]
         }
    }

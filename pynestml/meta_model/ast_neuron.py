@@ -23,18 +23,18 @@ from typing import Dict, List, Optional, Union
 
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_neuron_or_synapse import ASTNeuronOrSynapse
 from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_body import ASTBody
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
-from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
 
-class ASTNeuron(ASTNode):
+class ASTNeuron(ASTNeuronOrSynapse):
     """
     This class is used to store instances of neurons.
     ASTNeuron represents neuron.
@@ -61,16 +61,7 @@ class ASTNeuron(ASTNode):
         :param artifact_name: the name of the file this neuron is contained in
         :type artifact_name: str
         """
-        super(ASTNeuron, self).__init__(*args, **kwargs)
-        assert isinstance(name, str), \
-            '(PyNestML.ASTNeuron) No  or wrong type of neuron name provided (%s)!' % type(name)
-        assert isinstance(body, ASTBody), \
-            '(PyNestML.ASTNeuron) No or wrong type of neuron body provided (%s)!' % type(body)
-        assert (artifact_name is not None and isinstance(artifact_name, str)), \
-            '(PyNestML.ASTNeuron) No or wrong type of artifact name provided (%s)!' % type(artifact_name)
-        self.name = name
-        self.body = body
-        self.artifact_name = artifact_name
+        super(ASTNeuron, self).__init__(name, body, artifact_name, *args, **kwargs)
 
     def clone(self):
         """
@@ -105,7 +96,7 @@ class ASTNeuron(ASTNode):
         """
         Return the body of the neuron.
         :return: the body containing the definitions.
-        :rtype: ASTBody
+        :rtype: ASTNeuronOrSynapseBody
         """
         return self.body
 
@@ -128,23 +119,6 @@ class ASTNeuron(ASTNode):
         for elem in self.get_body().get_body_elements():
             if isinstance(elem, ASTFunction):
                 ret.append(elem)
-        return ret
-
-    def get_update_blocks(self):
-        """
-        Returns a list of all update blocks defined in this body.
-        :return: a list of update-block elements.
-        :rtype: list(ASTUpdateBlock)
-        """
-        ret = list()
-        from pynestml.meta_model.ast_update_block import ASTUpdateBlock
-        for elem in self.get_body().get_body_elements():
-            if isinstance(elem, ASTUpdateBlock):
-                ret.append(elem)
-        if isinstance(ret, list) and len(ret) == 1:
-            return ret[0]
-        if isinstance(ret, list) and len(ret) == 0:
-            return None
         return ret
 
     def get_state_blocks(self):
@@ -313,7 +287,7 @@ class ASTNeuron(ASTNode):
         symbols = self.get_scope().get_symbols_in_this_scope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.PARAMETERS and \
+            if isinstance(symbol, VariableSymbol) and symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS] and \
                     not symbol.is_predefined:
                 ret.append(symbol)
         return ret
@@ -567,6 +541,7 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration
         :type declaration: ast_declaration
         """
+        from pynestml.utils.ast_utils import ASTUtils
         if self.get_internals_blocks() is None:
             ASTUtils.create_internal_block(self)
         n_declarations = len(self.get_internals_blocks().get_declarations())
@@ -588,6 +563,7 @@ class ASTNeuron(ASTNode):
         :param declaration: a single declaration.
         :type declaration: ast_declaration
         """
+        from pynestml.utils.ast_utils import ASTUtils
         if self.get_state_blocks() is None:
             ASTUtils.create_state_block(self)
         self.get_state_blocks().get_declarations().append(declaration)

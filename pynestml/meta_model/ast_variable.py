@@ -19,15 +19,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Any, Optional
+
 from copy import copy
-from typing import Optional
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.symbols.type_symbol import TypeSymbol
 from pynestml.utils.either import Either
 
 
 class ASTVariable(ASTNode):
-    """
+    r"""
     This class is used to store a single variable.
 
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
@@ -40,8 +42,8 @@ class ASTVariable(ASTNode):
         type_symbol = None
     """
 
-    def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None, vector_parameter: Optional[str] = None, *args, **kwargs):
-        """
+    def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None, vector_parameter: Optional[str] = None, is_homogeneous: bool = False, *args, **kwargs):
+        r"""
         Standard constructor.
         :param name: the name of the variable
         :type name: str
@@ -61,9 +63,10 @@ class ASTVariable(ASTNode):
         self.differential_order = differential_order
         self.type_symbol = type_symbol
         self.vector_parameter = vector_parameter
+        self.is_homogeneous = is_homogeneous
 
     def clone(self):
-        """
+        r"""
         Return a clone ("deep copy") of this node.
         """
         return ASTVariable(name=self.name,
@@ -84,113 +87,103 @@ class ASTVariable(ASTNode):
         assert self.get_scope() is not None
         return self.get_scope().resolve_to_symbol(self.get_complete_name(), SymbolKind.VARIABLE)
 
-    def get_name(self):
-        """
+    def get_name(self) -> str:
+        r"""
         Returns the name of the variable.
         :return: the name of the variable.
-        :rtype: str
         """
         return self.name
 
-    def set_name(self, name):
-        # type: (str) -> None
+    def set_name(self, name: str) -> None:
         """
         Sets the name of the variable.
         :name: the name to set.
         """
         self.name = name
 
+    def get_is_homogeneous(self) -> bool:
+        return self.is_homogeneous
+
     def get_differential_order(self) -> int:
-        """
+        r"""
         Returns the differential order of the variable.
         :return: the differential order.
         """
         return self.differential_order
 
     def set_differential_order(self, differential_order: int) -> None:
-        """
-        Set the differential order of the variable.
+        r"""
+        Returns the differential order of the variable.
         """
         self.differential_order = differential_order
 
-    def get_complete_name(self):
-        """
+    def get_complete_name(self) -> str:
+        r"""
         Returns the complete name, consisting of the name and the differential order.
         :return: the complete name.
-        :rtype: str
         """
         return self.get_name() + '\'' * self.get_differential_order()
 
-    def get_name_of_lhs(self):
-        """
+    def get_name_of_lhs(self) -> str:
+        r"""
         Returns the complete name but with differential order reduced by one.
         :return: the name.
-        :rtype: str
         """
         if self.get_differential_order() > 0:
             return self.get_name() + '\'' * (self.get_differential_order() - 1)
         return self.get_name()
 
-    def get_type_symbol(self):
-        """
+    def get_type_symbol(self) -> TypeSymbol:
+        r"""
         Returns the type symbol of this rhs.
         :return: a single type symbol.
-        :rtype: type_symbol
         """
         return copy(self.type_symbol)
 
-    def set_type_symbol(self, type_symbol):
-        """
+    def set_type_symbol(self, type_symbol: TypeSymbol):
+        r"""
         Updates the current type symbol to the handed over one.
         :param type_symbol: a single type symbol object.
-        :type type_symbol: type_symbol
         """
-        assert (type_symbol is not None and isinstance(type_symbol, Either)), \
-            '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(type_symbol)
         self.type_symbol = type_symbol
 
     def get_vector_parameter(self) -> str:
-        """
+        r"""
         Returns the vector parameter of the variable
         :return: the vector parameter
         """
         return self.vector_parameter
 
     def set_size_parameter(self, vector_parameter):
-        """
+        r"""
         Updates the vector parameter of the variable
         """
         self.vector_parameter = vector_parameter
 
-    def get_parent(self, ast):
-        """
+    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
+        r"""
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: ASTNode or None
         """
         return None
 
-    def is_unit_variable(self):
-        """
+    def is_unit_variable(self) -> bool:
+        r"""
         Provided on-the-fly information whether this variable represents a unit-variable, e.g., nS.
         Caution: It assumes that the symbol table has already been constructed.
         :return: True if unit-variable, otherwise False.
-        :rtype: bool
         """
         from pynestml.symbols.predefined_types import PredefinedTypes
         if self.get_name() in PredefinedTypes.get_types():
             return True
         return False
 
-    def equals(self, other):
-        """
+    def equals(self, other: Any) -> bool:
+        r"""
         The equals method.
         :param other: a different object.
-        :type other: object
         :return: True if equals, otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTVariable):
             return False

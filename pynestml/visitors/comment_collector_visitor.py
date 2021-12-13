@@ -56,6 +56,10 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
 
+    def visitSynapse(self, ctx):
+        return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
+                get_in_comment(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
+
     def visitOdeEquation(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
@@ -95,6 +99,10 @@ class CommentCollectorVisitor(PyNestMLParserVisitor):
     def visitUpdateBlock(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),
                 get_in_comment(ctx, self.__tokens, self.__strip_delim), get_post_comments(ctx, self.__tokens, self.__strip_delim))
+
+    def visitOnReceiveBlock(self, ctx):
+        return (get_comments(ctx, self.__tokens), get_pre_comments(ctx, self.__tokens),
+                get_in_comment(ctx, self.__tokens), get_post_comments(ctx, self.__tokens))
 
     def visitEquationsBlock(self, ctx):
         return (get_comments(ctx, self.__tokens, self.__strip_delim), get_pre_comments(ctx, self.__tokens, self.__strip_delim),

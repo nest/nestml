@@ -235,6 +235,12 @@ github_doc_root = ''
 
 intersphinx_mapping = {'https://docs.python.org/': None}
 
+
+def setup(app):
+    app.add_css_file('css/custom.css')
+    app.add_css_file('css/pygments.css')
+
+
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {

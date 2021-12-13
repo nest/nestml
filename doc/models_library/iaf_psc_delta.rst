@@ -1,8 +1,8 @@
 iaf_psc_delta
 #############
 
-iaf_psc_delta - Current-based leaky integrate-and-fire neuron model with delta-kernel post-synaptic currents
 
+iaf_psc_delta - Current-based leaky integrate-and-fire neuron model with delta-kernel post-synaptic currents
 
 Description
 +++++++++++
@@ -58,6 +58,7 @@ Authors
 Diesmann, Gewaltig (September 1999)
 
 
+
 Parameters
 ++++++++++
 
@@ -90,8 +91,9 @@ State variables
     :widths: auto
 
     
-    "V_abs", "mV", "0mV", ""    
-    "V_m", "mV", "V_abs + E_L", "Membrane potential."
+    "refr_spikes_buffer", "mV", "0mV", ""    
+    "r", "integer", "0", "counts number of tick during the refractory period"    
+    "V_abs", "mV", "0mV", ""
 
 
 
@@ -103,7 +105,7 @@ Equations
 
 
 .. math::
-   \frac{ dV_{abs} } { dt }= \frac{ -1 } { \tau_{m} } \cdot V_{abs} + \frac{ 1 } { C_{m} } \cdot (\text{convolve}(G, spikes) + I_{e} + I_{stim})
+   \frac{ dV_{abs} } { dt }= \frac{ -V_{abs} } { \tau_{m} } + (\frac 1 { \mathrm{ms} } \left( { \frac{ \mathrm{mV} } { \mathrm{pA} } } \right) ) \cdot \text{convolve}(G, spikes) + \frac 1 { C_{m} } \left( { (I_{e} + I_{stim}) } \right) 
 
 
 
@@ -112,82 +114,74 @@ Equations
 Source code
 +++++++++++
 
-.. code:: nestml
+.. code-block:: nestml
 
-    neuron iaf_psc_delta:
+   neuron iaf_psc_delta:
+     state:
+       refr_spikes_buffer mV = 0mV
+       r integer = 0 # counts number of tick during the refractory period
+       V_abs mV = 0mV
+     end
+     equations:
+       kernel G = delta(t)
+   recordable    inline V_m mV = V_abs + E_L # Membrane potential.
+       V_abs'=-V_abs / tau_m + (mV / pA / ms) * convolve(G,spikes) + (I_e + I_stim) / C_m
+     end
 
-      state:
-        refr_spikes_buffer mV = 0 mV
-        r integer  = 0 # counts number of tick during the refractory period
-        V_abs mV = 0 mV
-      end
+     parameters:
+       tau_m ms = 10ms # Membrane time constant.
+       C_m pF = 250pF # Capacity of the membrane
+       t_ref ms = 2ms # Duration of refractory period.
+       tau_syn ms = 2ms # Time constant of synaptic current.
+       E_L mV = -70mV # Resting membrane potential.
+       V_reset mV = -70mV - E_L # Reset potential of the membrane.
+       Theta mV = -55mV - E_L # Spike threshold.
+       V_min mV = -inf * 1mV # Absolute lower value for the membrane potential
+       with_refr_input boolean = false # If true, do not discard input during  refractory period. Default: false.
+       # constant external input current
 
-      equations:
-        kernel G = delta(t)
-        recordable inline V_m mV = V_abs + E_L # Membrane potential.
-        V_abs' = -V_abs / tau_m + (mV / pA / ms) * convolve(G, spikes) + (I_e + I_stim) / C_m
-      end
+       # constant external input current
+       I_e pA = 0pA
+     end
+     internals:
+       h ms = resolution()
+       RefractoryCounts integer = steps(t_ref) # refractory time in steps
+     end
+     input:
+       spikes pA <-spike
+       I_stim pA <-current
+     end
 
-      parameters:
-        tau_m   ms = 10 ms      # Membrane time constant.
-        C_m     pF = 250 pF     # Capacity of the membrane
-        t_ref   ms = 2 ms       # Duration of refractory period.
-        tau_syn ms = 2 ms       # Time constant of synaptic current.
-        E_L     mV = -70 mV     # Resting membrane potential.
-        V_reset mV = -70 mV - E_L # Reset potential of the membrane.
-        Theta   mV = -55 mV - E_L # Spike threshold.
-        V_min mV = -inf * 1 mV           # Absolute lower value for the membrane potential
-        with_refr_input boolean = false # If true, do not discard input during  refractory period. Default: false.
+     output: spike
 
-        # constant external input current
-        I_e pA = 0 pA
-      end
+     update:
+       if r == 0: # neuron not refractory
+         integrate_odes()
+         # if we have accumulated spikes from refractory period,
+         # add and reset accumulator
+         if with_refr_input and refr_spikes_buffer != 0.0mV:
+           V_abs += refr_spikes_buffer
+           refr_spikes_buffer = 0.0mV
+         end
+         # lower bound of membrane potential
+         V_abs = V_abs < V_min?V_min:V_abs
+       else:
+         # read spikes from buffer and accumulate them, discounting
+         # for decay until end of refractory period
+         # the buffer is clear automatically
+         if with_refr_input:
+           refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV / pA
+         end
+         r -= 1
+       end
+       if V_abs >= Theta: # threshold crossing
+         r = RefractoryCounts
+         V_abs = V_reset
+         emit_spike()
+       end
+     end
 
-      internals:
-        h ms = resolution()
-        RefractoryCounts integer = steps(t_ref) # refractory time in steps
-      end
-
-      input:
-        spikes pA <- spike
-        I_stim pA <- continuous
-      end
-
-      output: spike
-
-      update:
-        if r == 0: # neuron not refractory
-          integrate_odes()
-
-          # if we have accumulated spikes from refractory period,
-          # add and reset accumulator
-          if with_refr_input and refr_spikes_buffer != 0.0 mV:
-            V_abs += refr_spikes_buffer
-            refr_spikes_buffer = 0.0 mV
-          end
-
-          # lower bound of membrane potential
-          V_abs = V_abs < V_min?V_min:V_abs
-
-        else: # neuron is absolute refractory
-          # read spikes from buffer and accumulate them, discounting
-          # for decay until end of refractory period
-          # the buffer is clear automatically
-          if with_refr_input:
-            refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV/pA
-          end
-          r -= 1
-        end
-
-        if V_abs >= Theta: # threshold crossing
-            r = RefractoryCounts
-            V_abs = V_reset
-            emit_spike()
-        end
-
-      end
-
-    end
+   end
 
 
 
@@ -199,4 +193,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 18:26:45.171065
+   Generated at 2021-12-09 08:22:32.516821

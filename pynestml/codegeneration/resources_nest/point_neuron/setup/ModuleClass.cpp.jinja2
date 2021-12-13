@@ -67,6 +67,9 @@
 {% for neuron in neurons %}
 #include "{{neuron.get_name()}}.h"
 {% endfor %}
+{% for synapse in synapses %}
+#include "{{synapse.get_name()}}.h"
+{% endfor %}
 // -- Interface to dynamic module loader ---------------------------------------
 
 /*
@@ -122,4 +125,9 @@ void
   {% for neuron in neurons %}
     nest::kernel().model_manager.register_node_model<{{neuron.get_name()}}>("{{neuron.get_name()}}");
   {% endfor %}
+
+  {% for synapse in synapses %}
+  nest::register_connection_model< nest::{{synapse.get_name()}} >( "{{synapse.get_name()}}" );
+  {% endfor %}
+
 } // {{moduleName}}::init()

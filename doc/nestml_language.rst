@@ -976,7 +976,21 @@ To retrieve some fundamental simulation parameters, two special functions are bu
 -  ``resolution`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
 -  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
 
-These functions can be used to implement custom buffer lookup logic but should be used with care.
+These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
+
+When using ``resolution()``, it is recommended to use the function call directly in the code, rather than defining it as a parameter. This makes the model more robust in case of non-constant timestep. In some cases, as in the synapse ``update`` block, a step is made between spike events, a timestep which is not constrained by the simulation timestep. For example:
+
+.. code-block:: nestml
+
+   parameters:
+     h ms = resolution()   # !! NOT RECOMMENDED.
+   end
+
+   update:
+     # update from t to t + resolution()
+     x *= exp(-resolution() / tau)   # let x' = -x / tau
+                                     # evolve the state of x one timestep
+   end
 
 
 Equations
