@@ -29,7 +29,7 @@ eligibility trace [1]_ (implemented on the postsynaptic neuron side). It
 decays exponentially with the time constant tau_minus and increases to 1 on
 a post-spike occurrence (instead of increasing by 1 as in stdp_synapse).
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit-third-factor/doc/fig/stdp-nearest-neighbour.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp-nearest-neighbour.png
 
    Figure 7 from Morrison, Diesmann and Gerstner
 

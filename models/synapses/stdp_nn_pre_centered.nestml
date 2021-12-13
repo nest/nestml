@@ -31,7 +31,7 @@ occurrence, and is reset to 0 on a post-spike occurrence. The postsynaptic
 trace (implemented on the postsynaptic neuron side) decays with the time
 constant tau_minus and increases to 1 on a post-spike occurrence.
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit-third-factor/doc/fig/stdp-nearest-neighbour.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp-nearest-neighbour.png
 
    Figure 7 from Morrison, Diesmann and Gerstner
 
