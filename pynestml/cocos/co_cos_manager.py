@@ -122,7 +122,6 @@ class CoCosManager:
     @classmethod
     def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
-        if state variable v_comp is defined
         searches ASTEquationsBlock for inline expressions without kernels 
         
         If such inline expression is found

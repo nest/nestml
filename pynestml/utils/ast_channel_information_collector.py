@@ -22,6 +22,7 @@
 from collections import defaultdict
 import copy
 
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -39,12 +40,6 @@ class ASTChannelInformationCollector(object):
     
     Constraints:
     
-    If state variable name is found that starts with the value 
-    as specified via cm_trigger_variable_name ("v_comp")
-    The neuron is marked as compartmental model via neuron.is_compartmental_model = True
-    Otherwise neuron.is_compartmental_model = False 
-    
-    If compartmental model neuron is detected it triggers further analysis:
     It ensures that all variables x as used in the inline expression named {channelType}
     (which has no kernels and is inside ASTEquationsBlock)
     have the following compartmental model functions defined
@@ -98,7 +93,6 @@ class ASTChannelInformationCollector(object):
     tau_sring = "tau"
     gbar_string = "gbar"
     equilibrium_string = "e"
-    cm_trigger_variable_name = "v_comp"
     
     first_time_run = defaultdict(lambda: True)
     chan_info = defaultdict()
@@ -107,22 +101,7 @@ class ASTChannelInformationCollector(object):
         '''
         Constructor
         '''
-    @classmethod    
-    def is_compartmental_model(cls, neuron: ASTNeuron):
-        state_blocks = neuron.get_state_blocks()
-        if state_blocks is None: return False
-        if isinstance(state_blocks, ASTBlockWithVariables):
-            state_blocks = [state_blocks]
         
-        for state_block in state_blocks:
-            declarations = state_block.get_declarations()
-            for declaration in declarations:
-                variables = declaration.get_variables()
-                for variable in variables:
-                    variable_name = variable.get_name().lower().strip()
-                    if variable_name == cls.cm_trigger_variable_name:
-                        return True
-        return False
 
     """
     detect_cm_inline_expressions
@@ -141,13 +120,11 @@ class ASTChannelInformationCollector(object):
             ...
         }
     }
-    """        
+    """       
+     
     @classmethod
     def detect_cm_inline_expressions(cls, neuron):
-        
-        is_compartmental_model = cls.is_compartmental_model(neuron)
-        if not is_compartmental_model: 
-            neuron.is_compartmental_model = is_compartmental_model
+        if not FrontendConfiguration.targetIsCompartmental(): 
             return defaultdict()
 
         # search for inline expressions inside equations block
@@ -170,7 +147,7 @@ class ASTChannelInformationCollector(object):
             info["ASTInlineExpression"] = inline_expression
             info["gating_variables"] = inner_variables
             chan_info[channel_name] = info
-        neuron.is_compartmental_model = is_compartmental_model
+            
         return chan_info
     
     # extract channel name from inline expression name
@@ -569,9 +546,6 @@ class ASTChannelInformationCollector(object):
     @classmethod
     def check_co_co(cls, neuron: ASTNeuron):
         """
-        Checks if this compartmental conditions apply for the handed over neuron. 
-        Models which do not have a state variable named as specified 
-        in the value of cm_trigger_variable_name are not relevant
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """

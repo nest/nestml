@@ -22,10 +22,11 @@
 from collections import defaultdict
 import copy
 
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.utils.ast_synapse_information_collector import ASTSynapseInformationCollector
-from pynestml.utils.messages import Messages
 from pynestml.utils.logger import Logger, LoggingLevel
+from pynestml.utils.messages import Messages
 
 
 class SynsProcessing(object):
@@ -106,7 +107,7 @@ class SynsProcessing(object):
         info_collector = ASTSynapseInformationCollector()
         
         syns_info = defaultdict()
-        if not neuron.is_compartmental_model:
+        if not FrontendConfiguration.targetIsCompartmental():
             return syns_info, info_collector
         
         # tests will arrive here if we actually have compartmental model
@@ -276,8 +277,6 @@ class SynsProcessing(object):
     def check_co_co(cls, neuron: ASTNeuron):
         """
         Checks if synapse conditions apply for the handed over neuron. 
-        Models which do not have a state variable named as specified 
-        in the value of cm_trigger_variable_name are not relevant
         :param neuron: a single neuron instance.
         :type neuron: ASTNeuron
         """

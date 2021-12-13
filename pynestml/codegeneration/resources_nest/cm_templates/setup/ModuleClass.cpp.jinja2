@@ -65,11 +65,7 @@
 #include "{{moduleName}}.h"
 
 {% for neuron in neurons %}
-    {%- if neuron.is_compartmental_model -%}
 #include "{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}.h"
-    {% else -%}
-#include "{{neuron.get_name()}}.h"
-    {% endif -%}
 {% endfor %}
     
 // -- Interface to dynamic module loader ---------------------------------------
@@ -125,10 +121,6 @@ void
 {{moduleName}}::init( SLIInterpreter* i )
 {
   {% for neuron in neurons %}
-    {%- if neuron.is_compartmental_model -%}
 nest::kernel().model_manager.register_node_model<nest::{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}>("{{perNeuronFileNamesCm[neuron.get_name()]["main"]}}");
-    {% else -%}
-nest::kernel().model_manager.register_node_model<{{neuron.get_name()}}>("{{neuron.get_name()}}");
-    {% endif -%}
   {% endfor %}
 } // {{moduleName}}::init()

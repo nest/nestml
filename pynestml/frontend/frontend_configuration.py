@@ -117,6 +117,10 @@ appropriate numeric solver otherwise.
         cls.is_dev = parsed_args.dev
 
     @classmethod
+    def targetIsCompartmental(cls):
+        return cls.get_target() == 'NEST_COMPARTMENTAL'
+
+    @classmethod
     def get_provided_input_path(cls) -> Sequence[str]:
         """
         Returns the list of file and directory names as supplied by the user.
