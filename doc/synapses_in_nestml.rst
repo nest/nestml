@@ -5,7 +5,7 @@ Modeling synapses in NESTML
 
 Conceptually, a synapse model formalises the interaction between two (or more) neurons. In biophysical terms, they may contain some elements that are part of the postsynaptic neuron (such as the postsynaptic density) as well as the presynaptic neuron (such as the vesicle pool), or external factors such as the concentration of an extracellular diffusing factor. We will discuss in detail the spike-timing dependent plasticity (STDP) model and some of its variants.
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit/doc/fig/synapse_conceptual.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/synapse_conceptual.png
    :scale: 10 %
    :align: center
 
@@ -171,7 +171,7 @@ NESTML needs to be invoked so that it generates code for neuron and synapse toge
 
 In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit-third-factor/doc/fig/stdp_triplet_synapse_test.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/stdp_triplet_synapse_test.png
 
 For a full example, please see the following files:
 
@@ -517,7 +517,7 @@ This file can then be passed to NESTML when generating code on the command line.
 Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
 
 
-.. figure:: https://raw.githubusercontent.com/clinssen/nestml/jit-third-factor/doc/fig/code_gen_opts.png
+.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/code_gen_opts.png
    :scale: 50 %
    :align: center
 
