@@ -1,11 +1,5 @@
-NESTML language documentation
-=============================
-
-NESTML is a domain specific language for the specification of models for the neuronal simulator `NEST <http://www.nest-simulator.org>`__. It has a concise syntax based on that of Python which avoids clutter in the form of semicolons, curly braces or tags as known from other programming and description languages. Instead, it concentrates on domain concepts that help to efficiently write neuron models and their equations.
-
-NESTML files are expected to have the filename extension ``.nestml``. Each file may contain one or more neuron models. This means that there is no forced direct correspondence between model and file name. Models that shall be compiled into one extension module for NEST have to reside in the same directory. The name of the directory will be used as the name of the corresponding module.
-
-In order to give users complete freedom in implementing neuron model dynamics, NESTML has a full procedural programming language built in. This programming language is used to define the model's time update and functions.
+NESTML language concepts
+========================
 
 Data types and physical units
 -----------------------------
@@ -293,7 +287,7 @@ For example, the following model will result in one warning and one error:
 Documentation string
 ~~~~~~~~~~~~~~~~~~~~
 
-Each neuron model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the definition of the neuron. For example:
+Each model may be documented by a block of text in reStructuredText format. Following `PEP 257 "Docstring Conventions" <https://www.python.org/dev/peps/pep-0257/>`_, this block should be enclosed in triple double quotes (``""" ... """``) and appear directly before the top-level definition. For example:
 
 .. code-block:: nestml
 
@@ -762,7 +756,7 @@ For any two valid numeric expressions ``a``, ``b``, boolean expressions ``c``,\ 
 Blocks
 ------
 
-To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. They are closed with the keyword ``end``. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. Some of the blocks are required to occur in every neuron model. The general syntax looks like this:
+To structure NESTML files, all content is structured in blocks. Blocks begin with a keyword specifying the type of the block followed by a colon. They are closed with the keyword ``end``. Indentation inside a block is not mandatory but recommended for better readability. Each of the following blocks must only occur at most once on each level. The general syntax looks like this:
 
 ::
 
@@ -773,9 +767,10 @@ To structure NESTML files, all content is structured in blocks. Blocks begin wit
 Block types
 ~~~~~~~~~~~
 
-``neuron <name>`` - The top-level block of a neuron model called ``<name>``. The content will be translated into a single neuron model that can be instantiated in PyNEST using ``nest.Create("<name>")``. All following blocks are contained in this block.
+- ``neuron <name>`` - The top-level block of a neuron model called ``<name>``.
+- ``synapse <name>`` - The top-level block of a synapse model called ``<name>``.
 
-Within the top-level block, the following blocks may be defined:
+Within a top-level block, the following blocks may be defined:
 
 -  ``parameters`` - This block is composed of a list of variable declarations that are supposed to contain all parameters which remain constant during the simulation, but can vary among different simulations or instantiations of the same neuron. These variables can be set and read by the user using ``nest.SetStatus(<gid>, <variable>, <value>)`` and ``nest.GetStatus(<gid>, <variable>)``.
 -  ``state`` - This block is composed of a list of variable declarations that describe parts of the neuron which may change over time. All the variables declared in this block must be initialized with a value.
@@ -783,183 +778,25 @@ Within the top-level block, the following blocks may be defined:
 -  ``equations`` - This block contains kernel definitions and differential equations. It will be explained in further detail `later on in the manual <#equations>`__.
 -  ``input`` - This block is composed of one or more input ports. It will be explained in further detail `later on in the manual <#input>`__.
 -  ``output`` *``<event_type>``* - Defines which type of event the neuron can send. Currently, only ``spike`` is supported. No ``end`` is necessary at the end of this block.
--  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language. The ``update`` block defines the runtime behavior of the neuron. It contains the logic for state
-   and equation `updates <#equations>`__ and `refractoriness <#concepts-for-refractoriness>`__. This block is translated into the ``update`` method in NEST.
+-  ``update`` - Inside this block arbitrary code can be implemented using the internal programming language. The ``update`` block defines the runtime behavior of the or synapse. It contains the logic for state
+   and equation `updates <#equations>`__.
+- ``onEvent(input_port)`` - Inside this block arbitrary code can be implemented using the internal programming language. The code will be executed upon the reception of a spike event on the input port ``input_port``.
 
 
-Neuronal interactions
----------------------
+Inputs
+~~~~~~
 
-Input
-~~~~~
+A model can define any number of input ports, each of which is capable of receiving either spike events, or continuous-time values. All input ports have an associated type.
 
-A neuron model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values. For either of them, the modeler has to decide if inhibitory and excitatory inputs are lumped together into a single named input port, or if they should be separated into differently named input ports based on their sign. The ``input`` block is composed of one or more lines to express the exact combinations desired. Each line has the following general form:
+To read more about using input ports in neuron models, see :ref:`Modeling neurons in NESTML`.
 
-::
-
-    port_name <- inhibitory? excitatory? (spike | continuous)
-
-This way, a flexible combination of the inputs is possible. If, for example, current input should be lumped together, but spike input should be separated for inhibitory and excitatory incoming spikes, the following ``input`` block would be appropriate:
-
-.. code-block:: nestml
-
-   input:
-     I_stim pA <- continuous
-     inh_spikes pA <- inhibitory spike
-     exc_spikes pA <- excitatory spike
-   end
-
-Please note that it is equivalent if either both `inhibitory` and `excitatory` are given or none of them at all. If only a single one of them is given, another line has to be present and specify the inverse keyword. Failure to do so will result in a translation error.
-
-Integrating current input
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The current port symbol (here, `I_stim`) is available as a variable and can be used in expressions, e.g.:
-
-.. code-block:: nestml
-
-   V_m' = -V_m/tau_m + ... + I_stim
-
-
-Integrating spiking input
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Spikes arriving at the input port of a neuron can be written as a spike train :math:`s(t)`:
-
-.. math::
-
-   \large s(t) = \sum_{i=1}^N \delta(t - t_i)
-
-To model the effect that an arriving spike has on the state of the neuron, a convolution with a kernel can be used. The kernel defines the postsynaptic response kernel, for example, an alpha (bi-exponential) function, decaying exponential, or a delta function. (See :ref:`Kernel functions` for how to define a kernel.) The convolution of the kernel with the spike train is defined as follows:
-
-.. math::
-
-   \large (f \ast s)(t) = \sum_{i=1}^N w_i \cdot f(t - t_i)
-
-where :math:`w_i` is the weight of spike :math:`i`.
-
-For example, say there is a spiking input port defined named ``spikes``. A decaying exponential with time constant ``tau_syn`` is defined as postsynaptic kernel ``G``. Their convolution is expressed using the ``convolve(f, g)`` function, which takes a kernel and input port, respectively, as its arguments:
-
-.. code-block:: nestml
-
-   equations:
-     kernel G = exp(-t/tau_syn)
-     V_m' = -V_m/tau_m + convolve(G, spikes)
-   end
-
-The type of the convolution is equal to the type of the second parameter, that is, of the spike buffer. Kernels themselves are always untyped.
-
-
-(Re)setting synaptic integration state
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When convolutions are used, additional state variables are required for each pair *(shape, spike input port)* that appears as the parameters in a convolution. These variables track the dynamical state of that kernel, for that input port. The number of variables created corresponds to the dimensionality of the kernel. For example, in the code block above, the one-dimensional kernel ``G`` is used in a convolution with spiking input port ``spikes``. During code generation, a new state variable called ``G__conv__spikes`` is created for this combination, by joining together the name of the kernel with the name of the spike buffer using (by default) the string “__conv__”. If the same kernel is used later in a convolution with another spiking input port, say ``spikes_GABA``, then the resulting generated variable would be called ``G__conv__spikes_GABA``, allowing independent synaptic integration between input ports but allowing the same kernel to be used more than once.
-
-The process of generating extra state variables for keeping track of convolution state is normally hidden from the user. For some models, however, it might be required to set or reset the state of synaptic integration, which is stored in these internally generated variables. For example, we might want to set the synaptic current (and its rate of change) to 0 when firing a dendritic action potential. Although we would like to set the generated variable ``G__conv__spikes`` to 0 in the running example, a variable by this name is only generated during code generation, and does not exist in the namespace of the NESTML model to begin with. To still allow referring to this state in the context of the model, it is recommended to use an inline expression, with only a convolution on the right-hand side.
-
-For example, suppose we define:
-
-.. code-block:: nestml
-
-   inline g_dend pA = convolve(G, spikes)
-
-Then the name ``g_dend`` can be used as a target for assignment:
-
-.. code-block:: nestml
-
-   update:
-     g_dend = 42 pA
-   end
-
-This also works for higher-order kernels, e.g. for the second-order alpha kernel :math:`H(t)`:
-
-.. code-block:: nestml
-
-   kernel H'' = (-2/tau_syn) * H' - 1/tau_syn**2) * H
-
-We can define an inline expression with the same port as before, ``spikes``:
-
-.. code-block:: nestml
-
-   inline h_dend pA = convolve(H, spikes)
-
-The name ``h_dend`` now acts as an alias for this particular convolution. We can now assign to the inline defined variable up to the order of the kernel:
-
-.. code-block:: nestml
-
-   update:
-     h_dend = 42 pA
-     h_dend' = 10 pA/ms
-   end
-
-For more information, see the :doc:`Active dendrite tutorial <tutorial/active_dendrite_tutorial>`
-
-   
-
-Multiple input synapses
-^^^^^^^^^^^^^^^^^^^^^^^
-
-If there is more than one line specifying a `spike` or `continuous` port with the same sign, a neuron with multiple receptor types is created. For example, say that we define three spiking input ports as follows:
-
-.. code-block:: nestml
-
-   input:
-     spikes1 nS <- spike
-     spikes2 nS <- spike
-     spikes3 nS <- spike
-   end
-
-For the sake of keeping the example simple, we assign a decaying exponential-kernel postsynaptic response to each input port, each with a different time constant:
-
-.. code-block:: nestml
-
-   equations:
-     kernel I_kernel1 = exp(-t / tau_syn1)
-     kernel I_kernel2 = exp(-t / tau_syn2)
-     kernel I_kernel3 = -exp(-t / tau_syn3)
-     function I_syn pA = convolve(I_kernel1, spikes1) - convolve(I_kernel2, spikes2) + convolve(I_kernel3, spikes3) + ...
-     V_abs' = -V_abs/tau_m + I_syn / C_m
-   end
-
-After generating and building the model code, a ``receptor_type`` entry is available in the status dictionary, which maps port names to numeric port indices in NEST. The receptor type can then be selected in NEST during `connection setup <http://nest-simulator.org/connection_management/#receptor-types>`_:
-
-.. code-block:: python
-
-   neuron = nest.Create("iaf_psc_exp_multisynapse_neuron_nestml")
-
-   sg = nest.Create("spike_generator", params={"spike_times": [20., 80.]})
-   nest.Connect(sg, neuron, syn_spec={"receptor_type" : 1, "weight": 1000.})
-
-   sg2 = nest.Create("spike_generator", params={"spike_times": [40., 60.]})
-   nest.Connect(sg2, neuron, syn_spec={"receptor_type" : 2, "weight": 1000.})
-
-   sg3 = nest.Create("spike_generator", params={"spike_times": [30., 70.]})
-   nest.Connect(sg3, neuron, syn_spec={"receptor_type" : 3, "weight": 500.})
-
-Note that in multisynapse neurons, receptor ports are numbered starting from 1.
-
-We furthermore wish to record the synaptic currents ``I_kernel1``, ``I_kernel2`` and ``I_kernel3``. During code generation, one buffer is created for each combination of (kernel, spike input port) that appears in convolution statements. These buffers are named by joining together the name of the kernel with the name of the spike buffer using (by default) the string "__X__". The variables to be recorded are thus named as follows:
-
-.. code-block:: python
-
-   mm = nest.Create('multimeter', params={'record_from': ['I_kernel1__X__spikes1',
-                                                          'I_kernel2__X__spikes2',
-                                                          'I_kernel3__X__spikes3'],
-                                          'interval': .1})
-   nest.Connect(mm, neuron)
-
-The output shows the currents for each synapse (three bottom rows) and the net effect on the membrane potential (top row):
-
-.. figure:: https://raw.githubusercontent.com/nest/nestml/master/doc/fig/nestml-multisynapse-example.png
-   :alt: NESTML multisynapse example waveform traces
-
-For a full example, please see `tests/resources/iaf_psc_exp_multisynapse.nestml <https://github.com/nest/nestml/blob/master/tests/resources/iaf_psc_exp_multisynapse.nestml>`_ for the full model and `tests/nest_tests/nest_multisynapse_test.py <https://github.com/nest/nestml/blob/master/tests/nest_tests/nest_multisynapse_test.py>`_ for the corresponding test harness that produced the figure above.
+To read more about using input ports in synapse models, see :ref:`Modeling synapses in NESTML`.
 
 
 Output
 ~~~~~~
 
-Each neuron model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
+Each model can only send a single type of event. The type of the event has to be given in the `output` block. Currently, however, only spike output is supported.
 
 .. code-block:: nestml
 
@@ -973,8 +810,8 @@ Handling of time
 
 To retrieve some fundamental simulation parameters, two special functions are built into NESTML:
 
--  ``resolution`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
--  ``steps`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
+-  ``resolution()`` returns the current resolution of the simulation in ms. In NEST, this can be set by the user using the PyNEST function ``nest.SetKernelStatus({"resolution": ...})``.
+-  ``steps()`` takes one parameter of type ``ms`` and returns the number of simulation steps in the current simulation resolution.
 
 These functions can be used to implement custom buffer lookup logic but should be used with care. In particular, when a non-constant simulation timestep is used, ``steps()`` should be avoided.
 
@@ -1030,7 +867,7 @@ Because of nested substitutions, inline statements may cause the expressions to 
 
 
 Kernel functions
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 A `kernel` is a function of time, or a differential equation, that represents a kernel which can be used in convolutions. For example, an exponentially decaying kernel could be described as a direct function of time, as follows:
 
@@ -1123,37 +960,9 @@ In the case that the model is solved with the GSL integrator, desired absolute e
 Dynamics and time evolution
 ---------------------------
 
-Inside the ``update`` block, the current time can be accessed via the variable ``t``.
+Inside the ``update`` block, the current time can be accessed via the variable ``t``, and the resolution (timestep) with the function ``resolution()``. In a neuron model, updates are typically time-triggered with a constant simulation timestep :math:`\Delta t`, but in the synapse, where updates are typically triggered by events (such as a received presynaptic spike), the function could return the inter-spike interval, from the previous event to the timestamp of the current event.
 
-``integrate_odes``: this function can be used to integrate all stated differential equations of the ``equations`` block.
-
-``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
-
-
-Concepts for refractoriness
----------------------------
-
-In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
-
-.. code-block:: nestml
-
-   parameters:
-     t_ref ms = 5 ms
-   end
-
-   internals:
-     ref_counts = 0
-   end
-
-   update:
-     if ref_count == 0: # neuron is in non-refractory state
-       if <refractoriness_condition>:
-         ref_counts = steps(t_ref) # make neuron refractory for 5 ms
-       end
-     else:
-       ref_counts -= 1 # neuron is refractory
-     end
-   end
+``integrate_odes``: this function can be used to integrate all stated differential equations of the ``equations`` block. Only allowed inside neuron models, because synapses do not support time-triggered updating, only event-triggered updating.
 
 
 Setting and retrieving model properties
