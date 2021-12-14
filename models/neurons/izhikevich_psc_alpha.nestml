@@ -35,12 +35,6 @@ References
 ++++++++++
 
 .. [1] Izhikevich, Simple Model of Spiking Neurons, IEEE Transactions on Neural Networks (2003) 14:1569-1572
-
-
-Authors
-+++++++
-
-Hanuschkin, Morrison, Kunkel
 """
 
 neuron izhikevich_psc_alpha:

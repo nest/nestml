@@ -29,12 +29,6 @@ As published in [1]_, the numerics differs from the standard forward Euler techn
 This model will instead be simulated using the numerical solver that is recommended by ODE-toolbox during code generation.
 
 
-Authors
-+++++++
-
-Hanuschkin, Morrison, Kunkel
-
-
 References
 ++++++++++
 

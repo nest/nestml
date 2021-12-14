@@ -34,12 +34,6 @@ See also
 ++++++++
 
 iaf_cond_exp
-
-
-Authors
-+++++++
-
-Schrader, Plesser
 """
 neuron iaf_cond_alpha:
 
