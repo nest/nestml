@@ -7,8 +7,8 @@ NESTML files are expected to have the filename extension ``.nestml``. Each file 
 
 In order to give users complete freedom in implementing neuron model dynamics, NESTML has a full procedural programming language built in. This programming language can be used to define a custom update function that is executed on each simulation timestep, and to handle events such as receiving a spike.
 
-:doc:`NESTML language concepts`
+:doc:`NESTML language concepts <nestml_language>`
 
-:doc:`Modeling neurons in NESTML`
+:doc:`Modeling neurons in NESTML <neurons_in_nestml>`
 
-:doc:`Modeling synapses in NESTML`
+:doc:`Modeling synapses in NESTML <synapses_in_nestml>`
