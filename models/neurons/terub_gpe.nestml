@@ -27,11 +27,6 @@ References
        High Frequency Stimulation of the Subthalamic Nucleus Eliminates
        Pathological Thalamic Rhythmicity in a Computational Model
        Journal of Computational Neuroscience, 16, 211-235 (2004)
-
-Author
-++++++
-
-Martin Ebert
 """
 neuron terub_gpe:
   state:

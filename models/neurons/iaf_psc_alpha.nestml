@@ -34,26 +34,6 @@ relevant measures analytically.
    the NEST source code (``docs/model_details``).
 
 
-Parameters
-++++++++++
-
-The following parameters can be set in the status dictionary.
-
-=========== ======  ==========================================================
- V_m        mV      Membrane potential
- E_L        mV      Resting membrane potential
- C_m        pF      Capacity of the membrane
- tau_m      ms      Membrane time constant
- t_ref      ms      Duration of refractory period
- V_th       mV      Spike threshold
- V_reset    mV      Reset potential of the membrane
- tau_syn_ex ms      Rise time of the excitatory synaptic alpha function
- tau_syn_in ms      Rise time of the inhibitory synaptic alpha function
- I_e        pA      Constant input current
- V_min      mV      Absolute lower value for the membrane potenial
-=========== ======  ==========================================================
-
-
 References
 ++++++++++
 
@@ -75,12 +55,6 @@ See also
 ++++++++
 
 iaf_psc_delta, iaf_psc_exp, iaf_cond_alpha
-
-
-Authors
-+++++++
-
-Diesmann, Gewaltig
 """
 neuron iaf_psc_alpha:
 
