@@ -18,7 +18,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from enum import Enum
 from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 import datetime
@@ -78,17 +77,6 @@ from pynestml.utils.syns_processing import SynsProcessing
 from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
 from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
 from pynestml.visitors.ast_random_number_generator_visitor import ASTRandomNumberGeneratorVisitor
-
-class TemplateKind(Enum):
-    """
-    An enumeration of all possible symbol types to make processing easier.
-    """
-    COMPARTMENT_CLASS = 1
-    COMPARTMENT_HEADER = 2
-    MAIN_CLASS = 3
-    MAIN_HEADER = 4
-    TREE_CLASS = 5
-    TREE_HEADER = 6
 
 class NESTCodeGeneratorCM(CodeGenerator):
     """
@@ -190,24 +178,6 @@ class NESTCodeGeneratorCM(CodeGenerator):
             _templates.append(env.get_template(os.path.basename(_templ_file)))
 
         return _templates
-
-    def get_template_kind(self, env_template: jinja2.environment.Template) -> TemplateKind :
-        file_name=env_template.filename
-        type_mapping = {
-            'CompartmentCurrentsClass.jinja2': TemplateKind.COMPARTMENT_CLASS,
-            'CompartmentCurrentsHeader.jinja2': TemplateKind.COMPARTMENT_HEADER,
-            'MainClass.jinja2': TemplateKind.MAIN_CLASS,
-            'MainHeader.jinja2': TemplateKind.MAIN_HEADER,
-            'TreeClass.jinja2': TemplateKind.TREE_CLASS,
-            'TreeHeader.jinja2': TemplateKind.TREE_HEADER
-        }
-        if file_name not in type_mapping.keys(): return None
-        return type_mapping[file_name]
-
-    def get_template_by_kind(self, kind: TemplateKind) -> jinja2.environment.Template:
-        found = [env_template for env_template in self._module_templates if self.get_template_kind(env_template.filename)==kind]
-        if not found: return None
-        return found[0]
 
     def _get_abs_template_paths(self, template_files: List[str], templates_root_dir: str) -> List[str]:
         """
