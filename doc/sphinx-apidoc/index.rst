@@ -8,7 +8,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :hidden:
    :maxdepth: 1
 
-   nestml_language
+   nestml_language/index
    installation
    running
    models_library/index
