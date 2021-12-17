@@ -366,6 +366,54 @@ Examples for valid assignments for a numeric variable ``n`` are
 * compound product: ``n *= 10`` which corresponds to ``n = n * 10``
 * compound quotient: ``n /= 10`` which corresponds to ``n = n / 10``
 
+Vectors
+~~~~~~~
+
+Variables can be declared as vectors to store an array of values. They can be declared in the ``parameters``, ``state``, and ``internals`` blocks. See :ref:`Block types` for more information on different types of blocks available in NESTML.
+
+The declaration of a vector variable consists of the name of the variable followed by the size of the vector enclosed in ``[`` and ``]``. The vector must be initialized with a default value and all the values in the vector will be initialized to the specified initial value. For example,
+
+.. code-block:: nestml
+
+   parameters:
+     g_ex [20] mV = 10mV
+   end
+
+Here, ``g_ex`` is a vector of size 20 and all the elements of the vector are initialized to 10mV. Note that the vector index always starts from 0.
+Size of the vector can be a positive integer or an integer variable previously declared in either ``parameters`` or ``internals`` block. For example, an integer variable named ``ten`` declared in the ``parameters`` block can be used to specify the size of the vector variable ``g_ex`` as:
+
+.. code-block:: nestml
+
+   state:
+     g_ex [ten] mV = 10mV
+     x [12] real = 0.
+   end
+
+   parameters:
+     ten integer = 10
+   end
+
+If the size of a vector is a variable (as ``ten`` in the above example), the vector will be resized if the value of size variable changes during the simulation. On the other hand, the vector cannot be resized if the size is a fixed integer value.
+Vector variables can be used in expressions as an array with an index. For example,
+
+.. code-block:: nestml
+
+   state:
+     g_ex [ten] mV = 10mV
+     x[15] real = 0.
+   end
+
+   parameters:
+     ten integer = 10
+   end
+
+   update:
+     integer j = 0
+     g_ex[2] = -55. mV
+     x[j] = g_ex[2]
+     j += 1
+   end
+
 Functions
 ~~~~~~~~~
 
@@ -736,7 +784,7 @@ Input
 
 A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.
 
-For more details, on handling inputs in neuron and synapse models, please see ::doc`neurons_in_nestml` and :doc:`synapses_in_nestml`.
+For more details, on handling inputs in neuron and synapse models, please see :doc:`neurons_in_nestml` and :doc:`synapses_in_nestml`.
 
 
 Output
@@ -901,6 +949,42 @@ Solver selection
 Currently, there is support for GSL and exact integration. ODEs that can be solved analytically are integrated to machine precision from one timestep to the next. To allow more precise values for analytically solvable ODEs *within* a timestep, the same ODEs are evaluated numerically by the GSL solver. In this way, the long-term dynamics obeys the "exact" equations, while the short-term (within one timestep) dynamics is evaluated to the precision of the numerical integrator.
 
 In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the ``gsl_error_tol`` parameter in a ``SetStatus`` call. The default value of ``gsl_error_tol`` is ``1e-3``.
+
+
+Dynamics and time evolution
+---------------------------
+
+Inside the ``update`` block, the current time can be accessed via the variable ``t``.
+
+``integrate_odes``: this function can be used to integrate all stated differential equations of the ``equations`` block.
+
+``emit_spike``: calling this function in the ``update`` block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+
+
+Concepts for refractoriness
+---------------------------
+
+In order to model refractory and non-refractory states, two variables are necessary. The first variable (``t_ref``) defines the duration of the refractory period. The second variable (``ref_counts``) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.
+
+.. code-block:: nestml
+
+   parameters:
+     t_ref ms = 5 ms
+   end
+
+   internals:
+     ref_counts = 0
+   end
+
+   update:
+     if ref_count == 0: # neuron is in non-refractory state
+       if <refractoriness_condition>:
+         ref_counts = steps(t_ref) # make neuron refractory for 5 ms
+       end
+     else:
+       ref_counts -= 1 # neuron is refractory
+     end
+   end
 
 
 Setting and retrieving model properties
