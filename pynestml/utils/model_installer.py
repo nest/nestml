@@ -73,6 +73,11 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     else:
         shell = False
 
+    # remove CMakeCache.txt if exists
+    cmakeCache = os.path.join(target_path, "CMakeCache.txt")
+    if os.path.exists(cmakeCache):
+        os.remove(cmakeCache)
+
     # first call cmake with all the arguments
     try:
         result = subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT,

@@ -191,7 +191,7 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     	OUTPUT_VARIABLE NEST_LIBDIR
     	OUTPUT_STRIP_TRAILING_WHITESPACE)
       # Append lib/nest to the install_dir
-    	set( CMAKE_INSTALL_LIBDIR ${NEST_LIBDIR}/nest CACHE STRING "object code libraries (lib/nest or lib64/nest or lib/<multiarch-tuple>/nest on Debian)" FORCE )
+    	set( CMAKE_INSTALL_LIBDIR "${NEST_LIBDIR}/nest" CACHE STRING "object code libraries (lib/nest or lib64/nest or lib/<multiarch-tuple>/nest on Debian)" FORCE )
 else()
   # Check If CMAKE_INSTALL_PREFIX is not empty string
 	if("${CMAKE_INSTALL_PREFIX}" STREQUAL "")
