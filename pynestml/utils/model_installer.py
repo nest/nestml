@@ -47,22 +47,23 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     InvalidPathException
         If a failure occurs while trying to access the target path or the NEST installation path.
     """
-
+    cmake_cmd = ["cmake"]
     if not os.path.isdir(nest_path):
         raise InvalidPathException(
             'NEST path (' + nest_path + ') is not a directory!')
-    nest_config_path = '-Dwith-nest=' + \
-        os.path.join(nest_path, 'bin', 'nest-config')
+    nest_config_path = '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config')
+    cmake_cmd.append(nest_config_path)
 
-    if not os.path.isabs(install_path):
-        install_path = os.path.abspath(install_path)
-    install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
+    if install_path:
+        if not os.path.isabs(install_path):
+            install_path = os.path.abspath(install_path)
+        install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
+        cmake_cmd.append(install_prefix)
 
     if not os.path.isdir(target_path):
-        raise InvalidPathException(
-            'Target path (' + target_path + ') is not a directory!')
+        raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
 
-    cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
+    cmake_cmd.append('.')
     make_all_cmd = ['make', 'all']
     make_install_cmd = ['make', 'install']
 
@@ -74,8 +75,8 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
 
     # first call cmake with all the arguments
     try:
-        result = subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT, shell=shell,
-                                       cwd=str(os.path.join(target_path)))
+        result = subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT,
+                                       shell=shell, cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
         raise GeneratedCodeBuildException(
             'Error occurred during \'cmake\'! More detailed error messages can be found in stdout.')

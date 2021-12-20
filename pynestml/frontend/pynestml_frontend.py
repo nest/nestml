@@ -114,13 +114,13 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
 
     Parameters
     ----------
-    target_path : str
+    target_path
         Path to the target directory, which should contain the generated code artifacts (target platform code and CMake configuration file).
-    nest_path : str
+    nest_path
         Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
 
-    install_path: str
-        Path to the install directory, where the generated module library will be created.
+    install_path
+        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
 
     Raises
     ------
@@ -138,13 +138,15 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         else:
             lib_key = "DYLD_LIBRARY_PATH"
 
-        lib_path = os.path.join(install_path, "lib", "nest")
         if lib_key in os.environ:
-            os.environ[lib_key] += os.pathsep + lib_path
+            current = os.environ[lib_key].split(os.pathsep)
+            if install_path not in current:
+                current.apped(install_path)
+                os.environ[lib_key] += os.pathsep.join(current)
         else:
-            os.environ[lib_key] = lib_path
+            os.environ[lib_key] = install_path
     else:
-        nest_installer(target_path, nest_path, nest_path)
+        nest_installer(target_path, nest_path)
 
 
 def main():

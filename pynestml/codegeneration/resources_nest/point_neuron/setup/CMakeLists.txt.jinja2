@@ -177,37 +177,30 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-# Get the data install dir.
-execute_process(
-    COMMAND ${NEST_CONFIG} --datadir
-    RESULT_VARIABLE RES_VAR
-    OUTPUT_VARIABLE NEST_DATADIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# Get the documentation install dir.
-execute_process(
-    COMMAND ${NEST_CONFIG} --docdir
-    RESULT_VARIABLE RES_VAR
-    OUTPUT_VARIABLE NEST_DOCDIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# Get the library install dir.
-execute_process(
-    COMMAND ${NEST_CONFIG} --libdir
-    RESULT_VARIABLE RES_VAR
-    OUTPUT_VARIABLE NEST_LIBDIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
 # on OS X
 set( CMAKE_MACOSX_RPATH ON )
 
-# Install all binaries to NEST's install directories.
-set( CMAKE_INSTALL_LIBDIR ${NEST_LIBDIR}/nest CACHE STRING "object code libraries (lib/nest or lib64/nest or lib/<multiarch-tuple>/nest on Debian)" FORCE )
-set( CMAKE_INSTALL_DOCDIR ${NEST_DOCDIR} CACHE STRING "documentation root (DATAROOTDIR/doc/nest)" FORCE )
-set( CMAKE_INSTALL_DATADIR ${NEST_DATADIR} CACHE STRING "read-only architecture-independent data (DATAROOTDIR/nest)" FORCE )
+
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  # Use the `NEST_PREFIX` as `CMAKE_INSTALL_PREFIX`.
+	set( CMAKE_INSTALL_PREFIX ${NEST_PREFIX} CACHE STRING "Install path prefix, prepended onto install directories." FORCE )
+  # Retrieve libs folder in nest
+	execute_process(
+    	COMMAND ${NEST_CONFIG} --libdir
+    	RESULT_VARIABLE RES_VAR
+    	OUTPUT_VARIABLE NEST_LIBDIR
+    	OUTPUT_STRIP_TRAILING_WHITESPACE)
+      # Append lib/nest to the install_dir
+    	set( CMAKE_INSTALL_LIBDIR ${NEST_LIBDIR}/nest CACHE STRING "object code libraries (lib/nest or lib64/nest or lib/<multiarch-tuple>/nest on Debian)" FORCE )
+else()
+  # Check If CMAKE_INSTALL_PREFIX is not empty string
+	if("${CMAKE_INSTALL_PREFIX}" STREQUAL "")
+  		message(FATAL_ERROR "CMAKE_INSTALL_PREFIX cannot be an empty string")
+	endif()
+  # Set lib folder to the given install_dir
+	set( CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX} CACHE STRING "object code libraries (lib/nest or lib64/nest or lib/<multiarch-tuple>/nest on Debian)" FORCE )
+endif()
+
 
 include( GNUInstallDirs )
 
@@ -299,9 +292,6 @@ message( "  make install" )
 message( "" )
 message( "The library file lib${MODULE_NAME}.so will be installed to" )
 message( "  ${CMAKE_INSTALL_FULL_LIBDIR}" )
-message( "Help files will be installed to" )
-message( "  ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}" )
-message( "" )
 message( "The module can be loaded into NEST using" )
 message( "  (${MODULE_NAME}) Install       (in SLI)" )
 message( "  nest.Install(${MODULE_NAME})   (in PyNEST)" )
