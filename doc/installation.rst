@@ -16,7 +16,11 @@ NESTML can then be installed into your local user directory via:
 
 .. code-block:: bash
 
-   pip install nestml
+   pip install --pre nestml
+
+.. admonition:: **NESTML pre-release**
+
+   Currently, NESTML 5.0 is in pre-release or "release candidate" version status. This requires the flag ``--pre`` to be added when running pip (see `pip documentation <https://pip.pypa.io/en/stable/cli/pip_install/#install-pre>`_).
 
 
 Installing the latest development version from GitHub

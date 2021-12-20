@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="430.52435mm"
+   height="125.11149mm"
+   viewBox="0 0 430.52435 125.11149"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.1 r15371"
+   sodipodi:docname="neuron_synapse_co_generation.svg">
+  <defs
+     id="defs2">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path4638"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <linearGradient
+       id="linearGradient4513"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#b0282a;stop-opacity:1;"
+         offset="0"
+         id="stop4511" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4491"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop4489" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-6"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-0"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-2"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-6"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-8"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-7"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-2-9"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-6-2"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-2-9-3"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-6-2-7"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-8-5"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-7-9"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-2-2"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-6-28"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-9"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4638-73"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5"
+     inkscape:cx="733.2166"
+     inkscape:cy="237.74187"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1171"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4485"
+       originx="216.61339"
+       originy="-139.02098" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(216.6134,-32.867535)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487"
+       width="83.532738"
+       height="30.143602"
+       x="21.733629"
+       y="34.117558"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="62.807018"
+       y="45.645832"
+       id="text4519"><tspan
+         sodipodi:role="line"
+         id="tspan4517"
+         x="62.807018"
+         y="45.645832"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NESTML</tspan><tspan
+         sodipodi:role="line"
+         x="62.807018"
+         y="58.875"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527">neuron model</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="72.760414"
+       y="43"
+       id="text4523"><tspan
+         sodipodi:role="line"
+         id="tspan4521"
+         x="72.760414"
+         y="52.36377"
+         style="stroke-width:0.26458332"></tspan><tspan
+         sodipodi:role="line"
+         x="72.760414"
+         y="65.592934"
+         style="stroke-width:0.26458332"
+         id="tspan4525" /></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-3"
+       width="87.845108"
+       height="30.143604"
+       x="125.56585"
+       y="33.367535"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="168.75591"
+       y="44.895809"
+       id="text4519-6"><tspan
+         sodipodi:role="line"
+         id="tspan4517-7"
+         x="168.75591"
+         y="44.895809"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NESTML</tspan><tspan
+         sodipodi:role="line"
+         x="168.75591"
+         y="58.124977"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-5">synapse model</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4572"
+       width="96.484291"
+       height="14.699822"
+       x="67.351921"
+       y="80.511681"
+       ry="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="116.54243"
+       y="90.845787"
+       id="text4519-3"><tspan
+         sodipodi:role="line"
+         x="116.54243"
+         y="90.845787"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-6">Code generation</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-2"
+       width="83.532738"
+       height="30.143602"
+       x="21.733631"
+       y="112.43425"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="62.807022"
+       y="123.96255"
+       id="text4519-9"><tspan
+         sodipodi:role="line"
+         id="tspan4517-1"
+         x="62.807022"
+         y="123.96255"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NEST C++</tspan><tspan
+         sodipodi:role="line"
+         x="62.807022"
+         y="137.19171"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-2">neuron model</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-3-7"
+       width="87.845108"
+       height="30.143604"
+       x="125.56585"
+       y="111.68425"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="168.75592"
+       y="123.21255"
+       id="text4519-6-0"><tspan
+         sodipodi:role="line"
+         id="tspan4517-7-9"
+         x="168.75592"
+         y="123.21255"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NEST C++</tspan><tspan
+         sodipodi:role="line"
+         x="168.75592"
+         y="136.44171"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-5-3">synapse model</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 78.959226,64.128863 -0.02835,14.509565"
+       id="path4633"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-2)"
+       d="m 152.51374,64.128864 -0.0284,14.509565"
+       id="path4633-1"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-8)"
+       d="m 78.959227,95.349715 -0.02835,14.509615"
+       id="path4633-0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-2-9)"
+       d="m 152.51374,95.349716 -0.0284,14.509614"
+       id="path4633-1-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-6"
+       width="83.532738"
+       height="30.143602"
+       x="-208.28658"
+       y="34.388611"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-167.21318"
+       y="45.916885"
+       id="text4519-1"><tspan
+         sodipodi:role="line"
+         id="tspan4517-2"
+         x="-167.21318"
+         y="45.916885"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NESTML</tspan><tspan
+         sodipodi:role="line"
+         x="-167.21318"
+         y="59.146053"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-9">neuron model</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-3-3"
+       width="87.845108"
+       height="30.143604"
+       x="-104.45436"
+       y="33.638588"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-61.264301"
+       y="45.166862"
+       id="text4519-6-1"><tspan
+         sodipodi:role="line"
+         id="tspan4517-7-94"
+         x="-61.264301"
+         y="45.166862"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NESTML</tspan><tspan
+         sodipodi:role="line"
+         x="-61.264301"
+         y="58.39603"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-5-7">synapse model</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4572-8"
+       width="96.484291"
+       height="14.699822"
+       x="-216.1134"
+       y="80.782738"
+       ry="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-166.92305"
+       y="91.116844"
+       id="text4519-3-4"><tspan
+         sodipodi:role="line"
+         x="-166.92305"
+         y="91.116844"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-6-5">Code generation</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-2-0"
+       width="83.532738"
+       height="30.143602"
+       x="-208.28658"
+       y="112.70531"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-167.21318"
+       y="124.23361"
+       id="text4519-9-3"><tspan
+         sodipodi:role="line"
+         id="tspan4517-1-6"
+         x="-167.21318"
+         y="124.23361"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NEST C++</tspan><tspan
+         sodipodi:role="line"
+         x="-167.21318"
+         y="137.46278"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-2-1">neuron model</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4487-3-7-0"
+       width="87.845108"
+       height="30.143604"
+       x="-104.45436"
+       y="111.95531"
+       ry="9.2542782" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-61.264286"
+       y="123.4836"
+       id="text4519-6-0-6"><tspan
+         sodipodi:role="line"
+         id="tspan4517-7-9-3"
+         x="-61.264286"
+         y="123.4836"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">NEST C++</tspan><tspan
+         sodipodi:role="line"
+         x="-61.264286"
+         y="136.71277"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-5-3-2">synapse model</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-9)"
+       d="m -166.40691,64.399918 -0.0284,14.509565"
+       id="path4633-06"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-2-2)"
+       d="m -60.04396,64.39992 -0.0284,14.509565"
+       id="path4633-1-1"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-8-5)"
+       d="m -166.40691,95.620767 -0.0284,14.509623"
+       id="path4633-0-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-2-9-3)"
+       d="m -60.04396,95.620767 -0.0284,14.509623"
+       id="path4633-1-2-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4572-8-5"
+       width="96.484291"
+       height="14.699822"
+       x="-107.10629"
+       y="80.782738"
+       ry="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-57.915245"
+       y="91.116844"
+       id="text4519-3-4-6"><tspan
+         sodipodi:role="line"
+         x="-57.915245"
+         y="91.116844"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan4527-6-5-9">Code generation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-116.94583"
+       y="157.82916"
+       id="text8220"><tspan
+         sodipodi:role="line"
+         id="tspan8218"
+         x="-116.94583"
+         y="157.82916"
+         style="stroke-width:0.26458332">a</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="112.18333"
+       y="157.82916"
+       id="text8220-4"><tspan
+         sodipodi:role="line"
+         id="tspan8218-5"
+         x="112.18333"
+         y="157.82916"
+         style="stroke-width:0.26458332">b</tspan></text>
+  </g>
+</svg>

@@ -1,8 +1,8 @@
 hh_cond_exp_destexhe
 ####################
 
-hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 
+hh_cond_exp_destexhe - Hodgin Huxley based model, Traub, Destexhe and Mainen modified
 
 Description
 +++++++++++
@@ -39,6 +39,7 @@ See also
 hh_cond_exp_traub
 
 
+
 Parameters
 ++++++++++
 
@@ -59,14 +60,22 @@ Parameters
     "V_T", "mV", "-58.0mV", "Voltage offset that controls dynamics. For default"    
     "tau_syn_ex", "ms", "2.7ms", "parameters, V_T = -63mV results in a threshold around -50mV.Synaptic Time Constant Excitatory Synapse"    
     "tau_syn_in", "ms", "10.5ms", "Synaptic Time Constant for Inhibitory Synapse"    
-    "I_e", "pA", "0pA", "Constant Current"    
     "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
     "E_in", "mV", "-75.0mV", "Inhibitory synaptic reversal potential"    
     "g_M", "nS", "173.18nS", "Conductance of non-inactivating K+ channel"    
     "g_noise_ex0", "uS", "0.012uS", "Conductance OU noiseMean of the excitatory noise conductance"    
     "g_noise_in0", "uS", "0.057uS", "Mean of the inhibitory noise conductance"    
     "sigma_noise_ex", "uS", "0.003uS", "Standard deviation of the excitatory noise conductance"    
-    "sigma_noise_in", "uS", "0.0066uS", "Standard deviation of the inhibitory noise conductance"
+    "sigma_noise_in", "uS", "0.0066uS", "Standard deviation of the inhibitory noise conductance"    
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
+    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", ""    
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", ""    
+    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", ""    
+    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", ""    
+    "alpha_p_init", "1 / ms", "0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp(-(V_m + 30.0mV) / 9.0mV))", ""    
+    "beta_p_init", "1 / ms", "-0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp((V_m + 30.0mV) / 9.0mV))", ""    
+    "I_e", "pA", "0pA", "constant external input current"
 
 
 
@@ -79,15 +88,10 @@ State variables
     :widths: auto
 
     
+    "r", "integer", "0", "counts number of tick during the refractory period"    
+    "g_noise_ex", "uS", "g_noise_ex0", ""    
+    "g_noise_in", "uS", "g_noise_in0", ""    
     "V_m", "mV", "E_L", "Membrane potential"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
-    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", ""    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", ""    
-    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", ""    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", ""    
-    "alpha_p_init", "1 / ms", "0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp(-(V_m + 30.0mV) / 9.0mV))", ""    
-    "beta_p_init", "1 / ms", "-0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp((V_m + 30.0mV) / 9.0mV))", ""    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
     "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
     "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""    
@@ -128,27 +132,23 @@ Equations
 Source code
 +++++++++++
 
-.. code:: nestml
+.. code-block:: nestml
 
    neuron hh_cond_exp_destexhe:
      state:
-       r integer  # counts number of tick during the refractory period
+       r integer = 0 # counts number of tick during the refractory period
        g_noise_ex uS = g_noise_ex0
        g_noise_in uS = g_noise_in0
-
        V_m mV = E_L # Membrane potential
        Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
        Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
        Inact_n real = alpha_n_init / (alpha_n_init + beta_n_init)
        Noninact_p real = alpha_p_init / (alpha_p_init + beta_p_init)
      end
-
      equations:
-
        # synapses: exponential conductance
        kernel g_in = exp(-1 / tau_syn_in * t)
        kernel g_ex = exp(-1 / tau_syn_ex * t)
-
        # Add aliases to simplify the equation definition of V_m
        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
        inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
@@ -158,7 +158,6 @@ Source code
        inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
        inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
        V_m'=(-I_Na - I_K - I_M - I_L - I_syn_exc - I_syn_inh + I_e + I_stim - I_noise) / C_m
-
        # channel dynamics
        inline V_rel mV = V_m - V_T
        inline alpha_n 1/ms = 0.032 / (ms * mV) * (15.0mV - V_rel) / (exp((15.0mV - V_rel) / 5.0mV) - 1.0)
@@ -184,21 +183,32 @@ Source code
        E_K mV = -90.0mV # Potassium reversal potential
        E_L mV = -80.0mV # Leak reversal Potential (aka resting potential)
        V_T mV = -58.0mV # Voltage offset that controls dynamics. For default
+       # parameters, V_T = -63mV results in a threshold around -50mV.
 
+       # parameters, V_T = -63mV results in a threshold around -50mV.
        tau_syn_ex ms = 2.7ms # Synaptic Time Constant Excitatory Synapse
        tau_syn_in ms = 10.5ms # Synaptic Time Constant for Inhibitory Synapse
-       I_e pA = 0pA # Constant Current
        E_ex mV = 0.0mV # Excitatory synaptic reversal potential
        E_in mV = -75.0mV # Inhibitory synaptic reversal potential
        g_M nS = 173.18nS # Conductance of non-inactivating K+ channel
+       # Conductance OU noise
 
        # Conductance OU noise
        g_noise_ex0 uS = 0.012uS # Mean of the excitatory noise conductance
        g_noise_in0 uS = 0.057uS # Mean of the inhibitory noise conductance
        sigma_noise_ex uS = 0.003uS # Standard deviation of the excitatory noise conductance
        sigma_noise_in uS = 0.0066uS # Standard deviation of the inhibitory noise conductance
+       alpha_n_init 1/ms = 0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)
+       beta_n_init 1/ms = 0.5 / ms * exp((10.0mV - V_m) / 40.0mV)
+       alpha_m_init 1/ms = 0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)
+       beta_m_init 1/ms = 0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)
+       alpha_h_init 1/ms = 0.128 / ms * exp((17.0mV - V_m) / 18.0mV)
+       beta_h_init 1/ms = (4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms
+       alpha_p_init 1/ms = 0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp(-(V_m + 30.0mV) / 9.0mV))
+       beta_p_init 1/ms = -0.0001 / (ms * mV) * (V_m + 30.0mV) / (1.0 - exp((V_m + 30.0mV) / 9.0mV))
+       # constant external input current
+       I_e pA = 0pA
      end
-
      internals:
        RefractoryCounts integer = 20
        D_ex uS**2/ms = 2 * sigma_noise_ex ** 2 / tau_syn_ex
@@ -206,7 +216,6 @@ Source code
        A_ex uS = ((D_ex * tau_syn_ex / 2) * (1 - exp(-2 * resolution() / tau_syn_ex))) ** 0.5
        A_in uS = ((D_in * tau_syn_in / 2) * (1 - exp(-2 * resolution() / tau_syn_in))) ** 0.5
      end
-
      input:
        spikeInh nS <-inhibitory spike
        spikeExc nS <-excitatory spike
@@ -220,7 +229,6 @@ Source code
        integrate_odes()
        g_noise_ex = g_noise_ex0 + (g_noise_ex - g_noise_ex0) * exp(-resolution() / tau_syn_ex) + A_ex * random_normal(0,1)
        g_noise_in = g_noise_in0 + (g_noise_in - g_noise_in0) * exp(-resolution() / tau_syn_in) + A_in * random_normal(0,1)
-
        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
        if r > 0:
          r -= 1
@@ -242,4 +250,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 18:26:44.480312
+   Generated at 2021-12-09 08:22:32.898160

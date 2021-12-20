@@ -1,8 +1,21 @@
-NESTML model index
-==================
+Models library
+==============
 
-Generated at {{ now }}
+..
+   Generated at {{ now }}
+
+Neurons
+~~~~~~~
 
 {%- for neuron in neurons %}
 - {{ neuron.get_name() }}`_
 {%- endfor %}
+
+Synapses
+~~~~~~~~
+
+{%- for synapse in synapses %}
+- `{{ synapse.get_name() }}`_
+{%- endfor %}
+
+

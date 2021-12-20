@@ -19,13 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+r"""
 Readthedocs configuration file
-------------------------------
-
-Use:
-sphinx-build -c ../extras/help_generator -b html . _build/html
-
 """
 
 import os
@@ -239,6 +234,12 @@ html_show_copyright = False
 github_doc_root = ''
 
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+
+def setup(app):
+    app.add_css_file('css/custom.css')
+    app.add_css_file('css/pygments.css')
+
 
 # -- Options for LaTeX output ---------------------------------------------
 

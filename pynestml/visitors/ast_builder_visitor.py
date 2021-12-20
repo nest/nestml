@@ -22,7 +22,8 @@
 import ntpath
 import re
 
-from pynestml.cocos.co_co_each_block_unique_and_defined import CoCoEachBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_neuron_block_unique_and_defined import CoCoEachNeuronBlockUniqueAndDefined
+from pynestml.cocos.co_co_each_synapse_block_unique_and_defined import CoCoEachSynapseBlockUniqueAndDefined
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
@@ -49,12 +50,16 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         neurons = list()
         for child in ctx.neuron():
             neurons.append(self.visit(child))
+        synapses = list()
+        for child in ctx.synapse():
+            synapses.append(self.visit(child))
         # extract the name of the artifact from the context
         if hasattr(ctx.start.source[1], 'fileName'):
             artifact_name = ntpath.basename(ctx.start.source[1].fileName)
         else:
             artifact_name = 'parsed_from_string'
         compilation_unit = ASTNodeFactory.create_ast_nestml_compilation_unit(list_of_neurons=neurons,
+                                                                             list_of_synapses=synapses,
                                                                              source_position=create_source_pos(ctx),
                                                                              artifact_name=artifact_name)
         # first ensure certain properties of the neuron
@@ -304,8 +309,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             expr_node = self.visit(expr)
             var_nodes.append(var_node)
             expr_nodes.append(expr_node)
-        kernel = ASTNodeFactory.create_ast_kernel(
-            variables=var_nodes, expressions=expr_nodes, source_position=create_source_pos(ctx))
+        kernel = ASTNodeFactory.create_ast_kernel(variables=var_nodes,
+                                                  expressions=expr_nodes,
+                                                  source_position=create_source_pos(ctx))
         update_node_comments(kernel, self.__comments.visit(ctx))
         return kernel
 
@@ -362,16 +368,35 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     def visitDeclaration(self, ctx):
         is_recordable = (True if ctx.isRecordable is not None else False)
         is_inline_expression = (True if ctx.isInlineExpression is not None else False)
+
+        decorators = []
+        for kw in ctx.anyDecorator():
+            decorators.append(self.visit(kw))
+
         variables = list()
         for var in ctx.variable():
             variables.append(self.visit(var))
         data_type = self.visit(ctx.dataType()) if ctx.dataType() is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
-        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable, is_inline_expression=is_inline_expression,
-                                                            variables=variables, data_type=data_type,
+
+        # print("Visiting variable \"" + str(str(ctx.NAME())) + "\"...")
+        # # check if this variable was decorated as homogeneous
+        # import pynestml.generated.PyNestMLLexer
+        # is_homogeneous = any([isinstance(ch, pynestml.generated.PyNestMLParser.PyNestMLParser.AnyDecoratorContext) \
+        #   and len(ch.getTokens(pynestml.generated.PyNestMLLexer.PyNestMLLexer.DECORATOR_HOMOGENEOUS)) > 0 \
+        #   for ch in ctx.parentCtx.children])
+        # if is_homogeneous:
+        #     print("\t----> is homogeneous")
+
+        declaration = ASTNodeFactory.create_ast_declaration(is_recordable=is_recordable,
+                                                            variables=variables,
+                                                            data_type=data_type,
                                                             expression=expression,
-                                                            invariant=invariant, source_position=create_source_pos(ctx))
+                                                            is_inline_expression=is_inline_expression,
+                                                            invariant=invariant,
+                                                            source_position=create_source_pos(ctx),
+                                                            decorators=decorators)
         update_node_comments(declaration, self.__comments.visit(ctx))
         return declaration
 
@@ -388,8 +413,9 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             for clause in ctx.elifClause():
                 elif_clauses.append(self.visit(clause))
         else_clause = self.visit(ctx.elseClause()) if ctx.elseClause() is not None else None
-        return ASTNodeFactory.create_ast_if_stmt(if_clause=if_clause, elif_clauses=elif_clauses,
-                                                 else_clause=else_clause, source_position=create_source_pos(ctx))
+        ret = ASTNodeFactory.create_ast_if_stmt(if_clause=if_clause, elif_clauses=elif_clauses,
+                                                else_clause=else_clause, source_position=create_source_pos(ctx))
+        return ret
 
     # Visit a parse tree produced by PyNESTMLParser#ifClause.
     def visitIfClause(self, ctx):
@@ -445,7 +471,7 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitNeuron(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        body = self.visit(ctx.body()) if ctx.body() is not None else None
+        body = self.visit(ctx.neuronBody()) if ctx.neuronBody() is not None else None
         # after we have constructed the meta_model of the neuron,
         # we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
@@ -460,13 +486,61 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         update_node_comments(neuron, self.__comments.visit(ctx))
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.set_current_node(neuron)
-        CoCoEachBlockUniqueAndDefined.check_co_co(node=neuron)
+        CoCoEachNeuronBlockUniqueAndDefined.check_co_co(node=neuron)
         Logger.set_current_node(neuron)
         # now the meta_model seems to be correct, return it
         return neuron
 
-    # Visit a parse tree produced by PyNESTMLParser#body.
-    def visitBody(self, ctx):
+    def visitNamespaceDecoratorNamespace(self, ctx):
+        return ctx.NAME()
+
+    def visitNamespaceDecoratorName(self, ctx):
+        return ctx.NAME()
+
+    def visitAnyDecorator(self, ctx):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+        if ctx.getToken(PyNestMLLexer.DECORATOR_HETEROGENEOUS, 0) is not None:
+            return PyNestMLLexer.DECORATOR_HETEROGENEOUS
+        elif ctx.getToken(PyNestMLLexer.DECORATOR_HOMOGENEOUS, 0) is not None:
+            return PyNestMLLexer.DECORATOR_HOMOGENEOUS
+        elif ctx.getToken(PyNestMLLexer.AT, 0) is not None:
+            namespaceDecoratorNamespace = self.visit(ctx.namespaceDecoratorNamespace()) if ctx.namespaceDecoratorNamespace() is not None else None
+            namespaceDecoratorName = self.visit(ctx.namespaceDecoratorName()) if ctx.namespaceDecoratorName() is not None else None
+            return ASTNodeFactory.create_ast_namespace_decorator(namespaceDecoratorNamespace, namespaceDecoratorName, source_position=create_source_pos(ctx))
+        else:
+            return None
+
+    # Visit a parse tree produced by PyNESTMLParser#neuron.
+    def visitSynapse(self, ctx):
+        from pynestml.generated.PyNestMLLexer import PyNestMLLexer
+
+        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        body = self.visit(ctx.synapseBody()) if ctx.synapseBody() is not None else None
+
+        # after we have constructed the meta_model of the neuron,
+        # we can ensure some basic properties which should always hold
+        # we have to check if each type of block is defined at most once (except for function), and that input,output
+        # and update are defined once
+        if hasattr(ctx.start.source[1], 'fileName'):
+            artifact_name = ntpath.basename(ctx.start.source[1].fileName)
+        else:
+            artifact_name = 'parsed from string'
+        synapse = ASTNodeFactory.create_ast_synapse(name=name + FrontendConfiguration.suffix, body=body, source_position=create_source_pos(ctx),
+                                                    artifact_name=artifact_name)
+
+        # update the comments
+        update_node_comments(synapse, self.__comments.visit(ctx))
+
+        # in order to enable the logger to print correct messages set as the source the corresponding neuron
+        Logger.set_current_node(synapse)
+        CoCoEachSynapseBlockUniqueAndDefined.check_co_co(node=synapse)
+        # now the meta_model seems to be correct, return it
+        Logger.set_current_node(synapse)
+
+        return synapse
+
+    # Visit a parse tree produced by PyNESTMLParser#neuronBody.
+    def visitNeuronBody(self, ctx):
         """
         Here, in order to ensure that the correct order of elements is kept, we use a method which inspects
         a list of elements and returns the one with the smallest source line.
@@ -496,7 +570,43 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
             elem = get_next(body_elements)
             elements.append(self.visit(elem))
             body_elements.remove(elem)
-        body = ASTNodeFactory.create_ast_body(elements, create_source_pos(ctx))
+        body = ASTNodeFactory.create_ast_neuron_or_synapse_body(elements, create_source_pos(ctx))
+        return body
+
+    # Visit a parse tree produced by PyNESTMLParser#synapseBody.
+    def visitSynapseBody(self, ctx):
+        """
+        Here, in order to ensure that the correct order of elements is kept, we use a method which inspects
+        a list of elements and returns the one with the smallest source line.
+        """
+        body_elements = list()
+        if ctx.onReceiveBlock() is not None:
+            for child in ctx.onReceiveBlock():
+                body_elements.append(child)
+        if ctx.blockWithVariables() is not None:
+            for child in ctx.blockWithVariables():
+                body_elements.append(child)
+        if ctx.updateBlock() is not None:
+            for child in ctx.updateBlock():
+                body_elements.append(child)
+        if ctx.equationsBlock() is not None:
+            for child in ctx.equationsBlock():
+                body_elements.append(child)
+        if ctx.inputBlock() is not None:
+            for child in ctx.inputBlock():
+                body_elements.append(child)
+        if ctx.outputBlock() is not None:
+            for child in ctx.outputBlock():
+                body_elements.append(child)
+        if ctx.function() is not None:
+            for child in ctx.function():
+                body_elements.append(child)
+        elements = list()
+        while len(body_elements) > 0:
+            elem = get_next(body_elements)
+            elements.append(self.visit(elem))
+            body_elements.remove(elem)
+        body = ASTNodeFactory.create_ast_neuron_or_synapse_body(elements, create_source_pos(ctx))
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
@@ -628,6 +738,16 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
         small = self.visit(ctx.smallStmt()) if ctx.smallStmt() is not None else None
         compound = self.visit(ctx.compoundStmt()) if ctx.compoundStmt() is not None else None
         return ASTNodeFactory.create_ast_stmt(small, compound, create_source_pos(ctx))
+
+    def visitOnReceiveBlock(self, ctx):
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        port_name = ctx.inputPortName.text
+        const_parameters = {}
+        for el in ctx.constParameter():
+            const_parameters[el.name.text] = el.value.text
+        ret = ASTNodeFactory.create_ast_on_receive_block(block=block, port_name=port_name, const_parameters=const_parameters, source_position=create_source_pos(ctx))
+        update_node_comments(ret, self.__comments.visit(ctx))
+        return ret
 
 
 def update_node_comments(node, comments):

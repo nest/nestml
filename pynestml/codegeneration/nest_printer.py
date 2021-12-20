@@ -20,22 +20,15 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
+from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.nest_names_converter import NestNamesConverter
 from pynestml.codegeneration.pynestml_2_nest_type_converter import PyNestml2NestTypeConverter
 from pynestml.codegeneration.i_reference_converter import IReferenceConverter
-from pynestml.meta_model.ast_body import ASTBody
-from pynestml.meta_model.ast_expression_node import ASTExpressionNode
-from pynestml.meta_model.ast_for_stmt import ASTForStmt
-from pynestml.meta_model.ast_function import ASTFunction
-from pynestml.meta_model.ast_function_call import ASTFunctionCall
-from pynestml.symbols.symbol import SymbolKind
-from pynestml.symbols.variable_symbol import VariableSymbol, BlockType
 from pynestml.meta_model.ast_arithmetic_operator import ASTArithmeticOperator
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_bit_operator import ASTBitOperator
 from pynestml.meta_model.ast_block import ASTBlock
 from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
-from pynestml.meta_model.ast_body import ASTBody
 from pynestml.meta_model.ast_comparison_operator import ASTComparisonOperator
 from pynestml.meta_model.ast_compound_stmt import ASTCompoundStmt
 from pynestml.meta_model.ast_data_type import ASTDataType
@@ -56,6 +49,7 @@ from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_nestml_compilation_unit import ASTNestMLCompilationUnit
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from pynestml.meta_model.ast_kernel import ASTKernel
@@ -65,6 +59,7 @@ from pynestml.meta_model.ast_return_stmt import ASTReturnStmt
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_small_stmt import ASTSmallStmt
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
@@ -79,7 +74,7 @@ class NestPrinter:
     This class contains all methods as required to transform
     """
 
-    def __init__(self, expression_pretty_printer, reference_convert=None):
+    def __init__(self, expression_pretty_printer, reference_convert=None, names_converter=None):
         """
         The standard constructor.
         :param reference_convert: a single reference converter
@@ -89,7 +84,11 @@ class NestPrinter:
             self.expression_pretty_printer = expression_pretty_printer
         else:
             self.expression_pretty_printer = ExpressionsPrettyPrinter(reference_convert)
-        return
+
+        if names_converter is not None:
+            self.names_converter = names_converter
+        else:
+            self.names_converter = GSLNamesConverter
 
     def print_node(self, node):
         ret = ''
@@ -103,8 +102,8 @@ class NestPrinter:
             ret = self.print_block(node)
         if isinstance(node, ASTBlockWithVariables):
             ret = self.print_block_with_variables(node)
-        if isinstance(node, ASTBody):
-            ret = self.print_body(node)
+        if isinstance(node, ASTNeuronOrSynapseBody):
+            ret = self.print_neuron_or_synapse_body(node)
         if isinstance(node, ASTComparisonOperator):
             ret = self.print_comparison_operator(node)
         if isinstance(node, ASTCompoundStmt):
@@ -173,8 +172,21 @@ class NestPrinter:
             ret = self.print_stmt(node)
         return ret
 
-    def print_assignment(self, node: ASTAssignment, prefix: str = "") -> str:
-        ret = self.print_node(node.lhs) + ' '
+    def print_simple_expression(self, node, prefix=""):
+        return self.print_expression(node, prefix=prefix)
+
+    def print_small_stmt(self, node, prefix=""):
+        if node.is_assignment():
+            return self.print_assignment(node.assignment, prefix=prefix)
+
+    def print_stmt(self, node, prefix=""):
+        if node.is_small_stmt:
+            return self.print_small_stmt(node.small_stmt, prefix=prefix)
+
+    def print_assignment(self, node, prefix=""):
+        # type: (ASTAssignment) -> str
+        symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
+        ret = self.print_origin(symbol) + self.names_converter.name(symbol) + ' '
         if node.is_compound_quotient:
             ret += '/='
         elif node.is_compound_product:
@@ -189,7 +201,8 @@ class NestPrinter:
         return ret
 
     def print_variable(self, node: ASTVariable) -> str:
-        ret = node.name
+        symbol = node.get_scope().resolve_to_symbol(node.lhs.get_complete_name(), SymbolKind.VARIABLE)
+        ret = self.print_origin(symbol) + node.name
         for i in range(1, node.differential_order + 1):
             ret += "__d"
         return ret
@@ -266,6 +279,9 @@ class NestPrinter:
         if variable_symbol.block_type == BlockType.PARAMETERS:
             return prefix + 'P_.'
 
+        if variable_symbol.block_type == BlockType.COMMON_PARAMETERS:
+            return prefix + 'cp.'
+
         if variable_symbol.block_type == BlockType.INTERNALS:
             return prefix + 'V_.'
 
@@ -275,13 +291,13 @@ class NestPrinter:
         return ''
 
     @classmethod
-    def print_output_event(cls, ast_body: ASTBody) -> str:
+    def print_output_event(cls, ast_body: ASTNeuronOrSynapseBody) -> str:
         """
-        For the handed over neuron, this operations checks of output event shall be preformed.
+        For the handed over neuron, print its defined output type.
         :param ast_body: a single neuron body
         :return: the corresponding representation of the event
         """
-        assert (ast_body is not None and isinstance(ast_body, ASTBody)), \
+        assert (ast_body is not None and isinstance(ast_body, ASTNeuronOrSynapseBody)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(ast_body)
         outputs = ast_body.get_output_blocks()
         if len(outputs) == 0:
