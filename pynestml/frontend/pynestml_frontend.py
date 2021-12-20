@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Mapping, Optional, Sequence, Union
+from typing import Any, Mapping, Optional, Sequence, Union, TextIO
 
 import os
 import sys
@@ -108,7 +108,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         raise Exception("Error(s) occurred while processing the model")
 
 
-def install_nest(target_path: str, nest_path: str, install_path: str = None) -> None:
+def install_nest(target_path: str, nest_path: str, install_path: str = None, stdout: TextIO = None, stderr: TextIO = None) -> None:
     '''
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
@@ -128,7 +128,8 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         If any kind of failure occurs during cmake configuration, build, or install.
     '''
     if install_path is not None:
-        nest_installer(target_path, nest_path, install_path)
+        nest_installer(target_path, nest_path, install_path,
+                       stdout=stdout, stderr=stderr)
         # add the install_path to the python library
         system = platform.system()
         lib_key = ""
@@ -144,7 +145,8 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         else:
             os.environ[lib_key] = lib_path
     else:
-        nest_installer(target_path, nest_path, nest_path)
+        nest_installer(target_path, nest_path, nest_path,
+                       stdout=stdout, stderr=stderr)
 
 
 def main():
@@ -214,6 +216,10 @@ def process():
             if Logger.has_errors(neuron):
                 errors_occurred = True
                 break
+    # if len(compilation_units) == 0, then parsed_unit was None => error in parsing the model
+    else:
+        errors_occurred = True
+
     if FrontendConfiguration.store_log:
         store_log_to_file()
     return errors_occurred
