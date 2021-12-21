@@ -130,21 +130,7 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     if install_path is not None:
         nest_installer(target_path, nest_path, install_path)
         # add the install_path to the python library
-        system = platform.system()
-        lib_key = ""
-
-        if system == "Linux":
-            lib_key = "LD_LIBRARY_PATH"
-        else:
-            lib_key = "DYLD_LIBRARY_PATH"
-
-        if lib_key in os.environ:
-            current = os.environ[lib_key].split(os.pathsep)
-            if install_path not in current:
-                current.apped(install_path)
-                os.environ[lib_key] += os.pathsep.join(current)
-        else:
-            os.environ[lib_key] = install_path
+        add_library_to_sli(install_path)
     else:
         nest_installer(target_path, nest_path)
 
@@ -252,11 +238,27 @@ def init_predefined():
 
 def create_report_dir():
     if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report')):
-        os.makedirs(os.path.join(
-            FrontendConfiguration.get_target_path(), '..', 'report'))
+        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report'))
 
 
 def store_log_to_file():
-    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
-                               'log')) + '.txt', 'w+') as f:
+    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report', 'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
+
+
+def add_library_to_sli(lib_path):
+    system = platform.system()
+    lib_key = ""
+
+    if system == "Linux":
+        lib_key = "LD_LIBRARY_PATH"
+    else:
+        lib_key = "DYLD_LIBRARY_PATH"
+
+    if lib_key in os.environ:
+        current = os.environ[lib_key].split(os.pathsep)
+        if lib_path not in current:
+            current.apped(lib_path)
+            os.environ[lib_key] += os.pathsep.join(current)
+    else:
+        os.environ[lib_key] = lib_path

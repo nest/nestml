@@ -119,11 +119,6 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-# Use the `NEST_PREFIX` as `CMAKE_INSTALL_PREFIX`.
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set( CMAKE_INSTALL_PREFIX "${NEST_PREFIX}" CACHE STRING "Install path prefix, prepended onto install directories." FORCE )
-endif()
-
 # Get the CXXFLAGS.
 execute_process(
     COMMAND ${NEST_CONFIG} --cflags
