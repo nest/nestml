@@ -73,6 +73,29 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from sli:
 #include "dictdatum.h"
 
+namespace nest
+{
+namespace {{names_namespace}}
+{
+{%- if neuron.get_state_symbols()|length > 0 %}
+{%- for sym in neuron.get_state_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if recordable_inline_expressions|length > 0 %}
+{%- for sym in recordable_inline_expressions %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if neuron.get_parameter_symbols()|length > 0 %}
+{%- for sym in neuron.get_parameter_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
+}
+
+
 {% if useGSL %}
 /**
  * Function computing right-hand side of ODE for GSL solver.

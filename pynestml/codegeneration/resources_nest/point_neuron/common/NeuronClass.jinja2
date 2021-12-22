@@ -73,6 +73,7 @@ nest::RecordablesMap<{{neuronName}}> {{neuronName}}::recordablesMap_;
 {%- endif %}
 namespace nest
 {
+
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
 {%- if has_state_vectors %}
@@ -92,7 +93,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- else %}
     // add state variables to recordables map
 {%-   for sym in recordable_state_variables %}
-   insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+   insert_({{names_namespace}}::_{{sym.get_symbol_name()}}, &{{neuronName}}::{{names.getter(sym)}});
 {%-   endfor %}
 {%- endif %}
 {%- endif %}
@@ -100,7 +101,7 @@ template <> void RecordablesMap<{{neuronName}}>::create()
 {%- if recordable_inline_expressions|length > 0 %}
     // add recordable inline expressions to recordables map
 {%- for sym in recordable_inline_expressions %}
-	insert_("{{sym.get_symbol_name()}}", &{{neuronName}}::{{names.getter(sym)}});
+	insert_({{names_namespace}}::_{{sym.get_symbol_name()}}, &{{neuronName}}::{{names.getter(sym)}});
 {%- endfor %}
 {%- endif %}
 

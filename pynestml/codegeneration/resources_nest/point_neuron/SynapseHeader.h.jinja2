@@ -82,6 +82,21 @@ namespace nest
 /** @BeginDocumentation
 
 **/
+
+namespace {{names_namespace}}
+{
+{%- if synapse.get_state_symbols()|length > 0 %}
+{%- for sym in synapse.get_state_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if synapse.get_parameter_symbols()|length > 0 %}
+{%- for sym in synapse.get_parameter_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
+
 class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
 public:
 

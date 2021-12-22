@@ -973,6 +973,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['tracing'] = FrontendConfiguration.is_dev
         namespace['has_state_vectors'] = False
         namespace['vector_symbols'] = []
+        namespace['names_namespace'] = synapse.get_name() + "_names"
 
         # event handlers priority
         # XXX: this should be refactored in case we have additional modulatory (3rd-factor) spiking input ports in the synapse
@@ -1102,6 +1103,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['tracing'] = FrontendConfiguration.is_dev
         namespace['has_state_vectors'] = neuron.has_state_vectors()
         namespace['vector_symbols'] = neuron.get_vector_symbols()
+        namespace['names_namespace'] = neuron.get_name() + "_names"
 
         namespace['neuron_parent_class'] = self.get_option('neuron_parent_class')
         namespace['neuron_parent_class_include'] = self.get_option('neuron_parent_class_include')
