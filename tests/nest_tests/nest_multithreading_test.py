@@ -36,7 +36,7 @@ class NestMultithreadingTest(unittest.TestCase):
 
     neuron_module = "nestml_module"
     neuron_target = "/tmp/nestml-iaf-psc"
-    neuron_model = "iaf_psc_exp_nestml"
+    neuron_model = "iaf_psc_exp__nestml"
 
     number_of_threads = 2
 
@@ -68,7 +68,7 @@ class NestMultithreadingTest(unittest.TestCase):
                 target_path=self.neuron_target,
                 logging_level="INFO",
                 module_name=self.neuron_module,
-                suffix="_nestml",
+                suffix="__nestml",
                 codegen_opts={"neuron_parent_class": "ArchivingNode",
                               "neuron_parent_class_include": "archiving_node.h"})
         install_nest(self.neuron_target, nest_path)
