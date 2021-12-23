@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# stdp_triplet_synapse_test.py
+# nest_multithreading_test.py
 #
 # This file is part of NEST.
 #
