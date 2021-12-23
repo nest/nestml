@@ -96,8 +96,13 @@ class NestMultithreadingTest(unittest.TestCase):
         np.testing.assert_almost_equal(v_m[-1], -70.)
 
     def test_neuron_synapse_multithreading(self):
-        post_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))
-        pre_spike_times = np.sort(np.unique(1 + np.round(100 * np.sort(np.abs(np.random.randn(100))))))
+        pre_spike_times = np.array([2.,   4.,   7.,   8.,  12.,  13.,  19.,  23.,  24.,  28.,  29.,  30.,  33.,  34.,
+                                    35.,  36.,  38.,  40.,  42.,  46.,  51.,  53.,  54.,  55.,  56.,  59.,  63.,  64.,
+                                    65.,  66.,  68.,  72.,  73.,  76.,  79.,  80.,  83.,  84.,  86.,  87.,  90.,  95.])
+        post_spike_times = np.array([4.,   5.,   6.,   7.,  10.,  11.,  12.,  16.,  17.,  18.,  19.,  20.,  22.,  23.,
+                                     25.,  27.,  29.,  30.,  31.,  32.,  34.,  36.,  37.,  38.,  39.,  42.,  44.,  46.,
+                                     48.,  49.,  50.,  54.,  56.,  57.,  59.,  60.,  61.,  62.,  67.,  74.,  76.,  79.,
+                                     80.,  81.,  83.,  88.,  93.,  94.,  97.,  99.])
 
         nest.set_verbosity("M_ALL")
         nest.ResetKernel()
@@ -132,4 +137,5 @@ class NestMultithreadingTest(unittest.TestCase):
         nest.Simulate(100.)
 
         V_m = nest.GetStatus(mm, "events")[0]["V_m"]
-        np.testing.assert_almost_equal(V_m[-3],  -58.46177095)
+        print(V_m)
+        np.testing.assert_almost_equal(V_m[-4],  -59.17946541)
