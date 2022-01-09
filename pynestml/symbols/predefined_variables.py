@@ -89,7 +89,7 @@ class PredefinedVariables:
     @classmethod
     def get_euler_constant(cls):
         """
-        Returns a copy of the variable symbol representing the euler constant t.
+        Returns a copy of the variable symbol representing the euler constant e.
         :return: a variable symbol.
         :rtype: VariableSymbol
         """

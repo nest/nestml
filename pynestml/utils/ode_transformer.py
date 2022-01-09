@@ -63,6 +63,8 @@ class OdeTransformer:
         :rtype: list(ASTFunctionCall)
         """
         res = list()
+        if ast_node is None:
+            return res
         from pynestml.visitors.ast_higher_order_visitor import ASTHigherOrderVisitor
         from pynestml.meta_model.ast_function_call import ASTFunctionCall
         fun = (lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and x.get_name() in function_list else True)

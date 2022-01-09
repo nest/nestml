@@ -110,6 +110,21 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNestMLParser#anyDecorator.
+    def visitAnyDecorator(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorNamespace.
+    def visitNamespaceDecoratorNamespace(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#namespaceDecoratorName.
+    def visitNamespaceDecoratorName(self, ctx):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNestMLParser#returnStmt.
     def visitReturnStmt(self, ctx):
         return self.visitChildren(ctx)
@@ -155,8 +170,23 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNestMLParser#body.
-    def visitBody(self, ctx):
+    # Visit a parse tree produced by PyNestMLParser#neuronBody.
+    def visitNeuronBody(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#synapse.
+    def visitSynapse(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#synapseBody.
+    def visitSynapseBody(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#onReceiveBlock.
+    def visitOnReceiveBlock(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -202,6 +232,11 @@ class PyNestMLParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNestMLParser#parameter.
     def visitParameter(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNestMLParser#constParameter.
+    def visitConstParameter(self, ctx):
         return self.visitChildren(ctx)
 
 

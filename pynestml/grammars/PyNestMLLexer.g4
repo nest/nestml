@@ -39,6 +39,11 @@ lexer grammar PyNestMLLexer;
 
   // newline is defined as a token
   NEWLINE : '\r'? '\n';
+  /**
+  * Symbols and literals are parsed first
+  *
+  * Decorator (@) keywords are defined with their @-symbol in front, because otherwise they would preclude the user from defining variables with the same name as a decorator keyword. (Rules are matched in the order in which they appear.)
+  */
 
   END_KEYWORD : 'end';
   INTEGER_KEYWORD : 'integer';
@@ -64,6 +69,7 @@ lexer grammar PyNestMLLexer;
   RECORDABLE_KEYWORD : 'recordable';
   KERNEL_KEYWORD : 'kernel';
   NEURON_KEYWORD : 'neuron';
+  SYNAPSE_KEYWORD : 'synapse';
   STATE_KEYWORD : 'state';
   PARAMETERS_KEYWORD : 'parameters';
   INTERNALS_KEYWORD : 'internals';
@@ -72,10 +78,15 @@ lexer grammar PyNestMLLexer;
   INPUT_KEYWORD : 'input';
   OUTPUT_KEYWORD : 'output';
   CONTINUOUS_KEYWORD : 'continuous';
+  ON_RECEIVE_KEYWORD : 'onReceive';
   SPIKE_KEYWORD : 'spike';
   INHIBITORY_KEYWORD : 'inhibitory';
   EXCITATORY_KEYWORD : 'excitatory';
 
+  DECORATOR_HOMOGENEOUS : '@homogeneous';
+  DECORATOR_HETEROGENEOUS : '@heterogeneous';
+
+  AT : '@';
   ELLIPSIS : '...';
   LEFT_PAREN : '(';
   RIGHT_PAREN : ')';
@@ -111,6 +122,7 @@ lexer grammar PyNestMLLexer;
   PERCENT : '%';
   QUESTION : '?';
   COLON : ':';
+  DOUBLE_COLON : '::';
   SEMICOLON : ';';
   DIFFERENTIAL_ORDER : '\'';
 

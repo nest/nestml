@@ -1,8 +1,8 @@
 hh_cond_exp_traub
 #################
 
-hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
 
+hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
 
 Description
 +++++++++++
@@ -33,7 +33,6 @@ spike, it is essential to choose a sufficiently long refractory period.
 Traub and Miles used :math:`t_{ref} = 3` ms [2, p 118], while we used
 :math:`t_{ref} = 2` ms in [2]_.
 
-
 References
 ++++++++++
 
@@ -55,6 +54,7 @@ Author
 ++++++
 
 Schrader
+
 
 
 Parameters
@@ -80,6 +80,12 @@ Parameters
     "t_ref", "ms", "2.0ms", "Refractory period"    
     "E_ex", "mV", "0.0mV", "Excitatory synaptic reversal potential"    
     "E_in", "mV", "-80.0mV", "Inhibitory synaptic reversal potential"    
+    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)", ""    
+    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - E_L) / 40.0mV)", ""    
+    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)", ""    
+    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (E_L - 40.0mV) / (exp((E_L - 40.0mV) / 5.0mV) - 1.0)", ""    
+    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - E_L) / 18.0mV)", ""    
+    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - E_L) / 5.0mV))) / ms", ""    
     "I_e", "pA", "0pA", "constant external input current"
 
 
@@ -93,13 +99,8 @@ State variables
     :widths: auto
 
     
+    "r", "integer", "0", "counts number of tick during the refractory period"    
     "V_m", "mV", "E_L", "Membrane potential"    
-    "alpha_n_init", "1 / ms", "0.032 / (ms * mV) * (15.0mV - V_m) / (exp((15.0mV - V_m) / 5.0mV) - 1.0)", ""    
-    "beta_n_init", "1 / ms", "0.5 / ms * exp((10.0mV - V_m) / 40.0mV)", ""    
-    "alpha_m_init", "1 / ms", "0.32 / (ms * mV) * (13.0mV - V_m) / (exp((13.0mV - V_m) / 4.0mV) - 1.0)", ""    
-    "beta_m_init", "1 / ms", "0.28 / (ms * mV) * (V_m - 40.0mV) / (exp((V_m - 40.0mV) / 5.0mV) - 1.0)", ""    
-    "alpha_h_init", "1 / ms", "0.128 / ms * exp((17.0mV - V_m) / 18.0mV)", ""    
-    "beta_h_init", "1 / ms", "(4.0 / (1.0 + exp((40.0mV - V_m) / 5.0mV))) / ms", ""    
     "Act_m", "real", "alpha_m_init / (alpha_m_init + beta_m_init)", ""    
     "Act_h", "real", "alpha_h_init / (alpha_h_init + beta_h_init)", ""    
     "Inact_n", "real", "alpha_n_init / (alpha_n_init + beta_n_init)", ""
@@ -135,23 +136,20 @@ Equations
 Source code
 +++++++++++
 
-.. code:: nestml
+.. code-block:: nestml
 
    neuron hh_cond_exp_traub:
      state:
        r integer = 0 # counts number of tick during the refractory period
        V_m mV = E_L # Membrane potential
-
        Act_m real = alpha_m_init / (alpha_m_init + beta_m_init)
        Act_h real = alpha_h_init / (alpha_h_init + beta_h_init)
        Inact_n real = alpha_n_init / (alpha_n_init + beta_n_init)
      end
-
      equations:
        # synapses: exponential conductance
        kernel g_in = exp(-1 / tau_syn_in * t)
        kernel g_ex = exp(-1 / tau_syn_ex * t)
-
        # Add aliases to simplify the equation definition of V_m
        inline I_Na pA = g_Na * Act_m * Act_m * Act_m * Act_h * (V_m - E_Na)
        inline I_K pA = g_K * Inact_n * Inact_n * Inact_n * Inact_n * (V_m - E_K)
@@ -159,7 +157,6 @@ Source code
        inline I_syn_exc pA = convolve(g_ex,spikeExc) * (V_m - E_ex)
        inline I_syn_inh pA = convolve(g_in,spikeInh) * (V_m - E_in)
        V_m'=(-I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_e + I_stim) / C_m
-
        # channel dynamics
        inline V_rel mV = V_m - V_T
        inline alpha_n 1/ms = 0.032 / (ms * mV) * (15.0mV - V_rel) / (exp((15.0mV - V_rel) / 5.0mV) - 1.0)
@@ -182,21 +179,26 @@ Source code
        E_K mV = -90.0mV # Potassium reversal potential
        E_L mV = -60.0mV # Leak reversal Potential (aka resting potential)
        V_T mV = -63.0mV # Voltage offset that controls dynamics. For default
+       # parameters, V_T = -63 mV results in a threshold around -50 mV.
 
+       # parameters, V_T = -63 mV results in a threshold around -50 mV.
        tau_syn_ex ms = 5.0ms # Synaptic Time Constant Excitatory Synapse
        tau_syn_in ms = 10.0ms # Synaptic Time Constant for Inhibitory Synapse
        t_ref ms = 2.0ms # Refractory period
        E_ex mV = 0.0mV # Excitatory synaptic reversal potential
        E_in mV = -80.0mV # Inhibitory synaptic reversal potential
-
+       alpha_n_init 1/ms = 0.032 / (ms * mV) * (15.0mV - E_L) / (exp((15.0mV - E_L) / 5.0mV) - 1.0)
+       beta_n_init 1/ms = 0.5 / ms * exp((10.0mV - E_L) / 40.0mV)
+       alpha_m_init 1/ms = 0.32 / (ms * mV) * (13.0mV - E_L) / (exp((13.0mV - E_L) / 4.0mV) - 1.0)
+       beta_m_init 1/ms = 0.28 / (ms * mV) * (E_L - 40.0mV) / (exp((E_L - 40.0mV) / 5.0mV) - 1.0)
+       alpha_h_init 1/ms = 0.128 / ms * exp((17.0mV - E_L) / 18.0mV)
+       beta_h_init 1/ms = (4.0 / (1.0 + exp((40.0mV - E_L) / 5.0mV))) / ms
        # constant external input current
        I_e pA = 0pA
      end
-
      internals:
        RefractoryCounts integer = steps(t_ref)
      end
-
      input:
        spikeInh nS <-inhibitory spike
        spikeExc nS <-excitatory spike
@@ -208,7 +210,6 @@ Source code
      update:
        U_old mV = V_m
        integrate_odes()
-
        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
        if r > 0:
          r -= 1
@@ -230,4 +231,4 @@ Characterisation
 
 .. footer::
 
-   Generated at 2020-05-27 18:26:44.758646
+   Generated at 2021-12-09 08:22:32.166780

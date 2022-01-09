@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.utils.logger import Logger, LoggingLevel
@@ -37,12 +38,12 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
     @classmethod
     def check_co_co(cls, node):
         """
-        Ensures the coco for the handed over neuron.
-        :param node: a single neuron instance.
-        :type node: ASTNeuron
+        Ensures the coco for the handed over node.
+        :param node: a single node instance.
+        :type node: ASTNeuron or ASTSynapse
         """
-        assert (node is not None and isinstance(node, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(node)
+        assert node is not None and (isinstance(node, ASTNeuron) or isinstance(node, ASTSynapse)), \
+            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type provided (%s): expecting neuron or synapse!' % type(node)
         node.accept(VectorInDeclarationVisitor())
         return
 

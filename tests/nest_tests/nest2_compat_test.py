@@ -36,7 +36,7 @@ class Nest2CompatTest(unittest.TestCase):
 
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
-            os.pardir, os.pardir, "models", "iaf_psc_exp.nestml"))))
+            os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
         logging_level = 'INFO'
@@ -51,7 +51,10 @@ class Nest2CompatTest(unittest.TestCase):
             "templates": {
                 "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
                                      'resources_nest', 'point_neuron_nest2'),
-                "model_templates": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+                "model_templates": {
+                    "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
+                    "synapse":  ['SynapseHeader.h.jinja2']
+                },
                 "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
                                      'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']}}
 
