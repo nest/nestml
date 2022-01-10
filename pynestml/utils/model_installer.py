@@ -51,7 +51,7 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     if not os.path.isdir(nest_path):
         raise InvalidPathException(f"NEST path ({nest_path}) is not a directory!")
 
-    nest_config_path = '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config')
+    nest_config_path = f"-Dwith-nest={os.path.join(nest_path, 'bin', 'nest-config')}"
     cmake_cmd.append(nest_config_path)
 
     if install_path:
@@ -61,7 +61,7 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         cmake_cmd.append(install_prefix)
 
     if not os.path.isdir(target_path):
-        raise InvalidPathException('Target path (' + target_path + ') is not a directory!')
+        raise InvalidPathException(f"Target path ({target_path}) is not a directory!")
 
     cmake_cmd.append('.')
     make_all_cmd = ['make', 'all']
@@ -83,20 +83,20 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         result = subprocess.check_call(cmake_cmd, stderr=subprocess.STDOUT,
                                        shell=shell, cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
-        msg = "Error occurred during 'cmake'! More detailed error messages can be found in stdout."
+        msg = "Error during 'cmake'. More detailed error messages can be found in stdout."
         raise GeneratedCodeBuildException(msg)
 
     # now execute make all
     try:
         subprocess.check_call(make_all_cmd, stderr=subprocess.STDOUT, shell=shell, cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
-        msg = "Error occurred during 'make all'! More detailed error messages can be found in stdout."
+        msg = "Error during 'make all'. More detailed error messages can be found in stdout."
         raise GeneratedCodeBuildException(msg)
 
     # finally execute make install
     try:
-        subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT, shell=shell,
-                              cwd=str(os.path.join(target_path)))
+        subprocess.check_call(make_install_cmd, stderr=subprocess.STDOUT,
+                              shell=shell, cwd=str(os.path.join(target_path)))
     except subprocess.CalledProcessError as e:
-        msg = "Error occurred during 'make install'! More detailed error messages can be found in stdout."
+        msg = "Error during 'make install'. More detailed error messages can be found in stdout."
         raise GeneratedCodeBuildException(msg)
