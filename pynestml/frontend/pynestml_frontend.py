@@ -130,7 +130,7 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
     if install_path is not None:
         nest_installer(target_path, nest_path, install_path)
         # add the install_path to the python library
-        add_library_to_sli(install_path)
+        add_libraries_to_sli(install_path)
     else:
         nest_installer(target_path, nest_path)
 
@@ -246,7 +246,7 @@ def store_log_to_file():
         f.write(str(Logger.get_json_format()))
 
 
-def add_library_to_sli(lib_path):
+def __add_library_to_sli(lib_path):
     system = platform.system()
     lib_key = ""
 
@@ -262,3 +262,18 @@ def add_library_to_sli(lib_path):
             os.environ[lib_key] += os.pathsep.join(current)
     else:
         os.environ[lib_key] = lib_path
+
+
+def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
+    '''
+    This method can be used to add external modules to SLI environment
+
+    Parameters
+    ----------
+    paths
+        paths to external nest modules
+    '''
+    if isinstance(paths, str):
+        paths = [paths]
+    for path in paths:
+        __add_library_to_sli(path)
