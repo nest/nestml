@@ -28,7 +28,7 @@ Model development with NESTML
 Summary of language features and syntax
 #######################################
 
-:doc:`The NESTML language <nestml_language>`
+:doc:`The NESTML language <nestml_language/index>`
 
 
 Models library
