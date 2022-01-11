@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # nest_install_module_in_different_location_test.py
+#
 # This file is part of NEST.
 #
 # Copyright (C) 2004 The NEST Initiative
