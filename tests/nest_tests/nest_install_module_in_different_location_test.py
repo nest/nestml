@@ -60,4 +60,3 @@ class NestInstallExistingModule(unittest.TestCase):
         # delete create folder
         import shutil
         shutil.rmtree(install_dir)
-
