@@ -77,7 +77,6 @@ class NestInstallExistingModule(unittest.TestCase):
         # check model existence
         has_model = f"{model_name}{suffix}" in nest.Models()
         self.assertTrue(has_model)
-        
 
         # delete create folder
         import shutil
