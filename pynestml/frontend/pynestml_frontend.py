@@ -258,7 +258,7 @@ def __add_library_to_sli(lib_path):
     if lib_key in os.environ:
         current = os.environ[lib_key].split(os.pathsep)
         if lib_path not in current:
-            current.apped(lib_path)
+            current.append(lib_path)
             os.environ[lib_key] += os.pathsep.join(current)
     else:
         os.environ[lib_key] = lib_path

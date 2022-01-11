@@ -33,7 +33,7 @@ class NestInstallExistingModule(unittest.TestCase):
     Tests installing modules from different location
     """
 
-    def test_a(self):
+    def test_installing_module_outside_nest(self):
 
         model_name = "iaf_psc_exp"
         module_name = f'{model_name}module'
@@ -77,6 +77,7 @@ class NestInstallExistingModule(unittest.TestCase):
         # check model existence
         has_model = f"{model_name}{suffix}" in nest.Models()
         self.assertTrue(has_model)
+        
 
         # delete create folder
         import shutil
