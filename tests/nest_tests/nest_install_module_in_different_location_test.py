@@ -78,6 +78,6 @@ class NestInstallExistingModule(unittest.TestCase):
         has_model = f"{model_name}{suffix}" in nest.Models()
         self.assertTrue(has_model)
 
-        # delete create folder
+        # delete created folder
         import shutil
         shutil.rmtree(install_dir)

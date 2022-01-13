@@ -247,6 +247,9 @@ def store_log_to_file():
 
 
 def __add_library_to_sli(lib_path):
+    if not os.path.isabs(lib_path):
+        lib_path = os.path.abspath(lib_path)
+
     system = platform.system()
     lib_key = ""
 
