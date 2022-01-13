@@ -22,6 +22,7 @@
 
 from typing import Any, List, Mapping, Optional, Sequence
 import pynestml
+from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
@@ -51,21 +52,24 @@ class NestCppPrinter:
             raise TypeError(
                 "The parameter node must be an instance of one the following sub-classes: [ASTNeuron, ASTSynapse]")
         self.node = node
+        self.templates_root = os.path.join(pynestml.__path__[0], "codegeneration", "resources_nest", "point_neuron")
+        self.directives = os.path.join(self.templates_root, "directives")
+
+    def get_template(self, template_name):
+        loader = FileSystemLoader(self.directives)
+        env = Environment(loader=loader)
+        template = env.get_template(f"{template_name}.jinja2")
+        env.loader.searchpath.append(self.templates_root)
+        return template
 
     def print_function(self, func: ASTFunction, func_namespace=""):
         output = self.namespace["printer"].print_function_definition(func, func_namespace)
         output += "{"
 
-        templates_root = os.path.join(pynestml.__path__[0], "codegeneration", "resources_nest", "point_neuron")
-        block_template = os.path.join(templates_root, "directives")
-        loader = FileSystemLoader(block_template)
-        env = Environment(loader=loader)
-        block_template = env.get_template("Block.jinja2")
-
         namespace_copy = copy.deepcopy(self.namespace)
         namespace_copy["ast"] = func.get_block()
 
-        env.loader.searchpath.append(templates_root)
+        block_template = self.get_template("Block")
         function_body = block_template.render(namespace_copy)
         padding = 2 * ' '
         padded_function_body = textwrap.indent(function_body, padding)
@@ -74,6 +78,14 @@ class NestCppPrinter:
         output += "\n}"
 
         return output
+
+    def print_declaration(self, declaration: ASTDeclaration):
+        declaration_template = self.get_template("Declaration")
+        namespace_copy = copy.deepcopy(self.namespace)
+        namespace_copy["ast"] = declaration
+
+        cpp_declaration = declaration_template.render(namespace_copy)
+        return cpp_declaration
 
     def print_functions(self, namespace=""):
         functions = self.node.get_functions()
