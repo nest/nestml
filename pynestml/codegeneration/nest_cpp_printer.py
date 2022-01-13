@@ -20,7 +20,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 from typing import Any, List, Mapping, Optional, Sequence
 import pynestml
 from pynestml.meta_model.ast_function import ASTFunction
@@ -53,7 +52,7 @@ class NestCppPrinter:
                 "The parameter node must be an instance of one the following sub-classes: [ASTNeuron, ASTSynapse]")
         self.node = node
 
-    def print_function(self, func : ASTFunction, func_namespace=""):
+    def print_function(self, func: ASTFunction, func_namespace=""):
         output = self.namespace["printer"].print_function_definition(func, func_namespace)
         output += "{"
 
