@@ -23,7 +23,7 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 
 class NestLogarithmicFunctionTest(unittest.TestCase):
@@ -36,13 +36,14 @@ class NestLogarithmicFunctionTest(unittest.TestCase):
                       os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", "LogarithmicFunctionTest_invalid.nestml")))]
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = 'target'
+        target_platform = "NEST"
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
         store_log = False
         suffix = '_nestml'
         dev = True
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        codegen_opts = {"nest_path": nest_path}
+        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()

@@ -24,11 +24,11 @@ import unittest
 
 import nest
 
-from pynestml.frontend.pynestml_frontend import to_nest
-from pynestml.utils.model_installer import install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 
-@pytest.mark.skip(reason="Should be run with NEST 2.20.1+")
+@pytest.mark.skipif(os.environ.get("NEST_VERSION_MAJOR") != "2",
+                    reason="Should be run with NEST 2.20.*")
 class Nest2CompatTest(unittest.TestCase):
     """
     Tests the code generation and installation with custom NESTML templates for NEST
@@ -38,35 +38,36 @@ class Nest2CompatTest(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        target_path = 'target'
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
+        target_path = "target"
+        target_platform = "NEST2"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
         store_log = False
-        suffix = '_nestml'
+        suffix = "_nestml"
         dev = True
 
         codegen_opts = {
+            "nest_path": nest_path,
             "neuron_parent_class_include": "archiving_node.h",
             "neuron_parent_class": "Archiving_Node",
             "templates": {
-                "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'pynestml', 'codegeneration',
-                                     'resources_nest', 'point_neuron_nest2'),
+                "path": os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "pynestml", "codegeneration",
+                                     "resources_nest", "point_neuron_nest2"),
                 "model_templates": {
-                    "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-                    "synapse":  ['SynapseHeader.h.jinja2']
+                    "neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
+                    "synapse": ["SynapseHeader.h.jinja2"]
                 },
-                "module_templates": ['setup/CMakeLists.txt.jinja2', 'setup/SLI_Init.sli.jinja2',
-                                     'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']}}
+                "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/ModuleHeader.h.jinja2",
+                                     "setup/ModuleClass.cpp.jinja2"]}}
 
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev, codegen_opts)
-        install_nest(target_path, nest_path)
+        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("iaf_psc_exp_nestml")
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
         nest.SetStatus(mm, {"record_from": ["V_m"]})
 
         nest.Connect(mm, nrn)

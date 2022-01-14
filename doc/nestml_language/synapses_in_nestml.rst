@@ -508,11 +508,11 @@ To indicate which neurons will be connected to by which synapses during simulati
      "neuron_synapse_pairs": [["iaf_psc_exp", "stdp"]]
    }
 
-This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_codegenerator_opts_triplet.json``:
+This file can then be passed to NESTML when generating code on the command line. If the JSON file is named ``nest_code_generator_opts_triplet.json``:
 
 .. code:: sh
 
-   nestml --input_path my_models/ --codegen_opts=nest_codegenerator_opts_triplet.json
+   nestml --input_path my_models/ --codegen_opts=nest_code_generator_opts_triplet.json
 
 Further integration with NEST Simulator is planned, to achieve a just-in-time compilation/build workflow. This would automatically generate a list of these pairs and automatically generate the requisite JSON file.
 
@@ -552,21 +552,21 @@ When NESTML is invoked to generate code for plastic synapses, the code generator
 
 .. code-block:: python
 
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp"}]})
+   generate_target(...,
+                        codegen_opts={...,
+                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                                "synapse": "third_factor_stdp"}]})
 
 Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
 .. code-block:: python
 
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp",
-                                                    "post_ports": ["post_spikes",
-                                                                  ["I_post_dend", "I_dend"]]}]})
+   generate_target(...,
+                        codegen_opts={...,
+                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                                "synapse": "third_factor_stdp",
+                                                                 "post_ports": ["post_spikes",
+                                                                               ["I_post_dend", "I_dend"]]}]})
 
 This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
 
@@ -574,11 +574,11 @@ Simulation of volume-transmitted neuromodulation in NEST can be done using "volu
 
 .. code-block:: python
 
-   to_nest(...,
-           codegen_opts={...,
-                         "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
-                                                   "synapse": "third_factor_stdp",
-                                                   "vt_ports": ["dopa_spikes"]}]})
+   generate_target(...,
+                        codegen_opts={...,
+                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
+                                                                "synapse": "third_factor_stdp",
+                                                                "vt_ports": ["dopa_spikes"]}]})
 
 
 

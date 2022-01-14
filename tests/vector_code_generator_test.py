@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# vector_codegenerator_test.py
+# vector_code_generator_test.py
 #
 # This file is part of NEST.
 #
@@ -21,7 +21,7 @@
 import os
 import unittest
 
-from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 
 from pynestml.utils.model_parser import ModelParser
 
@@ -34,7 +34,7 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 
 class VectorCodeGenerationTest(unittest.TestCase):

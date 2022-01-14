@@ -24,8 +24,8 @@ where arguments are:
      - One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching '\*.nestml'.
    * - ``--target_path``
      - (Optional) Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
-   * - ``--target``
-     - (Optional) The name of the target platform to generate code for. Default is NEST.
+   * - ``--target_platform``
+     - (Optional) The name of the target platform to generate code for. Default is ``NEST``.
    * - ``--logging_level``
      - (Optional) Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are [DEBUG, INFO, WARNING, ERROR, NO]
    * - ``--module_name``
@@ -39,7 +39,7 @@ where arguments are:
    * - ``--codegen_opts``
      - (Optional) Path to a JSON file containing additional options for the target platform code generator.
 
-Generated artifacts are copied to the selected target directory (default is ``target``). In order to install the models into NEST, the following commands have to be executed from within the target directory:
+Generated code is copied to the selected target directory. In order to install the models into NEST, the following commands have to be executed from within the target directory:
 
 .. code-block:: bash
 
@@ -61,13 +61,13 @@ PyNESTML is also available as a Python package, and can therefore be used from w
 
 .. code-block:: python
 
-   from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+   from pynestml.frontend.pynestml_frontend import generate_target
 
-Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``to_nest()``, which generates the C++ code for NEST, and ``install_nest()``, which compiles and builds the code into a NEST extension module and installs it to the NEST install directory. ``to_nest()`` can be called as follows:
+Subsequently, it is possible to call PyNESTML from other Python tools and scripts via calls to ``generate_target()``, which generates and builds code for the target platform. For NEST, this step involves generating the C++ code and building it into a NEST extension module. ``generate_target()`` can be called as follows:
 
 .. code-block:: python
 
-   to_nest(input_path, target_path, logging_level, module_name, store_log, dev)
+   generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, dev)
 
 This operation expects the same set of arguments as in the case of command line invocation. The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
 
@@ -84,6 +84,9 @@ This operation expects the same set of arguments as in the case of command line 
    * - target_path
      - string
      - None
+   * - target_platform
+     - string
+     - 'NEST'
    * - logging_level
      - string
      - 'ERROR'
@@ -100,32 +103,26 @@ This operation expects the same set of arguments as in the case of command line 
      - Optional[Mapping[str, Any]]
      - (Optional) A JSON equivalent Python dictionary containing additional options for the target platform code generator. These options are specific to a given target platform, see for example :ref:`Running NESTML with custom templates`.
 
-If no errors occur, code for the target platform will be generated into the specified target directory. The code is then compiled and built into a NEST extension module and installed to the NEST install directory by the following call.
-
-.. code-block:: python
-
-   install_nest(target_path, nest_path)
-
-Here, ``target_path`` should be set to the ``target`` directory of ``to_nest()``, and ``nest_path`` points to the directory where NEST is installed (e.g., ``/home/nest/work/nest-install``). This path can conveniently be obtained from the ``nest`` module as follows:
+The NEST code generator additionally requires the path to the NEST Simulator installation, which should be passed via the ``"nest_path"`` key in ``codegen_opts``. This path can conveniently be obtained from the ``nest`` module as follows:
 
 .. code-block:: python
 
    import nest
    nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
-A typical script, therefore, could look like the following. For this example, we assume that the name of the generated module is ``nestmlmodule``.
+A typical script, therefore, could look like the following.
 
 .. code-block:: python
 
-   from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+   from pynestml.frontend.pynestml_frontend import generate_target
 
-   to_nest(input_path="/home/nest/work/pynestml/models", target_path="/home/nest/work/pynestml/target")
+   generate_target(input_path="/home/nest/work/pynestml/models",
+                   target_path="/home/nest/work/pynestml/target",
+                   codegen_opts={"nest_path": nest_path})
 
-   install_nest("/home/nest/work/pynestml/target", "/home/nest/work/nest-install")
-
-   nest.Install("nestmlmodule")
-   # ...
-   nest.Simulate(400.)
+   nest.Install("nestmlmodule")  # the default name of the generated NEST extension module
+   # ... create populations and connections ...
+   nest.Simulate(400.)    # simulate!
 
 
 Running NESTML with custom templates
@@ -133,7 +130,7 @@ Running NESTML with custom templates
 
 NESTML generates model-specific C++ code for the NEST simulator using a set of Jinja templates. By default, NESTML uses the templates in the directory `pynestml/codegeneration/resources_nest/point_neuron <https://github.com/nest/nestml/tree/master/pynestml/codegeneration/resources_nest/point_neuron>`__. (For more information on code generation using templates, see :ref:`Section 3.1: AST Transformations and Code Generation`.)
 
-The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file. (Note that this parameter also exists in the ``to_nest()`` function.)
+The default directory can be changed through ``--codegen_opts`` by providing a path to the custom templates as an option in a JSON file. (Note that this parameter also exists in the ``generate_target()`` function.)
 
 .. code-block:: bash
 
@@ -161,13 +158,13 @@ The ``templates`` option in the JSON file contains information on the custom Jin
 * The ``model_templates`` option indicates the names of the Jinja templates for neuron and synapse model(s) or relative path to a directory containing the neuron and synapse model(s) templates.
 * The ``module_templates`` option indicates the names or relative path to a directory containing the Jinja templates used to build a NEST extension module.
 
-The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as follows:
+The ``codegen_opts`` can also be passed to the PyNESTML function ``generate_target()`` as follows:
 
 .. code-block:: python
 
-   from pynestml.frontend.pynestml_frontend import to_nest
+   from pynestml.frontend.pynestml_frontend import generate_target
 
-   options = {
+   codegen_opts = {
         "templates":
         {
             "path": "/home/nest/work/custom_templates",
@@ -179,7 +176,7 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``to_nest`` as 
         }
    }
 
-   to_nest(input_path, target_path, logging_level, module_name, store_log, dev, options)
+   generate_target(input_path, target_path, logging_level, module_name, store_log, dev, codegen_opts)
 
 
 Running in NEST 2.* compatibility mode

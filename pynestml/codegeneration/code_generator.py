@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# codegenerator.py
+# code_generator.py
 #
 # This file is part of NEST.
 #
@@ -58,10 +58,12 @@ class CodeGenerator:
 
     def set_options(self, options: Mapping[str, Any]):
         if not "_default_options" in dir(self.__class__):
-            assert "Code generator class \"" + str(self.__class__) + "\" does not support setting options."
+            print("Warning: Code generator class \"" + str(self.__class__) + "\" does not support setting options.")
         for k in options.keys():
-            assert k in self.__class__._default_options, "Option \"" + str(k) + "\" does not exist in code generator"
-        self._options.update(options)
+            if k in self.__class__._default_options:
+                self._options[k] = options[k]
+            else:
+                print("Warning: Option \"" + str(k) + "\" does not exist in code generator")
 
     def get_option(self, k):
         return self._options[k]
@@ -96,7 +98,7 @@ class CodeGenerator:
 
     @staticmethod
     def get_known_targets():
-        targets = ["NEST", "autodoc", ""]     # include the empty string here to represent "no code generated"
+        targets = ["NEST", "NEST2", "autodoc", "none"]
         targets = [s.upper() for s in targets]
         return targets
 
@@ -105,13 +107,16 @@ class CodeGenerator:
         """Static factory method that returns a new instance of a child class of CodeGenerator"""
         assert target_name.upper() in CodeGenerator.get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
         if target_name.upper() == "NEST":
-            from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
+            from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
             return NESTCodeGenerator(options)
+        elif target_name.upper() == "NEST2":
+            from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
+            return NEST2CodeGenerator(options)
         elif target_name.upper() == "AUTODOC":
-            from pynestml.codegeneration.autodoc_codegenerator import AutoDocCodeGenerator
+            from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
             assert options is None or options == {}, "\"autodoc\" code generator does not support options"
             return AutoDocCodeGenerator()
-        elif target_name == "":
+        elif target_name.upper() == "NONE":
             # dummy/null target: user requested to not generate any code
             code, message = Messages.get_no_code_generated()
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)

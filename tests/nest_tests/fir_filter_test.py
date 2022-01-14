@@ -37,7 +37,7 @@ import scipy
 import scipy.signal
 import scipy.stats
 
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 
 class NestFirFilterTest(unittest.TestCase):
@@ -49,17 +49,18 @@ class NestFirFilterTest(unittest.TestCase):
         nestml_model_file = 'FIR_filter.nestml'
         nestml_model_name = 'fir_filter_nestml'
         target_path = '/tmp/fir-filter'
+        target_platform = "NEST"
         logging_level = 'INFO'
         module_name = 'nestmlmodule'
         store_log = False
         suffix = '_nestml'
         dev = True
+        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+        codegen_opts = {"nest_path": nest_path}
 
         # Generate the NEST code
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', nestml_model_file)))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
-        install_nest(target_path, nest_path)
+        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
 
         t_sim = 101.
         resolution = 0.1

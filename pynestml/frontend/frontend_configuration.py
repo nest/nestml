@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 import argparse
 import glob
@@ -45,7 +45,7 @@ help_codegen_opts = 'Path to a JSON file containing additional options for the t
 
 qualifier_input_path_arg = '--input_path'
 qualifier_target_path_arg = '--target_path'
-qualifier_target_arg = '--target'
+qualifier_target_platform_arg = '--target_platform'
 qualifier_logging_level_arg = '--logging_level'
 qualifier_module_name_arg = '--module_name'
 qualifier_store_log_arg = '--store_log'
@@ -78,6 +78,8 @@ class FrontendConfiguration:
         :param args: a set of arguments as handed over to the frontend
         :type args: list(str)
         """
+        from pynestml.codegeneration.code_generator import CodeGenerator
+
         cls.argument_parser = argparse.ArgumentParser(
             description='''NESTML is a domain specific language that supports the specification of neuron
 models in a precise and concise syntax, based on the syntax of Python. Model
@@ -91,8 +93,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', nargs='+',
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
-        cls.argument_parser.add_argument(qualifier_target_arg, choices=[
-                                         'NEST', 'autodoc', 'none'], type=str, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=CodeGenerator.get_known_targets(), type=str.upper, help=help_target, default='NEST')
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
                                          'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
@@ -107,7 +108,7 @@ appropriate numeric solver otherwise.
         Logger.init_logger(Logger.string_to_level(parsed_args.logging_level))
 
         cls.handle_input_path(parsed_args.input_path)
-        cls.handle_target(parsed_args.target)
+        cls.handle_target_platform(parsed_args.target_platform)
         cls.handle_target_path(parsed_args.target_path)
         cls.handle_module_name(parsed_args.module_name)
         cls.handle_codegen_opts_fn(parsed_args.codegen_opts_fn)
@@ -134,13 +135,13 @@ appropriate numeric solver otherwise.
         return cls.paths_to_compilation_units
 
     @classmethod
-    def get_target(cls):
+    def get_target_platform(cls):
         """
         Get the name of the target platform.
         :return: None or "" in case no code needs to be generated
         :rtype: str
         """
-        return cls.target
+        return cls.target_platform
 
     @classmethod
     def get_logging_level(cls):
@@ -223,18 +224,18 @@ appropriate numeric solver otherwise.
                                + cls.module_name + '"', log_level=LoggingLevel.INFO)
 
     @classmethod
-    def handle_target(cls, target):
-        if target is None or target.upper() == 'NONE':
-            target = ''     # make sure `target` is always a string
+    def handle_target_platform(cls, target_platform: Optional[str]):
+        if target_platform is None or target_platform.upper() == 'NONE':
+            target_platform = ''     # make sure `target_platform` is always a string
 
-        from pynestml.codegeneration.codegenerator import CodeGenerator
+        from pynestml.codegeneration.code_generator import CodeGenerator
 
-        if target.upper() not in CodeGenerator.get_known_targets():
-            code, message = Messages.get_unknown_target(target)
+        if target_platform.upper() not in CodeGenerator.get_known_targets():
+            code, message = Messages.get_unknown_target_platform(target_platform)
             Logger.log_message(None, code, message, None, LoggingLevel.ERROR)
             raise InvalidTargetException()
 
-        cls.target = target
+        cls.target_platform = target_platform
 
     @classmethod
     def handle_target_path(cls, path):

@@ -23,7 +23,7 @@ import os
 import nest
 import unittest
 import numpy as np
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 try:
     import matplotlib
@@ -47,13 +47,13 @@ class NestWBCondExpTest(unittest.TestCase):
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         suffix = '_nestml'
 
-        to_nest(input_path=input_path,
-                target_path=target_path,
-                logging_level="INFO",
-                suffix=suffix,
-                module_name=module_name)
-
-        install_nest(target_path, nest_path)
+        generate_target(input_path=input_path,
+                        target_path=target_path,
+                        target_platform="NEST",
+                        logging_level="INFO",
+                        suffix=suffix,
+                        module_name=module_name,
+                        codegen_opts={"nest_path": nest_path})
 
         nest.Install("nestmlmodule")
         model = "traub_cond_multisyn_nestml"

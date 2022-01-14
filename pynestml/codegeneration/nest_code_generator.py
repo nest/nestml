@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_codegenerator.py
+# nest_code_generator.py
 #
 # This file is part of NEST.
 #
@@ -29,7 +29,7 @@ from odetoolbox import analysis
 
 import pynestml
 from pynestml.codegeneration.ast_transformers import ASTTransformers
-from pynestml.codegeneration.codegenerator import CodeGenerator
+from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.codegeneration.expressions_pretty_printer import ExpressionsPrettyPrinter
 from pynestml.codegeneration.gsl_names_converter import GSLNamesConverter
 from pynestml.codegeneration.gsl_reference_converter import GSLReferenceConverter
@@ -126,6 +126,12 @@ class NESTCodeGenerator(CodeGenerator):
         self.numeric_solver = {}
         self.non_equations_state_variables = {}   # those state variables not defined as an ODE in the equations block
         self.setup_template_env()
+
+        self.gsl_reference_converter = GSLReferenceConverter()
+        self.gsl_printer = UnitlessExpressionPrinter(self.gsl_reference_converter)
+
+        self.nest_reference_converter = NESTReferenceConverter()
+        self.unitless_printer = UnitlessExpressionPrinter(self.nest_reference_converter)
 
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
@@ -929,11 +935,6 @@ class NESTCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         from pynestml.utils.ast_utils import ASTUtils
-        gsl_converter = GSLReferenceConverter()
-        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
-        # helper classes and objects
-        converter = NESTReferenceConverter(False)
-        unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
 
@@ -961,14 +962,14 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['synapse'] = synapse
         namespace['astnode'] = synapse
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
-        namespace['printer'] = NestPrinter(unitless_pretty_printer)
+        namespace['printer'] = NestPrinter(self.unitless_printer)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils
         namespace['idemPrinter'] = UnitlessExpressionPrinter()
         namespace['odeTransformer'] = OdeTransformer()
-        namespace['printerGSL'] = gsl_printer
+        namespace['printerGSL'] = self.gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
         namespace['has_state_vectors'] = False
@@ -1035,9 +1036,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace['useGSL'] = namespace['uses_numeric_solver']
             namespace['names'] = GSLNamesConverter()
-            converter = NESTReferenceConverter(True)
-            unitless_pretty_printer = UnitlessExpressionPrinter(converter)
-            namespace['printer'] = NestPrinter(unitless_pretty_printer)
+            namespace['printer'] = NestPrinter(self.unitless_printer)
 
         namespace["spike_updates"] = synapse.spike_updates
 
@@ -1062,11 +1061,6 @@ class NESTCodeGenerator(CodeGenerator):
         :rtype: dict
         """
         from pynestml.utils.ast_utils import ASTUtils
-        gsl_converter = GSLReferenceConverter()
-        gsl_printer = UnitlessExpressionPrinter(gsl_converter)
-        # helper classes and objects
-        converter = NESTReferenceConverter(False)
-        unitless_pretty_printer = UnitlessExpressionPrinter(converter)
 
         namespace = dict()
 
@@ -1086,8 +1080,8 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['neuron'] = neuron
         namespace['astnode'] = neuron
         namespace['moduleName'] = FrontendConfiguration.get_module_name()
-        namespace['printer'] = NestPrinter(unitless_pretty_printer)
-        namespace['nest_printer'] = NestPrinter(unitless_pretty_printer, names_converter=NestNamesConverter)
+        namespace['printer'] = NestPrinter(self.unitless_printer)
+        namespace['nest_printer'] = NestPrinter(self.unitless_printer, names_converter=NestNamesConverter)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
@@ -1097,7 +1091,7 @@ class NESTCodeGenerator(CodeGenerator):
         namespace['has_spike_input'] = ASTUtils.has_spike_input(neuron.get_body())
         namespace['has_continuous_input'] = ASTUtils.has_continuous_input(neuron.get_body())
         namespace['odeTransformer'] = OdeTransformer()
-        namespace['printerGSL'] = gsl_printer
+        namespace['printerGSL'] = self.gsl_printer
         namespace['now'] = datetime.datetime.utcnow()
         namespace['tracing'] = FrontendConfiguration.is_dev
         namespace['has_state_vectors'] = neuron.has_state_vectors()
@@ -1200,9 +1194,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             namespace['useGSL'] = namespace['uses_numeric_solver']
             namespace['names'] = GSLNamesConverter()
-            converter = NESTReferenceConverter(True)
-            unitless_pretty_printer = UnitlessExpressionPrinter(converter)
-            namespace['printer'] = NestPrinter(unitless_pretty_printer)
+            namespace['printer'] = NestPrinter(self.unitless_printer)
         namespace["spike_updates"] = neuron.spike_updates
 
         namespace["recordable_state_variables"] = [sym for sym in neuron.get_state_symbols()

@@ -23,7 +23,7 @@ import os
 import nest
 import unittest
 import numpy as np
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 try:
     import matplotlib
@@ -43,17 +43,18 @@ class NestWBCondExpTest(unittest.TestCase):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "../../models/neurons", "traub_psc_alpha.nestml")))
         target_path = "target"
-        module_name = 'nestmlmodule'
+        target_platform = "NEST"
+        module_name = "nestmlmodule"
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-        suffix = '_nestml'
+        suffix = "_nestml"
 
-        to_nest(input_path=input_path,
-                target_path=target_path,
-                logging_level="INFO",
-                suffix=suffix,
-                module_name=module_name)
-
-        install_nest(target_path, nest_path)
+        generate_target(input_path=input_path,
+                        target_path=target_path,
+                        target_platform=target_platform,
+                        logging_level="INFO",
+                        suffix=suffix,
+                        module_name=module_name,
+                        codegen_opts={"nest_path": nest_path})
 
         nest.Install("nestmlmodule")
         model = "traub_psc_alpha_nestml"
@@ -65,7 +66,7 @@ class NestWBCondExpTest(unittest.TestCase):
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
 
-        neuron.set({'I_e': 130.0})
+        neuron.set({"I_e": 130.0})
         multimeter = nest.Create("multimeter")
         multimeter.set({"record_from": ["V_m"],
                         "interval": dt})
@@ -77,8 +78,8 @@ class NestWBCondExpTest(unittest.TestCase):
         dmm = nest.GetStatus(multimeter)[0]
         Voltages = dmm["events"]["V_m"]
         tv = dmm["events"]["times"]
-        dSD = nest.GetStatus(spike_recorder, keys='events')[0]
-        spikes = dSD['senders']
+        dSD = nest.GetStatus(spike_recorder, keys="events")[0]
+        spikes = dSD["senders"]
         ts = dSD["times"]
 
         firing_rate = len(spikes) / t_simulation * 1000
@@ -86,13 +87,12 @@ class NestWBCondExpTest(unittest.TestCase):
         expected_value = np.abs(firing_rate - 50)
         tolerance_value = 5  # Hz
 
-        self.assertLessEqual(expected_value, tolerance_value)
+        assert expected_value <= tolerance_value
 
         if TEST_PLOTS:
-
             fig, ax = plt.subplots(2, figsize=(8, 6), sharex=True)
             ax[0].plot(tv, Voltages, lw=2, color="k")
-            ax[1].plot(ts, spikes, 'ko')
+            ax[1].plot(ts, spikes, "ko")
             ax[1].set_xlabel("Time [ms]")
             ax[1].set_xlim(0, t_simulation)
             ax[1].set_ylabel("Spikes")

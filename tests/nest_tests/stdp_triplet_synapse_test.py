@@ -22,7 +22,7 @@
 import nest
 import numpy as np
 import pytest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 try:
     import matplotlib
@@ -36,21 +36,22 @@ except Exception:
 
 @pytest.fixture(autouse=True,
                 scope="module")
-def nestml_to_nest_extension_module():
+def nestml_generate_target():
     """Generate the neuron model code"""
     nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
-    to_nest(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"],
-            target_path="/tmp/nestml-triplet-stdp",
-            logging_level="INFO",
-            module_name="nestml_triplet_pair_module",
-            suffix="_nestml",
-            codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                          "neuron_parent_class_include": "structural_plasticity_node.h",
-                          "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                    "synapse": "stdp_triplet",
-                                                    "post_ports": ["post_spikes"]}]})
-    install_nest("/tmp/nestml-triplet-stdp", nest_path)
+    generate_target(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_triplet_naive.nestml"],
+                    target_path="/tmp/nestml-triplet-stdp",
+                    target_platform="NEST",
+                    logging_level="INFO",
+                    module_name="nestml_triplet_pair_module",
+                    suffix="_nestml",
+                    codegen_opts={"nest_path": nest_path,
+                                  "neuron_parent_class": "StructuralPlasticityNode",
+                                  "neuron_parent_class_include": "structural_plasticity_node.h",
+                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                                                            "synapse": "stdp_triplet",
+                                                            "post_ports": ["post_spikes"]}]})
 
 
 def get_trace_at(t, t_spikes, tau, initial=0., increment=1., before_increment=False, extra_debug=False):

@@ -21,7 +21,7 @@
 import os
 import unittest
 
-from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions

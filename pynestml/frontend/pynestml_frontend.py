@@ -25,10 +25,11 @@ import os
 import sys
 
 from pynestml.cocos.co_cos_manager import CoCosManager
-from pynestml.codegeneration.codegenerator import CodeGenerator
+from pynestml.codegeneration.builder import Builder
+from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
-    qualifier_target_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
+    qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
     qualifier_dev_arg, qualifier_codegen_opts_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
@@ -37,12 +38,11 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
-from pynestml.utils.model_installer import install_nest as nest_installer
 
 
-def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
-            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
-    '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
+def generate_target(input_path: Union[str, Sequence[str]], target_path=None, target_platform: str = 'NEST', logging_level='ERROR',
+                    module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    '''Generate and build code for the given target platform.
 
     Parameters
     ----------
@@ -50,6 +50,8 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
+    target_platform : str, optional (default: 'NEST')
+        Which target platform to generate code for.
     logging_level : str, optional (default: 'ERROR')
         Sets which level of information should be displayed duing code generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
     module_name : str, optional (default: "nestmlmodule")
@@ -78,8 +80,9 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         args.append(qualifier_target_path_arg)
         args.append(str(target_path))
 
-    args.append(qualifier_target_arg)
-    args.append(str("NEST"))
+    args.append(qualifier_target_platform_arg)
+    args.append(target_platform)
+
     args.append(qualifier_logging_level_arg)
     args.append(str(logging_level))
 
@@ -104,25 +107,6 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
 
     if not process() == 0:
         raise Exception("Error(s) occurred while processing the model")
-
-
-def install_nest(target_path: str, nest_path: str) -> None:
-    '''
-    This method can be used to build the generated code and install the resulting extension module into NEST.
-
-    Parameters
-    ----------
-    target_path : str
-        Path to the target directory, which should contain the generated code artifacts (target platform code and CMake configuration file).
-    nest_path : str
-        Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
-
-    Raises
-    ------
-    GeneratedCodeBuildException
-        If any kind of failure occurs during cmake configuration, build, or install.
-    '''
-    nest_installer(target_path, nest_path)
 
 
 def main() -> int:
@@ -204,13 +188,20 @@ def process():
                     errors_occurred = True
 
         # perform code generation
-        _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target(),
+        _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target_platform(),
                                                         options=FrontendConfiguration.get_codegen_opts())
         _codeGenerator.generate_code(neurons, synapses)
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
                 errors_occurred = True
                 break
+
+    # perform build
+    if not errors_occurred:
+        _builder = Builder.from_target_name(FrontendConfiguration.get_target_platform(),
+                                            options=FrontendConfiguration.get_codegen_opts())
+        if _builder is not None:
+            _builder.build()
 
     if FrontendConfiguration.store_log:
         store_log_to_file()

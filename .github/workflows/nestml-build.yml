@@ -2,11 +2,10 @@ name: NESTML build
 on: [push, pull_request]
 
 jobs:
-  build:
+  nest-3-latest:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-
     steps:
       # Checkout the repository contents
       - name: Checkout NESTML code
@@ -136,11 +135,9 @@ jobs:
           # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
           export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
           echo $ALL_MODEL_FILENAMES
-          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module
-          cd target
           echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
-          cmake -Dwith-nest=${{ env.NEST_INSTALL }}/bin/nest-config .
-          make && make install
+          sed -i 's|%NEST_PATH%|${{ env.NEST_INSTALL }}|' tests/nest_tests/resources/nest_codegen_opts.json
+          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nest_codegen_opts.json
 
       # Integration tests
       - name: Run integration tests
@@ -150,4 +147,93 @@ jobs:
           for fn in $GITHUB_WORKSPACE/tests/nest_tests/*.py; do
               pytest -s -o log_cli=true -o log_cli_level="DEBUG" ${fn} || rc=1
           done;
+          exit $rc
+
+  nest-2:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    env:
+      NEST_VERSION_MAJOR: 2
+    steps:
+      # Checkout the repository contents
+      - name: Checkout NESTML code
+        uses: actions/checkout@v2
+
+      # Setup Python version
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      # Install dependencies
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libltdl7-dev libgsl0-dev libncurses5-dev libreadline6-dev pkg-config
+          sudo apt-get install python3-all-dev python3-matplotlib python3-numpy python3-scipy ipython3
+
+      # Install Python dependencies
+      - name: Python dependencies
+        run: |
+          python -m pip install --upgrade pip pytest jupyterlab matplotlib pycodestyle
+          python -m pip install -r requirements.txt
+          python -m pip install scipy
+          # python -m pip uninstall --yes odetoolbox
+          # python -m pip install git+https://github.com/nest/ode-toolbox
+
+      - name: Install NESTML
+        run: |
+          echo PYTHONPATH=`pwd` >> $GITHUB_ENV
+          python setup.py install
+
+      # Install NEST simulator
+      - name: NEST simulator
+        run: |
+          python -m pip install cython
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          cd $GITHUB_WORKSPACE/..
+          NEST_SIMULATOR=$(pwd)/nest-simulator
+          NEST_INSTALL=$(pwd)/nest_install
+          echo "NEST_SIMULATOR = $NEST_SIMULATOR"
+          echo "NEST_INSTALL = $NEST_INSTALL"
+          echo "NEST_VERSION_MAJOR = $NEST_VERSION_MAJOR"
+
+          git clone --depth=1 https://github.com/nest/nest-simulator --branch v2.20.2
+          cd nest-simulator
+          git status
+          cd ..
+          mkdir nest_install
+          echo "NEST_INSTALL=$NEST_INSTALL" >> $GITHUB_ENV
+          cd nest_install
+          cmake -DCMAKE_INSTALL_PREFIX=$NEST_INSTALL $NEST_SIMULATOR
+          make && make install
+
+      # Install NESTML (repeated)
+      - name: Install NESTML
+        run: |
+          export PYTHONPATH=${{ env.PYTHONPATH }}:${{ env.NEST_INSTALL }}/lib/python3.9/site-packages
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          python setup.py install
+
+      # Integration tests: prepare (make module containing all NESTML models)
+      - name: Setup integration tests
+        run: |
+          cd $GITHUB_WORKSPACE
+          # exclude third factor plasticity models; these will only compile successfully if code generation is as a neuron+synapse pair
+          export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
+          echo $ALL_MODEL_FILENAMES
+          echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
+          sed -i 's|%NEST_PATH%|${{ env.NEST_INSTALL }}|' tests/nest_tests/resources/nestml_allmodels_codegen_opts.json
+          cat tests/nest_tests/resources/nestml_allmodels_codegen_opts.json
+          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --target_platform NEST2 --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nestml_allmodels_codegen_opts.json
+
+      # Integration tests
+      - name: Run integration tests
+        env:
+          LD_LIBRARY_PATH: ${{ env.NEST_INSTALL }}/lib/nest
+        run: |
+          cd $GITHUB_WORKSPACE
+          rc=0
+          pytest -s -o log_cli=true -o log_cli_level="DEBUG" tests/nest_tests/nest2_compat_test.py || rc=1
           exit $rc

@@ -23,7 +23,7 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest, install_nest
+from pynestml.frontend.pynestml_frontend import generate_target
 
 
 class NestResolutionBuiltinTest(unittest.TestCase):
@@ -34,16 +34,17 @@ class NestResolutionBuiltinTest(unittest.TestCase):
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        to_nest(input_path=["tests/nest_tests/resources/iaf_psc_exp_resolution_test.nestml", os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "valid", "CoCoResolutionLegallyUsed.nestml")))],
-                target_path="target",
-                logging_level="INFO",
-                module_name="nestmlmodule",
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test",
-                                                        "synapse": "CoCoResolutionLegallyUsed"}]})
-        install_nest("target", nest_path)
+        generate_target(input_path=["tests/nest_tests/resources/iaf_psc_exp_resolution_test.nestml", os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "valid", "CoCoResolutionLegallyUsed.nestml")))],
+                        target_path="target",
+                        target_platform="NEST",
+                        logging_level="INFO",
+                        module_name="nestmlmodule",
+                        suffix="_nestml",
+                        codegen_opts={"nest_path": nest_path,
+                                      "neuron_parent_class": "StructuralPlasticityNode",
+                                      "neuron_parent_class_include": "structural_plasticity_node.h",
+                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_resolution_test",
+                                                                "synapse": "CoCoResolutionLegallyUsed"}]})
 
     def test_resolution_function(self):
         nest.set_verbosity("M_ALL")
