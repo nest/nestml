@@ -52,6 +52,7 @@ from pynestml.cocos.co_co_state_variables_initialized import CoCoStateVariablesI
 from pynestml.cocos.co_co_sum_has_correct_parameter import CoCoSumHasCorrectParameter
 from pynestml.cocos.co_co_input_port_qualifier_unique import CoCoInputPortQualifierUnique
 from pynestml.cocos.co_co_user_defined_function_correctly_defined import CoCoUserDefinedFunctionCorrectlyDefined
+from pynestml.cocos.co_co_v_comp_exists import CoCoVCompDefined
 from pynestml.cocos.co_co_variable_once_per_scope import CoCoVariableOncePerScope
 from pynestml.cocos.co_co_vector_variable_in_non_vector_declaration import CoCoVectorVariableInNonVectorDeclaration
 from pynestml.cocos.co_co_function_argument_template_types_consistent import CoCoFunctionArgumentTemplateTypesConsistent
@@ -118,7 +119,16 @@ class CoCosManager:
         synapses are defined by inlines that use kernels
         """
         CoCoSynapsesModel.check_co_co(neuron)
-        
+
+    @classmethod
+    def check_v_comp_requirement(cls, neuron: ASTNeuron, after_ast_rewrite: bool):
+        """
+        In compartmental case, checks if v_comp variable was defined
+        :param neuron: a single neuron object
+        """
+        CoCoVCompDefined.check_co_co(neuron, after_ast_rewrite)
+
+
     @classmethod
     def check_compartmental_model(cls, neuron: ASTNeuron, after_ast_rewrite: bool) -> None:
         """
@@ -372,6 +382,7 @@ class CoCosManager:
         cls.check_variables_unique_in_scope(neuron)
         cls.check_state_variables_initialized(neuron)
         cls.check_variables_defined_before_usage(neuron, after_ast_rewrite)
+        cls.check_v_comp_requirement(neuron, after_ast_rewrite)
         cls.check_compartmental_model(neuron, after_ast_rewrite)
         cls.check_synapses_model(neuron)
         cls.check_inline_expressions_have_rhs(neuron)

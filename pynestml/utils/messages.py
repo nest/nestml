@@ -20,6 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from enum import Enum
 from typing import Tuple
+
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from collections.abc import Iterable
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -118,6 +120,7 @@ class MessageCode(Enum):
     CM_VARIABLE_NAME_MULTI_USE = 85
     CM_NO_VALUE_ASSIGNMENT = 86
     SYNS_BAD_BUFFER_COUNT = 87
+    CM_NO_V_COMP = 88
 
 class Messages:
     """
@@ -1235,8 +1238,18 @@ class Messages:
         return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
 
     @classmethod
+    def get_v_comp_variable_value_missing(cls, neuron_name: str):
+        message = "Missing state variable '" + FrontendConfiguration.getCompartmentalVariableName()
+        message += "' in side of neuron +'" +neuron_name+ "'+. "
+        message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
+        message += "In this mode, such variable must be declared in the state block.\n"
+        message += "This variable represents the value of the compartmental voltage "
+        message += "and should be utilized in your equations for voltage activated ion channels."
+        return MessageCode.CM_NO_V_COMP, message
+
+    @classmethod
     def get_syns_bad_buffer_count(cls, buffers: set, synapse_name: str):
-        message = "Synapse `\'%s\' uses the following inout buffers: %s" % (synapse_name, buffers)
+        message = "Synapse `\'%s\' uses the following input buffers: %s" % (synapse_name, buffers)
         message += " However exaxtly one spike input buffer per synapse is allowed."
         return MessageCode.SYNS_BAD_BUFFER_COUNT, message
 

@@ -70,6 +70,7 @@ class FrontendConfiguration:
     is_dev = False
     codegen_opts = {}  # type: Mapping[str, Any]
     codegen_opts_fn = ''
+    compartmental_variable_name = "v_comp"
 
     @classmethod
     def parse_config(cls, args):
@@ -119,6 +120,10 @@ appropriate numeric solver otherwise.
     @classmethod
     def targetIsCompartmental(cls):
         return cls.get_target() == 'NEST_COMPARTMENTAL'
+
+    @classmethod
+    def getCompartmentalVariableName(cls):
+        return cls.compartmental_variable_name
 
     @classmethod
     def get_provided_input_path(cls) -> Sequence[str]:
