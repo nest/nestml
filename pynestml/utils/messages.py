@@ -21,7 +21,6 @@
 from enum import Enum
 from typing import Tuple
 
-from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from collections.abc import Iterable
 from pynestml.meta_model.ast_variable import ASTVariable
@@ -1238,8 +1237,8 @@ class Messages:
         return MessageCode.CM_NO_VALUE_ASSIGNMENT, message
 
     @classmethod
-    def get_v_comp_variable_value_missing(cls, neuron_name: str):
-        message = "Missing state variable '" + FrontendConfiguration.getCompartmentalVariableName()
+    def get_v_comp_variable_value_missing(cls, neuron_name: str, missing_variable_name):
+        message = "Missing state variable '" + missing_variable_name
         message += "' in side of neuron +'" +neuron_name+ "'+. "
         message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
         message += "In this mode, such variable must be declared in the state block.\n"

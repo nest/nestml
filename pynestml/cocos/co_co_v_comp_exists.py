@@ -49,11 +49,13 @@ class CoCoVCompDefined(CoCo):
             If True, checks are not as rigorous. Use False where possible.
         """
 
+    
         if not FrontendConfiguration.targetIsCompartmental(): return
+        enforced_variable_name = FrontendConfiguration.getCompartmentalVariableName()
 
         state_blocks = neuron.get_state_blocks()
         if state_blocks is None:
-            cls.log_error(neuron, neuron.get_source_position())
+            cls.log_error(neuron, neuron.get_source_position(), enforced_variable_name)
             return False
 
         if isinstance(state_blocks, ASTBlockWithVariables):
@@ -65,13 +67,13 @@ class CoCoVCompDefined(CoCo):
                 variables = declaration.get_variables()
                 for variable in variables:
                     variable_name = variable.get_name().lower().strip()
-                    if variable_name == FrontendConfiguration.getCompartmentalVariableName():
+                    if variable_name == enforced_variable_name:
                         return True
 
-        cls.log_error(neuron, state_blocks[0].get_source_position())
+        cls.log_error(neuron, state_blocks[0].get_source_position(), enforced_variable_name)
         return False
 
     @classmethod
-    def log_error(cls, neuron: ASTNeuron, error_position):
-        code, message = Messages.get_v_comp_variable_value_missing(neuron.get_name())
+    def log_error(cls, neuron: ASTNeuron, error_position, missing_variable_name):
+        code, message = Messages.get_v_comp_variable_value_missing(neuron.get_name(), missing_variable_name)
         Logger.log_message(error_position=error_position, node=neuron, log_level=LoggingLevel.ERROR, code=code, message=message)
