@@ -1242,7 +1242,7 @@ class Messages:
         message += "' in side of neuron +'" +neuron_name+ "'+. "
         message += "You have passed NEST_COMPARTMENTAL flag to the generator, thereby activating compartmental mode."
         message += "In this mode, such variable must be declared in the state block.\n"
-        message += "This variable represents the value of the compartmental voltage "
+        message += "This variable represents the dynamically calculated value of membrane potential "
         message += "and should be utilized in your equations for voltage activated ion channels."
         return MessageCode.CM_NO_V_COMP, message
 
