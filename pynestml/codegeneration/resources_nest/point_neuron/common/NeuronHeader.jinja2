@@ -251,47 +251,19 @@ public:
   // -------------------------------------------------------------------------
   //   Getters/setters for state block
   // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for state in neuron.get_state_symbols() %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- with variable = state %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endif %}
-{%- endfor %}
-{%- endfilter %}
+  {%- include "directives/StateGetterAndSetter.jinja2" %}
   // -------------------------------------------------------------------------
   //   Getters/setters for parameters
   // -------------------------------------------------------------------------
+  {%- include "directives/ParametersGetterAndSetter.jinja2" %}
 
-{% filter indent(2, True) -%}
-{%- for parameter in neuron.get_parameter_symbols() %}
-{%- with variable = parameter %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
+
   // -------------------------------------------------------------------------
   //   Getters/setters for internals
   // -------------------------------------------------------------------------
 
-{% filter indent(2, True) -%}
-{%- for internal in neuron.get_internal_symbols() %}
-{%- with variable = internal %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
+{%- include "directives/InternalsGetterAndSetter.jinja2" %}
 
-{%- if paired_synapse is defined %}
-
-  /* getters/setters for variables transferred from synapse */
-
-{%- for var in transferred_variables %}
-  double get_{{var}}( double t, const bool before_increment = true );
-{%- endfor %}
-{%- endif %}
 
 protected:
 {%- if paired_synapse is defined %}
@@ -389,12 +361,12 @@ private:
   friend class nest::UniversalDataLogger<{{neuronName}}>;
 {%- endif %}
 
-  {%- include "directives/ParameterStruct.jinja2" %}
+  {%- include "directives/ParametersStruct.jinja2" %}
 
   {%- include "directives/StateStruct.jinja2" %}
   
 
-  {%- include "directives/InternalStruct.jinja2" %} 
+  {%- include "directives/VariablesStruct.jinja2" %} 
 
   /**
    * Buffers of the neuron.

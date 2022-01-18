@@ -110,16 +110,35 @@ class NestCppPrinter:
             outputs[names] = printed_declaration
         return outputs
 
-    def print_struct(self, struct_template_name):
+    def print_struct(self, struct_template_name, include_instance=True):
         struct_template = self.get_template(struct_template_name)
         cpp_struct = struct_template.render(self.namespace)
+        if include_instance:
+            type_name = struct_template_name.split("Struct")[0] + "_"
+            instance_name = f"{type_name[0]}_"
+            instance_declaration = f"{type_name} {instance_name};"
+            cpp_struct = f"{cpp_struct}\n{instance_declaration}"
         return cpp_struct
 
-    def print_state_struct(self):
-        return self.print_struct("StateStruct")
+    def print_state_struct(self, include_instance=True):
+        return self.print_struct("StateStruct", include_instance)
 
-    def print_parameters_struct(self):
-        return self.print_struct("ParameterStruct")
+    def print_parameters_struct(self, include_instance=True):
+        return self.print_struct("ParametersStruct", include_instance)
 
-    def print_internal_struct(self):
-        return self.print_struct("InternalStruct")
+    def print_internal_struct(self, include_instance=True):
+        return self.print_struct("VariablesStruct", include_instance)
+
+    def print_block_getter_setter(self, block_template_name):
+        block_template = self.get_template(block_template_name)
+        cpp_getter_setter_block = block_template.render(self.namespace)
+        return cpp_getter_setter_block
+
+    def print_state_getter_setter(self):
+        return self.print_block_getter_setter("StateGetterAndSetter")
+
+    def print_parameters_getter_setter(self):
+        return self.print_block_getter_setter("ParametersGetterAndSetter")
+
+    def print_internals_getter_setter(self):
+        return self.print_block_getter_setter("InternalsGetterAndSetter")

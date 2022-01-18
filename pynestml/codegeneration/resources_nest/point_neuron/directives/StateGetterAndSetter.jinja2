@@ -1,0 +1,10 @@
+
+{% filter indent(2, True) -%}
+{%- for state in neuron.get_state_symbols() %}
+{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
+{%- with variable = state %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endif %}
+{%- endfor %}
+{%- endfilter %}

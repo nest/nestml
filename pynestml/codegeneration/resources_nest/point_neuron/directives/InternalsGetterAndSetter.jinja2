@@ -1,0 +1,16 @@
+{% filter indent(2, True) -%}
+{%- for internal in neuron.get_internal_symbols() %}
+{%- with variable = internal %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endfor %}
+{%- endfilter %}
+
+{%- if paired_synapse is defined %}
+
+  /* getters/setters for variables transferred from synapse */
+
+{%- for var in transferred_variables %}
+  double get_{{var}}( double t, const bool before_increment = true );
+{%- endfor %}
+{%- endif %}
