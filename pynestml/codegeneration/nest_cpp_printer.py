@@ -95,3 +95,13 @@ class NestCppPrinter:
             output = self.print_function(func, namespace)
             outputs[name] = output
         return outputs
+
+    def print_declaration(self, ast_block):
+        declarations = ast_block.get_declarations()
+        outputs = {}
+        for declaration in declarations:
+            variables = declaration.get_variables()
+            names = [v.name for v in variables]
+            printed_declaration = self.print_declaration(declaration)
+            outputs[names] = printed_declaration
+        return outputs
