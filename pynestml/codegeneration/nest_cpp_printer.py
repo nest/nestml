@@ -66,8 +66,13 @@ class NestCppPrinter:
         template = self.env.get_template(f"{template_name}.jinja2")
         return template
 
-    def print_function(self, func: ASTFunction, func_namespace=""):
-        output = self.namespace["printer"].print_function_definition(func, func_namespace)
+    def print_function(self, func: ASTFunction, func_namespace=None):
+        if func_namespace is None:
+            func_namespace = "toRemove"
+            output = self.namespace["printer"].print_function_definition(func, func_namespace)
+            output = output.replace("toRemove::", "")
+        else:
+            output = self.namespace["printer"].print_function_definition(func, func_namespace)
         output += "{"
 
         ast = copy.deepcopy(self.namespace.get("ast", None))
@@ -94,7 +99,7 @@ class NestCppPrinter:
         self.namespace["ast"] = ast
         return cpp_declaration
 
-    def print_functions(self, namespace=""):
+    def print_functions(self, namespace=None):
         functions = self.node.get_functions()
         outputs = {}
         for func in functions:
@@ -164,3 +169,7 @@ class NestCppPrinter:
                 return output
             else:
                 raise ValueError(f"blocks_name must be either None or in {accepted_blocks_name}")
+
+    def print_default_constructorBody(self):
+        default_constructor_template = self.get_template("DefaultConstructorBody")
+        return default_constructor_template.render(self.namespace)
