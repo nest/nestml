@@ -1,4 +1,26 @@
- 
+
+
+/**
+   * Dynamic state of the neuron.
+   *
+   {{neuron.print_state_comment('*')}}
+   *
+   * These are the state variables that are advanced in time by calls to
+   * @c update(). In many models, some or all of them can be set by the user
+   * through @c `node.set()`. The state variables are initialized from the model
+   * prototype when the node is created. State variables are reset by @c ResetNetwork.
+   *
+   * @note State_ need neither copy constructor nor @c operator=(), since
+   *       all its members are copied properly by the default copy constructor
+   *       and assignment operator. Important:
+   *       - If State_ contained @c Time members, you need to define the
+   *         assignment operator to recalibrate all members of type @c Time . You
+   *         may also want to define the assignment operator.
+   *       - If State_ contained members that cannot copy themselves, such
+   *         as C-style arrays, you need to define the copy constructor and
+   *         assignment operator to copy those members.
+  **/ 
+
  struct State_
   {
 {%- if not useGSL %}

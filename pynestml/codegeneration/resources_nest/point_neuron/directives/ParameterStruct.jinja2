@@ -1,3 +1,26 @@
+
+ 
+ /**
+   * Free parameters of the neuron.
+   *
+   {{neuron.print_parameter_comment("*")}}
+   *
+   * These are the parameters that can be set by the user through @c `node.set()`.
+   * They are initialized from the model prototype when the node is created.
+   * Parameters do not change during calls to @c update() and are not reset by
+   * @c ResetNetwork.
+   *
+   * @note Parameters_ need neither copy constructor nor @c operator=(), since
+   *       all its members are copied properly by the default copy constructor
+   *       and assignment operator. Important:
+   *       - If Parameters_ contained @c Time members, you need to define the
+   *         assignment operator to recalibrate all members of type @c Time . You
+   *         may also want to define the assignment operator.
+   *       - If Parameters_ contained members that cannot copy themselves, such
+   *         as C-style arrays, you need to define the copy constructor and
+   *         assignment operator to copy those members.
+  **/
+  
  
  struct Parameters_
   {
