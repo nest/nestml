@@ -19,17 +19,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from argparse import Namespace
 from typing import Any, List, Mapping, Optional, Sequence
 import pynestml
+from pynestml.codegeneration.ast_transformers import ASTTransformers
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_synapse import ASTSynapse
-from jinja2 import Environment, Template, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 import os
 import copy
 import textwrap
@@ -53,14 +52,18 @@ class NestCppPrinter:
             raise TypeError(
                 "The parameter node must be an instance of one the following sub-classes: [ASTNeuron, ASTSynapse]")
         self.node = node
-        self.templates_root = os.path.join(pynestml.__path__[0], "codegeneration", "resources_nest", "point_neuron")
-        self.directives = os.path.join(self.templates_root, "directives")
+
+        templates_root = os.path.join(pynestml.__path__[0], "codegeneration", "resources_nest", "point_neuron")
+        directives = os.path.join(templates_root, "directives")
+
+        loader = FileSystemLoader(templates_root)
+        self.env = Environment(loader=loader)
+        self.env.loader.searchpath.append(directives)
+
+        self.env.globals["is_delta_kernel"] = ASTTransformers.is_delta_kernel
 
     def get_template(self, template_name):
-        loader = FileSystemLoader(self.directives)
-        env = Environment(loader=loader)
-        template = env.get_template(f"{template_name}.jinja2")
-        env.loader.searchpath.append(self.templates_root)
+        template = self.env.get_template(f"{template_name}.jinja2")
         return template
 
     def print_function(self, func: ASTFunction, func_namespace=""):
@@ -142,3 +145,22 @@ class NestCppPrinter:
 
     def print_internals_getter_setter(self):
         return self.print_block_getter_setter("InternalsGetterAndSetter")
+
+    def print_getter_setter(self, blocks_name=None):
+        accepted_blocks_name = ["State", "Parameters", "Internals"]
+        output = ""
+        if blocks_name is None:
+            for block_name in accepted_blocks_name:
+                template_name = f"{block_name}GetterAndSetter"
+                output += self.print_block_getter_setter(template_name)
+                output += "\n"
+            return output
+        else:
+            if all(x in accepted_blocks_name for x in blocks_name):
+                for block_name in blocks_name:
+                    template_name = f"{block_name}GetterAndSetter"
+                    output += self.print_block_getter_setter(template_name)
+                    output += "\n"
+                return output
+            else:
+                raise ValueError(f"blocks_name must be either None or in {accepted_blocks_name}")
