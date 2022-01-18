@@ -1,0 +1,18 @@
+ 
+ struct Parameters_
+  {
+{%- filter indent(4,True) %}
+{%- for variable in neuron.get_parameter_symbols() %}
+{%- include 'directives/MemberDeclaration.jinja2' %}
+{%- endfor %}
+{%- endfilter %}
+{%- if useGSL %}
+
+    double __gsl_error_tol;
+{%- endif %}
+
+    /**
+     * Initialize parameters to their default values.
+    **/
+    Parameters_();
+  };

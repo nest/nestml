@@ -1,0 +1,52 @@
+ 
+ struct State_
+  {
+{%- if not useGSL %}
+{%- if has_state_vectors %}
+{%  include "directives/StateVariablesEnum.jinja2" %}
+{%- endif %}
+{%-   filter indent(4,True) %}
+{%-   for variable in neuron.get_state_symbols() %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfor %}
+{%-   endfilter %}
+{%- else %}
+{%- if has_state_vectors %}
+{%- include "directives/VectorVariablesEnum.jinja2" %}
+{%- endif %}
+    //! Symbolic indices to the elements of the state vector y
+    enum StateVecElems
+    {
+{#- N.B. numeric solver contains all state variables, including those that will be solved by analytic solver #}
+{%-   if uses_numeric_solver %}
+{%-     for variable_name in numeric_state_variables %}
+      {{variable_name}},
+{%-     endfor %}
+      // moved state variables from synapse
+{%-     for variable_name in purely_numeric_state_variables_moved|sort %}
+      {{variable_name}},
+{%-     endfor %}
+{%-     for variable_name in analytic_state_variables_moved|sort %}
+      {{variable_name}},
+{%-     endfor %}
+{%-     for variable_name in non_equations_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
+{%-   else %}
+{#-     analytic solver only #}
+{%-     for variable_name in analytic_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
+{%-     for variable_name in non_equations_state_variables: %}
+      {{variable_name}},
+{%-     endfor %}
+{%-   endif %}
+      STATE_VEC_SIZE
+    };
+
+    //! state vector, must be C-array for GSL solver
+    double ode_state[STATE_VEC_SIZE];
+{%- endif %}
+
+    State_();
+  };

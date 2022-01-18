@@ -20,6 +20,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from argparse import Namespace
 from typing import Any, List, Mapping, Optional, Sequence
 import pynestml
 from pynestml.meta_model.ast_declaration import ASTDeclaration
@@ -66,11 +67,13 @@ class NestCppPrinter:
         output = self.namespace["printer"].print_function_definition(func, func_namespace)
         output += "{"
 
-        namespace_copy = copy.deepcopy(self.namespace)
-        namespace_copy["ast"] = func.get_block()
+        ast = copy.deepcopy(self.namespace.get("ast", None))
+        self.namespace["ast"] = func.get_block()
 
         block_template = self.get_template("Block")
-        function_body = block_template.render(namespace_copy)
+        function_body = block_template.render(self.namespace)
+        # reset to original value
+        self.namespace["ast"] = ast
         padding = 2 * ' '
         padded_function_body = textwrap.indent(function_body, padding)
 
@@ -81,10 +84,11 @@ class NestCppPrinter:
 
     def print_declaration(self, declaration: ASTDeclaration):
         declaration_template = self.get_template("Declaration")
-        namespace_copy = copy.deepcopy(self.namespace)
-        namespace_copy["ast"] = declaration
-
-        cpp_declaration = declaration_template.render(namespace_copy)
+        ast = copy.deepcopy(self.namespace.get("ast", None))
+        self.namespace["ast"] = declaration
+        cpp_declaration = declaration_template.render(self.namespace)
+        # reset to original value
+        self.namespace["ast"] = ast
         return cpp_declaration
 
     def print_functions(self, namespace=""):
@@ -96,12 +100,26 @@ class NestCppPrinter:
             outputs[name] = output
         return outputs
 
-    def print_declaration(self, ast_block):
+    def print_declarations(self, ast_block):
         declarations = ast_block.get_declarations()
         outputs = {}
         for declaration in declarations:
             variables = declaration.get_variables()
-            names = [v.name for v in variables]
+            names = tuple([v.name for v in variables])
             printed_declaration = self.print_declaration(declaration)
             outputs[names] = printed_declaration
         return outputs
+
+    def print_struct(self, struct_template_name):
+        struct_template = self.get_template(struct_template_name)
+        cpp_struct = struct_template.render(self.namespace)
+        return cpp_struct
+
+    def print_state_struct(self):
+        return self.print_struct("StateStruct")
+
+    def print_parameters_struct(self):
+        return self.print_struct("ParameterStruct")
+
+    def print_internal_struct(self):
+        return self.print_struct("InternalStruct")

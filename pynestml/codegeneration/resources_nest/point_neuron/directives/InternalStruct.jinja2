@@ -1,0 +1,9 @@
+ 
+ struct Variables_
+  {
+{%- for variable in neuron.get_internal_symbols() %}
+{%-   filter indent(4) %}
+{%-     include "directives/MemberDeclaration.jinja2" %}
+{%-   endfilter %}
+{%- endfor %}
+  };
