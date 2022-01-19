@@ -19,49 +19,50 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
+from typing import Any, Optional
+
+import enum
 
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.utils.port_qualifier_type import PortQualifierType
 
 
 class ASTInputQualifier(ASTNode):
     """
     This class is used to store the qualifier of a buffer.
     ASTInputQualifier represents the qualifier of the input port. Only valid for spiking inputs.
-    @attribute inhibitory true Indicates that this spiking input port is inhibitory.
-    @attribute excitatory true Indicates that this spiking input port is excitatory.
 
     Grammar:
-        inputQualifier : ('inhibitory' | 'excitatory');
-
+        inputQualifier : (isInhibitory=INHIBITORY_KEYWORD
+                            | isExcitatory=EXCITATORY_KEYWORD
+                            | isPre=PRE_KEYWORD
+                            | isPost=POST_KEYWORD
+                            | isMod=MOD_KEYWORD);
     Attributes:
-        is_inhibitory = False
-        is_excitatory = False
+        qualifier_type : PortQualifierType
     """
 
-    def __init__(self, is_inhibitory=False, is_excitatory=False, *args, **kwargs):
+    def __init__(self, qualifier_type: PortQualifierType, *args, **kwargs):
         """
         Standard constructor.
 
         Parameters for superclass (ASTNode) can be passed through :python:`*args` and :python:`**kwargs`.
 
-        :param is_inhibitory: is inhibitory buffer.
-        :type is_inhibitory: bool
-        :param is_excitatory: is excitatory buffer.
-        :type is_excitatory: bool
+        qualifier_type
+            Represents the qualifier of the input port.
         """
         super(ASTInputQualifier, self).__init__(*args, **kwargs)
-        self.is_excitatory = is_excitatory
-        self.is_inhibitory = is_inhibitory
+        self.qualifier_type = qualifier_type
 
-    def clone(self):
+    def clone(self) -> ASTInputQualifier:
         """
         Return a clone ("deep copy") of this node.
 
         :return: new AST node instance
-        :rtype: ASTInputQualifier
         """
-        dup = ASTInputQualifier(is_excitatory=self.is_excitatory,
-                                is_inhibitory=self.is_inhibitory,
+        dup = ASTInputQualifier(qualifier_type=self.qualifier_type,
                                 # ASTNode common attributes:
                                 source_position=self.source_position,
                                 scope=self.scope,
@@ -73,24 +74,23 @@ class ASTInputQualifier(ASTNode):
 
         return dup
 
-    def get_parent(self, ast):
+    def get_parent(self, ast: ASTNode) -> Optional[ASTNode]:
         """
         Indicates whether a this node contains the handed over node.
         :param ast: an arbitrary meta_model node.
-        :type ast: ASTNode
         :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: Optional[ASTNode]
         """
         return None
 
-    def equals(self, other):
+    def equals(self, other: Any) -> bool:
         """
         The equals method.
         :param other: a different object.
-        :type other: object
         :return: True if equal, otherwise False.
-        :rtype: bool
         """
         if not isinstance(other, ASTInputQualifier):
             return False
-        return self.is_excitatory == other.is_excitatory and self.is_inhibitory == other.is_inhibitory
+        return self.qualifier_type == other.qualifier_type
+
+    def get_qualifier_type(self) -> PortQualifierType:
+        return self.qualifier_type

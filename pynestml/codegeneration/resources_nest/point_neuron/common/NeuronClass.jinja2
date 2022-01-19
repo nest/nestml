@@ -513,7 +513,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
     get_{{port.get_symbol_name()}}().
         add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                       {% if port.is_conductance_based() %} // ensure conductance is positive {% endif %}
-                      {% if port.is_conductance_based() %} -1 * {% endif %} weight * multiplicity );
+                      {% if port.is_conductance_based() %} -1 * {% endif %}weight * multiplicity );
   }
 {%-     endif %}
 {%-   endfor %}

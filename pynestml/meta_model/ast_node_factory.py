@@ -52,7 +52,6 @@ from pynestml.meta_model.ast_if_clause import ASTIfClause
 from pynestml.meta_model.ast_input_block import ASTInputBlock
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
-from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.meta_model.ast_neuron import ASTNeuron
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_synapse import ASTSynapse
@@ -67,6 +66,7 @@ from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_stmt import ASTStmt
+from pynestml.utils.port_qualifier_type import PortQualifierType
 from pynestml.utils.port_signal_type import PortSignalType
 
 
@@ -257,9 +257,9 @@ class ASTNodeFactory:
                             signal_type=signal_type, source_position=source_position)
 
     @classmethod
-    def create_ast_input_qualifier(cls, is_inhibitory=False, is_excitatory=False, source_position=None):
+    def create_ast_input_qualifier(cls, qualifier_type: PortQualifierType, source_position=None):
         # type: (bool,bool,ASTSourceLocation) -> ASTInputQualifier
-        return ASTInputQualifier(is_inhibitory, is_excitatory, source_position=source_position)
+        return ASTInputQualifier(qualifier_type, source_position=source_position)
 
     @classmethod
     def create_ast_logical_operator(cls, is_logical_and=False, is_logical_or=False, source_position=None):

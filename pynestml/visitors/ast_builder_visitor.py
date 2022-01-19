@@ -30,10 +30,10 @@ from pynestml.generated.PyNestMLParserVisitor import PyNestMLParserVisitor
 from pynestml.meta_model.ast_node_factory import ASTNodeFactory
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import Logger
+from pynestml.utils.port_qualifier_type import PortQualifierType
 from pynestml.utils.port_signal_type import PortSignalType
 from pynestml.visitors.ast_data_type_visitor import ASTDataTypeVisitor
 from pynestml.visitors.comment_collector_visitor import CommentCollectorVisitor
-
 
 class ASTBuilderVisitor(PyNestMLParserVisitor):
     """
@@ -690,9 +690,17 @@ class ASTBuilderVisitor(PyNestMLParserVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#inputQualifier.
     def visitInputQualifier(self, ctx):
-        is_inhibitory = True if ctx.isInhibitory is not None else False
-        is_excitatory = True if ctx.isExcitatory is not None else False
-        return ASTNodeFactory.create_ast_input_qualifier(is_inhibitory=is_inhibitory, is_excitatory=is_excitatory,
+        if ctx.isPre:
+            qualifier_type = PortQualifierType.PRE
+        elif ctx.isPost:
+            qualifier_type = PortQualifierType.POST
+        elif ctx.isMod:
+            qualifier_type = PortQualifierType.MOD
+        elif ctx.isExcitatory:
+            qualifier_type = PortQualifierType.EXCITATORY
+        elif ctx.isInhibitory:
+            qualifier_type = PortQualifierType.INHIBITORY
+        return ASTNodeFactory.create_ast_input_qualifier(qualifier_type,
                                                          source_position=create_source_pos(ctx))
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.

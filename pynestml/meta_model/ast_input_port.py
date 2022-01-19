@@ -26,6 +26,7 @@ from typing import Any, List, Optional
 from pynestml.meta_model.ast_data_type import ASTDataType
 from pynestml.meta_model.ast_input_qualifier import ASTInputQualifier
 from pynestml.meta_model.ast_node import ASTNode
+from pynestml.utils.port_qualifier_type import PortQualifierType
 from pynestml.utils.port_signal_type import PortSignalType
 
 
@@ -128,14 +129,14 @@ class ASTInputPort(ASTNode):
         """
         return self.size_parameter
 
-    def has_input_qualifiers(self) -> bool:
+    def has_qualifiers(self) -> bool:
         r"""
         Returns whether input qualifiers have been defined.
         :return: True, if at least one input qualifier has been defined.
         """
         return len(self.input_qualifiers) > 0
 
-    def get_input_qualifiers(self) -> List[ASTInputQualifier]:
+    def get_qualifiers(self) -> List[ASTInputQualifier]:
         r"""
         Returns the list of input qualifiers.
         :return: a list of input qualifiers.
@@ -155,6 +156,9 @@ class ASTInputPort(ASTNode):
         :return: True if continuous time, False otherwise.
         """
         return self.signal_type is PortSignalType.CONTINUOUS
+    
+    def get_port_signal_type(self) -> PortSignalType:
+        return self.signal_type
 
     def is_excitatory(self) -> bool:
         r"""
@@ -162,10 +166,10 @@ class ASTInputPort(ASTNode):
         excitatory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if excitatory, False otherwise.
         """
-        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
+        if self.get_qualifiers() is not None and len(self.get_qualifiers()) == 0:
             return True
-        for in_type in self.get_input_qualifiers():
-            if in_type.is_excitatory:
+        for qual in self.get_qualifiers():
+            if qual.get_qualifier_type() is PortQualifierType.EXCITATORY:
                 return True
         return False
 
@@ -175,10 +179,10 @@ class ASTInputPort(ASTNode):
         inhibitory keyword or no keywords at all shall occur (implicitly all types).
         :return: True if inhibitory, False otherwise.
         """
-        if self.get_input_qualifiers() is not None and len(self.get_input_qualifiers()) == 0:
+        if self.get_qualifiers() is not None and len(self.get_qualifiers()) == 0:
             return True
-        for in_type in self.get_input_qualifiers():
-            if in_type.is_inhibitory:
+        for qual in self.get_qualifiers():
+            if qual.get_qualifier_type() is PortQualifierType.INHIBITORY:
                 return True
         return False
 
@@ -207,7 +211,7 @@ class ASTInputPort(ASTNode):
                 return self
             if self.get_datatype().get_parent(ast) is not None:
                 return self.get_datatype().get_parent(ast)
-        for qual in self.get_input_qualifiers():
+        for qual in self.get_qualifiers():
             if qual is ast:
                 return self
             if qual.get_parent(ast) is not None:
@@ -227,16 +231,16 @@ class ASTInputPort(ASTNode):
         if self.has_index_parameter() + other.has_index_parameter() == 1:
             return False
         if (self.has_index_parameter() and other.has_index_parameter()
-                and self.get_input_qualifiers() != other.get_index_parameter()):
+                and self.get_qualifiers() != other.get_index_parameter()):
             return False
         if self.has_datatype() + other.has_datatype() == 1:
             return False
         if self.has_datatype() and other.has_datatype() and not self.get_datatype().equals(other.get_datatype()):
             return False
-        if len(self.get_input_qualifiers()) != len(other.get_input_qualifiers()):
+        if len(self.get_qualifiers()) != len(other.get_qualifiers()):
             return False
-        my_input_qualifiers = self.get_input_qualifiers()
-        your_input_qualifiers = other.get_input_qualifiers()
+        my_input_qualifiers = self.get_qualifiers()
+        your_input_qualifiers = other.get_qualifiers()
         for i in range(0, len(my_input_qualifiers)):
             if not my_input_qualifiers[i].equals(your_input_qualifiers[i]):
                 return False

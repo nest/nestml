@@ -60,6 +60,7 @@ from pynestml.meta_model.ast_unit_type import ASTUnitType
 from pynestml.meta_model.ast_update_block import ASTUpdateBlock
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_while_stmt import ASTWhileStmt
+from pynestml.utils.port_qualifier_type import PortQualifierType
 
 
 class ASTNestMLPrinter:
@@ -466,8 +467,8 @@ class ASTNestMLPrinter:
         if node.has_index_parameter():
             ret += '[' + node.get_index_parameter() + ']'
         ret += '<-'
-        if node.has_input_qualifiers():
-            for qual in node.get_input_qualifiers():
+        if node.has_qualifiers():
+            for qual in node.get_qualifiers():
                 ret += self.print_node(qual) + ' '
         if node.is_spike():
             ret += 'spike'
@@ -478,13 +479,23 @@ class ASTNestMLPrinter:
         return ret
 
     @classmethod
-    def print_input_qualifier(cls, node):
-        # type: (ASTInputQualifier) -> str
-        if node.is_inhibitory:
+    def print_input_qualifier(cls, node: ASTInputQualifier) -> str:
+        if node.get_qualifier_type() is PortQualifierType.INHIBITORY:
             return 'inhibitory'
-        if node.is_excitatory:
+
+        if node.get_qualifier_type() is PortQualifierType.EXCITATORY:
             return 'excitatory'
-        return ''
+
+        if node.get_qualifier_type() is PortQualifierType.PRE:
+            return 'pre'
+
+        if node.get_qualifier_type() is PortQualifierType.POST:
+            return 'post'
+
+        if node.get_qualifier_type() is PortQualifierType.MOD:
+            return 'mod'
+
+        assert False, 'Tried to print unknown input port qualifier: ' + node.name
 
     @classmethod
     def print_logical_operator(cls, node):

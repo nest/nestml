@@ -53,11 +53,9 @@ class NestSynapsePriorityTest(unittest.TestCase):
                                       "neuron_parent_class": "StructuralPlasticityNode",
                                       "neuron_parent_class_include": "structural_plasticity_node.h",
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                                "synapse": "synapse_event_priority_test",
-                                                                "post_ports": ["post_spikes"]},
+                                                                "synapse": "synapse_event_priority_test"},
                                                                {"neuron": "iaf_psc_delta",
-                                                                "synapse": "synapse_event_inv_priority_test",
-                                                                "post_ports": ["post_spikes"]}]})
+                                                                "synapse": "synapse_event_inv_priority_test"}]})
 
     def test_synapse_event_priority(self):
 

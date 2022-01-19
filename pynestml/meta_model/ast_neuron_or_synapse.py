@@ -22,15 +22,17 @@
 from typing import Dict, List, Optional, Union
 
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_input_port import ASTInputPort
+from pynestml.meta_model.ast_kernel import ASTKernel
 from pynestml.meta_model.ast_neuron_or_synapse_body import ASTNeuronOrSynapseBody
 from pynestml.meta_model.ast_node import ASTNode
-from pynestml.meta_model.ast_kernel import ASTKernel
-from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
+from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
-from pynestml.utils.ast_source_location import ASTSourceLocation
+from pynestml.utils.port_qualifier_type import PortQualifierType
+from pynestml.utils.port_signal_type import PortSignalType
 
 
 class ASTNeuronOrSynapse(ASTNode):
@@ -727,3 +729,48 @@ class ASTNeuronOrSynapse(ASTNode):
             if type(decl) is ASTKernel:
                 kernels.append(decl)
         return kernels
+
+    def get_input_ports(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all defined input ports.
+        :return: a list of all input ports.
+        """
+        symbols = self.get_scope().get_symbols_in_this_scope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT:
+                ret.append(symbol)
+        return ret
+
+    def get_spike_input_ports(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all spike input ports defined in the model.
+        """
+        ret = list()
+        for port in self.get_input_ports():
+            if port.is_spike_input_port():
+                ret.append(port)
+        return ret
+
+    def get_continuous_input_ports(self) -> List[VariableSymbol]:
+        """
+        Returns a list of all continuous time input ports defined in the model.
+        """
+        ret = list()
+        for port in self.get_input_ports():
+            if port.is_continuous_input_port():
+                ret.append(port)
+        return ret
+
+    def get_ports_with_qualifier(self, qualifier: PortQualifierType, port_type: Optional[PortSignalType] = None) -> List[ASTInputPort]:
+        if not self.get_input_blocks() or not self.get_input_blocks().get_input_ports():
+            return []
+
+        inports = []
+        for inport in self.get_input_blocks().get_input_ports():
+            if qualifier in [qual.qualifier_type for qual in inport.get_qualifiers()] \
+               and (port_type is None or port_type == inport.get_port_signal_type()):
+                inports.append(inport)
+                continue
+
+        return inports

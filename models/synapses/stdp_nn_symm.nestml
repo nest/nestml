@@ -76,8 +76,8 @@ synapse stdp_nn_symm:
   end
 
   input:
-    pre_spikes nS <- spike
-    post_spikes nS <- spike
+    pre_spikes nS <- pre spike
+    post_spikes nS <- post spike
   end
 
   output: spike

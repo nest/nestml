@@ -19,7 +19,7 @@ synapse noisy_synapse:
   end
 
   input:
-    pre_spikes nS <- spike
+    pre_spikes nS <- pre spike
   end
 
   output: spike

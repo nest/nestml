@@ -64,9 +64,9 @@ synapse third_factor_stdp:
   end
 
   input:
-    pre_spikes nS <- spike
-    post_spikes nS <- spike
-    I_post_dend pA <- continuous
+    pre_spikes nS <- pre spike
+    post_spikes nS <- post spike
+    I_post_dend pA <- post continuous
   end
 
   output: spike

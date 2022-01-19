@@ -34,13 +34,12 @@ The top-level element of the model is ``synapse``, followed by a name. All other
 Input and output ports
 ----------------------
 
-Depending on whether the plasticity rule depends only on pre-, or on both pre- and postsynaptic activity, one or two input ports are defined. Synapses always have only one (spiking) output port.
+Depending on whether the plasticity rule depends only on pre-, or on both pre- and postsynaptic activity, one or two input ports are defined. Synapses always have only one (spiking) output port. The port is marked by the input port qualifier keyword ``pre``, indicating that it receives spikes from a presynaptic partner.
 
 .. code-block:: nestml
 
    input:
-     pre_spikes nS <- spike
-     post_spikes nS <- spike
+     pre_spikes nS <- pre spike
    end
 
    output: spike
@@ -110,8 +109,8 @@ Some plasticity rules are defined in terms of postsynaptic spike activity. A cor
 .. code-block:: nestml
 
    input:
-     pre_spikes nS <- spike  # (same as before)
-     post_spikes nS <- spike
+     pre_spikes nS <- pre spike  # (same as before)
+     post_spikes nS <- post spike
    end
 
    onReceive(post_spikes):
@@ -146,12 +145,12 @@ An example would be a neuron that generates dendritic action potentials. The syn
 
 An additional complication is that when combining models from different sources, the naming convention can be different between the neuron and synapse model.
 
-To make the "third factor" value available in the synapse model, begin by defining an appropriate input port:
+To make the "third factor" value available in the synapse model, begin by defining an appropriate input port. It is marked by the ``post`` input port qualifier keyword, indicating it expects to receive spikes from the postsynaptic neuron.
 
 .. code-block:: nestml
 
    input:
-     I_post_dend pA <- continuous
+     I_post_dend pA <- post continuous
    end
 
 In the synapse, the value will be referred to as ``I_post_dend`` and can be used in equations and expressions. In this example, we will use it as a simple gating variable between 0 and 1, that can disable or enable weight updates in a graded manner:
@@ -167,7 +166,7 @@ In the synapse, the value will be referred to as ``I_post_dend`` and can be used
 
 In the neuron, no special output port is required; all state variables are accessible for the third factor rules.
 
-NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`).
+NESTML needs to be invoked so that it generates code for neuron and synapse together. Additionally, specify the ``"post_syn_port_map"`` entry in the code generator options, to connect the input port on the synapse with the right variable of the neuron (see :ref:`Generating code`).
 
 In this example, the ``I_dend`` state variable of the neuron will be simply an exponentially decaying function of time, which can be set to 1 at predefined times in the simulation script. By inspecting the magnitude of the weight updates, we see that the synaptic plasticity is indeed being gated by the neuronal state variable ("third factor") ``I_dend``.
 
@@ -557,7 +556,7 @@ When NESTML is invoked to generate code for plastic synapses, the code generator
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
                                                                 "synapse": "third_factor_stdp"}]})
 
-Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
+Additionally, if the synapse requires it, specify the ``"post_syn_port_map"`` entry to connect the input port on the synapse with the right variable of the postsynaptic neuron:
 
 .. code-block:: python
 
@@ -565,10 +564,9 @@ Additionally, if the synapse requires it, specify the ``"post_ports"`` entry to 
                         codegen_opts={...,
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
                                                                 "synapse": "third_factor_stdp",
-                                                                 "post_ports": ["post_spikes",
-                                                                               ["I_post_dend", "I_dend"]]}]})
+                                                                "post_syn_port_map": [["I_post_dend", "I_dend"]]]}]})
 
-This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input ports ``post_spikes`` and ``I_post_dend`` in the synapse are to be connected to the postsynaptic partner. For the ``I_post_dend`` input port, the corresponding variable in the (postsynaptic) neuron is called ``I_dend``.
+This specifies that the neuron ``iaf_psc_exp_dend`` has to be generated paired with the synapse ``third_factor_stdp``, and that the input port ``I_post_dend`` in the synapse is to be mapped to the ``I_dend`` variable in the postsynaptic neuron. The map is given as a list of tuples of length 2, in the form (synaptic variable name, neuron variable name).
 
 Simulation of volume-transmitted neuromodulation in NEST can be done using "volume transmitter" devices [5]_. These are event-based and should correspond to a "spike" type input port in NESTML. The code generator options keyword "vt_ports" can be used here.
 

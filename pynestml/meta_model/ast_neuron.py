@@ -246,38 +246,6 @@ class ASTNeuron(ASTNeuronOrSynapse):
             return None
         return ret
 
-    def get_input_ports(self) -> List[VariableSymbol]:
-        """
-        Returns a list of all defined input ports.
-        :return: a list of all input ports.
-        """
-        symbols = self.get_scope().get_symbols_in_this_scope()
-        ret = list()
-        for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.block_type == BlockType.INPUT:
-                ret.append(symbol)
-        return ret
-
-    def get_spike_input_ports(self) -> List[VariableSymbol]:
-        """
-        Returns a list of all spike input ports defined in the model.
-        """
-        ret = list()
-        for port in self.get_input_ports():
-            if port.is_spike_input_port():
-                ret.append(port)
-        return ret
-
-    def get_continuous_input_ports(self) -> List[VariableSymbol]:
-        """
-        Returns a list of all continuous time input ports defined in the model.
-        """
-        ret = list()
-        for port in self.get_input_ports():
-            if port.is_continuous_input_port():
-                ret.append(port)
-        return ret
-
     def get_parameter_symbols(self):
         """
         Returns a list of all parameter symbol defined in the model.

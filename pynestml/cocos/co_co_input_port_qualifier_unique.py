@@ -66,7 +66,7 @@ class InputPortQualifierUniqueVisitor(ASTVisitor):
         :type node: ASTInputPort
         """
         if node.is_spike():
-            if node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 1:
-                code, message = Messages.get_multiple_keywords(", ".join([str(q) for q in node.get_input_qualifiers()]))
+            if node.has_qualifiers() and len(node.get_qualifiers()) > 1:
+                code, message = Messages.get_multiple_keywords(", ".join([str(q) for q in node.get_qualifiers()]))
                 Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
                                    log_level=LoggingLevel.ERROR)

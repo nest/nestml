@@ -56,9 +56,9 @@ synapse neuromodulated_stdp:
   end
 
   input:
-    pre_spikes nS <- spike
-    post_spikes nS <- spike
-    mod_spikes real <- spike
+    pre_spikes nS <- pre spike
+    post_spikes nS <- post spike
+    mod_spikes real <- mod spike
   end
 
   output: spike
