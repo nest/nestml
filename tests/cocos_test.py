@@ -714,5 +714,23 @@ class CoCosTest(unittest.TestCase):
         #assert there is exactly 0 errors
         self.assertEqual(len(
             Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
+
+    # it is currently not enforced for the non-cm parameter block, but cm needs that
+    def test_invalid_cm_v_comp_exists(self):
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
+                         'CoCoCmVcompExists.nestml'))
+        # assert there are exactly 5 errors
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 1)
+
+    def test_valid_cm_v_comp_exists(self):
+        Logger.set_logging_level(LoggingLevel.INFO)
+        model = ModelParser.parse_model(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoCmVcompExists.nestml'))
+        # assert there is exactly 0 errors
+        self.assertEqual(len(
+            Logger.get_all_messages_of_level_and_or_node(model.get_neuron_list()[0], LoggingLevel.ERROR)), 0)
         
 
