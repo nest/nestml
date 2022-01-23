@@ -1,0 +1,41 @@
+new cocos:
+
+CoCoVectorParameterDeclaration
+CoCoVectorParameterType
+CoCoVectorDeclarationSize
+CoCoPrioritiesCorrectlySpecified
+CoCoResolutionLegallyUsed
+
+template for synaptic code - SynapseHeader.h.jinja2
+new Synapse block
+pairing between neurons and synapses ("neuron_synapse_pairs")
+new BlockType.COMMON_PARAMETERS (nest_printer.py line 283)
+new ASTExternalVariable
+PredefinedFunctions.DELIVER_SPIKE
+ASTHomogeneousParametersBlockTypeChange
+
+conductance based vs. current based
+
+synapse analysis
+gsl and analytic solver for synapses
+
+instead of ASTBody there is ASTNeuronOrSynapseBody
+
+nest_printer.py line 205 print_origin
+there is no with_origins
+
+instead of generating
+nest::Time::get_resolution().get_ms()
+now we generate
+__resolution
+
+nest_codegenerator almost completely rewritten
+
+transformations moved to ASTTransformers
+there are transformations for synapses now (analyse_transform_synapses)
+use them from there
+
+post_ports, some variables seem to be moved from synapses to neurons
+
+
+
