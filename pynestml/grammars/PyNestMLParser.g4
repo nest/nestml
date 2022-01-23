@@ -100,12 +100,16 @@ parser grammar PyNestMLParser;
 
   logicalOperator : (logicalAnd=AND_KEYWORD | logicalOr=OR_KEYWORD );
 
+  indexParameter : (sizeStr=NAME | sizeInt=UNSIGNED_INTEGER);
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute vectorParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptors]'.
     @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
-  variable : name=NAME (DIFFERENTIAL_ORDER)*;
+  variable : name=NAME
+  (LEFT_SQUARE_BRACKET vectorParameter=indexParameter RIGHT_SQUARE_BRACKET)?
+  (DIFFERENTIAL_ORDER)*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
@@ -155,7 +159,6 @@ parser grammar PyNestMLParser;
     @attribute isInlineExpression: Is true iff. declaration is an inline expression.
     @attribute variable: List with variables.
     @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
-    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
     @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
@@ -163,9 +166,21 @@ parser grammar PyNestMLParser;
     (isRecordable=RECORDABLE_KEYWORD)? (isInlineExpression=INLINE_KEYWORD)?
     variable (COMMA variable)*
     dataType
-    (LEFT_SQUARE_BRACKET sizeParameter=NAME RIGHT_SQUARE_BRACKET)?
     ( EQUALS rhs = expression)?
-    (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?;
+    (LEFT_LEFT_SQUARE invariant=expression RIGHT_RIGHT_SQUARE)?
+    decorator=anyDecorator*;
+
+  /** ...
+  */
+  anyDecorator : DECORATOR_HOMOGENEOUS | DECORATOR_HETEROGENEOUS | AT namespaceDecoratorNamespace DOUBLE_COLON namespaceDecoratorName;
+
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute differentialOrder: The corresponding differential order, e.g. 2
+  */
+  namespaceDecoratorNamespace : name=NAME;
+  namespaceDecoratorName : name=NAME;
 
   /** ASTReturnStmt Models the return statement in a function.
     @expression An optional return expression, e.g., return tempVar
@@ -192,19 +207,23 @@ parser grammar PyNestMLParser;
   whileStmt : WHILE_KEYWORD expression COLON block END_KEYWORD;
 
   /*********************************************************************************************************************
-  * NestML-Language
+  * NestML: language root element
   *********************************************************************************************************************/
 
   /** ASTNestMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestMLCompilationUnit : (neuron | NEWLINE )* EOF;
+  nestMLCompilationUnit: (neuron | synapse | NEWLINE )* EOF;
+
+/*********************************************************************************************************************
+  * NestML neuron
+  *********************************************************************************************************************/
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
     @attribute body:    The body of the neuron consisting of several sub-blocks.
   */
-  neuron : NEURON_KEYWORD NAME body;
+  neuron : NEURON_KEYWORD NAME neuronBody;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -214,9 +233,39 @@ parser grammar PyNestMLParser;
     @attribute updateBlock: A single update block containing the dynamic behavior.
     @attribute function: A block declaring a user-defined function.
   */
-  body: COLON
+  neuronBody: COLON
          (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
          END_KEYWORD;
+
+/*********************************************************************************************************************
+  * NestML synapse
+  *********************************************************************************************************************/
+
+  /** ASTSynapse Represents a single synapse.
+    @attribute Name:    The name of the synapse, e.g., ht_synapse.
+    @attribute body:    The body of the synapse consisting of several sub-blocks.
+  */
+  synapse : SYNAPSE_KEYWORD NAME COLON synapseBody;
+
+  /** ASTBody The body of the synapse, e.g. internal, state, parameter...
+    @attribute blockWithVariables: A single block of variables, e.g. the state block.
+    @attribute updateBlock: A single update block containing the dynamic behavior.
+    @attribute equationsBlock: A block of ode declarations.
+    @attribute inputBlock: A block of input buffer declarations.
+    @attribute outputBlock: A block of output declarations.
+    @attribute function: A block declaring a used-defined function.
+    @attribute onReceive: A block declaring an event handler.
+  */
+  synapseBody:
+         ( NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | function | onReceiveBlock | updateBlock )*
+         END_KEYWORD;
+
+  /** ASTOnReceiveBlock 
+     @attribute block implementation of the dynamics
+   */
+  onReceiveBlock: ON_RECEIVE_KEYWORD LEFT_PAREN inputPortName=NAME (COMMA constParameter)* RIGHT_PAREN COLON
+                block
+                END_KEYWORD;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
     state:
@@ -320,3 +369,12 @@ parser grammar PyNestMLParser;
   */
   parameter : NAME dataType;
 
+  /** ASTConstParameter represents a single parameter consisting of a name and a literal default value, e.g. "foo=42".
+    @attribute name: The name of the parameter.
+    @attribute value: The corresponding default value.
+  */
+  constParameter : name=NAME EQUALS value=(BOOLEAN_LITERAL
+                                      | UNSIGNED_INTEGER
+                                      | FLOAT
+                                      | STRING_LITERAL
+                                      | INF_KEYWORD);

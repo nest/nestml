@@ -8,7 +8,7 @@ NESTML is a domain-specific language that supports the specification of neuron m
    :hidden:
    :maxdepth: 1
 
-   nestml_language
+   nestml_language/index
    installation
    running
    models_library/index
@@ -17,10 +17,6 @@ NESTML is a domain-specific language that supports the specification of neuron m
    getting_help
    citing
    license
-
-.. admonition:: **NESTML synapse pre-alpha**
-
-   For information about pre-alpha support for models of synapses and synaptic plasticity, please visit https://nestml-synapse.readthedocs.io/en/latest/synapses_in_nestml.html.
 
 .. .. figure:: nestml-logo/nestml-logo.png
       :scale: 30 %
@@ -32,13 +28,15 @@ Model development with NESTML
 Summary of language features and syntax
 #######################################
 
-:doc:`The NESTML language <nestml_language>`
+:doc:`The NESTML language <nestml_language/index>`
 
 
 Models library
 ##############
 
-Out of the box, use any of :doc:`over 20 models <models_library/index>` that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
+Out of the box, use any of the :doc:`neuron models <models_library/index>` that come packaged with NESTML, from standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons.
+
+Serveral spike-timing dependent plasticity (STDP) variants and third-factor plasticity rules can be found in the :doc:`synapse models library <models_library/index#synapse-models>`.
 
 
 Tutorials

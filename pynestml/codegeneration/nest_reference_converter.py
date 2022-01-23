@@ -32,6 +32,7 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_logical_operator import ASTLogicalOperator
 from pynestml.meta_model.ast_unary_operator import ASTUnaryOperator
 from pynestml.meta_model.ast_variable import ASTVariable
+from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_units import PredefinedUnits
 from pynestml.symbols.predefined_variables import PredefinedVariables
@@ -104,7 +105,8 @@ class NESTReferenceConverter(IReferenceConverter):
             return '||'
 
         if function_name == PredefinedFunctions.TIME_RESOLUTION:
-            return 'nest::Time::get_resolution().get_ms()'
+            # context dependent; we assume the template contains the necessary definitions
+            return '__resolution'
 
         if function_name == PredefinedFunctions.TIME_STEPS:
             return 'nest::Time(nest::Time::ms((double) ({!s}))).get_steps()'
@@ -158,6 +160,19 @@ class NESTReferenceConverter(IReferenceConverter):
         if function_name == PredefinedFunctions.PRINTLN:
             return 'std::cout << {!s} << std::endl'
 
+        if function_name == PredefinedFunctions.DELIVER_SPIKE:
+            return '''
+        set_delay( {1!s} );
+        const long __delay_steps = nest::Time::delay_ms_to_steps( get_delay() );
+        set_delay_steps(__delay_steps);
+        e.set_receiver( *__target );
+  e.set_weight( {0!s} );
+  // use accessor functions (inherited from Connection< >) to obtain delay in steps and rport
+  e.set_delay_steps( get_delay_steps() );
+  e.set_rport( get_rport() );
+e();
+'''
+
         # suppress prefix for misc. predefined functions
         # check if function is "predefined" purely based on the name, as we don't have access to the function symbol here
         function_is_predefined = PredefinedFunctions.get_function(function_name)
@@ -169,7 +184,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return prefix + function_name + '(' + ', '.join(['{!s}' for _ in range(n_args)]) + ')'
         return prefix + function_name + '()'
 
-    def convert_name_reference(self, variable, prefix='', with_origins = True):
+    def convert_name_reference(self, variable: ASTVariable, prefix='', with_origins = True):
         """
         Converts a single variable to nest processable format.
         :param variable: a single variable.
@@ -178,30 +193,31 @@ class NESTReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         from pynestml.codegeneration.nest_printer import NestPrinter
-        assert (variable is not None and isinstance(variable, ASTVariable)), \
-            '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
-                variable)
-        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
 
-        if variable_name == PredefinedVariables.E_CONSTANT:
+        if isinstance(variable, ASTExternalVariable):
+            _name = str(variable)
+            if variable.get_alternate_name():
+                # the disadvantage of this approach is that the time the value is to be obtained is not explicitly specified, so we will actually get the value at the end of the min_delay timestep
+                return "((POST_NEURON_TYPE*)(__target))->get_" + variable.get_alternate_name() + "()"
+
+            return "((POST_NEURON_TYPE*)(__target))->get_" + _name + "(_tr_t)"
+
+        if variable.get_name() == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
 
-        assert variable.get_scope() is not None, "Undeclared variable: " + variable.get_complete_name()
-
-        symbol = variable.get_scope().resolve_to_symbol(variable_name, SymbolKind.VARIABLE)
+        symbol = variable.get_scope().resolve_to_symbol(variable.get_complete_name(), SymbolKind.VARIABLE)
         if symbol is None:
             # test if variable name can be resolved to a type
             if PredefinedUnits.is_unit(variable.get_complete_name()):
                 return str(UnitConverter.get_factor(PredefinedUnits.get_unit(variable.get_complete_name()).get_unit()))
 
-            code, message = Messages.get_could_not_resolve(variable_name)
+            code, message = Messages.get_could_not_resolve(variable.get_name())
             Logger.log_message(log_level=LoggingLevel.ERROR, code=code, message=message,
                                error_position=variable.get_source_position())
             return ''
 
         if symbol.is_local():
-            return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
-
+            return variable.get_name() + ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
         if symbol.is_buffer():
             if isinstance(symbol.get_type_symbol(), UnitTypeSymbol):
                 units_conversion_factor = UnitConverter.get_factor(symbol.get_type_symbol().unit.unit)
@@ -213,32 +229,39 @@ class NESTReferenceConverter(IReferenceConverter):
             s += NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else ''
             s += NestNamesConverter.buffer_value(symbol)
             if symbol.has_vector_parameter():
-                s += '[i]'
+                s += '[' + variable.get_vector_parameter() + ']'
             if not units_conversion_factor == 1:
                 s += ")"
             return s
 
         if symbol.is_inline_expression:
-            return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
+            return 'get_' + variable.get_name() + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         if symbol.is_kernel():
             assert False, "NEST reference converter cannot print kernel; kernel should have been converted during code generation"
 
         if symbol.is_state():
             temp = NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else ''
-            
-            # if with_origins is False then also 
+
+            # if with_origins is False then also
             # deactivate "ode_state[State_::"
-            if self.uses_gsl and with_origins: 
+            if self.uses_gsl and with_origins:
                 temp += GSLNamesConverter.name(symbol)
             else:
                 temp += NestNamesConverter.name(symbol)
-            temp += ('[i]' if symbol.has_vector_parameter() else '')
+            temp += ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
             return temp
+
+        variable_name = NestNamesConverter.convert_to_cpp_name(variable.get_complete_name())
+        if symbol.is_local():
+            return variable_name + ('[i]' if symbol.has_vector_parameter() else '')
+
+        if symbol.is_inline_expression:
+            return 'get_' + variable_name + '()' + ('[i]' if symbol.has_vector_parameter() else '')
 
         return (NestPrinter.print_origin(symbol, prefix=prefix) if with_origins else '') + \
             NestNamesConverter.name(symbol) + \
-            ('[i]' if symbol.has_vector_parameter() else '')
+            ('[' + variable.get_vector_parameter() + ']' if symbol.has_vector_parameter() else '')
 
     def __get_unit_name(self, variable):
         assert (variable is not None and isinstance(variable, ASTVariable)), \

@@ -34,8 +34,10 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 """
 neuron CoCoVectorInNonVectorDeclaration:
     state:
+        g_ex [ten] mV = 10mV
+    end
+
+    parameters:
         ten integer = 10
-        g_ex mV [ten] = 10mV
-        g_in mV [ten]= g_ex + g_ex # vector = vector + vector, thus everything is correct
     end
 end

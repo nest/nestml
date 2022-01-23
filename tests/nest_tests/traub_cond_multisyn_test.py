@@ -41,7 +41,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "../../models", "traub_cond_multisyn.nestml")))
+            os.path.dirname(__file__), "../../models/neurons", "traub_cond_multisyn.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
@@ -125,7 +125,7 @@ class NestWBCondExpTest(unittest.TestCase):
             ax[1].set_ylabel("I_syn")
             ax[1].legend(frameon=False, loc="upper right")
 
-            plt.savefig("resources/traub_cond_multisyn.png")
+            plt.savefig("traub_cond_multisyn.png")
             # plt.show()
 
 

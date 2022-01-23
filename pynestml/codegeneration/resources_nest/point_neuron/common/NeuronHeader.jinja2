@@ -73,6 +73,29 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 // Includes from sli:
 #include "dictdatum.h"
 
+namespace nest
+{
+namespace {{names_namespace}}
+{
+{%- if neuron.get_state_symbols()|length > 0 %}
+{%- for sym in neuron.get_state_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if recordable_inline_expressions|length > 0 %}
+{%- for sym in recordable_inline_expressions %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if neuron.get_parameter_symbols()|length > 0 %}
+{%- for sym in neuron.get_parameter_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
+}
+
+
 {% if useGSL %}
 /**
  * Function computing right-hand side of ODE for GSL solver.
@@ -86,6 +109,51 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 **/
 extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
 {% endif %}
+
+#include "nest_time.h"
+
+
+{%- if paired_synapse is defined %}
+
+// entry in the spiking history
+class histentry__{{neuronName}}
+{
+public:
+  histentry__{{neuronName}}( double t,
+{%- for var in purely_numeric_state_variables_moved|sort%}
+double {{var}},
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort%}
+double {{var}},
+{%- endfor %}
+size_t access_counter )
+  : t_( t )
+{%- for var in purely_numeric_state_variables_moved|sort %}
+  , {{var}}_( {{var}} )
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+  , {{var}}_( {{var}} )
+{%- endfor %}
+  , access_counter_( access_counter )
+  {
+  }
+
+  double t_;              //!< point in time when spike occurred (in ms)
+{%- for var in purely_numeric_state_variables_moved|sort %}
+   double {{var}}_;
+{%- endfor %}
+{%- for var in analytic_state_variables_moved|sort %}
+   double {{var}}_;
+{%- endfor %}
+  size_t access_counter_; //!< access counter to enable removal of the entry, once all neurons read it
+};
+
+
+
+{%- endif %}
+
+
+
 
 /* BeginDocumentation
   Name: {{neuronName}}.
@@ -178,8 +246,125 @@ public:
   void get_status(DictionaryDatum &) const;
   void set_status(const DictionaryDatum &);
 
+{%- if paired_synapse is defined %}
+  // support for spike archiving
+
+  /**
+   * \fn void get_history(long t1, long t2,
+   * std::deque<Archiver::histentry__>::iterator* start,
+   * std::deque<Archiver::histentry__>::iterator* finish)
+   * return the spike times (in steps) of spikes which occurred in the range
+   * (t1,t2].
+   * XXX: two underscores to differentiate it from nest::Node::get_history()
+   */
+  void get_history__( double t1,
+    double t2,
+    std::deque< histentry__{{neuronName}} >::iterator* start,
+    std::deque< histentry__{{neuronName}} >::iterator* finish );
+
+  /**
+   * Register a new incoming STDP connection.
+   *
+   * t_first_read: The newly registered synapse will read the history entries
+   * with t > t_first_read.
+   */
+  void register_stdp_connection( double t_first_read, double delay );
+{%- endif %}
+
+  // -------------------------------------------------------------------------
+  //   Getters/setters for state block
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for state in neuron.get_state_symbols() %}
+{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
+{%- with variable = state %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endif %}
+{%- endfor %}
+{%- endfilter %}
+  // -------------------------------------------------------------------------
+  //   Getters/setters for parameters
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for parameter in neuron.get_parameter_symbols() %}
+{%- with variable = parameter %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endfor %}
+{%- endfilter %}
+  // -------------------------------------------------------------------------
+  //   Getters/setters for internals
+  // -------------------------------------------------------------------------
+
+{% filter indent(2, True) -%}
+{%- for internal in neuron.get_internal_symbols() %}
+{%- with variable = internal %}
+{%- include "directives/MemberVariableGetterSetter.jinja2" %}
+{%- endwith %}
+{%- endfor %}
+{%- endfilter %}
+
+{%- if paired_synapse is defined %}
+
+  /* getters/setters for variables transferred from synapse */
+
+{%- for var in transferred_variables %}
+  double get_{{var}}( double t, const bool before_increment = true );
+{%- endfor %}
+{%- endif %}
+
+protected:
+{%- if paired_synapse is defined %}
+  // support for spike archiving
+
+  /**
+   * record spike history
+   */
+  void set_spiketime( nest::Time const& t_sp, double offset = 0.0 );
+
+  /**
+   * return most recent spike time in ms
+   */
+  inline double get_spiketime_ms() const;
+
+  /**
+   * clear spike history
+   */
+  void clear_history();
+{%- endif %}
+
 private:
-{%- if (neuron.get_multiple_receptors())|length > 1 %}
+  void calibrate_variables(bool exclude_timestep=false);
+
+
+{%- if paired_synapse is defined %}
+  // support for spike archiving
+
+  // number of incoming connections from stdp connectors.
+  // needed to determine, if every incoming connection has
+  // read the spikehistory for a given point in time
+  size_t n_incoming_;
+
+  double max_delay_;
+
+  double last_spike_;
+
+  // spiking history needed by stdp synapses
+  std::deque< histentry__{{neuronName}} > history_;
+
+  // cache for initial values
+{%- for var in transferred_variables %}
+  double {{var}}__iv;
+{%- endfor %}
+
+
+{%- endif %}
+
+private:
+  {% if (neuron.get_multiple_receptors())|length > 1 -%}
   /**
    * Synapse types to connect to
    * @note Excluded upper and lower bounds are defined as INF_, SUP_.
@@ -218,8 +403,14 @@ private:
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
+{%- if (has_state_vectors) %}
+  friend class nest::DynamicRecordablesMap< {{neuronName}} >;
+  friend class nest::DynamicUniversalDataLogger< {{neuronName}} >;
+  friend class nest::DataAccessFunctor< {{neuronName}} >;
+{%- else %}
   friend class nest::RecordablesMap<{{neuronName}}>;
   friend class nest::UniversalDataLogger<{{neuronName}}>;
+{%- endif %}
 
   /**
    * Free parameters of the neuron.
@@ -282,18 +473,31 @@ private:
   struct State_
   {
 {%- if not useGSL %}
+{%- if has_state_vectors %}
+{%  include "directives/StateVariablesEnum.jinja2" %}
+{%- endif %}
 {%-   filter indent(4,True) %}
 {%-   for variable in neuron.get_state_symbols() %}
 {%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfor %}
 {%-   endfilter %}
 {%- else %}
+{%- if has_state_vectors %}
+{%- include "directives/VectorVariablesEnum.jinja2" %}
+{%- endif %}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems
     {
 {#- N.B. numeric solver contains all state variables, including those that will be solved by analytic solver #}
 {%-   if uses_numeric_solver %}
-{%-     for variable_name in numeric_state_variables: %}
+{%-     for variable_name in numeric_state_variables %}
+      {{variable_name}},
+{%-     endfor %}
+      // moved state variables from synapse
+{%-     for variable_name in purely_numeric_state_variables_moved|sort %}
+      {{variable_name}},
+{%-     endfor %}
+{%-     for variable_name in analytic_state_variables_moved|sort %}
       {{variable_name}},
 {%-     endfor %}
 {%-     for variable_name in non_equations_state_variables: %}
@@ -333,7 +537,7 @@ private:
   {
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   filter indent(4) %}
-{%-     include "directives/MemberDeclaration.jinja2" -%}
+{%-     include "directives/MemberDeclaration.jinja2" %}
 {%-   endfilter %}
 {%- endfor %}
   };
@@ -356,10 +560,15 @@ private:
     /**
      * Logger for all analog data
     **/
+{%- if (has_state_vectors) %}
+    nest::DynamicUniversalDataLogger<{{neuronName}}> logger_;
+{%- else %}
     nest::UniversalDataLogger<{{neuronName}}> logger_;
-{% if ((neuron.get_multiple_receptors())|length > 1) or neuron.has_vector_port() %}
+{%- endif %}
+
+{%- if ((neuron.get_multiple_receptors())|length > 1) or neuron.has_vector_port() %}
     std::vector<long> receptor_types_;
-{% endif %}
+{%- endif %}
 
 {%- if ((neuron.get_multiple_receptors())|length > 1) %}
     // -----------------------------------------------------------------------
@@ -391,7 +600,7 @@ private:
     // -----------------------------------------------------------------------
     //   GSL ODE solver data structures
     // -----------------------------------------------------------------------
-    
+
     gsl_odeiv_step* __s;    //!< stepping function
     gsl_odeiv_control* __c; //!< adaptive stepsize control function
     gsl_odeiv_evolve* __e;  //!< evolution function
@@ -406,41 +615,6 @@ private:
 {%- endif %}
   };
 
-  // -------------------------------------------------------------------------
-  //   Getters/setters for state block
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for state in neuron.get_state_symbols() %}
-{%- if not is_delta_kernel(neuron.get_kernel_by_name(state.name)) %}
-{%- with variable = state %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endif %}
-{%- endfor %}
-{%- endfilter %}
-  // -------------------------------------------------------------------------
-  //   Getters/setters for parameters
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for parameter in neuron.get_parameter_symbols() %}
-{%- with variable = parameter %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
-  // -------------------------------------------------------------------------
-  //   Getters/setters for internals
-  // -------------------------------------------------------------------------
-
-{% filter indent(2, True) -%}
-{%- for internal in neuron.get_internal_symbols() %}
-{%- with variable = internal %}
-{%- include "directives/MemberVariableGetterSetter.jinja2" %}
-{%- endwith %}
-{%- endfor %}
-{%- endfilter %}
   // -------------------------------------------------------------------------
   //   Getters/setters for inline expressions
   // -------------------------------------------------------------------------
@@ -478,9 +652,10 @@ private:
   //   which are one instance each of the parameters, state, buffers and variables
   //   structures. Experience indicates that the state and variables member should
   //   be next to each other to achieve good efficiency (caching).
-  //   Note: Devices require one additional data member, an instance of the 
+  //   Note: Devices require one additional data member, an instance of the
   //   ``Device`` child class they belong to.
   // -------------------------------------------------------------------------
+
 
   Parameters_ P_;  //!< Free parameters.
   State_      S_;  //!< Dynamic state.
@@ -488,7 +663,17 @@ private:
   Buffers_    B_;  //!< Buffers.
 
   //! Mapping of recordables names to access functions
+{%- if has_state_vectors %}
+  nest::DynamicRecordablesMap<{{neuronName}}> recordablesMap_;
+  nest::DataAccessFunctor< {{neuronName}} > get_data_access_functor( size_t elem );
+  std::string get_var_name(size_t elem, std::string var_name);
+  void insert_recordables(size_t first=0);
+
+{% include "directives/DynamicStateElement.jinja2" %}
+
+{%- else %}
   static nest::RecordablesMap<{{neuronName}}> recordablesMap_;
+{%- endif %}
 
 {%- if useGSL %}
   friend int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode );
@@ -497,6 +682,12 @@ private:
 
   nest::normal_distribution normal_dev_; //!< random deviate generator
 {%- endif %}
+
+
+
+
+
+
 }; /* neuron {{neuronName}} */
 
 inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
@@ -578,7 +769,7 @@ inline nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& d
 inline void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {
   // parameters
-{%- for parameter in neuron.get_parameter_symbols() -%}
+{%- for parameter in neuron.get_parameter_symbols() %}
 {%- with variable = parameter %}
 {%- filter indent(2) %}
 {%- include "directives/WriteInDictionary.jinja2" %}

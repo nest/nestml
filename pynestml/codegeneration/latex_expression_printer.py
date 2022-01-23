@@ -31,6 +31,8 @@ from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.utils.ast_utils import ASTUtils
+from pynestml.codegeneration.latex_types_printer import LatexTypesPrinter
+from pynestml.codegeneration.types_printer import TypesPrinter
 
 
 class LatexExpressionPrinter:
@@ -38,21 +40,24 @@ class LatexExpressionPrinter:
     Pretty printer for LaTeX. Assumes to be printing in a LaTeX environment where math mode is already on.
     """
 
-    def __init__(self, reference_converter: IReferenceConverter=None, types_printer: TypesPrinter=None):
-        self.reference_converter = LatexReferenceConverter()
+    def __init__(self, reference_converter: IReferenceConverter = None, types_printer: TypesPrinter = None):
+        if reference_converter is not None:
+            self.reference_converter = reference_converter
+        else:
+            self.reference_converter = LatexReferenceConverter()
         if types_printer is not None:
             self.types_printer = types_printer
         else:
             self.types_printer = LatexTypesPrinter()
 
-    def print_expression(self, node: ASTExpressionNode) -> str:
-        return self.__do_print(node)
+    def print_expression(self, node: ASTExpressionNode, prefix='') -> str:
+        return self.__do_print(node, prefix=prefix)
         if node.get_implicit_conversion_factor() is not None:
             return str(node.get_implicit_conversion_factor()) + ' * (' + self.__do_print(node) + ')'
         else:
-            return self.__do_print(node)
+            return self.__do_print(node, prefix=prefix)
 
-    def __do_print(self, node: ASTExpressionNode) -> str:
+    def __do_print(self, node: ASTExpressionNode, prefix='') -> str:
         if isinstance(node, ASTVariable):
             return self.reference_converter.convert_name_reference(node)
         elif isinstance(node, ASTSimpleExpression):

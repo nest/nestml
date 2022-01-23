@@ -41,7 +41,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "../../models", "traub_psc_alpha.nestml")))
+            os.path.dirname(__file__), "../../models/neurons", "traub_psc_alpha.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
@@ -102,7 +102,7 @@ class NestWBCondExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/traub_psc_alpha.png")
+            plt.savefig("traub_psc_alpha.png")
             # plt.show()
 
 

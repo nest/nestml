@@ -24,6 +24,7 @@ from typing import List, Mapping, Optional, Tuple
 from collections import OrderedDict
 from enum import Enum
 import json
+
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.utils.ast_source_location import ASTSourceLocation
 from pynestml.utils.messages import MessageCode
@@ -66,6 +67,7 @@ class Logger:
     """
     log = {}
     curr_message = None
+    log_frozen = False
     logging_level = None
     current_node = None
     no_print = False
@@ -75,11 +77,13 @@ class Logger:
         """
         Initializes the logger.
         :param logging_level: the logging level as required
+        :type logging_level: LoggingLevel
         """
         cls.logging_level = logging_level
         cls.curr_message = 0
         cls.log = {}
         cls.log_frozen = False
+        return
 
     @classmethod
     def freeze_log(cls, do_freeze: bool = True):
@@ -112,9 +116,13 @@ class Logger:
         Logs the handed over message on the handed over node. If the current logging is appropriate, the message is also printed.
         :param node: the node in which the error occurred
         :param code: a single error code
+        :type code: ErrorCode
         :param error_position: the position on which the error occurred.
+        :type error_position: SourcePosition
         :param message: a message.
+        :type message: str
         :param log_level: the corresponding log level.
+        :type log_level: LoggingLevel
         """
         if cls.log_frozen:
             return
@@ -160,7 +168,9 @@ class Logger:
         """
         Returns the logging level corresponding to the handed over string. If no such exits, returns None.
         :param string: a single string representing the level.
+        :type string: str
         :return: a single logging level.
+        :rtype: LoggingLevel
         """
         if string == 'DEBUG':
             return LoggingLevel.DEBUG
@@ -208,6 +218,7 @@ class Logger:
         """
         Updates the logging level to the handed over one.
         :param level: a new logging level.
+        :type level: LoggingLevel
         """
         if cls.log_frozen:
             return
@@ -229,7 +240,9 @@ class Logger:
         both.
         :param node: a single node instance
         :param level: a logging level
+        :type level: LoggingLevel
         :return: a list of messages with their levels.
+        :rtype: list((str,Logging_Level)
         """
         if level is None and node is None:
             return cls.get_log()
@@ -246,7 +259,9 @@ class Logger:
         """
         Returns all messages which have a certain logging level.
         :param level: a logging level
+        :type level: LoggingLevel
         :return: a list of messages with their levels.
+        :rtype: list((str,Logging_Level)
         """
         if level is None:
             return cls.get_log()
@@ -262,6 +277,7 @@ class Logger:
         Returns all messages which have been reported for a certain node.
         :param node: a single node instance
         :return: a list of messages with their levels.
+        :rtype: list((str,Logging_Level)
         """
         if node is None:
             return cls.get_log()
@@ -278,6 +294,7 @@ class Logger:
         Indicates whether the handed over node, thus the corresponding model, has errors.
         :param node: a single node instance.
         :return: True if errors detected, otherwise False
+        :rtype: bool
         """
         return len(cls.get_all_messages_of_level_and_or_node(node, LoggingLevel.ERROR)) > 0
 

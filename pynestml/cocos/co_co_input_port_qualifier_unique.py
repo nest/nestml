@@ -67,19 +67,6 @@ class InputPortQualifierUniqueVisitor(ASTVisitor):
         """
         if node.is_spike():
             if node.has_input_qualifiers() and len(node.get_input_qualifiers()) > 1:
-                inh = 0
-                ext = 0
-                for typ in node.get_input_qualifiers():
-                    if typ.is_excitatory:
-                        ext += 1
-                    if typ.is_inhibitory:
-                        inh += 1
-                if inh > 1:
-                    code, message = Messages.get_multiple_keywords('inhibitory')
-                    Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
-                                       log_level=LoggingLevel.ERROR)
-                if ext > 1:
-                    code, message = Messages.get_multiple_keywords('excitatory')
-                    Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
-                                       log_level=LoggingLevel.ERROR)
-        return
+                code, message = Messages.get_multiple_keywords(", ".join([str(q) for q in node.get_input_qualifiers()]))
+                Logger.log_message(error_position=node.get_source_position(), code=code, message=message,
+                                   log_level=LoggingLevel.ERROR)

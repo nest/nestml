@@ -1,0 +1,25 @@
+name: Mirror to EBRAINS
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  sync_to_ebrains:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'nest' }}
+    steps:
+      - name: sycnmaster
+        uses: wei/git-sync@v3
+        with:
+          source_repo: "nest/nestml"
+          source_branch: "master"
+          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_NESTML_GITLAB }}@gitlab.ebrains.eu/nest/nestml.git"
+          destination_branch: "main"
+      - name: synctags
+        uses: wei/git-sync@v3
+        with:
+          source_repo: "nest/nestml"
+          source_branch: "refs/tags/*"
+          destination_repo: "https://ghpusher:${{ secrets.EBRAINS_NESTML_GITLAB }}@gitlab.ebrains.eu/nest/nestml.git"
+          destination_branch: "refs/tags/*"

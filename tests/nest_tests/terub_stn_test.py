@@ -41,7 +41,7 @@ class NestSTNExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "../../models", "terub_stn.nestml")))
+            os.path.dirname(__file__), "../../models/neurons", "terub_stn.nestml")))
         target_path = "target"
         module_name = 'terub_stn_module'
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
@@ -64,7 +64,6 @@ class NestSTNExpTest(unittest.TestCase):
 
         neuron = nest.Create(model)
         parameters = nest.GetDefaults(model)
-
 
         neuron.set({'I_e': 10.0})
         multimeter = nest.Create("multimeter")
@@ -103,8 +102,7 @@ class NestSTNExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/terub_stn.png")
-            # plt.show()
+            plt.savefig("terub_stn.png")
 
 
 if __name__ == "__main__":

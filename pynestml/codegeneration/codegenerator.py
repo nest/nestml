@@ -20,10 +20,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, List, Mapping, Optional, Sequence
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.meta_model.ast_neuron import ASTNeuron
+from pynestml.meta_model.ast_node import ASTNode
+from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
@@ -37,6 +39,7 @@ class CodeGenerator:
         if not target.upper() in self.get_known_targets():
             code, msg = Messages.get_unknown_target(target)
             Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
+            self._target = ""
             raise InvalidTargetException()
 
         self._target = target
@@ -45,7 +48,7 @@ class CodeGenerator:
         if options:
             self.set_options(options)
 
-    def generate_code(self, neurons: Sequence[ASTNeuron]) -> None:
+    def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 
@@ -63,7 +66,7 @@ class CodeGenerator:
     def get_option(self, k):
         return self._options[k]
 
-    def generate_neurons(self, neurons: Sequence[ASTNeuron]):
+    def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
         """
         Generate code for the given neurons.
 
@@ -76,6 +79,20 @@ class CodeGenerator:
             if not Logger.has_errors(neuron):
                 code, message = Messages.get_code_generated(neuron.get_name(), FrontendConfiguration.get_target_path())
                 Logger.log_message(neuron, code, message, neuron.get_source_position(), LoggingLevel.INFO)
+
+    def generate_synapses(self, synapses: Sequence[ASTSynapse]) -> None:
+        """
+        Generates code for a list of synapses.
+        :param synapses: a list of synapses.
+        """
+        from pynestml.frontend.frontend_configuration import FrontendConfiguration
+
+        for synapse in synapses:
+            if Logger.logging_level == LoggingLevel.INFO:
+                print("Generating code for the synapse {}.".format(synapse.get_name()))
+            self.generate_synapse_code(synapse)
+            code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
+            Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
 
     @staticmethod
     def get_known_targets():

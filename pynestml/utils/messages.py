@@ -43,8 +43,8 @@ class MessageCode(Enum):
     ODE_UPDATED = 9
     NO_VARIABLE_FOUND = 10
     SPIKE_INPUT_PORT_TYPE_NOT_DEFINED = 11
-    NEURON_CONTAINS_ERRORS = 12
-    START_PROCESSING_NEURON = 13
+    MODEL_CONTAINS_ERRORS = 12
+    START_PROCESSING_MODEL = 13
     CODE_SUCCESSFULLY_GENERATED = 14
     MODULE_SUCCESSFULLY_GENERATED = 15
     NO_CODE_GENERATED = 16
@@ -65,7 +65,7 @@ class MessageCode(Enum):
     FUNCTION_NOT_DECLARED = 31
     NO_ODE = 32
     NO_INIT_VALUE = 33
-    NEURON_REDECLARED = 34
+    MODEL_REDECLARED = 34
     NEST_COLLISION = 35
     KERNEL_OUTSIDE_CONVOLVE = 36
     NAME_COLLISION = 37
@@ -81,6 +81,8 @@ class MessageCode(Enum):
     NO_RETURN = 47
     NOT_LAST_STATEMENT = 48
     SYMBOL_NOT_RESOLVED = 49
+    SYNAPSE_SOLVED_BY_GSL = 520
+    SYNAPSE_ANALYZED = 530
     TYPE_MISMATCH = 50
     NO_SEMANTICS = 51
     NEURON_SOLVED_BY_GSL = 52
@@ -111,15 +113,20 @@ class MessageCode(Enum):
     STATE_VARIABLES_NOT_INITIALZED = 77
     EQUATIONS_DEFINED_BUT_INTEGRATE_ODES_NOT_CALLED = 78
     TEMPLATE_ROOT_PATH_CREATED = 79
-    CM_NO_GATING_VARIABLES = 80
-    CM_FUNCTION_MISSING = 81
-    CM_VARIABLES_NOT_DECLARED = 82
-    CM_FUNCTION_BAD_NUMBER_ARGS = 83
-    CM_FUNCTION_BAD_RETURN_TYPE = 84
-    CM_VARIABLE_NAME_MULTI_USE = 85
-    CM_NO_VALUE_ASSIGNMENT = 86
-    SYNS_BAD_BUFFER_COUNT = 87
-    CM_NO_V_COMP = 88
+    VECTOR_PARAMETER_WRONG_BLOCK = 80
+    VECTOR_PARAMETER_WRONG_TYPE = 81
+    VECTOR_PARAMETER_WRONG_SIZE = 82
+    PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER = 83
+    REPEATED_PRIORITY_VALUE = 84
+    CM_NO_GATING_VARIABLES = 100
+    CM_FUNCTION_MISSING = 101
+    CM_VARIABLES_NOT_DECLARED = 102
+    CM_FUNCTION_BAD_NUMBER_ARGS = 103
+    CM_FUNCTION_BAD_RETURN_TYPE = 104
+    CM_VARIABLE_NAME_MULTI_USE = 105
+    CM_NO_VALUE_ASSIGNMENT = 106
+    SYNS_BAD_BUFFER_COUNT = 107
+    CM_NO_V_COMP = 108
 
 class Messages:
     """
@@ -162,6 +169,11 @@ class Messages:
     @classmethod
     def get_lexer_error(cls):
         message = 'Error occurred during lexing: abort'
+        return MessageCode.LEXER_ERROR, message
+
+    @classmethod
+    def get_could_not_determine_cond_based(cls, type_str, name):
+        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
         return MessageCode.LEXER_ERROR, message
 
     @classmethod
@@ -363,49 +375,45 @@ class Messages:
         return MessageCode.SPIKE_INPUT_PORT_TYPE_NOT_DEFINED, message
 
     @classmethod
-    def get_neuron_contains_errors(cls, neuron_name):
+    def get_model_contains_errors(cls, model_name: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that a neuron contains errors thus no code is generated.
-        :param neuron_name: the name of the neuron
-        :type neuron_name: str
+        Returns a message indicating that a model contains errors thus no code is generated.
+        :param model_name: the name of the model
         :return: a message
-        :rtype: (MessageCode,str)
         """
-        assert (neuron_name is not None and isinstance(neuron_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
-        message = 'Neuron \'' + neuron_name + '\' contains errors. No code generated!'
-        return MessageCode.NEURON_CONTAINS_ERRORS, message
+        assert (model_name is not None and isinstance(model_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
+        message = 'Model \'' + model_name + '\' contains errors. No code generated!'
+        return MessageCode.MODEL_CONTAINS_ERRORS, message
 
     @classmethod
-    def get_start_processing_neuron(cls, neuron_name):
+    def get_start_processing_model(cls, model_name: str) -> Tuple[MessageCode, str]:
         """
-        Returns a message indicating that the processing of a neuron is started.
-        :param neuron_name: the name of the neuron
-        :type neuron_name: str
+        Returns a message indicating that the processing of a model is started.
+        :param model_name: the name of the model
         :return: a message
-        :rtype: (MessageCode,str)
         """
-        assert (neuron_name is not None and isinstance(neuron_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
-        message = 'Starts processing of the neuron \'' + neuron_name + '\''
-        return MessageCode.START_PROCESSING_NEURON, message
+        assert (model_name is not None and isinstance(model_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
+        message = 'Starts processing of the model \'' + model_name + '\''
+        return MessageCode.START_PROCESSING_MODEL, message
 
     @classmethod
-    def get_code_generated(cls, neuron_name, path):
+    def get_code_generated(cls, model_name, path):
         """
         Returns a message indicating that code has been successfully generated for a neuron in a certain path.
-        :param neuron_name: the name of the neuron.
-        :type neuron_name: str
+        :param model_name: the name of the neuron.
+        :type model_name: str
         :param path: the path to the file
         :type path: str
         :return: a message
         :rtype: (MessageCode,str)
         """
-        assert (neuron_name is not None and isinstance(neuron_name, str)), \
-            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(neuron_name)
+        assert (model_name is not None and isinstance(model_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(model_name)
         assert (path is not None and isinstance(path, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(path)
-        message = 'Successfully generated code for the neuron: \'' + neuron_name + '\' in: \'' + path + '\' !'
+        message = 'Successfully generated code for the model: \'' + model_name + '\' in: \'' + path + '\' !'
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
     @classmethod
@@ -682,20 +690,18 @@ class Messages:
         return MessageCode.NO_INIT_VALUE, message
 
     @classmethod
-    def get_neuron_redeclared(cls, name):
+    def get_model_redeclared(cls, name: str) -> Tuple[MessageCode, str]:
         """
-        Indicates that a neuron has been redeclared.
-        :param name: the name of the neuron which has been redeclared.
-        :type name: str
+        Indicates that a model has been redeclared.
+        :param name: the name of the model which has been redeclared.
         :return: a message
-        :rtype: (MessageCode,str)
         """
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         assert (name is not None and isinstance(name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
-        message = 'Neuron \'%s\' redeclared!' % name
-        return MessageCode.NEURON_REDECLARED, message
+        message = 'model \'%s\' redeclared!' % name
+        return MessageCode.MODEL_REDECLARED, message
 
     @classmethod
     def get_nest_collision(cls, name):
@@ -926,6 +932,21 @@ class Messages:
         return MessageCode.NEURON_SOLVED_BY_GSL, message
 
     @classmethod
+    def get_synapse_solved_by_solver(cls, name):
+        """
+        Indicates that a synapse will be solved by the GSL solver inside the model printing process without any
+        modifications to the initial model.
+        :param name: the name of the synapse
+        :type name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'The synapse \'%s\' will be solved numerically with GSL solver without modification!' % name
+        return MessageCode.SYNAPSE_SOLVED_BY_GSL, message
+
+    @classmethod
     def get_neuron_analyzed(cls, name):
         """
         Indicates that the analysis of a neuron will start.
@@ -938,6 +959,20 @@ class Messages:
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
         message = 'The neuron \'%s\' will be analysed!' % name
         return MessageCode.NEURON_ANALYZED, message
+
+    @classmethod
+    def get_synapse_analyzed(cls, name):
+        """
+        Indicates that the analysis of a synapse will start.
+        :param name: the name of the synapse which will be analyzed.
+        :type name: str
+        :return: a message
+        :rtype: (MessageCode,str)
+        """
+        assert (name is not None and isinstance(name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(name)
+        message = 'The synapse \'%s\' will be analysed!' % name
+        return MessageCode.SYNAPSE_ANALYZED, message
 
     @classmethod
     def get_could_not_be_solved(cls):
@@ -1165,7 +1200,7 @@ class Messages:
 
     @classmethod
     def get_state_variables_not_initialized(cls, var_name: str):
-        message = "The variable `\'%s\' is not initialized." % var_name
+        message = "The variable \'%s\' is not initialized." % var_name
         return MessageCode.STATE_VARIABLES_NOT_INITIALZED, message
 
     @classmethod
@@ -1178,6 +1213,34 @@ class Messages:
         message = "Given template root path is not an absolute path. " \
                   "Creating the absolute path with default templates directory '" + templates_root_dir + "'"
         return MessageCode.TEMPLATE_ROOT_PATH_CREATED, message
+
+    @classmethod
+    def get_vector_parameter_wrong_block(cls, var, block):
+        message = "The vector parameter '" + var + "' is declared in the wrong block '" + block + "'. " \
+                  "The vector parameter can only be declared in parameters or internals block."
+        return MessageCode.VECTOR_PARAMETER_WRONG_BLOCK, message
+
+    @classmethod
+    def get_vector_parameter_wrong_type(cls, var):
+        message = "The vector parameter '" + var + "' is of the wrong type." \
+                  "The vector parameter can be only of type integer."
+        return MessageCode.VECTOR_PARAMETER_WRONG_TYPE, message
+
+    @classmethod
+    def get_vector_parameter_wrong_size(cls, var, value):
+        message = "The vector parameter '" + var + "' has value '" + value + "' " \
+                  "which is less than or equal to 0."
+        return MessageCode.VECTOR_PARAMETER_WRONG_SIZE, message
+
+    @classmethod
+    def get_priority_defined_for_only_one_receive_block(cls, event_handler_port_name: str):
+        message = "Priority defined for only one event handler (" + event_handler_port_name + ")"
+        return MessageCode.PRIORITY_DEFINED_FOR_ONLY_ONE_EVENT_HANDLER, message
+
+    @classmethod
+    def get_repeated_priorty_value(cls):
+        message = "Priority values for event handlers need to be unique"
+        return MessageCode.REPEATED_PRIORITY_VALUE, message
 
     @classmethod
     def get_no_gating_variables(cls, cm_inline_expr: ASTInlineExpression, ion_channel_name: str):

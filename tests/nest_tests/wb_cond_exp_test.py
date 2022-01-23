@@ -43,7 +43,7 @@ class NestWBCondExpTest(unittest.TestCase):
             os.makedirs("target")
 
         input_path = os.path.join(os.path.realpath(os.path.join(
-            os.path.dirname(__file__), "../../models", "wb_cond_exp.nestml")))
+            os.path.dirname(__file__), "../../models/neurons", "wb_cond_exp.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
         nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
@@ -101,7 +101,7 @@ class NestWBCondExpTest(unittest.TestCase):
             for i in ts:
                 ax[0].axvline(x=i, lw=1., ls="--", color="gray")
 
-            plt.savefig("resources/wb_cond_exp.png")
+            plt.savefig("wb_cond_exp.png")
             # plt.show()
 
         self.assertLessEqual(expected_value, tolerance_value)

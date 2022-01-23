@@ -131,7 +131,7 @@ def install_nest(target_path: str, nest_path: str) -> None:
     nest_installer(target_path, nest_path)
 
 
-def main():
+def main() -> int:
     """
     Entry point for the command-line application.
 
@@ -161,8 +161,10 @@ def process():
 
     # init log dir
     create_report_dir()
+
     # The handed over parameters seem to be correct, proceed with the main routine
     init_predefined()
+
     # now proceed to parse all models
     compilation_units = list()
     nestml_files = FrontendConfiguration.get_files()
@@ -172,33 +174,53 @@ def process():
         parsed_unit = ModelParser.parse_model(nestml_file)
         if parsed_unit is not None:
             compilation_units.append(parsed_unit)
+
     if len(compilation_units) > 0:
-        # generate a list of all neurons
+        # generate a list of all compilation units (neurons + synapses)
         neurons = list()
+        synapses = list()
         for compilationUnit in compilation_units:
             neurons.extend(compilationUnit.get_neuron_list())
-        # check if across two files two neurons with same name have been defined
-        CoCosManager.check_not_two_neurons_across_units(compilation_units)
+            synapses.extend(compilationUnit.get_synapse_list())
+
+            # check if across two files neurons with duplicate names have been defined
+            CoCosManager.check_no_duplicate_compilation_unit_names(neurons)
+
+            # check if across two files synapses with duplicate names have been defined
+            CoCosManager.check_no_duplicate_compilation_unit_names(synapses)
+
         # now exclude those which are broken, i.e. have errors.
         if not FrontendConfiguration.is_dev:
             for neuron in neurons:
                 if Logger.has_errors(neuron):
-                    code, message = Messages.get_neuron_contains_errors(neuron.get_name())
+                    code, message = Messages.get_model_contains_errors(neuron.get_name())
                     Logger.log_message(node=neuron, code=code, message=message,
                                        error_position=neuron.get_source_position(),
                                        log_level=LoggingLevel.INFO)
                     neurons.remove(neuron)
                     errors_occurred = True
+
+            for synapse in synapses:
+                if Logger.has_errors(synapse):
+                    code, message = Messages.get_model_contains_errors(synapse.get_name())
+                    Logger.log_message(node=synapse, code=code, message=message,
+                                       error_position=synapse.get_source_position(),
+                                       log_level=LoggingLevel.INFO)
+                    synapses.remove(synapse)
+                    errors_occurred = True
+
         # perform code generation
         _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target(),
                                                         options=FrontendConfiguration.get_codegen_opts())
-        _codeGenerator.generate_code(neurons)
-        for neuron in neurons:
-            if Logger.has_errors(neuron):
+        _codeGenerator.generate_code(neurons, synapses)
+        for astnode in neurons + synapses:
+            if Logger.has_errors(astnode):
                 errors_occurred = True
                 break
+
     if FrontendConfiguration.store_log:
         store_log_to_file()
+
     return errors_occurred
 
 
