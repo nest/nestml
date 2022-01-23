@@ -134,6 +134,19 @@ code.descclassname {
    }
 }
 
+ul li {
+    list-style: inside !important;
+}
+
+.section ul {
+    list-style: inside round !important;
+}
+
 .section ul li {
-    margin-bottom: 1em;
+    list-style: inside round !important;
+    margin-bottom: .5em !important;
+}
+
+.section ul li p {
+    margin-bottom: 0 !important;
 }
