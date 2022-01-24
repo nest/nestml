@@ -48,26 +48,18 @@ class NestInstallExistingModule(unittest.TestCase):
         store_log = False
         suffix = '_location_test'
         dev = True
-        codegen_opts = {"templates": {
-            "path": 'point_neuron',
-            "model_templates": {
-                "neuron": ['NeuronClass.cpp.jinja2', 'NeuronHeader.h.jinja2'],
-                "synapse": ['SynapseHeader.h.jinja2']
-            },
-            "module_templates": ['setup/CMakeLists.txt.jinja2',
-                                 'setup/ModuleHeader.h.jinja2', 'setup/ModuleClass.cpp.jinja2']
-        }}
 
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+
+        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         install_nest(target_path, nest_path, install_dir)
 
-        expected_found_module = f"{install_dir}/{module_name}.so"
-        actual_found_module = glob.glob(f"{install_dir}/*so")
+        expected_module_path = f"{install_dir}/{module_name}.so"
+        actual_module_path = glob.glob(f"{install_dir}/*so")
 
         # check if tmp folder contains only one module
-        self.assertEqual(len(actual_found_module), 1)
+        self.assertEqual(len(actual_module_path), 1)
         # compare the expected module name with the actual found one
-        self.assertEqual(actual_found_module[0], expected_found_module)
+        self.assertEqual(actual_module_path[0], expected_module_path)
 
         # install module
         nest.set_verbosity("M_ALL")
