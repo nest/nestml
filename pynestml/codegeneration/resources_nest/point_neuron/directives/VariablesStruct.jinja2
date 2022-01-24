@@ -1,18 +1,5 @@
- 
- 
- /**
-   * Internal variables of the neuron.
-   *
-   {{neuron.print_internal_comment('*')}}
-   *
-   * These variables must be initialized by @c calibrate, which is called before
-   * the first call to @c update() upon each call to @c Simulate.
-   * @node Variables_ needs neither constructor, copy constructor or assignment operator,
-   *       since it is initialized by @c calibrate(). If Variables_ has members that
-   *       cannot destroy themselves, Variables_ will need a destructor.
-  **/
- 
- struct Variables_
+
+  struct Variables_
   {
 {%- for variable in neuron.get_internal_symbols() %}
 {%-   filter indent(4) %}

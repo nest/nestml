@@ -121,12 +121,17 @@ class NestCppPrinter:
     def print_struct(self, struct_template_name, include_instance=True):
         struct_template = self.get_template(struct_template_name)
         cpp_struct = struct_template.render(self.namespace)
-        if include_instance:
-            type_name = struct_template_name.split("Struct")[0] + "_"
+        return cpp_struct
+
+    def print_struct_instance(self, struct_type):
+        accepted_structs = ["State", "Parameters", "Variables"]
+        if struct_type in accepted_structs:
+            type_name = f"{struct_type}_"
             instance_name = f"{type_name[0]}_"
             instance_declaration = f"{type_name} {instance_name};"
-            cpp_struct = f"{cpp_struct}\n{instance_declaration}"
-        return cpp_struct
+            return instance_declaration
+        else:
+            raise TypeError(f"struct_type must be in {accepted_structs}")
 
     def print_state_struct(self, include_instance=True):
         return self.print_struct("StateStruct", include_instance)

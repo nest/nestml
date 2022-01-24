@@ -1,0 +1,52 @@
+
+{%- if useGSL %}
+
+  // use a default "good enough" value for the absolute error. It can be adjusted via `node.set()`
+  P_.__gsl_error_tol = 1e-3;
+{%- endif %}
+
+{%- if parameter_syms_with_iv|length > 0 %}
+  // initial values for parameters
+{%- filter indent(2) %}
+{%- for parameter in parameter_syms_with_iv %}
+{%-   with variable = parameter %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%-   endwith %}
+{%- endfor %}
+{%- endfilter %}
+{%- endif %}
+
+{%- if neuron.get_state_symbols()|length > 0 %}
+  // initial values for state variables
+{%- filter indent(2) %}
+{%- for init in neuron.get_state_symbols() %}
+{%-   with variable = init %}
+{%-     include "directives/MemberInitialization.jinja2" %}
+{%-   endwith %}
+{%- endfor %}
+{%- endfilter %}
+{%- endif %}
+
+{#{%- if has_state_vectors %}
+  recordablesMap_.create(*this);
+{%- else %}
+recordablesMap_.create();
+{%- endif %}#}
+
+
+{%- if paired_synapse is defined %}
+  // state variables for archiving state for paired synapse
+  n_incoming_ = 0;
+  max_delay_ = 0;
+  last_spike_ = -1.;
+
+  // cache initial values
+{%- for var in transferred_variables %}
+{%- with var_sym = transferred_variables_syms[var] %}
+{%- if not var == var_sym.get_symbol_name() %}
+{{ raise('Error in resolving variable to symbol') }}
+{%- endif %}
+  {{var}}__iv = {{names.getter(var_sym)}}();
+{%- endwith %}
+{%- endfor %}
+{%- endif %}
