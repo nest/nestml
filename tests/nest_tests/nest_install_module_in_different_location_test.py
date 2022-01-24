@@ -49,7 +49,6 @@ class NestInstallExistingModule(unittest.TestCase):
         suffix = '_location_test'
         dev = True
 
-
         to_nest(input_path, target_path, logging_level, module_name, store_log, suffix, dev)
         install_nest(target_path, nest_path, install_dir)
 
@@ -58,7 +57,7 @@ class NestInstallExistingModule(unittest.TestCase):
 
         # check if tmp folder contains only one module
         self.assertEqual(len(actual_module_path), 1)
-        # compare the expected module name with the actual found one
+        # compare the expected module name with the actual fgit ound one
         self.assertEqual(actual_module_path[0], expected_module_path)
 
         # install module

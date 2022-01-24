@@ -22,12 +22,13 @@
 import os
 import subprocess
 import sys
+from typing import TextIO
 
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 
 
-def install_nest(target_path: str, nest_path: str, install_path: str = None) -> None:
+def install_nest(target_path: str, nest_path: str, install_path: str = None, stdout: TextIO = None, stderr: TextIO = None) -> None:
     """
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
@@ -48,6 +49,14 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None) -> 
         If a failure occurs while trying to access the target path or the NEST installation path.
     """
     cmake_cmd = ["cmake"]
+
+    error_location = ""
+    if stderr is None:
+        stderr = subprocess.STDOUT
+        error_location = "stdout"
+    else:
+        error_location = os.path.abspath(stderr.name)
+
     if not os.path.isdir(nest_path):
         raise InvalidPathException(f"NEST path ({nest_path}) is not a directory!")
 
