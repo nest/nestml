@@ -128,12 +128,11 @@ def install_nest(target_path: str, nest_path: str, install_path: str = None, std
         If any kind of failure occurs during cmake configuration, build, or install.
     '''
     if install_path is not None:
-        nest_installer(target_path, nest_path, install_path,
-                       stdout=stdout, stderr=stderr)
+        nest_installer(target_path, nest_path, install_path, stdout=stdout, stderr=stderr)
         # add the install_path to the python library
         add_libraries_to_sli(install_path)
     else:
-        nest_installer(target_path, nest_path, nest_path,ynstdout=stdout, stderr=stderr)
+        nest_installer(target_path, nest_path, nest_path, stdout=stdout, stderr=stderr)
 
 
 def main() -> int:
