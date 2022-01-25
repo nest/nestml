@@ -22,6 +22,7 @@
 from typing import Any, List, Mapping, Optional, Sequence
 import pynestml
 from pynestml.codegeneration.ast_transformers import ASTTransformers
+from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_function import ASTFunction
 from pynestml.meta_model.ast_node import ASTNode
@@ -40,14 +41,15 @@ class NestCppPrinter:
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             visitor = ASTSymbolTableVisitor()
             visitor.handle(node)
-
+        if FrontendConfiguration.logging_level is None:
+            FrontendConfiguration.logging_level = 'ERROR'
         code_generator = NESTCodeGenerator()
         if isinstance(node, ASTNeuron):
             code_generator.analyse_transform_neurons([node])
             self.namespace = code_generator._get_neuron_model_namespace(node)
         elif isinstance(node, ASTSynapse):
             code_generator.analyse_transform_synapses([node])
-            self.namespace = code_generator._NESTCodeGenerator_get_synapse_model_namespace(node)
+            self.namespace = code_generator._get_synapse_model_namespace(node)
         else:
             raise TypeError(
                 "The parameter node must be an instance of one the following sub-classes: [ASTNeuron, ASTSynapse]")
