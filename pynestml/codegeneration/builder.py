@@ -27,12 +27,13 @@ import copy
 
 from abc import ABCMeta, abstractmethod
 
+from pynestml.utils.with_options import WithOptions
 
-class Builder(metaclass=ABCMeta):
 
-    _default_options: Mapping[str, Any] = {}
+class Builder(WithOptions, metaclass=ABCMeta):
 
     def __init__(self, target, options: Optional[Mapping[str, Any]]=None):
+        super(Builder, self).__init__(options)
         if not target.upper() in self.get_known_targets():
             code, msg = Messages.get_unknown_target(target)
             Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
@@ -40,19 +41,6 @@ class Builder(metaclass=ABCMeta):
             raise InvalidTargetException()
 
         self._target = target
-        self._options = copy.deepcopy(self.__class__._default_options)
-        if options:
-            self.set_options(options)
-
-    def set_options(self, options: Mapping[str, Any]):
-        for k in options.keys():
-            if k in self.__class__._default_options:
-                self._options[k] = options[k]
-            else:
-                print("Option \"" + str(k) + "\" does not exist in builder")
-
-    def get_option(self, k):
-        return self._options[k]
 
     @staticmethod
     def get_known_targets():
@@ -67,7 +55,7 @@ class Builder(metaclass=ABCMeta):
 
         if target_name.upper() in ["NEST", "NEST2"]:
             from pynestml.codegeneration.nest_builder import NESTBuilder
-            return NESTBuilder(target_name, options)
+            return NESTBuilder(options)
 
         return None   # no builder requested or available
 

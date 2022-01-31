@@ -30,6 +30,8 @@ from pynestml.codegeneration.builder import Builder
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.utils.logger import Logger
+from pynestml.utils.logger import LoggingLevel
 
 
 class NESTBuilder(Builder):
@@ -37,6 +39,21 @@ class NESTBuilder(Builder):
     _default_options = {
         "nest_path": None
     }
+
+    def __init__(self, options: Optional[Mapping[str, Any]] = None):
+        super().__init__("NEST", options)
+
+        if not self.option_exists("nest_path") or not self.get_option("nest_path"):
+            try:
+                import nest
+            except ModuleNotFoundError:
+                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths.", None, LoggingLevel.ERROR)
+                os.exit(1)
+
+            nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
+            self.set_options({"nest_path": nest_path})
+            Logger.log_message(None, -1, "The NEST installation was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
+
 
     def build(self) -> None:
         """

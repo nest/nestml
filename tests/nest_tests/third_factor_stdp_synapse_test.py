@@ -50,8 +50,6 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
 
     def setUp(self):
         """Generate the neuron model code"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
         generate_target(input_path=["models/neurons/iaf_psc_exp_dend.nestml", "models/synapses/third_factor_stdp_synapse.nestml"],
                         target_path="/tmp/nestml-jit",
@@ -59,8 +57,7 @@ class NestThirdFactorSTDPSynapseTest(unittest.TestCase):
                         logging_level="INFO",
                         module_name="nestml_jit_module",
                         suffix="_nestml",
-                        codegen_opts={"nest_path": nest_path,
-                                      "neuron_parent_class": "StructuralPlasticityNode",
+                        codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                       "neuron_parent_class_include": "structural_plasticity_node.h",
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp_dend",
                                                                 "synapse": "third_factor_stdp",

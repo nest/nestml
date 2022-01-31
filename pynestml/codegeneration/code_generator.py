@@ -32,13 +32,15 @@ from pynestml.meta_model.ast_synapse import ASTSynapse
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages
+from pynestml.utils.with_options import WithOptions
 
 
-class CodeGenerator:
+class CodeGenerator(WithOptions):
 
     _default_options: Mapping[str, Any] = {}
 
-    def __init__(self, target, options: Optional[Mapping[str, Any]]=None):
+    def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
+        super(CodeGenerator, self).__init__(options)
         if not target.upper() in self.get_known_targets():
             code, msg = Messages.get_unknown_target(target)
             Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
@@ -46,9 +48,6 @@ class CodeGenerator:
             raise InvalidTargetException()
 
         self._target = target
-        self._options = copy.deepcopy(self.__class__._default_options)
-        if options:
-            self.set_options(options)
 
     def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         """the base class CodeGenerator does not generate any code"""
@@ -57,16 +56,6 @@ class CodeGenerator:
     def generate_neuron_code(self, neuron: ASTNeuron) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
-
-    def set_options(self, options: Mapping[str, Any]):
-        for k in options.keys():
-            if k in self.__class__._default_options:
-                self._options[k] = options[k]
-            else:
-                print("Warning: Option \"" + str(k) + "\" does not exist in code generator")
-
-    def get_option(self, k):
-        return self._options[k]
 
     def generate_neurons(self, neurons: Sequence[ASTNeuron]) -> None:
         """

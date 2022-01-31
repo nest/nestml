@@ -39,8 +39,6 @@ class NestSynapsePriorityTest(unittest.TestCase):
 
     def setUp(self):
         """Generate the model code"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-
         generate_target(input_path=["models/neurons/iaf_psc_delta.nestml",
                                     "tests/resources/synapse_event_priority_test.nestml",
                                     "tests/resources/synapse_event_inv_priority_test.nestml"],
@@ -49,8 +47,7 @@ class NestSynapsePriorityTest(unittest.TestCase):
                         logging_level="INFO",
                         module_name="nestml_module",
                         suffix="_nestml",
-                        codegen_opts={"nest_path": nest_path,
-                                      "neuron_parent_class": "StructuralPlasticityNode",
+                        codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                       "neuron_parent_class_include": "structural_plasticity_node.h",
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
                                                                 "synapse": "synapse_event_priority_test",

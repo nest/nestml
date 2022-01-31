@@ -47,7 +47,6 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         I_dend_internal_name = "I_kernel2__X__I_2"  # alias for the synaptic current
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"
@@ -55,8 +54,7 @@ class NestNonLinearDendriteTest(unittest.TestCase):
         store_log = False
         suffix = "_nestml"
         dev = True
-        codegen_opts = {"nest_path": nest_path}
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()

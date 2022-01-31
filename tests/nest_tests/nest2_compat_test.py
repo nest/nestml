@@ -37,7 +37,6 @@ class Nest2CompatTest(unittest.TestCase):
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         target_platform = "NEST2"
         logging_level = "INFO"
@@ -47,7 +46,6 @@ class Nest2CompatTest(unittest.TestCase):
         dev = True
 
         codegen_opts = {
-            "nest_path": nest_path,
             "neuron_parent_class_include": "archiving_node.h",
             "neuron_parent_class": "Archiving_Node",
             "templates": {
