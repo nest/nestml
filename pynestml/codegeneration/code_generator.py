@@ -20,7 +20,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
 from typing import Any, List, Mapping, Optional, Sequence
+
+import copy
 
 from pynestml.exceptions.invalid_target_exception import InvalidTargetException
 from pynestml.meta_model.ast_neuron import ASTNeuron
@@ -43,8 +46,7 @@ class CodeGenerator:
             raise InvalidTargetException()
 
         self._target = target
-        if "_default_options" in dir(self.__class__):
-            self._options = dict(self.__class__._default_options)
+        self._options = copy.deepcopy(self.__class__._default_options)
         if options:
             self.set_options(options)
 
@@ -57,8 +59,6 @@ class CodeGenerator:
         pass
 
     def set_options(self, options: Mapping[str, Any]):
-        if not "_default_options" in dir(self.__class__):
-            print("Warning: Code generator class \"" + str(self.__class__) + "\" does not support setting options.")
         for k in options.keys():
             if k in self.__class__._default_options:
                 self._options[k] = options[k]
@@ -121,4 +121,4 @@ class CodeGenerator:
             code, message = Messages.get_no_code_generated()
             Logger.log_message(None, code, message, None, LoggingLevel.INFO)
             return CodeGenerator("", options)
-        assert False  # cannot reach here due to earlier assert -- silence static checker warnings
+        assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings

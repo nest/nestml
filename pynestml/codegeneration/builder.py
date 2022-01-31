@@ -20,7 +20,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import annotations
+
 from typing import Any, List, Mapping, Optional, Sequence
+
+import copy
 
 from abc import ABCMeta, abstractmethod
 
@@ -37,14 +40,11 @@ class Builder(metaclass=ABCMeta):
             raise InvalidTargetException()
 
         self._target = target
-        if "_default_options" in dir(self.__class__):
-            self._options = dict(self.__class__._default_options)
+        self._options = copy.deepcopy(self.__class__._default_options)
         if options:
             self.set_options(options)
 
     def set_options(self, options: Mapping[str, Any]):
-        if not "_default_options" in dir(self.__class__):
-            print("Warning: Builder class \"" + str(self.__class__) + "\" does not support setting options.")
         for k in options.keys():
             if k in self.__class__._default_options:
                 self._options[k] = options[k]
