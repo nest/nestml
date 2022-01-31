@@ -19,3 +19,18 @@ You should have received a copy of the GNU General Public License
 along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 #}
 {%- include "common/SynapseHeader.h.jinja2" %}
+
+namespace {{names_namespace}}
+{
+{%- if synapse.get_state_symbols()|length > 0 %}
+{%- for sym in synapse.get_state_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if synapse.get_parameter_symbols()|length > 0 %}
+{%- for sym in synapse.get_parameter_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
+
