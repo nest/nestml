@@ -45,11 +45,10 @@ class NestCppPrinter:
             FrontendConfiguration.logging_level = 'ERROR'
         code_generator = NESTCodeGenerator()
         if isinstance(node, ASTNeuron):
-            code_generator.analyse_transform_neurons([node])
             self.namespace = code_generator._get_neuron_model_namespace(node)
         elif isinstance(node, ASTSynapse):
-            code_generator.analyse_transform_synapses([node])
             self.namespace = code_generator._get_synapse_model_namespace(node)
+            self.namespace["neuron"] = self.namespace["synapse"]
         else:
             raise TypeError(
                 "The parameter node must be an instance of one the following sub-classes: [ASTNeuron, ASTSynapse]")

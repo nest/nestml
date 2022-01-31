@@ -68,6 +68,16 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
     # if target_path is not None and not os.path.isabs(target_path):
     #    print('PyNestML: Please provide absolute target path!')
     #    return
+
+    frontend_configuration_setup(input_path, target_path, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+
+    if not process() == 0:
+        raise Exception("Error(s) occurred while generating code")
+
+
+def frontend_configuration_setup(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
+                                 module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
+
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -104,9 +114,6 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
     if codegen_opts:
         FrontendConfiguration.set_codegen_opts(codegen_opts)
 
-    if not process() == 0:
-        raise Exception("Error(s) occurred while processing the model")
-
 
 def install_nest(target_path: str, nest_path: str, install_path: str = None, stdout: TextIO = None, stderr: TextIO = None) -> None:
     '''
@@ -141,7 +148,7 @@ def main() -> int:
 
     Returns
     -------
-    The process exit code: 0 for success, > 0 for failure
+    The process_nestml_files exit code: 0 for success, > 0 for failure
     """
     try:
         FrontendConfiguration.parse_config(sys.argv[1:])
@@ -149,17 +156,11 @@ def main() -> int:
         return 1
     # the default Python recursion limit is 1000, which might not be enough in practice when running an AST visitor on a deep tree, e.g. containing an automatically generated expression
     sys.setrecursionlimit(10000)
-    # after all argument have been collected, start the actual processing
+    # after all argument have been collected, start the actual process_nestml_filesing
     return int(process())
 
 
-def process():
-    """
-    Returns
-    -------
-    errors_occurred : bool
-        Flag indicating whether errors occurred during processing
-    """
+def process_nestml_files():
 
     errors_occurred = False
 
@@ -212,18 +213,32 @@ def process():
                                        log_level=LoggingLevel.INFO)
                     synapses.remove(synapse)
                     errors_occurred = True
-
-        # perform code generation
-        _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target(),
-                                                        options=FrontendConfiguration.get_codegen_opts())
-        _codeGenerator.generate_code(neurons, synapses)
-        for astnode in neurons + synapses:
-            if Logger.has_errors(astnode):
-                errors_occurred = True
-                break
-    # if len(compilation_units) == 0, then parsed_unit was None => error in parsing the model
+        return neurons, synapses, errors_occurred
     else:
         errors_occurred = True
+        return [], [], errors_occurred
+
+
+def retrieve_models():
+    neurons, synapses, errors_occurred = process_nestml_files()
+    if errors_occurred:
+        raise Exception("Error(s) occurred while process_nestml_filesing the model")
+    _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target(),
+                                                    options=FrontendConfiguration.get_codegen_opts())
+    neurons, synapses = _codeGenerator.transform(neurons, synapses)
+
+    return neurons, synapses, _codeGenerator
+
+
+def process():
+    """
+    Returns
+    -------
+    errors_occurred : bool
+        Flag indicating whether errors occurred during processing
+    """
+    neurons, synapses, _codeGenerator = retrieve_models()
+    errors_occurred = generate_code(codeGenerator=_codeGenerator, neurons=neurons, synapses=synapses)
 
     if FrontendConfiguration.store_log:
         store_log_to_file()
@@ -283,3 +298,12 @@ def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
         paths = [paths]
     for path in paths:
         __add_library_to_sli(path)
+
+
+def generate_code(codeGenerator, neurons, synapses):
+    errors_occurred = False
+    codeGenerator.generate_code(neurons, synapses)
+    for astnode in neurons + synapses:
+        if Logger.has_errors(astnode):
+            errors_occurred = True
+    return errors_occurred

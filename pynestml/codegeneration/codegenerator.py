@@ -47,8 +47,13 @@ class CodeGenerator:
             self._options = dict(self.__class__._default_options)
         if options:
             self.set_options(options)
+        self.is_transformed = False
 
     def generate_code(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
+        """the base class CodeGenerator does not generate any code"""
+        pass
+
+    def transform(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         """the base class CodeGenerator does not generate any code"""
         pass
 

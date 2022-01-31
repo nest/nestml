@@ -452,7 +452,8 @@ class NESTCodeGenerator(CodeGenerator):
             convolve_with_not_post_vars = self.get_convolve_with_not_post_vars(
                 synapse.get_equations_blocks(), neuron.name, synapse.name, synapse)
 
-            syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars) | set(convolve_with_not_post_vars)))
+            syn_to_neuron_state_vars = list(set(all_state_vars) - (set(strictly_synaptic_vars)
+                                            | set(convolve_with_not_post_vars)))
             Logger.log_message(None, -1, "State variables that will be moved from synapse to neuron: " + str(syn_to_neuron_state_vars),
                                None, LoggingLevel.INFO)
 
@@ -643,7 +644,8 @@ class NESTCodeGenerator(CodeGenerator):
             for stmt in new_neuron.moved_spike_updates:
                 for param_var in syn_to_neuron_params:
                     param_var = str(param_var)
-                    ASTUtils.add_suffix_to_variable_name(param_var, stmt, var_name_suffix, scope=new_neuron.get_update_blocks().get_scope())
+                    ASTUtils.add_suffix_to_variable_name(param_var, stmt, var_name_suffix,
+                                                         scope=new_neuron.get_update_blocks().get_scope())
 
             #
             #    replace occurrences of the variables in expressions in the original synapse with calls to the corresponding neuron getters
@@ -705,13 +707,22 @@ class NESTCodeGenerator(CodeGenerator):
 
         return neurons, synapses
 
-    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
+    def transform(self, neurons: Sequence[ASTNeuron], synapses: Sequence[ASTSynapse]) -> None:
         if synapses is None:
             synapses = []
         if self._options and "neuron_synapse_pairs" in self._options:
             neurons, synapses = self.analyse_transform_neuron_synapse_pairs(neurons, synapses)
         self.analyse_transform_neurons(neurons)
         self.analyse_transform_synapses(synapses)
+        self.is_transformed = True
+        return neurons, synapses
+
+    def generate_code(self, neurons: List[ASTNeuron], synapses: List[ASTSynapse] = None) -> None:
+        if not self.is_transformed:
+            import warnings
+            msg = f"the instance of {self.__class__.__name__} didn't call the 'transform' function before calling 'generate_code'."
+            warnings.warn(msg)
+
         self.generate_neurons(neurons)
         self.generate_synapses(synapses)
         self.generate_module_code(neurons, synapses)
@@ -955,7 +966,7 @@ class NESTCodeGenerator(CodeGenerator):
             all_input_port_names = [p.name for p in synapse.get_input_blocks().get_input_ports()]
             namespace["pre_ports"] = all_input_port_names
 
-        assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
+        #assert len(namespace["pre_ports"]) <= 1, "Synapses only support one spiking input port"
 
         namespace['synapseName'] = synapse.get_name()
         namespace['synapse'] = synapse
