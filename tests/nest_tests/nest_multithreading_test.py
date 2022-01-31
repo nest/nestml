@@ -42,7 +42,6 @@ class NestMultithreadingTest(unittest.TestCase):
 
     def setUp(self) -> None:
         """Generate the model code"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 
         # Neuron-Synapse model
         neuron_path = os.path.join(
@@ -61,7 +60,6 @@ class NestMultithreadingTest(unittest.TestCase):
                               "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
                                                         "synapse": "stdp",
                                                         "post_ports": ["post_spikes"]}]})
-        install_nest(self.neuron_synapse_target, nest_path)
 
         # Neuron model
         to_nest(input_path=neuron_path,
@@ -71,7 +69,6 @@ class NestMultithreadingTest(unittest.TestCase):
                 suffix="__nestml",
                 codegen_opts={"neuron_parent_class": "ArchivingNode",
                               "neuron_parent_class_include": "archiving_node.h"})
-        install_nest(self.neuron_target, nest_path)
 
     def test_neuron_multithreading(self):
         nest.set_verbosity("M_ALL")

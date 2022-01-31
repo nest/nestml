@@ -41,7 +41,9 @@ class CodeGenerator(WithOptions):
 
     def __init__(self, target, options: Optional[Mapping[str, Any]] = None):
         super(CodeGenerator, self).__init__(options)
-        if not target.upper() in self.get_known_targets():
+        from pynestml.frontend.pynestml_frontend import get_known_targets
+
+        if not target.upper() in get_known_targets():
             code, msg = Messages.get_unknown_target(target)
             Logger.log_message(message=msg, code=code, log_level=LoggingLevel.ERROR)
             self._target = ""

@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 #
 # with_options.py
@@ -35,10 +34,6 @@ class WithOptions:
         self._options = copy.deepcopy(self.__class__._default_options)
         if options:
             self.set_options(options)
-        print("options are: " + str(options))
-        if not options:
-            import pdb;pdb.set_trace()
-        print("Setting options to " + str(self._options))
 
     def get_option(self, k: str) -> Any:
         return self._options[k]
