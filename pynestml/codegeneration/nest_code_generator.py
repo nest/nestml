@@ -83,8 +83,8 @@ def find_spiking_post_port(synapse, namespace):
 
 
 class NESTCodeGenerator(CodeGenerator):
-    """
-    Code generator for a C++ NEST extension module.
+    r"""
+    Code generator for a NEST Simulator (versions 3.x.x or higher) C++ extension module.
 
     Options:
     - **neuron_parent_class**: The C++ class from which the generated NESTML neuron class inherits. Examples: ``"ArchivingNode"``, ``"StructuralPlasticityNode"``. Default: ``"ArchivingNode"``.

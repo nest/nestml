@@ -35,6 +35,7 @@ from pynestml.utils.logger import LoggingLevel
 
 
 class NESTBuilder(Builder):
+    r"""Compile, build and install the NEST C++ code and NEST extension module."""
 
     _default_options = {
         "nest_path": None

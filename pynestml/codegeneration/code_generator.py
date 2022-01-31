@@ -84,30 +84,3 @@ class CodeGenerator(WithOptions):
             self.generate_synapse_code(synapse)
             code, message = Messages.get_code_generated(synapse.get_name(), FrontendConfiguration.get_target_path())
             Logger.log_message(synapse, code, message, synapse.get_source_position(), LoggingLevel.INFO)
-
-    @staticmethod
-    def get_known_targets():
-        targets = ["NEST", "NEST2", "autodoc", "none"]
-        targets = [s.upper() for s in targets]
-        return targets
-
-    @staticmethod
-    def from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
-        """Static factory method that returns a new instance of a child class of CodeGenerator"""
-        assert target_name.upper() in CodeGenerator.get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
-        if target_name.upper() == "NEST":
-            from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
-            return NESTCodeGenerator(options)
-        elif target_name.upper() == "NEST2":
-            from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
-            return NEST2CodeGenerator(options)
-        elif target_name.upper() == "AUTODOC":
-            from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
-            assert options is None or options == {}, "\"autodoc\" code generator does not support options"
-            return AutoDocCodeGenerator()
-        elif target_name.upper() == "NONE":
-            # dummy/null target: user requested to not generate any code
-            code, message = Messages.get_no_code_generated()
-            Logger.log_message(None, code, message, None, LoggingLevel.INFO)
-            return CodeGenerator("", options)
-        assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings

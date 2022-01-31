@@ -31,6 +31,7 @@ from pynestml.utils.with_options import WithOptions
 
 
 class Builder(WithOptions, metaclass=ABCMeta):
+    r"""Compile, build and install the code for a given target platform. Runs after the CodeGenerator."""
 
     def __init__(self, target, options: Optional[Mapping[str, Any]]=None):
         super(Builder, self).__init__(options)
@@ -41,23 +42,6 @@ class Builder(WithOptions, metaclass=ABCMeta):
             raise InvalidTargetException()
 
         self._target = target
-
-    @staticmethod
-    def get_known_targets():
-        targets = ["NEST", "NEST2", "autodoc", "none"]
-        targets = [s.upper() for s in targets]
-        return targets
-
-    @staticmethod
-    def from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
-        """Static factory method that returns a new instance of a child class of Builder"""
-        assert target_name.upper() in Builder.get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
-
-        if target_name.upper() in ["NEST", "NEST2"]:
-            from pynestml.codegeneration.nest_builder import NESTBuilder
-            return NESTBuilder(options)
-
-        return None   # no builder requested or available
 
     @abstractmethod
     def build(self) -> None:
