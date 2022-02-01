@@ -46,7 +46,6 @@ class NestWBCondExpTest(unittest.TestCase):
             os.path.dirname(__file__), "../../models/neurons", "wb_cond_exp.nestml")))
         target_path = "target"
         module_name = 'nestmlmodule'
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         suffix = '_nestml'
 
         generate_target(input_path=input_path,
@@ -54,8 +53,7 @@ class NestWBCondExpTest(unittest.TestCase):
                         target_platform="NEST",
                         logging_level="INFO",
                         suffix=suffix,
-                        module_name=module_name,
-                        codegen_opts={"nest_path": nest_path})
+                        module_name=module_name)
 
         nest.Install(module_name)
         model = "wb_cond_exp_nestml"

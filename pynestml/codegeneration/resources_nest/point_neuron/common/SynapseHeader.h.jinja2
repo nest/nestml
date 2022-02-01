@@ -84,9 +84,20 @@ along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 namespace nest
 {
 
-/** @BeginDocumentation
+namespace {{names_namespace}}
+{
+{%- if synapse.get_state_symbols()|length > 0 %}
+{%- for sym in synapse.get_state_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+{%- if synapse.get_parameter_symbols()|length > 0 %}
+{%- for sym in synapse.get_parameter_symbols() %}
+    const Name _{{sym.get_symbol_name()}}( "{{sym.get_symbol_name()}}" );
+{%- endfor %}
+{%- endif %}
+}
 
-**/
 class {{synapseName}}CommonSynapseProperties : public CommonSynapseProperties {
 public:
 
@@ -968,17 +979,17 @@ void
 {%- for parameter in synapse.get_parameter_symbols() %}
 {%-     set isHomogeneous = PyNestMLLexer["DECORATOR_HOMOGENEOUS"] in parameter.get_decorators() %}
 {%-     if (not isHomogeneous) %}
-{%- set namespaceName = parameter.get_namespace_decorator('nest') %}
-{%- if namespaceName == '' %}
-{%-   with variable = parameter %}
-{%-   filter indent(2,True) %}
-{%-   include "directives/WriteInDictionary.jinja2" %}
-{%-   endfilter %}
-{%-   endwith %}
-{%- else %}
+{%-         set namespaceName = parameter.get_namespace_decorator('nest') %}
+{%-         if namespaceName == '' %}
+{%-             with variable = parameter %}
+{%-                 filter indent(2,True) %}
+{%-                     include "directives/WriteInDictionary.jinja2" %}
+{%-                 endfilter %}
+{%-             endwith %}
+{%-         else %}
   def< {{declarations.print_variable_type(parameter)}} >( __d, names::{{namespaceName}}, {{printer.print_origin(parameter)}}{{names.name(parameter)}} );
-{%- endif %}
-{%- endif %}
+{%-         endif %}
+{%-     endif %}
 {%- endfor %}
 
   // initial values for state variables in ODE or kernel
@@ -991,7 +1002,7 @@ void
 // special treatment for variable marked with @nest::name decorator
 {%-                 set nest_namespace_name = variable.get_namespace_decorator("nest") %}
 {%-                 if not variable.is_internals() %}
-def<{{declarations.print_variable_type(variable)}}>(__d, "{{nest_namespace_name}}", {{names.getter(variable)}}());
+def<{{declarations.print_variable_type(variable)}}>(__d, names::"{{nest_namespace_name}}", {{names.getter(variable)}}());
 {%-                 endif %}
 {%-             endif %}
 {%-     endif %}

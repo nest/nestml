@@ -34,7 +34,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
     def test_custom_templates(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", "iaf_psc_exp.nestml"))))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"
@@ -43,8 +42,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         suffix = "_nestml"
         dev = True
 
-        codegen_opts = {"nest_path": nest_path,
-                        "templates": {"path": "point_neuron",
+        codegen_opts = {"templates": {"path": "point_neuron",
                                       "model_templates": {"neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
                                                           "synapse": ["SynapseHeader.h.jinja2"]},
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
@@ -68,7 +66,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
         models = ["neurons/iaf_psc_delta.nestml", "synapses/stdp_triplet_naive.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", fn)))) for fn in models]
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"
@@ -78,7 +75,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
         dev = True
 
         codegen_opts = {
-            "nest_path": nest_path,
             "neuron_parent_class": "StructuralPlasticityNode",
             "neuron_parent_class_include": "structural_plasticity_node.h",
             "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",

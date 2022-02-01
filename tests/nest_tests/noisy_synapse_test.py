@@ -42,15 +42,12 @@ class NoisySynapseTest(unittest.TestCase):
 
     def setUp(self):
         """Generate and build the model code"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-
         generate_target(input_path="models/synapses/noisy_synapse.nestml",
                         target_path="/tmp/nestml-noisy-synapse",
                         target_platform="NEST",
                         logging_level="INFO",
                         module_name="nestml_noisy_synapse_module",
-                        suffix="_nestml",
-                        codegen_opts={"nest_path": nest_path})
+                        suffix="_nestml")
 
     def test_noisy_noisy_synapse_synapse(self):
 

@@ -78,7 +78,7 @@ class FrontendConfiguration:
         :param args: a set of arguments as handed over to the frontend
         :type args: list(str)
         """
-        from pynestml.codegeneration.code_generator import CodeGenerator
+        from pynestml.frontend.pynestml_frontend import get_known_targets
 
         cls.argument_parser = argparse.ArgumentParser(
             description='''NESTML is a domain specific language that supports the specification of neuron
@@ -93,7 +93,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', nargs='+',
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
-        cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=CodeGenerator.get_known_targets(), type=str.upper, help=help_target, default='NEST')
+        cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=get_known_targets(), type=str.upper, help=help_target, default='NEST')
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
                                          'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
         cls.argument_parser.add_argument(qualifier_module_name_arg, metavar='NAME', type=str, help=help_module)
@@ -228,9 +228,9 @@ appropriate numeric solver otherwise.
         if target_platform is None or target_platform.upper() == 'NONE':
             target_platform = ''     # make sure `target_platform` is always a string
 
-        from pynestml.codegeneration.code_generator import CodeGenerator
+        from pynestml.frontend.pynestml_frontend import get_known_targets
 
-        if target_platform.upper() not in CodeGenerator.get_known_targets():
+        if target_platform.upper() not in get_known_targets():
             code, message = Messages.get_unknown_target_platform(target_platform)
             Logger.log_message(None, code, message, None, LoggingLevel.ERROR)
             raise InvalidTargetException()

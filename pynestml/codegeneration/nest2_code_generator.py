@@ -28,8 +28,8 @@ from pynestml.codegeneration.unitless_expression_printer import UnitlessExpressi
 
 
 class NEST2CodeGenerator(NESTCodeGenerator):
-    """
-    Code generator for a C++ NEST extension module.
+    r"""
+    Code generator for a NEST Simulator (versions 2.x.x, in particular, 2.20.2 or higher) C++ extension module.
     """
 
     def __init__(self, options: Optional[Mapping[str, Any]] = None):

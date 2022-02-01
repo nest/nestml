@@ -40,9 +40,49 @@ from pynestml.utils.messages import Messages
 from pynestml.utils.model_parser import ModelParser
 
 
-def generate_target(input_path: Union[str, Sequence[str]], target_path=None, target_platform: str = 'NEST', logging_level='ERROR',
+def get_known_targets():
+    targets = ["NEST", "NEST2", "autodoc", "none"]
+    targets = [s.upper() for s in targets]
+    return targets
+
+
+def code_generator_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> CodeGenerator:
+    """Static factory method that returns a new instance of a child class of CodeGenerator"""
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+    if target_name.upper() == "NEST":
+        from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
+        return NESTCodeGenerator(options)
+    elif target_name.upper() == "NEST2":
+        from pynestml.codegeneration.nest2_code_generator import NEST2CodeGenerator
+        return NEST2CodeGenerator(options)
+    elif target_name.upper() == "AUTODOC":
+        from pynestml.codegeneration.autodoc_code_generator import AutoDocCodeGenerator
+        assert options is None or options == {}, "\"autodoc\" code generator does not support options"
+        return AutoDocCodeGenerator()
+    elif target_name.upper() == "NONE":
+        # dummy/null target: user requested to not generate any code
+        code, message = Messages.get_no_code_generated()
+        Logger.log_message(None, code, message, None, LoggingLevel.INFO)
+        return CodeGenerator("", options)
+    assert "Unknown code generator requested: " + target_name  # cannot reach here due to earlier assert -- silence static checker warnings
+
+
+def builder_from_target_name(target_name: str, options: Optional[Mapping[str, Any]]=None) -> Builder:
+    r"""Static factory method that returns a new instance of a child class of Builder"""
+    from pynestml.frontend.pynestml_frontend import get_known_targets
+
+    assert target_name.upper() in get_known_targets(), "Unknown target platform requested: \"" + str(target_name) + "\""
+
+    if target_name.upper() in ["NEST", "NEST2"]:
+        from pynestml.codegeneration.nest_builder import NESTBuilder
+        return NESTBuilder(options)
+
+    return None   # no builder requested or available
+
+
+def generate_target(input_path: Union[str, Sequence[str]], target_path=None, target_platform: str = "NEST", logging_level="ERROR",
                     module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
-    '''Generate and build code for the given target platform.
+    r"""Generate and build code for the given target platform.
 
     Parameters
     ----------
@@ -50,24 +90,21 @@ def generate_target(input_path: Union[str, Sequence[str]], target_path=None, tar
         Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
     target_path : str, optional (default: append "target" to `input_path`)
         Path to the generated C++ code and install files.
-    target_platform : str, optional (default: 'NEST')
+    target_platform : str, optional (default: "NEST")
         Which target platform to generate code for.
-    logging_level : str, optional (default: 'ERROR')
-        Sets which level of information should be displayed duing code generation (among 'ERROR', 'WARNING', 'INFO', or 'NO').
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
     module_name : str, optional (default: "nestmlmodule")
         Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
-        Suffix which will be appended to the model's name (internal use to avoid naming conflicts with existing NEST models).
+        Suffix which will be appended to the model"s name (internal use to avoid naming conflicts with existing NEST models).
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
-    '''
-    # if target_path is not None and not os.path.isabs(target_path):
-    #    print('PyNestML: Please provide absolute target path!')
-    #    return
+    """
     args = list()
     args.append(qualifier_input_path_arg)
     if type(input_path) is str:
@@ -107,6 +144,33 @@ def generate_target(input_path: Union[str, Sequence[str]], target_path=None, tar
 
     if not process() == 0:
         raise Exception("Error(s) occurred while processing the model")
+
+
+def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level="ERROR",
+            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+    r"""Generate and build code for NEST Simulator.
+
+    Parameters
+    ----------
+    input_path : str **or** Sequence[str]
+        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+    target_path : str, optional (default: append "target" to `input_path`)
+        Path to the generated C++ code and install files.
+    logging_level : str, optional (default: "ERROR")
+        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+    module_name : str, optional (default: "nestmlmodule")
+        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
+    store_log : bool, optional (default: False)
+        Whether the log should be saved to file.
+    suffix : str, optional (default: "")
+        Suffix which will be appended to the model"s name (internal use to avoid naming conflicts with existing NEST models).
+    dev : bool, optional (default: False)
+        Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
+    codegen_opts : Optional[Mapping[str, Any]]
+        A dictionary containing additional options for the target code generator.
+    """
+    generate_target(input_path, target_path, target_platform="NEST", logging_level=logging_level,
+                    module_name=module_name, store_log=store_log, suffix=suffix, dev=dev, codegen_opts=codegen_opts)
 
 
 def main() -> int:
@@ -188,8 +252,8 @@ def process():
                     errors_occurred = True
 
         # perform code generation
-        _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target_platform(),
-                                                        options=FrontendConfiguration.get_codegen_opts())
+        _codeGenerator = code_generator_from_target_name(FrontendConfiguration.get_target_platform(),
+                                                         options=FrontendConfiguration.get_codegen_opts())
         _codeGenerator.generate_code(neurons, synapses)
         for astnode in neurons + synapses:
             if Logger.has_errors(astnode):
@@ -198,7 +262,7 @@ def process():
 
     # perform build
     if not errors_occurred:
-        _builder = Builder.from_target_name(FrontendConfiguration.get_target_platform(),
+        _builder = builder_from_target_name(FrontendConfiguration.get_target_platform(),
                                             options=FrontendConfiguration.get_codegen_opts())
         if _builder is not None:
             _builder.build()
@@ -218,11 +282,11 @@ def init_predefined():
 
 
 def create_report_dir():
-    if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report')):
-        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report'))
+    if not os.path.isdir(os.path.join(FrontendConfiguration.get_target_path(), "..", "report")):
+        os.makedirs(os.path.join(FrontendConfiguration.get_target_path(), "..", "report"))
 
 
 def store_log_to_file():
-    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
-                               'log')) + '.txt', 'w+') as f:
+    with open(str(os.path.join(FrontendConfiguration.get_target_path(), "..", "report",
+                               "log")) + ".txt", "w+") as f:
         f.write(str(Logger.get_json_format()))

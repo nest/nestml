@@ -51,16 +51,13 @@ class NestSTDPNeuromodTest(unittest.TestCase):
 
     def setUp(self):
         """generate code for neuron and synapse and build NEST user module"""
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-
         generate_target(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/neuromodulated_stdp.nestml"],
                         target_path="/tmp/nestml-jit",
                         target_platform="NEST",
                         logging_level="INFO",
                         module_name="nestml_jit_module",
                         suffix="_nestml",
-                        codegen_opts={"nest_path": nest_path,
-                                      "neuron_parent_class": "StructuralPlasticityNode",
+                        codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                       "neuron_parent_class_include": "structural_plasticity_node.h",
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
                                                                 "synapse": "neuromodulated_stdp"}]})
@@ -71,8 +68,7 @@ class NestSTDPNeuromodTest(unittest.TestCase):
                         logging_level="INFO",
                         module_name="nestml_non_jit_module",
                         suffix="_nestml_non_jit",
-                        codegen_opts={"nest_path": nest_path,
-                                      "neuron_parent_class": "ArchivingNode",
+                        codegen_opts={"neuron_parent_class": "ArchivingNode",
                                       "neuron_parent_class_include": "archiving_node.h"})
 
     def test_nest_stdp_synapse(self):

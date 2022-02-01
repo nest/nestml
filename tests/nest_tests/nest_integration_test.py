@@ -45,7 +45,6 @@ def get_model_doc_title(model_fname: str):
 class NestIntegrationTest(unittest.TestCase):
 
     def generate_all_models(self):
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         all_synapse_models = [s[:-7] for s in list(os.walk("models/synapses"))[0][2] if s[-7:] == ".nestml"]
         generate_target(input_path=["models"],
                         target_path="/tmp/nestml-allmodels",
@@ -53,8 +52,7 @@ class NestIntegrationTest(unittest.TestCase):
                         logging_level="INFO",
                         module_name="nestml_allmodels_module",
                         suffix="_nestml",
-                        codegen_opts={"nest_path": nest_path,
-                                      "neuron_parent_class": "StructuralPlasticityNode",
+                        codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
                                       "neuron_parent_class_include": "structural_plasticity_node.h",
                                       "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
                                                                 "synapse": "neuromodulated_stdp"},

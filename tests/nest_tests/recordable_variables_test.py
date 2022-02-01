@@ -42,7 +42,6 @@ class RecordableVariablesTest(unittest.TestCase):
     def test_recordable_variables(self):
         input_path = os.path.join(os.path.realpath(os.path.join(
             os.path.dirname(__file__), "resources", "RecordableVariables.nestml")))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"
@@ -50,8 +49,7 @@ class RecordableVariablesTest(unittest.TestCase):
         store_log = False
         suffix = "_nestml"
         dev = True
-        codegen_opts = {"nest_path": nest_path}
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
