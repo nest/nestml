@@ -23,7 +23,6 @@ from typing import Tuple
 
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
 from collections.abc import Iterable
-from pynestml.meta_model.ast_variable import ASTVariable
 from pynestml.meta_model.ast_function import ASTFunction
 
 
@@ -171,10 +170,10 @@ class Messages:
         message = 'Error occurred during lexing: abort'
         return MessageCode.LEXER_ERROR, message
 
-    @classmethod
-    def get_could_not_determine_cond_based(cls, type_str, name):
-        message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
-        return MessageCode.LEXER_ERROR, message
+    # @classmethod
+    # def get_could_not_determine_cond_based(cls, type_str, name):
+    #     message = "Unable to determine based on type '" + type_str + "' of variable '" + name + "' whether conductance-based or current-based"
+    #     return MessageCode.LEXER_ERROR, message
 
     @classmethod
     def get_parser_error(cls):
@@ -1269,15 +1268,15 @@ class Messages:
         return MessageCode.CM_VARIABLE_NAME_MULTI_USE, message
 
     @classmethod
-    def get_expected_cm_function_missing(cls, ion_channel_name: str, variable: ASTVariable, function_name: str):
+    def get_expected_cm_function_missing(cls, ion_channel_name: str, variable_name: str, function_name: str):
         message = "Implementation of a function called '" + function_name + "' not found. "
-        message += "It is expected because of variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
+        message += "It is expected because of variable '"+variable_name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_MISSING, message
 
     @classmethod
-    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name: str, variable: ASTVariable, astfun: ASTFunction):
+    def get_expected_cm_function_wrong_args_count(cls, ion_channel_name: str, variable_name, astfun: ASTFunction):
         message = "Function '" + astfun.name + "' is expected to have exactly one Argument. "
-        message += "It is related to variable '"+variable.name+"' in the ion channel '"+ion_channel_name+"'"
+        message += "It is related to variable '"+variable_name+"' in the ion channel '"+ion_channel_name+"'"
         return MessageCode.CM_FUNCTION_BAD_NUMBER_ARGS, message
 
     @classmethod

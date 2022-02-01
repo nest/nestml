@@ -228,7 +228,7 @@ class NESTCodeGenerator(CodeGenerator):
                     if symbol is None:
                         code, message = Messages.get_variable_not_defined(node.get_variable().get_complete_name())
                         Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
-                                           log_level=LoggingLevel.ERROR, astnode=node)
+                                           log_level=LoggingLevel.ERROR, node=node)
                         return
 
                     assert symbol.block_type in [BlockType.PARAMETERS, BlockType.COMMON_PARAMETERS]

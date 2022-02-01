@@ -498,7 +498,7 @@ class ASTChannelInformationCollector(object):
                 if "expected_functions" in  variable_info.keys():
                     for function_type, expected_function_name in variable_info["expected_functions"].items():
                         if expected_function_name not in function_name_to_function.keys():
-                            code, message = Messages.get_expected_cm_function_missing(ion_channel_name, variable_info["ASTVariable"], expected_function_name)
+                            code, message = Messages.get_expected_cm_function_missing(ion_channel_name, variable_info["ASTVariable"].name, expected_function_name)
                             Logger.log_message(code=code, message=message, error_position=neuron.get_source_position(), log_level=LoggingLevel.ERROR, node=neuron)
                         else:
                             ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type] = defaultdict()
@@ -508,7 +508,7 @@ class ASTChannelInformationCollector(object):
                             # function must have exactly one argument
                             astfun = ret[ion_channel_name]["gating_variables"][pure_variable_name]["expected_functions"][function_type]["ASTFunction"]
                             if len(astfun.parameters) != 1:
-                                code, message = Messages.get_expected_cm_function_wrong_args_count(ion_channel_name, variable_info["ASTVariable"], astfun)
+                                code, message = Messages.get_expected_cm_function_wrong_args_count(ion_channel_name, variable_info["ASTVariable"].name, astfun)
                                 Logger.log_message(code=code, message=message, error_position=astfun.get_source_position(), log_level=LoggingLevel.ERROR, node=astfun)
                         
                             # function must return real
