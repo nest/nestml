@@ -66,7 +66,6 @@ class NestCustomTemplatesTest(unittest.TestCase):
         models = ["neurons/iaf_psc_delta.nestml", "synapses/stdp_triplet_naive.nestml"]
         input_paths = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", fn)))) for fn in models]
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         target_path = "target"
         target_platform = "NEST"
         logging_level = "INFO"

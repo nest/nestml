@@ -26,7 +26,6 @@ import shutil
 from pynestml.frontend.pynestml_frontend import generate_target
 
 input_path = str(os.path.realpath(os.path.join(os.path.dirname(__file__), "PrintVariables.nestml")))
-nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
 target_path = "../target"
 target_platform = "NEST"
 logging_level = "INFO"

@@ -133,17 +133,6 @@ class NESTCodeGenerator(CodeGenerator):
         self.nest_reference_converter = NESTReferenceConverter()
         self.unitless_printer = UnitlessExpressionPrinter(self.nest_reference_converter)
 
-        if not self.option_exists("nest_path") or not self.get_option("nest_path"):
-            try:
-                import nest
-            except ModuleNotFoundError:
-                Logger.log_message(None, -1, "An error occurred while importing the `nest` module in Python. Please check your NEST installation-related environment variables and paths.", None, LoggingLevel.ERROR)
-                os.exit(1)
-
-            nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
-            self.set_options({"nest_path": nest_path})
-            Logger.log_message(None, -1, "The NEST installation was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
-
     def raise_helper(self, msg):
         raise TemplateRuntimeError(msg)
 
