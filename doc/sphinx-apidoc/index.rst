@@ -7,9 +7,9 @@ The NESTML modeling language
 
 NESTML is a domain-specific language for neuron and synapse models. These dynamical models can be used in simulations of brain acitivty on several platforms, in particular `NEST Simulator <https://nest-simulator.readthedocs.org/>`_. NESTML combines:
 
-- • an easy to understand, yet powerful syntax;
-- • a flexible processing toolchain, written in Python;
-- • good simulation performance by means of code generation (C++ for NEST Simulator).
+- 🢧 an easy to understand, yet powerful syntax;
+- 🢧 a flexible processing toolchain, written in Python;
+- 🢧 good simulation performance by means of code generation (C++ for NEST Simulator).
 
 To see what NESTML looks like, please see the :doc:`models library <models_library/index>` that contains standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons, as well as several synaptic plasticity models such as spike-timing dependent plasticity (STDP) variants and third-factor plasticity rules.
 
