@@ -24,7 +24,7 @@ import numpy as np
 
 import nest
 
-from pynestml.frontend.pynestml_frontend import generate_target
+from pynestml.frontend.pynestml_frontend import to_nest
 
 
 class NestLoopsIntegrationTest(unittest.TestCase):
@@ -36,21 +36,19 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         files = ["ForLoop.nestml", "WhileLoop.nestml"]
         input_path = [os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", s))) for s in
                       files]
-        target_path = 'target'
-        target_platform = "NEST"
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        to_nest(input_path, target_path, logging_level, module_name, suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
         nest.Install("nestmlmodule")
 
         nrn = nest.Create("for_loop_nestml")
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
         mm.set({"record_from": ["V_m"]})
 
         nest.Connect(mm, nrn)
@@ -63,7 +61,7 @@ class NestLoopsIntegrationTest(unittest.TestCase):
         nest.ResetKernel()
         nrn = nest.Create("while_loop_nestml")
 
-        mm = nest.Create('multimeter')
+        mm = nest.Create("multimeter")
         mm.set({"record_from": ["y"]})
 
         nest.Connect(mm, nrn)

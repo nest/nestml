@@ -23,7 +23,8 @@ import nest
 import numpy as np
 import os
 import pytest
-from pynestml.frontend.pynestml_frontend import generate_target
+
+from pynestml.frontend.pynestml_frontend import to_nest
 
 try:
     import matplotlib
@@ -39,18 +40,18 @@ except Exception:
                 scope="module")
 def nestml_generate_target():
     r"""Generate the neuron model code"""
+
     # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-    generate_target(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_synapse.nestml"],
-                    target_path="/tmp/nestml-jit",
-                    target_platform="NEST",
-                    logging_level="INFO",
-                    module_name="nestml_jit_module",
-                    suffix="_nestml",
-                    codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                                  "neuron_parent_class_include": "structural_plasticity_node.h",
-                                  "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                            "synapse": "stdp",
-                                                            "post_ports": ["post_spikes"]}]})
+    to_nest(input_path=["models/neurons/iaf_psc_delta.nestml", "models/synapses/stdp_synapse.nestml"],
+            target_path="/tmp/nestml-jit",
+            logging_level="INFO",
+            module_name="nestml_jit_module",
+            suffix="_nestml",
+            codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                          "neuron_parent_class_include": "structural_plasticity_node.h",
+                          "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                                                    "synapse": "stdp",
+                                                    "post_ports": ["post_spikes"]}]})
     nest.Install("nestml_jit_module")
 
 

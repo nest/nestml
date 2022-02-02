@@ -22,7 +22,8 @@
 import nest
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import generate_target
+
+from pynestml.frontend.pynestml_frontend import to_nest
 
 try:
     import matplotlib
@@ -37,14 +38,12 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
     def test_biexp_synapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(
             __file__), "resources", "BiexponentialPostSynapticResponse.nestml")))
-        target_path = 'target'
-        target_platform = "NEST"
-        logging_level = 'INFO'
-        module_name = 'nestmlmodule'
-        store_log = False
-        suffix = '_nestml'
-        dev = True
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev)
+        target_path = "target"
+        logging_level = "INFO"
+        module_name = "nestmlmodule"
+        suffix = "_nestml"
+
+        to_nest(input_path, target_path, logging_level, module_name, suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
@@ -66,11 +65,11 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
         sg4 = nest.Create("spike_generator", params={"spike_times": [35., 55.]})
         nest.Connect(sg3, neuron, syn_spec={"receptor_type": 4, "weight": 1000., "delay": 0.1})
 
-        i_1 = nest.Create('multimeter', params={'record_from': [
-                          'g_gap__X__spikeGap', 'g_ex__X__spikeExc', 'g_in__X__spikeInh', 'g_GABA__X__spikeGABA'], 'interval': .1})
+        i_1 = nest.Create("multimeter", params={"record_from": [
+                          "g_gap__X__spikeGap", "g_ex__X__spikeExc", "g_in__X__spikeInh", "g_GABA__X__spikeGABA"], "interval": .1})
         nest.Connect(i_1, neuron)
 
-        vm_1 = nest.Create('voltmeter')
+        vm_1 = nest.Create("voltmeter")
         nest.Connect(vm_1, neuron)
 
         # simulate

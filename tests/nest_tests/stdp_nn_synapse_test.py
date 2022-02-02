@@ -23,7 +23,8 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import generate_target
+
+from pynestml.frontend.pynestml_frontend import to_nest
 
 try:
     import matplotlib
@@ -50,27 +51,25 @@ class NestSTDPNNSynapseTest(unittest.TestCase):
     def setUp(self):
         """Generate the neuron model code"""
         # generate the "jit" model (co-generated neuron and synapse), that does not rely on ArchivingNode
-        generate_target(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/stdp_nn_symm.nestml"],
-                        target_path="/tmp/nestml-jit",
-                        target_platform="NEST",
-                        logging_level="INFO",
-                        module_name="nestml_jit_module",
-                        suffix="_nestml",
-                        codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                                      "neuron_parent_class_include": "structural_plasticity_node.h",
-                                      "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
-                                                                "synapse": "stdp_nn_symm",
-                                                                "post_ports": ["post_spikes"]}]})
+        to_nest(input_path=["models/neurons/iaf_psc_exp.nestml", "models/synapses/stdp_nn_symm.nestml"],
+                target_path="/tmp/nestml-jit",
+                logging_level="INFO",
+                module_name="nestml_jit_module",
+                suffix="_nestml",
+                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                              "neuron_parent_class_include": "structural_plasticity_node.h",
+                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_exp",
+                                                        "synapse": "stdp_nn_symm",
+                                                        "post_ports": ["post_spikes"]}]})
 
         # generate the "non-jit" model, that relies on ArchivingNode
-        generate_target(input_path="models/neurons/iaf_psc_exp.nestml",
-                        target_path="/tmp/nestml-non-jit",
-                        target_platform="NEST",
-                        logging_level="INFO",
-                        module_name="nestml_non_jit_module",
-                        suffix="_nestml_non_jit",
-                        codegen_opts={"neuron_parent_class": "ArchivingNode",
-                                      "neuron_parent_class_include": "archiving_node.h"})
+        to_nest(input_path="models/neurons/iaf_psc_exp.nestml",
+                target_path="/tmp/nestml-non-jit",
+                logging_level="INFO",
+                module_name="nestml_non_jit_module",
+                suffix="_nestml_non_jit",
+                codegen_opts={"neuron_parent_class": "ArchivingNode",
+                              "neuron_parent_class_include": "archiving_node.h"})
 
     def test_stdp_nn_synapse(self):
 

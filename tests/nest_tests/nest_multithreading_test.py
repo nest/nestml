@@ -23,7 +23,6 @@ import unittest
 import numpy as np
 
 import nest
-from pynestml.utils.model_installer import install_nest
 
 from pynestml.frontend.pynestml_frontend import to_nest
 

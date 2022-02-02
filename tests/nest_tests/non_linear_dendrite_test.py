@@ -23,7 +23,8 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import generate_target
+
+from pynestml.frontend.pynestml_frontend import to_nest
 
 
 try:
@@ -48,13 +49,11 @@ class NestNonLinearDendriteTest(unittest.TestCase):
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources")), "iaf_psc_exp_nonlineardendrite.nestml")
         target_path = "target"
-        target_platform = "NEST"
         logging_level = "INFO"
         module_name = "nestmlmodule"
-        store_log = False
         suffix = "_nestml"
-        dev = True
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev)
+
+        to_nest(input_path, target_path, logging_level, module_name, suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
