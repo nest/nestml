@@ -23,6 +23,8 @@ from typing import Any, Mapping, Optional, Sequence, Union
 
 import os
 import sys
+import platform
+
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.codegenerator import CodeGenerator
@@ -41,7 +43,7 @@ from pynestml.utils.model_installer import install_nest as nest_installer
 
 
 def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level='ERROR',
-            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+            module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]] = None):
     '''Translate NESTML files into their equivalent C++ code for the NEST simulator.
 
     Parameters
@@ -106,23 +108,31 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         raise Exception("Error(s) occurred while processing the model")
 
 
-def install_nest(target_path: str, nest_path: str) -> None:
+def install_nest(target_path: str, nest_path: str, install_path: str = None) -> None:
     '''
     This method can be used to build the generated code and install the resulting extension module into NEST.
 
     Parameters
     ----------
-    target_path : str
+    target_path
         Path to the target directory, which should contain the generated code artifacts (target platform code and CMake configuration file).
-    nest_path : str
+    nest_path
         Path to the NEST installation, which should point to the main directory where NEST is installed. This folder contains the ``bin``, ``lib(64)``, ``include``, and ``share`` folders of the NEST install. The ``bin`` folder should contain the ``nest-config`` script, which is accessed by NESTML to perform the installation. This path is the same as that passed through the ``-Dwith-nest`` argument of the CMake command before building the generated NEST module. The suffix ``bin/nest-config`` will be automatically appended to ``nest_path``.
+
+    install_path
+        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
 
     Raises
     ------
     GeneratedCodeBuildException
         If any kind of failure occurs during cmake configuration, build, or install.
     '''
-    nest_installer(target_path, nest_path)
+    if install_path is not None:
+        nest_installer(target_path, nest_path, install_path)
+        # add the install_path to the python library
+        add_libraries_to_sli(install_path)
+    else:
+        nest_installer(target_path, nest_path)
 
 
 def main() -> int:
@@ -232,6 +242,41 @@ def create_report_dir():
 
 
 def store_log_to_file():
-    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report',
-                               'log')) + '.txt', 'w+') as f:
+    with open(str(os.path.join(FrontendConfiguration.get_target_path(), '..', 'report', 'log')) + '.txt', 'w+') as f:
         f.write(str(Logger.get_json_format()))
+
+
+def __add_library_to_sli(lib_path):
+    if not os.path.isabs(lib_path):
+        lib_path = os.path.abspath(lib_path)
+
+    system = platform.system()
+    lib_key = ""
+
+    if system == "Linux":
+        lib_key = "LD_LIBRARY_PATH"
+    else:
+        lib_key = "DYLD_LIBRARY_PATH"
+
+    if lib_key in os.environ:
+        current = os.environ[lib_key].split(os.pathsep)
+        if lib_path not in current:
+            current.append(lib_path)
+            os.environ[lib_key] += os.pathsep.join(current)
+    else:
+        os.environ[lib_key] = lib_path
+
+
+def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
+    '''
+    This method can be used to add external modules to SLI environment
+
+    Parameters
+    ----------
+    paths
+        paths to external nest modules
+    '''
+    if isinstance(paths, str):
+        paths = [paths]
+    for path in paths:
+        __add_library_to_sli(path)
