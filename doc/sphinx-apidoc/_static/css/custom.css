@@ -133,20 +133,3 @@ code.descclassname {
       overflow: visible !important;
    }
 }
-
-ul li {
-    list-style: inside !important;
-}
-
-.section ul {
-    list-style: inside round !important;
-}
-
-.section ul li {
-    list-style: inside round !important;
-    margin-bottom: .5em !important;
-}
-
-.section ul li p {
-    margin-bottom: 0 !important;
-}
