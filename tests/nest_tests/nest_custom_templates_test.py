@@ -38,9 +38,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         target_platform = "NEST"
         logging_level = "INFO"
         module_name = "nestmlmodule"
-        store_log = False
         suffix = "_nestml"
-        dev = True
 
         codegen_opts = {"templates": {"path": "point_neuron",
                                       "model_templates": {"neuron": ["NeuronClass.cpp.jinja2", "NeuronHeader.h.jinja2"],
@@ -48,7 +46,9 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
                                                            "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]}}
 
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+        generate_target(input_path, target_path, target_platform, logging_level, module_name,
+                        suffix=suffix,
+                        codegen_opts=codegen_opts)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
@@ -70,9 +70,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         target_platform = "NEST"
         logging_level = "INFO"
         module_name = "nestmlmodule"
-        store_log = False
         suffix = "_nestml"
-        dev = True
 
         codegen_opts = {
             "neuron_parent_class": "StructuralPlasticityNode",
@@ -94,5 +92,7 @@ class NestCustomTemplatesTest(unittest.TestCase):
         neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
         synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
 
-        generate_target(input_paths, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+        generate_target(input_paths, target_path, target_platform, logging_level, module_name,
+                        suffix=suffix,
+                        codegen_opts=codegen_opts)
         nest.set_verbosity("M_ALL")
