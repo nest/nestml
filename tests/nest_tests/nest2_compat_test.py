@@ -41,9 +41,7 @@ class Nest2CompatTest(unittest.TestCase):
         target_platform = "NEST2"
         logging_level = "INFO"
         module_name = "nestmlmodule"
-        store_log = False
         suffix = "_nestml"
-        dev = True
 
         codegen_opts = {
             "neuron_parent_class_include": "archiving_node.h",
@@ -58,7 +56,9 @@ class Nest2CompatTest(unittest.TestCase):
                 "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/ModuleHeader.h.jinja2",
                                      "setup/ModuleClass.cpp.jinja2"]}}
 
-        generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, suffix, dev, codegen_opts)
+        generate_target(input_path, target_path, target_platform, logging_level, module_name,
+                        suffix=suffix,
+                        codegen_opts=codegen_opts)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
