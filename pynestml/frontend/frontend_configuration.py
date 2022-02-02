@@ -34,7 +34,8 @@ from pynestml.utils.logger import LoggingLevel
 from pynestml.utils.messages import Messages, MessageCode
 
 help_input_path = 'One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching \'*.nestml\'.'
-help_target_path = 'Path to a target directory where models should be generated to. Standard is "target".'
+help_target_path = 'Path to a directory where generated code should be written to. Standard is "target".'
+help_install_path = 'Path to the directory where the generated code will be installed.'
 help_target = 'Name of the target platform to build code for. Default is NEST.'
 help_logging = 'Indicates which messages shall be logged and printed to the screen. Standard is ERROR.'
 help_module = 'Indicates the name of the module. Optional. If not indicated, the name of the directory containing the models is used'
@@ -45,6 +46,7 @@ help_codegen_opts = 'Path to a JSON file containing additional options for the t
 
 qualifier_input_path_arg = '--input_path'
 qualifier_target_path_arg = '--target_path'
+qualifier_install_path_arg = '--install_path'
 qualifier_target_platform_arg = '--target_platform'
 qualifier_logging_level_arg = '--logging_level'
 qualifier_module_name_arg = '--module_name'
@@ -63,6 +65,7 @@ class FrontendConfiguration:
     provided_input_path = None
     logging_level = None
     target = None
+    install_path = None
     target_path = None
     module_name = None
     store_log = False
@@ -93,6 +96,7 @@ appropriate numeric solver otherwise.
         cls.argument_parser.add_argument(qualifier_input_path_arg, metavar='PATH', nargs='+',
                                          type=str, help=help_input_path, required=True)
         cls.argument_parser.add_argument(qualifier_target_path_arg, metavar='PATH', type=str, help=help_target_path)
+        cls.argument_parser.add_argument(qualifier_install_path_arg, metavar='PATH', type=str, help=help_install_path)
         cls.argument_parser.add_argument(qualifier_target_platform_arg, choices=get_known_targets(), type=str.upper, help=help_target, default='NEST')
         cls.argument_parser.add_argument(qualifier_logging_level_arg, metavar='{DEBUG, INFO, WARNING, ERROR, NONE}', choices=[
                                          'DEBUG', 'INFO', 'WARNING', 'WARNINGS', 'ERROR', 'ERRORS', 'NONE', 'NO'], type=str, help=help_logging, default='ERROR')
@@ -110,6 +114,7 @@ appropriate numeric solver otherwise.
         cls.handle_input_path(parsed_args.input_path)
         cls.handle_target_platform(parsed_args.target_platform)
         cls.handle_target_path(parsed_args.target_path)
+        cls.handle_install_path(parsed_args.install_path)
         cls.handle_module_name(parsed_args.module_name)
         cls.handle_codegen_opts_fn(parsed_args.codegen_opts_fn)
 
@@ -153,13 +158,20 @@ appropriate numeric solver otherwise.
         return cls.logging_level
 
     @classmethod
-    def get_target_path(cls):
+    def get_target_path(cls) -> str:
         """
         Returns the path to which models shall be generated to.
         :return: the target path.
-        :rtype: str
         """
         return cls.target_path
+
+    @classmethod
+    def get_install_path(cls) -> str:
+        """
+        Path to the directory where the generated code will be installed.
+        :return: the install path.
+        """
+        return cls.install_path
 
     @classmethod
     def get_module_name(cls):
@@ -239,7 +251,7 @@ appropriate numeric solver otherwise.
 
     @classmethod
     def handle_target_path(cls, path):
-        # check if a target has been selected, otherwise set to `[pynestml directory]/target`
+        r"""check if a target has been selected, otherwise set to `[pynestml directory]/target`"""
         if path is not None:
             if os.path.isabs(path):
                 cls.target_path = path
@@ -254,6 +266,20 @@ appropriate numeric solver otherwise.
         # check if the target path dir already exists
         if not os.path.isdir(cls.target_path):
             os.makedirs(cls.target_path)
+
+    @classmethod
+    def handle_install_path(cls, path):
+        if path is None:
+            return
+
+        if os.path.isabs(path):
+            cls.install_path = path
+        else:
+            cls.install_path = os.path.abspath(path)
+
+        # check if the installation path exists
+        if not os.path.isdir(path):
+            raise(InvalidPathException("Installation path \"" + str(path) + "\" not found."))
 
     @classmethod
     def handle_input_path(cls, path) -> None:

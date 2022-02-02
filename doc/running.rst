@@ -14,7 +14,7 @@ Subsequently, it is possible to call PyNESTML from other Python tools and script
 
 .. code-block:: python
 
-   generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, dev, codegen_opts)
+   generate_target(input_path, target_path, target_platform, logging_level, module_name, store_log, install_path, dev, codegen_opts)
 
 The following default values are used, corresponding to the command line defaults. Possible values for ``logging_level`` are the same as before ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'NO'). Note that only the ``input_path`` argument is mandatory:
 
@@ -29,20 +29,23 @@ The following default values are used, corresponding to the command line default
      - str or Sequence[str]
      - *no default*
    * - target_path
-     - string
+     - str
      - None
    * - target_platform
-     - string
+     - str
      - 'NEST'
    * - logging_level
-     - string
+     - str
      - 'ERROR'
    * - module_name
-     - string
+     - str
      - ``nestmlmodule``
    * - store_log
      - bool
      - False
+   * - install_path
+     - str
+     - None
    * - dev
      - bool
      - False
@@ -106,6 +109,8 @@ This will generate, compile, build, and install the code for a set of specified 
      - (Optional) Stores a log.txt containing all messages in JSON notation. Default is OFF.
    * - ``--suffix``
      - (Optional) A suffix string that will be appended to the name of all generated models.
+   * - ``--install_path``
+     - (Optional) Path to the directory where the generated code will be installed.
    * - ``--dev``
      - (Optional) Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code. Default is OFF.
    * - ``--codegen_opts``
@@ -182,7 +187,7 @@ The ``codegen_opts`` can also be passed to the PyNESTML function ``generate_targ
         }
    }
 
-   generate_target(input_path, target_path, logging_level, module_name, store_log, dev, codegen_opts)
+   generate_target(input_path, target_path, logging_level, module_name, store_log, install_path, dev, codegen_opts)
 
 
 Running in NEST 2.* compatibility mode

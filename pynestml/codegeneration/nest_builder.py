@@ -56,7 +56,7 @@ class NESTBuilder(Builder):
             Logger.log_message(None, -1, "The NEST installation was automatically detected as: " + nest_path, None, LoggingLevel.INFO)
 
     def build(self) -> None:
-        """
+        r"""
         This method can be used to build the generated code and install the resulting extension module into NEST.
 
         Raises
@@ -66,7 +66,9 @@ class NESTBuilder(Builder):
         InvalidPathException
             If a failure occurs while trying to access the target path or the NEST installation path.
         """
+        cmake_cmd = ["cmake"]
         target_path = FrontendConfiguration.get_target_path()
+        install_path = FrontendConfiguration.get_install_path()
         nest_path = self.get_option("nest_path")
 
         if not os.path.isdir(target_path):
@@ -75,9 +77,21 @@ class NESTBuilder(Builder):
         if nest_path is None or (not os.path.isdir(nest_path)):
             raise InvalidPathException('NEST path (' + str(nest_path) + ') is not a directory!')
 
-        cmake_cmd = ['cmake', '-Dwith-nest=' + os.path.join(nest_path, 'bin', 'nest-config'), '.']
+        install_prefix = ""
+        if install_path:
+            if not os.path.isabs(install_path):
+                install_path = os.path.abspath(install_path)
+            install_prefix = f"-DCMAKE_INSTALL_PREFIX={install_path}"
+
+        nest_config_path = f"-Dwith-nest={os.path.join(nest_path, 'bin', 'nest-config')}"
+        cmake_cmd = ['cmake', nest_config_path, install_prefix, '.']
         make_all_cmd = ['make', 'all']
         make_install_cmd = ['make', 'install']
+
+        # remove CMakeCache.txt if exists
+        cmake_cache = os.path.join(target_path, "CMakeCache.txt")
+        if os.path.exists(cmake_cache):
+            os.remove(cmake_cache)
 
         # check if we run on win
         if sys.platform.startswith('win'):

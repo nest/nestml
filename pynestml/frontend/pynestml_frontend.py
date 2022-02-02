@@ -32,7 +32,7 @@ from pynestml.codegeneration.code_generator import CodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration, InvalidPathException, \
     qualifier_store_log_arg, qualifier_module_name_arg, qualifier_logging_level_arg, \
     qualifier_target_platform_arg, qualifier_target_path_arg, qualifier_input_path_arg, qualifier_suffix_arg, \
-    qualifier_dev_arg, qualifier_codegen_opts_arg
+    qualifier_dev_arg, qualifier_codegen_opts_arg, qualifier_install_path_arg
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
@@ -83,7 +83,8 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
 
 
 def generate_target(input_path: Union[str, Sequence[str]], target_path=None, target_platform: str = "NEST", logging_level="ERROR",
-                    module_name=None, store_log=False, suffix="", dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+                    module_name=None, store_log=False, suffix="", install_path: str=None, dev=False,
+                    codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for the given target platform.
 
     Parameters
@@ -102,6 +103,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_path=None, tar
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
         Suffix which will be appended to the model"s name (internal use to avoid naming conflicts with existing NEST models).
+    install_path
+        Path to the directory where the generated code will be installed.
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
     codegen_opts : Optional[Mapping[str, Any]]
@@ -136,6 +139,10 @@ def generate_target(input_path: Union[str, Sequence[str]], target_path=None, tar
         args.append(qualifier_suffix_arg)
         args.append(suffix)
 
+    if install_path is not None:
+        args.append(qualifier_install_path_arg)
+        args.append(str(install_path))
+
     if dev:
         args.append(qualifier_dev_arg)
 
@@ -148,8 +155,9 @@ def generate_target(input_path: Union[str, Sequence[str]], target_path=None, tar
         raise Exception("Error(s) occurred while processing the model")
 
 
-def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_level="ERROR",
-            module_name=None, store_log=False, suffix="", install_path: str = None, dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+def to_nest(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, logging_level="ERROR",
+            module_name=None, store_log=False, suffix="", install_path: Optional[str] = None, dev=False,
+            codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters
@@ -166,15 +174,16 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path=None, logging_lev
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
         Suffix which will be appended to the model"s name (internal use to avoid naming conflicts with existing NEST models).
+    install_path
+        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
     dev : bool, optional (default: False)
         Enable development mode: code generation is attempted even for models that contain errors, and extra information is rendered in the generated code.
-    install_path
-        Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.nded to ``nest_path``.
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
     generate_target(input_path, target_path, target_platform="NEST", logging_level=logging_level,
-                    module_name=module_name, store_log=store_log, suffix=suffix, dev=dev, codegen_opts=codegen_opts)
+                    module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
+                    dev=dev, codegen_opts=codegen_opts)
 
 
 def main() -> int:
