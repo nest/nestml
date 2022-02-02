@@ -156,8 +156,8 @@ def generate_target(input_path: Union[str, Sequence[str]], target_path=None, tar
 
 
 def to_nest(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, logging_level="ERROR",
-            module_name=None, store_log=False, suffix="", install_path: Optional[str] = None, dev=False,
-            codegen_opts: Optional[Mapping[str, Any]]=None):
+            module_name=None, store_log: bool=False, suffix: str="", install_path: Optional[str] = None,
+            dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters

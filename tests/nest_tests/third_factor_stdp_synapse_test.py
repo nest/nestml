@@ -36,7 +36,7 @@ except Exception:
 
 
 sim_mdl = True
-sim_ref = True
+sim_ref = False
 
 
 class NestThirdFactorSTDPSynapseTest(unittest.TestCase):

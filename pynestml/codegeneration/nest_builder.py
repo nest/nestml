@@ -30,6 +30,7 @@ from pynestml.codegeneration.builder import Builder
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
+from pynestml.frontend.pynestml_frontend import add_libraries_to_sli
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
 
@@ -69,6 +70,8 @@ class NESTBuilder(Builder):
         cmake_cmd = ["cmake"]
         target_path = FrontendConfiguration.get_target_path()
         install_path = FrontendConfiguration.get_install_path()
+        if install_path is not None:
+            add_libraries_to_sli(install_path)
         nest_path = self.get_option("nest_path")
 
         if not os.path.isdir(target_path):
