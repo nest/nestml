@@ -54,3 +54,5 @@ Acknowledgements
 This software was initially supported by the JARA-HPC Seed Fund *NESTML - A modeling language for spiking neuron and synapse models for NEST* and the Initiative and Networking Fund of the Helmholtz Association and the Helmholtz Portfolio Theme *Simulation and Modeling for the Human Brain*.
 
 This software was developed in part or in whole in the Human Brain Project, funded from the European Union's Horizon 2020 Framework Programme for Research and Innovation under Specific Grant Agreements No. 720270, No. 785907 and No. 945539 (Human Brain Project SGA1, SGA2 and SGA3).
+
+Neuron and synapse illustration: copyright Sebastian B.C. Lehmann <se.lehmann@fz-juelich.de>, INM-6, Forschungszentrum Jülich GmbH (CC-BY-SA)
