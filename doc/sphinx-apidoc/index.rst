@@ -14,6 +14,10 @@ NESTML is a domain-specific language for neuron and synapse models. These dynami
 
 To see what NESTML looks like, please see the :doc:`models library <models_library/index>` that contains standard integrate-and-fire varieties to a family of biophysical, Hodgkin-Huxley type neurons, as well as several synaptic plasticity models such as spike-timing dependent plasticity (STDP) variants and third-factor plasticity rules.
 
+:doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms in the form of `Jinja <https://jinja.palletsprojects.com>`_ templates.
+
+Internally, differential equations are analyzed by the associated `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_, to compute an exact solution if possible or to select an appropriate numeric solver otherwise.
+
 
 .. toctree::
    :glob:
@@ -39,14 +43,6 @@ Tutorials
 #########
 
 .. include:: tutorials/tutorials_list.rst
-
-
-NESTML language and toolchain development
-=========================================
-
-:doc:`PyNESTML <pynestml_toolchain/index>` is the Python-based toolchain for the NESTML language: it parses the model, invokes ODE-toolbox and performs code generation. Modify PyNESTML to add language elements such as new predefined functions, or to add new target platforms in the form of `Jinja <https://jinja.palletsprojects.com>`_ templates.
-
-Internally, differential equations are analyzed by the associated toolchain `ODE-toolbox <https://ode-toolbox.readthedocs.io/>`_, to compute an exact solution if possible or to select an appropriate numeric solver otherwise.
 
 
 .. include:: getting_help.rst
