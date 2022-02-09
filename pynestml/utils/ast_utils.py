@@ -19,13 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Iterable, List, Optional, Union
+from typing import List, Optional, Union
 
 from pynestml.meta_model.ast_assignment import ASTAssignment
 from pynestml.meta_model.ast_block import ASTBlock
-from pynestml.meta_model.ast_block_with_variables import ASTBlockWithVariables
 from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.meta_model.ast_equations_block import ASTEquationsBlock
+from pynestml.meta_model.ast_expression import ASTExpression
 from pynestml.meta_model.ast_external_variable import ASTExternalVariable
 from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.meta_model.ast_inline_expression import ASTInlineExpression
@@ -36,9 +36,8 @@ from pynestml.meta_model.ast_ode_equation import ASTOdeEquation
 from pynestml.meta_model.ast_simple_expression import ASTSimpleExpression
 from pynestml.meta_model.ast_stmt import ASTStmt
 from pynestml.meta_model.ast_variable import ASTVariable
-from pynestml.symbols.variable_symbol import VariableSymbol
 from pynestml.symbols.predefined_functions import PredefinedFunctions
-from pynestml.symbols.symbol import Symbol, SymbolKind
+from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import VariableSymbol, VariableType
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.utils.ast_source_location import ASTSourceLocation
@@ -859,3 +858,45 @@ class ASTUtils:
                and node.small_stmt.get_assignment().lhs.get_name() == var_name:
                 stmts.append(node)
         return stmts
+
+    @classmethod
+    def has_delay_variable(cls, node: ASTFunctionCall) -> bool:
+        """
+        Checks if the given function call is actually a variable with a delay differential part
+        :param node: The expression
+        """
+        # Check if the function name is a state variable
+        function_name = node.get_name()
+        symbol = node.get_scope().resolve_to_symbol(function_name, SymbolKind.VARIABLE)
+        if symbol and symbol.block_type == BlockType.STATE:
+            # Check if the length of arg list is 1
+            args = node.get_args()
+            if len(args) == 1 and isinstance(args[0], ASTExpression):
+                return True
+        return False
+
+    @classmethod
+    def get_delay_variable_symbol(cls, node: ASTFunctionCall):
+        """
+            Checks if the given function call is actually a variable with a delay differential part
+            :param node: The expression
+            """
+        # Check if the function name is a state variable
+        function_name = node.get_name()
+        symbol = node.get_scope().resolve_to_symbol(function_name, SymbolKind.VARIABLE)
+        if symbol and symbol.block_type == BlockType.STATE:
+            # Check if the length of arg list is 1
+            args = node.get_args()
+            if len(args) == 1 and isinstance(args[0], ASTExpression):
+                return symbol
+        return None
+
+    @classmethod
+    def extract_delay_parameter(cls, node: ASTFunctionCall) -> str:
+        """
+        Extracts the delay parameter from the function call arguments
+        """
+        args = node.get_args()
+        delay_parameter = args[0].get_rhs().get_variable()
+        return delay_parameter.get_name()
+

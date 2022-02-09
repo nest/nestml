@@ -30,27 +30,10 @@ from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.symbol import SymbolKind
 from pynestml.symbols.variable_symbol import BlockType
 from pynestml.symbols.void_type_symbol import VoidTypeSymbol
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.visitors.ast_visitor import ASTVisitor
-
-
-def has_delay_variable(node: ASTSimpleExpression) -> bool:
-    """
-    Checks if the given function call is actually a variable with a delay differential part
-    :param node: The expression
-    """
-    function_call = node.get_function_call()
-
-    # Check if the function name is a state variable
-    function_name = function_call.get_name()
-    symbol = node.get_scope().resolve_to_symbol(function_name, SymbolKind.VARIABLE)
-    if symbol and symbol.block_type == BlockType.STATE:
-        # Check if the length of arg list is 1
-        args = node.get_function_call().get_args()
-        if len(args) == 1 and isinstance(args[0], ASTExpression):
-            return True
-    return False
 
 
 class ASTFunctionCallVisitor(ASTVisitor):
@@ -73,10 +56,13 @@ class ASTFunctionCallVisitor(ASTVisitor):
         method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
 
         # check if this is a delay variable
-        if method_symbol is None and has_delay_variable(node):
-            # Create a new ASTVariable
-            ast_variable = ASTNodeFactory.create_ast_variable(function_name, source_position=node.get_source_position())
-            parent = node.get_parent()
+        symbol = ASTUtils.get_delay_variable_symbol(node.get_function_call())
+        if method_symbol is None and symbol is not None:
+            code, message = Messages.get_function_is_delay_variable(function_name)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
+            node.type = symbol.get_type_symbol()
+            return
 
         # check if this function exists
         if method_symbol is None:

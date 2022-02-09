@@ -24,6 +24,7 @@ from pynestml.meta_model.ast_declaration import ASTDeclaration
 from pynestml.cocos.co_co import CoCo
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.predefined_types import PredefinedTypes
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.logging_helper import LoggingHelper
 from pynestml.utils.messages import Messages
@@ -73,6 +74,13 @@ class CorrectTemplatedArgumentTypesVisitor(ASTVisitor):
             return
         function_name = node.get_function_call().get_name()
         method_symbol = scope.resolve_to_symbol(function_name, SymbolKind.FUNCTION)
+
+        if method_symbol is None and ASTUtils.has_delay_variable(node.get_function_call()):
+            code, message = Messages.get_function_is_delay_variable(function_name)
+            Logger.log_message(code=code, message=message, error_position=node.get_source_position(),
+                               log_level=LoggingLevel.WARNING)
+            return
+
         # check if this function exists
         if method_symbol is None:
             code, message = Messages.get_could_not_resolve(function_name)

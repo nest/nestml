@@ -44,6 +44,7 @@ class ASTVariable(ASTNode):
 
     def __init__(self, name, differential_order=0, type_symbol: Optional[str] = None,
                  vector_parameter: Optional[str] = None, is_homogeneous: bool = False, delay_parameter: Optional[str] = None, *args, **kwargs):
+        """
         Standard constructor.
         :param name: the name of the variable
         :type name: str
@@ -165,7 +166,6 @@ class ASTVariable(ASTNode):
 
     def get_delay_parameter(self):
         r"""
-        """
         Returns the delay parameter
         :return: delay parameter
         """

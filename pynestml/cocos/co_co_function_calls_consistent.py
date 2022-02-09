@@ -19,9 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.cocos.co_co import CoCo
+from pynestml.meta_model.ast_expression import ASTExpression
+from pynestml.meta_model.ast_function_call import ASTFunctionCall
 from pynestml.symbols.error_type_symbol import ErrorTypeSymbol
 from pynestml.symbols.template_type_symbol import TemplateTypeSymbol
 from pynestml.symbols.symbol import SymbolKind
+from pynestml.symbols.variable_symbol import BlockType
+from pynestml.utils.ast_utils import ASTUtils
 from pynestml.utils.logger import Logger, LoggingLevel
 from pynestml.utils.messages import Messages
 from pynestml.utils.type_caster import TypeCaster
@@ -66,6 +70,12 @@ class FunctionCallConsistencyVisitor(ASTVisitor):
             return
 
         symbol = node.get_scope().resolve_to_symbol(node.get_name(), SymbolKind.FUNCTION)
+
+        if symbol is None and ASTUtils.has_delay_variable(node):
+            code, message = Messages.get_function_is_delay_variable(node.get_name())
+            Logger.log_message(error_position=node.get_source_position(), log_level=LoggingLevel.WARNING,
+                               code=code, message=message)
+            return
 
         # first check if the function has been declared
         if symbol is None:

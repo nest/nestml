@@ -895,7 +895,6 @@ class ASTTransformers:
                     var.set_differential_order(0)
 
         for decl in neuron.get_equations_block().get_declarations():
-            from pynestml.utils.ast_utils import ASTUtils
             if isinstance(decl, ASTInlineExpression) \
                and isinstance(decl.get_expression(), ASTSimpleExpression) \
                and '__X__' in str(decl.get_expression()):
@@ -966,3 +965,33 @@ class ASTTransformers:
             return replace_function_call_through_var(x) if isinstance(x, ASTSimpleExpression) else True
 
         equations_block.accept(ASTHigherOrderVisitor(func))
+
+    @classmethod
+    def replace_function_call_with_delay_variable(cls, neuron: ASTNeuron) -> None:
+        """
+        Replaces all occurrences of delay variables in the equations identified as function calls to variable with
+        delay parameter
+        """
+        def replace_function_call_with_delay_var_(expr: ASTSimpleExpression):
+            if expr.is_function_call() and ASTUtils.has_delay_variable(expr.get_function_call()):
+                # Create a new ASTVariable
+                ast_variable = ASTNodeFactory.create_ast_variable(expr.get_function_call().get_name(),
+                                                                  source_position=expr.get_source_position())
+                # Get the delay parameter
+                delay_parameter = ASTUtils.extract_delay_parameter(expr.get_function_call())
+                ast_variable.set_delay_parameter(delay_parameter)
+
+                expr.set_variable(ast_variable)
+
+                # Set the delay parameter in its corresponding variable symbol
+                delay_var_symbol = ASTUtils.get_delay_variable_symbol(expr.get_function_call())
+                delay_var_symbol.set_delay_parameter(delay_parameter)
+
+                # Nullify the function call
+                expr.set_function_call(None)
+
+        def func(node):
+            return replace_function_call_with_delay_var_(node) if isinstance(node, ASTSimpleExpression) else True
+
+        neuron.get_equations_block().accept(ASTHigherOrderVisitor(func))
+
