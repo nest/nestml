@@ -32,6 +32,7 @@ from pynestml.symbols.variable_symbol import BlockType, VariableSymbol
 from pynestml.utils.logger import LoggingLevel, Logger
 from pynestml.utils.messages import Messages
 from pynestml.utils.ast_source_location import ASTSourceLocation
+from copy import deepcopy
 
 
 class ASTNeuron(ASTNeuronOrSynapse):
@@ -75,7 +76,7 @@ class ASTNeuron(ASTNeuronOrSynapse):
                         artifact_name=self.artifact_name,
                         # ASTNode common attributes:
                         source_position=self.source_position,
-                        scope=self.scope,
+                        scope=self.scope.clone(),
                         comment=self.comment,
                         pre_comments=[s for s in self.pre_comments],
                         in_comment=self.in_comment,

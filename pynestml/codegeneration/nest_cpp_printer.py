@@ -36,19 +36,26 @@ import textwrap
 
 
 class NestCppPrinter:
-    def __init__(self, node: ASTNode):
+    def __init__(self, node: ASTNode, nestCodeGenerator):
         if node.get_scope() is None:
             from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
             visitor = ASTSymbolTableVisitor()
             visitor.handle(node)
         if FrontendConfiguration.logging_level is None:
             FrontendConfiguration.logging_level = 'ERROR'
-        code_generator = NESTCodeGenerator()
+        code_generator = nestCodeGenerator
         if isinstance(node, ASTNeuron):
             self.namespace = code_generator._get_neuron_model_namespace(node)
+            # mabye find a better place to delete this
+            self.namespace.pop("paired_synapse", None)
+            self.namespace.pop("transferred_variables", None)
         elif isinstance(node, ASTSynapse):
             self.namespace = code_generator._get_synapse_model_namespace(node)
             self.namespace["neuron"] = self.namespace["synapse"]
+            self.namespace["parameter_syms_with_iv"] = [sym for sym in node.get_parameter_symbols()
+                                               if sym.has_declaring_expression()
+                                               and (not node.get_kernel_by_name(sym.name))]
+
         else:
             raise TypeError(
                 "The parameter node must be an instance of one the following sub-classes: [ASTNeuron, ASTSynapse]")

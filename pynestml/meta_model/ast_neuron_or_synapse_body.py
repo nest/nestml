@@ -24,7 +24,7 @@ from typing import List, Optional
 from pynestml.meta_model.ast_node import ASTNode
 from pynestml.meta_model.ast_input_port import ASTInputPort
 from pynestml.meta_model.ast_on_receive_block import ASTOnReceiveBlock
-
+from copy import deepcopy
 
 class ASTNeuronOrSynapseBody(ASTNode):
     """
@@ -63,7 +63,7 @@ class ASTNeuronOrSynapseBody(ASTNode):
         dup = ASTNeuronOrSynapseBody(body_elements=body_elements_dup,
                                      # ASTNode common attriutes:
                                      source_position=self.source_position,
-                                     scope=self.scope,
+                                     scope=self.scope.clone(),
                                      comment=self.comment,
                                      pre_comments=[s for s in self.pre_comments],
                                      in_comment=self.in_comment,

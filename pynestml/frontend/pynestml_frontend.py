@@ -220,12 +220,12 @@ def process_nestml_files():
 
 
 def retrieve_models():
-    neurons, synapses, errors_occurred = process_nestml_files()
+    neuronsAst, synapsesAst, errors_occurred = process_nestml_files()
     if errors_occurred:
         raise Exception("Error(s) occurred while process_nestml_filesing the model")
     _codeGenerator = CodeGenerator.from_target_name(FrontendConfiguration.get_target(),
                                                     options=FrontendConfiguration.get_codegen_opts())
-    neurons, synapses = _codeGenerator.transform(neurons, synapses)
+    neurons, synapses = _codeGenerator.transform(neuronsAst, synapsesAst)
 
     return neurons, synapses, _codeGenerator
 

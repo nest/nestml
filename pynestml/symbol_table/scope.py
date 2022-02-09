@@ -336,3 +336,15 @@ class Scope:
             else:
                 ret += elem.print_scope()
         return ret
+
+    def clone(self):
+        """
+        Return a clone ("deep copy") of this scope.
+
+        :return: new scope instance
+        :rtype: Scope
+        """
+        enclosing_scope  = None if self.enclosing_scope is None else self.enclosing_scope.clone()
+        dup = Scope(scope_type=self.scope_type, enclosing_scope=enclosing_scope, source_position=self.source_location)
+        dup.declared_elements = [e for e in self.declared_elements]
+        return dup

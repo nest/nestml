@@ -91,7 +91,7 @@ class ASTBlockWithVariables(ASTNode):
                                     is_state=self.is_state,
                                     # ASTNode common attriutes:
                                     source_position=self.source_position,
-                                    scope=self.scope,
+                                    scope=self.scope.clone(),
                                     comment=self.comment,
                                     pre_comments=[s for s in self.pre_comments],
                                     in_comment=self.in_comment,
