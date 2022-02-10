@@ -46,7 +46,9 @@ class NestCustomTemplatesTest(unittest.TestCase):
                                       "module_templates": ["setup/CMakeLists.txt.jinja2",
                                                            "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]}}
 
-        generate_target(input_path, target_path, target_platform, logging_level, module_name,
+        generate_target(input_path, target_platform, target_path,
+                        logging_level=logging_level,
+                        module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
         nest.set_verbosity("M_ALL")
@@ -92,7 +94,9 @@ class NestCustomTemplatesTest(unittest.TestCase):
         neuron_model_name = "iaf_psc_delta_nestml__with_stdp_triplet_nestml"
         synapse_model_name = "stdp_triplet_nestml__with_iaf_psc_delta_nestml"
 
-        generate_target(input_paths, target_path, target_platform, logging_level, module_name,
+        generate_target(input_paths, target_platform, target_path,
+                        logging_level=logging_level,
+                        module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
         nest.set_verbosity("M_ALL")

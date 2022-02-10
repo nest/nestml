@@ -82,27 +82,27 @@ def builder_from_target_name(target_name: str, options: Optional[Mapping[str, An
     return None   # no builder requested or available
 
 
-def generate_target(input_path: Union[str, Sequence[str]], target_path=None, target_platform: str = "NEST", logging_level="ERROR",
-                    module_name=None, store_log=False, suffix="", install_path: str=None, dev=False,
-                    codegen_opts: Optional[Mapping[str, Any]]=None):
+def generate_target(input_path: Union[str, Sequence[str]], target_platform: str, target_path=None,
+                    install_path: str=None, logging_level="ERROR", module_name=None, store_log=False, suffix="",
+                    dev=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for the given target platform.
 
     Parameters
     ----------
     input_path : str **or** Sequence[str]
-        Path to the NESTML file(s) or to folder(s) containing NESTML files to convert to NEST code.
+        One or more input path(s). Each path is a NESTML file, or a directory containing NESTML files. Directories will be searched recursively for files matching ``*.nestml``.
+    target_platform : str
+        The name of the target platform to generate code for.
     target_path : str, optional (default: append "target" to `input_path`)
-        Path to the generated C++ code and install files.
-    target_platform : str, optional (default: "NEST")
-        Which target platform to generate code for.
+        Path to target directory where generated code will be written into. Default is ``target``, which will be created in the current working directory if it does not yet exist.
     logging_level : str, optional (default: "ERROR")
-        Sets which level of information should be displayed duing code generation (among "ERROR", "WARNING", "INFO", or "NO").
+        Sets the logging level, i.e., which level of messages should be printed. Default is ERROR, available are: DEBUG, INFO, WARNING, ERROR, NO.
     module_name : str, optional (default: "nestmlmodule")
-        Name of the module, which will be used to import the model in NEST via `nest.Install(module_name)`.
+        Sets the name of the module which shall be generated. Default is the name of the directory containing the models. The name has to end in ``module``. Default is ``nestmlmodule``.
     store_log : bool, optional (default: False)
-        Whether the log should be saved to file.
+        Stores a log.txt containing all messages in JSON notation. Default is OFF.
     suffix : str, optional (default: "")
-        Suffix which will be appended to the model"s name (internal use to avoid naming conflicts with existing NEST models).
+        A suffix string that will be appended to the name of all generated models.
     install_path
         Path to the directory where the generated code will be installed.
     dev : bool, optional (default: False)
@@ -181,7 +181,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path: Optional[str] = 
     codegen_opts : Optional[Mapping[str, Any]]
         A dictionary containing additional options for the target code generator.
     """
-    generate_target(input_path, target_path, target_platform="NEST", logging_level=logging_level,
+    generate_target(input_path, target_platform="NEST", target_path=target_path, logging_level=logging_level,
                     module_name=module_name, store_log=store_log, suffix=suffix, install_path=install_path,
                     dev=dev, codegen_opts=codegen_opts)
 

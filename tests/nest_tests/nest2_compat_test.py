@@ -56,7 +56,9 @@ class Nest2CompatTest(unittest.TestCase):
                 "module_templates": ["setup/CMakeLists.txt.jinja2", "setup/ModuleHeader.h.jinja2",
                                      "setup/ModuleClass.cpp.jinja2"]}}
 
-        generate_target(input_path, target_path, target_platform, logging_level, module_name,
+        generate_target(input_path, target_platform, target_path,
+                        logging_level=logging_level,
+                        module_name=module_name,
                         suffix=suffix,
                         codegen_opts=codegen_opts)
         nest.set_verbosity("M_ALL")
