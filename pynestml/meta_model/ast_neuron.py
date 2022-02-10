@@ -82,6 +82,10 @@ class ASTNeuron(ASTNeuronOrSynapse):
                         post_comments=[s for s in self.post_comments],
                         implicit_conversion_factor=self.implicit_conversion_factor)
 
+        from pynestml.visitors.ast_symbol_table_visitor import ASTSymbolTableVisitor
+        symtable_vistor = ASTSymbolTableVisitor()
+        symtable_vistor = ASTSymbolTableVisitor()
+        dup.accept(symtable_vistor)
         return dup
 
     def get_name(self):
