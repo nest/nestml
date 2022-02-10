@@ -24,7 +24,7 @@ import nest
 import unittest
 import numpy as np
 
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -47,11 +47,11 @@ class NestSTNExpTest(unittest.TestCase):
         module_name = "terub_stn_module"
         suffix = "_nestml"
 
-        to_nest(input_path=input_path,
-                target_path=target_path,
-                logging_level="INFO",
-                suffix=suffix,
-                module_name=module_name)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level="INFO",
+                             suffix=suffix,
+                             module_name=module_name)
 
         nest.Install(module_name)
         model = "terub_stn_nestml"

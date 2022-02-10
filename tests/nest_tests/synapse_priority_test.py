@@ -24,7 +24,7 @@ import numpy as np
 import os
 import unittest
 
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -41,21 +41,21 @@ class NestSynapsePriorityTest(unittest.TestCase):
     def setUp(self):
         r"""Generate the model code"""
 
-        to_nest(input_path=["models/neurons/iaf_psc_delta.nestml",
-                            "tests/resources/synapse_event_priority_test.nestml",
-                            "tests/resources/synapse_event_inv_priority_test.nestml"],
-                target_path="/tmp/nestml-synapse-event-priority-test",
-                logging_level="INFO",
-                module_name="nestml_module",
-                suffix="_nestml",
-                codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
-                              "neuron_parent_class_include": "structural_plasticity_node.h",
-                              "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
-                                                        "synapse": "synapse_event_priority_test",
-                                                        "post_ports": ["post_spikes"]},
-                                                       {"neuron": "iaf_psc_delta",
-                                                        "synapse": "synapse_event_inv_priority_test",
-                                                        "post_ports": ["post_spikes"]}]})
+        generate_nest_target(input_path=["models/neurons/iaf_psc_delta.nestml",
+                                         "tests/resources/synapse_event_priority_test.nestml",
+                                         "tests/resources/synapse_event_inv_priority_test.nestml"],
+                             target_path="/tmp/nestml-synapse-event-priority-test",
+                             logging_level="INFO",
+                             module_name="nestml_module",
+                             suffix="_nestml",
+                             codegen_opts={"neuron_parent_class": "StructuralPlasticityNode",
+                                           "neuron_parent_class_include": "structural_plasticity_node.h",
+                                           "neuron_synapse_pairs": [{"neuron": "iaf_psc_delta",
+                                                                     "synapse": "synapse_event_priority_test",
+                                                                     "post_ports": ["post_spikes"]},
+                                                                    {"neuron": "iaf_psc_delta",
+                                                                     "synapse": "synapse_event_inv_priority_test",
+                                                                     "post_ports": ["post_spikes"]}]})
 
     def test_synapse_event_priority(self):
 

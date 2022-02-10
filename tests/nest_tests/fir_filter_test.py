@@ -37,7 +37,7 @@ import scipy
 import scipy.signal
 import scipy.stats
 
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestFirFilterTest(unittest.TestCase):
@@ -55,7 +55,11 @@ class NestFirFilterTest(unittest.TestCase):
 
         # Generate the NEST code
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), "resources", nestml_model_file)))
-        to_nest(input_path, target_path, logging_level, module_name, suffix=suffix)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
 
         t_sim = 101.
         resolution = 0.1

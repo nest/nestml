@@ -19,13 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import unittest
-
-from pynestml.frontend.pynestml_frontend import to_nest, add_libraries_to_sli
-import tempfile
 import glob
 import nest
+import os
+import tempfile
+import unittest
+
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestInstallExistingModule(unittest.TestCase):
@@ -40,10 +40,8 @@ class NestInstallExistingModule(unittest.TestCase):
 
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join(
             os.pardir, os.pardir, "models", "neurons", f"{model_name}.nestml"))))
-        nest_path = nest.ll_api.sli_func("statusdict/prefix ::")
         install_path = tempfile.mkdtemp(prefix="nest_install", suffix="")
         target_path = "target"
-
         logging_level = "INFO"
         store_log = False
         suffix = "_location_test"
@@ -58,10 +56,15 @@ class NestInstallExistingModule(unittest.TestCase):
                                  "setup/ModuleHeader.h.jinja2", "setup/ModuleClass.cpp.jinja2"]
         }}
 
-        to_nest(input_path, target_path, logging_level, module_name, store_log, suffix,
-                install_path=install_path,
-                dev=dev,
-                codegen_opts=codegen_opts)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             store_log=store_log,
+                             suffix=suffix,
+                             install_path=install_path,
+                             dev=dev,
+                             codegen_opts=codegen_opts)
 
         expected_found_module = f"{install_path}/{module_name}.so"
         actual_found_module = glob.glob(f"{install_path}/*so")

@@ -1289,7 +1289,7 @@ class NESTCodeGenerator(CodeGenerator):
 
             if "_is_post_port" in dir(spike_input_port.get_variable()) \
                and spike_input_port.get_variable()._is_post_port:
-                # it"s a port in the neuron ??? that receives post spikes ???
+                # it's a port in the neuron ??? that receives post spikes ???
                 orig_port_name = str(spike_input_port)[:str(spike_input_port).index("__for_")]
                 buffer_type = neuron.paired_synapse.get_scope().resolve_to_symbol(orig_port_name, SymbolKind.VARIABLE).get_type_symbol()
             else:
@@ -1306,7 +1306,7 @@ class NESTCodeGenerator(CodeGenerator):
                     assert expr is not None, "Initial value not found for kernel " + kernel_var
                     expr = str(expr)
                     if expr in ["0", "0.", "0.0"]:
-                        continue    # skip adding the statement if we"re only adding zero
+                        continue    # skip adding the statement if we are only adding zero
 
                     assignment_str = kernel_spike_buf_name + " += "
                     if "_is_post_port" in dir(spike_input_port.get_variable()) \

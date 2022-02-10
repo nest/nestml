@@ -23,7 +23,7 @@ import nest
 import numpy as np
 import os
 import unittest
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -42,11 +42,11 @@ class NoisySynapseTest(unittest.TestCase):
 
     def setUp(self):
         """Generate and build the model code"""
-        to_nest(input_path="models/synapses/noisy_synapse.nestml",
-                target_path="/tmp/nestml-noisy-synapse",
-                logging_level="INFO",
-                module_name="nestml_noisy_synapse_module",
-                suffix="_nestml")
+        generate_nest_target(input_path="models/synapses/noisy_synapse.nestml",
+                             target_path="/tmp/nestml-noisy-synapse",
+                             logging_level="INFO",
+                             module_name="nestml_noisy_synapse_module",
+                             suffix="_nestml")
 
     def test_noisy_noisy_synapse_synapse(self):
 

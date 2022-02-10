@@ -224,9 +224,9 @@ jobs:
           export ALL_MODEL_FILENAMES=`find models/neurons -name "*.nestml" | paste -sd " "`
           echo $ALL_MODEL_FILENAMES
           echo "NEST_INSTALL = ${{ env.NEST_INSTALL }}"
-          sed -i 's|%NEST_PATH%|${{ env.NEST_INSTALL }}|' tests/nest_tests/resources/nestml_allmodels_codegen_opts.json
-          cat tests/nest_tests/resources/nestml_allmodels_codegen_opts.json
-          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --target_platform NEST2 --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nestml_allmodels_codegen_opts.json
+          sed -i 's|%NEST_PATH%|${{ env.NEST_INSTALL }}|' tests/nest_tests/resources/nest2_allmodels_codegen_opts.json
+          cat tests/nest_tests/resources/nest2_allmodels_codegen_opts.json
+          nestml --input_path $ALL_MODEL_FILENAMES --target_path target --target_platform NEST2 --suffix _nestml --logging_level INFO --module_name nestml_allmodels_module --codegen_opts tests/nest_tests/resources/nest2_allmodels_codegen_opts.json
 
       # Integration tests
       - name: Run integration tests

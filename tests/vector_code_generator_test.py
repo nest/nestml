@@ -34,7 +34,6 @@ from pynestml.symbols.predefined_variables import PredefinedVariables
 from pynestml.symbols.predefined_functions import PredefinedFunctions
 from pynestml.symbols.predefined_types import PredefinedTypes
 from pynestml.symbols.predefined_units import PredefinedUnits
-from pynestml.frontend.pynestml_frontend import generate_target
 
 
 class VectorCodeGenerationTest(unittest.TestCase):

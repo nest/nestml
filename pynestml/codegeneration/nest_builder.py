@@ -23,6 +23,7 @@ from __future__ import annotations
 from typing import Any, List, Mapping, Optional, Sequence
 
 import os
+import platform
 import subprocess
 import sys
 
@@ -30,9 +31,44 @@ from pynestml.codegeneration.builder import Builder
 from pynestml.exceptions.generated_code_build_exception import GeneratedCodeBuildException
 from pynestml.exceptions.invalid_path_exception import InvalidPathException
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
-from pynestml.frontend.pynestml_frontend import add_libraries_to_sli
 from pynestml.utils.logger import Logger
 from pynestml.utils.logger import LoggingLevel
+
+
+def __add_library_to_sli(lib_path):
+    if not os.path.isabs(lib_path):
+        lib_path = os.path.abspath(lib_path)
+
+    system = platform.system()
+    lib_key = ""
+
+    if system == "Linux":
+        lib_key = "LD_LIBRARY_PATH"
+    else:
+        lib_key = "DYLD_LIBRARY_PATH"
+
+    if lib_key in os.environ:
+        current = os.environ[lib_key].split(os.pathsep)
+        if lib_path not in current:
+            current.append(lib_path)
+            os.environ[lib_key] += os.pathsep.join(current)
+    else:
+        os.environ[lib_key] = lib_path
+
+
+def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
+    '''
+    This method can be used to add external modules to SLI environment
+
+    Parameters
+    ----------
+    paths
+        paths to external nest modules
+    '''
+    if isinstance(paths, str):
+        paths = [paths]
+    for path in paths:
+        __add_library_to_sli(path)
 
 
 class NESTBuilder(Builder):

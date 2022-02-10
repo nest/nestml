@@ -60,6 +60,16 @@ A typical script for the NEST Simulator target could look like the following. Fi
 
 .. code-block:: python
 
+   from pynestml.frontend.pynestml_frontend import generate_target
+
+   generate_target(input_path="/home/nest/work/pynestml/models",
+                   target_platform="NEST",
+                   target_path="/tmp/nestml_target")
+
+We can also use a shorthand function for each supported target platform (here, NEST):
+
+.. code-block:: python
+
    from pynestml.frontend.pynestml_frontend import generate_nest_target
 
    generate_nest_target(input_path="/home/nest/work/pynestml/models",

@@ -24,7 +24,7 @@ import numpy as np
 
 import nest
 
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 
 class NestVectorsIntegrationTest(unittest.TestCase):
@@ -39,7 +39,11 @@ class NestVectorsIntegrationTest(unittest.TestCase):
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        to_nest(input_path, target_path, logging_level, module_name, suffix=suffix)
+        generate_nest_target(input_path,
+                             target_path=target_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()

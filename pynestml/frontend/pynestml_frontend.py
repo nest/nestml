@@ -23,8 +23,6 @@ from typing import Any, Mapping, Optional, Sequence, Union
 
 import os
 import sys
-import platform
-
 
 from pynestml.cocos.co_cos_manager import CoCosManager
 from pynestml.codegeneration.builder import Builder
@@ -155,9 +153,10 @@ def generate_target(input_path: Union[str, Sequence[str]], target_platform: str,
         raise Exception("Error(s) occurred while processing the model")
 
 
-def to_nest(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None, logging_level="ERROR",
-            module_name=None, store_log: bool=False, suffix: str="", install_path: Optional[str] = None,
-            dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
+def generate_nest_target(input_path: Union[str, Sequence[str]], target_path: Optional[str] = None,
+                         install_path: Optional[str] = None, logging_level="ERROR",
+                         module_name=None, store_log: bool=False, suffix: str="",
+                         dev: bool=False, codegen_opts: Optional[Mapping[str, Any]]=None):
     r"""Generate and build code for NEST Simulator.
 
     Parameters
@@ -173,7 +172,7 @@ def to_nest(input_path: Union[str, Sequence[str]], target_path: Optional[str] = 
     store_log : bool, optional (default: False)
         Whether the log should be saved to file.
     suffix : str, optional (default: "")
-        Suffix which will be appended to the model"s name (internal use to avoid naming conflicts with existing NEST models).
+        A suffix string that will be appended to the name of all generated models.
     install_path
         Path to the directory where the generated NEST extension module will be installed into. If the parameter is not specified, the module will be installed into the NEST Simulator installation directory, as reported by nest-config.
     dev : bool, optional (default: False)
@@ -303,39 +302,3 @@ def store_log_to_file():
     with open(str(os.path.join(FrontendConfiguration.get_target_path(), "..", "report",
                                "log")) + ".txt", "w+") as f:
         f.write(str(Logger.get_json_format()))
-
-
-def __add_library_to_sli(lib_path):
-    if not os.path.isabs(lib_path):
-        lib_path = os.path.abspath(lib_path)
-
-    system = platform.system()
-    lib_key = ""
-
-    if system == "Linux":
-        lib_key = "LD_LIBRARY_PATH"
-    else:
-        lib_key = "DYLD_LIBRARY_PATH"
-
-    if lib_key in os.environ:
-        current = os.environ[lib_key].split(os.pathsep)
-        if lib_path not in current:
-            current.append(lib_path)
-            os.environ[lib_key] += os.pathsep.join(current)
-    else:
-        os.environ[lib_key] = lib_path
-
-
-def add_libraries_to_sli(paths: Union[str, Sequence[str]]):
-    '''
-    This method can be used to add external modules to SLI environment
-
-    Parameters
-    ----------
-    paths
-        paths to external nest modules
-    '''
-    if isinstance(paths, str):
-        paths = [paths]
-    for path in paths:
-        __add_library_to_sli(path)

@@ -23,7 +23,7 @@ import nest
 import os
 import unittest
 
-from pynestml.frontend.pynestml_frontend import to_nest
+from pynestml.frontend.pynestml_frontend import generate_nest_target
 
 try:
     import matplotlib
@@ -38,12 +38,14 @@ class NestBiexponentialSynapseTest(unittest.TestCase):
     def test_biexp_synapse(self):
         input_path = os.path.join(os.path.realpath(os.path.join(os.path.dirname(
             __file__), "resources", "BiexponentialPostSynapticResponse.nestml")))
-        target_path = "target"
         logging_level = "INFO"
         module_name = "nestmlmodule"
         suffix = "_nestml"
 
-        to_nest(input_path, target_path, logging_level, module_name, suffix=suffix)
+        generate_nest_target(input_path,
+                             logging_level=logging_level,
+                             module_name=module_name,
+                             suffix=suffix)
         nest.set_verbosity("M_ALL")
 
         nest.ResetKernel()
