@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# nest_codegenerator_test.py
+# nest_code_generator_test.py
 #
 # This file is part of NEST.
 #
@@ -25,7 +25,7 @@ import json
 
 from pynestml.utils.ast_source_location import ASTSourceLocation
 
-from pynestml.codegeneration.nest_codegenerator import NESTCodeGenerator
+from pynestml.codegeneration.nest_code_generator import NESTCodeGenerator
 from pynestml.frontend.frontend_configuration import FrontendConfiguration
 from pynestml.symbol_table.symbol_table import SymbolTable
 from pynestml.symbols.predefined_functions import PredefinedFunctions

@@ -76,7 +76,7 @@ Test the path to ``c++``:
 
 .. code-block:: bash
 
-   which c++ 
+   which c++
    # '/home/graber/miniconda3/envs/wnestml/bin/c++'
 
 Edit ``nest-config`` and correct the entry under ``--compiler`` with the output returned by ``which c++``:
@@ -97,8 +97,7 @@ The corresponding paths in ``ipython`` are:
 
 .. code-block:: python
 
-   from pynestml.frontend.pynestml_frontend import to_nest, install_nest
-   to_nest(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml",
-           target_path="/tmp/nestml-component",
-           logging_level="INFO")
-   install_nest("/tmp/nestml-component", "/home/graber/miniconda3/envs/wnestml/") 
+   from pynestml.frontend.pynestml_frontend import generate_nest_target
+   generate_nest_target(input_path="/home/graber/work/nestml/doc/tutorial/izhikevich_solution.nestml",
+                        target_path="/tmp/nestml-component",
+                        logging_level="INFO")
